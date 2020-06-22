@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <style>
+      body {
+        background: var(--lumo-shade-5pct);
+        margin: 0;
+      }
+
+      #demo {
+        max-width: 1024px;
+        margin: var(--lumo-space-xl) auto;
+        border-radius: var(--lumo-border-radius-l);
+      }
+    </style>
+  </head>
+
+  <body>
+    <script>
+      /* Trick XState into thinking it runs in Node */
+      window.process = { env: {} };
+    </script>
+
+    <div id="demo"></div>
+
+    <script type="module">
+      /* eslint-disable @typescript-eslint/camelcase */
+      import './dist/index.js';
+
+      /* Respond with 200 OK and request body to any request */
+      function emulateRequest({ detail }) {
+        const response = new Response(detail.init.body);
+        setTimeout(() => detail.resolve(response), 1000);
+      }
+
+      const demoResource = {
+        _links: {
+          self: {
+            href: 'https://foxy.io/s/admin/stores/8/customer_portal_settings',
+          },
+        },
+
+        sso: true,
+        date_created: new Date().toISOString(),
+        date_modified: new Date().toISOString(),
+        jwtSharedSecret: 'JWT-SHARED-SECRET-VALUE',
+        sessionLifespanInMinutes: 10080,
+        allowedOrigins: ['http://localhost:8000', 'https://foxy.io'],
+
+        subscriptions: {
+          allowFrequencyModification: {
+            jsonataQuery: '$contains(frequency, "w")',
+            values: ['2w', '4w', '6w'],
+          },
+          allowNextDateModification: [
+            {
+              min: '2w',
+              max: '6w',
+              jsonataQuery: '$contains(frequency, "w")',
+              disallowedDates: [new Date().toISOString()],
+              allowedDays: {
+                type: 'month',
+                days: [1, 2, 3, 14, 15, 16],
+              },
+            },
+          ],
+        },
+      };
+
+      const element = document.createElement('foxy-customer-portal-settings');
+
+      element.context = { resource: demoResource };
+      element.addEventListener('request', emulateRequest);
+
+      document.querySelector('#demo').append(element);
+    </script>
+  </body>
+</html>

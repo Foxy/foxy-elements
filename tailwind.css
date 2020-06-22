@@ -1,0 +1,38 @@
+@tailwind base;
+
+@import './node_modules/@highlightjs/cdn-assets/styles/atom-one-dark.css';
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details > summary {
+  list-style: none;
+}
+
+vaadin-select {
+  margin-top: -4px;
+  margin-bottom: -4px;
+}
+
+vaadin-text-field,
+vaadin-date-picker,
+vaadin-email-field,
+vaadin-number-field,
+vaadin-password-field {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+vaadin-date-picker {
+  margin-top: calc(var(--lumo-space-xs, 0.25rem) * -1);
+  margin-bottom: calc(var(--lumo-space-xs, 0.25rem) * -1);
+}
+
+vaadin-button {
+  margin: 0;
+}
+
+@tailwind components;
+
+@tailwind utilities;

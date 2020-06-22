@@ -1,0 +1,63 @@
+{
+  "title": "Customer Portal",
+  "subtitle": "A dedicated place for your customers to view and manage their subscriptions, payment methods and recent transactions.",
+  "quickstart": {
+    "title": "Quick start",
+    "subtitle": "Embed customer portal into your website by copying the code snippet below:"
+  },
+  "origins": {
+    "title": "Allowed origins",
+    "subtitle": "Please list below the websites you’re planning to use customer portal on.",
+    "invalid": "Invalid origin",
+    "add": "Add origin"
+  },
+  "fmod": {
+    "title": "Frequency modification",
+    "subtitle": "If enabled, your customers will be able to switch to a different payment schedule.",
+    "options": "Options",
+    "match": "Match",
+    "all": "All",
+    "some": "Some",
+    "hint": "Enter a valid JSONata query selecting the subscriptions these frequency modification rules will apply to. Please limit your expression to 200 characters.",
+    "years": "Years",
+    "months": "Months",
+    "weeks": "Weeks",
+    "days": "Days",
+    "add": "Add option"
+  },
+  "ndmod": {
+    "title": "Next payment date modification",
+    "subtitle": "If enabled, your customers will be able to delay or advance the next payment.",
+    "add": "Add rule",
+    "days": "Days",
+    "weeks": "Weeks",
+    "months": "Months",
+    "years": "Years",
+    "match": "Match",
+    "allowed": "Allowed dates",
+    "excluded": "Excluded dates",
+    "all": "All",
+    "some": "Some (advanced)",
+    "month": "Specific dates",
+    "day": "Specific days of week",
+    "select": "Select date",
+    "jsonataHint": "Enter a valid JSONata query selecting the subscriptions these next date modification rules will apply to. Please limit your expression to 200 characters.",
+    "noRestrictions": "No restrictions",
+    "customOffset": "Custom offset",
+    "min": "Minimum",
+    "max": "Maximum"
+  },
+  "jwt": {
+    "title": "JWT secret",
+    "subtitle": "A random alphanumeric string of 40-100 characters unique to your store used to authorize your customers."
+  },
+  "session": {
+    "title": "Session duration",
+    "subtitle": "Once a customer is logged in, we won’t ask for their email and password again for this period of time (up to 4 weeks).",
+    "minutes": "Minutes",
+    "hours": "Hours",
+    "days": "Days",
+    "weeks": "Weeks",
+    "months": "Months"
+  }
+}

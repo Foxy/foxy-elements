@@ -1,0 +1,84 @@
+{
+  "name": "foxy-elements",
+  "version": "0.0.0",
+  "description": "E-commerce web components by Foxy.",
+  "author": "fx-list",
+  "license": "MIT",
+  "main": "index.js",
+  "module": "index.js",
+  "watch": {
+    "tailwindcss:build": {
+      "patterns": [
+        "src"
+      ],
+      "ignore": "src/common/tailwind.ts",
+      "extensions": "ts"
+    }
+  },
+  "scripts": {
+    "start": "concurrently --kill-others --names tsc,watch,es-dev-server \"npm run tsc:watch\" \"npm-watch\" \"es-dev-server --app-index index.html --node-resolve --open --watch\"",
+    "tsc:watch": "tsc --watch",
+    "lint:eslint": "eslint --ext .ts,.html . --ignore-path .gitignore",
+    "format:eslint": "eslint --ext .ts,.html . --fix --ignore-path .gitignore",
+    "lint:prettier": "prettier \"**/*.js\" \"**/*.ts\" --check --ignore-path .gitignore",
+    "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "format": "npm run format:eslint && npm run format:prettier",
+    "tailwindcss:build": "node tailwind.build.js"
+  },
+  "dependencies": {
+    "@vaadin/vaadin": "^15.0.6",
+    "i18next": "^19.5.1",
+    "i18next-browser-languagedetector": "^5.0.0",
+    "i18next-http-backend": "^1.0.15",
+    "lit-element": "^2.2.1",
+    "lit-html": "^1.1.2",
+    "lodash-es": "^4.17.15",
+    "xstate": "^4.10.0"
+  },
+  "devDependencies": {
+    "@open-wc/eslint-config": "^2.0.0",
+    "@types/node": "13.11.1",
+    "@types/lodash-es": "^4.17.3",
+    "@typescript-eslint/eslint-plugin": "^2.20.0",
+    "@typescript-eslint/parser": "^2.20.0",
+    "concurrently": "^5.1.0",
+    "cssnano": "^4.1.10",
+    "autoprefixer": "^9.8.0",
+    "postcss": "^7.0.32",
+    "npm-watch": "^0.6.0",
+    "tailwindcss": "^1.4.6",
+    "deepmerge": "^3.2.0",
+    "es-dev-server": "^1.23.0",
+    "eslint": "^6.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "husky": "^1.0.0",
+    "lint-staged": "^8.0.0",
+    "prettier": "^2.0.4",
+    "rimraf": "^2.6.3",
+    "tslib": "^1.11.0",
+    "typescript": "~3.8.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "@open-wc/eslint-config",
+      "eslint-config-prettier"
+    ]
+  },
+  "prettier": {
+    "singleQuote": true,
+    "arrowParens": "avoid"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  }
+}
