@@ -124,7 +124,7 @@ export abstract class StatefulElement<
   }
 
   protected get _t() {
-    return i18next.getFixedT(this.locale, this.__namespace);
+    return i18next.getFixedT(this.locale, [this.__namespace, 'global']);
   }
 
   private __initService(
