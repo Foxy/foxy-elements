@@ -2,10 +2,9 @@
   "name": "foxy-elements",
   "version": "0.0.0",
   "description": "E-commerce web components by Foxy.",
-  "author": "fx-list",
   "license": "MIT",
-  "main": "index.js",
-  "module": "index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "watch": {
     "tailwindcss:build": {
       "patterns": [
@@ -16,15 +15,16 @@
     }
   },
   "scripts": {
-    "start": "concurrently --kill-others --names tsc,watch,es-dev-server \"npm run tsc:watch\" \"npm-watch\" \"es-dev-server --app-index index.html --node-resolve --open --watch\"",
+    "start": "concurrently --kill-others --names tsc,es-dev-server \"npm run tsc:watch\" \"es-dev-server\"",
+    "build": "tsc",
+    "postbuild": "node postbuild.js",
     "tsc:watch": "tsc --watch",
     "lint:eslint": "eslint --ext .ts,.html . --ignore-path .gitignore",
     "format:eslint": "eslint --ext .ts,.html . --fix --ignore-path .gitignore",
     "lint:prettier": "prettier \"**/*.js\" \"**/*.ts\" --check --ignore-path .gitignore",
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
     "lint": "npm run lint:eslint && npm run lint:prettier",
-    "format": "npm run format:eslint && npm run format:prettier",
-    "tailwindcss:build": "node tailwind.build.js"
+    "format": "npm run format:eslint && npm run format:prettier"
   },
   "dependencies": {
     "@vaadin/vaadin": "^15.0.6",

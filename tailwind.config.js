@@ -190,8 +190,9 @@ const sizeMap = {
 // eslint-disable-next-line no-undef
 module.exports = {
   purge: {
-    enabled: true,
-    content: ['./src/**/*.*'],
+    enabled: false,
+    // enabled: true,
+    // content: ['./src/**/*.*'],
   },
   variants: [
     'responsive',

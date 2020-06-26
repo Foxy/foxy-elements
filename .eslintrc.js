@@ -4,6 +4,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'import', 'html'],
   env: {
     browser: true,
+    node: true,
   },
   extends: [
     'eslint:recommended',
