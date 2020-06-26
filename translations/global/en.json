@@ -1,1 +1,16 @@
-{}
+{
+  "y": "Year",
+  "y_plural": "Years",
+  "m": "Month",
+  "m_plural": "Months",
+  "w": "Week",
+  "w_plural": "Weeks",
+  "d": "Day",
+  "d_plural": "Days",
+  "hour": "Hour",
+  "hour_plural": "Hours",
+  "minute": "Minute",
+  "minute_plural": "Minutes",
+  "duration": "{{count}} {{units, lowercase}}",
+  "and": "and"
+}

@@ -8,7 +8,7 @@ interface ChoiceParams {
     text: string;
     value: string;
     onToggle?: (newValue: boolean) => void;
-    content?: string | TemplateResult | (string | TemplateResult)[];
+    content?: () => string | TemplateResult | (string | TemplateResult)[];
   }[];
 }
 
@@ -42,7 +42,7 @@ export function Choice(params: ChoiceParams) {
           ${item.value === params.value
             ? html`
                 <div class="pl-l pr-m mt-s ml-s">
-                  ${item.content}
+                  ${item.content?.()}
                 </div>
               `
             : ''}

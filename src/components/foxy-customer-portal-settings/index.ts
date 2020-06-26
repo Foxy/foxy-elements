@@ -1,9 +1,8 @@
+import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-text-field/vaadin-number-field';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-lumo-styles/icons';
 import '@vaadin/vaadin-button';
-import '@vaadin/vaadin-select';
 
 import '../foxy-code.js';
 
@@ -139,14 +138,14 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                         {
                           text: this._t('fmod.all'),
                           value: 'all',
-                          content: [],
+                          content: () => [],
                           onToggle: () => this.__resetFModFilter(),
                         },
                         {
                           text: this._t('fmod.some'),
                           value: 'some',
                           onToggle: () => this.__initFModFilter(),
-                          content: UI.Group(
+                          content: () => UI.Group(
                             UI.Hint(this._t('fmod.hint')),
                             html`<vaadin-text-field class="w-full" .disabled=${busy} .value=${fModQuery} @input=${this.__setFModFilter}></vaadin-text-field>`,
                           ),
@@ -155,31 +154,36 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                     })
                   )
                 ),
-  
+
                 UI.Section(
                   UI.Subheader(this._t('fmod.match')),
 
                   UI.Frame(
                     UI.List({
                       items: fModValues,
+                      getText: value => {
+                        const count = parseInt(value.substring(0, value.length - 1));
+                        const units = this._t(value[value.length - 1], { count });
+                        return this._t('duration', { count, units });
+                      },
                       onRemove: index => this.send({ type: 'removeFModOption', index }),
                     }),
 
                     html`
                       <div class="p-m flex flex-col space-y-s sm:items-center sm:space-y-0 sm:flex-row sm:space-x-s">
                         <vaadin-number-field class="w-full sm:w-auto" name="fModOptionValue" min="1" has-controls .disabled=${busy}></vaadin-number-field>
-      
-                        <vaadin-select name="fModOptionUnits" .disabled=${busy}>
-                          <template>
-                            <vaadin-list-box>
-                              <vaadin-item value="y">${this._t('fmod.years')}</vaadin-item>
-                              <vaadin-item value="m">${this._t('fmod.months')}</vaadin-item>
-                              <vaadin-item value="w">${this._t('fmod.weeks')}</vaadin-item>
-                              <vaadin-item value="d">${this._t('fmod.days')}</vaadin-item>
-                            </vaadin-list-box>
-                          </template>
-                        </vaadin-select>
-      
+
+                        ${UI.Dropdown({
+                          name: "fModOptionUnits",
+                          disabled: busy,
+                          items: [
+                            { text: this._t('y_plural'), value: 'y' },
+                            { text: this._t('m_plural'), value: 'm' },
+                            { text: this._t('w_plural'), value: 'w' },
+                            { text: this._t('d_plural'), value: 'd' }
+                          ]
+                        })}
+
                         <vaadin-button .disabled=${busy} @click=${this.__addFModOption}>
                           ${this._t('fmod.add')} <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
                         </vaadin-button>
@@ -205,11 +209,13 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                 () => {
                   if (typeof ndMod === 'undefined') return [];
                   if (typeof ndMod === 'boolean') return [];
-  
+
                   return ndMod.map((rule, index) =>
                     NdmRule({
                       onChange: (value) => this.send({ type: 'changeNdMod', value, index }),
+                      modified: modified,
                       disabled: busy,
+                      locale: this.locale,
                       t: this._t,
                       rule
                     })
@@ -233,13 +239,12 @@ class FoxyCustomerPortalSettings extends StatefulElement<
           UI.Header(this._t('jwt.title'), this._t('jwt.subtitle')),
 
           html`
-            <vaadin-text-area
+            <vaadin-password-field
               class="w-full mb-m"
-              style="min-height: 88px"
               .value=${this.context.resource?.jwtSharedSecret ?? ''}
               .disabled=${busy}
               @input=${this.__setSessionSecret}
-            ></vaadin-text-area>
+            ></vaadin-password-field>
           `
         ),
 
@@ -249,16 +254,17 @@ class FoxyCustomerPortalSettings extends StatefulElement<
           html`
             <div class="flex flex-col sm:flex-row space-y-s sm:space-y-0 sm:space-x-s sm:items-center">
               <vaadin-number-field name="sessionValue" class="w-full sm:w-auto" min="1" has-controls .disabled=${busy} @input=${this.__updateSessionLifespan}></vaadin-number-field>
-              <vaadin-select name="sessionUnits" .disabled=${busy} @change=${this.__updateSessionLifespan}>
-                <template>
-                  <vaadin-list-box>
-                    <vaadin-item value="1">${this._t('session.minutes')}</vaadin-item>
-                    <vaadin-item value="60">${this._t('session.hours')}</vaadin-item>
-                    <vaadin-item value="1440">${this._t('session.days')}</vaadin-item>
-                    <vaadin-item value="10080">${this._t('session.weeks')}</vaadin-item>
-                  </vaadin-list-box>
-                </template>
-              </vaadin-select>
+              ${UI.Dropdown({
+                name: "sessionUnits",
+                disabled: busy,
+                items: [
+                  { text: this._t('minute_plural'), value: '1' },
+                  { text: this._t('hour_plural'), value: '60' },
+                  { text: this._t('d_plural'), value: '1440' },
+                  { text: this._t('w_plural'), value: '10080' },
+                ],
+                onChange: () => this.__updateSessionLifespan()
+              })}
             </div>
           `
         ),

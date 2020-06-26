@@ -25,6 +25,20 @@ const whenInitialized = i18next
     ns: ["global"],
     backend: { loadPath: 'translations/{{ns}}/{{lng}}.json' },
     load: "languageOnly",
+    interpolation: {
+      format(value, format, lng) {
+        if (format === 'lowercase') return value.toLowerCase();
+
+        if (format === 'list') {
+          return (value as string[]).map((item, index, array) => {
+            if (index === 0) return item;
+            return `${(index === array.length - 1) ? ` ${i18next.t('and', { lng })}` : ','} ${item}`;
+          }).join('');
+        }
+
+        return value;
+      }
+    }
   });
 
 const dontMatchEmpty = (a: object, b: object) => {
@@ -113,7 +127,7 @@ export abstract class StatefulElement<
   ) {
     super();
     this._service = this.__initService();
-    
+
     whenInitialized
       .then(() => i18next.loadNamespaces(this.__namespace))
       .then(() => this.requestUpdate());

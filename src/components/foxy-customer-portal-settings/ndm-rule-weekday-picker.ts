@@ -1,19 +1,18 @@
 import { html } from 'lit-element';
+import { TFunction } from 'i18next';
+import { translateWeekday } from '../../common/utils.js';
 import * as UI from '../../layout/index.js';
 
 interface NdmRulePickerParams {
-  t: (key: string) => string;
+  t: TFunction;
+  locale: string;
   values: number[];
   disabled: boolean;
   onChange: (values: number[]) => void;
 }
 
-export function NdmRuleWeekdayPicker({ values, onChange }: NdmRulePickerParams) {
-  const days = new Array(7).fill(14).map((v, i) =>
-    new Date(`2020-06-${v + i}T00:00:00.0Z`).toLocaleDateString("en", {
-      weekday: 'short',
-    })
-  );
+export function NdmRuleWeekdayPicker({ t, locale, values, onChange }: NdmRulePickerParams) {
+  const days = new Array(7).fill(0).map((_, i) => translateWeekday(i, locale, 'short'));
 
   const getLabelClass = (day: number) => {
     let base = 'flex items-center justify-center m-xs h-m w-xl rounded font-medium ';
@@ -42,6 +41,11 @@ export function NdmRuleWeekdayPicker({ values, onChange }: NdmRulePickerParams) 
         })}
       </div>
     `,
-    UI.Hint('TODO: your customers will be able to select only Tuesdays, Wednesdays and Saturdays for the next payment date.')
+    UI.If(
+      values.length > 0,
+      () => UI.Hint(
+        t('ndmod.dayHint', { days: values.map(v => translateWeekday(v, locale))})
+      )
+    )
   )
 }

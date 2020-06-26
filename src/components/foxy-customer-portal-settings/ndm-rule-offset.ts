@@ -1,6 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-number-field';
-import '@vaadin/vaadin-select';
 import { html } from 'lit-element';
+import { TFunction } from 'i18next';
+import { parseDuration } from '../../common/utils.js';
 import * as UI from '../../layout/index.js';
 
 interface Rule {
@@ -15,7 +16,7 @@ interface Rule {
 }
 
 interface NdmRuleParams {
-  t: (key: string) => string;
+  t: TFunction;
   rule: Rule;
   disabled: boolean;
   onChange: (value?: Rule) => void;
@@ -25,18 +26,15 @@ interface NdmRuleOffsetParams extends NdmRuleParams {
   type: 'min' | 'max';
 }
 
-
 export function NdmRuleOffset({ t, type, rule, onChange }: NdmRuleOffsetParams) {
-  const numericValue = rule[type]?.replace(/(y|m|w|d)/, '');
-  const valueUnits = rule[type]?.replace(/\d+(\.\d*)?/, '');
+  const { count: numericValue, units: valueUnits } = parseDuration(rule[type] ?? '');
 
   const changeValue = (evt: InputEvent) => {
     const value = (evt.target as HTMLInputElement).value;
     onChange({ ...rule, [type]: rule[type]?.replace(/\d+(\.\d*)?/, value) });
   };
 
-  const changeUnits = (evt: InputEvent) => {
-    const value = (evt.target as HTMLInputElement).value;
+  const changeUnits = (value: string) => {
     onChange({ ...rule, [type]: rule[type]?.replace(/(y|m|w|d)/, value) });
   };
 
@@ -54,27 +52,33 @@ export function NdmRuleOffset({ t, type, rule, onChange }: NdmRuleOffsetParams) 
           text: t('ndmod.customOffset'),
           value: 'custom',
           onToggle: () => onChange({ ...rule, [type]: '2w' }),
-          content: html`
+          content: () => html`
             <div class="flex flex-col py-s sm:flex-row">
               <div class="w-full sm:w-1/2 sm:pr-xs">
                 <vaadin-number-field class="w-full mb-s sm:mb-0" has-controls min="1" .value=${numericValue} @change=${changeValue}></vaadin-number-field>
               </div>
 
               <div class="w-full sm:w-1/2 sm:pl-xs">
-                <vaadin-select class="w-full" .value=${valueUnits} @change=${changeUnits}>
-                  <template>
-                    <vaadin-list-box>
-                      <vaadin-item value="y">${t('ndmod.years')}</vaadin-item>
-                      <vaadin-item value="m">${t('ndmod.months')}</vaadin-item>
-                      <vaadin-item value="w">${t('ndmod.weeks')}</vaadin-item>
-                      <vaadin-item value="d">${t('ndmod.days')}</vaadin-item>
-                    </vaadin-list-box>
-                  </template>
-                </vaadin-select>
+                ${UI.Dropdown({
+                  fullWidth: true,
+                  value: valueUnits,
+                  items: [
+                    { text: t('y_plural'), value: 'y' },
+                    { text: t('m_plural'), value: 'm' },
+                    { text: t('w_plural'), value: 'w' },
+                    { text: t('d_plural'), value: 'd' }
+                  ],
+                  onChange: changeUnits
+                })}
               </div>
             </div>
 
-            ${UI.Hint('TODO: requires the new date to be at least 2 weeks into the future.')}
+            ${UI.Hint(t(`ndmod.${type}Hint`, {
+              duration: t('duration', {
+                count: numericValue,
+                units: t(valueUnits ?? '', { count: numericValue })
+              })
+            }))}
           `
         }
       ],

@@ -2,6 +2,7 @@ import { html } from 'lit-html';
 
 interface ListParams {
   items?: string[];
+  getText?: (item: string) => string;
   onRemove?: (index: number) => void;
 }
 
@@ -16,7 +17,7 @@ export function List(params?: ListParams) {
               index > 0 ? 'border-t border-shade-10' : '',
             ].join(' ')}
           >
-            ${value}
+            ${params?.getText?.(value) ?? value}
 
             <button
               class="w-l h-l text-tertiary transition duration-150 hover:text-secondary"
