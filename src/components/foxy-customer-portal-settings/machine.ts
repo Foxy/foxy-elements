@@ -5,9 +5,9 @@ import {
   FoxyCustomerPortalSettingsContext,
   FoxyCustomerPortalSettingsSchema,
   FoxyCustomerPortalSettingsEvent,
-} from './types.js';
+} from './types';
 
-import { MachineFactory } from '../../stateful.js';
+import { MachineFactory } from '../../mixins/stateful';
 
 export const createMachine: MachineFactory<
   FoxyCustomerPortalSettingsContext,

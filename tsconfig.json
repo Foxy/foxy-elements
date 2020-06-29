@@ -13,7 +13,13 @@
     "outDir": "dist",
     "sourceMap": true,
     "inlineSources": true,
-    "rootDir": "./"
+    "rootDir": "src",
+    "plugins": [
+      {
+        "transform": "@zoltu/typescript-transformer-append-js-extension/output/index.js",
+        "after": true
+      }
+    ]
   },
-  "include": ["index.ts", "src/**/*.ts"]
+  "include": ["src/**/*.ts"]
 }

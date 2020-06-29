@@ -13,12 +13,19 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
   ],
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.ts'],
+      },
+    },
+  },
   rules: {
     // disable the rule for all files
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     'import/named': 'off',
     'import/no-unresolved': 'off',
-    'import/extensions': ['error', 'always', { ignorePackages: true }],
+    'import/extensions': ['error', 'ignorePackages', { ts: 'never' }],
   },
 };

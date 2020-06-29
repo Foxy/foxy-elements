@@ -2,8 +2,8 @@ import i18next, { FormatFunction, TFunction } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
 import { property } from 'lit-element';
-import { cdn } from './common/env.js';
-import { Themeable } from './themeable.js';
+import { cdn } from '../env';
+import { Themeable } from './themeable';
 
 /**
  * One of the base classes for each rel-specific element in the collection,

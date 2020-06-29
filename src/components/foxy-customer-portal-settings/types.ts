@@ -1,6 +1,6 @@
-import { RelContext } from '../../stateful.js';
+import { RelContext } from '../../mixins/stateful';
 import { AnyEventObject } from 'xstate';
-import { RequestEvent } from '../../request-event.js';
+import { RequestEvent } from '../../events/request';
 
 export interface FoxyCustomerPortalSettingsContext extends RelContext {
   resource?: {

@@ -1,6 +1,6 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html } from 'lit-element';
-import * as UI from '../../layout/index.js';
+import * as UI from '../../../layout/index';
 
 interface Rule {
   min?: string;
@@ -32,17 +32,24 @@ export function NdmRuleJsonata({ t, rule, onChange }: NdmRuleJsonataParams) {
       {
         text: t('ndmod.all'),
         value: 'all',
-        onToggle: () => onChange({ ...rule, jsonataQuery: '*' })
+        onToggle: () => onChange({ ...rule, jsonataQuery: '*' }),
       },
       {
         text: t('ndmod.some'),
         value: 'some',
-        onToggle: () => onChange({ ...rule, jsonataQuery: '$contains(frequency, "w")' }),
-        content: () => UI.Group(
-          UI.Hint(t('ndmod.jsonataHint')),
-          html`<vaadin-text-field class="w-full" placeholder='$contains(frequency, "w")' .value=${rule.jsonataQuery} @input=${changeJsonata}></vaadin-text-field>`
-        )
-      }
-    ]
+        onToggle: () =>
+          onChange({ ...rule, jsonataQuery: '$contains(frequency, "w")' }),
+        content: () =>
+          UI.Group(
+            UI.Hint(t('ndmod.jsonataHint')),
+            html`<vaadin-text-field
+              class="w-full"
+              placeholder='$contains(frequency, "w")'
+              .value=${rule.jsonataQuery}
+              @input=${changeJsonata}
+            ></vaadin-text-field>`
+          ),
+      },
+    ],
   });
 }

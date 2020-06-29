@@ -11,10 +11,10 @@ import {
   StateValue,
 } from 'xstate';
 
-import { ChangeEvent } from './change-event.js';
-import { RequestEvent } from './request-event.js';
-import { TransitionEvent } from './transition-event.js';
-import { Translatable } from './translatable.js';
+import { ChangeEvent } from '../events/change';
+import { RequestEvent } from '../events/request';
+import { TransitionEvent } from '../events/transition';
+import { Translatable } from './translatable';
 
 /**
  * Base structure for any rel-specific element. If you create one, its

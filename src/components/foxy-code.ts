@@ -1,6 +1,6 @@
 import { html, internalProperty, query, css } from 'lit-element';
-import { define } from '../common/utils.js';
-import { Themeable } from '../themeable.js';
+import { define } from '../utils/define';
+import { Themeable } from '../mixins/themeable';
 
 type ExtendedWindow = Window & {
   hljs: { highlightBlock: (element: Element) => void };

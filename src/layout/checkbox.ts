@@ -1,6 +1,6 @@
 import '@vaadin/vaadin-checkbox';
 import { TemplateResult, html } from 'lit-html';
-import { Group } from './group.js';
+import { Group } from './group';
 
 interface CheckboxParams {
   value?: boolean;
@@ -22,10 +22,17 @@ export function Checkbox(params?: CheckboxParams) {
 
   return Group(
     html`
-      <vaadin-checkbox style="margin-left: -3px" .checked=${checked} .disabled=${disabled} @change=${onChange}>
+      <vaadin-checkbox
+        style="margin-left: -3px"
+        .checked=${checked}
+        .disabled=${disabled}
+        @change=${onChange}
+      >
         <div style="padding-left: 0.5rem">${label}</div>
       </vaadin-checkbox>
-      ${rest.length > 0 ? html`<div style="padding-left: 2.2rem">${rest}</div>` : ''}
+      ${rest.length > 0
+        ? html`<div style="padding-left: 2.2rem">${rest}</div>`
+        : ''}
     `
-  )
+  );
 }

@@ -7,11 +7,12 @@ import '@vaadin/vaadin-button';
 import '../foxy-code.js';
 
 import { html, query } from 'lit-element';
-import { onEnter, define } from '../../common/utils.js';
-import { Stateful } from '../../stateful.js';
-import * as UI from '../../layout/index.js';
-import { createMachine } from './machine.js';
-import { NdmRule } from './ndm-rule.js';
+import { onEnter } from './utils/on-enter';
+import { define } from '../../utils/define';
+import { Stateful } from '../../mixins/stateful';
+import * as UI from '../../layout/index';
+import { createMachine } from './machine';
+import { NdmRule } from './partials/ndm-rule';
 
 import {
   FoxyCustomerPortalSettingsContext,
