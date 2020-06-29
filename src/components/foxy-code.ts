@@ -1,14 +1,14 @@
-import { LitElement, html, internalProperty, query, css } from 'lit-element';
-import { tailwind } from '../common/tailwind.js';
+import { html, internalProperty, query, css } from 'lit-element';
 import { define } from '../common/utils.js';
+import { Themeable } from '../themeable.js';
 
 type ExtendedWindow = Window & {
   hljs: { highlightBlock: (element: Element) => void };
 };
 
-class FoxyCode extends LitElement {
+class FoxyCode extends Themeable {
   static styles = css`
-    ${tailwind}
+    ${Themeable.styles}
 
     code, code.hljs {
       display: block;
