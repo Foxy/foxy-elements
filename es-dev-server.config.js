@@ -2,7 +2,7 @@
 
 const tailwind = {
   async transform(context) {
-    if (!context.path.endsWith('tailwind.js')) return;
+    if (!context.path.endsWith('themeable.js')) return;
 
     const tailwindconfig = require('./tailwind.config.js');
     const tailwindcss = require('tailwindcss')(tailwindconfig);

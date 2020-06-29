@@ -1,4 +1,4 @@
-import { RequestEvent } from '../../stateful-element.js';
+import { RequestEvent } from '../../stateful.js';
 import { AnyEventObject } from 'xstate';
 
 export interface FoxyCustomerPortalSettingsContext {

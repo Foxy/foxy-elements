@@ -35,7 +35,7 @@ console.log('[tailwindcss]: build started');
   const original = await fs.readFile('./dist/src/common/tailwind.js');
 
   await fs.writeFile(
-    './dist/src/common/tailwind.js',
+    './dist/src/themeable.js',
     original.toString('utf-8').replace('{{ output }}', escape(result.css))
   );
 

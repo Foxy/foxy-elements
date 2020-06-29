@@ -1,8 +1,9 @@
 import i18next, { FormatFunction, TFunction } from 'i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
-import { LitElement, property } from 'lit-element';
+import { property } from 'lit-element';
 import { cdn } from './common/env.js';
+import { Themeable } from './themeable.js';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -10,7 +11,7 @@ import { cdn } from './common/env.js';
  * This class MUST NOT be used on its own (hence the `abstract` keyword) or
  * referenced externally (outside of the package).
  */
-export abstract class Translatable extends LitElement {
+export abstract class Translatable extends Themeable {
   /**
    * i18next formatter that converts given value to lowecase.
    * @see https://www.i18next.com/translation-function/formatting

@@ -8,7 +8,7 @@ import '../foxy-code.js';
 
 import { html, query } from 'lit-element';
 import { onEnter, define } from '../../common/utils.js';
-import { StatefulElement } from '../../stateful-element.js';
+import { Stateful } from '../../stateful.js';
 import * as UI from '../../layout/index.js';
 import { machine } from './machine.js';
 import { NdmRule } from './ndm-rule.js';
@@ -19,7 +19,7 @@ import {
   FoxyCustomerPortalSettingsSchema,
 } from './types.js';
 
-class FoxyCustomerPortalSettings extends StatefulElement<
+class FoxyCustomerPortalSettings extends Stateful<
   FoxyCustomerPortalSettingsContext,
   FoxyCustomerPortalSettingsSchema,
   FoxyCustomerPortalSettingsEvent

@@ -9,7 +9,6 @@ import {
   StateMachine,
 } from 'xstate';
 
-import { tailwind } from './common/tailwind.js';
 import { Translatable } from './translatable.js';
 
 const dontMatchEmpty = (a: object, b: object) => {
@@ -57,13 +56,11 @@ export class RequestEvent extends CustomEvent<RequestEventDetail> {
   }
 }
 
-export abstract class StatefulElement<
+export abstract class Stateful<
   TContext,
   TStateSchema,
   TEvent extends EventObject
 > extends Translatable {
-  static styles = tailwind;
-
   protected _service: Interpreter<TContext, TStateSchema, TEvent>;
 
   @property({ type: String, noAccessor: true })
