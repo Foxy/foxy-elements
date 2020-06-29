@@ -16,7 +16,7 @@ import { NdmRule } from './ndm-rule.js';
 import {
   FoxyCustomerPortalSettingsContext,
   FoxyCustomerPortalSettingsEvent,
-  FoxyCustomerPortalSettingsSchema
+  FoxyCustomerPortalSettingsSchema,
 } from './types.js';
 
 class FoxyCustomerPortalSettings extends StatefulElement<
@@ -40,14 +40,14 @@ class FoxyCustomerPortalSettings extends StatefulElement<
   private __newOrigin!: HTMLInputElement;
 
   constructor() {
-    super(machine);
+    super(machine, 'customer-portal-settings');
   }
 
   get context(): FoxyCustomerPortalSettingsContext {
     return super.context;
   }
 
-  set context(value: FoxyCustomerPortalSettingsContext)  {
+  set context(value: FoxyCustomerPortalSettingsContext) {
     super.context = value;
     this.__setSessionLifespan();
   }
@@ -59,8 +59,10 @@ class FoxyCustomerPortalSettings extends StatefulElement<
   }
 
   render() {
-    const fMod = this.context.resource?.subscriptions.allowFrequencyModification;
-    const ndMod = this.context.resource?.subscriptions.allowNextDateModification;
+    const fMod = this.context.resource?.subscriptions
+      .allowFrequencyModification;
+    const ndMod = this.context.resource?.subscriptions
+      .allowNextDateModification;
     const fModValues = typeof fMod === 'boolean' ? [] : fMod?.values ?? [];
     const fModQuery = typeof fMod === 'boolean' ? '' : fMod?.jsonataQuery;
     const modified = this._service.state.matches('idle.modified');
@@ -74,15 +76,26 @@ class FoxyCustomerPortalSettings extends StatefulElement<
       subtitle: this._t('subtitle'),
       content: [
         UI.Section(
-          UI.Header(this._t('quickstart.title'), this._t('quickstart.subtitle')),
+          UI.Header(
+            this._t('quickstart.title'),
+            this._t('quickstart.subtitle')
+          ),
 
           html`
             <div>
               <foxy-code>
                 <template>
-                  <script type="module" src="https://static.www.foxycart.com/beta/s/customer-portal/v0.9/dist/lumo/foxy/foxy.esm.js"></script>
-                  <script nomodule src="https://static.www.foxycart.com/beta/s/customer-portal/v0.9/dist/lumo/foxy.js"></script>
-                  <foxy-customer-portal link="https://my-store.tld/s/customer"></foxy-customer-portal>
+                  <script
+                    type="module"
+                    src="https://static.www.foxycart.com/beta/s/customer-portal/v0.9/dist/lumo/foxy/foxy.esm.js"
+                  ></script>
+                  <script
+                    nomodule
+                    src="https://static.www.foxycart.com/beta/s/customer-portal/v0.9/dist/lumo/foxy.js"
+                  ></script>
+                  <foxy-customer-portal
+                    link="https://my-store.tld/s/customer"
+                  ></foxy-customer-portal>
                 </template>
               </foxy-code>
             </div>
@@ -99,7 +112,9 @@ class FoxyCustomerPortalSettings extends StatefulElement<
             }),
 
             html`
-              <div class="p-m flex flex-col space-y-s sm:space-y-0 sm:flex-row sm:space-x-s">
+              <div
+                class="p-m flex flex-col space-y-s sm:space-y-0 sm:flex-row sm:space-x-s"
+              >
                 <vaadin-text-field
                   name="newOrigin"
                   pattern="https?://(w*.?)*(:d*)?"
@@ -110,7 +125,8 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                 ></vaadin-text-field>
 
                 <vaadin-button .disabled=${busy} @click=${this.__addOrigin}>
-                  ${this._t('origins.add')} <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+                  ${this._t('origins.add')}
+                  <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
                 </vaadin-button>
               </div>
             `
@@ -124,9 +140,8 @@ class FoxyCustomerPortalSettings extends StatefulElement<
           content: [
             UI.Header(this._t('fmod.title'), this._t('fmod.subtitle')),
 
-            UI.If(
-              Boolean(fMod),
-              () => UI.Section(
+            UI.If(Boolean(fMod), () =>
+              UI.Section(
                 UI.Section(
                   UI.Subheader(this._t('fmod.match')),
 
@@ -145,10 +160,16 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                           text: this._t('fmod.some'),
                           value: 'some',
                           onToggle: () => this.__initFModFilter(),
-                          content: () => UI.Group(
-                            UI.Hint(this._t('fmod.hint')),
-                            html`<vaadin-text-field class="w-full" .disabled=${busy} .value=${fModQuery} @input=${this.__setFModFilter}></vaadin-text-field>`,
-                          ),
+                          content: () =>
+                            UI.Group(
+                              UI.Hint(this._t('fmod.hint')),
+                              html`<vaadin-text-field
+                                class="w-full"
+                                .disabled=${busy}
+                                .value=${fModQuery}
+                                @input=${this.__setFModFilter}
+                              ></vaadin-text-field>`
+                            ),
                         },
                       ],
                     })
@@ -162,30 +183,47 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                     UI.List({
                       items: fModValues,
                       getText: value => {
-                        const count = parseInt(value.substring(0, value.length - 1));
-                        const units = this._t(value[value.length - 1], { count });
+                        const count = parseInt(
+                          value.substring(0, value.length - 1)
+                        );
+                        const units = this._t(value[value.length - 1], {
+                          count,
+                        });
                         return this._t('duration', { count, units });
                       },
-                      onRemove: index => this.send({ type: 'removeFModOption', index }),
+                      onRemove: index =>
+                        this.send({ type: 'removeFModOption', index }),
                     }),
 
                     html`
-                      <div class="p-m flex flex-col space-y-s sm:items-center sm:space-y-0 sm:flex-row sm:space-x-s">
-                        <vaadin-number-field class="w-full sm:w-auto" name="fModOptionValue" min="1" has-controls .disabled=${busy}></vaadin-number-field>
+                      <div
+                        class="p-m flex flex-col space-y-s sm:items-center sm:space-y-0 sm:flex-row sm:space-x-s"
+                      >
+                        <vaadin-number-field
+                          class="w-full sm:w-auto"
+                          name="fModOptionValue"
+                          min="1"
+                          has-controls
+                          .disabled=${busy}
+                        ></vaadin-number-field>
 
                         ${UI.Dropdown({
-                          name: "fModOptionUnits",
+                          name: 'fModOptionUnits',
                           disabled: busy,
                           items: [
                             { text: this._t('y_plural'), value: 'y' },
                             { text: this._t('m_plural'), value: 'm' },
                             { text: this._t('w_plural'), value: 'w' },
-                            { text: this._t('d_plural'), value: 'd' }
-                          ]
+                            { text: this._t('d_plural'), value: 'd' },
+                          ],
                         })}
 
-                        <vaadin-button .disabled=${busy} @click=${this.__addFModOption}>
-                          ${this._t('fmod.add')} <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+                        <vaadin-button
+                          .disabled=${busy}
+                          @click=${this.__addFModOption}
+                        >
+                          ${this._t('fmod.add')}
+                          <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
                         </vaadin-button>
                       </div>
                     `
@@ -193,46 +231,49 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                 )
               )
             ),
-          ]
+          ],
         }),
 
         UI.Checkbox({
           value: Boolean(ndMod),
           disabled: busy,
-          onChange: v => this.send({ type: v ? 'enableNdMod' : 'disableNdMod' }),
+          onChange: v =>
+            this.send({ type: v ? 'enableNdMod' : 'disableNdMod' }),
           content: [
             UI.Header(this._t('ndmod.title'), this._t('ndmod.subtitle')),
 
             UI.Section(
-              UI.If(
-                Boolean(ndMod),
-                () => {
-                  if (typeof ndMod === 'undefined') return [];
-                  if (typeof ndMod === 'boolean') return [];
+              UI.If(Boolean(ndMod), () => {
+                if (typeof ndMod === 'undefined') return [];
+                if (typeof ndMod === 'boolean') return [];
 
-                  return ndMod.map((rule, index) =>
-                    NdmRule({
-                      onChange: (value) => this.send({ type: 'changeNdMod', value, index }),
-                      modified: modified,
-                      disabled: busy,
-                      locale: this.locale,
-                      t: this._t,
-                      rule
-                    })
-                  );
-                }
-              ),
+                return ndMod.map((rule, index) =>
+                  NdmRule({
+                    onChange: value =>
+                      this.send({ type: 'changeNdMod', value, index }),
+                    modified: modified,
+                    disabled: busy,
+                    locale: this.lang,
+                    t: this._t,
+                    rule,
+                  })
+                );
+              }),
 
               UI.If(
                 Boolean(ndMod),
                 () => html`
-                  <vaadin-button .disabled=${busy} @click=${this.__addNdModRule}>
-                    ${this._t('ndmod.add')} <iron-icon icon="lumo:plus"></iron-icon>
+                  <vaadin-button
+                    .disabled=${busy}
+                    @click=${this.__addNdModRule}
+                  >
+                    ${this._t('ndmod.add')}
+                    <iron-icon icon="lumo:plus"></iron-icon>
                   </vaadin-button>
                 `
               )
             ),
-          ]
+          ],
         }),
 
         UI.Section(
@@ -252,10 +293,19 @@ class FoxyCustomerPortalSettings extends StatefulElement<
           UI.Header(this._t('session.title'), this._t('session.subtitle')),
 
           html`
-            <div class="flex flex-col sm:flex-row space-y-s sm:space-y-0 sm:space-x-s sm:items-center">
-              <vaadin-number-field name="sessionValue" class="w-full sm:w-auto" min="1" has-controls .disabled=${busy} @change=${this.__updateSessionLifespan}></vaadin-number-field>
+            <div
+              class="flex flex-col sm:flex-row space-y-s sm:space-y-0 sm:space-x-s sm:items-center"
+            >
+              <vaadin-number-field
+                name="sessionValue"
+                class="w-full sm:w-auto"
+                min="1"
+                has-controls
+                .disabled=${busy}
+                @change=${this.__updateSessionLifespan}
+              ></vaadin-number-field>
               ${UI.Dropdown({
-                name: "sessionUnits",
+                name: 'sessionUnits',
                 disabled: busy,
                 items: [
                   { text: this._t('minute_plural'), value: '1' },
@@ -263,7 +313,7 @@ class FoxyCustomerPortalSettings extends StatefulElement<
                   { text: this._t('d_plural'), value: '1440' },
                   { text: this._t('w_plural'), value: '10080' },
                 ],
-                onChange: () => this.__updateSessionLifespan()
+                onChange: () => this.__updateSessionLifespan(),
               })}
             </div>
           `
@@ -293,7 +343,7 @@ class FoxyCustomerPortalSettings extends StatefulElement<
 
     this.send({
       type: 'changeSessionLifespan',
-      value: factor * value
+      value: factor * value,
     });
   }
 
@@ -343,13 +393,14 @@ class FoxyCustomerPortalSettings extends StatefulElement<
   }
 
   private __addNdModRule() {
-    const rules = this.context.resource?.subscriptions.allowNextDateModification;
+    const rules = this.context.resource?.subscriptions
+      .allowNextDateModification;
 
     this.send({
       type: 'changeNdMod',
       value: { jsonataQuery: '*' },
-      index: !rules || typeof rules === 'boolean' ? 0 : rules.length
-    })
+      index: !rules || typeof rules === 'boolean' ? 0 : rules.length,
+    });
   }
 
   private __setSessionSecret(evt: InputEvent) {
@@ -360,4 +411,4 @@ class FoxyCustomerPortalSettings extends StatefulElement<
 
 define('foxy-customer-portal-settings', FoxyCustomerPortalSettings);
 
-export { FoxyCustomerPortalSettings }
+export { FoxyCustomerPortalSettings };

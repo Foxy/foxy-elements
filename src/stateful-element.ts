@@ -1,8 +1,5 @@
-import i18next from 'i18next';
-import HttpApi from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
 import { isEqual, isMatchWith } from 'lodash-es';
-import { LitElement, property } from 'lit-element';
+import { property } from 'lit-element';
 
 import {
   interpret,
@@ -13,33 +10,7 @@ import {
 } from 'xstate';
 
 import { tailwind } from './common/tailwind.js';
-
-const whenInitialized = i18next
-  .use(LanguageDetector)
-  .use(HttpApi)
-  .init({
-    partialBundledLanguages: true,
-    fallbackLng: "en",
-    defaultNS: "global",
-    whitelist: ["en"],
-    ns: ["global"],
-    backend: { loadPath: 'translations/{{ns}}/{{lng}}.json' },
-    load: "languageOnly",
-    interpolation: {
-      format(value, format, lng) {
-        if (format === 'lowercase') return value.toLowerCase();
-
-        if (format === 'list') {
-          return (value as string[]).map((item, index, array) => {
-            if (index === 0) return item;
-            return `${(index === array.length - 1) ? ` ${i18next.t('and', { lng })}` : ','} ${item}`;
-          }).join('');
-        }
-
-        return value;
-      }
-    }
-  });
+import { Translatable } from './translatable.js';
 
 const dontMatchEmpty = (a: object, b: object) => {
   if (Array.isArray(a) && Array.isArray(b) && a.length !== b.length) {
@@ -90,7 +61,7 @@ export abstract class StatefulElement<
   TContext,
   TStateSchema,
   TEvent extends EventObject
-> extends LitElement {
+> extends Translatable {
   static styles = tailwind;
 
   protected _service: Interpreter<TContext, TStateSchema, TEvent>;
@@ -119,26 +90,12 @@ export abstract class StatefulElement<
     }
   }
 
-  @property({ type: String })
-  locale = "en";
-
   constructor(
-    protected _machine: StateMachine<TContext, TStateSchema, TEvent>
+    protected _machine: StateMachine<TContext, TStateSchema, TEvent>,
+    namespace: string
   ) {
-    super();
+    super(namespace);
     this._service = this.__initService();
-
-    whenInitialized
-      .then(() => i18next.loadNamespaces(this.__namespace))
-      .then(() => this.requestUpdate());
-  }
-
-  private get __namespace() {
-    return this.tagName.toLowerCase().substr(5);
-  }
-
-  protected get _t() {
-    return i18next.getFixedT(this.locale, [this.__namespace, 'global']);
   }
 
   private __initService(
