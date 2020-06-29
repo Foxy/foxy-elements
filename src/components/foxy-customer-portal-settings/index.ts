@@ -253,7 +253,7 @@ class FoxyCustomerPortalSettings extends StatefulElement<
 
           html`
             <div class="flex flex-col sm:flex-row space-y-s sm:space-y-0 sm:space-x-s sm:items-center">
-              <vaadin-number-field name="sessionValue" class="w-full sm:w-auto" min="1" has-controls .disabled=${busy} @input=${this.__updateSessionLifespan}></vaadin-number-field>
+              <vaadin-number-field name="sessionValue" class="w-full sm:w-auto" min="1" has-controls .disabled=${busy} @change=${this.__updateSessionLifespan}></vaadin-number-field>
               ${UI.Dropdown({
                 name: "sessionUnits",
                 disabled: busy,
