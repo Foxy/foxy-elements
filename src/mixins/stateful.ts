@@ -112,7 +112,7 @@ export abstract class Stateful<
     },
   })
   public get resource(): TContext['resource'] {
-    return this._machine.initialState.context.resource;
+    return this._service.state.context.resource;
   }
   public set resource(value: TContext['resource']) {
     this._service.state.context.resource = value;
