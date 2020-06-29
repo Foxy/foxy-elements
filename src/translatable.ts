@@ -70,7 +70,7 @@ export abstract class Translatable extends Themeable {
    */
   constructor(
     private readonly __namespace: string,
-    private readonly __global: string = 'translations'
+    private readonly __global: string = 'translation'
   ) {
     super();
 
@@ -100,7 +100,10 @@ export abstract class Translatable extends Themeable {
    * the global namespace and the default language.
    */
   protected get _t(): TFunction {
-    return Translatable._i18n.getFixedT(this.lang, [this.__global, 'global']);
+    return Translatable._i18n.getFixedT(this.lang, [
+      this.__namespace,
+      this.__global,
+    ]);
   }
 
   /**
