@@ -70,7 +70,7 @@ export abstract class Translatable extends Themeable {
    */
   constructor(
     private readonly __namespace: string,
-    private readonly __global: string = 'translation'
+    private readonly __global: string = 'global'
   ) {
     super();
 
