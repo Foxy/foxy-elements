@@ -1,8 +1,8 @@
-import { RequestEvent } from '../../stateful.js';
+import { RelContext } from '../../stateful.js';
 import { AnyEventObject } from 'xstate';
+import { RequestEvent } from '../../request-event.js';
 
-export interface FoxyCustomerPortalSettingsContext {
-  fetch: Window['fetch'];
+export interface FoxyCustomerPortalSettingsContext extends RelContext {
   resource?: {
     _links: {
       self: { href: string };

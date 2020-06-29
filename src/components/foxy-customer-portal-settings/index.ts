@@ -10,7 +10,7 @@ import { html, query } from 'lit-element';
 import { onEnter, define } from '../../common/utils.js';
 import { Stateful } from '../../stateful.js';
 import * as UI from '../../layout/index.js';
-import { machine } from './machine.js';
+import { createMachine } from './machine.js';
 import { NdmRule } from './ndm-rule.js';
 
 import {
@@ -40,15 +40,15 @@ class FoxyCustomerPortalSettings extends Stateful<
   private __newOrigin!: HTMLInputElement;
 
   constructor() {
-    super(machine, 'customer-portal-settings');
+    super(createMachine, 'customer-portal-settings');
   }
 
-  get context(): FoxyCustomerPortalSettingsContext {
-    return super.context;
+  get resource() {
+    return super.resource;
   }
 
-  set context(value: FoxyCustomerPortalSettingsContext) {
-    super.context = value;
+  set resource(value) {
+    super.resource = value;
     this.__setSessionLifespan();
   }
 
@@ -59,10 +59,8 @@ class FoxyCustomerPortalSettings extends Stateful<
   }
 
   render() {
-    const fMod = this.context.resource?.subscriptions
-      .allowFrequencyModification;
-    const ndMod = this.context.resource?.subscriptions
-      .allowNextDateModification;
+    const fMod = this.resource?.subscriptions.allowFrequencyModification;
+    const ndMod = this.resource?.subscriptions.allowNextDateModification;
     const fModValues = typeof fMod === 'boolean' ? [] : fMod?.values ?? [];
     const fModQuery = typeof fMod === 'boolean' ? '' : fMod?.jsonataQuery;
     const modified = this._service.state.matches('idle.modified');
@@ -107,7 +105,7 @@ class FoxyCustomerPortalSettings extends Stateful<
 
           UI.Frame(
             UI.List({
-              items: this.context.resource?.allowedOrigins,
+              items: this.resource?.allowedOrigins,
               onRemove: index => this.send({ type: 'removeOrigin', index }),
             }),
 
@@ -282,7 +280,7 @@ class FoxyCustomerPortalSettings extends Stateful<
           html`
             <vaadin-password-field
               class="w-full mb-m"
-              .value=${this.context.resource?.jwtSharedSecret ?? ''}
+              .value=${this.resource?.jwtSharedSecret ?? ''}
               .disabled=${busy}
               @input=${this.__setSessionSecret}
             ></vaadin-password-field>
@@ -323,7 +321,7 @@ class FoxyCustomerPortalSettings extends Stateful<
   }
 
   private __setSessionLifespan() {
-    const session = this.context.resource?.sessionLifespanInMinutes;
+    const session = this.resource?.sessionLifespanInMinutes;
     const { __sessionUnits: sessionUnits, __sessionValue: sessionValue } = this;
 
     if (session && sessionUnits && sessionValue) {
@@ -393,8 +391,7 @@ class FoxyCustomerPortalSettings extends Stateful<
   }
 
   private __addNdModRule() {
-    const rules = this.context.resource?.subscriptions
-      .allowNextDateModification;
+    const rules = this.resource?.subscriptions.allowNextDateModification;
 
     this.send({
       type: 'changeNdMod',

@@ -31,8 +31,10 @@
 
       /* Respond with 200 OK and request body to any request */
       function emulateRequest({ detail }) {
-        const response = new Response(detail.init.body);
-        setTimeout(() => detail.resolve(response), 1000);
+        detail.intercept(async (url, { body }) => {
+          await new Promise(res => setTimeout(res, 1000));
+          return new Response(body);
+        });
       }
 
       const demoResource = {
@@ -71,7 +73,7 @@
 
       const element = document.createElement('foxy-customer-portal-settings');
 
-      element.context = { resource: demoResource };
+      element.resource = demoResource;
       element.addEventListener('request', emulateRequest);
 
       document.querySelector('#demo').append(element);
