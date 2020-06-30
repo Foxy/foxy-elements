@@ -2,6 +2,10 @@
   "name": "foxy-elements",
   "version": "0.0.0",
   "description": "E-commerce web components by Foxy.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Foxy/foxy-elements.git"
+  },
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.js",
