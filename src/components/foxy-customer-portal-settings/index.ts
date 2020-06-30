@@ -26,10 +26,10 @@ class FoxyCustomerPortalSettings extends Stateful<
   FoxyCustomerPortalSettingsEvent
 > {
   @query('[name=fModOptionValue]')
-  private __fModOptionValue!: HTMLInputElement;
+  private __fModOptionValue!: HTMLInputElement | null;
 
   @query('[name=fModOptionUnits]')
-  private __fModOptionUnits!: HTMLInputElement;
+  private __fModOptionUnits!: HTMLInputElement | null;
 
   @query('[name=sessionValue]')
   private __sessionValue!: HTMLInputElement;
@@ -54,8 +54,8 @@ class FoxyCustomerPortalSettings extends Stateful<
   }
 
   firstUpdated() {
-    this.__fModOptionValue.value = '1';
-    this.__fModOptionUnits.value = 'm';
+    if (this.__fModOptionValue) this.__fModOptionValue.value = '1';
+    if (this.__fModOptionUnits) this.__fModOptionUnits.value = 'm';
     this.__setSessionLifespan();
   }
 
@@ -359,6 +359,7 @@ class FoxyCustomerPortalSettings extends Stateful<
   }
 
   private __addFModOption() {
+    if (!this.__fModOptionValue || !this.__fModOptionUnits) return;
     if (!this.__fModOptionValue.checkValidity()) return;
 
     this.send({
