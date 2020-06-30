@@ -1,4 +1,4 @@
-import { StateValue } from 'xstate';
+import { StateValue } from 'xstate/dist/xstate.web.js';
 
 export class TransitionEvent extends CustomEvent<StateValue> {
   constructor(state: StateValue) {

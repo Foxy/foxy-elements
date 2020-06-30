@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash-es';
-import { Machine, AnyEventObject, actions } from 'xstate';
+import { Machine, AnyEventObject, actions } from 'xstate/dist/xstate.web.js';
 
 import {
   FoxyCustomerPortalSettingsContext,

@@ -9,7 +9,7 @@ import {
   StateMachine,
   StateSchema,
   StateValue,
-} from 'xstate';
+} from 'xstate/dist/xstate.web.js';
 
 import { ChangeEvent } from '../events/change';
 import { RequestEvent } from '../events/request';
