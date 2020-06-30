@@ -1,6 +1,8 @@
 import { html } from 'lit-html';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 interface ListParams {
+  id?: string;
   items?: string[];
   getText?: (item: string) => string;
   onRemove?: (index: number) => void;
@@ -8,7 +10,7 @@ interface ListParams {
 
 export function List(params?: ListParams) {
   return html`
-    <ul class="pl-m">
+    <ul class="pl-m" id=${ifDefined(params?.id)}>
       ${(params?.items ?? []).map(
         (value, index) => html`
           <li

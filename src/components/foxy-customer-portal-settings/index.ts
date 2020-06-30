@@ -106,6 +106,7 @@ class FoxyCustomerPortalSettings extends Stateful<
 
           UI.Frame(
             UI.List({
+              id: 'originsList',
               items: this.resource?.allowedOrigins,
               onRemove: index => this.send({ type: 'removeOrigin', index }),
             }),
@@ -234,6 +235,7 @@ class FoxyCustomerPortalSettings extends Stateful<
         }),
 
         UI.Checkbox({
+          name: 'ndMod',
           value: Boolean(ndMod),
           disabled: busy,
           onChange: v =>
@@ -408,6 +410,7 @@ class FoxyCustomerPortalSettings extends Stateful<
   }
 }
 
-define('foxy-customer-portal-settings', FoxyCustomerPortalSettings);
+export const tag = 'foxy-customer-portal-settings';
+define(tag, FoxyCustomerPortalSettings);
 
 export { FoxyCustomerPortalSettings };

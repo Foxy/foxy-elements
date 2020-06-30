@@ -1,8 +1,10 @@
 import '@vaadin/vaadin-checkbox';
 import { TemplateResult, html } from 'lit-html';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { Group } from './group';
 
 interface CheckboxParams {
+  name?: string;
   value?: boolean;
   content?: string | TemplateResult | (string | TemplateResult)[];
   disabled?: boolean;
@@ -24,6 +26,7 @@ export function Checkbox(params?: CheckboxParams) {
     html`
       <vaadin-checkbox
         style="margin-left: -3px"
+        name=${ifDefined(params?.name)}
         .checked=${checked}
         .disabled=${disabled}
         @change=${onChange}
