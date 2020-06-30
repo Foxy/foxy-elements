@@ -5,7 +5,6 @@ import {
   EventObject,
   interpret,
   Interpreter,
-  State,
   StateMachine,
   StateSchema,
   StateValue,
@@ -137,8 +136,8 @@ export abstract class Stateful<
    * Sends an event to the running interpreter to trigger a transition.
    * @param event Event to send.
    */
-  public send(event: TEvent): State<TContext, TEvent, TStateSchema> {
-    return this._service.send(event);
+  public send(event: TEvent): StateValue {
+    return this._service.send(event).value;
   }
 
   /**
