@@ -11,7 +11,17 @@ module.exports = config => {
           pattern: config.grep ? config.grep : './dist/**/*.test.js',
           type: 'module',
         },
+        {
+          pattern: './translations/**/*.json',
+          included: false,
+          nocache: false,
+          watched: false,
+          served: true,
+        },
       ],
+      proxies: {
+        '/translations/': '/base/translations/',
+      },
       plugins: [require.resolve('@open-wc/karma-esm'), 'karma-*'],
       frameworks: ['esm'],
       esm: {
