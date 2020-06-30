@@ -4,6 +4,7 @@ import HttpApi from 'i18next-http-backend';
 import { property } from 'lit-element';
 import { cdn } from '../env';
 import { Themeable } from './themeable';
+import { TranslationEvent } from '../events/translation';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -91,7 +92,10 @@ export abstract class Translatable extends Themeable {
       });
     }
 
-    whenInitialized.then(() => this.requestUpdate());
+    whenInitialized.then(() => {
+      this.requestUpdate();
+      this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
+    });
   }
 
   /**
@@ -116,6 +120,9 @@ export abstract class Translatable extends Themeable {
     return Translatable._i18n.language;
   }
   public set lang(value: string) {
-    Translatable._i18n.loadLanguages(value).then(() => this.requestUpdate());
+    Translatable._i18n.loadLanguages(value).then(() => {
+      this.requestUpdate();
+      this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
+    });
   }
 }
