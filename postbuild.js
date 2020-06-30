@@ -32,10 +32,10 @@ console.log('[tailwindcss]: build started');
   console.log('[tailwindcss]: injecting styles into ./dist');
 
   const escape = v => v.replace(/\\/gi, '\\\\');
-  const original = await fs.readFile('./dist/src/common/tailwind.js');
+  const original = await fs.readFile('./dist/mixins/themeable.js');
 
   await fs.writeFile(
-    './dist/src/themeable.js',
+    './dist/mixins/themeable.js',
     original.toString('utf-8').replace('{{ output }}', escape(result.css))
   );
 
