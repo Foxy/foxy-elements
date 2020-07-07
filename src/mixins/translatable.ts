@@ -1,10 +1,17 @@
-import i18next, { FormatFunction, TFunction } from 'i18next';
+import i18next, { FormatFunction, i18n, TFunction } from 'i18next';
+import ChainedBackend from 'i18next-chained-backend';
+import LocalStorageBackend from 'i18next-localstorage-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
-import { property } from 'lit-element';
-import { cdn } from '../env';
+import { property, internalProperty } from 'lit-element';
+import { cdn, version } from '../env';
 import { Themeable } from './themeable';
 import { TranslationEvent } from '../events/translation';
+
+interface CacheItem {
+  i18n: i18n;
+  whenReady: Promise<TFunction>;
+}
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -13,6 +20,40 @@ import { TranslationEvent } from '../events/translation';
  * referenced externally (outside of the package).
  */
 export abstract class Translatable extends Themeable {
+  private static __i18nInstanceCache = new Map<string, CacheItem>();
+
+  private static __createI18nInstance(defaultNS: string, fallbackNS: string) {
+    const ns = [...new Set([defaultNS, fallbackNS])];
+    const key = ns.join();
+
+    if (!this.__i18nInstanceCache.has(key)) {
+      const i18n = i18next.createInstance();
+
+      i18n.use(LanguageDetector);
+      i18n.use(ChainedBackend);
+
+      const whenReady = i18n.init({
+        supportedLngs: ['en'],
+        interpolation: { format: this.__f },
+        fallbackLng: 'en',
+        fallbackNS,
+        defaultNS,
+        backend: {
+          backends: [LocalStorageBackend, HttpApi],
+          backendOptions: [
+            { defaultVersion: version },
+            { loadPath: `${cdn}/translations/{{ns}}/{{lng}}.json` },
+          ],
+        },
+        ns,
+      });
+
+      this.__i18nInstanceCache.set(key, { i18n, whenReady });
+    }
+
+    return this.__i18nInstanceCache.get(key)!;
+  }
+
   /**
    * i18next formatter that converts given value to lowecase.
    * @see https://www.i18next.com/translation-function/formatting
@@ -27,12 +68,11 @@ export abstract class Translatable extends Themeable {
    * the following: `['a', 'b', 'c']`, it will output `'a, b and c'`.
    * @see https://www.i18next.com/translation-function/formatting
    */
-  private static __fList: FormatFunction = (value, _, lng): string => {
+  private static __fList: FormatFunction = (value): string => {
     return (value as string[])
       .map((v, i, a) => {
         if (i === 0) return v;
-        const part =
-          i === a.length - 1 ? ` ${Translatable._i18n.t('and', { lng })}` : ',';
+        const part = i === a.length - 1 ? ` {{and}}` : ',';
         return `${part} ${v}`;
       })
       .join('');
@@ -55,59 +95,32 @@ export abstract class Translatable extends Themeable {
     }
   };
 
-  /**
-   * Shared i18next instance for all components to avoid
-   * loading translations multiple times. Not using the default in case
-   * the host project is also relying on i18next without creating a separate instance.
-   */
-  protected static readonly _i18n = i18next.createInstance();
+  protected readonly _i18n: i18n;
+  protected readonly _whenI18nReady: Promise<TFunction>;
+
+  @internalProperty()
+  protected _isI18nReady = false;
 
   /**
    * Creates class instance and starts loading missing translations
    * in background. Triggers render when ready.
    *
-   * @param __namespace Name of the folder translations for this component are stored in. Usually a node name without vendor prefix.
-   * @param __global Global (default) namespace for common translations.
+   * @param defaultNS Name of the folder translations for this component are stored in. Usually a node name without vendor prefix.
+   * @param fallbackNS Global (default) namespace for common translations.
    */
-  constructor(
-    private readonly __namespace: string,
-    private readonly __global: string = 'global'
-  ) {
+  constructor(defaultNS = 'global', fallbackNS = 'global') {
     super();
 
-    let whenInitialized: Promise<unknown>;
+    const { whenReady, i18n } = Translatable.__createI18nInstance(defaultNS, fallbackNS);
 
-    if (Translatable._i18n.isInitialized) {
-      whenInitialized = Translatable._i18n.loadNamespaces(this.__namespace);
-    } else {
-      Translatable._i18n.use(LanguageDetector);
-      Translatable._i18n.use(HttpApi);
+    this._i18n = i18n;
+    this._whenI18nReady = whenReady;
 
-      whenInitialized = Translatable._i18n.init({
-        partialBundledLanguages: true,
-        interpolation: { format: Translatable.__f },
-        fallbackLng: 'en',
-        backend: { loadPath: `${cdn}/translations/{{ns}}/{{lng}}.json` },
-        ns: [this.__global, this.__namespace],
-      });
-    }
-
-    whenInitialized.then(() => {
+    whenReady.then(() => {
+      this._isI18nReady = true;
       this.requestUpdate();
       this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
     });
-  }
-
-  /**
-   * Translation function locked to the component's namespace and
-   * the language specified by the `lang` attribute with fallbacks to
-   * the global namespace and the default language.
-   */
-  protected get _t(): TFunction {
-    return Translatable._i18n.getFixedT(this.lang, [
-      this.__namespace,
-      this.__global,
-    ]);
   }
 
   /**
@@ -117,12 +130,14 @@ export abstract class Translatable extends Themeable {
    */
   @property({ type: String, reflect: true, noAccessor: true })
   public get lang(): string {
-    return Translatable._i18n.language;
+    return this._i18n.language;
   }
   public set lang(value: string) {
-    Translatable._i18n.loadLanguages(value).then(() => {
-      this.requestUpdate();
-      this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
-    });
+    this._whenI18nReady
+      .then(() => this._i18n.changeLanguage(value))
+      .then(() => {
+        this.requestUpdate();
+        this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
+      });
   }
 }

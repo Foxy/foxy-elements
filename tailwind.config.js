@@ -145,14 +145,18 @@ const boxShadowMap = {
     'box-shadow-xxl',
     '0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.4)'
   ),
-  outline: `0 0 0 2px ${cssVar(
-    'primary-color-50pct',
-    'hsla(214, 90%, 52%, 0.5)'
-  )};`,
+  outline: `0 0 0 2px ${cssVar('primary-color-50pct', 'hsla(214, 90%, 52%, 0.5)')};`,
   'outline-base': `0 0 0 2px ${cssVar('base-color', '#fff')};`,
 };
 
 const fontFamilyMap = {
+  display: cssVar(
+    'display-font-family',
+    cssVar(
+      'font-family',
+      '-apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
+    )
+  ),
   lumo: cssVar(
     'font-family',
     '-apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
@@ -194,14 +198,7 @@ module.exports = {
     // enabled: true,
     // content: ['./src/**/*.*'],
   },
-  variants: [
-    'responsive',
-    'group-hover',
-    'group-focus',
-    'hover',
-    'focus',
-    'disabled',
-  ],
+  variants: ['responsive', 'group-hover', 'group-focus', 'hover', 'focus', 'disabled'],
   theme: {
     colors: colorsMap,
     spacing: spacingMap,

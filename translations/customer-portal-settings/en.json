@@ -1,4 +1,9 @@
 {
+  "jsonata": {
+    "all": "All",
+    "some": "Some",
+    "hint": "Enter a valid JSONata query selecting the subscriptions these rules will apply to. Please limit your expression to 200 characters."
+  },
   "title": "Customer Portal",
   "subtitle": "A dedicated place for your customers to view and manage their subscriptions, payment methods and recent transactions.",
   "quickstart": {
@@ -16,9 +21,6 @@
     "subtitle": "If enabled, your customers will be able to switch to a different payment schedule.",
     "options": "Options",
     "match": "Match",
-    "all": "All",
-    "some": "Some",
-    "hint": "Enter a valid JSONata query selecting the subscriptions these frequency modification rules will apply to. Please limit your expression to 200 characters.",
     "add": "Add option"
   },
   "ndmod": {
@@ -32,17 +34,15 @@
     "match": "Match",
     "allowed": "Allowed dates",
     "excluded": "Excluded dates",
-    "all": "All",
-    "some": "Some (advanced)",
     "month": "Specific dates",
     "monthHint": "Your customers will be able to select only {{days, list}} of the month as the next payment date.",
     "monthWarning": "Please note that dates from 29 to 31 may not always be available depending on the month and year.",
     "day": "Specific days of week",
     "dayHint": "Your customers will be able to select only {{days, list}} for the next payment date.",
     "select": "Select date",
-    "jsonataHint": "Enter a valid JSONata query selecting the subscriptions these next date modification rules will apply to. Please limit your expression to 200 characters.",
-    "noRestrictions": "No restrictions",
-    "customOffset": "Custom offset",
+    "all": "All",
+    "none": "No restrictions",
+    "custom": "Custom offset",
     "min": "Minimum",
     "max": "Maximum",
     "minHint": "Requires the new date to be at least {{duration}} into the future.",

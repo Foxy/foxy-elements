@@ -3,31 +3,94 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-    <style>
-      body {
-        background: var(--lumo-shade-5pct);
-        margin: 0;
-      }
-
-      #demo {
-        max-width: 720px;
-        margin: var(--lumo-space-xl) auto;
-        border-radius: var(--lumo-border-radius-l);
-      }
-    </style>
   </head>
 
   <body>
+    <style>
+      html {
+        --lumo-primary-text-color: rgb(97, 34, 109);
+        --lumo-primary-color-50pct: rgba(97, 34, 109, 0.5);
+        --lumo-primary-color-10pct: rgba(97, 34, 109, 0.1);
+        --lumo-primary-color: #61226d;
+        --lumo-error-text-color: rgb(228, 73, 101);
+        --lumo-error-color-50pct: rgba(228, 73, 101, 0.5);
+        --lumo-error-color-10pct: rgba(228, 73, 101, 0.1);
+        --lumo-error-color: #e44965;
+        --lumo-success-text-color: rgb(25, 190, 129);
+        --lumo-success-color-50pct: rgba(25, 190, 129, 0.5);
+        --lumo-success-color-10pct: rgba(25, 190, 129, 0.1);
+        --lumo-success-color: #19be81;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      @media screen and (min-width: 1024px) {
+        html {
+          background: black;
+        }
+        .main {
+          position: fixed;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+        }
+
+        .nav {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          width: 72px;
+          background: #61226d;
+        }
+
+        .aside {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 72px;
+          width: 320px;
+          background: #61226d;
+          opacity: 0.75;
+        }
+
+        .demo {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 392px;
+          overflow: auto;
+          background: white;
+        }
+
+        .demo > * {
+          max-width: 800px;
+        }
+      }
+    </style>
+
     <script>
       /* Trick XState into thinking it runs in Node */
       window.process = { env: {} };
     </script>
 
-    <div id="demo"></div>
+    <div class="main">
+      <div class="nav"></div>
+      <div class="aside"></div>
+      <div class="demo">
+        <div id="demo"></div>
+      </div>
+    </div>
 
     <script type="module">
       /* eslint-disable @typescript-eslint/camelcase */
-      import './dist/index.js';
+      import { CustomerPortalSettings } from './dist/index.js';
+
+      customElements.define('foxy-customer-portal-settings', CustomerPortalSettings);
 
       /* Respond with 200 OK and request body to any request */
       function emulateRequest({ detail }) {
@@ -71,9 +134,10 @@
         },
       };
 
-      const element = document.createElement('foxy-customer-portal-settings');
+      const element = new CustomerPortalSettings();
 
-      element.resource = demoResource;
+      element.service.state.context = demoResource;
+      element.requestUpdate();
       element.addEventListener('request', emulateRequest);
 
       document.querySelector('#demo').append(element);

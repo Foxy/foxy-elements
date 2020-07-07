@@ -19,6 +19,7 @@ vaadin-text-field,
 vaadin-date-picker,
 vaadin-email-field,
 vaadin-number-field,
+vaadin-integer-field,
 vaadin-password-field {
   padding-top: 0;
   padding-bottom: 0;
