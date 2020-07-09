@@ -26,6 +26,12 @@ module.exports = config => {
       frameworks: ['esm'],
       esm: {
         nodeResolve: true,
+        plugins: [
+          require('./plugins/set-node-env')('production'),
+          require('./plugins/fix-xstate-chalk-imports'),
+          require('./plugins/use-es-version-of-xstate'),
+          require('./plugins/tailwind'),
+        ],
       },
     })
   );
