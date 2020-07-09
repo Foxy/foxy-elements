@@ -3,7 +3,7 @@ import { property, html } from 'lit-element';
 import { JSONataInput, JSONataInputChangeEvent } from './jsonata-input';
 import { FrequencyList, FrequencyListChangeEvent } from './frequency-list';
 import { Group } from '../../../private/group';
-import { Checkbox } from '../../../private/checkbox';
+import { Checkbox } from '../../../private/checkbox/Checkbox';
 import { Section } from '../../../private/section';
 
 interface FrequencyModificationRule {

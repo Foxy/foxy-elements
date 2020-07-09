@@ -7,7 +7,7 @@ import {
   NextDateModificationRuleChangeEvent,
 } from './next-date-modification-rule';
 
-import { Checkbox } from '../../../private/checkbox';
+import { Checkbox } from '../../../private/checkbox/Checkbox';
 import { Section } from '../../../private/section';
 
 interface Rule {
