@@ -5,17 +5,6 @@ import { interpret } from 'xstate';
 import { CheckboxMachine } from './CheckboxMachine';
 import { CheckboxChangeEvent } from './CheckboxChangeEvent';
 
-// function test() {
-//   const checkbox = document.createElement('vaadin-checkbox');
-//   document.body.appendChild(checkbox);
-
-//   checkbox.click();
-//   checkbox.disabled = true;
-//   checkbox.checked = true;
-
-//   console.assert(checkbox.checked === true);
-// }
-
 export class Checkbox extends Themeable {
   public static get scopedElements() {
     return {
