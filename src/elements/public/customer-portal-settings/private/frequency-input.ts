@@ -3,8 +3,9 @@ import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { html, property } from 'lit-element';
 import { live } from 'lit-html/directives/live';
 import { Translatable } from '../../../../mixins/translatable';
-import { Dropdown, DropdownChangeEvent } from '../../../private/dropdown/Dropdown';
+import { Dropdown } from '../../../private/dropdown/Dropdown';
 import { parseDuration } from '../../../../utils/parse-duration';
+import { DropdownChangeEvent } from '../../../private/dropdown/DropdownChangeEvent';
 
 export class FrequencyInputChangeEvent extends DropdownChangeEvent {}
 
@@ -52,7 +53,7 @@ export class FrequencyInput extends Translatable {
           .disabled=${this.disabled}
           .getText=${(v: string) => this._i18n.t(`${v}_plural`)}
           .items=${this.__items}
-          .value=${live(this.__unitsValue)}
+          .value=${this.__unitsValue}
           @change=${this.__handleUnitsChange}
         >
         </x-dropdown>

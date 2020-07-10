@@ -1,9 +1,7 @@
 import '@vaadin/vaadin-select';
 import { html } from 'lit-element';
 import { Choice } from '../choice/Choice';
-import { ChoiceChangeEvent } from '../choice/ChoiceChangeEvent';
-
-export class DropdownChangeEvent extends ChoiceChangeEvent {}
+import { DropdownChangeEvent } from './DropdownChangeEvent';
 
 export class Dropdown extends Choice {
   public static get scopedElements() {
