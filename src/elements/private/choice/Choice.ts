@@ -78,6 +78,7 @@ export class Choice extends Themeable {
             <vaadin-radio-button
               class="w-full"
               value=${item}
+              data-testid=${`item-${item}`}
               ?checked=${this.value === item}
               .disabled=${this.disabled}
               @keydown=${this.__overrideFocus}
