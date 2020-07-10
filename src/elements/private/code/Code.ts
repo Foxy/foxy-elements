@@ -31,6 +31,12 @@ export class Code extends Themeable {
   @query('code')
   private __container!: HTMLElement;
 
+  private __ready = false;
+
+  get ready() {
+    return this.__ready;
+  }
+
   async firstUpdated() {
     const slot = this.shadowRoot!.querySelector('slot');
     const window = this.ownerDocument!.defaultView as null | ExtendedWindow;
@@ -52,6 +58,7 @@ export class Code extends Themeable {
 
     window?.hljs.highlightBlock(this.__container);
     this.dispatchEvent(new CodeReadyEvent());
+    this.__ready = true;
   }
 
   private async __loadScript(src: string, comment: string) {
