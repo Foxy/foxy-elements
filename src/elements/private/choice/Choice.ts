@@ -1,6 +1,8 @@
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 import { Themeable } from '../../../mixins/themeable';
 import { html, property } from 'lit-element';
+import { ChoiceMachine, ChoiceContext } from './ChoiceMachine';
+import { actions, interpret } from 'xstate/dist/xstate.web.js';
 
 export class ChoiceChangeEvent extends CustomEvent<string> {
   constructor(value: string) {
@@ -16,17 +18,58 @@ export class Choice extends Themeable {
     };
   }
 
-  @property({ type: Boolean })
-  public disabled = false;
+  private readonly __machine = ChoiceMachine.withConfig({
+    actions: {
+      choose: actions.assign({
+        value: (ctx, evt) => {
+          if (evt.type !== 'CHOOSE') return ctx.value;
+          this.dispatchEvent(new ChoiceChangeEvent(evt.value));
+          return evt.value;
+        },
+      }),
+      init: actions.assign({
+        getText: (ctx, evt) => (evt.type === 'INIT' && evt.getText ? evt.getText : ctx.getText),
+        items: (ctx, evt) => (evt.type === 'INIT' && evt.items ? evt.items : ctx.items),
+        value: (ctx, evt) => (evt.type === 'INIT' && evt.value ? evt.value : ctx.value),
+      }),
+    },
+  });
 
-  @property({ type: String })
-  public value = '';
+  private readonly __service = interpret(this.__machine)
+    .onTransition(state => state.changed && this.requestUpdate())
+    .start();
 
-  @property({ type: Object })
-  public items: string[] = [];
+  @property({ type: Boolean, noAccessor: true })
+  public get disabled() {
+    return this.__service.state.matches('disabled');
+  }
+  public set disabled(value: boolean) {
+    this.__service.send(value ? 'DISABLE' : 'ENABLE');
+  }
 
-  @property({ type: Object })
-  public getText: (value: string) => string = v => v;
+  @property({ type: String, noAccessor: true })
+  public get value() {
+    return this.__service.state.context.value;
+  }
+  public set value(value: ChoiceContext['value']) {
+    this.__service.send({ type: 'INIT', value });
+  }
+
+  @property({ type: Object, noAccessor: true })
+  public get items() {
+    return this.__service.state.context.items;
+  }
+  public set items(items: ChoiceContext['items']) {
+    this.__service.send({ type: 'INIT', items });
+  }
+
+  @property({ type: Object, noAccessor: true })
+  public get getText() {
+    return this.__service.state.context.getText;
+  }
+  public set getText(getText: ChoiceContext['getText']) {
+    this.__service.send({ type: 'INIT', getText });
+  }
 
   public render() {
     return html`
@@ -45,8 +88,7 @@ export class Choice extends Themeable {
               @keydown=${this.__overrideFocus}
               @change=${(evt: Event) => {
                 if ((evt.target as HTMLInputElement).checked) {
-                  this.value = item;
-                  this.dispatchEvent(new ChoiceChangeEvent(item));
+                  this.__service.send({ type: 'CHOOSE', value: item });
                 }
               }}
             >
