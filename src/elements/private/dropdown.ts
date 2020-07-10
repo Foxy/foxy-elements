@@ -1,6 +1,6 @@
 import '@vaadin/vaadin-select';
 import { html } from 'lit-element';
-import { ChoiceChangeEvent, Choice } from './choice';
+import { ChoiceChangeEvent, Choice } from './choice/Choice';
 
 export class DropdownChangeEvent extends ChoiceChangeEvent {}
 

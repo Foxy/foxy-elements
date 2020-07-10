@@ -1,5 +1,5 @@
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
-import { Themeable } from '../../mixins/themeable';
+import { Themeable } from '../../../mixins/themeable';
 import { html, property } from 'lit-element';
 
 export class ChoiceChangeEvent extends CustomEvent<string> {

@@ -2,7 +2,7 @@ import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
 import { live } from 'lit-html/directives/live';
 import { Translatable } from '../../../../mixins/translatable';
-import { Choice, ChoiceChangeEvent } from '../../../private/choice';
+import { Choice, ChoiceChangeEvent } from '../../../private/choice/Choice';
 import { MonthdayPicker, MonthdayPickerChangeEvent } from '../../../private/monthday-picker';
 import { WeekdayPicker, WeekdayPickerChangeEvent } from '../../../private/weekday-picker';
 
