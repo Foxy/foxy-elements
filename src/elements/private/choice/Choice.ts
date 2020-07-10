@@ -1,14 +1,9 @@
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
-import { Themeable } from '../../../mixins/themeable';
 import { html, property } from 'lit-element';
-import { ChoiceMachine, ChoiceContext } from './ChoiceMachine';
 import { actions, interpret } from 'xstate/dist/xstate.web.js';
-
-export class ChoiceChangeEvent extends CustomEvent<string> {
-  constructor(value: string) {
-    super('change', { detail: value });
-  }
-}
+import { Themeable } from '../../../mixins/themeable';
+import { ChoiceChangeEvent } from './ChoiceChangeEvent';
+import { ChoiceContext, ChoiceMachine } from './ChoiceMachine';
 
 export class Choice extends Themeable {
   public static get scopedElements() {

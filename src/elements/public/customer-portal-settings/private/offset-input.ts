@@ -1,7 +1,8 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
-import { Choice, ChoiceChangeEvent } from '../../../private/choice/Choice';
+import { Choice } from '../../../private/choice/Choice';
+import { ChoiceChangeEvent } from '../../../private/choice/ChoiceChangeEvent';
 import { FrequencyInputChangeEvent, FrequencyInput } from './frequency-input';
 import { parseDuration } from '../../../../utils/parse-duration';
 import { Group } from '../../../private/group';
