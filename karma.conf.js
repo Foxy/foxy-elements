@@ -26,6 +26,7 @@ module.exports = config => {
       frameworks: ['esm'],
       esm: {
         nodeResolve: true,
+        coverageExclude: ['dist/**/*.test.js'],
         plugins: [
           require('./plugins/set-node-env')('production'),
           require('./plugins/fix-xstate-chalk-imports'),
