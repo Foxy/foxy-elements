@@ -3,7 +3,7 @@ import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { html, property } from 'lit-element';
 import { live } from 'lit-html/directives/live';
 import { Translatable } from '../../../../mixins/translatable';
-import { Dropdown, DropdownChangeEvent } from '../../../private/dropdown';
+import { Dropdown, DropdownChangeEvent } from '../../../private/dropdown/Dropdown';
 import { parseDuration } from '../../../../utils/parse-duration';
 
 export class FrequencyInputChangeEvent extends DropdownChangeEvent {}
