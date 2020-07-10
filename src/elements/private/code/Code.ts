@@ -1,5 +1,6 @@
 import { html, internalProperty, query, css } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
+import { CodeReadyEvent } from './CodeReadyEvent';
 
 type ExtendedWindow = Window & {
   hljs: { highlightBlock: (element: Element) => void };
@@ -50,6 +51,7 @@ export class Code extends Themeable {
     }
 
     window?.hljs.highlightBlock(this.__container);
+    this.dispatchEvent(new CodeReadyEvent());
   }
 
   private async __loadScript(src: string, comment: string) {
