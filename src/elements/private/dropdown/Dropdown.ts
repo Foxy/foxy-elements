@@ -8,6 +8,7 @@ export class Dropdown extends Choice {
     return {
       ...super.scopedElements,
       'vaadin-select': customElements.get('vaadin-select'),
+      'vaadin-item': customElements.get('vaadin-item'),
     };
   }
 
@@ -15,6 +16,7 @@ export class Dropdown extends Choice {
     return html`
       <vaadin-select
         class="w-full"
+        data-testid="select"
         .value=${this.value}
         .disabled=${this.disabled}
         .renderer=${this.__renderItems.bind(this)}
