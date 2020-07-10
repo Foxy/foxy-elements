@@ -3,7 +3,7 @@ import '@vaadin/vaadin-text-field/vaadin-password-field';
 import { html } from 'lit-html';
 import { live } from 'lit-html/directives/live';
 import { Stateful } from '../../../mixins/stateful';
-import { Code } from '../../private/code';
+import { Code } from '../../private/code/Code';
 import { OriginsList, OriginsListChangeEvent } from './private/origins-list';
 
 import {
