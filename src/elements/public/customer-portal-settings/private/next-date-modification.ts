@@ -60,8 +60,8 @@ export class NextDateModification extends Translatable {
         @change=${this.__toggleValue}
       >
         <x-section
-          .header=${this._i18n.t('ndmod.title')}
-          .subheader=${this._i18n.t('ndmod.subtitle')}
+          .header=${this._i18n.t('ndmod.title').toString()}
+          .subheader=${this._i18n.t('ndmod.subtitle').toString()}
         >
         </x-section>
 

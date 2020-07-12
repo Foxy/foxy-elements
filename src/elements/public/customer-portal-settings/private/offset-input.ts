@@ -55,7 +55,7 @@ export class OffsetInput extends Translatable {
 
   public render() {
     return html`
-      <x-group .header=${this._i18n.t(`ndmod.${this.type}`)}>
+      <x-group .header=${this._i18n.t(`ndmod.${this.type}`).toString()}>
         <x-choice
           .value=${this.__choice}
           .items=${this.__items}

@@ -65,15 +65,15 @@ export class FrequencyModification extends Translatable {
         @change=${this.__toggleValue}
       >
         <x-section
-          .header=${this._i18n.t('fmod.title')}
-          .subheader=${this._i18n.t('fmod.subtitle')}
+          .header=${this._i18n.t('fmod.title').toString()}
+          .subheader=${this._i18n.t('fmod.subtitle').toString()}
         >
         </x-section>
 
         ${this.value
           ? html`
               <div class="space-y-m pt-m" slot="content">
-                <x-group .header=${this._i18n.t('fmod.match')} frame>
+                <x-group .header=${this._i18n.t('fmod.match').toString()} frame>
                   <x-jsonata-input
                     .value=${this.__normalizedQuery}
                     .disabled=${disabled}
@@ -82,7 +82,7 @@ export class FrequencyModification extends Translatable {
                   </x-jsonata-input>
                 </x-group>
 
-                <x-group .header=${this._i18n.t('fmod.options')} frame>
+                <x-group .header=${this._i18n.t('fmod.options').toString()} frame>
                   <x-frequency-list
                     .value=${this.__normalizedValues}
                     .disabled=${disabled}

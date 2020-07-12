@@ -101,7 +101,7 @@ export class NextDateModificationRule extends Translatable {
           </summary>
 
           <article class="space-y-m">
-            <x-group .header=${this._i18n.t('ndmod.match')}>
+            <x-group .header=${this._i18n.t('ndmod.match').toString()}>
               <x-jsonata-input
                 .lang=${this.lang}
                 .value=${jsonataQuery}
@@ -148,7 +148,7 @@ export class NextDateModificationRule extends Translatable {
               ? html`<x-warning class="mx-m">${this._i18n.t('ndmod.minWarning')}</x-warning>`
               : ''}
 
-            <x-group .header=${this._i18n.t('ndmod.allowed')}>
+            <x-group .header=${this._i18n.t('ndmod.allowed').toString()}>
               <x-allowed-days
                 .lang=${this.lang}
                 .value=${allowedDays}
@@ -161,7 +161,7 @@ export class NextDateModificationRule extends Translatable {
               </x-allowed-days>
             </x-group>
 
-            <x-group .header=${this._i18n.t('ndmod.excluded')}>
+            <x-group .header=${this._i18n.t('ndmod.excluded').toString()}>
               <x-disallowed-dates
                 .lang=${this.lang}
                 .value=${disallowedDates ?? []}
