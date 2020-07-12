@@ -1,7 +1,7 @@
 import { createMachine } from 'xstate';
 import { MonthdayPicker } from './MonthdayPicker';
 import { expect, fixture } from '@open-wc/testing';
-import { WeekdayPicker } from '../weekday-picker';
+import { WeekdayPicker } from '../weekday-picker/WeekdayPicker';
 import { createModel } from '@xstate/test';
 import { MonthdayPickerChangeEvent } from './MonthdayPickerChangeEvent';
 

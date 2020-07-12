@@ -6,7 +6,10 @@ import { Choice } from '../../../private/choice/Choice';
 import { ChoiceChangeEvent } from '../../../private/choice/ChoiceChangeEvent';
 import { MonthdayPicker } from '../../../private/monthday-picker/MonthdayPicker';
 import { MonthdayPickerChangeEvent } from '../../../private/monthday-picker/MonthdayPickerChangeEvent';
-import { WeekdayPicker, WeekdayPickerChangeEvent } from '../../../private/weekday-picker';
+import {
+  WeekdayPicker,
+  WeekdayPickerChangeEvent,
+} from '../../../private/weekday-picker/WeekdayPicker';
 
 interface Rule {
   type: 'day' | 'month';
