@@ -1,12 +1,12 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
-import { Choice } from '../../../private/choice/Choice';
-import { ChoiceChangeEvent } from '../../../private/choice/ChoiceChangeEvent';
-import { MonthdayPicker } from '../../../private/monthday-picker/MonthdayPicker';
-import { MonthdayPickerChangeEvent } from '../../../private/monthday-picker/MonthdayPickerChangeEvent';
-import { WeekdayPicker } from '../../../private/weekday-picker/WeekdayPicker';
-import { WeekdayPickerChangeEvent } from '../../../private/weekday-picker/WeekdayPickerChangeEvent';
+import { Choice } from '../../../private/Choice/Choice';
+import { ChoiceChangeEvent } from '../../../private/Choice/ChoiceChangeEvent';
+import { MonthdayPicker } from '../../../private/MonthdayPicker/MonthdayPicker';
+import { MonthdayPickerChangeEvent } from '../../../private/MonthdayPicker/MonthdayPickerChangeEvent';
+import { WeekdayPicker } from '../../../private/WeekdayPicker/WeekdayPicker';
+import { WeekdayPickerChangeEvent } from '../../../private/WeekdayPicker/WeekdayPickerChangeEvent';
 
 interface Rule {
   type: 'day' | 'month';

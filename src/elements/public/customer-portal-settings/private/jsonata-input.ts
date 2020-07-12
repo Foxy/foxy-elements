@@ -2,8 +2,8 @@ import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
 import { live } from 'lit-html/directives/live';
 import { Translatable } from '../../../../mixins/translatable';
-import { Choice } from '../../../private/choice/Choice';
-import { ChoiceChangeEvent } from '../../../private/choice/ChoiceChangeEvent';
+import { Choice } from '../../../private/Choice/Choice';
+import { ChoiceChangeEvent } from '../../../private/Choice/ChoiceChangeEvent';
 
 export class JSONataInputChangeEvent extends ChoiceChangeEvent {}
 

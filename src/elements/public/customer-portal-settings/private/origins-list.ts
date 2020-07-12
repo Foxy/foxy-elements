@@ -1,10 +1,10 @@
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, query, property } from 'lit-element';
-import { List } from '../../../private/list/List';
-import { ListChangeEvent } from '../../../private/list/ListChangeEvent';
+import { List } from '../../../private/List/List';
+import { ListChangeEvent } from '../../../private/List/ListChangeEvent';
 import { Translatable } from '../../../../mixins/translatable';
-import { Group } from '../../../private/group/Group';
+import { Group } from '../../../private/Group/Group';
 
 export class OriginsListChangeEvent extends ListChangeEvent {}
 
