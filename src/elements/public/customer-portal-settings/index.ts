@@ -23,7 +23,7 @@ import {
 } from './types';
 
 import { machine } from './machine';
-import { Page } from '../../private/page';
+import { Page } from '../../private/page/Page';
 import { Section } from '../../private/section';
 
 export class CustomerPortalSettings extends Stateful<

@@ -1,5 +1,5 @@
 import { html, css } from 'lit-element';
-import { Page } from './page';
+import { Page } from './page/Page';
 
 export class Section extends Page {
   public static get styles() {

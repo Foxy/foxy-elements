@@ -1,6 +1,6 @@
 import '@vaadin/vaadin-lumo-styles';
 import { html, property, css } from 'lit-element';
-import { Themeable } from '../../mixins/themeable';
+import { Themeable } from '../../../mixins/themeable';
 
 export class Page extends Themeable {
   public static get styles() {
