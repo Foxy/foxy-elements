@@ -57,7 +57,7 @@ export class AllowedDays extends Translatable {
               <x-monthday-picker
                 slot="month"
                 .disabled=${this.disabled}
-                .value=${live(this.value.days)}
+                .value=${this.value.days}
                 @change=${this.__handleNewValueChange}
               >
               </x-monthday-picker>
