@@ -38,7 +38,7 @@ export class Page extends Themeable {
           </p>
         </header>
 
-        <slot></slot>
+        ${this.skeleton ? '' : html`<slot></slot>`}
       </article>
     `;
   }
