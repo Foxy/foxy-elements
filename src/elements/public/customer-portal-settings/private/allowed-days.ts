@@ -4,10 +4,8 @@ import { live } from 'lit-html/directives/live';
 import { Translatable } from '../../../../mixins/translatable';
 import { Choice } from '../../../private/choice/Choice';
 import { ChoiceChangeEvent } from '../../../private/choice/ChoiceChangeEvent';
-import {
-  MonthdayPicker,
-  MonthdayPickerChangeEvent,
-} from '../../../private/monthday-picker/MonthdayPicker';
+import { MonthdayPicker } from '../../../private/monthday-picker/MonthdayPicker';
+import { MonthdayPickerChangeEvent } from '../../../private/monthday-picker/MonthdayPickerChangeEvent';
 import { WeekdayPicker, WeekdayPickerChangeEvent } from '../../../private/weekday-picker';
 
 interface Rule {

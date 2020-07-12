@@ -1,12 +1,7 @@
 import { html, property } from 'lit-element';
 import { concatTruthy } from '../../../utils/concat-truthy';
 import { Translatable } from '../../../mixins/translatable';
-
-export class MonthdayPickerChangeEvent extends CustomEvent<number[]> {
-  constructor(value: number[]) {
-    super('change', { detail: value });
-  }
-}
+import { MonthdayPickerChangeEvent } from './MonthdayPickerChangeEvent';
 
 export class MonthdayPicker extends Translatable {
   protected static readonly _allDays = Array.from(new Array(31), (_, i) => i + 1);
