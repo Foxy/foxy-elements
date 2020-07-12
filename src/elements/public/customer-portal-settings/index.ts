@@ -61,8 +61,8 @@ export class CustomerPortalSettings extends Stateful<
     return html`
       <x-page .header=${this._i18n.t('title')} .subheader=${this._i18n.t('subtitle')}>
         <x-section
-          .header=${this._i18n.t('quickstart.title')}
-          .subheader=${this._i18n.t('quickstart.subtitle')}
+          .header=${this._i18n.t('quickstart.title').toString()}
+          .subheader=${this._i18n.t('quickstart.subtitle').toString()}
         >
           <x-code>
             <template>
@@ -74,8 +74,8 @@ export class CustomerPortalSettings extends Stateful<
         </x-section>
 
         <x-section
-          .header=${this._i18n.t('origins.title')}
-          .subheader=${this._i18n.t('origins.subtitle')}
+          .header=${this._i18n.t('origins.title').toString()}
+          .subheader=${this._i18n.t('origins.subtitle').toString()}
         >
           <x-origins-list
             .lang=${this.lang}
@@ -104,7 +104,10 @@ export class CustomerPortalSettings extends Stateful<
         >
         </x-next-date-modification>
 
-        <x-section .header=${this._i18n.t('jwt.title')} .subheader=${this._i18n.t('jwt.subtitle')}>
+        <x-section
+          .header=${this._i18n.t('jwt.title').toString()}
+          .subheader=${this._i18n.t('jwt.subtitle').toString()}
+        >
           <vaadin-password-field
             class="w-full"
             .value=${live(this.service.state.context.jwtSharedSecret)}
@@ -117,8 +120,8 @@ export class CustomerPortalSettings extends Stateful<
         </x-section>
 
         <x-section
-          .header=${this._i18n.t('session.title')}
-          .subheader=${this._i18n.t('session.subtitle')}
+          .header=${this._i18n.t('session.title').toString()}
+          .subheader=${this._i18n.t('session.subtitle').toString()}
         >
           <vaadin-integer-field
             min="1"
