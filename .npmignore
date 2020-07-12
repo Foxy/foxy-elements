@@ -1,0 +1,12 @@
+# exclude everything by default
+*
+
+# then include only files inside /dist/
+!dist/**/*
+
+# except for tests and their source maps
+**/*.test.js
+**/*.test.js.map
+
+# and some system files
+.DS_Store
