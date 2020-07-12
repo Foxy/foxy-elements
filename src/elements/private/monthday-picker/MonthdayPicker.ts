@@ -12,10 +12,6 @@ export class MonthdayPicker extends Translatable {
   @property({ type: Array })
   public value: number[] = [];
 
-  constructor() {
-    super('customer-portal-settings');
-  }
-
   protected _getLabelClass(day: number) {
     let base = 'flex items-center justify-center m-xs p-s rounded text-m font-medium ';
 
@@ -55,10 +51,10 @@ export class MonthdayPicker extends Translatable {
           this.value.length > 0 &&
             html`
               <p class="text-s text-tertiary leading-s">
-                ${this._i18n.t('ndmod.monthHint', { days: this.value })}
+                ${this._i18n.t('monthday-picker.hint', { days: this.value })}
                 ${concatTruthy(
                   [29, 30, 31].some(day => this.value.includes(day)) &&
-                    this._i18n.t('ndmod.monthWarning')
+                    this._i18n.t('monthday-picker.warning')
                 )}
               </p>
             `

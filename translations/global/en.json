@@ -12,5 +12,9 @@
   "minute": "Minute",
   "minute_plural": "Minutes",
   "duration": "{{count}} {{units, lowercase}}",
-  "and": "and"
+  "and": "and",
+  "monthday-picker": {
+    "hint": "Allow selecting only {{days, list}} of the month.",
+    "warning": "Please note that dates from 29 to 31 may not always be available depending on the month and year."
+  }
 }
