@@ -40,7 +40,7 @@ export class MonthdayPicker extends Translatable {
                   class="sr-only"
                   ?disabled=${this.disabled}
                   ?checked=${this.value.includes(day)}
-                  @change=${(evt: Event) => [evt.stopPropagation(), this._toggle(day)]}
+                  @change=${(evt: Event) => this._handleChange(evt, day)}
                 />
               </label>
             `;
@@ -63,9 +63,18 @@ export class MonthdayPicker extends Translatable {
     `;
   }
 
+  protected _handleChange(evt: Event, day: number) {
+    evt.stopPropagation();
+    this._toggle(day);
+    this._sendChange();
+  }
+
+  protected _sendChange() {
+    this.dispatchEvent(new MonthdayPickerChangeEvent(this.value));
+  }
+
   protected _toggle(value: number) {
     const index = this.value.indexOf(value);
     this.value = index === -1 ? [...this.value, value] : this.value.filter((_, i) => i !== index);
-    this.dispatchEvent(new MonthdayPickerChangeEvent(this.value));
   }
 }

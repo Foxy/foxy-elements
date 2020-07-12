@@ -2,6 +2,7 @@ import { html } from 'lit-element';
 import { concatTruthy } from '../../../utils/concat-truthy';
 import { translateWeekday } from '../../../utils/translate-weekday';
 import { MonthdayPicker } from '../monthday-picker/MonthdayPicker';
+import { WeekdayPickerChangeEvent } from './WeekdayPickerChangeEvent';
 
 export class WeekdayPicker extends MonthdayPicker {
   protected static readonly _allDays = new Array(7).fill(0).map((_, i) => i);
@@ -25,7 +26,7 @@ export class WeekdayPicker extends MonthdayPicker {
                   class="sr-only"
                   ?disabled=${this.disabled}
                   ?checked=${this.value.includes(day)}
-                  @change=${(evt: Event) => [evt.stopPropagation(), this._toggle(day)]}
+                  @change=${(evt: Event) => this._handleChange(evt, day)}
                 />
               </label>
             `;
@@ -42,5 +43,9 @@ export class WeekdayPicker extends MonthdayPicker {
         )}
       </div>
     `;
+  }
+
+  protected _sendChange() {
+    this.dispatchEvent(new WeekdayPickerChangeEvent(this.value));
   }
 }
