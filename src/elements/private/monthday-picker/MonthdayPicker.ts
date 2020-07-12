@@ -1,6 +1,6 @@
 import { html, property } from 'lit-element';
-import { concatTruthy } from '../../utils/concat-truthy';
-import { Translatable } from '../../mixins/translatable';
+import { concatTruthy } from '../../../utils/concat-truthy';
+import { Translatable } from '../../../mixins/translatable';
 
 export class MonthdayPickerChangeEvent extends CustomEvent<number[]> {
   constructor(value: number[]) {

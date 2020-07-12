@@ -1,7 +1,7 @@
 import { html } from 'lit-element';
 import { concatTruthy } from '../../utils/concat-truthy';
 import { translateWeekday } from '../../utils/translate-weekday';
-import { MonthdayPicker, MonthdayPickerChangeEvent } from './monthday-picker';
+import { MonthdayPicker, MonthdayPickerChangeEvent } from './monthday-picker/MonthdayPicker';
 
 export class WeekdayPickerChangeEvent extends MonthdayPickerChangeEvent {}
 
