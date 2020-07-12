@@ -1,6 +1,5 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
-import { live } from 'lit-html/directives/live';
 import { Translatable } from '../../../../mixins/translatable';
 import { Choice } from '../../../private/choice/Choice';
 import { ChoiceChangeEvent } from '../../../private/choice/ChoiceChangeEvent';
@@ -68,7 +67,7 @@ export class AllowedDays extends Translatable {
               <x-weekday-picker
                 slot="day"
                 .disabled=${this.disabled}
-                .value=${live(this.value.days)}
+                .value=${this.value.days}
                 @change=${this.__handleNewValueChange}
               >
               </x-weekday-picker>
