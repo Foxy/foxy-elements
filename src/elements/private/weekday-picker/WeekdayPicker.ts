@@ -37,7 +37,7 @@ export class WeekdayPicker extends MonthdayPicker {
           this.value.length > 0 &&
             html`
               <p class="text-s text-tertiary leading-s">
-                ${this._i18n.t('ndmod.dayHint', { days: this.value })}
+                ${this._i18n.t('weekday-picker.hint', { days: this.value })}
               </p>
             `
         )}
