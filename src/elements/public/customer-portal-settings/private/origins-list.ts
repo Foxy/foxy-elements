@@ -3,7 +3,7 @@ import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, query, property } from 'lit-element';
 import { List, ListChangeEvent } from '../../../private/list';
 import { Translatable } from '../../../../mixins/translatable';
-import { Group } from '../../../private/group';
+import { Group } from '../../../private/group/Group';
 
 export class OriginsListChangeEvent extends ListChangeEvent {}
 

@@ -1,5 +1,5 @@
 import { html, property } from 'lit-element';
-import { Themeable } from '../../mixins/themeable';
+import { Themeable } from '../../../mixins/themeable';
 
 export class Group extends Themeable {
   @property({ type: String })

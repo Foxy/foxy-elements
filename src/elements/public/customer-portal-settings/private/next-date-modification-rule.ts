@@ -8,7 +8,7 @@ import { DisallowedDates, DisallowedDatesChangeEvent } from './disallowed-dates'
 import { JSONataInput, JSONataInputChangeEvent } from './jsonata-input';
 import { OffsetInput, OffsetInputChangeEvent } from './offset-input';
 import { AllowedDaysChangeEvent, AllowedDays } from './allowed-days';
-import { Group } from '../../../private/group';
+import { Group } from '../../../private/group/Group';
 import { Warning } from '../../../private/warning';
 
 interface Rule {
