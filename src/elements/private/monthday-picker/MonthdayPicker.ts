@@ -9,7 +9,7 @@ export class MonthdayPicker extends Translatable {
   @property({ type: Boolean })
   public disabled = false;
 
-  @property({ type: Object })
+  @property({ type: Array })
   public value: number[] = [];
 
   constructor() {
