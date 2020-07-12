@@ -2,9 +2,6 @@ import { html } from 'lit-element';
 import { concatTruthy } from '../../../utils/concat-truthy';
 import { translateWeekday } from '../../../utils/translate-weekday';
 import { MonthdayPicker } from '../monthday-picker/MonthdayPicker';
-import { MonthdayPickerChangeEvent } from '../monthday-picker/MonthdayPickerChangeEvent';
-
-export class WeekdayPickerChangeEvent extends MonthdayPickerChangeEvent {}
 
 export class WeekdayPicker extends MonthdayPicker {
   protected static readonly _allDays = new Array(7).fill(0).map((_, i) => i);
