@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-date-picker';
 import { property, html } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
-import { ListChangeEvent, List } from '../../../private/list';
+import { ListChangeEvent, List } from '../../../private/list/List';
 
 export class DisallowedDatesChangeEvent extends ListChangeEvent {}
 

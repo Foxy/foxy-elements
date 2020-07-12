@@ -1,6 +1,6 @@
 import { property, html } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
-import { ListChangeEvent, List } from '../../../private/list';
+import { ListChangeEvent, List } from '../../../private/list/List';
 import { FrequencyInput, FrequencyInputChangeEvent } from './frequency-input';
 
 export class FrequencyListChangeEvent extends ListChangeEvent {}
