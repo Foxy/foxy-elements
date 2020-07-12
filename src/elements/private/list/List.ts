@@ -1,11 +1,6 @@
 import { html, property } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
-
-export class ListChangeEvent extends CustomEvent<string[]> {
-  constructor(value: string[]) {
-    super('change', { detail: value });
-  }
-}
+import { ListChangeEvent } from './ListChangeEvent';
 
 export class List extends Themeable {
   public static get scopedElements() {
