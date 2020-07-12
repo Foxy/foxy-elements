@@ -1,5 +1,5 @@
 import { html } from 'lit-element';
-import { Themeable } from '../../mixins/themeable';
+import { Themeable } from '../../../mixins/themeable';
 
 export class Warning extends Themeable {
   public static get scopedElements() {

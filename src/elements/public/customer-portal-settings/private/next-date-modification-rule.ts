@@ -9,7 +9,7 @@ import { JSONataInput, JSONataInputChangeEvent } from './jsonata-input';
 import { OffsetInput, OffsetInputChangeEvent } from './offset-input';
 import { AllowedDaysChangeEvent, AllowedDays } from './allowed-days';
 import { Group } from '../../../private/group/Group';
-import { Warning } from '../../../private/warning';
+import { Warning } from '../../../private/warning/Warning';
 
 interface Rule {
   min?: string;
