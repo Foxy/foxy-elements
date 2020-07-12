@@ -2,9 +2,7 @@ import { Translatable } from '../../../../mixins/translatable';
 import { property, html } from 'lit-element';
 import { JSONataInput, JSONataInputChangeEvent } from './jsonata-input';
 import { FrequencyList, FrequencyListChangeEvent } from './frequency-list';
-import { Group } from '../../../private/Group/Group';
-import { Checkbox } from '../../../private/Checkbox/Checkbox';
-import { Section } from '../../../private/Section/Section';
+import { Checkbox, Section, Group } from '../../../private/index';
 
 interface FrequencyModificationRule {
   jsonataQuery: string;

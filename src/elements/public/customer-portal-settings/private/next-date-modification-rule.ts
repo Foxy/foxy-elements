@@ -4,12 +4,11 @@ import { concatTruthy } from '../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../utils/parse-duration';
 import { prevent } from '../../../../utils/prevent';
 import { translateWeekday } from '../../../../utils/translate-weekday';
+import { Warning, Group } from '../../../private/index';
 import { DisallowedDates, DisallowedDatesChangeEvent } from './disallowed-dates';
 import { JSONataInput, JSONataInputChangeEvent } from './jsonata-input';
 import { OffsetInput, OffsetInputChangeEvent } from './offset-input';
 import { AllowedDaysChangeEvent, AllowedDays } from './allowed-days';
-import { Group } from '../../../private/Group/Group';
-import { Warning } from '../../../private/Warning/Warning';
 
 interface Rule {
   min?: string;

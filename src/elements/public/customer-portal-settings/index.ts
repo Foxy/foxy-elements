@@ -3,7 +3,6 @@ import '@vaadin/vaadin-text-field/vaadin-password-field';
 import { html } from 'lit-html';
 import { live } from 'lit-html/directives/live';
 import { Stateful } from '../../../mixins/stateful';
-import { Code } from '../../private/Code/Code';
 import { OriginsList, OriginsListChangeEvent } from './private/origins-list';
 
 import {
@@ -23,8 +22,7 @@ import {
 } from './types';
 
 import { machine } from './machine';
-import { Page } from '../../private/Page/Page';
-import { Section } from '../../private/Section/Section';
+import { Section, Page, Code } from '../../private/index';
 
 export class CustomerPortalSettings extends Stateful<
   CustomerPortalSettingsContext,

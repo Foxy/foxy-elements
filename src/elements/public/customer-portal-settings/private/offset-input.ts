@@ -1,11 +1,10 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
-import { Choice } from '../../../private/Choice/Choice';
-import { ChoiceChangeEvent } from '../../../private/Choice/ChoiceChangeEvent';
 import { FrequencyInputChangeEvent, FrequencyInput } from './frequency-input';
 import { parseDuration } from '../../../../utils/parse-duration';
-import { Group } from '../../../private/Group/Group';
+import { ChoiceChangeEvent } from '../../../private/events';
+import { Choice, Group } from '../../../private/index';
 
 export class OffsetInputChangeEvent extends CustomEvent<string | undefined> {
   constructor(value: string | undefined) {

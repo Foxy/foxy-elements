@@ -1,14 +1,12 @@
 import '@vaadin/vaadin-button';
 import { html, property } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
+import { Checkbox, Section } from '../../../private/index';
 
 import {
   NextDateModificationRule,
   NextDateModificationRuleChangeEvent,
 } from './next-date-modification-rule';
-
-import { Checkbox } from '../../../private/Checkbox/Checkbox';
-import { Section } from '../../../private/Section/Section';
 
 interface Rule {
   min?: string;
