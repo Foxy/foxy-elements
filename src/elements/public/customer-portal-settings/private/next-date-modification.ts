@@ -8,7 +8,7 @@ import {
 } from './next-date-modification-rule';
 
 import { Checkbox } from '../../../private/checkbox/Checkbox';
-import { Section } from '../../../private/section';
+import { Section } from '../../../private/section/Section';
 
 interface Rule {
   min?: string;

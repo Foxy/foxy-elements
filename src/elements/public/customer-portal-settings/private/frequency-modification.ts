@@ -4,7 +4,7 @@ import { JSONataInput, JSONataInputChangeEvent } from './jsonata-input';
 import { FrequencyList, FrequencyListChangeEvent } from './frequency-list';
 import { Group } from '../../../private/group/Group';
 import { Checkbox } from '../../../private/checkbox/Checkbox';
-import { Section } from '../../../private/section';
+import { Section } from '../../../private/section/Section';
 
 interface FrequencyModificationRule {
   jsonataQuery: string;

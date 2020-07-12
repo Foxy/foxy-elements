@@ -24,7 +24,7 @@ import {
 
 import { machine } from './machine';
 import { Page } from '../../private/page/Page';
-import { Section } from '../../private/section';
+import { Section } from '../../private/section/Section';
 
 export class CustomerPortalSettings extends Stateful<
   CustomerPortalSettingsContext,
