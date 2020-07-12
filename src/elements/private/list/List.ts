@@ -9,7 +9,7 @@ export class List extends Themeable {
     };
   }
 
-  @property({ type: Object })
+  @property({ type: Array })
   public value: string[] = [];
 
   @property({ type: Boolean })
