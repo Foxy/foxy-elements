@@ -1,13 +1,11 @@
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { html, property } from 'lit-element';
-import { live } from 'lit-html/directives/live';
-import { Translatable } from '../../../../mixins/translatable';
-import { parseDuration } from '../../../../utils/parse-duration';
-import { DropdownChangeEvent } from '../../../private/events';
-import { Dropdown } from '../../../private/index';
-
-export class FrequencyInputChangeEvent extends DropdownChangeEvent {}
+import { Translatable } from '../../../../../mixins/translatable';
+import { parseDuration } from '../../../../../utils/parse-duration';
+import { DropdownChangeEvent } from '../../../../private/events';
+import { Dropdown } from '../../../../private/index';
+import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
 
 export class FrequencyInput extends Translatable {
   public static readonly defaultValue = '1w';
@@ -36,20 +34,26 @@ export class FrequencyInput extends Translatable {
   @property({ type: String })
   public value = FrequencyInput.defaultValue;
 
+  public constructor() {
+    super('customer-portal-settings');
+  }
+
   public render() {
     return html`
       <div class="grid grid-cols-2 gap-s">
         <vaadin-integer-field
+          data-testid="value"
           class="w-full"
           min="1"
           has-controls
-          .value=${live(this.__numericValue.toString())}
-          ?disabled=${this.disabled}
+          .value=${this.__numericValue}
+          .disabled=${this.disabled}
           @change=${this.__handleNumberChange}
         >
         </vaadin-integer-field>
 
         <x-dropdown
+          data-testid="units"
           .disabled=${this.disabled}
           .getText=${(v: string) => this._i18n.t(`${v}_plural`)}
           .items=${this.__items}
@@ -61,7 +65,8 @@ export class FrequencyInput extends Translatable {
     `;
   }
 
-  private __handleNumberChange(evt: InputEvent) {
+  private __handleNumberChange(evt: Event) {
+    evt.stopPropagation();
     const value = (evt.target as HTMLInputElement).value;
     this.value = this.value.replace(String(this.__numericValue), value);
     this.__sendChange();

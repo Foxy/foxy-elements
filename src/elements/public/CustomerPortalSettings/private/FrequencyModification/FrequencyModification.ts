@@ -1,21 +1,12 @@
-import { Translatable } from '../../../../mixins/translatable';
+import { Translatable } from '../../../../../mixins/translatable';
 import { property, html } from 'lit-element';
-import { JSONataInput, JSONataInputChangeEvent } from './jsonata-input';
-import { FrequencyList, FrequencyListChangeEvent } from './frequency-list';
-import { Checkbox, Section, Group } from '../../../private/index';
-
-interface FrequencyModificationRule {
-  jsonataQuery: string;
-  values: string[];
-}
-
-export class FrequencyModificationChangeEvent extends CustomEvent<
-  FrequencyModificationRule | boolean
-> {
-  constructor(value: FrequencyModificationRule | boolean) {
-    super('change', { detail: value });
-  }
-}
+import { JSONataInput } from '../JSONataInput/JSONataInput';
+import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
+import { FrequencyList } from '../FrequencyList/FrequencyList';
+import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';
+import { Checkbox, Section, Group } from '../../../../private/index';
+import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
+import { FrequencyModificationRule } from './FrequencyModificationRule';
 
 export class FrequencyModification extends Translatable {
   public static get scopedElements() {
@@ -58,8 +49,9 @@ export class FrequencyModification extends Translatable {
 
     return html`
       <x-checkbox
-        ?checked=${Boolean(this.value)}
-        ?disabled=${this.disabled}
+        data-testid="toggle"
+        .checked=${Boolean(this.value)}
+        .disabled=${this.disabled}
         @change=${this.__toggleValue}
       >
         <x-section
@@ -73,6 +65,7 @@ export class FrequencyModification extends Translatable {
               <div class="space-y-m pt-m" slot="content">
                 <x-group .header=${this._i18n.t('fmod.match').toString()} frame>
                   <x-jsonata-input
+                    data-testid="jsonata"
                     .value=${this.__normalizedQuery}
                     .disabled=${disabled}
                     @change=${this.__handleQueryChange}
@@ -82,6 +75,7 @@ export class FrequencyModification extends Translatable {
 
                 <x-group .header=${this._i18n.t('fmod.options').toString()} frame>
                   <x-frequency-list
+                    data-testid="frequency"
                     .value=${this.__normalizedValues}
                     .disabled=${disabled}
                     @change=${this.__handleValuesChange}

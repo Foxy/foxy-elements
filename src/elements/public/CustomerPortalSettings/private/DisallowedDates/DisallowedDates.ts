@@ -1,10 +1,9 @@
 import '@vaadin/vaadin-date-picker';
 import { property, html } from 'lit-element';
-import { Translatable } from '../../../../mixins/translatable';
-import { ListChangeEvent } from '../../../private/events';
-import { List } from '../../../private';
-
-export class DisallowedDatesChangeEvent extends ListChangeEvent {}
+import { Translatable } from '../../../../../mixins/translatable';
+import { ListChangeEvent } from '../../../../private/events';
+import { List } from '../../../../private/index';
+import { DisallowedDatesChangeEvent } from './DisallowedDatesChangeEvent';
 
 export class DisallowedDates extends Translatable {
   public static get scopedElements() {
@@ -14,7 +13,7 @@ export class DisallowedDates extends Translatable {
     };
   }
 
-  @property({ type: Object })
+  @property({ type: Array })
   public value: string[] = [];
 
   @property({ type: Boolean })
@@ -27,12 +26,14 @@ export class DisallowedDates extends Translatable {
   public render() {
     return html`
       <x-list
+        data-testid="list"
         .value=${this.value}
         .disabled=${this.disabled}
         .getText=${this.__getText.bind(this)}
         @change=${this.__handleListChange}
       >
         <vaadin-date-picker
+          data-testid="input"
           .disabled=${this.disabled}
           .placeholder=${this._i18n.t('ndmod.select')}
           @change=${this.__handleNewValueChange}

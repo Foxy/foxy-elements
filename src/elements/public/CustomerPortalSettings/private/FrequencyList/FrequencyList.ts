@@ -1,10 +1,10 @@
 import { property, html } from 'lit-element';
-import { Translatable } from '../../../../mixins/translatable';
-import { FrequencyInput, FrequencyInputChangeEvent } from './frequency-input';
-import { ListChangeEvent } from '../../../private/events';
-import { List } from '../../../private/index';
-
-export class FrequencyListChangeEvent extends ListChangeEvent {}
+import { Translatable } from '../../../../../mixins/translatable';
+import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
+import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
+import { ListChangeEvent } from '../../../../private/events';
+import { List } from '../../../../private/index';
+import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
 
 export class FrequencyList extends Translatable {
   public static get scopedElements() {
@@ -18,7 +18,7 @@ export class FrequencyList extends Translatable {
 
   private __newValue = FrequencyInput.defaultValue;
 
-  @property({ type: Object })
+  @property({ type: Array })
   public value: string[] = [];
 
   @property({ type: Boolean })
@@ -31,6 +31,7 @@ export class FrequencyList extends Translatable {
   public render() {
     return html`
       <x-list
+        data-testid="list"
         .value=${this.value}
         .disabled=${this.disabled}
         .getText=${this.__getText.bind(this)}
@@ -38,6 +39,7 @@ export class FrequencyList extends Translatable {
       >
         <div class="space-y-s md:space-y-0 md:space-x-s w-full md:flex">
           <x-frequency-input
+            data-testid="input"
             .value=${this.__newValue}
             .disabled=${this.disabled}
             @change=${this.__handleNewValueChange}
@@ -45,6 +47,7 @@ export class FrequencyList extends Translatable {
           </x-frequency-input>
 
           <vaadin-button
+            data-testid="button"
             class="w-full md:w-auto"
             .disabled=${this.disabled}
             @click=${this.__handleSubmit}
