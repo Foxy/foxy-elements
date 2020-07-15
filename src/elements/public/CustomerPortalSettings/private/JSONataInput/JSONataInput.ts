@@ -1,11 +1,10 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
 import { live } from 'lit-html/directives/live';
-import { Translatable } from '../../../../mixins/translatable';
-import { ChoiceChangeEvent } from '../../../private/events';
-import { Choice } from '../../../private/index';
-
-export class JSONataInputChangeEvent extends ChoiceChangeEvent {}
+import { Translatable } from '../../../../../mixins/translatable';
+import { ChoiceChangeEvent } from '../../../../private/events';
+import { Choice } from '../../../../private/index';
+import { JSONataInputChangeEvent } from './JSONataInputChangeEvent';
 
 export class JSONataInput extends Translatable {
   public static get scopedElements() {
@@ -34,6 +33,8 @@ export class JSONataInput extends Translatable {
   public render() {
     return html`
       <x-choice
+        data-testid="choice"
+        .disabled=${this.disabled}
         .value=${this.__choice}
         .items=${this.__items}
         .getText=${this.__getText.bind(this)}
@@ -48,6 +49,7 @@ export class JSONataInput extends Translatable {
 
                 <vaadin-text-field
                   class="w-full"
+                  data-testid="input"
                   .disabled=${this.disabled}
                   .value=${live(this.value)}
                   @keydown=${this.__stopNavigation}

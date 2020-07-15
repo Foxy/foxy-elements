@@ -1,16 +1,12 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
-import { Translatable } from '../../../../mixins/translatable';
-import { FrequencyInputChangeEvent, FrequencyInput } from './frequency-input';
-import { parseDuration } from '../../../../utils/parse-duration';
-import { ChoiceChangeEvent } from '../../../private/events';
-import { Choice, Group } from '../../../private/index';
-
-export class OffsetInputChangeEvent extends CustomEvent<string | undefined> {
-  constructor(value: string | undefined) {
-    super('change', { detail: value });
-  }
-}
+import { Translatable } from '../../../../../mixins/translatable';
+import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
+import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
+import { parseDuration } from '../../../../../utils/parse-duration';
+import { ChoiceChangeEvent } from '../../../../private/events';
+import { Choice, Group } from '../../../../private/index';
+import { OffsetInputChangeEvent } from './OffsetInputChangeEvent';
 
 export class OffsetInput extends Translatable {
   public static get scopedElements() {
@@ -56,6 +52,8 @@ export class OffsetInput extends Translatable {
     return html`
       <x-group .header=${this._i18n.t(`ndmod.${this.type}`).toString()}>
         <x-choice
+          data-testid="choice"
+          .disabled=${this.disabled}
           .value=${this.__choice}
           .items=${this.__items}
           .getText=${this.__getText.bind(this)}
@@ -65,7 +63,8 @@ export class OffsetInput extends Translatable {
             ? html`
                 <div slot=${this.__items[1]} class="space-y-s">
                   <x-frequency-input
-                    .value=${this.value}
+                    data-testid="input"
+                    .value=${this.value!}
                     .disabled=${this.disabled}
                     @change=${this.__handleNewValueChange}
                   >

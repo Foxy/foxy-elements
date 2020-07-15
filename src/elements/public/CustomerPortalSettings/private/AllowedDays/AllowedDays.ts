@@ -1,23 +1,18 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
-import { Translatable } from '../../../../mixins/translatable';
-import { MonthdayPicker, WeekdayPicker, Choice } from '../../../private/index';
+import { Translatable } from '../../../../../mixins/translatable';
+import { MonthdayPicker, WeekdayPicker, Choice } from '../../../../private/index';
+import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 
 import {
   WeekdayPickerChangeEvent,
   MonthdayPickerChangeEvent,
   ChoiceChangeEvent,
-} from '../../../private/events';
+} from '../../../../private/events';
 
-interface Rule {
+export interface Rule {
   type: 'day' | 'month';
   days: number[];
-}
-
-export class AllowedDaysChangeEvent extends CustomEvent<Rule | undefined> {
-  constructor(value: Rule | undefined) {
-    super('change', { detail: value });
-  }
 }
 
 export class AllowedDays extends Translatable {
@@ -48,8 +43,10 @@ export class AllowedDays extends Translatable {
   public render() {
     return html`
       <x-choice
+        data-testid="choice"
         .value=${this.__choice}
         .items=${this.__items}
+        .disabled=${this.disabled}
         .getText=${this.__getText.bind(this)}
         @change=${this.__handleChoiceChange}
       >
@@ -57,6 +54,8 @@ export class AllowedDays extends Translatable {
           ? html`
               <x-monthday-picker
                 slot="month"
+                data-testid="monthday-picker"
+                .lang=${this.lang}
                 .disabled=${this.disabled}
                 .value=${this.value.days}
                 @change=${this.__handleNewValueChange}
@@ -67,6 +66,8 @@ export class AllowedDays extends Translatable {
           ? html`
               <x-weekday-picker
                 slot="day"
+                data-testid="weekday-picker"
+                .lang=${this.lang}
                 .disabled=${this.disabled}
                 .value=${this.value.days}
                 @change=${this.__handleNewValueChange}

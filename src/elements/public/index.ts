@@ -1,1 +1,1 @@
-export { CustomerPortalSettings } from './customer-portal-settings/index';
+export { CustomerPortalSettings } from './CustomerPortalSettings/CustomerPortalSettings';

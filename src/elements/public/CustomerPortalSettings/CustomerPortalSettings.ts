@@ -1,19 +1,15 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import { html } from 'lit-html';
-import { live } from 'lit-html/directives/live';
 import { Stateful } from '../../../mixins/stateful';
-import { OriginsList, OriginsListChangeEvent } from './private/origins-list';
+import { OriginsList } from './private/OriginsList/OriginsList';
+import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
 
-import {
-  FrequencyModification,
-  FrequencyModificationChangeEvent,
-} from './private/frequency-modification';
+import { FrequencyModification } from './private/FrequencyModification/FrequencyModification';
+import { FrequencyModificationChangeEvent } from './private/FrequencyModification/FrequencyModificationChangeEvent';
 
-import {
-  NextDateModification,
-  NextDateModificationChangeEvent,
-} from './private/next-date-modification';
+import { NextDateModification } from './private/NextDateModification/NextDateModification';
+import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
 
 import {
   CustomerPortalSettingsContext,
@@ -57,7 +53,10 @@ export class CustomerPortalSettings extends Stateful<
     }
 
     return html`
-      <x-page .header=${this._i18n.t('title')} .subheader=${this._i18n.t('subtitle')}>
+      <x-page
+        .header=${this._i18n.t('title').toString()}
+        .subheader=${this._i18n.t('subtitle').toString()}
+      >
         <x-section
           .header=${this._i18n.t('quickstart.title').toString()}
           .subheader=${this._i18n.t('quickstart.subtitle').toString()}
@@ -77,7 +76,7 @@ export class CustomerPortalSettings extends Stateful<
         >
           <x-origins-list
             .lang=${this.lang}
-            .value=${live(this.service.state.context.allowedOrigins)}
+            .value=${this.service.state.context.allowedOrigins}
             ?disabled=${this.service.state.matches('disabled')}
             @change=${(evt: OriginsListChangeEvent) => {
               this.service.send({ type: 'SET_ORIGINS', value: evt.detail });
@@ -87,7 +86,7 @@ export class CustomerPortalSettings extends Stateful<
         </x-section>
 
         <x-frequency-modification
-          .value=${live(this.service.state.context.subscriptions.allowFrequencyModification)}
+          .value=${this.service.state.context.subscriptions.allowFrequencyModification}
           @change=${(evt: FrequencyModificationChangeEvent) => {
             this.service.send({ type: 'SET_FREQUENCY_MODIFICATION', value: evt.detail });
           }}
@@ -95,7 +94,7 @@ export class CustomerPortalSettings extends Stateful<
         </x-frequency-modification>
 
         <x-next-date-modification
-          .value=${live(this.service.state.context.subscriptions.allowNextDateModification)}
+          .value=${this.service.state.context.subscriptions.allowNextDateModification}
           @change=${(evt: NextDateModificationChangeEvent) => {
             this.service.send({ type: 'SET_NEXT_DATE_MODIFICATION', value: evt.detail });
           }}
@@ -108,7 +107,7 @@ export class CustomerPortalSettings extends Stateful<
         >
           <vaadin-password-field
             class="w-full"
-            .value=${live(this.service.state.context.jwtSharedSecret)}
+            .value=${this.service.state.context.jwtSharedSecret}
             @change=${(evt: InputEvent) => {
               const value = (evt.target as HTMLInputElement).value;
               this.service.send({ type: 'SET_SECRET', value });
@@ -124,7 +123,7 @@ export class CustomerPortalSettings extends Stateful<
           <vaadin-integer-field
             min="1"
             max="40320"
-            .value=${live(this.service.state.context.sessionLifespanInMinutes)}
+            .value=${this.service.state.context.sessionLifespanInMinutes}
             has-controls
             @change=${(evt: InputEvent) => {
               const value = parseInt((evt.target as HTMLInputElement).value);

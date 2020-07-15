@@ -1,29 +1,12 @@
 import '@vaadin/vaadin-button';
 import { html, property } from 'lit-element';
-import { Translatable } from '../../../../mixins/translatable';
-import { Checkbox, Section } from '../../../private/index';
+import { Translatable } from '../../../../../mixins/translatable';
+import { Checkbox, Section } from '../../../../private/index';
 
-import {
-  NextDateModificationRule,
-  NextDateModificationRuleChangeEvent,
-} from './next-date-modification-rule';
-
-interface Rule {
-  min?: string;
-  max?: string;
-  jsonataQuery: string;
-  disallowedDates?: string[];
-  allowedDays?: {
-    type: 'day' | 'month';
-    days: number[];
-  };
-}
-
-export class NextDateModificationChangeEvent extends CustomEvent<boolean | Rule[]> {
-  constructor(value: boolean | Rule[]) {
-    super('change', { detail: value });
-  }
-}
+import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
+import { NextDateModificationRuleChangeEvent } from '../NextDateModificationRule/NextDateModificationRuleChangeEvent';
+import { Rule } from './Rule';
+import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
 
 export class NextDateModification extends Translatable {
   public static get scopedElements() {
@@ -39,7 +22,7 @@ export class NextDateModification extends Translatable {
   @property({ type: Boolean })
   public disabled = false;
 
-  @property({ type: Object })
+  @property({ type: Array })
   public value: Rule[] | boolean = false;
 
   public constructor() {
@@ -69,6 +52,7 @@ export class NextDateModification extends Translatable {
                 ${this.__normalizedValue.map(
                   (rule, index, array) => html`
                     <x-next-date-modification-rule
+                      data-testid="rule"
                       .disabled=${this.disabled}
                       .value=${rule}
                       @remove=${() => {
@@ -84,7 +68,11 @@ export class NextDateModification extends Translatable {
                   `
                 )}
 
-                <vaadin-button .disabled=${this.disabled} @click=${this.__addRule}>
+                <vaadin-button
+                  data-testid="add"
+                  .disabled=${this.disabled}
+                  @click=${this.__addRule}
+                >
                   ${this._i18n.t('ndmod.add')}
                   <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
                 </vaadin-button>
