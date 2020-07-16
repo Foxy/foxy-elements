@@ -1,5 +1,10 @@
 import { LitElement, html, customElement, property, query } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
+import '@vaadin/vaadin-list-box/vaadin-list-box';
+import '@vaadin/vaadin-item/vaadin-item-mixin';
+import '@vaadin/vaadin-item/vaadin-item';
+import '@vaadin/vaadin-checkbox/vaadin-checkbox';
+import '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
 
 /**
  * An element to select a value for donation
@@ -24,12 +29,12 @@ export class ChooseDesignation extends Translatable {
 
   // Should there be a "Other" field?
   @property({ type: Boolean })
-  hasValueOther = false;
+  askValueOther = false;
 
   @property({ type: Array })
   value: string[] = [];
 
-  @query('#foxy-select-designations')
+  @query('#select-designations')
   selectDesignations: any;
 
   @query('vaadin-text-field')
@@ -40,22 +45,28 @@ export class ChooseDesignation extends Translatable {
   }
 
   firstUpdated() {
-    this.selectDesignations.addEventListener(
-      'selected-values-changed',
-      this.handleValue.handleEvent
-    );
+    if (this.selectDesignations) {
+      this.selectDesignations.addEventListener(
+        'selected-values-changed',
+        this.handleValue.handleEvent
+      );
+    }
   }
 
   handleValue = {
     handleEvent: () => {
-      if (this.selectDesignations.value) {
-        // Verify that "other" field is checked
-        this.activeOther = this.selectDesignations.value.includes('other');
-        // Rebuilds this.value with the value
-        this.value = [].concat(this.selectDesignations.value.filter((i: string) => i != 'other'));
-        // Includes the value from "other"
-        if (this.activeOther) {
-          this.value.push(this.input!.value);
+      if (this.selectDesignations.value as string | Array<string>) {
+        if (typeof this.selectDesignations.value == 'string') {
+          this.value = [this.selectDesignations.value];
+        } else {
+          // Verify that "other" field is checked
+          this.activeOther = this.selectDesignations.value.includes('other');
+          // Rebuilds this.value with the value
+          this.value = [].concat(this.selectDesignations.value.filter((i: string) => i != 'other'));
+          // Includes the value from "other"
+          if (this.activeOther) {
+            this.value.push(this.input!.value);
+          }
         }
       } else if (this.selectDesignations.selectedValues) {
         this.activeOther = !!this.selectDesignations.selectedValues.find(
@@ -76,7 +87,7 @@ export class ChooseDesignation extends Translatable {
         ? this.inputType == 'select'
           ? this.renderSelect()
           : this.renderRadio()
-        : ''}
+        : this.renderText()}
 
       <vaadin-text-field
         ?hidden=${!this.activeOther}
@@ -91,17 +102,20 @@ export class ChooseDesignation extends Translatable {
 
   renderSelect() {
     return html`
-      <vaadin-list-box id="foxy-select-designations" multiple>
+      <vaadin-list-box id="select-designations" @change=${this.handleValue} multiple>
         <label>${this.label}</label>
         ${this.designationOptions.map(o => html`<vaadin-item value="${o}">${o}</vaadin-item>`)}
-        <vaadin-item value="other">Other</vaadin-item>
+        ${this.askValueOther
+          ? html`<vaadin-item @click=${this.handleValue} value="other">Other</vaadin-item>`
+          : ''}
       </vaadin-list-box>
     `;
   }
+
   renderRadio() {
     return html`
       <vaadin-checkbox-group
-        id="foxy-select-designations"
+        id="select-designations"
         @change=${this.handleValue}
         theme="vertical"
         label="${this.label}"
@@ -112,10 +126,22 @@ export class ChooseDesignation extends Translatable {
               ${o}
             </vaadin-checkbox>`
         )}
-        ${this.hasValueOther
+        ${this.askValueOther
           ? html`<vaadin-checkbox value="other">${this._i18n.t('Other')}</vaadin-checkbox>`
           : ''}
       </vaadin-checkbox-group>
+    `;
+  }
+
+  renderText() {
+    return html`
+      <vaadin-text-field
+        id="select-designations"
+        type="text"
+        label="${this.label}"
+        @change=${this.handleValue}
+      >
+      </vaadin-text-field>
     `;
   }
 }
