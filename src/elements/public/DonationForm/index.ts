@@ -257,7 +257,7 @@ export class DonationForm extends Translatable {
         name: 'valueTemplate',
         weight: () => this.valueWeight,
         condition: () => !!this.valueOptions.length,
-        template: html` <foxy-donation-choose-value
+        template: html` <x-value
           @change=${this.handleDonationValue}
           label="${this.valueLabel}"
           .valueOptions=${this.valueOptions}
@@ -265,15 +265,15 @@ export class DonationForm extends Translatable {
           ?hasValueOther=${this.askValueOther}
         >
           <slot name="value"></slot>
-        </foxy-donation-choose-value>`,
+        </x-value>`,
       },
       {
         name: 'recurrenceTemplate',
         weight: () => this.recurrenceWeight,
         condition: () => this.askRecurrence,
-        template: html` <foxy-donation-frequency label="${this.recurrenceLabel}">
+        template: html` <x-frequency label="${this.recurrenceLabel}">
           <slot name="recurrence"></slot>
-        </foxy-donation-frequency>`,
+        </x-frequency>`,
       },
       {
         name: 'commentTemplate',
@@ -297,15 +297,15 @@ export class DonationForm extends Translatable {
         name: 'designationTemplate',
         weight: () => this.designationWeight,
         condition: () => !!this.designationOptions.length,
-        template: html` <foxy-donation-designation
+        template: html` <x-designation
           @change=${this.handleDonationDesignation}
           label="${this.designationLabel}"
-          hasValueOther="${this.askDesignationOther}"
+          ?askValueOther=${this.askDesignationOther}
           inputType="${this.designationType}"
           .designationOptions=${this.designationOptions}
         >
           <slot name="designation"></slot>
-        </foxy-donation-designation>`,
+        </x-designation>`,
       },
     ];
   }
