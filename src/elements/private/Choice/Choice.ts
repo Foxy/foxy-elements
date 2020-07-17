@@ -50,7 +50,7 @@ export class Choice extends Themeable {
     this.__service.send({ type: 'INIT', value });
   }
 
-  @property({ type: Object, noAccessor: true })
+  @property({ type: Array, noAccessor: true })
   public get items() {
     return this.__service.state.context.items;
   }
