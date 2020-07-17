@@ -18,12 +18,12 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
   label = '';
 
   @property({ type: String })
-  inputType = 'radio';
+  inputType: 'radio' | 'select' = 'radio';
 
   valueOptions = [10, 20, 30];
 
   @property({ type: Boolean })
-  hasValueOther = false;
+  askValueOther = false;
 
   isValueOther = false;
 
@@ -80,7 +80,7 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
       if (t.getAttribute('name') === 'other') {
         this.valuePair[1] = t.value;
         this.service.send('OTHER');
-      } else if (t.value === this.valueOther) {
+      } else if (t.value === 'other') {
         this.service.send('OTHER');
       } else {
         this.valuePair[0] = t.value;
@@ -92,6 +92,7 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
   renderSelect() {
     return html`
       <vaadin-select
+        name="value-options"
         @change=${this.handleValue}
         label="${this.label}"
         value="${this.valueOptions[0]}"
@@ -101,8 +102,8 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
             ${this.valueOptions.map(
               o => html`<vaadin-item value="${o}">${this.currency} ${o}</vaadin-item>`
             )}
-            ${this.hasValueOther
-              ? html`<vaadin-item value="${this.valueOther}">${this.valueOther}</vaadin-item>`
+            ${this.askValueOther
+              ? html`<vaadin-item value="other">${this.valueOther}</vaadin-item>`
               : ''}
           </vaadin-list-box>
         </template>
@@ -112,6 +113,7 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
   renderRadio() {
     return html`
       <vaadin-radio-group
+        name="value-options"
         @change=${this.handleValue}
         theme="vertical"
         value="${this.valueOptions[0]}"
@@ -123,8 +125,8 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
               ${this.currency} ${o}
             </vaadin-radio-button>`
         )}
-        ${this.hasValueOther
-          ? html`<vaadin-radio-button value="${this.valueOther}">
+        ${this.askValueOther
+          ? html`<vaadin-radio-button value="other">
               ${this.valueOther}
             </vaadin-radio-button>`
           : ''}

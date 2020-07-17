@@ -31,6 +31,7 @@ export class ChooseFrequency extends Translatable {
       </vaadin-checkbox>
       <slot></slot>
       <vaadin-select
+        name="recurring-value"
         ?hidden="${!this.isRecurring}"
         label="${this.label}"
         value="${this.options[0]}"

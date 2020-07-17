@@ -45,10 +45,14 @@ describe('Choose Designation input', () => {
     expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(
       true
     );
-    //const otherValue = el.shadowRoot?.querySelector('[value=other]');
-    //expect(otherValue?.innerHTML).to.equal('Other');
-    //(otherValue as HTMLInputElement).click();
-    //expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(false);
+    // Allow firstUpdated to create event listeners
+    (el as ChooseDesignation).requestUpdate();
+    const otherValue = el.shadowRoot?.querySelector('[value=other]');
+    expect(otherValue?.innerHTML).to.equal('<!---->Other<!---->');
+    (otherValue as HTMLInputElement).click();
+    expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(
+      false
+    );
   });
 
   it('Should provide an input for including a custom designation select', async () => {
@@ -61,8 +65,12 @@ describe('Choose Designation input', () => {
     );
     expect(el.shadowRoot?.querySelectorAll('#select-designations').length).to.equal(1);
     expect(el.shadowRoot?.querySelector('#select-designations')?.childElementCount).to.equal(5);
-    //expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(true);
-    //(el.shadowRoot?.querySelector('[value="other"]') as HTMLOptionElement).click();
-    //expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(false);
+    expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(
+      true
+    );
+    (el.shadowRoot?.querySelector('[value="other"]') as HTMLOptionElement).click();
+    expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(
+      false
+    );
   }); //;
 });

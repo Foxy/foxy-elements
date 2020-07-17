@@ -13,6 +13,11 @@ import '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
  * @csspart button - The button
  */
 export class ChooseDesignation extends Translatable {
+  vocabulary = {
+    other: this._i18n.t('Other'),
+    customDesignation: this._i18n.t('Enter a custom designation'),
+  };
+
   @property({ type: String })
   name = 'value';
 
@@ -92,9 +97,9 @@ export class ChooseDesignation extends Translatable {
       <vaadin-text-field
         ?hidden=${!this.activeOther}
         type="text"
-        label=${this._i18n.t('Other:')}
+        label=${this.vocabulary.other}
         name="other"
-        placeholder=${this._i18n.t('Enter a custom designation')}
+        placeholder=${this.vocabulary.customDesignation}
         @change=${this.handleValue}
       ></vaadin-text-field>
     `;
@@ -106,7 +111,7 @@ export class ChooseDesignation extends Translatable {
         <label>${this.label}</label>
         ${this.designationOptions.map(o => html`<vaadin-item value="${o}">${o}</vaadin-item>`)}
         ${this.askValueOther
-          ? html`<vaadin-item @click=${this.handleValue} value="other">Other</vaadin-item>`
+          ? html`<vaadin-item value="other">${this.vocabulary.other}</vaadin-item>`
           : ''}
       </vaadin-list-box>
     `;
@@ -114,12 +119,7 @@ export class ChooseDesignation extends Translatable {
 
   renderRadio() {
     return html`
-      <vaadin-checkbox-group
-        id="select-designations"
-        @change=${this.handleValue}
-        theme="vertical"
-        label="${this.label}"
-      >
+      <vaadin-checkbox-group id="select-designations" theme="vertical" label="${this.label}">
         ${this.designationOptions.map(
           (o, index) =>
             html`<vaadin-checkbox value="${o}" ?checked=${index == 0 ? 1 : 0}>
@@ -127,7 +127,7 @@ export class ChooseDesignation extends Translatable {
             </vaadin-checkbox>`
         )}
         ${this.askValueOther
-          ? html`<vaadin-checkbox value="other">${this._i18n.t('Other')}</vaadin-checkbox>`
+          ? html`<vaadin-checkbox value="other">${this.vocabulary.other}</vaadin-checkbox>`
           : ''}
       </vaadin-checkbox-group>
     `;
