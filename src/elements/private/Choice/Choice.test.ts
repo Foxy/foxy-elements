@@ -12,29 +12,39 @@ function getRadios(element: Choice) {
   return Array.from(radios) as HTMLInputElement[];
 }
 
-function getNamedSlots(element: Choice) {
+function getLabelSlots(element: Choice) {
   const slots = element.shadowRoot!.querySelectorAll('slot[name]');
-  return Array.from(slots) as HTMLSlotElement[];
+  return (Array.from(slots) as HTMLSlotElement[]).filter(slot => slot.name.endsWith('label'));
+}
+
+function getContentSlots(element: Choice) {
+  const slots = element.shadowRoot!.querySelectorAll('slot[name]');
+  return (Array.from(slots) as HTMLSlotElement[]).filter(slot => !slot.name.endsWith('label'));
 }
 
 function testContent(element: Choice) {
   const radios = getRadios(element);
-  const namedSlots = getNamedSlots(element);
+  const labelSlots = getLabelSlots(element);
+  const contentSlots = getContentSlots(element);
 
   expect(radios.length).to.equal(element.items.length);
-  expect(namedSlots.length).to.equal(element.items.length);
+  expect(contentSlots.length).to.equal(element.items.length);
 
   element.items.forEach((item, index) => {
     const radio = radios[index];
-    const namedSlot = namedSlots[index];
+    const labelSlot = labelSlots[index];
+    const contentSlot = contentSlots[index];
 
     expect(radio).to.exist;
     expect(radio.value).to.equal(item);
     expect(radio.checked).to.equal(item === element.value);
     expect(radio.textContent?.trim()).to.equal(element.getText(item));
 
-    expect(namedSlot).to.exist;
-    expect(namedSlot.innerHTML?.trim()).to.equal('');
+    expect(labelSlot).to.exist;
+    expect(labelSlot.innerHTML?.trim()).to.equal(element.getText(item));
+
+    expect(contentSlot).to.exist;
+    expect(contentSlot.innerHTML?.trim()).to.equal('');
   });
 }
 
