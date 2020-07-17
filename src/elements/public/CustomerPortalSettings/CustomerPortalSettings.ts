@@ -65,12 +65,21 @@ export class CustomerPortalSettings extends Stateful<
         <x-i18n class="block" slot="title" key="title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
         <x-i18n class="block" slot="subtitle" key="subtitle" .ns=${this.ns} .lang=${this.lang}>
         </x-i18n>
+
+        <x-section>
+          <x-i18n slot="title" key="quickstart.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          <x-i18n slot="subtitle" key="quickstart.subtitle" .ns=${this.ns} .lang=${this.lang}>
+          </x-i18n>
+
+          ${this._isI18nReady
+            ? this.__renderCode()
+            : html`<x-skeleton class="block">${this.__renderCode}</x-skeleton>`}
         </x-section>
 
-        <x-section
-          .header=${this._i18n.t('origins.title').toString()}
-          .subheader=${this._i18n.t('origins.subtitle').toString()}
-        >
+        <x-section>
+          <x-i18n slot="title" key="origins.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          <x-i18n slot="subtitle" key="origins.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+
           <x-origins-list
             .lang=${this.lang}
             .value=${this.service.state.context.allowedOrigins}
@@ -98,10 +107,10 @@ export class CustomerPortalSettings extends Stateful<
         >
         </x-next-date-modification>
 
-        <x-section
-          .header=${this._i18n.t('jwt.title').toString()}
-          .subheader=${this._i18n.t('jwt.subtitle').toString()}
-        >
+        <x-section>
+          <x-i18n slot="title" key="jwt.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          <x-i18n slot="subtitle" key="jwt.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+
           <vaadin-password-field
             class="w-full"
             .value=${this.service.state.context.jwtSharedSecret}
@@ -113,10 +122,10 @@ export class CustomerPortalSettings extends Stateful<
           </vaadin-password-field>
         </x-section>
 
-        <x-section
-          .header=${this._i18n.t('session.title').toString()}
-          .subheader=${this._i18n.t('session.subtitle').toString()}
-        >
+        <x-section>
+          <x-i18n slot="title" key="session.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          <x-i18n slot="subtitle" key="session.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+
           <vaadin-integer-field
             min="1"
             max="40320"
@@ -130,6 +139,18 @@ export class CustomerPortalSettings extends Stateful<
           </vaadin-integer-field>
         </x-section>
       </x-page>
+    `;
+  }
+
+  private __renderCode() {
+    return html`
+      <x-code>
+        <template>
+          <script type="module" src=${this.__modernUrl}></script>
+          <script nomodule src=${this.__legacyUrl}></script>
+          <foxy-customer-portal endpoint=${this.__storeUrl}></foxy-customer-portal>
+        </template>
+      </x-code>
     `;
   }
 }

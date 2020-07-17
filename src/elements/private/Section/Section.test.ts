@@ -6,14 +6,12 @@ import { createModel } from '@xstate/test';
 customElements.define('x-section', Section);
 
 const samples = {
-  header: 'Test header',
-  subheader: 'Lorem ipsum',
   innerHTML: '<div>Lorem ipsum</div>',
 };
 
-function testHeader(element: Section) {
-  const header = element.shadowRoot!.querySelector('h2');
-  expect(header?.textContent).to.contain(samples.header);
+function testSlots(element: Section) {
+  expect(element.shadowRoot!.querySelector('slot[name=title]')).to.exist;
+  expect(element.shadowRoot!.querySelector('slot[name=subtitle]')).to.exist;
 }
 
 function testContent(element: Section) {
@@ -21,38 +19,16 @@ function testContent(element: Section) {
   Array.from(element.children).every(child => expect(child).to.be.visible);
 }
 
-function testSubheader(element: Section) {
-  const subheader = element.shadowRoot!.querySelector('h2 + p');
-  expect(subheader?.textContent).to.contain(samples.subheader);
-}
-
-function testEmpty(element: Section) {
-  const header = element.shadowRoot!.querySelector('h2');
-  const subheader = element.shadowRoot!.querySelector('h2 + p');
-
-  expect(header?.textContent?.trim()).to.equal('');
-  expect(subheader?.textContent?.trim()).to.equal('');
-}
-
 const machine = createMachine({
   initial: 'empty',
   states: {
-    empty: { meta: { test: testEmpty } },
-    withHeader: { meta: { test: testHeader } },
+    empty: { meta: { test: () => testSlots }, on: { SET_CONTENT: 'withContent' } },
     withContent: { meta: { test: testContent } },
-    withSubheader: { meta: { test: testSubheader } },
-  },
-  on: {
-    SET_HEADER: 'withHeader',
-    SET_CONTENT: 'withContent',
-    SET_SUBHEADER: 'withSubheader',
   },
 });
 
 const model = createModel<Section>(machine).withEvents({
-  SET_HEADER: { exec: element => void (element.header = samples.header) },
   SET_CONTENT: { exec: element => void (element.innerHTML = samples.innerHTML) },
-  SET_SUBHEADER: { exec: element => void (element.subheader = samples.subheader) },
 });
 
 describe('Section', () => {
