@@ -5,7 +5,7 @@ import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
 import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { ChoiceChangeEvent } from '../../../../private/events';
-import { Choice, Group } from '../../../../private/index';
+import { Choice, Group, I18N } from '../../../../private/index';
 import { OffsetInputChangeEvent } from './OffsetInputChangeEvent';
 
 export class OffsetInput extends Translatable {
@@ -15,6 +15,7 @@ export class OffsetInput extends Translatable {
       'x-frequency-input': FrequencyInput,
       'x-choice': Choice,
       'x-group': Group,
+      'x-i18n': I18N,
     };
   }
 
@@ -50,7 +51,9 @@ export class OffsetInput extends Translatable {
 
   public render() {
     return html`
-      <x-group .header=${this._i18n.t(`ndmod.${this.type}`).toString()}>
+      <x-group>
+        <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key=${`ndmod.${this.type}`}>
+        </x-i18n>
         <x-choice
           data-testid="choice"
           .disabled=${this.disabled}
