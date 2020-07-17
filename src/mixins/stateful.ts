@@ -59,7 +59,12 @@ export abstract class Stateful<
 
     const machine = this.__createMachine(this.__interceptFetch());
     this.service = interpret(machine, { devTools: true }).start();
-    this.service.onChange(() => this.requestUpdate());
+
+    this.service.onChange(async content => {
+      await this.requestUpdate();
+      this.dispatchEvent(new CustomEvent('change', { detail: content }));
+    });
+
     this.service.onTransition(state => state.changed && this.requestUpdate());
   }
 
