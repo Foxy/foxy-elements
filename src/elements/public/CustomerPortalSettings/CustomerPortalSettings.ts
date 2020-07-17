@@ -18,7 +18,7 @@ import {
 } from './types';
 
 import { machine } from './machine';
-import { Section, Page, Code } from '../../private/index';
+import { Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
 export class CustomerPortalSettings extends Stateful<
   CustomerPortalSettingsContext,
@@ -32,7 +32,9 @@ export class CustomerPortalSettings extends Stateful<
       'x-frequency-modification': FrequencyModification,
       'x-next-date-modification': NextDateModification,
       'x-origins-list': OriginsList,
+      'x-skeleton': Skeleton,
       'x-section': Section,
+      'x-i18n': I18N,
       'x-page': Page,
       'x-code': Code,
     };
@@ -53,21 +55,10 @@ export class CustomerPortalSettings extends Stateful<
     }
 
     return html`
-      <x-page
-        .header=${this._i18n.t('title').toString()}
-        .subheader=${this._i18n.t('subtitle').toString()}
-      >
-        <x-section
-          .header=${this._i18n.t('quickstart.title').toString()}
-          .subheader=${this._i18n.t('quickstart.subtitle').toString()}
-        >
-          <x-code>
-            <template>
-              <script type="module" src=${this.__modernUrl}></script>
-              <script nomodule src=${this.__legacyUrl}></script>
-              <foxy-customer-portal endpoint=${this.__storeUrl}></foxy-customer-portal>
-            </template>
-          </x-code>
+      <x-page>
+        <x-i18n class="block" slot="title" key="title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+        <x-i18n class="block" slot="subtitle" key="subtitle" .ns=${this.ns} .lang=${this.lang}>
+        </x-i18n>
         </x-section>
 
         <x-section
