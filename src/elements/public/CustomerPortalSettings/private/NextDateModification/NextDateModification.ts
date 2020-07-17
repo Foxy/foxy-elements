@@ -40,10 +40,9 @@ export class NextDateModification extends Translatable {
         ?disabled=${this.disabled}
         @change=${this.__toggleValue}
       >
-        <x-section
-          .header=${this._i18n.t('ndmod.title').toString()}
-          .subheader=${this._i18n.t('ndmod.subtitle').toString()}
-        >
+        <x-section>
+          <x-i18n slot="title" .ns=${this.ns} .lang=${this.lang} key="ndmod.title"></x-i18n>
+          <x-i18n slot="subtitle" .ns=${this.ns} .lang=${this.lang} key="ndmod.subtitle"></x-i18n>
         </x-section>
 
         ${this.value

@@ -6,7 +6,7 @@ export class Section extends Page {
     return [
       super.styles,
       css`
-        ::slotted(*) {
+        ::slotted(:not([slot])) {
           margin-top: var(--lumo-space-l);
         }
       `,
@@ -17,8 +17,12 @@ export class Section extends Page {
     return html`
       <section class="leading-s">
         <header>
-          <h2 class="text-header font-semibold text-l font-lumo">${this.header}</h2>
-          <p class="text-tertiary text-m font-lumo">${this.subheader}</p>
+          <h2 class="text-header font-semibold text-l font-lumo">
+            <slot name="title"></slot>
+          </h2>
+          <p class="text-tertiary text-m font-lumo">
+            <slot name="subtitle"></slot>
+          </p>
         </header>
 
         <slot></slot>
