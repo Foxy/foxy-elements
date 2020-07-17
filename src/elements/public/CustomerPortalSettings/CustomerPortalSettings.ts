@@ -1,6 +1,6 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
-import { html } from 'lit-html';
+import { html, property } from 'lit-element';
 import { Stateful } from '../../../mixins/stateful';
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
@@ -49,10 +49,16 @@ export class CustomerPortalSettings extends Stateful<
     super(() => machine, 'customer-portal-settings');
   }
 
+  @property({ type: Boolean, noAccessor: true })
+  public get disabled() {
+    return this.service.state.matches('disabled');
+  }
+  public set disabled(value: boolean) {
+    this.service.send(value ? 'DISABLE' : 'ENABLE');
+  }
+
   public render() {
-    if (!this._isI18nReady) {
-      return html`<x-page skeleton></x-page>`;
-    }
+    if (!this.service.state.context) return;
 
     return html`
       <x-page>
