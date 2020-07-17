@@ -5,7 +5,7 @@ import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
 import { translateWeekday } from '../../../../../utils/translate-weekday';
-import { Group, Warning } from '../../../../private/index';
+import { Group, Warning, I18N } from '../../../../private/index';
 import { AllowedDays } from '../AllowedDays/AllowedDays';
 import { AllowedDaysChangeEvent } from '../AllowedDays/AllowedDaysChangeEvent';
 import { DisallowedDates } from '../DisallowedDates/DisallowedDates';
@@ -28,6 +28,7 @@ export class NextDateModificationRule extends Translatable {
       'iron-icon': customElements.get('iron-icon'),
       'x-warning': Warning,
       'x-group': Group,
+      'x-i18n': I18N,
     };
   }
 
@@ -94,7 +95,9 @@ export class NextDateModificationRule extends Translatable {
             this.open
               ? html`
                   <article class="space-y-m">
-                    <x-group .header=${this._i18n.t('ndmod.match').toString()}>
+                    <x-group>
+                      <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.match">
+                      </x-i18n>
                       <x-jsonata-input
                         data-testid="jsonata"
                         .lang=${this.lang}
@@ -148,7 +151,9 @@ export class NextDateModificationRule extends Translatable {
                         `
                       : ''}
 
-                    <x-group .header=${this._i18n.t('ndmod.allowed').toString()}>
+                    <x-group>
+                      <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.allowed">
+                      </x-i18n>
                       <x-allowed-days
                         data-testid="allowed"
                         .lang=${this.lang}
@@ -162,7 +167,9 @@ export class NextDateModificationRule extends Translatable {
                       </x-allowed-days>
                     </x-group>
 
-                    <x-group .header=${this._i18n.t('ndmod.excluded').toString()}>
+                    <x-group>
+                      <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.excluded">
+                      </x-i18n>
                       <x-disallowed-dates
                         data-testid="disallowed"
                         .lang=${this.lang}

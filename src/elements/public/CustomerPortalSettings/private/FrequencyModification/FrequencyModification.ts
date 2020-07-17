@@ -4,7 +4,7 @@ import { JSONataInput } from '../JSONataInput/JSONataInput';
 import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
 import { FrequencyList } from '../FrequencyList/FrequencyList';
 import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';
-import { Checkbox, Section, Group } from '../../../../private/index';
+import { Checkbox, Section, Group, I18N } from '../../../../private/index';
 import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
 import { FrequencyModificationRule } from './FrequencyModificationRule';
 
@@ -16,6 +16,7 @@ export class FrequencyModification extends Translatable {
       'x-checkbox': Checkbox,
       'x-section': Section,
       'x-group': Group,
+      'x-i18n': I18N,
     };
   }
 
@@ -46,6 +47,8 @@ export class FrequencyModification extends Translatable {
 
   public render() {
     const disabled = this.disabled || this.value === false;
+    const ns = 'customer-portal-settings';
+    const lang = this.lang;
 
     return html`
       <x-checkbox
@@ -63,7 +66,8 @@ export class FrequencyModification extends Translatable {
         ${this.value
           ? html`
               <div class="space-y-m pt-m" slot="content">
-                <x-group .header=${this._i18n.t('fmod.match').toString()} frame>
+                <x-group frame>
+                  <x-i18n slot="header" .ns=${ns} .lang=${lang} key="fmod.match"></x-i18n>
                   <x-jsonata-input
                     data-testid="jsonata"
                     .value=${this.__normalizedQuery}
@@ -73,7 +77,8 @@ export class FrequencyModification extends Translatable {
                   </x-jsonata-input>
                 </x-group>
 
-                <x-group .header=${this._i18n.t('fmod.options').toString()} frame>
+                <x-group frame>
+                  <x-i18n slot="header" .ns=${ns} .lang=${lang} key="fmod.options"></x-i18n>
                   <x-frequency-list
                     data-testid="frequency"
                     .value=${this.__normalizedValues}
