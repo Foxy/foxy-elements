@@ -46,7 +46,7 @@ export class FrequencyInput extends Translatable {
           class="w-full"
           min="1"
           has-controls
-          .value=${this.__numericValue}
+          .value=${this._isI18nReady ? this.__numericValue : ''}
           .disabled=${this.disabled}
           @change=${this.__handleNumberChange}
         >
@@ -55,9 +55,9 @@ export class FrequencyInput extends Translatable {
         <x-dropdown
           data-testid="units"
           .disabled=${this.disabled}
-          .getText=${(v: string) => this._i18n.t(`${v}_plural`)}
+          .getText=${(v: string) => (this._isI18nReady ? this._t(`${v}_plural`) : '')}
           .items=${this.__items}
-          .value=${this.__unitsValue}
+          .value=${this._isI18nReady ? this.__unitsValue : ''}
           @change=${this.__handleUnitsChange}
         >
         </x-dropdown>
