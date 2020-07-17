@@ -83,7 +83,7 @@ export class NextDateModificationRule extends Translatable {
             <button
               data-testid="remove"
               .disabled=${this.disabled}
-              class="flex items-center justify-center absolute top-0 right-0 text-tertiary"
+              class="flex items-center justify-center absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default"
               style="width: 54px; height: 54px"
               @click=${prevent(() => this.dispatchEvent(new NextDateModificationRuleRemoveEvent()))}
             >
