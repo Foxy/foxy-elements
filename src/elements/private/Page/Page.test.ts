@@ -6,72 +6,29 @@ import { createModel } from '@xstate/test';
 customElements.define('x-page', Page);
 
 const samples = {
-  header: 'Test header',
-  subheader: 'Lorem ipsum',
   innerHTML: '<div>Lorem ipsum</div>',
 };
 
-function testHeader(element: Page) {
-  const header = element.shadowRoot!.querySelector('h1');
-  expect(header?.textContent).to.contain(samples.header);
+function testSlots(element: Page) {
+  expect(element.shadowRoot!.querySelector('slot[name=title]')).to.exist;
+  expect(element.shadowRoot!.querySelector('slot[name=subtitle]')).to.exist;
 }
 
 function testContent(element: Page) {
   expect(element).lightDom.to.equal(samples.innerHTML);
-}
-
-function testSubheader(element: Page) {
-  const subheader = element.shadowRoot!.querySelector('h1 + p');
-  expect(subheader?.textContent).to.contain(samples.subheader);
-}
-
-function testEmpty(element: Page) {
-  const header = element.shadowRoot!.querySelector('h1');
-  const subheader = element.shadowRoot!.querySelector('h1 + p');
-
-  expect(header?.textContent?.trim()).to.equal('');
-  expect(subheader?.textContent?.trim()).to.equal('');
-}
-
-function testSkeleton(element: Page) {
-  testEmpty(element);
-  expect(() => testContent(element)).to.throw;
+  testSlots(element);
 }
 
 const machine = createMachine({
-  id: 'page',
-  initial: 'default',
+  initial: 'empty',
   states: {
-    default: {
-      meta: { test: () => true },
-      initial: 'empty',
-      states: {
-        empty: { meta: { test: testEmpty } },
-        withHeader: { meta: { test: testHeader } },
-        withContent: { meta: { test: testContent } },
-        withSubheader: { meta: { test: testSubheader } },
-      },
-      on: {
-        SET_HEADER: '.withHeader',
-        SET_CONTENT: '.withContent',
-        SET_SUBHEADER: '.withSubheader',
-        TOGGLE_SKELETON: 'skeleton',
-      },
-    },
-    skeleton: {
-      meta: { test: () => testSkeleton },
-      on: {
-        TOGGLE_SKELETON: 'default',
-      },
-    },
+    empty: { meta: { test: () => testSlots }, on: { SET_CONTENT: 'withContent' } },
+    withContent: { meta: { test: testContent } },
   },
 });
 
 const model = createModel<Page>(machine).withEvents({
-  SET_HEADER: { exec: element => void (element.header = samples.header) },
   SET_CONTENT: { exec: element => void (element.innerHTML = samples.innerHTML) },
-  SET_SUBHEADER: { exec: element => void (element.subheader = samples.subheader) },
-  TOGGLE_SKELETON: { exec: element => void (element.skeleton = true) },
 });
 
 describe('Page', () => {
