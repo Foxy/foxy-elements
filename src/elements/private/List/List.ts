@@ -28,7 +28,7 @@ export class List extends Themeable {
                 class=${'ml-m h-l text-body flex justify-between items-center' +
                 (index > 0 ? ' border-t border-shade-10' : '')}
               >
-                ${this.getText(value)}
+                <slot name=${index}>${this.getText(value)}</slot>
 
                 <button
                   ?disabled=${this.disabled}
