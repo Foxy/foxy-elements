@@ -33,29 +33,29 @@ export const machine = Machine<
     actions: {
       setOrigins: actions.assign({
         allowedOrigins: (ctx, evt) => {
-          return evt.type === 'SET_ORIGINS' ? evt.value : ctx.allowedOrigins;
+          return evt.type === 'SET_ORIGINS' ? evt.value : ctx!.allowedOrigins;
         },
       }),
       setFrequencyModification: actions.assign({
         subscriptions: (ctx, evt) => {
-          if (evt.type !== 'SET_FREQUENCY_MODIFICATION') return ctx.subscriptions;
-          return { ...ctx.subscriptions, allowFrequencyModification: evt.value };
+          if (evt.type !== 'SET_FREQUENCY_MODIFICATION') return ctx!.subscriptions;
+          return { ...ctx!.subscriptions, allowFrequencyModification: evt.value };
         },
       }),
       setNextDateModification: actions.assign({
         subscriptions: (ctx, evt) => {
-          if (evt.type !== 'SET_NEXT_DATE_MODIFICATION') return ctx.subscriptions;
-          return { ...ctx.subscriptions, allowNextDateModification: evt.value };
+          if (evt.type !== 'SET_NEXT_DATE_MODIFICATION') return ctx!.subscriptions;
+          return { ...ctx!.subscriptions, allowNextDateModification: evt.value };
         },
       }),
       setSession: actions.assign({
         sessionLifespanInMinutes: (ctx, evt) => {
-          return evt.type === 'SET_SESSION' ? evt.value : ctx.sessionLifespanInMinutes;
+          return evt.type === 'SET_SESSION' ? evt.value : ctx!.sessionLifespanInMinutes;
         },
       }),
       setSecret: actions.assign({
         jwtSharedSecret: (ctx, evt) => {
-          return evt.type === 'SET_SECRET' ? evt.value : ctx.jwtSharedSecret;
+          return evt.type === 'SET_SECRET' ? evt.value : ctx!.jwtSharedSecret;
         },
       }),
     },

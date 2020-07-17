@@ -1,4 +1,8 @@
-export interface CustomerPortalSettingsContext {
+export interface CustomerPortalSettingsResource {
+  _links: {
+    self: { href: string };
+  };
+
   sso: boolean;
   date_created: string;
   date_modified: string;
@@ -28,6 +32,8 @@ export interface CustomerPortalSettingsContext {
   };
 }
 
+export type CustomerPortalSettingsContext = undefined | CustomerPortalSettingsResource;
+
 export interface CustomerPortalSettingsSchema {
   states: {
     enabled: {};
@@ -50,12 +56,12 @@ export interface CustomerPortalSettingsSetOriginsEvent {
 
 export interface CustomerPortalSettingsSetFrequencyModificationEvent {
   type: 'SET_FREQUENCY_MODIFICATION';
-  value: CustomerPortalSettingsContext['subscriptions']['allowFrequencyModification'];
+  value: CustomerPortalSettingsResource['subscriptions']['allowFrequencyModification'];
 }
 
 export interface CustomerPortalSettingsSetNextDateModificationEvent {
   type: 'SET_NEXT_DATE_MODIFICATION';
-  value: CustomerPortalSettingsContext['subscriptions']['allowNextDateModification'];
+  value: CustomerPortalSettingsResource['subscriptions']['allowNextDateModification'];
 }
 
 export interface CustomerPortalSettingsSetSecretEvent {
