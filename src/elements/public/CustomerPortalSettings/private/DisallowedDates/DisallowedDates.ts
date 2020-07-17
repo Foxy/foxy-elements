@@ -1,14 +1,16 @@
 import '@vaadin/vaadin-date-picker';
 import { property, html } from 'lit-element';
-import { Translatable } from '../../../../../mixins/translatable';
 import { ListChangeEvent } from '../../../../private/events';
-import { List } from '../../../../private/index';
+import { List, I18N, Skeleton } from '../../../../private/index';
 import { DisallowedDatesChangeEvent } from './DisallowedDatesChangeEvent';
+import { Translatable } from '../../../../../mixins/translatable';
 
 export class DisallowedDates extends Translatable {
   public static get scopedElements() {
     return {
       'vaadin-date-picker': customElements.get('vaadin-date-picker'),
+      'x-skeleton': Skeleton,
+      'x-i18n': I18N,
       'x-list': List,
     };
   }
@@ -28,14 +30,19 @@ export class DisallowedDates extends Translatable {
       <x-list
         data-testid="list"
         .value=${this.value}
-        .disabled=${this.disabled}
-        .getText=${this.__getText.bind(this)}
+        .disabled=${this.disabled || !this._isI18nReady}
         @change=${this.__handleListChange}
       >
+        ${this.value.map((item, index) =>
+          this._isI18nReady
+            ? html`<span slot=${index}>${this.__getText(item)}</span>`
+            : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
+        )}
+
         <vaadin-date-picker
           data-testid="input"
-          .disabled=${this.disabled}
-          .placeholder=${this._i18n.t('ndmod.select')}
+          .disabled=${this.disabled || !this._isI18nReady}
+          .placeholder=${this._isI18nReady ? this._t('ndmod.select') : ''}
           @change=${this.__handleNewValueChange}
         >
         </vaadin-date-picker>

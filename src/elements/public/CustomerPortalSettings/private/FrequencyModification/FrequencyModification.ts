@@ -47,14 +47,12 @@ export class FrequencyModification extends Translatable {
 
   public render() {
     const disabled = this.disabled || this.value === false;
-    const ns = 'customer-portal-settings';
-    const lang = this.lang;
 
     return html`
       <x-checkbox
         data-testid="toggle"
         .checked=${Boolean(this.value)}
-        .disabled=${this.disabled}
+        .disabled=${this.disabled || !this._isI18nReady}
         @change=${this.__toggleValue}
       >
         <x-section>
@@ -66,22 +64,29 @@ export class FrequencyModification extends Translatable {
           ? html`
               <div class="space-y-m pt-m" slot="content">
                 <x-group frame>
-                  <x-i18n slot="header" .ns=${ns} .lang=${lang} key="fmod.match"></x-i18n>
+                  <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.match"></x-i18n>
                   <x-jsonata-input
                     data-testid="jsonata"
+                    .lang=${this.lang}
                     .value=${this.__normalizedQuery}
-                    .disabled=${disabled}
+                    .disabled=${disabled || !this._isI18nReady}
                     @change=${this.__handleQueryChange}
                   >
                   </x-jsonata-input>
                 </x-group>
 
                 <x-group frame>
-                  <x-i18n slot="header" .ns=${ns} .lang=${lang} key="fmod.options"></x-i18n>
+                  <x-i18n
+                    slot="header"
+                    .ns=${this.ns}
+                    .lang=${this.lang}
+                    key="fmod.options"
+                  ></x-i18n>
                   <x-frequency-list
                     data-testid="frequency"
+                    .lang=${this.lang}
                     .value=${this.__normalizedValues}
-                    .disabled=${disabled}
+                    .disabled=${disabled || !this._isI18nReady}
                     @change=${this.__handleValuesChange}
                   >
                   </x-frequency-list>

@@ -37,7 +37,8 @@ export class WeekdayPicker extends MonthdayPicker {
           this.value.length > 0 &&
             html`
               <p class="text-s text-tertiary leading-s">
-                ${this._i18n.t('weekday-picker.hint', { days: this.value })}
+                <x-i18n key="weekday-picker.hint" .lang=${this.lang} .opts=${{ days: this.value }}>
+                </x-i18n>
               </p>
             `
         )}

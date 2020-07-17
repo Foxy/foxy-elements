@@ -81,9 +81,10 @@ export class CustomerPortalSettings extends Stateful<
           <x-i18n slot="subtitle" key="origins.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
 
           <x-origins-list
+            data-testid="origins"
             .lang=${this.lang}
             .value=${this.service.state.context.allowedOrigins}
-            ?disabled=${this.service.state.matches('disabled')}
+            .disabled=${this.disabled}
             @change=${(evt: OriginsListChangeEvent) => {
               this.service.send({ type: 'SET_ORIGINS', value: evt.detail });
             }}
@@ -92,7 +93,10 @@ export class CustomerPortalSettings extends Stateful<
         </x-section>
 
         <x-frequency-modification
+          data-testid="fmod"
+          .lang=${this.lang}
           .value=${this.service.state.context.subscriptions.allowFrequencyModification}
+          .disabled=${this.disabled}
           @change=${(evt: FrequencyModificationChangeEvent) => {
             this.service.send({ type: 'SET_FREQUENCY_MODIFICATION', value: evt.detail });
           }}
@@ -100,7 +104,10 @@ export class CustomerPortalSettings extends Stateful<
         </x-frequency-modification>
 
         <x-next-date-modification
+          data-testid="ndmod"
+          .lang=${this.lang}
           .value=${this.service.state.context.subscriptions.allowNextDateModification}
+          .disabled=${this.disabled}
           @change=${(evt: NextDateModificationChangeEvent) => {
             this.service.send({ type: 'SET_NEXT_DATE_MODIFICATION', value: evt.detail });
           }}
@@ -113,7 +120,9 @@ export class CustomerPortalSettings extends Stateful<
 
           <vaadin-password-field
             class="w-full"
-            .value=${this.service.state.context.jwtSharedSecret}
+            data-testid="jwt"
+            .value=${this._isI18nReady ? this.service.state.context.jwtSharedSecret : ''}
+            .disabled=${this.disabled || !this._isI18nReady}
             @change=${(evt: InputEvent) => {
               const value = (evt.target as HTMLInputElement).value;
               this.service.send({ type: 'SET_SECRET', value });
@@ -129,8 +138,11 @@ export class CustomerPortalSettings extends Stateful<
           <vaadin-integer-field
             min="1"
             max="40320"
-            .value=${this.service.state.context.sessionLifespanInMinutes}
+            style="min-width: 16rem"
             has-controls
+            data-testid="session"
+            .value=${this._isI18nReady ? this.service.state.context.sessionLifespanInMinutes : ''}
+            .disabled=${this.disabled || !this._isI18nReady}
             @change=${(evt: InputEvent) => {
               const value = parseInt((evt.target as HTMLInputElement).value);
               this.service.send({ type: 'SET_SESSION', value });

@@ -35,12 +35,13 @@ export class OffsetInput extends Translatable {
   public type: 'min' | 'max' = 'min';
 
   private get __hint() {
+    if (!this._isI18nReady) return '';
     const { count, units } = parseDuration(this.value ?? '');
 
-    return this._i18n.t(`ndmod.${this.type}Hint`, {
-      duration: this._i18n.t('duration', {
+    return this._t(`ndmod.${this.type}Hint`, {
+      duration: this._t('duration', {
         count,
-        units: this._i18n.t(units ?? '', { count }),
+        units: this._t(units ?? '', { count }),
       }),
     });
   }
@@ -54,14 +55,17 @@ export class OffsetInput extends Translatable {
       <x-group>
         <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key=${`ndmod.${this.type}`}>
         </x-i18n>
+
         <x-choice
           data-testid="choice"
           .disabled=${this.disabled}
           .value=${this.__choice}
           .items=${this.__items}
-          .getText=${this.__getText.bind(this)}
           @change=${this.__handleChoiceChange}
         >
+          <x-i18n slot="none-label" .ns=${this.ns} .lang=${this.lang} key="ndmod.none"></x-i18n>
+          <x-i18n slot="custom-label" .ns=${this.ns} .lang=${this.lang} key="ndmod.custom"></x-i18n>
+
           ${this.__choice === this.__items[1]
             ? html`
                 <div slot=${this.__items[1]} class="space-y-s">
@@ -94,9 +98,5 @@ export class OffsetInput extends Translatable {
 
   private __sendChange() {
     this.dispatchEvent(new OffsetInputChangeEvent(this.value));
-  }
-
-  private __getText(value: string) {
-    return this._i18n.t(`ndmod.${value}`);
   }
 }
