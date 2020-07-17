@@ -88,7 +88,11 @@ export class Choice extends Themeable {
                 }
               }}
             >
-              <div style="margin-left: 5px">${this.getText(item)}</div>
+              <div style="margin-left: 5px">
+                <slot name=${`${item}-label`}>
+                  ${this.getText(item)}
+                </slot>
+              </div>
             </vaadin-radio-button>
 
             <div class="pr-m mt-s" style="padding-left: 35px">
