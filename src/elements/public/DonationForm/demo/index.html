@@ -1,0 +1,245 @@
+<!doctype html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>&lt;donation-form> Demo</title>
+    <script type="module">
+      import { DonationForm } from '/dist/elements/public/DonationForm/index.js';
+      DocumentRegistry.customElements.define('donation-form', DonationForm);
+    </script>
+
+<style>
+#my-donation-section {
+  margin: 0 auto;
+  box-shadow: 2px 2px 6px silver;
+  padding: 2em 1em;
+}
+code {
+  padding: 1em 4ch;
+  background: #444;
+  color: #eee;
+  border: inset 2px;
+  display: block;
+}
+</style>
+
+  </head>
+  <body>
+
+    <header>
+      <h1>Foxy Donation form demonstration</h1>
+    </header>
+
+
+    <section id="my-donation-section">
+
+      <h2>The simplest form: a button</h2>
+      <p>Here's the code:</p>
+      <code>
+      &lt;donation-form storeSubdomain=&quot;MyFoxySubdomain&quot; value=&quot;100&quot;&gt;&lt;/donation-form&gt;
+      </code>
+
+      <p>Here's the result:</p>
+      <donation-form storeSubdomain="MyFoxySubdomain" value="100"></donation-form>
+      <hr>
+
+      <h2>Offer some choices of values</h2>
+      <p>You can offer some value choices by simply adding
+      the "valueOptions" attribute.</p>
+
+      <p>Here's the code:</p>
+      <code>
+        &lt;donation-form storeSubdomain=&quot;MyFoxySubdomain&quot; valueOptions=&quot;[10, 30, 50, 100]&quot;&gt;&lt;/donation-form&gt;
+      </code>
+      <p>Here's the result:</p>
+      <donation-form storeSubdomain="MyFoxySubdomain" valueOptions="[10, 30, 50, 100]"></donation-form>
+      <hr>
+
+      <h2>Allow the donner to set a custom ammount</h2>
+      <p>You can use the "askValueOther" attribute to add a
+      "other" field</p>
+
+      <p>Here's the code:</p>
+      <code>
+        <pre>
+      &lt;donation-form storeSubdomain=&quot;MyFoxySubdomain&quot;
+                     valueOptions=&quot;[10, 30, 50, 100]&quot;
+                     askValueOther=&quot;true&quot;
+                     &gt;&lt;/donation-form&gt;
+        </pre>
+      </code>
+
+      <p>Here's the result:</p>
+      <donation-form storeSubdomain="MyFoxySubdomain"
+                     valueOptions="[10, 30, 50, 100]"
+                     askValueOther="true"
+                     ></donation-form>
+      <hr>
+
+      <h2>Allow the user to choose a designation for the donation</h2>
+
+      <p>You can use the "designationOptions" to allow for specifying a designation.</p>
+
+      <p>Here's the code:</p>
+
+      <code><pre>
+      &lt;donation-form storeSubdomain=&quot;MyFoxySubdomain&quot;
+                     valueOptions=&quot;[10, 30, 50, 100]&quot;
+                     designationOptions=&#39;[&quot;Rebuild the School&quot;, &quot;Medical Assistance&quot;, &quot;Psicological Assistance&quot;, &quot;Daily Meals&quot;]&#39;
+                     askValueOther=&quot;true&quot;
+                     askDesignationOther=&quot;true&quot;
+                     &gt;&lt;/donation-form&gt;
+        </pre></code>
+
+      <p>Here's the result:</p>
+      <donation-form storeSubdomain="MyFoxySubdomain"
+                     valueOptions="[10, 30, 50, 100]"
+                     designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
+                     askValueOther="true"
+                     askDesignationOther="true"
+                     ></donation-form>
+      <hr>
+
+      <h2>Change order and type</h2>
+      <p>You can change the field type used. Instead of using radio buttons or check boxes, you may prefer to use select boxes instead.</p>
+      <p>You can also change the order of any part of the form.  To do that, add a "Weight" suffix to the name of the part of the form you want to set a weight to to compose an attribute. The greater the weight the further down that part will be placed.</p>
+      <p>Notice in the previous example that designation after the value by default. To invert that do the following:</p>
+
+      <code><pre>
+      &lt;donation-form storeSubdomain=&quot;MyFoxySubdomain&quot;
+                     valueOptions=&quot;[10, 30, 50, 100]&quot;
+                     designationOptions=&#39;[&quot;Rebuild the School&quot;, &quot;Medical Assistance&quot;, &quot;Psicological Assistance&quot;, &quot;Daily Meals&quot;]&#39;
+                     askValueOther=&quot;true&quot;
+                     askDesignationOther=&quot;true&quot;
+                     valueType=&quot;select&quot;
+                     designationType=&quot;select&quot;
+                     designationWeight=&quot;1&quot;
+                     valueWeight=&quot;2&quot;
+                     &gt;&lt;/donation-form&gt;
+        </pre></code>
+
+      <p>Here's the result:</p>
+      <donation-form storeSubdomain="MyFoxySubdomain"
+                     valueOptions="[10, 30, 50, 100]"
+                     designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
+                     askValueOther="true"
+                     askDesignationOther="true"
+                     valueType="select"
+                     designationType="select"
+                     designationWeight="1"
+                     valueWeight="2"
+                     ></donation-form>
+      <hr>
+
+
+      <h2>Include comment and anonymous donation button</h2>
+      <p>On top of all that you may allow the donner to ask to remain anonymous and to leave a comment.</p>
+      <p>Please notice that the "anonymous" options only means that the donner does not wish to be publicly recognized.</p>
+
+      <p>Here's the code:</p>
+      <code><pre>
+      &lt;donation-form
+        currency=&quot;&acirc;&#130;&not;&quot;
+        askComment=&quot;true&quot;
+        anonymousWeight=&quot;0&quot;
+        valueOptions=&quot;[ 20, 100, 250]&quot; &gt;
+      &lt;/donation-form&gt;
+      </pre></code>
+
+      <p>Here's the result:</p>
+      <donation-form
+        currency="€"
+        askComment="true"
+        anonymousWeight="0"
+        valueOptions="[ 20, 100, 250]" >
+      </donation-form>
+      <hr>
+
+      <h2>Include your own markup</h2>
+      <p>You can include whatever markup you wish above any of the form parts. Simply use the name of that specific part as the slot where to place it.</p>
+
+      <p>Here's the code:</p>
+      <code><pre>
+      &lt;donation-form currency=&quot;&acirc;&#130;&not;&quot; valueOptions=&quot;[1, 2, 3]&quot;
+        askValueOther=&quot;true&quot;
+        askComment=&quot;true&quot;
+        askAnonymous=&quot;true&quot;
+        askDesignation=&quot;true&quot;
+        commentWeight=&quot;8&quot;
+        anonymousWeight=&quot;0&quot;
+        valueWeight=&quot;8&quot;
+        valueType=&quot;select&quot;
+        &gt;
+        &lt;p slot=&quot;value&quot;&gt;
+          You have a crucial role in our mission. None of this could have been
+          done without your generous donation.
+          &lt;img src=&quot;/dev/img/tree.jpg&quot; alt=&quot;A nice tree icon.&quot;&gt;
+        &lt;/p&gt;
+        &lt;strong slot=&quot;anonymous&quot;&gt;Would you like to remain anonymous?&lt;/strong&gt;
+        &lt;p slot=&quot;comment&quot;&gt;Would you like to leave us a message?&lt;/p&gt;
+      &lt;/donation-form&gt;
+      </pre></code>
+
+      <p>Here's the result:</p>
+      <donation-form currency="€" valueOptions="[1, 2, 3]"
+        askValueOther="true"
+        askComment="true"
+        askAnonymous="true"
+        askDesignation="true"
+        commentWeight="8"
+        anonymousWeight="0"
+        valueWeight="8"
+        valueType="select"
+        >
+        <p slot="value">
+          You have a crucial role in our mission. None of this could have been
+          done without your generous donation.
+          <img style="float:right" src="/dev/img/tree.jpg" alt="A nice tree icon.">
+        </p>
+        <strong slot="anonymous">Would you like to remain anonymous?</strong>
+        <p slot="comment">Would you like to leave us a message?</p>
+      </donation-form>
+      <hr>
+
+      <h2>Of course, add your own fields</h2>
+      <p>You can add your own fields to the form. HTML
+      elements will be added to the form element so that
+      they can be send together with the form.</p>
+      <p>If you wish to insert HTML elements before any
+      element in the for, use it's position. The slot
+      "before-0" will insert it before the first form field,
+      the slot "before-1" before the second, and so on.</p>
+
+
+      <donation-form currency="€"
+           valueOptions="[10, 50, 100]"
+           designationOptions='["rescue", "medical treatment", "reintegration in nature"]'
+           askComment="true"
+           askAnonymous="true"
+        >
+        <label for="branch">Choose a branch</label>
+        <select id="branch" name="branch">
+          <option value="main">Main</option>
+          <option value="south">South Branch</option>
+          <option value="north">North Branch</option>
+          <option value="west">West Branch</option>
+          <option value="east">East Branch</option>
+        </select>
+        <div slot="before-2" class="my-field">
+          <label>Leave a percentage to administration</label>
+          <p>If you choose to leave a percentage to administration, this ammount can be used to internal administrative activities and to help raise more funds.</p>
+          <input type="number"
+                 step="1"
+                 min="0"
+                 value="0"
+                 max="100"></input>
+      </donation-form>
+      <hr>
+
+      <h2>Setting up the code and name of the donation</h2>
+
+    </section>
+  </body>
+</html>

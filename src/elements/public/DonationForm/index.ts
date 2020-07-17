@@ -351,9 +351,3 @@ export class DonationForm extends Translatable {
     `;
   }
 }
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'foxy-donation': DonationForm;
-  }
-}
