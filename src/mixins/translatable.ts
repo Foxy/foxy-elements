@@ -22,7 +22,8 @@ interface CacheItem {
 export abstract class Translatable extends Themeable {
   private static __i18nInstanceCache = new Map<string, CacheItem>();
 
-  private static __createI18nInstance(defaultNS: string, fallbackNS: string) {
+  private static __createI18nInstance(defaultNS: string) {
+    const fallbackNS = 'global';
     const ns = [...new Set([defaultNS, fallbackNS])];
     const key = ns.join();
 
@@ -95,8 +96,8 @@ export abstract class Translatable extends Themeable {
     }
   };
 
-  protected readonly _i18n: i18n;
-  protected readonly _whenI18nReady: Promise<TFunction>;
+  protected _i18n!: i18n;
+  protected _whenI18nReady!: Promise<TFunction>;
 
   @internalProperty()
   protected _isI18nReady = false;
@@ -108,19 +109,9 @@ export abstract class Translatable extends Themeable {
    * @param defaultNS Name of the folder translations for this component are stored in. Usually a node name without vendor prefix.
    * @param fallbackNS Global (default) namespace for common translations.
    */
-  constructor(defaultNS = 'global', fallbackNS = 'global') {
+  constructor(defaultNS = 'global') {
     super();
-
-    const { whenReady, i18n } = Translatable.__createI18nInstance(defaultNS, fallbackNS);
-
-    this._i18n = i18n;
-    this._whenI18nReady = whenReady;
-
-    whenReady.then(() => {
-      this._isI18nReady = true;
-      this.requestUpdate();
-      this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
-    });
+    this.__initTranslatable(defaultNS);
   }
 
   /**
@@ -139,5 +130,27 @@ export abstract class Translatable extends Themeable {
         this.requestUpdate();
         this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
       });
+  }
+
+  @property({ type: String, reflect: true, noAccessor: true })
+  public get ns() {
+    return this._i18n.options.defaultNS!;
+  }
+  public set ns(value: string) {
+    this.__initTranslatable(value);
+  }
+
+  private __initTranslatable(defaultNS: string) {
+    const { whenReady, i18n } = Translatable.__createI18nInstance(defaultNS);
+
+    this._i18n = i18n;
+    this._isI18nReady = false;
+    this._whenI18nReady = whenReady;
+
+    whenReady.then(() => {
+      this._isI18nReady = true;
+      this.requestUpdate();
+      this.dispatchEvent(new TranslationEvent({ lang: this.lang }));
+    });
   }
 }
