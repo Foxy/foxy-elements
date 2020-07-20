@@ -88,16 +88,16 @@ export class DonationForm extends Translatable {
   @property({ type: String })
   code = 'FOXYDONATIONFORM';
 
-  @query('[name=name]')
+  @query('input[name=name]')
   fieldName?: HTMLInputElement;
 
-  @query('[name=price]')
+  @query('input[name=price]')
   fieldPrice?: HTMLInputElement;
 
-  @query('[name=designation]')
+  @query('input[name=designation]')
   fieldDesignation?: HTMLInputElement;
 
-  @query('[name=quantity]')
+  @query('input[name=quantity]')
   fieldQuantity?: HTMLInputElement;
 
   @query('[name=sub_frequency]')
@@ -231,7 +231,7 @@ export class DonationForm extends Translatable {
 
   handleDonationDesignation = {
     handleEvent: (e: { target: { value: string } }) => {
-      this.fieldDesignation!.value = e.target.value;
+      this.fieldDesignation!.value = JSON.stringify(e.target.value);
     },
   };
 
