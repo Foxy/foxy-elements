@@ -62,7 +62,7 @@ export class DonationForm extends Translatable {
     };
   }
 
-  defaultSubdomain = 'jamstackecommerceexample';
+  defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
 
   vocabulary = {
     defaultRecurrenceLabel: this._i18n.t('Could you commit to a recurring donation?'),
@@ -320,7 +320,7 @@ export class DonationForm extends Translatable {
 
   render() {
     return html`
-      <form method="POST" action="https://${this.storeSubdomain}.foxycart.com/cart">
+      <form method="POST" action="https://${this.storeSubdomain}/cart">
         <slot></slot>
         <vaadin-form-layout>
           ${this.fields
