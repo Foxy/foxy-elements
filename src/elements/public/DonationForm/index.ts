@@ -100,11 +100,14 @@ export class DonationForm extends Translatable {
   @query('input[name=quantity]')
   fieldQuantity?: HTMLInputElement;
 
-  @query('[name=sub_frequency]')
+  @query('input[name=sub_frequency]')
   fieldSubFrequency?: HTMLInputElement;
 
-  @query('[slot=anonymous]')
-  fieldAnonymous?: HTMLElement;
+  @query('input[name=anonymous]')
+  fieldAnonymous?: HTMLInputElement;
+
+  @query('input[name=comment]')
+  fieldComment?: HTMLInputElement;
 
   // Config
   @property({ type: String })
@@ -235,6 +238,24 @@ export class DonationForm extends Translatable {
     },
   };
 
+  handleAnonymous = {
+    handleEvent: (e: { target: { checked: boolean } }) => {
+      console.log(e.target);
+      if (this.fieldAnonymous) {
+        this.fieldAnonymous.value = e.target!.checked ? 'true' : 'false';
+      }
+    },
+  };
+
+  handleComment = {
+    handleEvent: (e: { target: { value: string } }) => {
+      console.log(e.target);
+      if (this.fieldComment) {
+        this.fieldComment.value = e.target!.value;
+      }
+    },
+  };
+
   handleSubmit = {
     form: this.form,
     handleEvent: (e: Event) => {
@@ -285,6 +306,7 @@ export class DonationForm extends Translatable {
         condition: () => this.askComment,
         template: html` <slot name="comment"></slot>
           <vaadin-text-area
+            @change=${this.handleComment}
             label="${this.commentLabel}"
             placeholder="${this.commentPlaceholder}"
           ></vaadin-text-area>`,
@@ -293,7 +315,7 @@ export class DonationForm extends Translatable {
         name: 'anonymousTemplate',
         weight: () => this.anonymousWeight,
         condition: () => this.askAnonymous,
-        template: html` <vaadin-checkbox value="anonymous">
+        template: html` <vaadin-checkbox @change=${this.handleAnonymous}>
           <slot name="anonymous">${this.vocabulary.defaultRemainAnonymous}</slot>
         </vaadin-checkbox>`,
       },
@@ -337,6 +359,7 @@ export class DonationForm extends Translatable {
         <input type="hidden" name="quantity" value="1" />
         <input type="hidden" name="anonymous" value="" />
         <input type="hidden" name="designation" value="" />
+        <input type="hidden" name="comment" value="" />
         <input type="hidden" name="sub_frequency" value="" />
 
         <slot name="before-button"></slot>
