@@ -13,7 +13,6 @@ import '@vaadin/vaadin-form-layout/vaadin-form-item';
 import '@vaadin/vaadin-form-layout/vaadin-form-layout';
 import '@vaadin/vaadin-icons/vaadin-icons';
 import '@vaadin/vaadin-item/vaadin-item-mixin';
-import '@vaadin/vaadin-list-box/vaadin-list-box';
 import '@vaadin/vaadin-radio-button/vaadin-radio-button';
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 import '@vaadin/vaadin-select/vaadin-select';
@@ -262,7 +261,7 @@ export class DonationForm extends Translatable {
           label="${this.valueLabel}"
           .valueOptions=${this.valueOptions}
           inputType="${this.valueType}"
-          ?hasValueOther=${this.askValueOther}
+          ?askValueOther=${this.askValueOther}
         >
           <slot name="value"></slot>
         </x-value>`,
