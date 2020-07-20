@@ -65,6 +65,20 @@ export class DonationForm extends Translatable {
 
   defaultSubdomain = 'jamstackecommerceexample';
 
+  vocabulary = {
+    defaultRecurrenceLabel: this._i18n.t('Could you commit to a recurring donation?'),
+    defaultDesignationLabel: this._i18n.t('Choose a designation'),
+    defaultCommentLabel: this._i18n.t('Please, leave a comment.'),
+    defaultCommentPlaceholder: this._i18n.t(
+      "We'd like to hear from you. Please, leave us a comment."
+    ),
+    defaultSubmitButtonText: this._i18n.t('Donate now'),
+    errorNoStoreSubdomain: this._i18n.t(`You haven't set your Store Subdomain.
+        Please, be sure to provide your Store Subdomain as in 
+        '<foxy-donation storeSubdomain="MYSTORESUBDOMAIN"></foxy-donation>'`),
+    defaultRemainAnonymous: this._i18n.t("I'd like to remain anonymous"),
+  };
+
   // only for an easier developer experience.
   @property({ type: String })
   storeSubdomain = this.defaultSubdomain;
@@ -126,7 +140,7 @@ export class DonationForm extends Translatable {
   recurrenceWeight = 2;
 
   @property({ type: String })
-  recurrenceLabel = this._i18n.t('Could you commit to a recurring donation?');
+  recurrenceLabel = this.vocabulary.defaultRecurrenceLabel;
 
   @property({ type: String })
   designationType = 'checkbox';
@@ -135,7 +149,7 @@ export class DonationForm extends Translatable {
   designationWeight = 5;
 
   @property({ type: String })
-  designationLabel = this._i18n.t('Choose a designation');
+  designationLabel = this.vocabulary.defaultDesignationLabel;
 
   @property({ type: Array })
   designationOptions = [];
@@ -155,17 +169,17 @@ export class DonationForm extends Translatable {
   commentWeight = 3;
 
   @property({ type: String })
-  commentLabel = this._i18n.t('Please, leave a comment.');
+  commentLabel = this.vocabulary.defaultCommentLabel;
 
   @property({ type: String })
-  commentPlaceholder = this._i18n.t("We'd like to hear from you. Please, leave us a comment.");
+  commentPlaceholder = this.vocabulary.defaultCommentPlaceholder;
 
   // Submit Button
   @property({ type: Boolean })
   submitButtonIcon = true;
 
   @property({ type: String })
-  submitButtonText = this._i18n.t('Donate now');
+  submitButtonText = this.vocabulary.defaultSubmitButtonText;
 
   @query('form')
   form?: HTMLFormElement;
@@ -175,11 +189,7 @@ export class DonationForm extends Translatable {
     this.loadFoxy();
     setTimeout(() => {
       if (this.defaultSubdomain == this.storeSubdomain) {
-        console.error(
-          this._i18n.t(`You haven't set your Store Subdomain.
-        Please, be sure to provide your Store Subdomain as in 
-        '<foxy-donation storeSubdomain="MYSTORESUBDOMAIN"></foxy-donation>'`)
-        );
+        console.error(this.vocabulary.errorNoStoreSubdomain);
       }
     }, 500);
     if (this.valueOptions.length) {
@@ -289,7 +299,7 @@ export class DonationForm extends Translatable {
         weight: () => this.anonymousWeight,
         condition: () => this.askAnonymous,
         template: html` <vaadin-checkbox value="anonymous">
-          <slot name="anonymous">${this._i18n.t('donation.remainanonymous')}</slot>
+          <slot name="anonymous">${this.vocabulary.defaultRemainAnonymous}</slot>
         </vaadin-checkbox>`,
       },
       {
