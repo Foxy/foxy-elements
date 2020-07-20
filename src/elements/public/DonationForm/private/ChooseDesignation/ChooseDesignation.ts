@@ -2,9 +2,9 @@ import { LitElement, html, customElement, property, query } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import '@vaadin/vaadin-list-box/vaadin-list-box';
 import '@vaadin/vaadin-item/vaadin-item-mixin';
-import '@vaadin/vaadin-item/vaadin-item';
 import '@vaadin/vaadin-checkbox/vaadin-checkbox';
 import '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
+import '@vaadin/vaadin-text-field/vaadin-text-field';
 
 /**
  * An element to select a value for donation
@@ -13,6 +13,16 @@ import '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
  * @csspart button - The button
  */
 export class ChooseDesignation extends Translatable {
+  public static get scopedElements() {
+    return {
+      'vaadin-list-box': customElements.get('vaadin-list-box'),
+      'vaadin-item': customElements.get('vaadin-item'),
+      'vaadin-checkbox': customElements.get('vaadin-checkbox'),
+      'vaadin-checkbox-group': customElements.get('vaadin-checkbox-group'),
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
+    };
+  }
+
   vocabulary = {
     other: this._i18n.t('Other'),
     customDesignation: this._i18n.t('Enter a custom designation'),
@@ -107,7 +117,7 @@ export class ChooseDesignation extends Translatable {
 
   renderSelect() {
     return html`
-      <vaadin-list-box id="select-designations" @change=${this.handleValue} multiple>
+      <vaadin-list-box id="select-designations" multiple>
         <label>${this.label}</label>
         ${this.designationOptions.map(o => html`<vaadin-item value="${o}">${o}</vaadin-item>`)}
         ${this.askValueOther
@@ -119,7 +129,12 @@ export class ChooseDesignation extends Translatable {
 
   renderRadio() {
     return html`
-      <vaadin-checkbox-group id="select-designations" theme="vertical" label="${this.label}">
+      <vaadin-checkbox-group
+        id="select-designations"
+        @change=${this.handleValue}
+        theme="vertical"
+        label="${this.label}"
+      >
         ${this.designationOptions.map(
           (o, index) =>
             html`<vaadin-checkbox value="${o}" ?checked=${index == 0 ? 1 : 0}>
