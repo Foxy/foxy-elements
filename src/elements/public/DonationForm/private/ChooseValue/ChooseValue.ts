@@ -119,7 +119,9 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
               o => html`<vaadin-item value="${o}">${this.currency} ${o}</vaadin-item>`
             )}
             ${this.askValueOther
-              ? html`<vaadin-item value="other">${this.valueOther}</vaadin-item>`
+              ? html`<vaadin-item class="other-option" value="other"
+                  >${this.valueOther}</vaadin-item
+                >`
               : ''}
           </vaadin-list-box>
         </template>
@@ -142,7 +144,7 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
             </vaadin-radio-button>`
         )}
         ${this.askValueOther
-          ? html`<vaadin-radio-button value="other">
+          ? html`<vaadin-radio-button class="other-option" value="other">
               ${this.valueOther}
             </vaadin-radio-button>`
           : ''}
