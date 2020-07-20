@@ -6,17 +6,18 @@ import { DonationFormField } from './types';
 
 import { html, property, query } from 'lit-element';
 
+import '@vaadin/vaadin-form-layout/vaadin-form-layout';
 import '@vaadin/vaadin-button/vaadin-button';
 import '@vaadin/vaadin-checkbox/vaadin-checkbox';
+import '@vaadin/vaadin-text-field/vaadin-text-area';
+
 import '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
 import '@vaadin/vaadin-form-layout/vaadin-form-item';
-import '@vaadin/vaadin-form-layout/vaadin-form-layout';
 import '@vaadin/vaadin-icons/vaadin-icons';
 import '@vaadin/vaadin-item/vaadin-item-mixin';
 import '@vaadin/vaadin-radio-button/vaadin-radio-button';
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 import '@vaadin/vaadin-select/vaadin-select';
-import '@vaadin/vaadin-text-field/vaadin-text-area';
 
 /**
  * A configurable donation form.
@@ -86,7 +87,13 @@ export class DonationForm extends Translatable {
   name = 'FOXYDONATIONFORM';
 
   @property({ type: String })
-  code = 'FOXYDONATIONFORM';
+  code = '';
+
+  @property({ type: String })
+  image = '';
+
+  @property({ type: String })
+  url = '';
 
   @query('input[name=name]')
   fieldName?: HTMLInputElement;
@@ -223,6 +230,14 @@ export class DonationForm extends Translatable {
     }
   }
 
+  handleFrequency = {
+    handleEvent: (e: { target: { value: string } }) => {
+      if (e.target.value) {
+        this.fieldSubFrequency!.value = e.target.value;
+      }
+    },
+  };
+
   handleDonationValue = {
     handleEvent: (e: { target: { value: string } }) => {
       if (e.target.value) {
@@ -240,7 +255,6 @@ export class DonationForm extends Translatable {
 
   handleAnonymous = {
     handleEvent: (e: { target: { checked: boolean } }) => {
-      console.log(e.target);
       if (this.fieldAnonymous) {
         this.fieldAnonymous.value = e.target!.checked ? 'true' : 'false';
       }
@@ -249,7 +263,6 @@ export class DonationForm extends Translatable {
 
   handleComment = {
     handleEvent: (e: { target: { value: string } }) => {
-      console.log(e.target);
       if (this.fieldComment) {
         this.fieldComment.value = e.target!.value;
       }
@@ -259,10 +272,8 @@ export class DonationForm extends Translatable {
   handleSubmit = {
     form: this.form,
     handleEvent: (e: Event) => {
-      if (e.preventDefault) e.preventDefault();
       const fd: any = new FormData(this.form);
-      console.table(Array.from(fd.entries()));
-      //this.form!.submit();
+      this.form!.submit();
     },
   };
 
@@ -296,7 +307,10 @@ export class DonationForm extends Translatable {
         name: 'recurrenceTemplate',
         weight: () => this.recurrenceWeight,
         condition: () => this.askRecurrence,
-        template: html` <x-frequency label="${this.recurrenceLabel}">
+        template: html` <x-frequency
+          @change=${this.handleFrequency}
+          label="${this.recurrenceLabel}"
+        >
           <slot name="recurrence"></slot>
         </x-frequency>`,
       },
@@ -355,6 +369,8 @@ export class DonationForm extends Translatable {
 
         <input type="hidden" name="name" value="${this.name}" />
         <input type="hidden" name="code" value="${this.code}" />
+        <input type="hidden" name="image" value="${this.image}" />
+        <input type="hidden" name="url" value="${this.url}" />
         <input type="hidden" name="price" value="${this.value}" />
         <input type="hidden" name="quantity" value="1" />
         <input type="hidden" name="anonymous" value="" />
