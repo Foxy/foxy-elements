@@ -237,14 +237,10 @@ export class DonationForm extends Translatable {
 
   handleSubmit = {
     form: this.form,
-    handleEvent: () => {
-      console.table([
-        ['this.fieldDesignation', this.fieldDesignation?.value],
-        ['this.fieldName', this.fieldName?.value],
-        ['this.fieldQuantity', this.fieldQuantity?.value],
-        ['this.fieldSubFrequency', this.fieldSubFrequency?.value],
-        ['this.fieldPrice', this.fieldPrice?.value],
-      ]);
+    handleEvent: (e: Event) => {
+      if (e.preventDefault) e.preventDefault();
+      const fd: any = new FormData(this.form);
+      console.table(Array.from(fd.entries()));
       //this.form!.submit();
     },
   };
