@@ -52,10 +52,9 @@ export class DonationForm extends Translatable {
   public static get scopedElements() {
     return {
       'vaadin-form-layout': customElements.get('vaadin-form-layout'),
-      'vaadin-form-item': customElements.get('vaadin-form-item'),
       'vaadin-button': customElements.get('vaadin-button'),
       'vaadin-checkbox': customElements.get('vaadin-checkbox'),
-      'vaadin-textarea': customElements.get('vaadin-textarea'),
+      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'iron-icon': customElements.get('iron-icon'),
       'x-designation': ChooseDesignation,
       'x-value': ChooseValue,
@@ -329,11 +328,9 @@ export class DonationForm extends Translatable {
             .filter(f => f.condition())
             .map(
               (f, i) => html`
-                <slot name="before-${i}"
-                  ><slot>
-                    <vaadin-form-item>${f.template}</vaadin-form-item>
-                  </slot></slot
-                >
+                <slot name="before-${i}"></slot>
+                ${f.template}
+                <slot name="after-${i}"></slot>
               `
             )}
         </vaadin-form-layout>
