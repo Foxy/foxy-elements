@@ -1,15 +1,35 @@
 import { Translatable } from '../../../../../mixins/translatable';
-import { html, property } from 'lit-element';
+import { html, query, property } from 'lit-element';
+
+import '@vaadin/vaadin-list-box/vaadin-list-box';
+import '@vaadin/vaadin-checkbox/vaadin-checkbox';
+import '@vaadin/vaadin-item/vaadin-item-mixin';
+import '@vaadin/vaadin-select/vaadin-select';
 
 export class ChooseFrequency extends Translatable {
+  public static get scopedElements() {
+    return {
+      'vaadin-select': customElements.get('vaadin-select'),
+      'vaadin-list-box': customElements.get('vaadin-list-box'),
+      'vaadin-item': customElements.get('vaadin-item'),
+      'vaadin-checkbox': customElements.get('vaadin-checkbox'),
+    };
+  }
+
   @property({ type: Array })
   label = this._i18n.t('Choose the frequency');
 
   @property({ type: Boolean })
   isRecurring = false;
 
+  @property({ type: String })
+  value = '';
+
   @property({ type: Array })
   options = ['1w', '.5m', '1m', '3m', '6m', '1y'];
+
+  @query('[name=recurring-value]')
+  field?: any;
 
   friendlyFrequency: Record<string, string> = {
     '1w': this._i18n.t('every week'),
@@ -20,9 +40,19 @@ export class ChooseFrequency extends Translatable {
     '1y': this._i18n.t('every year'),
   };
 
+  updated() {
+    this.dispatchEvent(new Event('change'));
+  }
+
   handleIsRecurring() {
     this.isRecurring = !this.isRecurring;
   }
+
+  handleValue = {
+    handleEvent: () => {
+      this.value = this.field.value;
+    },
+  };
 
   render() {
     return html`
@@ -31,6 +61,7 @@ export class ChooseFrequency extends Translatable {
       </vaadin-checkbox>
       <slot></slot>
       <vaadin-select
+        @change=${this.handleValue}
         name="recurring-value"
         ?hidden="${!this.isRecurring}"
         label="${this.label}"

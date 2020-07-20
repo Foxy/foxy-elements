@@ -42,8 +42,9 @@ code {
       </code>
 
       <p>Here's the result:</p>
-      <donation-form storeSubdomain="MyFoxySubdomain" value="100"></donation-form>
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" value="100"></donation-form>
       <hr>
+
 
       <h2>Offer some choices of values</h2>
       <p>You can offer some value choices by simply adding
@@ -54,7 +55,24 @@ code {
         &lt;donation-form storeSubdomain=&quot;MyFoxySubdomain&quot; valueOptions=&quot;[10, 30, 50, 100]&quot;&gt;&lt;/donation-form&gt;
       </code>
       <p>Here's the result:</p>
-      <donation-form storeSubdomain="MyFoxySubdomain" valueOptions="[10, 30, 50, 100]"></donation-form>
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" valueOptions="[10, 30, 50, 100]"></donation-form>
+      <hr>
+
+      <h2>Allow for a recurrent contribution</h2>
+      <p>Allow people to commit to a recurrent contribution.</p>
+      <p>Also, notice you can use the name, image and url attributes to customize how the donation will be shown in the cart.</p>
+
+      <p>Here's the code:</p>
+      <code></pre>
+      &lt;donation-form 
+          storeSubdomain=&quot;jamstackecommerceexample.foxycart.com&quot;
+          name=&quot;I&#39;ll be a part of this&quot;
+          image=&quot;https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Children_holding_hands_together.png/320px-Children_holding_hands_together.png&quot;
+          askRecurrence
+          valueOptions=&quot;[10, 30, 50, 100]&quot;
+          &gt;&lt;/donation-form&gt;
+      <pre></code>
+      <p>Here's the result:</p>
       <hr>
 
       <h2>Allow the donner to set a custom ammount</h2>
@@ -72,9 +90,9 @@ code {
       </code>
 
       <p>Here's the result:</p>
-      <donation-form storeSubdomain="MyFoxySubdomain"
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
                      valueOptions="[10, 30, 50, 100]"
-                     askValueOther="true"
+                     askValueOther
                      ></donation-form>
       <hr>
 
@@ -94,7 +112,7 @@ code {
         </pre></code>
 
       <p>Here's the result:</p>
-      <donation-form storeSubdomain="MyFoxySubdomain"
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
                      valueOptions="[10, 30, 50, 100]"
                      designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
                      askValueOther="true"
@@ -121,7 +139,7 @@ code {
         </pre></code>
 
       <p>Here's the result:</p>
-      <donation-form storeSubdomain="MyFoxySubdomain"
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
                      valueOptions="[10, 30, 50, 100]"
                      designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
                      askValueOther="true"
