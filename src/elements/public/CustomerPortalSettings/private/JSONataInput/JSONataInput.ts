@@ -1,9 +1,8 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
-import { live } from 'lit-html/directives/live';
 import { Translatable } from '../../../../../mixins/translatable';
 import { ChoiceChangeEvent } from '../../../../private/events';
-import { Choice } from '../../../../private/index';
+import { Choice, I18N } from '../../../../private/index';
 import { JSONataInputChangeEvent } from './JSONataInputChangeEvent';
 
 export class JSONataInput extends Translatable {
@@ -11,6 +10,7 @@ export class JSONataInput extends Translatable {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-choice': Choice,
+      'x-i18n': I18N,
     };
   }
 
@@ -34,24 +34,26 @@ export class JSONataInput extends Translatable {
     return html`
       <x-choice
         data-testid="choice"
-        .disabled=${this.disabled}
+        .disabled=${this.disabled || !this._isI18nReady}
         .value=${this.__choice}
         .items=${this.__items}
-        .getText=${this.__getText.bind(this)}
         @change=${this.__handleChoiceChange}
       >
+        <x-i18n slot="all-label" .ns=${this.ns} .lang=${this.lang} key="jsonata.all"></x-i18n>
+        <x-i18n slot="some-label" .ns=${this.ns} .lang=${this.lang} key="jsonata.some"></x-i18n>
+
         ${this.__choice === this.__items[1]
           ? html`
               <div slot=${this.__items[1]} class="space-y-s">
                 <p class="text-s text-tertiary leading-s">
-                  ${this._i18n.t('jsonata.hint')}
+                  <x-i18n .ns=${this.ns} .lang=${this.lang} key="jsonata.hint"></x-i18n>
                 </p>
 
                 <vaadin-text-field
                   class="w-full"
                   data-testid="input"
-                  .disabled=${this.disabled}
-                  .value=${live(this.value)}
+                  .disabled=${this.disabled || !this._isI18nReady}
+                  .value=${this._isI18nReady ? this.value : ''}
                   @keydown=${this.__stopNavigation}
                   @change=${(evt: Event) => evt.stopPropagation()}
                   @input=${this.__handleNewValueChange}
@@ -80,9 +82,5 @@ export class JSONataInput extends Translatable {
 
   private __sendChange() {
     this.dispatchEvent(new JSONataInputChangeEvent(this.value));
-  }
-
-  private __getText(value: string) {
-    return this._i18n.t(['jsonata', value].join('.'));
   }
 }

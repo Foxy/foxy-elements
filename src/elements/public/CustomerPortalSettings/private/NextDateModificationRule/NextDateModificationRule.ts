@@ -5,7 +5,7 @@ import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
 import { translateWeekday } from '../../../../../utils/translate-weekday';
-import { Group, Warning } from '../../../../private/index';
+import { Group, Warning, I18N } from '../../../../private/index';
 import { AllowedDays } from '../AllowedDays/AllowedDays';
 import { AllowedDaysChangeEvent } from '../AllowedDays/AllowedDaysChangeEvent';
 import { DisallowedDates } from '../DisallowedDates/DisallowedDates';
@@ -28,6 +28,7 @@ export class NextDateModificationRule extends Translatable {
       'iron-icon': customElements.get('iron-icon'),
       'x-warning': Warning,
       'x-group': Group,
+      'x-i18n': I18N,
     };
   }
 
@@ -46,7 +47,6 @@ export class NextDateModificationRule extends Translatable {
 
   public render() {
     const { min, max, allowedDays, jsonataQuery, disallowedDates } = this.value;
-
     const hasOffset = min || max;
     const hasAllowed = allowedDays && allowedDays.days.length > 0;
     const hasDisallowed = disallowedDates && disallowedDates.length > 0;
@@ -62,27 +62,34 @@ export class NextDateModificationRule extends Translatable {
           <summary class="relative leading-s">
             <div class="p-m text-m text-header font-medium space-y-s">
               <div>
-                ${this._i18n.t(`ndmod.${jsonataQuery === '*' ? 'all' : 'some'}Title`)}
-                ${jsonataQuery !== '*' ? this.__renderJSONataSummary(jsonataQuery) : ''}
+                <x-i18n
+                  .ns=${this.ns}
+                  .lang=${this.lang}
+                  key=${`ndmod.${jsonataQuery === '*' ? 'all' : 'some'}Title`}
+                >
+                  ${jsonataQuery !== '*' ? this.__renderJSONataSummary(jsonataQuery) : ''}
+                </x-i18n>
               </div>
 
-              ${!this.open && (hasOffset || hasAllowed || hasDisallowed)
-                ? html`
-                    <div>
-                      ${concatTruthy(
-                        hasOffset && this.__renderMinMaxSummary(min, max),
-                        hasAllowed && this.__renderAllowedSummary(allowedDays!),
-                        hasDisallowed && this.__renderDisallowedSummary(disallowedDates!)
-                      )}
-                    </div>
-                  `
-                : ''}
+              ${cache(
+                !this.open && (hasOffset || hasAllowed || hasDisallowed)
+                  ? html`
+                      <div>
+                        ${concatTruthy(
+                          hasOffset && this.__renderMinMaxSummary(min, max),
+                          hasAllowed && this.__renderAllowedSummary(allowedDays!),
+                          hasDisallowed && this.__renderDisallowedSummary(disallowedDates!)
+                        )}
+                      </div>
+                    `
+                  : ''
+              )}
             </div>
 
             <button
               data-testid="remove"
               .disabled=${this.disabled}
-              class="flex items-center justify-center absolute top-0 right-0 text-tertiary"
+              class="flex items-center justify-center absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default"
               style="width: 54px; height: 54px"
               @click=${prevent(() => this.dispatchEvent(new NextDateModificationRuleRemoveEvent()))}
             >
@@ -90,95 +97,96 @@ export class NextDateModificationRule extends Translatable {
             </button>
           </summary>
 
-          ${cache(
-            this.open
+          <article class="space-y-m">
+            <x-group>
+              <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.match"> </x-i18n>
+
+              <x-jsonata-input
+                data-testid="jsonata"
+                .lang=${this.lang}
+                .value=${jsonataQuery}
+                .disabled=${this.disabled}
+                @change=${(evt: JSONataInputChangeEvent) => {
+                  this.value = { ...this.value, jsonataQuery: evt.detail };
+                  this.__sendUpdate();
+                }}
+              >
+              </x-jsonata-input>
+            </x-group>
+
+            <div class="flex space-y-m md:space-y-0 flex-col md:flex-row">
+              <div class="md:w-1/2 md:border-r md:border-shade-10">
+                <x-offset-input
+                  data-testid="min"
+                  type="min"
+                  .lang=${this.lang}
+                  .value=${min}
+                  .disabled=${this.disabled}
+                  @change=${(evt: OffsetInputChangeEvent) => {
+                    this.value = { ...this.value, min: evt.detail };
+                    this.__sendUpdate();
+                  }}
+                >
+                </x-offset-input>
+              </div>
+
+              <div class="md:w-1/2">
+                <x-offset-input
+                  data-testid="max"
+                  type="max"
+                  .lang=${this.lang}
+                  .value=${max}
+                  .disabled=${this.disabled}
+                  @change=${(evt: OffsetInputChangeEvent) => {
+                    this.value = { ...this.value, max: evt.detail };
+                    this.__sendUpdate();
+                  }}
+                >
+                </x-offset-input>
+              </div>
+            </div>
+
+            ${this.__compareDurations(min, max) === -1
               ? html`
-                  <article class="space-y-m">
-                    <x-group .header=${this._i18n.t('ndmod.match').toString()}>
-                      <x-jsonata-input
-                        data-testid="jsonata"
-                        .lang=${this.lang}
-                        .value=${jsonataQuery}
-                        .disabled=${this.disabled}
-                        @change=${(evt: JSONataInputChangeEvent) => {
-                          this.value = { ...this.value, jsonataQuery: evt.detail };
-                          this.__sendUpdate();
-                        }}
-                      >
-                      </x-jsonata-input>
-                    </x-group>
-
-                    <div class="flex space-y-m md:space-y-0 flex-col md:flex-row">
-                      <div class="md:w-1/2 md:border-r md:border-shade-10">
-                        <x-offset-input
-                          data-testid="min"
-                          type="min"
-                          .lang=${this.lang}
-                          .value=${min}
-                          .disabled=${this.disabled}
-                          @change=${(evt: OffsetInputChangeEvent) => {
-                            this.value = { ...this.value, min: evt.detail };
-                            this.__sendUpdate();
-                          }}
-                        >
-                        </x-offset-input>
-                      </div>
-
-                      <div class="md:w-1/2">
-                        <x-offset-input
-                          data-testid="max"
-                          type="max"
-                          .lang=${this.lang}
-                          .value=${max}
-                          .disabled=${this.disabled}
-                          @change=${(evt: OffsetInputChangeEvent) => {
-                            this.value = { ...this.value, max: evt.detail };
-                            this.__sendUpdate();
-                          }}
-                        >
-                        </x-offset-input>
-                      </div>
-                    </div>
-
-                    ${this.__compareDurations(min, max) === -1
-                      ? html`
-                          <x-warning class="mx-m" data-testid="warning">
-                            ${this._i18n.t('ndmod.minWarning')}
-                          </x-warning>
-                        `
-                      : ''}
-
-                    <x-group .header=${this._i18n.t('ndmod.allowed').toString()}>
-                      <x-allowed-days
-                        data-testid="allowed"
-                        .lang=${this.lang}
-                        .value=${allowedDays}
-                        .disabled=${this.disabled}
-                        @change=${(evt: AllowedDaysChangeEvent) => {
-                          this.value = { ...this.value, allowedDays: evt.detail };
-                          this.__sendUpdate();
-                        }}
-                      >
-                      </x-allowed-days>
-                    </x-group>
-
-                    <x-group .header=${this._i18n.t('ndmod.excluded').toString()}>
-                      <x-disallowed-dates
-                        data-testid="disallowed"
-                        .lang=${this.lang}
-                        .value=${disallowedDates ?? []}
-                        .disabled=${this.disabled}
-                        @change=${(evt: DisallowedDatesChangeEvent) => {
-                          this.value = { ...this.value, disallowedDates: evt.detail };
-                          this.__sendUpdate();
-                        }}
-                      >
-                      </x-disallowed-dates>
-                    </x-group>
-                  </article>
+                  <x-warning class="mx-m" data-testid="warning">
+                    <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.minWarning"> </x-i18n>
+                  </x-warning>
                 `
-              : ''
-          )}
+              : ''}
+
+            <x-group>
+              <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.allowed"> </x-i18n>
+
+              <x-allowed-days
+                data-testid="allowed"
+                .lang=${this.lang}
+                .value=${allowedDays}
+                .disabled=${this.disabled}
+                @change=${(evt: AllowedDaysChangeEvent) => {
+                  this.value = { ...this.value, allowedDays: evt.detail };
+                  this.__sendUpdate();
+                }}
+              >
+              </x-allowed-days>
+            </x-group>
+
+            <x-group>
+              <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.excluded">
+              </x-i18n>
+
+              <x-disallowed-dates
+                data-testid="disallowed"
+                .lang=${this.lang}
+                .value=${disallowedDates ?? []}
+                .disabled=${this.disabled}
+                @change=${(evt: DisallowedDatesChangeEvent) => {
+                  this.value = { ...this.value, disallowedDates: evt.detail };
+                  this.__sendUpdate();
+                }}
+              >
+              </x-disallowed-dates>
+            </x-group>
+          </article>
         </details>
       </x-group>
     `;
@@ -216,47 +224,62 @@ export class NextDateModificationRule extends Translatable {
   private __renderMinMaxContent(result?: ReturnType<typeof parseDuration>) {
     if (result) {
       const { count, units } = result;
-      return `${count} ${this._i18n.t(units, { count })}`;
+      return html`
+        ${count}
+        <x-i18n .ns=${this.ns} .lang=${this.lang} key=${units} .opts=${{ count }}></x-i18n>
+      `;
     } else {
-      return this._i18n.t('ndmod.any');
+      return html`<x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.any"></x-i18n>`;
     }
   }
 
   private __renderMinMaxSummary(min?: string, max?: string) {
     return html`
-      <div class="text-s text-secondary font-normal">
-        <span class="text-tertiary">${this._i18n.t('ndmod.range')}:</span>
-        ${this.__renderMinMaxContent(min ? parseDuration(min) : undefined)} &mdash;
-        ${this.__renderMinMaxContent(max ? parseDuration(max) : undefined)}
+      <div class="text-s text-tertiary font-normal">
+        <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.any">
+          <span>:</span>
+          <span class="text-secondary">
+            ${this.__renderMinMaxContent(min ? parseDuration(min) : undefined)} &mdash;
+            ${this.__renderMinMaxContent(max ? parseDuration(max) : undefined)}
+          </span>
+        </x-i18n>
       </div>
     `;
   }
 
   private __renderAllowedSummary({ type, days }: Required<Rule>['allowedDays']) {
     return html`
-      <div class="text-s text-secondary font-normal">
-        <span class="text-tertiary">${this._i18n.t('ndmod.allowed')}:</span>
-        ${type === 'month' ? days.join(', ') : ''}
-        ${type === 'day'
-          ? days.map(day => translateWeekday(day, this.lang, 'short')).join(', ')
-          : ''}
+      <div class="text-s text-tertiary font-normal">
+        <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.allowed">
+          <span>:</span>
+          <span class="text-secondary">
+            ${type === 'month' ? days.join(', ') : ''}
+            ${type === 'day'
+              ? days.map(day => translateWeekday(day, this.lang, 'short')).join(', ')
+              : ''}
+          </span>
+        </x-i18n>
       </div>
     `;
   }
 
   private __renderDisallowedSummary(dates: string[]) {
     return html`
-      <div class="text-s text-secondary font-normal">
-        <span class="text-tertiary">${this._i18n.t('ndmod.excluded')}:</span>
-        ${dates
-          .map(date =>
-            new Date(date).toLocaleDateString(this.lang, {
-              year: '2-digit',
-              month: 'short',
-              day: 'numeric',
-            })
-          )
-          .join('; ')}
+      <div class="text-s text-tertiary font-normal">
+        <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.excluded">
+          <span>:</span>
+          <span class="text-secondary">
+            ${dates
+              .map(date =>
+                new Date(date).toLocaleDateString(this.lang, {
+                  year: '2-digit',
+                  month: 'short',
+                  day: 'numeric',
+                })
+              )
+              .join('; ')}
+          </span>
+        </x-i18n>
       </div>
     `;
   }

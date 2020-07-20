@@ -10,8 +10,7 @@ function testContent(element: Group) {
 }
 
 function testHeader(element: Group) {
-  const header = element.shadowRoot!.querySelector('h3');
-  expect(header?.textContent).to.contain(element.header);
+  expect(element.shadowRoot!.querySelector('slot[name=header]')).to.exist;
 }
 
 function testFrame(element: Group) {
@@ -42,7 +41,6 @@ const machine = createMachine({
 
 const model = createModel<Group>(machine).withEvents({
   TEST_CONTENT: { exec: element => void (element.innerHTML = '<div>Test content</div>') },
-  TEST_HEADER: { exec: element => void (element.header = 'Lorem ipsum') },
   TEST_FRAME: { exec: element => void (element.frame = true) },
 });
 

@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, property } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { MonthdayPicker, WeekdayPicker, Choice } from '../../../../private/index';
+import { MonthdayPicker, WeekdayPicker, Choice, I18N } from '../../../../private/index';
 import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 
 import {
@@ -21,6 +21,7 @@ export class AllowedDays extends Translatable {
       'x-monthday-picker': MonthdayPicker,
       'x-weekday-picker': WeekdayPicker,
       'x-choice': Choice,
+      'x-i18n': I18N,
     };
   }
 
@@ -47,9 +48,12 @@ export class AllowedDays extends Translatable {
         .value=${this.__choice}
         .items=${this.__items}
         .disabled=${this.disabled}
-        .getText=${this.__getText.bind(this)}
         @change=${this.__handleChoiceChange}
       >
+        <x-i18n slot="all-label" key="ndmod.all" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+        <x-i18n slot="month-label" key="ndmod.month" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+        <x-i18n slot="day-label" key="ndmod.day" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+
         ${this.value?.type === 'month'
           ? html`
               <x-monthday-picker
@@ -97,9 +101,5 @@ export class AllowedDays extends Translatable {
 
   private __sendChange() {
     this.dispatchEvent(new AllowedDaysChangeEvent(this.value));
-  }
-
-  private __getText(value: string) {
-    return this._i18n.t(`ndmod.${value}`);
   }
 }

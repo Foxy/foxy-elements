@@ -28,11 +28,11 @@ export class List extends Themeable {
                 class=${'ml-m h-l text-body flex justify-between items-center' +
                 (index > 0 ? ' border-t border-shade-10' : '')}
               >
-                ${this.getText(value)}
+                <slot name=${index}>${this.getText(value)}</slot>
 
                 <button
                   ?disabled=${this.disabled}
-                  class="w-l h-l text-tertiary transition duration-150 hover:text-secondary"
+                  class="w-l h-l text-tertiary transition duration-150 hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default"
                   @click=${() => this.__remove(index)}
                 >
                   <iron-icon icon="lumo:cross"></iron-icon>

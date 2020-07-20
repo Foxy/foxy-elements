@@ -1,10 +1,17 @@
 import { html, property } from 'lit-element';
 import { concatTruthy } from '../../../utils/concat-truthy';
 import { Translatable } from '../../../mixins/translatable';
+import { I18N } from '../I18N/I18N';
 import { MonthdayPickerChangeEvent } from './MonthdayPickerChangeEvent';
 
 export class MonthdayPicker extends Translatable {
   protected static readonly _allDays = Array.from(new Array(31), (_, i) => i + 1);
+
+  public static get scopedElements() {
+    return {
+      'x-i18n': I18N,
+    };
+  }
 
   @property({ type: Boolean })
   public disabled = false;
@@ -25,16 +32,24 @@ export class MonthdayPicker extends Translatable {
   }
 
   public render() {
+    const translatedDays = MonthdayPicker._allDays.map(day => {
+      try {
+        return day.toLocaleString(this.lang, { minimumIntegerDigits: 2 });
+      } catch {
+        return day.toString();
+      }
+    });
+
     return html`
       <div class="space-y-s">
         <div
           class="flex flex-wrap -mx-xs -mb-xs"
           style="max-width: 364px; font-feature-settings: 'tnum' 1;"
         >
-          ${MonthdayPicker._allDays.map(day => {
+          ${MonthdayPicker._allDays.map((day, index) => {
             return html`
               <label class=${this._getLabelClass(day)}>
-                ${day.toLocaleString(this.lang, { minimumIntegerDigits: 2 })}
+                ${translatedDays[index]}
                 <input
                   type="checkbox"
                   class="sr-only"
@@ -51,10 +66,12 @@ export class MonthdayPicker extends Translatable {
           this.value.length > 0 &&
             html`
               <p class="text-s text-tertiary leading-s">
-                ${this._i18n.t('monthday-picker.hint', { days: this.value })}
+                <x-i18n key="monthday-picker.hint" .opts=${{ days: this.value }} .lang=${this.lang}>
+                </x-i18n>
+
                 ${concatTruthy(
                   [29, 30, 31].some(day => this.value.includes(day)) &&
-                    this._i18n.t('monthday-picker.warning')
+                    html`<x-i18n key="monthday-picker.warning" .lang=${this.lang}></x-i18n>`
                 )}
               </p>
             `

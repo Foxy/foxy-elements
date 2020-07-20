@@ -1,8 +1,7 @@
 import '@vaadin/vaadin-button';
 import { html, property } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { Checkbox, Section } from '../../../../private/index';
-
+import { Checkbox, Section, I18N } from '../../../../private/index';
 import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
 import { NextDateModificationRuleChangeEvent } from '../NextDateModificationRule/NextDateModificationRuleChangeEvent';
 import { Rule } from './Rule';
@@ -16,6 +15,7 @@ export class NextDateModification extends Translatable {
       'x-checkbox': Checkbox,
       'x-section': Section,
       'iron-icon': customElements.get('iron-icon'),
+      'x-i18n': I18N,
     };
   }
 
@@ -36,14 +36,13 @@ export class NextDateModification extends Translatable {
   public render() {
     return html`
       <x-checkbox
-        ?checked=${Boolean(this.value)}
-        ?disabled=${this.disabled}
+        .checked=${Boolean(this.value)}
+        .disabled=${this.disabled || !this._isI18nReady}
         @change=${this.__toggleValue}
       >
-        <x-section
-          .header=${this._i18n.t('ndmod.title').toString()}
-          .subheader=${this._i18n.t('ndmod.subtitle').toString()}
-        >
+        <x-section>
+          <x-i18n slot="title" .ns=${this.ns} .lang=${this.lang} key="ndmod.title"></x-i18n>
+          <x-i18n slot="subtitle" .ns=${this.ns} .lang=${this.lang} key="ndmod.subtitle"></x-i18n>
         </x-section>
 
         ${this.value
@@ -53,8 +52,9 @@ export class NextDateModification extends Translatable {
                   (rule, index, array) => html`
                     <x-next-date-modification-rule
                       data-testid="rule"
-                      .disabled=${this.disabled}
+                      .disabled=${this.disabled || !this._isI18nReady}
                       .value=${rule}
+                      .lang=${this.lang}
                       @remove=${() => {
                         this.value = array.filter((_, i) => i !== index);
                         this.__sendChange();
@@ -70,10 +70,10 @@ export class NextDateModification extends Translatable {
 
                 <vaadin-button
                   data-testid="add"
-                  .disabled=${this.disabled}
+                  .disabled=${this.disabled || !this._isI18nReady}
                   @click=${this.__addRule}
                 >
-                  ${this._i18n.t('ndmod.add')}
+                  <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
                   <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
                 </vaadin-button>
               </div>
