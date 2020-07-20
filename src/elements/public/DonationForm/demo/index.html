@@ -221,62 +221,6 @@ code {
       </donation-form>
       <hr>
 
-      <h2>Of course, add your own fields</h2>
-      <p>You can add your own fields to the form. HTML elements will be added to the form element so that they can be send together with the form.</p>
-
-      <p>Here is the code:</p>
-
-      <code><pre>
-      &lt;donation-form designationOptions=&#39;[&quot;rescue&quot;, &quot;medical treatment&quot;, &quot;reintegration in nature&quot;]&#39; askComment askAnonymous &gt;
-        &lt;div slot=&quot;after-1&quot; class=&quot;any class name you like&quot;&gt;
-          &lt;label for=&quot;branch&quot;&gt;Choose a branch&lt;/label&gt;
-          &lt;select id=&quot;branch&quot; name=&quot;branch&quot;&gt;
-            &lt;option value=&quot;main&quot;&gt;Main&lt;/option&gt;
-            &lt;option value=&quot;south&quot;&gt;South Branch&lt;/option&gt;
-            &lt;option value=&quot;north&quot;&gt;North Branch&lt;/option&gt;
-            &lt;option value=&quot;west&quot;&gt;West Branch&lt;/option&gt;
-            &lt;option value=&quot;east&quot;&gt;East Branch&lt;/option&gt;
-          &lt;/select&gt;
-        &lt;/div&gt;
-        &lt;div slot=&quot;after-2&quot; class=&quot;my-field&quot;&gt;
-          &lt;label&gt;Leave a percentage to administration&lt;/label&gt;
-          &lt;p&gt;If you choose to leave a percentage to administration, this ammount can be used to internal administrative activities and to help raise more funds.&lt;/p&gt;
-          &lt;input type=&quot;number&quot;
-                 step=&quot;1&quot;
-                 min=&quot;0&quot;
-                 value=&quot;0&quot;
-                 max=&quot;100&quot;&gt;&lt;/input&gt;
-        &lt;/div&gt;
-      &lt;/donation-form&gt;
-        </pre></code>
-
-
-      <p>Here is the form:</p>
-      <donation-form designationOptions='["rescue", "medical treatment", "reintegration in nature"]' askComment askAnonymous >
-        <div slot="after-1" class="any class name you like">
-          <label for="branch">Choose a branch</label>
-          <select id="branch" name="branch">
-            <option value="main">Main</option>
-            <option value="south">South Branch</option>
-            <option value="north">North Branch</option>
-            <option value="west">West Branch</option>
-            <option value="east">East Branch</option>
-          </select>
-        </div>
-        <div slot="after-2" class="my-field">
-          <label>Leave a percentage to administration</label>
-          <p>If you choose to leave a percentage to administration, this ammount can be used to internal administrative activities and to help raise more funds.</p>
-          <input type="number"
-                 step="1"
-                 min="0"
-                 value="0"
-                 max="100"></input>
-        </div>
-      </donation-form>
-      <hr>
-
-      <h2>Setting up the code and name of the donation</h2>
-
     </section>
   </body>
 </html>
