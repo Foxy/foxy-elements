@@ -79,7 +79,6 @@ export class DonationForm extends Translatable {
     defaultRemainAnonymous: this._i18n.t("I'd like to remain anonymous"),
   };
 
-  // only for an easier developer experience.
   @property({ type: String })
   storeSubdomain = this.defaultSubdomain;
 
