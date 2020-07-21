@@ -195,7 +195,6 @@ export class DonationForm extends Translatable {
 
   constructor() {
     super();
-    this.loadFoxy();
     setTimeout(() => {
       if (this.defaultSubdomain == this.storeSubdomain) {
         console.error(this.vocabulary.errorNoStoreSubdomain);
@@ -215,19 +214,6 @@ export class DonationForm extends Translatable {
       this.fieldPrice!.setAttribute('value', this.valueOptions[0]);
     }
     this.value = this.fieldPrice!.value;
-  }
-
-  loadFoxy() {
-    const script = document.createElement('script');
-    if (!document.getElementById('foxy-loader-script')) {
-      script.type = 'text/javascript';
-      script.setAttribute('data-cfasync', 'false');
-      script.async = true;
-      script.defer = true;
-      script.setAttribute('id', 'foxy-loader-script');
-      script.src = `https://cdn.foxycart.com/${this.storeSubdomain}/loader.js`;
-      document.head.appendChild(script);
-    }
   }
 
   handleFrequency = {
