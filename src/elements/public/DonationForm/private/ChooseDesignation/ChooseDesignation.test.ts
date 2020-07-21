@@ -1,4 +1,4 @@
-import { fixture, expect } from '@open-wc/testing';
+import { fixture, expect, oneEvent } from '@open-wc/testing';
 import { ChooseDesignation } from './ChooseDesignation';
 import { html } from 'lit-element';
 
@@ -9,29 +9,31 @@ describe('Choose Designation input', () => {
     const el = await fixture(html`<x-designation></x-designation>`);
     expect(el.shadowRoot?.querySelectorAll('#select-designations').length).to.equal(1);
     expect(el.shadowRoot?.querySelectorAll('#select-designations[type=text]').length).to.equal(1);
-  }),
-    it('Should provide a select list to choose the designation', async () => {
-      const el = await fixture(html`<x-designation
-        label="A custom label"
-        ?askValueOther="false"
-        .designationOptions=${['a', 'b']}
-      >
-        <slot name="designation"></slot>
-      </x-designation>`);
-      expect(el.shadowRoot?.querySelectorAll('#select-designations').length).to.equal(1);
-      expect(el.shadowRoot?.querySelector('#select-designations')?.childElementCount).to.equal(2);
-    }),
-    it('Should provide a checkbox group to choose the designation', async () => {
-      const el = await fixture(
-        html`<x-designation
-          inputType="select"
-          .designationOptions=${['one', 'two', 'three']}
-        ></x-designation>`
-      );
-      expect(el.shadowRoot?.querySelectorAll('#select-designations').length).to.equal(1);
-      // Label is a tag in this scenario
-      expect(el.shadowRoot?.querySelector('#select-designations')?.childElementCount).to.equal(4);
-    });
+  });
+
+  it('Should provide a select list to choose the designation', async () => {
+    const el = await fixture(html`<x-designation
+      label="A custom label"
+      ?askValueOther="false"
+      .designationOptions=${['a', 'b']}
+    >
+      <slot name="designation"></slot>
+    </x-designation>`);
+    expect(el.shadowRoot?.querySelectorAll('#select-designations').length).to.equal(1);
+    expect(el.shadowRoot?.querySelector('#select-designations')?.childElementCount).to.equal(2);
+  });
+
+  it('Should provide a checkbox group to choose the designation', async () => {
+    const el = await fixture(
+      html`<x-designation
+        inputType="select"
+        .designationOptions=${['one', 'two', 'three']}
+      ></x-designation>`
+    );
+    expect(el.shadowRoot?.querySelectorAll('#select-designations').length).to.equal(1);
+    // Label is a tag in this scenario
+    expect(el.shadowRoot?.querySelector('#select-designations')?.childElementCount).to.equal(4);
+  });
 
   it('Should provide an input for including a custom designation checkbox', async () => {
     const el = await fixture(
@@ -49,7 +51,9 @@ describe('Choose Designation input', () => {
     (el as ChooseDesignation).requestUpdate();
     const otherValue = el.shadowRoot?.querySelector('[value=other]');
     expect(otherValue?.innerHTML).to.equal('<!---->Other<!---->');
+    const listener = oneEvent(el, 'change');
     (otherValue as HTMLInputElement).click();
+    await listener;
     expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(
       false
     );
@@ -68,9 +72,11 @@ describe('Choose Designation input', () => {
     expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(
       true
     );
+    const listener = oneEvent(el, 'change');
     (el.shadowRoot?.querySelector('[value="other"]') as HTMLOptionElement).click();
+    await listener;
     expect((el.shadowRoot?.querySelector('[name=other]') as HTMLInputElement)?.hidden).to.equal(
       false
     );
-  }); //;
+  });
 });
