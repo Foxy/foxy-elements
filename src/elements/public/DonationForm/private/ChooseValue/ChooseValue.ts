@@ -63,14 +63,14 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
         this.value = this.valuePair[1];
       } else if (state.value == 'selected') {
         this.value = this.valuePair[0];
-      } else {
-        this.value = '';
       }
     });
   }
 
-  updated() {
-    this.dispatchEvent(new Event('change'));
+  updated(changedProperties: Map<string, any>) {
+    if (changedProperties.has('value')) {
+      this.dispatchEvent(new Event('change'));
+    }
   }
 
   render() {

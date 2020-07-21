@@ -1,4 +1,4 @@
-import { fixture, expect } from '@open-wc/testing';
+import { fixture, expect, oneEvent } from '@open-wc/testing';
 import { ChooseValue } from './ChooseValue';
 import { html, LitElement } from 'lit-element';
 
@@ -48,11 +48,54 @@ describe('Choose Value input', () => {
     const content = over?.shadowRoot?.querySelector('#content');
     const other = content?.shadowRoot?.querySelector('.other-option');
     (other as HTMLInputElement).click();
-    //(el as LitElement).requestUpdate();
     expect(el.shadowRoot?.querySelectorAll('[name="other"]:not(hidden)').length).to.equal(1);
   });
 
-  it('Should emit event upon change', async () => {
-    expect(true).to.equal(false);
+  it('Should emit event upon change with type radio', async () => {
+    let test: string | undefined = 'ERROR';
+    function updateTest() {
+      const el: HTMLInputElement | null = document.querySelector('x-value');
+      test = el?.value;
+    }
+    const el = await fixture(
+      html`<x-value .valueOptions=${[1, 2, 3]} @change=${updateTest}></x-value>`
+    );
+    const items = el.shadowRoot?.querySelectorAll('vaadin-radio-button');
+    expect(items?.length).to.be.greaterThan(1);
+    const secondItem = items![1];
+    const listener = oneEvent(el, 'change');
+    (secondItem as HTMLInputElement)?.click();
+    await listener;
+    expect(test).to.equal('2');
+  });
+
+  it('Should emit event upon change with type select', async () => {
+    let test: string | undefined = 'ERROR';
+    function updateTest() {
+      const el: HTMLInputElement | null = document.querySelector('x-value');
+      test = el?.value;
+    }
+    const el = await fixture(
+      html`<x-value
+        inputType="select"
+        .valueOptions=${[1, 2, 3]}
+        @change=${updateTest}
+        askValueOther
+      ></x-value>`
+    );
+    const vselect = el.shadowRoot?.querySelector('vaadin-select');
+    const textSelect = (vselect as HTMLSelectElement).shadowRoot!.querySelector(
+      'vaadin-select-text-field'
+    );
+    (textSelect as HTMLInputElement).click();
+    const over = document?.querySelector('vaadin-select-overlay');
+    const content = over?.shadowRoot?.querySelector('#content');
+    const items = content?.shadowRoot?.querySelectorAll('vaadin-item');
+    expect(items?.length).to.be.greaterThan(1);
+    const secondItem = items![1];
+    const listener = oneEvent(el, 'change');
+    (secondItem as HTMLInputElement)?.click();
+    await listener;
+    expect(test).to.equal('2');
   });
 });
