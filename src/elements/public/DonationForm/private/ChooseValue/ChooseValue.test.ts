@@ -35,19 +35,24 @@ describe('Choose Value input', () => {
     const other = el.shadowRoot?.querySelector('.other-option');
     (other as HTMLInputElement).click();
     expect(el.shadowRoot?.querySelectorAll('[name="other"]:not(hidden)').length).to.equal(1);
-  }),
-    it('Should allow "other" option with input type select', async () => {
-      const el = await fixture(html`<x-value inputType="select" askValueOther></x-value>`);
-      const vselect = el.shadowRoot?.querySelector('vaadin-select');
-      (vselect as HTMLSelectElement).click();
-      //(el as LitElement).requestUpdate();
-      const over = el?.querySelector('vaadin-select-overlay');
-      const other = over?.shadowRoot?.querySelector('.other-option');
-      (other as HTMLInputElement).click();
-      (el as LitElement).requestUpdate();
-      expect(el.shadowRoot?.querySelectorAll('[name="other"]:not(hidden)').length).to.equal(1);
-    }),
-    it('Should emit event upon change', async () => {
-      expect(true).to.equal(false);
-    });
+  });
+
+  it('Should allow "other" option with input type select', async () => {
+    const el = await fixture(html`<x-value inputType="select" askValueOther></x-value>`);
+    const vselect = el.shadowRoot?.querySelector('vaadin-select');
+    const textSelect = (vselect as HTMLSelectElement).shadowRoot!.querySelector(
+      'vaadin-select-text-field'
+    );
+    (textSelect as HTMLInputElement).click();
+    const over = document?.querySelector('vaadin-select-overlay');
+    const content = over?.shadowRoot?.querySelector('#content');
+    const other = content?.shadowRoot?.querySelector('.other-option');
+    (other as HTMLInputElement).click();
+    //(el as LitElement).requestUpdate();
+    expect(el.shadowRoot?.querySelectorAll('[name="other"]:not(hidden)').length).to.equal(1);
+  });
+
+  it('Should emit event upon change', async () => {
+    expect(true).to.equal(false);
+  });
 });
