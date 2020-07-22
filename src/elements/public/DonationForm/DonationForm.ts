@@ -45,9 +45,6 @@ import '@vaadin/vaadin-select/vaadin-select';
  * @slot designation - content to be displayed related to the designation field
  * @slot comment - content to be displayed related to the comment field
  * @slot submit - content to be displayed related to the submit field
- *
- * @slot - This element has a slot
- * @csspart button - The button
  */
 export class DonationForm extends Translatable {
   public static get scopedElements() {
@@ -193,7 +190,7 @@ export class DonationForm extends Translatable {
   form?: HTMLFormElement;
 
   constructor() {
-    super();
+    super('donation-form');
     setTimeout(() => {
       if (this.defaultSubdomain == this.storeSubdomain) {
         console.error(this.vocabulary.errorNoStoreSubdomain);

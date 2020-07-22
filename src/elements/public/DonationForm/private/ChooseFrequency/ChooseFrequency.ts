@@ -16,6 +16,10 @@ export class ChooseFrequency extends Translatable {
     };
   }
 
+  constructor() {
+    super('donation-form');
+  }
+
   @property({ type: Array })
   label = this._i18n.t('Choose the frequency');
 
