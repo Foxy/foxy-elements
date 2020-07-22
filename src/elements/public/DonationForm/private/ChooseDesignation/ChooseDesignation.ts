@@ -23,6 +23,10 @@ export class ChooseDesignation extends Translatable {
     };
   }
 
+  constructor() {
+    super('donation-form');
+  }
+
   vocabulary = {
     other: this._i18n.t('Other'),
     customDesignation: this._i18n.t('Enter a custom designation'),

@@ -56,7 +56,7 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
   input?: HTMLInputElement;
 
   constructor() {
-    super(() => ChooseValueMachine, 'choose-value');
+    super(() => ChooseValueMachine, 'donation-form');
 
     this.service.onTransition(state => {
       if (state.value == 'other') {
