@@ -31,7 +31,6 @@ import '@vaadin/vaadin-select/vaadin-select';
  * - Comment: Allow the user to leave a comment;
  * - SubmitButton: Allow the user to submit the form
  *
- *
  * @slot value - content to be displayed related to the choose value input field
  * @slot after-value - content to be displayed after the value widget
  * @slot recurrence - content to be displayed related to the recurrence input field
