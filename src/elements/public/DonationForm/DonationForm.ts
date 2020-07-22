@@ -60,20 +60,6 @@ export class DonationForm extends Translatable {
 
   defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
 
-  vocabulary = {
-    defaultRecurrenceLabel: this._i18n.t('Could you commit to a recurring donation?'),
-    defaultDesignationLabel: this._i18n.t('Choose a designation'),
-    defaultCommentLabel: this._i18n.t('Please, leave a comment.'),
-    defaultCommentPlaceholder: this._i18n.t(
-      "We'd like to hear from you. Please, leave us a comment."
-    ),
-    defaultSubmitButtonText: this._i18n.t('Donate now'),
-    errorNoStoreSubdomain: this._i18n.t(`You haven't set your Store Subdomain.
-        Please, be sure to provide your Store Subdomain as in 
-        '<foxy-donation storeSubdomain="MYSTORESUBDOMAIN"></foxy-donation>'`),
-    defaultRemainAnonymous: this._i18n.t("I'd like to remain anonymous"),
-  };
-
   @property({ type: String })
   storeSubdomain = this.defaultSubdomain;
 
@@ -143,7 +129,7 @@ export class DonationForm extends Translatable {
   recurrenceWeight = 2;
 
   @property({ type: String })
-  recurrenceLabel = this.vocabulary.defaultRecurrenceLabel;
+  recurrenceLabel = this._t('donation.defaultRecurrenceLabel');
 
   @property({ type: String })
   designationType = 'checkbox';
@@ -152,7 +138,7 @@ export class DonationForm extends Translatable {
   designationWeight = 5;
 
   @property({ type: String })
-  designationLabel = this.vocabulary.defaultDesignationLabel;
+  designationLabel = this._t('donation.defaultDesignationLabel');
 
   @property({ type: Array })
   designationOptions = [];
@@ -172,17 +158,17 @@ export class DonationForm extends Translatable {
   commentWeight = 3;
 
   @property({ type: String })
-  commentLabel = this.vocabulary.defaultCommentLabel;
+  commentLabel = this._t('donation.defaultCommentLabel');
 
   @property({ type: String })
-  commentPlaceholder = this.vocabulary.defaultCommentPlaceholder;
+  commentPlaceholder = this._t('donation.defaultCommentPlaceholder');
 
   // Submit Button
   @property({ type: Boolean })
   submitButtonIcon = true;
 
   @property({ type: String })
-  submitButtonText = this.vocabulary.defaultSubmitButtonText;
+  submitButtonText = this._t('donation.defaultSubmitButtonText');
 
   @query('form')
   form?: HTMLFormElement;
@@ -191,7 +177,7 @@ export class DonationForm extends Translatable {
     super('donation-form');
     setTimeout(() => {
       if (this.defaultSubdomain == this.storeSubdomain) {
-        console.error(this.vocabulary.errorNoStoreSubdomain);
+        console.error(this._t('donation.errorNoStoreSubdomain'));
       }
     }, 500);
     if (this.valueOptions.length) {
@@ -291,7 +277,7 @@ export class DonationForm extends Translatable {
         weight: () => this.recurrenceWeight,
         condition: () => this.askRecurrence,
         template: html`
-          <x-frequency @change=${this.handleFrequency} label="${this.recurrenceLabel}">
+          <x-frequency @change=${this.handleFrequency} label="${this._t(this.recurrenceLabel)}">
             <slot name="recurrence"></slot>
           </x-frequency>
           <slot name="after-recurrence"></slot>
@@ -306,7 +292,7 @@ export class DonationForm extends Translatable {
           <vaadin-text-area
             @change=${this.handleComment}
             label="${this.commentLabel}"
-            placeholder="${this.commentPlaceholder}"
+            placeholder="${this._t(this.commentPlaceholder)}"
           ></vaadin-text-area>
           <slot name="after-comment"></slot>
         `,
@@ -317,7 +303,7 @@ export class DonationForm extends Translatable {
         condition: () => this.askAnonymous,
         template: html`
           <vaadin-checkbox @change=${this.handleAnonymous}>
-            <slot name="anonymous">${this.vocabulary.defaultRemainAnonymous}</slot>
+            <slot name="anonymous">${this._t('donation.defaultRemainAnonymous')}</slot>
           </vaadin-checkbox>
           <slot name="after-anonymous"></slot>
         `,
@@ -369,7 +355,7 @@ export class DonationForm extends Translatable {
             ? html`<iron-icon icon="vaadin:user-heart" slot="prefix"></iron-icon>`
             : ''}
           <slot name="submit">
-            <slot name="submit-text">${this.submitButtonText}</slot>
+            <slot name="submit-text">${this._t(this.submitButtonText)}</slot>
             <slot name="submit-value">${this.currency}${this.value}</slot>
           </slot>
         </vaadin-button>

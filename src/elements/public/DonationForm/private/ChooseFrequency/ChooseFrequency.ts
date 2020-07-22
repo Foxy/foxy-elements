@@ -21,7 +21,7 @@ export class ChooseFrequency extends Translatable {
   }
 
   @property({ type: String })
-  label = this._i18n.t('Choose the frequency');
+  label = this._t('Choose the frequency');
 
   @property({ type: Boolean })
   isRecurring = false;
@@ -36,12 +36,12 @@ export class ChooseFrequency extends Translatable {
   field?: any;
 
   friendlyFrequency: Record<string, string> = {
-    '1w': this._i18n.t('every week'),
-    '.5m': this._i18n.t('twice a month'),
-    '1m': this._i18n.t('every month'),
-    '3m': this._i18n.t('every 3 months'),
-    '6m': this._i18n.t('every 6 months'),
-    '1y': this._i18n.t('every year'),
+    '1w': this._t('every week'),
+    '.5m': this._t('twice a month'),
+    '1m': this._t('every month'),
+    '3m': this._t('every 3 months'),
+    '6m': this._t('every 6 months'),
+    '1y': this._t('every year'),
   };
 
   updated() {
@@ -61,7 +61,7 @@ export class ChooseFrequency extends Translatable {
   render() {
     return html`
       <vaadin-checkbox value="${this.isRecurring}" @click="${this.handleIsRecurring}">
-        <slot name="recurring">${this._i18n.t("I'd like to contribute regularly")}</slot>
+        <slot name="recurring">${this._t("I'd like to contribute regularly")}</slot>
       </vaadin-checkbox>
       <slot></slot>
       <vaadin-select
@@ -74,7 +74,7 @@ export class ChooseFrequency extends Translatable {
         <template>
           <vaadin-list-box>
             ${this.options.map(
-              o => html` <vaadin-item value="${o}">${this.friendlyFrequency[o]}</vaadin-item> `
+              o => html`<vaadin-item value="${o}">${this.friendlyFrequency[o]}</vaadin-item>`
             )}
           </vaadin-list-box>
         </template>
