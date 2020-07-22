@@ -82,9 +82,9 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
       <vaadin-text-field
         ?hidden=${!this.service.state.matches('other')}
         type="number"
-        label="Other:"
+        label="${this._t('choosevalue.customvalue.label')}"
         name="other"
-        placeholder="Enter a custom amount."
+        placeholder="${this._t('choosevalue.customvalue.placeholder')}"
         @change=${this.handleValue}
       ></vaadin-text-field>
     `;
