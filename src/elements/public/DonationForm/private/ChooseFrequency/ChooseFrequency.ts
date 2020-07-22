@@ -21,7 +21,7 @@ export class ChooseFrequency extends Translatable {
   }
 
   @property({ type: String })
-  label = this._t('Choose the frequency');
+  label = this._t('choosefrequency.label');
 
   @property({ type: Boolean })
   isRecurring = false;
@@ -36,12 +36,12 @@ export class ChooseFrequency extends Translatable {
   field?: any;
 
   friendlyFrequency: Record<string, string> = {
-    '1w': this._t('every week'),
-    '.5m': this._t('twice a month'),
-    '1m': this._t('every month'),
-    '3m': this._t('every 3 months'),
-    '6m': this._t('every 6 months'),
-    '1y': this._t('every year'),
+    '1w': this._t('choosefrequency.week'),
+    '.5m': this._t('choosefrequency.halfmonth'),
+    '1m': this._t('choosefrequency.month'),
+    '3m': this._t('choosefrequency.threemonths'),
+    '6m': this._t('choosefrequency.sixmonths'),
+    '1y': this._t('choosefrequency.year'),
   };
 
   updated() {
@@ -61,7 +61,7 @@ export class ChooseFrequency extends Translatable {
   render() {
     return html`
       <vaadin-checkbox value="${this.isRecurring}" @click="${this.handleIsRecurring}">
-        <slot name="recurring">${this._t("I'd like to contribute regularly")}</slot>
+        <slot name="recurring">${this._t('choosefrequency.defaultRecurringLabel')}</slot>
       </vaadin-checkbox>
       <slot></slot>
       <vaadin-select
