@@ -20,7 +20,7 @@ export class ChooseFrequency extends Translatable {
     super('donation-form');
   }
 
-  @property({ type: Array })
+  @property({ type: String })
   label = this._i18n.t('Choose the frequency');
 
   @property({ type: Boolean })
