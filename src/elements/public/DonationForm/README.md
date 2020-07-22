@@ -4,17 +4,13 @@
 
 Donation Form is a customizable web component that provides a form to accept donations.
 
-In it's most basic implementation it simply accepts a donation of a given
-value, but it can be expanded to include custom donation values, recurring
-donations, designation choices, comments and anonymous donations.
+In it's most basic implementation it simply accepts a donation of a given value, but it can be expanded to include custom donation values, recurring donations, designation choices, comments and anonymous donations.
 
-You'll need your Foxy Store Subdomain to accept donations. Other than that you
-can customize your form however you want.
+You'll need your Foxy Store Subdomain to accept donations. Other than that you can customize your form however you want.
 
 ## Quick examples
 
-You only need your Foxy Store Subdomain to start accepting
-donations.
+You only need your Foxy Store Subdomain to start accepting donations.
 
 The simplest use case for this donation form is this:
 
@@ -22,13 +18,9 @@ The simplest use case for this donation form is this:
 <foxy-donation storeSubdomain="MyStore" value="123"></foxy-donation>
 ```
 
-By setting the value for the donation and the Foxy Store
-Subdomain, your donation form is ready.
+By setting the value for the donation and the Foxy Store Subdomain, your donation form is ready.
 
-The form is way more powerful than that: you can display a
-list of possible values for the donners to choose from, allow
-them to leave a message and even to commit themselves to
-recursive payments. All with incredible ease:
+The form is way more powerful than that: you can display a list of possible values for the donners to choose from, allow them to leave a message and even to commit themselves to recursive payments. All with incredible ease:
 
 ```html
 <foxy-donation
@@ -36,6 +28,7 @@ recursive payments. All with incredible ease:
     valueOptions="[10, 20, 30]"
     askComment
     askRecurrence
+    >
 </foxy-donation>
 ```
 ## Configuration Summary
@@ -46,7 +39,7 @@ This summary is meant to be used as a reference. You'll find detailed explanatio
 
 | Attribute   | Default Value | Descripiton | Required |
 | ----------- | ----------- |-------------|------------|
-|storeSubdomain | - | Your Foxy Store Subdomain| Yes | 
+|storeSubdomain | - | Your Foxy Store Subdomain| Yes |
 |name | 'FOXYDONATIONFORM'|The product name. This should be a name your user will clearly identify in the cart.| |
 |code | '' | A unique identification of this particular product. This should be a name you'll clearly identify as related to the particular donation campaing you are handling||
 |image | ''| An image to be displayed in the cart. Please note that this image is not rendered in the form. If you want to render images in the form, use the slots as described in the slots table.||
@@ -81,8 +74,7 @@ This summary is meant to be used as a reference. You'll find detailed explanatio
 
 ### The form parts
 
-The Donation form is composed of 5 parts plus a donation button.
-All parts are optional, except for the donation button. The parts are:
+The Donation form is composed of 5 parts plus a donation button. All parts are optional, except for the donation button. The parts are:
 
 1. A donation value (value)
 1. A recurrence (recurrence)
@@ -90,28 +82,21 @@ All parts are optional, except for the donation button. The parts are:
 1. An anonymous (anonymous)
 1. A designation (designation)
 
-Each of these parts can be customized and they may include several fields to
-achieve their purpose.
+Each of these parts can be customized and they may include several fields to achieve their purpose.
 
-The parts displayed in the order above by default, but you can customize that
-by setting a weight to the parts.  The "heavier" the part, the lower it will
-appear in the form. Using `commentWeight=10`, for example, you can make the
-comment field be the last in the form, while by using `commentWeight=-1` you
-can make it be the first.
+The parts displayed in the order above by default, but you can customize that by setting a weight to the parts.  The "heavier" the part, the lower it will appear in the form. Using `commentWeight=10`, for example, you can make the comment field be the last in the form, while by using `commentWeight=-1` you can make it be the first.
 
 [Check the Form Parts section](#form-parts) to lear how to use and customize
 each form part.
 
 ### The slots
 
-Web components allow you to include your own markup in special places called
-slots. Donation form has many slots designed to allow you place your tags where
-you need them. There are two kind of slots in donation form: `part slots` and `position slots`.
+Web components allow you to include your own markup in special places called slots. Donation form has many slots designed to allow you place your tags where you need them. There are two kind of slots in donation form: `part slots` and `position slots`.
 
 #### "Before and after": position slots
 
 There is a slot before and after each part of the form so you may add explanations, images and other relevant content between each part.
-Position slots are simply slots that preceed and succeed each part. 
+Position slots are simply slots that preceed and succeed each part.
 
 You can reference a position using `before-0` or `after-0` where `0` needs to be replaced with the position number.
 
