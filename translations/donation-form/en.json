@@ -9,13 +9,23 @@
     "defaultRemainAnonymous": "I'd like to remain anonymous"
   },
   "choosevalue" : {
-      "customvalue": {
-        "placeholder": "Enter a custom amount.",
-        "label": "Other:"
-      }
-    },
-   "choosedesignation": {
-      "custom": "Enter a custom designation",
-      "other": "Other"
-   }
+    "customvalue": {
+      "placeholder": "Enter a custom amount.",
+      "label": "Other:"
+    }
+  },
+  "choosedesignation": {
+    "custom": "Enter a custom designation",
+    "other": "Other"
+  },
+  "choosefrequency": {
+    "label": "Choose the frequency",
+    "week": "every week",
+    "halfmonth": "twice a month",
+    "month": "every month",
+    "year": "every year",
+    "threemonths": "every 3 months",
+    "sixmonths": "every 6 months",
+    "defaultRecurringLabel": "I'd like to contribute regularly"
+  }
 }
