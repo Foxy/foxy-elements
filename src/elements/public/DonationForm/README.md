@@ -1,7 +1,5 @@
 # Donation form: an instant, simple donation web-component form
 
-## Overview
-
 Donation Form is a customizable web component that provides a form to accept donations.
 
 In it's most basic implementation it simply accepts a donation of a given value, but it can be expanded to include custom donation values, recurring donations, designation choices, comments and anonymous donations.
@@ -37,36 +35,36 @@ This summary is meant to be used as a reference. You'll find detailed explanatio
 
 ### Attributes
 
-| Attribute   | Default Value | Descripiton | Required |
-| ----------- | ----------- |-------------|------------|
-|storeSubdomain | - | Your Foxy Store Subdomain| Yes |
-|name | 'FOXYDONATIONFORM'|The product name. This should be a name your user will clearly identify in the cart.| |
-|code | '' | A unique identification of this particular product. This should be a name you'll clearly identify as related to the particular donation campaing you are handling||
-|image | ''| An image to be displayed in the cart. Please note that this image is not rendered in the form. If you want to render images in the form, use the slots as described in the slots table.||
-|url | ''| A URL to the donation campaign. It will be displayed in the cart, so that the user can visit the donation campaign from there.||
-|currency | '$'| The currency symbol to be displayed||
-|value | '100'| The default value of the donation. The donation button will initially have this value. User can change it using the donation options provided.||
-|valueWeight | 1| The position the value field should have in the form||
+| Attribute   | Default Value | Description |
+| ----------- | ----------- |-------------|
+|storeSubdomain | - | Your Foxy Store Subdomain| 
+|name | 'FOXYDONATIONFORM'|The product name. This should be a name your user will clearly identify in the cart.|
+|code | '' | A unique identification of this particular product. This should be a name you'll clearly identify as related to the particular donation campaing you are handling|
+|image | ''| An image to be displayed in the cart. Please note that this image is not rendered in the form. If you want to render images in the form, use the slots as described in the slots table.|
+|url | ''| A URL to the donation campaign. It will be displayed in the cart, so that the user can visit the donation campaign from there.|
+|currency | '$'| The currency symbol to be displayed|
+|**value** | '100'| The default value of the donation. The donation button will initially have this value. User can change it using the donation options provided.|
+|valueWeight | 1| The position the value field should have in the form|
 |valueType | 'radio'|The widget to be used for the value selection. It can be **radio** or **select**|
-|valueOptions| [] | The value options the user will be provided in this donation campaign. If left empty no widget for value selection will be displayed||
-|valueLabel | 'Select the value'| The label used in the donation value widget||
-|askValueOther | false | Whether the user should be provided with an option to give a custom amount. If this option is set, there will be an option called "other". If the user choose this option a text field is shown to receive the custom amount.||
-|askDesignationOther | false;
-|askRecurrence | false;
-|recurrenceWeight | 2;
-|recurrenceLabel | this.vocabulary.defaultRecurrenceLabel;
-|designationType | 'checkbox';
-|designationWeight | 5;
-|designationLabel | this.vocabulary.defaultDesignationLabel;
-|designationOptions | [];
-|askAnonymous | false;
-|anonymousWeight | 4;
-|askComment | false;
-|commentWeight | 3;
-|commentLabel | this.vocabulary.defaultCommentLabel;
-|commentPlaceholder | this.vocabulary.defaultCommentPlaceholder;
-|submitButtonIcon | true;
-|submitButtonText | this.vocabulary.defaultSubmitButtonText;
+|valueOptions| [] | The value options the user will be provided in this donation campaign. If left empty no widget for value selection will be displayed|
+|valueLabel | 'Select the value'| The label used in the donation value widget|
+|askValueOther | false | Whether to provide an option to give a custom amount. If this option is set, there will be an option called "other". If the user choose this option a text field is shown to receive the custom amount.|
+|**askRecurrence** | false| Whether the user should be provided with a field to subscribe to a recurring donation.|
+|recurrenceWeight | 2 | The position the designation field should have in the form.|
+|recurrenceLabel | this.vocabulary.defaultRecurrenceLabel | The label to be displayed in the recurrence widget.|
+|**askComment** | false| Whether to provided an option to leave a comment.|
+|commentWeight | 3 | The position the comment field should have in the form.|
+|commentLabel | this.vocabulary.defaultCommentLabel| The label to be provided in the comment widget.|
+|commentPlaceholder | this.vocabulary.defaultCommentPlaceholder| A placeholder to be included in the comment widget.|
+|askAnonymous | false| Whether the user should be provided with a field to request to be anonymous. This option does not add security features, it simply informs that the donnor does not wish to be recognized as such.|
+|anonymousWeight | 4|  The position the designation field should have in the form.|
+|**designationOptions** | [] | Designations the user will be able to choose from. These are text values and the user may choose more than one, if available.|
+|askDesignationOther | false | Whether to provide an "other" option in the designation widget.|
+|designationType | 'checkbox'| The widget to be used for the designation options.|
+|designationWeight | 5 | The position the designation form will have in the form.|
+|designationLabel | this.vocabulary.defaultDesignationLabel| The label to displayed in the designation widget.|
+|submitButtonIcon | true | Whether the default icon should be used in the button|
+|submitButtonText | this.vocabulary.defaultSubmitButtonText| The text to be displayed in the button.|
 
 ### Slots
 
