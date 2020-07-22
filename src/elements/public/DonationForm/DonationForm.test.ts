@@ -1,5 +1,5 @@
 import { fixture, expect } from '@open-wc/testing';
-import { DonationForm } from './index';
+import { DonationForm } from './DonationForm';
 import { html } from 'lit-element';
 
 customElements.define('x-donation', DonationForm);
