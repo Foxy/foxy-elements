@@ -1,4 +1,3 @@
-import '@polymer/polymer/lib/elements/custom-style.js';
 import { ChooseValue, ChooseDesignation, ChooseFrequency } from './private/index';
 import { Translatable } from '../../../mixins/translatable';
 
