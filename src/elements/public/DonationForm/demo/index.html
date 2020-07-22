@@ -228,8 +228,8 @@ code {
       </donation-form>
       <hr>
 
-      <h2>Add your own markup before or after any form part</h2>
-      <p>If you want to add a markup before or after any given part, you can use the "before-0" and "after-0" slot names, where 0 stands for the position of the form part.</p>
+      <h2>Add your own markup after any form part</h2>
+      <p>If you want to add a markup after any given part, you can use the "after-part" slot names, where part stands for the part's name.</p>
 
       <p>Here's the code:</p>
       <code><pre>
@@ -241,8 +241,8 @@ code {
 
       <p>Here's the result:</p>
       <donation-form askValueOther askComment askAnonymous askDesignation >
-        <div slot="after-0">After 0</div>
-        <div slot="after-1">After 1</div>
+        <div slot="after-comment">After Comment</div>
+        <div slot="after-anonymous">After Anonymous</div>
       </donation-form>
       <hr>
 

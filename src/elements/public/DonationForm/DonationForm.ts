@@ -22,28 +22,26 @@ import '@vaadin/vaadin-select/vaadin-select';
 /**
  * A configurable donation form.
  *
- * It offers a consisten interface with sensible default values for most of the
- * fields.
+ * There is only one required property, which is the Store Subdomain, that allows the component to receive donations to your store at Foxy.io.
  *
- * There is only one required property, which is the Store Subdomain, that
- * allows the component to receive donations to your store at Foxy.io.
- *
- * Each field can be shown or hidder by setting the
- * "askField" property, where "Field" one of the following:
  * - ChoseValue: Allow the user to choose the amount to donate;
  * - Recurrency: Allow the user to commit to a recurring donation;
- * - Designation: Allow the user to choose a particular designation for the
- * donation;
+ * - Designation: Allow the user to choose a particular designation for the donation;
  * - Anonymous: Allow the user to choose not to be recognized as the donnor.
  * - Comment: Allow the user to leave a comment;
  * - SubmitButton: Allow the user to submit the form
  *
  *
  * @slot value - content to be displayed related to the choose value input field
+ * @slot after-value - content to be displayed after the value widget
  * @slot recurrence - content to be displayed related to the recurrence input field
+ * @slot after-recurrence - content to be displayed after the recurrence widget
  * @slot anonymous - content to be displayed related to the anonymous field
+ * @slot after-anonymous - content to be displayed after the anonymous widget
  * @slot designation - content to be displayed related to the designation field
+ * @slot after-designation - content to be displayed after the designation widget
  * @slot comment - content to be displayed related to the comment field
+ * @slot after-comment - content to be displayed after the comment widget
  * @slot submit - content to be displayed related to the submit field
  */
 export class DonationForm extends Translatable {
@@ -275,59 +273,71 @@ export class DonationForm extends Translatable {
         name: 'valueTemplate',
         weight: () => this.valueWeight,
         condition: () => !!this.valueOptions.length,
-        template: html` <x-value
-          @change=${this.handleDonationValue}
-          label="${this.valueLabel}"
-          .valueOptions=${this.valueOptions}
-          inputType="${this.valueType}"
-          ?askValueOther=${this.askValueOther}
-        >
-          <slot name="value"></slot>
-        </x-value>`,
+        template: html`
+          <x-value
+            @change=${this.handleDonationValue}
+            label="${this.valueLabel}"
+            .valueOptions=${this.valueOptions}
+            inputType="${this.valueType}"
+            ?askValueOther=${this.askValueOther}
+          >
+            <slot name="value"></slot>
+          </x-value>
+          <slot name="after-value"></slot>
+        `,
       },
       {
         name: 'recurrenceTemplate',
         weight: () => this.recurrenceWeight,
         condition: () => this.askRecurrence,
-        template: html` <x-frequency
-          @change=${this.handleFrequency}
-          label="${this.recurrenceLabel}"
-        >
-          <slot name="recurrence"></slot>
-        </x-frequency>`,
+        template: html`
+          <x-frequency @change=${this.handleFrequency} label="${this.recurrenceLabel}">
+            <slot name="recurrence"></slot>
+          </x-frequency>
+          <slot name="after-recurrence"></slot>
+        `,
       },
       {
         name: 'commentTemplate',
         weight: () => this.commentWeight,
         condition: () => this.askComment,
-        template: html` <slot name="comment"></slot>
+        template: html`
+          <slot name="comment"></slot>
           <vaadin-text-area
             @change=${this.handleComment}
             label="${this.commentLabel}"
             placeholder="${this.commentPlaceholder}"
-          ></vaadin-text-area>`,
+          ></vaadin-text-area>
+          <slot name="after-comment"></slot>
+        `,
       },
       {
         name: 'anonymousTemplate',
         weight: () => this.anonymousWeight,
         condition: () => this.askAnonymous,
-        template: html` <vaadin-checkbox @change=${this.handleAnonymous}>
-          <slot name="anonymous">${this.vocabulary.defaultRemainAnonymous}</slot>
-        </vaadin-checkbox>`,
+        template: html`
+          <vaadin-checkbox @change=${this.handleAnonymous}>
+            <slot name="anonymous">${this.vocabulary.defaultRemainAnonymous}</slot>
+          </vaadin-checkbox>
+          <slot name="after-anonymous"></slot>
+        `,
       },
       {
         name: 'designationTemplate',
         weight: () => this.designationWeight,
         condition: () => !!this.designationOptions.length,
-        template: html` <x-designation
-          @change=${this.handleDonationDesignation}
-          label="${this.designationLabel}"
-          ?askValueOther=${this.askDesignationOther}
-          inputType="${this.designationType}"
-          .designationOptions=${this.designationOptions}
-        >
-          <slot name="designation"></slot>
-        </x-designation>`,
+        template: html`
+          <x-designation
+            @change=${this.handleDonationDesignation}
+            label="${this.designationLabel}"
+            ?askValueOther=${this.askDesignationOther}
+            inputType="${this.designationType}"
+            .designationOptions=${this.designationOptions}
+          >
+            <slot name="designation"></slot>
+          </x-designation>
+          <slot name="after-designation"></slot>
+        `,
       },
     ];
   }
@@ -340,13 +350,7 @@ export class DonationForm extends Translatable {
           ${this.fields
             .sort(this.weightSort)
             .filter(f => f.condition())
-            .map(
-              (f, i) => html`
-                <slot name="before-${i}"></slot>
-                ${f.template}
-                <slot name="after-${i}"></slot>
-              `
-            )}
+            .map(f => html`${f.template}`)}
         </vaadin-form-layout>
 
         <input type="hidden" name="name" value="${this.name}" />
@@ -360,7 +364,6 @@ export class DonationForm extends Translatable {
         <input type="hidden" name="comment" value="" />
         <input type="hidden" name="sub_frequency" value="" />
 
-        <slot name="before-button"></slot>
         <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}
           >${this.submitButtonIcon
             ? html`<iron-icon icon="vaadin:user-heart" slot="prefix"></iron-icon>`
