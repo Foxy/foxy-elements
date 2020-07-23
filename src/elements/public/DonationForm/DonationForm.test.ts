@@ -6,11 +6,11 @@ import { html } from 'lit-element';
 customElements.define('x-donation', DonationForm);
 
 describe('Most basic usage', async () => {
-  let el = await fixture(html`<x-donation></x-donation>`);
+  let el = await fixture(html`<x-donation storeSubdomain="mystore.foxycart.com"></x-donation>`);
 
   it('Should provide a simple donation button with default value', async () => {
-    const buttons = el.shadowRoot?.querySelectorAll('vaadin-button');
-    expect(buttons?.length).to.equal(1);
+    const button = el.shadowRoot?.querySelector('vaadin-button');
+    expect(button).to.exist;
   });
 
   it('Should provide default values for name, price and quantity', async () => {
@@ -25,6 +25,10 @@ describe('Most basic usage', async () => {
     );
   });
 
+  it('Should show the default donation value in the button', async () => {
+    expect(el.shadowRoot?.querySelector('vaadin-button')?.innerHTML).to.include('100');
+  });
+
   it('Should complain about missing Store Subdomain', async () => {
     fixtureCleanup();
     const logSpy = sinon.spy(console, 'error');
@@ -34,32 +38,164 @@ describe('Most basic usage', async () => {
     el = await fixture(html`<x-donation></x-donation>`);
     expect(logSpy.callCount).to.equal(1);
   });
+});
+
+describe('A form with configurable values', async () => {
+  const el = await fixture(
+    html`<x-donation
+      storeSubdomain="mystore.foxycart.com"
+      valueOptions="[3, 20, 30, 40, 50]"
+      askValueOther
+    ></x-donation>`
+  );
+  const xvalue = el.shadowRoot?.querySelector('[name=value]')?.parentElement;
 
   it('Should provide a value widget', async () => {
-    expect(true).to.equal(false);
+    expect(xvalue).to.exist;
   });
+
+  it('Should default to the first value of the list', async () => {
+    expect((el.shadowRoot?.querySelector('[name=price]') as HTMLInputElement).value).to.equal('3');
+    expect(el.shadowRoot?.querySelector('vaadin-button')?.innerHTML).to.include('3');
+  });
+
+  it('Should provide an "other value" field', async () => {
+    expect(xvalue?.shadowRoot?.querySelector('.other-option')).to.exist;
+    const noOther = await fixture(
+      html`<x-donation
+        storeSubdomain="mystore.foxycart.com"
+        valueOptions="[3, 20, 30, 40, 50]"
+      ></x-donation>`
+    );
+    const noOtherXvalue = noOther.shadowRoot?.querySelector('[name=value]')?.parentElement;
+    expect(noOtherXvalue?.shadowRoot?.querySelectorAll('.other-option')).to.not.exist;
+  });
+});
+
+describe('A form with configurable designation', async () => {
+  const el = await fixture(
+    html`<x-donation
+      storeSubdomain="mystore.foxycart.com"
+      designationOptions='["administrative", "environmental", "social", "religious", "medical"]'
+      askDesignationOther
+    ></x-donation>`
+  );
+  const designation = el.shadowRoot?.querySelector('slot[name=designation]')?.parentElement;
 
   it('Should provide a designation widget', async () => {
-    expect(true).to.equal(false);
+    expect(designation).to.exist;
+    if (designation) {
+      expect(designation.shadowRoot?.querySelectorAll('vaadin-checkbox').length).to.equal(6);
+    }
   });
 
-  it('Should provide a comment widget', async () => {
-    expect(true).to.equal(false);
+  it('Should provide an "other designation" field', async () => {
+    let checkboxes = designation?.shadowRoot?.querySelectorAll(
+      '#select-designations vaadin-checkbox'
+    );
+    expect(checkboxes?.length).to.equal(6);
+    let other = false;
+    checkboxes?.forEach((e: any) => {
+      if (e?.value == 'other') other = true;
+    });
+    expect(other).to.equal(true);
+    const noOther = await fixture(
+      html`<x-donation
+        storeSubdomain="mystore.foxycart.com"
+        designationOptions='["administrative", "environmental", "social", "religious", "medical"]'
+      ></x-donation>`
+    );
+    checkboxes = noOther?.shadowRoot?.querySelectorAll('#select-designations vaadin-checkbox');
+    other = false;
+    checkboxes?.forEach((e: any) => {
+      if (e?.value == 'other') other = true;
+    });
+    expect(other).to.equal(false);
   });
+});
 
-  it('Should provide a recurrence widget', async () => {
-    expect(true).to.equal(false);
-  });
+describe('A form with a comment widget', async () => {
+  const el = await fixture(
+    html`<x-donation
+      storeSubdomain="mystore.foxycart.com"
+      askComment
+      commentLabel="How do you think we can improve?"
+    ></x-donation>`
+  );
 
-  it('Should provide an anonymous donation widget', async () => {
-    expect(true).to.equal(false);
+  it('Should provide comment field', async () => {
+    const textArea = el?.shadowRoot?.querySelector('vaadin-text-area');
+    expect(textArea).to.exist;
+    const noComment = await fixture(
+      html`<x-donation storeSubdomain="mystore.foxycart.com"></x-donation>`
+    );
+    expect(noComment.shadowRoot?.querySelector('vaadin-text-area')).to.not.exist;
   });
+});
+
+describe('A form with a recurrence widget', async () => {
+  const el = await fixture(
+    html`<x-donation storeSubdomain="mystore.foxycart.com" askRecurrence></x-donation>`
+  );
+  const recurr = el.shadowRoot?.querySelector('slot[name=recurrence]');
+
+  it('Should provide a recurrence field', async () => {
+    expect(recurr).to.exist;
+    const noRecurr = await fixture(
+      html`<x-donation storeSubdomain="mystore.foxycart.com"></x-donation>`
+    );
+    expect(noRecurr.shadowRoot?.querySelector('slot[name=recurrence]')).to.not.exist;
+  });
+});
+
+describe('A form with an anonymous donation widget', async () => {
+  const el = await fixture(
+    html`<x-donation storeSubdomain="mystore.foxycart.com" askAnonymous></x-donation>`
+  );
+  const anon = el.shadowRoot?.querySelector('slot[name=anonymous]');
+
+  it('Should provide a checkbox to remain anonymous', async () => {
+    expect(anon).to.exist;
+    const noAnon = await fixture(
+      html`<x-donation storeSubdomain="mystore.foxycart.com"></x-donation>`
+    );
+    expect(noAnon.shadowRoot?.querySelector('slot[name=recurrence]')).to.not.exist;
+  });
+});
+
+describe('A form with customizable parameters', async () => {
+  const image = 'http://localhost/save-the-dolphins.jpg';
+  const url = 'http://localhost/save-dolphins-campaign';
+  const el = await fixture(
+    html`<x-donation
+      storeSubdomain="mystore.foxycart.com"
+      name="Save the Dolphins"
+      code="HELPDOLPHINS"
+      image="${image}"
+      url="${url}"
+      currency="ł"
+    ></x-donation>`
+  );
 
   it('Should customize name currency code and image', async () => {
-    expect(true).to.equal(false);
+    expect(el.shadowRoot?.querySelector('[name=submit]')?.innerHTML).to.include('ł');
   });
 
   it('Should customize code', async () => {
-    expect(true).to.equal(false);
+    expect((el.shadowRoot?.querySelector('input[name=code]') as HTMLInputElement)?.value).to.equal(
+      'HELPDOLPHINS'
+    );
+  });
+
+  it('Should customize image', async () => {
+    expect((el.shadowRoot?.querySelector('input[name=image]') as HTMLInputElement)?.value).to.equal(
+      image
+    );
+  });
+
+  it('Should customize url', async () => {
+    expect((el.shadowRoot?.querySelector('input[name=url]') as HTMLInputElement)?.value).to.equal(
+      url
+    );
   });
 });

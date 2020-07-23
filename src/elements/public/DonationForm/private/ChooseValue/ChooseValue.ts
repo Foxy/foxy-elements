@@ -67,10 +67,8 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
     });
   }
 
-  updated(changedProperties: Map<string, any>) {
-    if (changedProperties.has('value')) {
-      this.dispatchEvent(new Event('change'));
-    }
+  updated() {
+    this.dispatchEvent(new Event('change'));
   }
 
   render() {
@@ -128,6 +126,7 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
       </vaadin-select>
     `;
   }
+
   renderRadio() {
     return html`
       <vaadin-radio-group

@@ -84,7 +84,7 @@ This summary is meant to be used as a reference.
 |commentWeight | 3 | The position the comment field should have in the form.|
 |commentLabel | this.vocabulary.defaultCommentLabel| The label to be provided in the comment widget.|
 |commentPlaceholder | this.vocabulary.defaultCommentPlaceholder| A placeholder to be included in the comment widget.|
-|askAnonymous | false| Whether the user should be provided with a field to request to be anonymous. This option does not add security features, it simply informs that the donnor does not wish to be recognized as such.|
+|**askAnonymous** | false| Whether the user should be provided with a field to request to be anonymous. This option does not add security features, it simply informs that the donnor does not wish to be recognized as such.|
 |anonymousWeight | 4|  The position the designation field should have in the form.|
 |**designationOptions** | [] | Designations the user will be able to choose from. These are text values and the user may choose more than one, if available.|
 |askDesignationOther | false | Whether to provide an "other" option in the designation widget.|
