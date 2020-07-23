@@ -76,12 +76,7 @@ describe('Choose Value input', () => {
       test = el?.value;
     }
     const el = await fixture(
-      html`<x-value
-        inputType="select"
-        .valueOptions=${[1, 2, 3]}
-        @change=${updateTest}
-        askValueOther
-      ></x-value>`
+      html`<x-value inputType="select" .valueOptions=${[1, 2, 3]} @change=${updateTest}></x-value>`
     );
     const vselect = el.shadowRoot?.querySelector('vaadin-select');
     const textSelect = (vselect as HTMLSelectElement).shadowRoot!.querySelector(
