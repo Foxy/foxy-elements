@@ -173,11 +173,6 @@ export class DonationForm extends Translatable {
 
   constructor() {
     super('donation-form');
-    setTimeout(() => {
-      if (this.defaultSubdomain == this.storeSubdomain) {
-        console.error(this._t('donation.errorNoStoreSubdomain'));
-      }
-    }, 500);
     if (this.valueOptions.length) {
       if (!this.value || !this.valueOptions.includes(this.value)) {
         this.value = this.valueOptions[0];
@@ -192,6 +187,9 @@ export class DonationForm extends Translatable {
       this.fieldPrice!.setAttribute('value', this.valueOptions[0]);
     }
     this.value = this.fieldPrice!.value;
+    if (this.defaultSubdomain == this.storeSubdomain) {
+      console.error(this._t('donation.errorNoStoreSubdomain'));
+    }
   }
 
   handleFrequency = {
