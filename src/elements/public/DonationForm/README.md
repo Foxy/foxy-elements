@@ -57,6 +57,8 @@ There are some attribute options you can use that will affect how the product wi
 - image: a url of an image to be displayed beside the product or donation campaign in the cart
 - url: a url of the product or donaiton campaign
 
+Please note: the currency used is the store's currency.
+
 ## Configuration Summary
 
 This summary is meant to be used as a reference.
@@ -70,7 +72,6 @@ This summary is meant to be used as a reference.
 |code | '' | A unique identification of this particular product. This should be a name you'll clearly identify as related to the particular donation campaing you are handling|
 |image | ''| An image to be displayed in the cart. Please note that this image is not rendered in the form. If you want to render images in the form, use the slots as described in the slots table.|
 |url | ''| A URL to the donation campaign. It will be displayed in the cart, so that the user can visit the donation campaign from there.|
-|currency | '$'| The currency symbol to be displayed|
 |**value** | '100'| The default value of the donation. The donation button will initially have this value. User can change it using the donation options provided.|
 |valueWeight | 1| The position the value field should have in the form|
 |valueType | 'radio'|The widget to be used for the value selection. It can be **radio** or **select**|
@@ -199,7 +200,6 @@ Please notice that the "anonymous" options only means that the donner does not w
 
 ```html
 <donation-form
-  currency="€"
   askComment
   askAnonymous
   valueOptions="[20, 100, 250]" >
@@ -210,7 +210,7 @@ Please notice that the "anonymous" options only means that the donner does not w
 You can include whatever markup you wish above with your form parts. Simply use the name of that specific part as the slot where to place it.
 
 ```html
-<donation-form currency="€" valueOptions="[1, 2, 3]"
+<donation-form valueOptions="[1, 2, 3]"
   askValueOther
   askComment
   askAnonymous

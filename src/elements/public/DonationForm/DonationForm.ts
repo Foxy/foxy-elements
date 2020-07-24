@@ -18,6 +18,7 @@ import '@vaadin/vaadin-radio-button/vaadin-radio-button';
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 import '@vaadin/vaadin-select/vaadin-select';
 
+type CustomWindow = Window & { FC?: any };
 /**
  * A configurable donation form.
  *
@@ -57,6 +58,7 @@ export class DonationForm extends Translatable {
   }
 
   defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
+  currency = '';
 
   @property({ type: String })
   storeSubdomain = this.defaultSubdomain;
@@ -93,10 +95,6 @@ export class DonationForm extends Translatable {
 
   @query('input[name=comment]')
   fieldComment?: HTMLInputElement;
-
-  // Config
-  @property({ type: String })
-  currency = '$';
 
   @property({ type: String })
   value = '100';
@@ -173,6 +171,7 @@ export class DonationForm extends Translatable {
 
   constructor() {
     super('donation-form');
+    this.loadFoxy();
     if (this.valueOptions.length) {
       if (!this.value || !this.valueOptions.includes(this.value)) {
         this.value = this.valueOptions[0];
@@ -180,6 +179,57 @@ export class DonationForm extends Translatable {
     }
   }
 
+  /** Creates a script tag for loader.js if it not exists and sets a
+   * ready.done callback */
+  loadFoxy() {
+    if (!('FC' in window)) {
+      // Compute src
+      let storeName = this.storeSubdomain;
+      if (this.storeSubdomain.endsWith('.foxycart.com')) {
+        storeName = this.storeSubdomain.replace('.foxycart.com', '');
+      }
+      const src = `https://cdn.foxycart.com/${storeName}/loader.js`;
+      // Check if script is present
+      const loader = document.querySelector(`script[src="${src}"]`);
+      // Insert loader if not present
+      if (!loader) {
+        const script = document.createElement('script');
+        if (!document.querySelector('foxy-loader-script')) {
+          script.type = 'text/javascript';
+          script.setAttribute('data-cfasync', 'false');
+          script.async = true;
+          script.defer = true;
+          script.setAttribute('id', 'foxy-loader-script');
+          let storeName = this.storeSubdomain;
+          if (this.storeSubdomain.endsWith('.foxycart.com')) {
+            storeName = this.storeSubdomain.replace('.foxycart.com', '');
+          }
+          script.src = `https://cdn.foxycart.com/${storeName}/loader.js`;
+          document.head.appendChild(script);
+        }
+      }
+      const W = window as CustomWindow;
+      W.FC = W.FC || {};
+      // Create FC onload
+      const originalCallback = W.FC.onLoad;
+      W.FC.onLoad = () => {
+        if (originalCallback != undefined) {
+          originalCallback();
+        }
+        W.FC.client.on('ready.done', () => {
+          this.updateFromFC();
+        });
+      };
+    }
+  }
+
+  /** Update the form with values from FC */
+  updateFromFC() {
+    const FC = (window as CustomWindow).FC;
+    this.currency = FC.json.locale_info.currency_symbol;
+  }
+
+  /** LitElement life cicle */
   firstUpdated() {
     if (!this.valueOptions.length) {
       this.fieldPrice!.setAttribute('value', this.value);
