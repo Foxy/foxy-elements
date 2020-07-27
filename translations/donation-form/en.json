@@ -5,7 +5,7 @@
     "defaultCommentLabel": "Please, leave a comment.",
     "defaultCommentPlaceholder": "We'd like to hear from you. Please, leave us a comment.",
     "defaultSubmitButtonText": "Donate now",
-    "errorNoStoreSubdomain": "You haven't set your Store Subdoma, Please, be sure to provide your Store Subdomain as in '<foxy-donation storeSubdomain=\"MYSTORESUBDOMAIN\"></foxy-donation>'",
+    "errorNoStoreSubdomain": "You haven't set your Store Subdomain, Please, be sure to provide your Store Subdomain as in '<foxy-donation storeSubdomain=\"MYSTORESUBDOMAIN\"></foxy-donation>'",
     "defaultRemainAnonymous": "I'd like to remain anonymous"
   },
   "choosevalue" : {

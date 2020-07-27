@@ -173,11 +173,6 @@ export class DonationForm extends Translatable {
 
   constructor() {
     super('donation-form');
-    if (this.valueOptions.length) {
-      if (!this.value || !this.valueOptions.includes(this.value)) {
-        this.value = this.valueOptions[0];
-      }
-    }
   }
 
   firstUpdated() {
