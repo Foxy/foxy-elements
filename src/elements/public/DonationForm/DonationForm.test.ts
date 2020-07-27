@@ -1,7 +1,22 @@
-import { fixture, expect, fixtureCleanup } from '@open-wc/testing';
+import { fixture, expect, fixtureCleanup, oneEvent } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { DonationForm } from './DonationForm';
 import { html } from 'lit-element';
+
+async function checkInputValue(
+  formElement: Element,
+  fieldElement: HTMLInputElement,
+  inputName: string,
+  value: string
+) {
+  const listener = oneEvent(fieldElement, 'change');
+  fieldElement.value = value;
+  fieldElement.dispatchEvent(new CustomEvent('change'));
+  await listener;
+  expect(
+    (formElement.shadowRoot?.querySelector(`input[name=${inputName}]`) as HTMLInputElement).value
+  ).to.equal(value);
+}
 
 customElements.define('x-donation', DonationForm);
 
@@ -233,5 +248,57 @@ describe('A form with reorderable fields', async () => {
       actualAfters.push(e?.getAttribute('name'));
     });
     expect(expectedAfters.toString()).to.equal(actualAfters.toString());
+  });
+});
+
+describe('A form that behaves as a simple HTML form', async () => {
+  const el = await fixture(html`<x-donation
+    storeSubdomain="mystore.foxycart.com"
+    valueOptions="[10, 30, 50, 100]"
+    designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
+    askComment
+    askAnonymous
+  ></x-donation>`);
+
+  it('Should fill price inputs', async () => {
+    const xvalue = el.shadowRoot?.querySelector('[name=value]')?.parentElement;
+    expect(xvalue).to.exist;
+    await checkInputValue(el, xvalue as HTMLInputElement, 'price', '10');
+  });
+
+  it('Should fill designation input', async () => {
+    const xdesignation = el.shadowRoot?.querySelector('[name=designation]')?.parentElement;
+    expect(xdesignation).to.exist;
+    const listener = oneEvent(xdesignation as Element, 'change');
+    const expectedValue = '"Medical Assistance", "Daily Meals"';
+    (xdesignation as HTMLInputElement).value = expectedValue;
+    xdesignation?.dispatchEvent(new CustomEvent('change'));
+    await listener;
+    const actualDesignationValue = (el.shadowRoot?.querySelector(
+      `input[name=designation]`
+    ) as HTMLInputElement).value;
+    expect(actualDesignationValue).to.contain('Medical Assistance');
+    expect(actualDesignationValue).to.contain('Daily Meals');
+  });
+
+  it('Should fill comment input', async () => {
+    const x = el.shadowRoot?.querySelector('vaadin-form-layout>vaadin-text-area');
+    expect(x).to.exist;
+    const listener = oneEvent(x as Element, 'change');
+    const expected = 'A random comment';
+    (x as HTMLInputElement).value = expected;
+    x?.dispatchEvent(new CustomEvent('change'));
+    await listener;
+    const actual = (el.shadowRoot?.querySelector(`input[name=comment]`) as HTMLInputElement).value;
+    expect(expected).to.equal(actual);
+  });
+
+  it('Should fill anonymous', async () => {
+    const x = el.shadowRoot?.querySelector('vaadin-form-layout>vaadin-checkbox');
+    expect(x).to.exist;
+    (x as HTMLInputElement).click();
+    expect(
+      (el.shadowRoot?.querySelector('input[name=anonymous]') as HTMLInputElement)?.value
+    ).to.equal('true');
   });
 });
