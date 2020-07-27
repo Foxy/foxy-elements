@@ -1,4 +1,4 @@
-import { LitElement, html, customElement, property, query } from 'lit-element';
+import { html, property, query } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import '@vaadin/vaadin-list-box/vaadin-list-box';
 import '@vaadin/vaadin-item/vaadin-item-mixin';
