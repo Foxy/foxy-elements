@@ -203,13 +203,8 @@ describe('A form with customizable parameters', async () => {
       code="HELPDOLPHINS"
       image="${image}"
       url="${url}"
-      currency="ł"
     ></x-donation>`
   );
-
-  it('Should customize name currency code and image', async () => {
-    expect(el.shadowRoot?.querySelector('[name=submit]')?.innerHTML).to.include('ł');
-  });
 
   it('Should customize code', async () => {
     expect((el.shadowRoot?.querySelector('input[name=code]') as HTMLInputElement)?.value).to.equal(
