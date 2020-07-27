@@ -214,3 +214,24 @@ describe('A form with customizable parameters', async () => {
     );
   });
 });
+
+describe('A form with reorderable fields', async () => {
+  it('Should sort fields based on weight', async () => {
+    const el = await fixture(html`<x-donation
+      storeSubdomain="mystore.foxycart.com"
+      valueOptions="[10, 30, 50, 100]"
+      designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
+      askComment
+      commentWeight="2"
+      designationWeight="1"
+      valueWeight="2"
+    ></x-donation>`);
+    const expectedAfters = ['after-designation', 'after-value', 'after-comment'];
+    const actualAfters: Array<string | null> = [];
+    const afters = el.shadowRoot?.querySelectorAll('[name^=after-]');
+    afters!.forEach(e => {
+      actualAfters.push(e?.getAttribute('name'));
+    });
+    expect(expectedAfters.toString()).to.equal(actualAfters.toString());
+  });
+});
