@@ -78,19 +78,24 @@ describe('Choose Value input', () => {
     const el = await fixture(
       html`<x-value inputType="select" .valueOptions=${[1, 2, 3]} @change=${updateTest}></x-value>`
     );
-    const vselect = el.shadowRoot?.querySelector('vaadin-select');
-    const textSelect = (vselect as HTMLSelectElement).shadowRoot!.querySelector(
-      'vaadin-select-text-field'
-    );
-    (textSelect as HTMLInputElement).click();
-    const over = document?.querySelector('vaadin-select-overlay');
-    const content = over?.shadowRoot?.querySelector('#content');
-    const items = content?.shadowRoot?.querySelectorAll('vaadin-item');
-    expect(items?.length).to.be.greaterThan(1);
-    const secondItem = items![1];
-    const listener = oneEvent(el, 'change');
-    (secondItem as HTMLInputElement)?.click();
-    await listener;
-    expect(test).to.equal('2');
+    await new Promise(resolve => setTimeout(resolve, 1000)).then(async () => {
+      const vselect = el.shadowRoot?.querySelector('vaadin-select');
+      //console.debug('VSELECT ', vselect)
+      const textSelect = (vselect as HTMLSelectElement).shadowRoot!.querySelector(
+        'vaadin-select-text-field'
+      );
+      //console.debug('TEXTSELECT ', textSelect);
+      (textSelect as HTMLInputElement).click();
+      const over = document?.querySelector('vaadin-select-overlay');
+      const content = over?.shadowRoot?.querySelector('#content');
+      const items = content?.shadowRoot?.querySelectorAll('vaadin-item');
+      //console.debug('ITEMS', items);
+      expect(items?.length).to.be.greaterThan(1);
+      const secondItem = items![1];
+      const listener = oneEvent(el, 'change');
+      (secondItem as HTMLInputElement)?.click();
+      await listener;
+      expect(test).to.equal('2');
+    });
   });
 });

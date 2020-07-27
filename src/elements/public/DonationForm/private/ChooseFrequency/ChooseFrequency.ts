@@ -33,7 +33,7 @@ export class ChooseFrequency extends Translatable {
   options = ['1w', '.5m', '1m', '3m', '6m', '1y'];
 
   @query('[name=recurring-value]')
-  field?: any;
+  field?: HTMLInputElement;
 
   friendlyFrequency: Record<string, string> = {
     '1w': this._t('choosefrequency.week'),
@@ -54,7 +54,7 @@ export class ChooseFrequency extends Translatable {
 
   handleValue = {
     handleEvent: () => {
-      this.value = this.field.value;
+      this.value = this.field!.value;
     },
   };
 
