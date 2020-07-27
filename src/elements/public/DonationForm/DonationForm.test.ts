@@ -70,6 +70,21 @@ describe('A form with configurable values', async () => {
     const noOtherXvalue = noOther.shadowRoot?.querySelector('[name=value]')?.parentElement;
     expect(noOtherXvalue?.shadowRoot?.querySelectorAll('.other-option')).to.not.exist;
   });
+
+  it('Should not allow a default value that is not in the list of possible values', async () => {
+    const wrongEl = await fixture(
+      html`<x-donation
+        storeSubdomain="mystore.foxycart.com"
+        value="8"
+        valueOptions="[3, 20, 30, 40, 50]"
+        askValueOther
+      ></x-donation>`
+    );
+    expect(wrongEl.shadowRoot?.querySelector('input[name=price]')).to.exist.and.have.attribute(
+      'value',
+      '3'
+    );
+  });
 });
 
 describe('A form with configurable designation', async () => {
