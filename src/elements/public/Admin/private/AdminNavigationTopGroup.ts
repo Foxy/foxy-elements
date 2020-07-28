@@ -67,9 +67,14 @@ export class AdminNavigationTopGroup extends Translatable {
     ].join(' ');
 
     const summaryClass = [
+      'focus:outline-none md:rounded-t-l md:focus:shadow-outline',
+      this.open ? 'md:rounded-b-none' : 'md:rounded-b-l',
+    ].join(' ');
+
+    const summaryContentClass = [
       highlighted ? 'text-primary' : 'text-body',
-      'text-center group p-xs cursor-pointer transition-colors duration-200 rounded focus:outline-none md:rounded-t-l',
-      'md:flex md:items-center md:p-s md:focus:shadow-outline md:hover:text-primary',
+      'text-center group p-xs cursor-pointer transition-colors duration-200 rounded md:rounded-t-l',
+      'md:flex md:items-center md:p-s md:hover:text-primary',
       this.open ? 'md:rounded-b-none' : 'md:rounded-b-l',
     ].join(' ');
 
@@ -83,22 +88,24 @@ export class AdminNavigationTopGroup extends Translatable {
     return html`
       <details ?open=${this.open} class=${detailsClass} @toggle=${this.__handleToggle}>
         <summary class=${summaryClass}>
-          <iron-icon class="block mx-auto h-xxs w-xxs md:ml-0 md:mr-m" icon=${this.group.icon}>
-          </iron-icon>
+          <div class=${summaryContentClass}>
+            <iron-icon class="block mx-auto h-xxs w-xxs md:ml-0 md:mr-m" icon=${this.group.icon}>
+            </iron-icon>
 
-          <x-i18n
-            class="block leading-m text-xxxs md:font-medium md:text-left md:text-m"
-            .lang=${this.lang}
-            .key=${this.group.label}
-            .ns=${this.ns}
-          >
-          </x-i18n>
+            <x-i18n
+              class="block leading-m text-xxxs md:font-medium md:text-left md:text-m"
+              .lang=${this.lang}
+              .key=${this.group.label}
+              .ns=${this.ns}
+            >
+            </x-i18n>
 
-          <iron-icon
-            class="hidden ml-auto md:group-hover:text-primary md:block"
-            icon=${`lumo:angle-${this.open ? 'up' : 'down'}`}
-          >
-          </iron-icon>
+            <iron-icon
+              class="hidden ml-auto md:group-hover:text-primary md:block"
+              icon=${`lumo:angle-${this.open ? 'up' : 'down'}`}
+            >
+            </iron-icon>
+          </div>
         </summary>
 
         <div class=${contentClass}>
