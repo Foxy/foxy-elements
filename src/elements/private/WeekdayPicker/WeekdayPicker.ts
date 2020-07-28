@@ -9,7 +9,7 @@ export class WeekdayPicker extends MonthdayPicker {
 
   protected _getLabelClass(day: number) {
     let base = 'flex items-center justify-center m-xs h-m w-xl rounded font-medium ';
-    base += this.value.includes(day) ? 'text-base bg-primary' : 'bg-shade-5 text-primary';
+    base += this.value.includes(day) ? 'text-base bg-primary' : 'bg-contrast-5 text-primary';
     return base;
   }
 
