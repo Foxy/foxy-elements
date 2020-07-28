@@ -25,57 +25,55 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
       'vaadin-radio-button': customElements.get('vaadin-radio-button'),
     };
   }
-  valuePair: [number | string, number | string] = [0, 0];
+  private _valuePair: [number | string, number | string] = [0, 0];
 
   @property({ type: String })
-  name = 'value';
+  public name = 'value';
 
   @property({ type: String })
-  label = '';
+  public label = '';
 
   @property({ type: String })
-  inputType: 'radio' | 'select' = 'radio';
+  public inputType: 'radio' | 'select' = 'radio';
 
-  valueOptions = [10, 20, 30];
+  public valueOptions = [10, 20, 30];
 
   @property({ type: Boolean })
-  askValueOther = false;
-
-  isValueOther = false;
+  public askValueOther = false;
 
   @property({ type: String })
-  valueOther = 'Other';
+  public valueOther = 'Other';
 
   @property({ type: String })
-  currency = '$';
+  public currency = '$';
 
   @property()
-  value: number | string = 0;
+  public value: number | string = 0;
 
   @query('input')
-  input?: HTMLInputElement;
+  public input?: HTMLInputElement;
 
   constructor() {
     super(() => ChooseValueMachine, 'donation-form');
 
     this.service.onTransition(state => {
       if (state.value == 'other') {
-        this.value = this.valuePair[1];
+        this.value = this._valuePair[1];
       } else if (state.value == 'selected') {
-        this.value = this.valuePair[0];
+        this.value = this._valuePair[0];
       }
     });
   }
 
-  updated() {
+  public updated() {
     this.dispatchEvent(new Event('change'));
   }
 
-  render() {
+  public render() {
     return html`
       <slot></slot>
 
-      ${this.inputType === 'select' ? this.renderSelect() : this.renderRadio()}
+      ${this.inputType === 'select' ? this._renderSelect() : this._renderRadio()}
 
       <vaadin-text-field
         ?hidden=${!this.service.state.matches('other')}
@@ -83,31 +81,31 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
         label="${this._t('choosevalue.customvalue.label')}"
         name="other"
         placeholder="${this._t('choosevalue.customvalue.placeholder')}"
-        @change=${this.handleValue}
+        @change=${this._handleValue}
       ></vaadin-text-field>
     `;
   }
 
-  handleValue = {
+  private _handleValue = {
     handleEvent: (e: Event) => {
       const t = e.target as HTMLSelectElement;
       if (t.getAttribute('name') === 'other') {
-        this.valuePair[1] = t.value;
+        this._valuePair[1] = t.value;
         this.service.send('OTHER');
       } else if (t.value === 'other') {
         this.service.send('OTHER');
       } else {
-        this.valuePair[0] = t.value;
+        this._valuePair[0] = t.value;
         this.service.send('SELECT');
       }
     },
   };
 
-  renderSelect() {
+  private _renderSelect() {
     return html`
       <vaadin-select
         name="value-options"
-        @change=${this.handleValue}
+        @change=${this._handleValue}
         label="${this.label}"
         value="${this.valueOptions[0]}"
       >
@@ -127,11 +125,11 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
     `;
   }
 
-  renderRadio() {
+  private _renderRadio() {
     return html`
       <vaadin-radio-group
         name="value-options"
-        @change=${this.handleValue}
+        @change=${this._handleValue}
         theme="vertical"
         value="${this.valueOptions[0]}"
       >
