@@ -26,7 +26,7 @@ export class List extends Themeable {
             return html`
               <li
                 class=${'ml-m h-l text-body flex justify-between items-center' +
-                (index > 0 ? ' border-t border-shade-10' : '')}
+                (index > 0 ? ' border-t border-contrast-10' : '')}
               >
                 <slot name=${index}>${this.getText(value)}</slot>
 

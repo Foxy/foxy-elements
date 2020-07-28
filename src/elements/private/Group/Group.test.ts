@@ -14,7 +14,7 @@ function testHeader(element: Group) {
 }
 
 function testFrame(element: Group) {
-  const selector = '.rounded-t-l.rounded-b-l.border.border-shade-10';
+  const selector = '.rounded-t-l.rounded-b-l.border.border-contrast-10';
   const frame = element.shadowRoot!.querySelector(selector);
   expect(frame).to.be.visible;
 }

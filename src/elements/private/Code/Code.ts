@@ -14,7 +14,7 @@ export class Code extends Themeable {
         code,
         code.hljs {
           display: block;
-          background: var(--lumo-shade-90pct, rgba(25, 39, 57, 0.94));
+          border: 1px solid var(--lumo-contrast-10pct);
           border-radius: var(--lumo-border-radius-l, 0.75em);
           padding: var(--lumo-space-m, 1rem);
           line-height: var(--lumo-line-height-s, 1.375rem);
