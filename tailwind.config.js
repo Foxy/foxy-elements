@@ -187,11 +187,12 @@ const lineHeightMap = {
 };
 
 const sizeMap = {
-  xs: cssVar('line-size-xs', '1.625rem'),
-  s: cssVar('line-size-s', '1.825rem'),
-  m: cssVar('line-size-m', '2.25rem'),
-  l: cssVar('line-size-l', '2.75rem'),
-  xl: cssVar('line-size-xl', '3.5rem'),
+  xxs: cssVar('size-xxs', '1.5rem'),
+  xs: cssVar('size-xs', '1.625rem'),
+  s: cssVar('size-s', '1.875rem'),
+  m: cssVar('size-m', '2.25rem'),
+  l: cssVar('size-l', '2.75rem'),
+  xl: cssVar('size-xl', '3.5rem'),
 };
 
 // eslint-disable-next-line no-undef
