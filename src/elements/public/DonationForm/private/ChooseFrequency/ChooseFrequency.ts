@@ -82,9 +82,3 @@ export class ChooseFrequency extends Translatable {
     `;
   }
 }
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'choose-frequency': ChooseFrequency;
-  }
-}
