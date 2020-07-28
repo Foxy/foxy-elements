@@ -105,6 +105,7 @@ const textColorMap = Object.assign({}, colorsMap, {
 });
 
 const borderRadiusMap = {
+  none: '0',
   s: cssVar('border-radius-s', '0.25em'),
   m: cssVar('border-radius-m', '0.5em'),
   l: cssVar('border-radius-l', '0.75em'),
@@ -113,6 +114,7 @@ const borderRadiusMap = {
 };
 
 const boxShadowMap = {
+  none: 'none',
   xxxs: cssVar(
     'box-shadow-xxxs',
     '0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)'
