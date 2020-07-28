@@ -166,6 +166,7 @@ const fontFamilyMap = {
 };
 
 const fontSizeMap = {
+  xxxs: cssVar('font-size-xxxs', '0.5625rem'),
   xxs: cssVar('font-size-xxs', '0.75rem'),
   xs: cssVar('font-size-xs', '0.8125rem'),
   s: cssVar('font-size-s', '0.875rem'),
