@@ -1,3 +1,3 @@
-import { ChoiceChangeEvent } from '../choice/ChoiceChangeEvent';
+import { ChoiceChangeEvent } from '../Choice/ChoiceChangeEvent';
 
 export class DropdownChangeEvent extends ChoiceChangeEvent {}
