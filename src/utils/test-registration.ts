@@ -5,10 +5,7 @@ interface TestConfig<TClass> {
   constructor: TClass;
 }
 
-export function testRegistration<TClass>({
-  tag,
-  constructor,
-}: TestConfig<TClass>) {
+export function testRegistration<TClass>({ tag, constructor }: TestConfig<TClass>) {
   describe('registration', () => {
     it('self-registers on import', () => {
       expect(customElements.get(tag)).to.equal(constructor);

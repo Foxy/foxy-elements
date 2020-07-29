@@ -6,9 +6,7 @@ interface TestConfig {
   tag: string;
 }
 
-export function testTranslatableMixin<TElement extends Translatable>({
-  tag,
-}: TestConfig) {
+export function testTranslatableMixin<TElement extends Translatable>({ tag }: TestConfig) {
   describe('translatable behavior', () => {
     let node: TElement;
 
