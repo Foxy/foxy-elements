@@ -23,11 +23,9 @@ console.log('[tailwindcss]: build started');
 
   console.log('[tailwindcss]: running postcss');
 
-  const result = await postcss([
-    tailwindcss,
-    autoprefixer,
-    cssnano,
-  ]).process(css, { from: 'tailwind.css' });
+  const result = await postcss([tailwindcss, autoprefixer, cssnano]).process(css, {
+    from: 'tailwind.css',
+  });
 
   console.log('[tailwindcss]: injecting styles into ./dist');
 
