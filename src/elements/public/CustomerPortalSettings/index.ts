@@ -1,4 +1,3 @@
-import { define } from '../../../utils/define';
 import { CustomerPortalSettings } from './CustomerPortalSettings';
 
-define('foxy-customer-portal-settings', CustomerPortalSettings);
+customElements.define('foxy-customer-portal-settings', CustomerPortalSettings);
