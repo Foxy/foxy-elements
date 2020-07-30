@@ -2,7 +2,7 @@ import { createMachine } from 'xstate';
 import { AdminNavigationTopLink } from './AdminNavigationTopLink';
 import { createModel } from '@xstate/test';
 import { fixture, expect } from '@open-wc/testing';
-import { I18N } from '../../../../../private/index';
+import { I18N } from '../../../../../../private/index';
 
 customElements.define('x-admin-navigation-top-link', AdminNavigationTopLink);
 

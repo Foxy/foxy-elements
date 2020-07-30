@@ -6,6 +6,8 @@ interface NavigationItem {
 
 interface NavigationTopItem {
   icon: string;
+  hide?: 'mobile';
+  slot?: 'top' | 'bottom';
 }
 
 export interface NavigationLink extends NavigationItem {
@@ -16,10 +18,7 @@ export interface NavigationGroup<TChildren = NavigationLink> extends NavigationI
   children: TChildren[];
 }
 
-export interface NavigationTopLink extends NavigationLink, NavigationTopItem {
-  slot?: 'top' | 'bottom';
-  hide?: 'mobile';
-}
+export interface NavigationTopLink extends NavigationLink, NavigationTopItem {}
 
 export interface NavigationTopGroup
   extends NavigationGroup<NavigationLink | NavigationGroup>,
