@@ -105,6 +105,11 @@ export const routes: Parameters<Router['setRoutes']>[0] = [
     component: TODO,
   },
   {
+    path: '/signout',
+    name: 'signout',
+    component: TODO,
+  },
+  {
     path: '(.*)',
     component: TODO,
   },
