@@ -18,7 +18,17 @@
         {
           "name": "routes",
           "type": "RouteWithAction | RouteWithBundle | RouteWithChildren | RouteWithComponent | RouteWithRedirect | Route[]",
-          "default": "[{\"path\":\"/\",\"name\":\"dashboard\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/transactions\",\"name\":\"transactions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/subscriptions\",\"name\":\"subscriptions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/customers\",\"name\":\"customers\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/coupons\",\"name\":\"coupons\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/products\",\"name\":\"products\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/reports\",\"name\":\"reports\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/general\",\"name\":\"general-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/cart\",\"name\":\"cart-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/checkout\",\"name\":\"checkout-settings\",\"component\":\"x-not-implemented\"},{\"name\":\"customer-portal-settings\",\"path\":\"/settings/customer-portal\",\"component\":\"foxy-customer-portal-settings\"},{\"path\":\"/settings/products\",\"name\":\"products-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/shipping\",\"name\":\"shipping-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/taxes\",\"name\":\"taxes-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/payments\",\"name\":\"payments-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/receipt\",\"name\":\"receipt-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/emails\",\"name\":\"emails-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/integrations\",\"name\":\"integrations-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/billing\",\"name\":\"billing\",\"component\":\"x-not-implemented\"},{\"path\":\"/profile\",\"name\":\"profile\",\"component\":\"x-not-implemented\"},{\"path\":\"(.*)\",\"component\":\"x-not-implemented\"}]"
+          "default": "[{\"path\":\"/\",\"name\":\"dashboard\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/transactions\",\"name\":\"transactions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/subscriptions\",\"name\":\"subscriptions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/customers\",\"name\":\"customers\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/coupons\",\"name\":\"coupons\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/products\",\"name\":\"products\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/reports\",\"name\":\"reports\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/general\",\"name\":\"general-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/cart\",\"name\":\"cart-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/checkout\",\"name\":\"checkout-settings\",\"component\":\"x-not-implemented\"},{\"name\":\"customer-portal-settings\",\"path\":\"/settings/customer-portal\",\"component\":\"foxy-customer-portal-settings\"},{\"path\":\"/settings/products\",\"name\":\"products-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/shipping\",\"name\":\"shipping-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/taxes\",\"name\":\"taxes-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/payments\",\"name\":\"payments-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/receipt\",\"name\":\"receipt-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/emails\",\"name\":\"emails-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/integrations\",\"name\":\"integrations-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/billing\",\"name\":\"billing\",\"component\":\"x-not-implemented\"},{\"path\":\"/profile\",\"name\":\"profile\",\"component\":\"x-not-implemented\"},{\"path\":\"/signout\",\"name\":\"signout\",\"component\":\"x-not-implemented\"},{\"path\":\"(.*)\",\"component\":\"x-not-implemented\"}]"
+        },
+        {
+          "name": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
         }
       ],
       "properties": [
@@ -38,15 +48,17 @@
           "name": "routes",
           "attribute": "routes",
           "type": "RouteWithAction | RouteWithBundle | RouteWithChildren | RouteWithComponent | RouteWithRedirect | Route[]",
-          "default": "[{\"path\":\"/\",\"name\":\"dashboard\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/transactions\",\"name\":\"transactions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/subscriptions\",\"name\":\"subscriptions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/customers\",\"name\":\"customers\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/coupons\",\"name\":\"coupons\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/products\",\"name\":\"products\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/reports\",\"name\":\"reports\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/general\",\"name\":\"general-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/cart\",\"name\":\"cart-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/checkout\",\"name\":\"checkout-settings\",\"component\":\"x-not-implemented\"},{\"name\":\"customer-portal-settings\",\"path\":\"/settings/customer-portal\",\"component\":\"foxy-customer-portal-settings\"},{\"path\":\"/settings/products\",\"name\":\"products-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/shipping\",\"name\":\"shipping-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/taxes\",\"name\":\"taxes-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/payments\",\"name\":\"payments-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/receipt\",\"name\":\"receipt-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/emails\",\"name\":\"emails-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/integrations\",\"name\":\"integrations-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/billing\",\"name\":\"billing\",\"component\":\"x-not-implemented\"},{\"path\":\"/profile\",\"name\":\"profile\",\"component\":\"x-not-implemented\"},{\"path\":\"(.*)\",\"component\":\"x-not-implemented\"}]"
+          "default": "[{\"path\":\"/\",\"name\":\"dashboard\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/transactions\",\"name\":\"transactions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/subscriptions\",\"name\":\"subscriptions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/customers\",\"name\":\"customers\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/coupons\",\"name\":\"coupons\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/products\",\"name\":\"products\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/reports\",\"name\":\"reports\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/general\",\"name\":\"general-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/cart\",\"name\":\"cart-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/checkout\",\"name\":\"checkout-settings\",\"component\":\"x-not-implemented\"},{\"name\":\"customer-portal-settings\",\"path\":\"/settings/customer-portal\",\"component\":\"foxy-customer-portal-settings\"},{\"path\":\"/settings/products\",\"name\":\"products-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/shipping\",\"name\":\"shipping-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/taxes\",\"name\":\"taxes-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/payments\",\"name\":\"payments-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/receipt\",\"name\":\"receipt-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/emails\",\"name\":\"emails-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/integrations\",\"name\":\"integrations-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/billing\",\"name\":\"billing\",\"component\":\"x-not-implemented\"},{\"path\":\"/profile\",\"name\":\"profile\",\"component\":\"x-not-implemented\"},{\"path\":\"/signout\",\"name\":\"signout\",\"component\":\"x-not-implemented\"},{\"path\":\"(.*)\",\"component\":\"x-not-implemented\"}]"
         },
         {
           "name": "lang",
+          "attribute": "lang",
           "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
           "type": "string"
         },
         {
           "name": "ns",
+          "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
         },
@@ -69,6 +81,16 @@
         {
           "name": "service",
           "description": "Active interpreter service (can be shut down and replaced)."
+        },
+        {
+          "name": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
         }
       ],
       "properties": [
@@ -84,11 +106,13 @@
         },
         {
           "name": "lang",
+          "attribute": "lang",
           "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
           "type": "string"
         },
         {
           "name": "ns",
+          "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
         },
