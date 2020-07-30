@@ -4,14 +4,14 @@ interface CheckboxStateSchema {
   states: {
     checked: {
       states: {
-        enabled: {};
-        disabled: {};
+        enabled: Record<string, unknown>;
+        disabled: Record<string, unknown>;
       };
     };
     unchecked: {
       states: {
-        enabled: {};
-        disabled: {};
+        enabled: Record<string, unknown>;
+        disabled: Record<string, unknown>;
       };
     };
   };

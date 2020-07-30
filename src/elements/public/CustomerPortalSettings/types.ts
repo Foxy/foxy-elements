@@ -36,8 +36,8 @@ export type CustomerPortalSettingsContext = undefined | CustomerPortalSettingsRe
 
 export interface CustomerPortalSettingsSchema {
   states: {
-    enabled: {};
-    disabled: {};
+    enabled: Record<string, unknown>;
+    disabled: Record<string, unknown>;
   };
 }
 
