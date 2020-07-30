@@ -1,9 +1,10 @@
 import { Router } from '@vaadin/router';
 import { css, html, internalProperty, property } from 'lit-element';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { Translatable } from '../../../../mixins/translatable';
 import { Navigation } from '../navigation';
 import { AdminNavigationTopGroup } from './AdminNavigationTopGroup';
-import { AdminNavigationTopLink } from './AdminNavigationTopLink';
+import { AdminNavigationTopLink } from './AdminNavigationTopLink/AdminNavigationTopLink';
 
 export class AdminNavigation extends Translatable {
   public static get scopedElements() {
@@ -146,14 +147,17 @@ export class AdminNavigation extends Translatable {
     const className = mdAndUp ? 'hidden md:block' : 'flex-1 md:flex-none';
 
     if ('name' in item) {
+      const current = this.router?.location.route?.name === item.name;
+
       return html`
         <x-admin-navigation-top-link
           class=${className}
-          .inactive=${this.__mobile && this.__openGroups.length > 0}
-          .router=${this.router}
-          .link=${item}
-          .lang=${this.lang}
-          .ns=${this.ns}
+          ?active=${current && (!this.__mobile || this.__openGroups.length === 0)}
+          label=${item.label}
+          href=${ifDefined(this.router?.urlForName(item.name))}
+          icon=${item.icon}
+          lang=${this.lang}
+          ns=${this.ns}
         >
         </x-admin-navigation-top-link>
       `;
