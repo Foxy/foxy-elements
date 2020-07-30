@@ -1,10 +1,20 @@
-import { Router } from '@vaadin/router';
-import { html, property, css } from 'lit-element';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { Translatable } from '../../../../mixins/translatable';
-import { I18N } from '../../../private/index';
-import { NavigationTopGroup } from '../navigation';
+import { css, html, property } from 'lit-element';
+import { Translatable } from '../../../../../mixins/translatable';
+import { I18N } from '../../../../private/index';
 import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink/AdminNavigationTopGroupLink';
+
+interface NavigationItem {
+  label: string;
+}
+
+export interface NavigationLink extends NavigationItem {
+  name: string;
+  href: string;
+}
+
+export interface NavigationGroup<TChildren = NavigationLink> extends NavigationItem {
+  children: TChildren[];
+}
 
 export class AdminNavigationTopGroup extends Translatable {
   public static get scopedElements() {
@@ -30,39 +40,29 @@ export class AdminNavigationTopGroup extends Translatable {
     ];
   }
 
-  private get __active() {
-    return this.group.children.some(child => {
-      if ('name' in child) return child.name === this.router?.location.route?.name;
-      return child.children.some(({ name }) => name === this.router?.location.route?.name);
-    });
-  }
+  @property({ type: Boolean })
+  public active = false;
 
-  private __routerListener = () => this.requestUpdate();
+  @property({ type: String })
+  public route = '';
 
-  @property()
-  public inactive = false;
+  @property({ type: Array })
+  public items: (NavigationLink | NavigationGroup)[] = [];
 
-  @property({ type: Object })
-  public router?: Router;
+  @property({ type: String })
+  public label = '';
 
-  @property({ type: Object })
-  public group: NavigationTopGroup = { label: '', icon: '', children: [] };
+  @property({ type: String })
+  public icon = '';
 
   @property({ type: Boolean })
   public open = false;
 
-  public connectedCallback() {
-    super.connectedCallback();
-    window.addEventListener('vaadin-router-location-changed', this.__routerListener);
-  }
-
   public render() {
-    const highlighted = !this.inactive && (this.open || this.__active);
-
     const detailsClass = [
-      'font-lumo',
+      'font-lumo transition-colors duration-100',
       'md:border md:border-transparent md:rounded-t-l md:rounded-b-l',
-      highlighted
+      this.active || this.open
         ? 'md:bg-base md:border-contrast-10'
         : 'md:hover:bg-base md:hover:border-contrast-10',
     ].join(' ');
@@ -73,10 +73,9 @@ export class AdminNavigationTopGroup extends Translatable {
     ].join(' ');
 
     const summaryContentClass = [
-      highlighted ? 'text-primary' : 'text-body',
-      'text-center group p-xs cursor-pointer transition-colors duration-200 rounded md:rounded-t-l',
+      this.active || this.open ? 'text-primary' : 'text-body',
+      'text-center group p-xs cursor-pointer transition-colors duration-200',
       'md:flex md:items-center md:p-s md:hover:text-primary',
-      this.open ? 'md:rounded-b-none' : 'md:rounded-b-l',
     ].join(' ');
 
     const contentClass = [
@@ -90,14 +89,15 @@ export class AdminNavigationTopGroup extends Translatable {
       <details ?open=${this.open} class=${detailsClass} @toggle=${this.__handleToggle}>
         <summary class=${summaryClass}>
           <div class=${summaryContentClass}>
-            <iron-icon class="block mx-auto h-xxs w-xxs md:ml-0 md:mr-m" icon=${this.group.icon}>
+            <iron-icon class="block mx-auto h-xxs w-xxs md:ml-0 md:mr-m" icon=${this.icon}>
             </iron-icon>
 
             <x-i18n
               class="block leading-m text-xxxs md:font-medium md:text-left md:text-m"
-              .lang=${this.lang}
-              .key=${this.group.label}
-              .ns=${this.ns}
+              data-testid="i18n"
+              lang=${this.lang}
+              key=${this.label}
+              ns=${this.ns}
             >
             </x-i18n>
 
@@ -113,18 +113,18 @@ export class AdminNavigationTopGroup extends Translatable {
           <iron-icon class="text-primary m-m w-xs h-xs md:hidden" icon="foxy:logo"></iron-icon>
 
           <div class="px-m pb-s pt-m text-xxl font-bold text-header md:hidden">
-            <x-i18n .ns=${this.ns} .lang=${this.lang} .key=${this.group.label}></x-i18n>
+            <x-i18n ns=${this.ns} lang=${this.lang} key=${this.label}></x-i18n>
           </div>
 
           <div class="mb-xl md:my-s">
-            ${this.group.children.map((child, i) =>
+            ${this.items.map((child, i) =>
               'name' in child
                 ? html`
                     <x-admin-navigation-top-group-link
-                      ?active=${this.router?.location.route?.name === child.name}
-                      href=${ifDefined(this.router?.urlForName(child.name))}
+                      data-testclass="item"
+                      ?active=${this.route === child.name}
                       label=${child.label}
-                      name=${child.name}
+                      href=${child.href}
                       lang=${this.lang}
                       ns=${this.ns}
                     >
@@ -141,10 +141,10 @@ export class AdminNavigationTopGroup extends Translatable {
                         nestedChild =>
                           html`
                             <x-admin-navigation-top-group-link
-                              ?active=${this.router?.location.route?.name === nestedChild.name}
+                              data-testclass="item"
+                              ?active=${this.route === nestedChild.name}
                               label=${nestedChild.label}
-                              href=${ifDefined(this.router?.urlForName(nestedChild.name))}
-                              name=${nestedChild.name}
+                              href=${nestedChild.href}
                               lang=${this.lang}
                               ns=${this.ns}
                             >
@@ -160,11 +160,7 @@ export class AdminNavigationTopGroup extends Translatable {
     `;
   }
 
-  public disconnectedCallback() {
-    super.disconnectedCallback();
-    window.removeEventListener('vaadin-router-location-changed', this.__routerListener);
-  }
-
+  /* istanbul ignore next: very specific <details> behavior */
   private __handleToggle(evt: Event) {
     const target = evt.currentTarget as HTMLDetailsElement;
     if (target.open) {
