@@ -5,7 +5,7 @@ import { fixture, expect } from '@open-wc/testing';
 import { I18N } from '../../../../private/index';
 import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink/AdminNavigationTopGroupLink';
 
-customElements.define('x-admin-navigation-top-link', AdminNavigationTopGroup);
+customElements.define('x-admin-navigation-top-group', AdminNavigationTopGroup);
 
 const samples = {
   active: { default: false, custom: true },
@@ -157,7 +157,7 @@ describe('Admin >>> AdminNavigationTopGroup', () => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
         it(path.description, async () => {
-          const layout = '<x-admin-navigation-top-link></x-admin-navigation-top-link>';
+          const layout = '<x-admin-navigation-top-group></x-admin-navigation-top-group>';
           const element = await fixture<AdminNavigationTopGroup>(layout);
 
           await path.test(element);
