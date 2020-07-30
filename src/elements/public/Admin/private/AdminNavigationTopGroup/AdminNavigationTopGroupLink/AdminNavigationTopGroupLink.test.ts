@@ -2,9 +2,9 @@ import { createMachine } from 'xstate';
 import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink';
 import { createModel } from '@xstate/test';
 import { fixture, expect } from '@open-wc/testing';
-import { I18N } from '../../../../private/index';
+import { I18N } from '../../../../../private/index';
 
-customElements.define('x-admin-navigation-top-link', AdminNavigationTopGroupLink);
+customElements.define('x-admin-navigation-top-group-link', AdminNavigationTopGroupLink);
 
 const samples = {
   active: { default: false, custom: true },
@@ -75,7 +75,7 @@ describe('Admin >>> AdminNavigationTopGroupLink', () => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
         it(path.description, async () => {
-          const layout = '<x-admin-navigation-top-link></x-admin-navigation-top-link>';
+          const layout = '<x-admin-navigation-top-group-link></x-admin-navigation-top-group-link>';
           const element = await fixture<AdminNavigationTopGroupLink>(layout);
 
           await path.test(element);

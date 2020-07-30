@@ -3,8 +3,8 @@ import { css, html, internalProperty, property } from 'lit-element';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { Translatable } from '../../../../mixins/translatable';
 import { Navigation } from '../navigation';
-import { AdminNavigationTopGroup } from './AdminNavigationTopGroup';
-import { AdminNavigationTopLink } from './AdminNavigationTopLink/AdminNavigationTopLink';
+import { AdminNavigationTopGroup } from './AdminNavigationTopGroup/AdminNavigationTopGroup';
+import { AdminNavigationTopLink } from './AdminNavigationTopGroup/AdminNavigationTopLink/AdminNavigationTopLink';
 
 export class AdminNavigation extends Translatable {
   public static get scopedElements() {
@@ -28,7 +28,7 @@ export class AdminNavigation extends Translatable {
     ];
   }
 
-  private __routerListener = () => this.__resetGroups();
+  private __routerListener = () => (this.__resetGroups(), this.requestUpdate());
   private __resizeListener = () => (this.__resetGroups(), this.requestUpdate());
 
   private get __mobile() {
@@ -162,15 +162,28 @@ export class AdminNavigation extends Translatable {
         </x-admin-navigation-top-link>
       `;
     } else {
+      const getHref = (name: string) => this.router?.urlForName(name) ?? '';
+
+      const active = item.children.some(child => {
+        if ('name' in child) return child.name === this.router?.location.route?.name;
+        return child.children.some(({ name }) => name === this.router?.location.route?.name);
+      });
+
       return html`
         <x-admin-navigation-top-group
+          .items=${item.children.map(v =>
+            'name' in v
+              ? { ...v, href: getHref(v.name) }
+              : { ...v, children: v.children.map(c => ({ ...c, href: getHref(c.name) })) }
+          )}
+          ?open=${open}
+          ?active=${active && !(this.__mobile && !open && this.__group !== undefined)}
+          route=${this.router?.location.route?.name ?? ''}
           class=${className}
-          .inactive=${this.__mobile && !open && this.__group !== undefined}
-          .router=${this.router}
-          .group=${item}
-          .open=${open}
-          .lang=${this.lang}
-          .ns=${this.ns}
+          label=${item.label}
+          icon=${item.icon}
+          lang=${this.lang}
+          ns=${this.ns}
           @open=${() => this.__openGroup(index)}
           @close=${() => this.__closeGroup(index)}
         >
