@@ -1,9 +1,10 @@
 import { Router } from '@vaadin/router';
 import { html, property, css } from 'lit-element';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { Translatable } from '../../../../mixins/translatable';
 import { I18N } from '../../../private/index';
 import { NavigationTopGroup } from '../navigation';
-import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink';
+import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink/AdminNavigationTopGroupLink';
 
 export class AdminNavigationTopGroup extends Translatable {
   public static get scopedElements() {
@@ -120,10 +121,12 @@ export class AdminNavigationTopGroup extends Translatable {
               'name' in child
                 ? html`
                     <x-admin-navigation-top-group-link
-                      .router=${this.router}
-                      .link=${child}
-                      .lang=${this.lang}
-                      .ns=${this.ns}
+                      ?active=${this.router?.location.route?.name === child.name}
+                      href=${ifDefined(this.router?.urlForName(child.name))}
+                      label=${child.label}
+                      name=${child.name}
+                      lang=${this.lang}
+                      ns=${this.ns}
                     >
                     </x-admin-navigation-top-group-link>
                   `
@@ -138,10 +141,12 @@ export class AdminNavigationTopGroup extends Translatable {
                         nestedChild =>
                           html`
                             <x-admin-navigation-top-group-link
-                              .router=${this.router}
-                              .link=${nestedChild}
-                              .lang=${this.lang}
-                              .ns=${this.ns}
+                              ?active=${this.router?.location.route?.name === nestedChild.name}
+                              label=${nestedChild.label}
+                              href=${ifDefined(this.router?.urlForName(nestedChild.name))}
+                              name=${nestedChild.name}
+                              lang=${this.lang}
+                              ns=${this.ns}
                             >
                             </x-admin-navigation-top-group-link>
                           `
