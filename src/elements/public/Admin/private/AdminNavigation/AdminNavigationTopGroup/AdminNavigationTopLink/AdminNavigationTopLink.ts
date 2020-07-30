@@ -1,6 +1,6 @@
 import { html, property } from 'lit-element';
-import { Translatable } from '../../../../../../mixins/translatable';
-import { I18N } from '../../../../../private/index';
+import { Translatable } from '../../../../../../../mixins/translatable';
+import { I18N } from '../../../../../../private/index';
 
 export class AdminNavigationTopLink extends Translatable {
   public static get scopedElements() {

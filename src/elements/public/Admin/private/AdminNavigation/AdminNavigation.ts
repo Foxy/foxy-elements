@@ -1,10 +1,26 @@
-import { Router } from '@vaadin/router';
 import { css, html, internalProperty, property } from 'lit-element';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { Translatable } from '../../../../mixins/translatable';
-import { Navigation } from '../navigation';
-import { AdminNavigationTopGroup } from './AdminNavigationTopGroup/AdminNavigationTopGroup';
+import { Translatable } from '../../../../../mixins/translatable';
 import { AdminNavigationTopLink } from './AdminNavigationTopGroup/AdminNavigationTopLink/AdminNavigationTopLink';
+
+import {
+  AdminNavigationTopGroup,
+  NavigationGroup,
+  NavigationLink,
+} from './AdminNavigationTopGroup/AdminNavigationTopGroup';
+
+export interface NavigationTopItem {
+  icon: string;
+  slot?: 'top' | 'bottom';
+  hide?: 'mobile';
+}
+
+export interface NavigationTopLink extends NavigationLink, NavigationTopItem {}
+
+export interface NavigationTopGroup
+  extends NavigationGroup<NavigationLink | NavigationGroup>,
+    NavigationTopItem {}
+
+export type Navigation = Array<NavigationTopGroup | NavigationTopLink>;
 
 export class AdminNavigation extends Translatable {
   public static get scopedElements() {
@@ -28,8 +44,9 @@ export class AdminNavigation extends Translatable {
     ];
   }
 
-  private __routerListener = () => (this.__resetGroups(), this.requestUpdate());
+  private __resizeQL = window.matchMedia('(max-width: 768px)');
   private __resizeListener = () => (this.__resetGroups(), this.requestUpdate());
+  private __activeGroupIndexKey = 'group';
 
   private get __mobile() {
     return window.innerWidth < 768;
@@ -37,17 +54,17 @@ export class AdminNavigation extends Translatable {
 
   private get __group() {
     const query = new URLSearchParams(location.search);
-    const group = parseInt(query.get(this.activeGroupIndexKey) ?? '', 10);
+    const group = parseInt(query.get(this.__activeGroupIndexKey) ?? '', 10);
     return isNaN(group) ? undefined : group;
   }
   private set __group(value: number | undefined) {
     const url = new URL(location.toString());
 
     if (value === undefined) {
-      url.searchParams.delete(this.activeGroupIndexKey);
+      url.searchParams.delete(this.__activeGroupIndexKey);
       if (this.__group) this.__closeGroup(this.__group);
     } else {
-      url.searchParams.set(this.activeGroupIndexKey, value.toString(10));
+      url.searchParams.set(this.__activeGroupIndexKey, value.toString(10));
     }
 
     history.replaceState(history.state, document.title, url.toString());
@@ -56,19 +73,15 @@ export class AdminNavigation extends Translatable {
   @internalProperty()
   private __openGroups: number[] = [];
 
-  @property({ type: Object })
-  public router?: Router;
+  @property({ type: String })
+  public route = '';
 
   @property({ type: Array })
   public navigation: Navigation = [];
 
-  @property({ type: String })
-  public activeGroupIndexKey = 'group';
-
   public connectedCallback() {
     super.connectedCallback();
-    addEventListener('vaadin-router-location-changed', this.__routerListener);
-    addEventListener('resize', this.__resizeListener);
+    this.__resizeQL.addListener(this.__resizeListener);
   }
 
   public render() {
@@ -101,13 +114,12 @@ export class AdminNavigation extends Translatable {
   }
 
   public updated(changedPropeties: Map<keyof AdminNavigation, unknown>) {
-    if (changedPropeties.has('router')) this.__resetGroups();
+    if (changedPropeties.has('route')) this.__resetGroups();
   }
 
   public disconnectedCallback() {
     super.disconnectedCallback();
-    removeEventListener('vaadin-router-location-changed', this.__routerListener);
-    removeEventListener('resize', this.__resizeListener);
+    this.__resizeQL.removeListener(this.__resizeListener);
   }
 
   private __resetGroups() {
@@ -115,12 +127,11 @@ export class AdminNavigation extends Translatable {
 
     if (this.__group !== undefined) return this.__openGroup(this.__group);
 
-    const route = this.router?.location.route;
     const index = this.navigation.findIndex(topEntry => {
       if ('children' in topEntry) {
         return topEntry.children.some(subEntry => {
-          if ('name' in subEntry) return subEntry.name === route?.name;
-          return subEntry.children.some(({ name }) => name === route?.name);
+          if ('name' in subEntry) return subEntry.name === this.route;
+          return subEntry.children.some(({ name }) => name === this.route);
         });
       }
     });
@@ -147,14 +158,13 @@ export class AdminNavigation extends Translatable {
     const className = mdAndUp ? 'hidden md:block' : 'flex-1 md:flex-none';
 
     if ('name' in item) {
-      const current = this.router?.location.route?.name === item.name;
-
       return html`
         <x-admin-navigation-top-link
+          data-testclass="item"
           class=${className}
-          ?active=${current && (!this.__mobile || this.__openGroups.length === 0)}
+          ?active=${this.route === item.name && (!this.__mobile || this.__openGroups.length === 0)}
           label=${item.label}
-          href=${ifDefined(this.router?.urlForName(item.name))}
+          href=${item.href}
           icon=${item.icon}
           lang=${this.lang}
           ns=${this.ns}
@@ -162,23 +172,18 @@ export class AdminNavigation extends Translatable {
         </x-admin-navigation-top-link>
       `;
     } else {
-      const getHref = (name: string) => this.router?.urlForName(name) ?? '';
-
       const active = item.children.some(child => {
-        if ('name' in child) return child.name === this.router?.location.route?.name;
-        return child.children.some(({ name }) => name === this.router?.location.route?.name);
+        if ('name' in child) return child.name === this.route;
+        return child.children.some(({ name }) => name === this.route);
       });
 
       return html`
         <x-admin-navigation-top-group
-          .items=${item.children.map(v =>
-            'name' in v
-              ? { ...v, href: getHref(v.name) }
-              : { ...v, children: v.children.map(c => ({ ...c, href: getHref(c.name) })) }
-          )}
+          data-testclass="item"
+          .items=${item.children}
           ?open=${open}
           ?active=${active && !(this.__mobile && !open && this.__group !== undefined)}
-          route=${this.router?.location.route?.name ?? ''}
+          route=${this.route}
           class=${className}
           label=${item.label}
           icon=${item.icon}

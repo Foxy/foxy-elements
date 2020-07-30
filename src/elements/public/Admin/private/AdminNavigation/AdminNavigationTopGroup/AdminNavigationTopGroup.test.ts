@@ -2,7 +2,7 @@ import { createMachine } from 'xstate';
 import { AdminNavigationTopGroup } from './AdminNavigationTopGroup';
 import { createModel } from '@xstate/test';
 import { fixture, expect } from '@open-wc/testing';
-import { I18N } from '../../../../private/index';
+import { I18N } from '../../../../../private/index';
 import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink/AdminNavigationTopGroupLink';
 
 customElements.define('x-admin-navigation-top-group', AdminNavigationTopGroup);

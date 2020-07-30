@@ -2,7 +2,7 @@ import { Router } from '@vaadin/router';
 import { css, html, property } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { navigation } from './navigation';
-import { AdminNavigation } from './private/AdminNavigation';
+import { AdminNavigation } from './private/AdminNavigation/AdminNavigation';
 import { routes } from './routes';
 
 export class Admin extends Translatable {
@@ -47,6 +47,8 @@ export class Admin extends Translatable {
     ];
   }
 
+  private __routerListener = () => this.requestUpdate();
+
   @property({ type: Array })
   public navigation = navigation;
 
@@ -60,29 +62,55 @@ export class Admin extends Translatable {
     super('admin');
   }
 
-  public updated(changedProperties: Map<keyof Admin, unknown>) {
-    if (changedProperties.has('router')) {
-      this.router.setRoutes(this.routes);
-    }
+  public connectedCallback() {
+    super.connectedCallback();
+    addEventListener('vaadin-router-location-changed', this.__routerListener);
+  }
+
+  public disconnectedCallback() {
+    super.connectedCallback();
+    removeEventListener('vaadin-router-location-changed', this.__routerListener);
+  }
+
+  public render() {
+    const addHref = (route: { name: string }) => {
+      try {
+        return { ...route, href: this.router.urlForName(route.name) };
+      } catch {
+        return { ...route, href: '' };
+      }
+    };
+
+    const navigation = this.navigation.map(topRoute => {
+      if ('name' in topRoute) return addHref(topRoute);
+      return Object.assign({}, topRoute, {
+        children: topRoute.children.map(childRoute => {
+          if ('name' in childRoute) return addHref(childRoute);
+          return { ...childRoute, children: childRoute.children.map(addHref) };
+        }),
+      });
+    });
+
+    return html`
+      <div class="bg-base w-full h-full relative overflow-hidden">
+        <div id="outlet" class="absolute overflow-auto inset-nav scroll-touch"></div>
+        <x-admin-navigation
+          .navigation=${navigation}
+          class="absolute inset-0 pointer-events-none"
+          route=${this.router.location.route?.name ?? ''}
+          lang=${this.lang}
+          ns=${this.ns}
+        >
+        </x-admin-navigation>
+      </div>
+    `;
   }
 
   public firstUpdated() {
     this.router.setOutlet(this.shadowRoot!.getElementById('outlet'));
   }
 
-  public render() {
-    return html`
-      <div class="bg-base w-full h-full relative overflow-hidden">
-        <div id="outlet" class="absolute overflow-auto inset-nav scroll-touch"></div>
-        <x-admin-navigation
-          class="absolute inset-0 pointer-events-none"
-          .navigation=${this.navigation}
-          .router=${this.router}
-          .lang=${this.lang}
-          .ns=${this.ns}
-        >
-        </x-admin-navigation>
-      </div>
-    `;
+  public updated(changedProperties: Map<keyof Admin, unknown>) {
+    if (changedProperties.has('routes')) this.router.setRoutes(this.routes);
   }
 }
