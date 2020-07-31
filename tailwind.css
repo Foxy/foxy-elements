@@ -2,6 +2,10 @@
 
 @import './node_modules/@highlightjs/cdn-assets/styles/atom-one-dark.css';
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 details > summary::-webkit-details-marker {
   display: none;
 }

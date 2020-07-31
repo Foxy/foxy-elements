@@ -105,6 +105,7 @@ const textColorMap = Object.assign({}, colorsMap, {
 });
 
 const borderRadiusMap = {
+  none: '0',
   s: cssVar('border-radius-s', '0.25em'),
   m: cssVar('border-radius-m', '0.5em'),
   l: cssVar('border-radius-l', '0.75em'),
@@ -113,6 +114,7 @@ const borderRadiusMap = {
 };
 
 const boxShadowMap = {
+  none: 'none',
   xxxs: cssVar(
     'box-shadow-xxxs',
     '0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)'
@@ -164,6 +166,7 @@ const fontFamilyMap = {
 };
 
 const fontSizeMap = {
+  xxxs: cssVar('font-size-xxxs', '0.5625rem'),
   xxs: cssVar('font-size-xxs', '0.75rem'),
   xs: cssVar('font-size-xs', '0.8125rem'),
   s: cssVar('font-size-s', '0.875rem'),
@@ -184,11 +187,12 @@ const lineHeightMap = {
 };
 
 const sizeMap = {
-  xs: cssVar('line-size-xs', '1.625rem'),
-  s: cssVar('line-size-s', '1.825rem'),
-  m: cssVar('line-size-m', '2.25rem'),
-  l: cssVar('line-size-l', '2.75rem'),
-  xl: cssVar('line-size-xl', '3.5rem'),
+  xxs: cssVar('size-xxs', '1.5rem'),
+  xs: cssVar('size-xs', '1.625rem'),
+  s: cssVar('size-s', '1.875rem'),
+  m: cssVar('size-m', '2.25rem'),
+  l: cssVar('size-l', '2.75rem'),
+  xl: cssVar('size-xl', '3.5rem'),
 };
 
 // eslint-disable-next-line no-undef
