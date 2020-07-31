@@ -1,0 +1,71 @@
+import { Meta } from '@open-wc/demoing-storybook';
+
+<Meta title="Donation Form Demo" />
+
+import { DonationForm } from '/dist/elements/public/DonationForm/DonationForm.js';
+window.customElements.define('donation-form', DonationForm);
+
+# Donation Form
+
+# The simplest form: a button
+
+<donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" value="100"></donation-form>
+
+## Offer some choices of values
+
+You can offer some value choices by simply adding
+the "valueOptions" attribute.
+
+<donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" valueOptions="[10, 30, 50, 100]"></donation-form>
+
+## Allow for a recurrent contribution
+Allow people to commit to a recurrent contribution.
+
+Also, notice you can use the name, image and url attributes to customize how the donation will be shown in the cart.
+
+<donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" name="I'll be a part of this" image="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Children_holding_hands_together.png/320px-Children_holding_hands_together.png" askRecurrence valueOptions="[10, 30, 50, 100]"></donation-form>
+
+## Allow the donner to set a custom ammount
+
+You can use the "askValueOther" attribute to add a
+"other" field
+
+<donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" valueOptions="[10, 30, 50, 100]" askValueOther ></donation-form>
+
+## Allow the user to choose a designation for the donation
+
+You can use the "designationOptions" to allow for specifying a designation.
+
+<donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" valueOptions="[10, 30, 50, 100]" designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]' askValueOther="true" askDesignationOther="true" ></donation-form>
+
+## Change order and type
+
+You can change the field type used. Instead of using radio buttons or check boxes, you may prefer to use select boxes instead.
+
+You can also change the order of any part of the form.  To do that, add a "Weight" suffix to the name of the part of the form you want to set a weight to to compose an attribute. The greater the weight the further down that part will be placed.
+
+Notice in the previous example that designation after the value by default. To invert that do the following:
+
+<donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" valueOptions="[10, 30, 50, 100]" designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]' askValueOther="true" askDesignationOther="true" valueType="select" designationType="select" designationWeight="1" valueWeight="2" ></donation-form>
+
+## Include comment and anonymous donation button
+
+On top of all that you may allow the donner to ask to remain anonymous and to leave a comment.
+
+Please notice that the "anonymous" options only means that the donner does not wish to be publicly recognized.
+
+<donation-form askComment askAnonymous valueOptions="[20, 100, 250]" > </donation-form>
+
+## Include your own markup
+
+You can include whatever markup you wish above with your form parts. Simply use the name of that specific part as the slot where to place it.
+
+<donation-form valueOptions="[1, 2, 3]" askValueOther="askValueOther" askComment="askComment" askAnonymous="askAnonymous" askDesignation="askDesignation" commentWeight="8" anonymousWeight="0" valueWeight="8" valueType="select"><p slot="value"> You have a crucial role in our mission. None of this could have been done without your generous donation.   </p> <strong slot="anonymous">Would you like to remain anonymous?</strong> <p slot="comment">Would you like to leave us a message?</p> </donation-form>
+
+
+## Add your own markup after any form part
+
+If you want to add a markup after any given part, you can use the "after-part" slot names, where part stands for the part's name.
+
+<donation-form askValueOther askComment askAnonymous askDesignation > <div slot="after-comment">After Comment</div> <div slot="after-anonymous">After Anonymous</div> </donation-form>
+
