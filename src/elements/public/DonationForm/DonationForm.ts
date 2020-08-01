@@ -283,8 +283,8 @@ export class DonationForm extends Translatable {
 
   private handleSubmit = {
     form: this.form,
-    handleEvent: (e: Event) => {
-      const fd: any = new FormData(this.form);
+    handleEvent: () => {
+      //const fd: any = new FormData(this.form);
       this.form!.submit();
     },
   };
