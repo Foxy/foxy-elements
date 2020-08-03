@@ -1,0 +1,151 @@
+import { html } from 'lit-html';
+import { Story, Preview, Meta, Props } from '@open-wc/demoing-storybook';
+import { withKnobs, withWebComponentsKnobs } from '@open-wc/demoing-storybook';
+import { bookmark, store, user } from './mocks';
+import './index';
+
+export const handleRequest = evt => {
+  evt.detail.handle(async url => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    //
+    if (url === '/') return new Response(JSON.stringify(bookmark));
+    if (url === '/stores/8') return new Response(JSON.stringify(store));
+    if (url === '/users/2') return new Response(JSON.stringify(user));
+    //
+    return new Response(null, { status: 404 });
+  });
+};
+
+<Meta
+  title="Admin"
+  decorators={[withKnobs, withWebComponentsKnobs]}
+  parameters={{ component: 'foxy-admin', options: { selectedPanel: 'storybookjs/knobs/panel' } }}
+/>
+
+# Admin
+
+The `<foxy-admin>` element is a full admin dashboard in a single themable web component.
+Since it doesn't have a specific hAPI relation assigned to it, but packs a lot of functionality,
+we call it a **view element**. Other examples of view elements include `<foxy-customer-portal>`,
+`<foxy-checkout>` and `<foxy-cart>`.
+
+## Setup
+
+Just like with every other view element, you'll need to **set `<foxy-admin>`'s width and height explicitly
+as your first step**. You'll most likely want to fill the entire screen with it, and in that case we suggest
+absolute or fixed positioning instead of viewport units to avoid scrolling issues in mobile browsers.
+Once you set the element size, you should see the following message:
+
+<Preview withToolbar>
+  <Story name="Default" height="320px">
+    {html`<foxy-admin class="absolute inset-0"></foxy-admin>`}
+  </Story>
+</Preview>
+
+That means `<foxy-admin>` can't find a data source – by default all our components are
+backend-agnostic, so it's up to the developer to connect them to the API. If you're working with
+our hAPI, it's as easy as wrapping `<foxy-admin>` into `<foxy-api>`:
+
+```html
+<foxy-api endpoint="https://foxy-demo.foxycart.com/s/admin">
+  <foxy-admin></foxy-admin>
+</foxy-api>
+```
+
+Now the admin element knows which backend to connect to and you can start using it right away:
+
+<Preview withToolbar>
+  <Story name="Configured" height="640px">
+    {html`<foxy-admin class="absolute inset-0" @request=${handleRequest}></foxy-admin>`}
+  </Story>
+</Preview>
+
+If you'd like to use your own backend or would like to intercept API requests for one reason or another
+(e.g. for demos or development, like we do with Storybook here), you'll need
+to **add a custom request handler**. You can make it a custom element like `<foxy-api>` if you're
+into declarative approach or you can subscribe to the `request` event directly on the `<foxy-admin>`
+component:
+
+```js
+element.addEventListener('request', evt => {
+  const { handle, source } = evt.detail;
+  // TODO
+});
+```
+
+Here's how it works. Whenever any of our elements needs to make an API call, it emits a `request` event.
+It's an instance of a custom `RequestEvent` class extending the native `CustomEvent`. It can bubble
+through the DOM just like many other native events, it's composable, meaning that it can cross the
+Shadow DOM boundary, and it's cancelable too – that's how the source element knows that the API
+call has been intercepted by an external adapter and is queued for processing.
+
+The `detail` property of that event includes two very useful properties: `source`, which is a reference
+to the element that emitted the event (`Event.target` can be unreliable with Shadow DOM), and `handle` –
+the method you'll need to call to intercept the API request.
+
+Calling `handle` will automatically cancel the event and stop its immediate propagation, letting
+your code take control. This method accepts a callback function with the same arguments
+as the native `fetch` (`input: RequestInfo, init?: RequestInit`), and it expects
+the same output (`Promise<Response>`) as well, so if you know how to use `fetch`, you
+already know how to work with the `handle` method. Here's a few examples:
+
+### Use custom auth and origin
+
+```js
+element.addEventListener('request', evt => {
+  evt.detail.handle((url, options) => {
+    options.headers = options.headers ?? {};
+    options.headers.Authorization = 'Bearer <Your-Token-Here>';
+    return fetch(new URL(url, 'https://example.com/'), options);
+  });
+});
+```
+
+### Simulate a server error
+
+```js
+element.addEventListener('request', evt => {
+  evt.detail.handle((url, options) => {
+    return new Response('barf', { status: 500 });
+  });
+});
+```
+
+## Customize
+
+Just like every other element in this package, `<foxy-admin>` is powered by an amazing Vaadin Lumo
+theme that comes with a ton of customizable CSS Custom Properties. You can use a [theme editor](https://demo.vaadin.com/lumo-editor/)
+by Vaadin team to create your own look and then copy the configuration into the page. Please keep
+in mind that your styles need to come **after** the Lumo styles in `<head>` – or anywhere in `<body>`.
+It's also quite common to override the defaults at root level (`html`), but you can also do it
+on `foxy-admin` as well as on any of its parent nodes.
+
+```html
+<style>
+  html {
+    --lumo-primary-text-color: rgb(235, 89, 5);
+    --lumo-primary-color-50pct: rgba(235, 89, 5, 0.5);
+    --lumo-primary-color-10pct: rgba(235, 89, 5, 0.1);
+  }
+</style>
+
+<foxy-api endpoint="https://foxy-demo.foxycart.com/s/admin">
+  <foxy-admin></foxy-admin>
+</foxy-api>
+```
+
+## Localize
+
+Our admin will try to detect and use the most suitable language for the user agent, but you can always
+override the automatic detection by setting the `lang` attribute/property. The element will pass this
+value down to its children.
+
+```html
+<foxy-api endpoint="https://foxy-demo.foxycart.com/s/admin">
+  <foxy-admin lang="es"></foxy-admin>
+</foxy-api>
+```
+
+## API
+
+<Props of="foxy-admin" />
