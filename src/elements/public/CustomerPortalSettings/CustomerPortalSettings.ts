@@ -1,7 +1,6 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import { html, property } from 'lit-element';
-import { Stateful } from '../../../mixins/stateful';
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
 
@@ -11,20 +10,12 @@ import { FrequencyModificationChangeEvent } from './private/FrequencyModificatio
 import { NextDateModification } from './private/NextDateModification/NextDateModification';
 import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
 
-import {
-  CustomerPortalSettingsContext,
-  CustomerPortalSettingsSchema,
-  CustomerPortalSettingsEvent,
-} from './types';
-
 import { machine } from './machine';
 import { Section, Page, Code, I18N, Skeleton } from '../../private/index';
+import { Translatable } from '../../../mixins/translatable';
+import { interpret } from 'xstate';
 
-export class CustomerPortalSettings extends Stateful<
-  CustomerPortalSettingsContext,
-  CustomerPortalSettingsSchema,
-  CustomerPortalSettingsEvent
-> {
+export class CustomerPortalSettings extends Translatable {
   public static get scopedElements() {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
@@ -46,8 +37,13 @@ export class CustomerPortalSettings extends Stateful<
   private __legacyUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.js`;
 
   constructor() {
-    super(() => machine, 'customer-portal-settings');
+    super('customer-portal-settings');
   }
+
+  public service = interpret(machine)
+    .onChange(() => this.requestUpdate())
+    .onTransition(() => this.requestUpdate())
+    .start();
 
   @property({ type: Boolean, noAccessor: true })
   public get disabled() {
