@@ -72,7 +72,7 @@ export class Choice extends Themeable {
         ${this.items.map(
           (item, index) => html`
             ${index > 0
-              ? html`<div class="border-t border-shade-10" style="margin: 8px 0 8px 35px"></div>`
+              ? html`<div class="border-t border-contrast-10" style="margin: 8px 0 8px 35px"></div>`
               : ''}
 
             <vaadin-radio-button

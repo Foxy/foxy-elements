@@ -8,8 +8,8 @@ export interface ChoiceContext {
 
 export interface ChoiceStateSchema {
   states: {
-    enabled: {};
-    disabled: {};
+    enabled: Record<string, unknown>;
+    disabled: Record<string, unknown>;
   };
 }
 

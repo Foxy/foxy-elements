@@ -8,5 +8,9 @@
 **/*.test.js
 **/*.test.js.map
 
+# storybook files
+**/*.stories.js
+**/*.stories.js.map
+
 # and some system files
 .DS_Store

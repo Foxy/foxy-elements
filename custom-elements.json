@@ -1,0 +1,133 @@
+{
+  "version": "experimental",
+  "tags": [
+    {
+      "name": "foxy-admin",
+      "path": "./src/elements/public/Admin/index.ts",
+      "attributes": [
+        {
+          "name": "navigation",
+          "type": "Navigation",
+          "default": "[{\"icon\":\"foxy:dashboard\",\"label\":\"nav.dashboard\",\"name\":\"dashboard\"},{\"icon\":\"foxy:management\",\"label\":\"nav.management\",\"children\":[{\"label\":\"nav.transactions\",\"name\":\"transactions\"},{\"label\":\"nav.subscriptions\",\"name\":\"subscriptions\"},{\"label\":\"nav.customers\",\"name\":\"customers\"},{\"label\":\"nav.coupons\",\"name\":\"coupons\"},{\"label\":\"nav.products\",\"name\":\"products\"},{\"label\":\"nav.reports\",\"name\":\"reports\"}]},{\"icon\":\"foxy:settings\",\"label\":\"nav.settings\",\"children\":[{\"label\":\"nav.elements\",\"children\":[{\"label\":\"nav.cart\",\"name\":\"cart-settings\"},{\"label\":\"nav.checkout\",\"name\":\"checkout-settings\"},{\"label\":\"nav.receipt\",\"name\":\"receipt-settings\"},{\"label\":\"nav.customer_portal\",\"name\":\"customer-portal-settings\"}]},{\"label\":\"nav.inventory\",\"children\":[{\"label\":\"nav.products\",\"name\":\"products-settings\"},{\"label\":\"nav.payments\",\"name\":\"payments-settings\"},{\"label\":\"nav.shipping\",\"name\":\"shipping-settings\"},{\"label\":\"nav.taxes\",\"name\":\"taxes-settings\"}]},{\"label\":\"nav.other\",\"children\":[{\"label\":\"nav.emails\",\"name\":\"emails-settings\"},{\"label\":\"nav.integrations\",\"name\":\"integrations-settings\"}]}]},{\"icon\":\"foxy:billing\",\"label\":\"nav.billing\",\"name\":\"billing\"},{\"slot\":\"bottom\",\"icon\":\"foxy:profile\",\"label\":\"nav.profile\",\"name\":\"profile\"},{\"slot\":\"bottom\",\"hide\":\"mobile\",\"icon\":\"foxy:signout\",\"label\":\"nav.signout\",\"name\":\"signout\"}]"
+        },
+        {
+          "name": "router",
+          "type": "Router",
+          "default": "\"new Router()\""
+        },
+        {
+          "name": "routes",
+          "type": "RouteWithAction | RouteWithBundle | RouteWithChildren | RouteWithComponent | RouteWithRedirect | Route[]",
+          "default": "[{\"path\":\"/\",\"name\":\"dashboard\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/transactions\",\"name\":\"transactions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/subscriptions\",\"name\":\"subscriptions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/customers\",\"name\":\"customers\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/coupons\",\"name\":\"coupons\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/products\",\"name\":\"products\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/reports\",\"name\":\"reports\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/general\",\"name\":\"general-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/cart\",\"name\":\"cart-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/checkout\",\"name\":\"checkout-settings\",\"component\":\"x-not-implemented\"},{\"name\":\"customer-portal-settings\",\"path\":\"/settings/customer-portal\",\"component\":\"foxy-customer-portal-settings\"},{\"path\":\"/settings/products\",\"name\":\"products-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/shipping\",\"name\":\"shipping-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/taxes\",\"name\":\"taxes-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/payments\",\"name\":\"payments-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/receipt\",\"name\":\"receipt-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/emails\",\"name\":\"emails-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/integrations\",\"name\":\"integrations-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/billing\",\"name\":\"billing\",\"component\":\"x-not-implemented\"},{\"path\":\"/profile\",\"name\":\"profile\",\"component\":\"x-not-implemented\"},{\"path\":\"/signout\",\"name\":\"signout\",\"component\":\"x-not-implemented\"},{\"path\":\"(.*)\",\"component\":\"x-not-implemented\"}]"
+        },
+        {
+          "name": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "navigation",
+          "attribute": "navigation",
+          "type": "Navigation",
+          "default": "[{\"icon\":\"foxy:dashboard\",\"label\":\"nav.dashboard\",\"name\":\"dashboard\"},{\"icon\":\"foxy:management\",\"label\":\"nav.management\",\"children\":[{\"label\":\"nav.transactions\",\"name\":\"transactions\"},{\"label\":\"nav.subscriptions\",\"name\":\"subscriptions\"},{\"label\":\"nav.customers\",\"name\":\"customers\"},{\"label\":\"nav.coupons\",\"name\":\"coupons\"},{\"label\":\"nav.products\",\"name\":\"products\"},{\"label\":\"nav.reports\",\"name\":\"reports\"}]},{\"icon\":\"foxy:settings\",\"label\":\"nav.settings\",\"children\":[{\"label\":\"nav.elements\",\"children\":[{\"label\":\"nav.cart\",\"name\":\"cart-settings\"},{\"label\":\"nav.checkout\",\"name\":\"checkout-settings\"},{\"label\":\"nav.receipt\",\"name\":\"receipt-settings\"},{\"label\":\"nav.customer_portal\",\"name\":\"customer-portal-settings\"}]},{\"label\":\"nav.inventory\",\"children\":[{\"label\":\"nav.products\",\"name\":\"products-settings\"},{\"label\":\"nav.payments\",\"name\":\"payments-settings\"},{\"label\":\"nav.shipping\",\"name\":\"shipping-settings\"},{\"label\":\"nav.taxes\",\"name\":\"taxes-settings\"}]},{\"label\":\"nav.other\",\"children\":[{\"label\":\"nav.emails\",\"name\":\"emails-settings\"},{\"label\":\"nav.integrations\",\"name\":\"integrations-settings\"}]}]},{\"icon\":\"foxy:billing\",\"label\":\"nav.billing\",\"name\":\"billing\"},{\"slot\":\"bottom\",\"icon\":\"foxy:profile\",\"label\":\"nav.profile\",\"name\":\"profile\"},{\"slot\":\"bottom\",\"hide\":\"mobile\",\"icon\":\"foxy:signout\",\"label\":\"nav.signout\",\"name\":\"signout\"}]"
+        },
+        {
+          "name": "router",
+          "attribute": "router",
+          "type": "Router",
+          "default": "\"new Router()\""
+        },
+        {
+          "name": "routes",
+          "attribute": "routes",
+          "type": "RouteWithAction | RouteWithBundle | RouteWithChildren | RouteWithComponent | RouteWithRedirect | Route[]",
+          "default": "[{\"path\":\"/\",\"name\":\"dashboard\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/transactions\",\"name\":\"transactions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/subscriptions\",\"name\":\"subscriptions\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/customers\",\"name\":\"customers\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/coupons\",\"name\":\"coupons\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/products\",\"name\":\"products\",\"component\":\"x-not-implemented\"},{\"path\":\"/management/reports\",\"name\":\"reports\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/general\",\"name\":\"general-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/cart\",\"name\":\"cart-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/checkout\",\"name\":\"checkout-settings\",\"component\":\"x-not-implemented\"},{\"name\":\"customer-portal-settings\",\"path\":\"/settings/customer-portal\",\"component\":\"foxy-customer-portal-settings\"},{\"path\":\"/settings/products\",\"name\":\"products-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/shipping\",\"name\":\"shipping-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/taxes\",\"name\":\"taxes-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/payments\",\"name\":\"payments-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/receipt\",\"name\":\"receipt-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/emails\",\"name\":\"emails-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/settings/integrations\",\"name\":\"integrations-settings\",\"component\":\"x-not-implemented\"},{\"path\":\"/billing\",\"name\":\"billing\",\"component\":\"x-not-implemented\"},{\"path\":\"/profile\",\"name\":\"profile\",\"component\":\"x-not-implemented\"},{\"path\":\"/signout\",\"name\":\"signout\",\"component\":\"x-not-implemented\"},{\"path\":\"(.*)\",\"component\":\"x-not-implemented\"}]"
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "styles",
+          "description": "Shared TailwindCSS stylesheet generated by the bundler, dev server or\nany other project building setup included with this package. The content in the\ntemplate literal below will be replaced with the relevant styles during build – DO NOT change this.\nUsing `unsafeCSS` to skip additional sanitization since it's our own code anyway.",
+          "type": "CSSResult | CSSResultArray",
+          "default": "[null,null]"
+        }
+      ]
+    },
+    {
+      "name": "foxy-customer-portal-settings",
+      "path": "./src/elements/public/CustomerPortalSettings/index.ts",
+      "attributes": [
+        {
+          "name": "disabled",
+          "type": "boolean"
+        },
+        {
+          "name": "service",
+          "description": "Active interpreter service (can be shut down and replaced)."
+        },
+        {
+          "name": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean"
+        },
+        {
+          "name": "service",
+          "attribute": "service",
+          "description": "Active interpreter service (can be shut down and replaced)."
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "styles",
+          "description": "Shared TailwindCSS stylesheet generated by the bundler, dev server or\nany other project building setup included with this package. The content in the\ntemplate literal below will be replaced with the relevant styles during build – DO NOT change this.\nUsing `unsafeCSS` to skip additional sanitization since it's our own code anyway.",
+          "type": "CSSResult | CSSResultArray",
+          "default": "[null,null]"
+        }
+      ],
+      "events": [
+        {
+          "name": "change"
+        }
+      ]
+    }
+  ]
+}

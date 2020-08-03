@@ -30,10 +30,7 @@ const samples: Record<string, CustomerPortalSettingsResource> = {
       allowNextDateModification: false,
     },
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     date_created: '2020-07-17T21:27:00.121Z',
-
-    // eslint-disable-next-line @typescript-eslint/camelcase
     date_modified: '2020-07-17T21:27:00.121Z',
   },
 
@@ -69,10 +66,7 @@ const samples: Record<string, CustomerPortalSettingsResource> = {
       ],
     },
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     date_created: '2020-07-17T21:27:00.121Z',
-
-    // eslint-disable-next-line @typescript-eslint/camelcase
     date_modified: '2020-07-17T21:27:00.121Z',
   },
 };

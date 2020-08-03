@@ -5,6 +5,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
 import { cdn, version } from '../env';
 import { Themeable } from './themeable';
+import { property } from 'lit-element';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -120,10 +121,10 @@ export abstract class Translatable extends Themeable {
    * content in. Assigning a value to this property will load new
    * translations in background and trigger a render afterwards.
    */
+  @property({ type: String, noAccessor: true })
   public get lang(): string {
     return this.__lang;
   }
-
   public set lang(value: string) {
     if (!value || value === 'undefined') return;
     this.__lang = value;
@@ -132,10 +133,10 @@ export abstract class Translatable extends Themeable {
     });
   }
 
+  @property({ type: String, noAccessor: true })
   public get ns() {
     return this.__ns;
   }
-
   public set ns(value: string) {
     this.__ns = value;
     this._i18n.loadNamespaces(value).then(() => {
