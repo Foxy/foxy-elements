@@ -1,13 +1,50 @@
-export interface RequestEventDetail {
-  intercept: (fetch: Window['fetch']) => void;
+export class UnhandledRequestError extends Error {}
+
+export interface RequestEventPayload<TSource extends HTMLElement> {
+  source: TSource;
+  handle: (fetch: Window['fetch']) => Promise<void>;
 }
 
-export class RequestEvent extends CustomEvent<RequestEventDetail> {
-  constructor(detail: RequestEventDetail) {
+export interface RequestSendInit<TSource extends HTMLElement> {
+  source: TSource;
+  init: Parameters<Window['fetch']>;
+}
+
+export interface RequestEventInit<TSource extends HTMLElement> extends RequestSendInit<TSource> {
+  resolve: (response: Response) => void;
+  reject: (error: Error) => void;
+}
+
+export class RequestEvent<TSource extends HTMLElement> extends CustomEvent<
+  RequestEventPayload<TSource>
+> {
+  public static emit<TSource extends HTMLElement>(
+    params: RequestSendInit<TSource>
+  ): Promise<Response> {
+    return new Promise<Response>((resolve, reject) => {
+      const event = new RequestEvent<HTMLElement>({ resolve, reject, ...params });
+      if (params.source.dispatchEvent(event)) reject(new UnhandledRequestError());
+    });
+  }
+
+  public constructor({ source, resolve, reject, init }: RequestEventInit<TSource>) {
     super('request', {
+      cancelable: true,
       composed: true,
       bubbles: true,
-      detail,
+      detail: {
+        source,
+        handle: async (fetch: Window['fetch']): Promise<void> => {
+          this.stopImmediatePropagation();
+          this.preventDefault();
+
+          try {
+            resolve(await fetch(...init));
+          } catch (err) {
+            reject(err);
+          }
+        },
+      },
     });
   }
 }
