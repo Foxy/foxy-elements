@@ -1,5 +1,5 @@
 import { Translatable } from '../../../../mixins/translatable';
-import { QuickCheckoutProduct } from '../types';
+import { QuickOrderProduct } from '../types';
 import { html } from 'lit-element';
 import { Checkbox, Section, Group, I18N } from '../../../private/index';
 
@@ -15,7 +15,7 @@ export class Product extends Translatable {
   }
 
   public constructor() {
-    super('quick-checkout');
+    super('quick-order');
   }
 
   private __default_image = {
@@ -23,7 +23,7 @@ export class Product extends Translatable {
     alt: 'A sketch of a shopping cart with three boxes',
   };
 
-  public value: QuickCheckoutProduct | undefined;
+  public value: QuickOrderProduct | undefined;
 
   public render() {
     return html`

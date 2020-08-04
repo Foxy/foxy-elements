@@ -1,4 +1,4 @@
-export interface QuickCheckoutProduct {
+export interface QuickOrderProduct {
   name: string;
   price: number;
   image?: string;
@@ -20,7 +20,7 @@ export interface QuickCheckoutProduct {
   [propName: string]: string | number | undefined;
 }
 
-export interface QuickCheckoutResource {
+export interface QuickOrderResource {
   _links: {
     self: { href: string };
   };
@@ -54,35 +54,35 @@ export interface QuickCheckoutResource {
   };
 }
 
-export type QuickCheckoutContext = undefined | QuickCheckoutResource;
+export type QuickOrderContext = undefined | QuickOrderResource;
 
-export interface QuickCheckoutSchema {
+export interface QuickOrderSchema {
   states: {
-    enabled: {};
-    disabled: {};
+    enabled: any;
+    disabled: any;
   };
 }
 
-export interface QuickCheckoutDisableEvent {
+export interface QuickOrderDisableEvent {
   type: 'DISABLE';
 }
 
-export interface QuickCheckoutEnableEvent {
+export interface QuickOrderEnableEvent {
   type: 'ENABLE';
 }
 
-export interface QuickCheckoutSetFrequencyModificationEvent {
+export interface QuickOrderSetFrequencyModificationEvent {
   type: 'SET_FREQUENCY_MODIFICATION';
-  value: QuickCheckoutResource['subscriptions']['allowFrequencyModification'];
+  value: QuickOrderResource['subscriptions']['allowFrequencyModification'];
 }
 
-export interface QuickCheckoutSetNextDateModificationEvent {
+export interface QuickOrderSetNextDateModificationEvent {
   type: 'SET_NEXT_DATE_MODIFICATION';
-  value: QuickCheckoutResource['subscriptions']['allowNextDateModification'];
+  value: QuickOrderResource['subscriptions']['allowNextDateModification'];
 }
 
-export type QuickCheckoutEvent =
-  | QuickCheckoutDisableEvent
-  | QuickCheckoutEnableEvent
-  | QuickCheckoutSetFrequencyModificationEvent
-  | QuickCheckoutSetNextDateModificationEvent;
+export type QuickOrderEvent =
+  | QuickOrderDisableEvent
+  | QuickOrderEnableEvent
+  | QuickOrderSetFrequencyModificationEvent
+  | QuickOrderSetNextDateModificationEvent;

@@ -4,21 +4,12 @@ import { html, property } from 'lit-element';
 import { Stateful } from '../../../mixins/stateful';
 import { Product } from './private/Product';
 
-import {
-  QuickCheckoutContext,
-  QuickCheckoutSchema,
-  QuickCheckoutEvent,
-  QuickCheckoutProduct,
-} from './types';
+import { QuickOrderContext, QuickOrderSchema, QuickOrderEvent, QuickOrderProduct } from './types';
 
 import { machine } from './machine';
 import { Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
-export class QuickCheckout extends Stateful<
-  QuickCheckoutContext,
-  QuickCheckoutSchema,
-  QuickCheckoutEvent
-> {
+export class QuickOrder extends Stateful<QuickOrderContext, QuickOrderSchema, QuickOrderEvent> {
   public static get scopedElements() {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
@@ -38,11 +29,11 @@ export class QuickCheckout extends Stateful<
   private __legacyUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.js`;
 
   constructor() {
-    super(() => machine, 'quick-checkout');
+    super(() => machine, 'quick-order');
   }
 
   @property({ type: Array })
-  products: QuickCheckoutProduct[] = [];
+  products: QuickOrderProduct[] = [];
 
   @property({ type: Boolean, noAccessor: true })
   public get disabled() {
@@ -69,7 +60,7 @@ export class QuickCheckout extends Stateful<
           ></x-i18n>
 
           ${this.products.map(
-            (p: QuickCheckoutProduct) => html` <x-product
+            (p: QuickOrderProduct) => html` <x-product
               .lang=${this.lang}
               .disabled=${this.disabled}
               .value=${p}

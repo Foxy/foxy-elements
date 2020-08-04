@@ -1,8 +1,8 @@
 import { Machine, actions } from 'xstate/dist/xstate.web.js';
 
-import { QuickCheckoutContext, QuickCheckoutSchema, QuickCheckoutEvent } from './types';
+import { QuickOrderContext, QuickOrderSchema, QuickOrderEvent } from './types';
 
-export const machine = Machine<QuickCheckoutContext, QuickCheckoutSchema, QuickCheckoutEvent>(
+export const machine = Machine<QuickOrderContext, QuickOrderSchema, QuickOrderEvent>(
   {
     initial: 'enabled',
     states: {

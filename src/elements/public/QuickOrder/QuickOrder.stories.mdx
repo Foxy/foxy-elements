@@ -1,0 +1,19 @@
+import { QuickOrder } from '/dist/elements/public/QuickOrder/QuickOrder.js';
+import { Meta, withKnobs, withWebComponentsKnobs, html,  Story, Preview  } from '@open-wc/demoing-storybook';
+window.customElements.define('quick-order', QuickOrder);
+
+<Meta 
+ title="Quick Order" 
+ decorators={[withKnobs, withWebComponentsKnobs]}
+ parameters={{ component: 'quick-order'}}
+/>
+
+# Quick Order
+
+
+<Preview>
+  <Story name="Basic Usage">
+    {html`<quick-order></quick-order>`}
+  </Story>
+</Preview>
+
