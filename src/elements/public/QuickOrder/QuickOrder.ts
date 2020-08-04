@@ -1,15 +1,16 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import { html, property } from 'lit-element';
-import { Stateful } from '../../../mixins/stateful';
+import { Translatable } from '../../../mixins/translatable';
+import { interpret } from 'xstate';
 import { Product } from './private/Product';
 
-import { QuickOrderContext, QuickOrderSchema, QuickOrderEvent, QuickOrderProduct } from './types';
+import { QuickOrderProduct } from './types';
 
 import { machine } from './machine';
 import { Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
-export class QuickOrder extends Stateful<QuickOrderContext, QuickOrderSchema, QuickOrderEvent> {
+export class QuickOrder extends Translatable {
   public static get scopedElements() {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
@@ -29,7 +30,7 @@ export class QuickOrder extends Stateful<QuickOrderContext, QuickOrderSchema, Qu
   private __legacyUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.js`;
 
   constructor() {
-    super(() => machine, 'quick-order');
+    super('quick-order');
   }
 
   @property({ type: Array })
@@ -43,12 +44,16 @@ export class QuickOrder extends Stateful<QuickOrderContext, QuickOrderSchema, Qu
     this.service.send(value ? 'DISABLE' : 'ENABLE');
   }
 
-  public render() {
-    if (!this.service.state.context) return;
+  public service = interpret(machine)
+    .onChange(() => this.requestUpdate())
+    .onTransition(() => this.requestUpdate())
+    .start();
 
+  public render() {
     return html`
+      <div>This is Quick Order</div>
       <x-page>
-        ${this.__renderHeader()}
+        Produtos ${this.products} ${this.__renderHeader()}
 
         <x-section>
           <x-i18n slot="title" key="quickstart.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
@@ -60,7 +65,7 @@ export class QuickOrder extends Stateful<QuickOrderContext, QuickOrderSchema, Qu
           ></x-i18n>
 
           ${this.products.map(
-            (p: QuickOrderProduct) => html` <x-product
+            (p: QuickOrderProduct) => html`<x-product
               .lang=${this.lang}
               .disabled=${this.disabled}
               .value=${p}

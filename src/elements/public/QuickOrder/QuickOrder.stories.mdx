@@ -1,19 +1,35 @@
 import { QuickOrder } from '/dist/elements/public/QuickOrder/QuickOrder.js';
-import { Meta, withKnobs, withWebComponentsKnobs, html,  Story, Preview  } from '@open-wc/demoing-storybook';
+import { Product } from '/dist/elements/public/QuickOrder/private/Product.js';
+import { Meta, html,  Story, Preview  } from '@open-wc/demoing-storybook';
 window.customElements.define('quick-order', QuickOrder);
+window.customElements.define('product-item', Product);
+console.log(QuickOrder);
 
 <Meta 
  title="Quick Order" 
- decorators={[withKnobs, withWebComponentsKnobs]}
  parameters={{ component: 'quick-order'}}
 />
 
 # Quick Order
 
+You may feed the products to the Form using the products parameter, using an array, or add individual producs to the form using the product item custom tag.
 
+
+Using an array.
 <Preview>
-  <Story name="Basic Usage">
-    {html`<quick-order></quick-order>`}
+  <Story name="Using Arrays">
+    {html`<quick-order products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'></quick-order>`}
   </Story>
 </Preview>
 
+
+Using the custom tag
+<Preview>
+  <Story name="Using product item custom element">
+	{html`<quick-order>
+	<product-item></product-item>
+		<product-item></product-item>
+		<product-item></product-item>
+		<product-item></product-item>
+	</quick-order>`}
+  </Story> </Preview>
