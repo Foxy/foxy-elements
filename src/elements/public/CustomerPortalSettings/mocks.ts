@@ -43,3 +43,36 @@ export const customerPortalSettings: FxCustomerPortalSettings = {
     ],
   },
 };
+
+export const customerPortalSettingsMinimal: FxCustomerPortalSettings = {
+  _links: {
+    curies: [
+      {
+        name: 'fx',
+        href: 'https://api.foxycart.com/rels/{rel}',
+        templated: true,
+      },
+    ],
+    self: {
+      href: 'https://foxy.io/s/admin/stores/8/customer_portal_settings',
+      title: 'Store Customer Portal Settings',
+    },
+    'fx:store': {
+      href: 'https://api.foxy.test/stores/8',
+      title: 'This Store',
+    },
+  },
+
+  sso: true,
+  jwtSharedSecret: 'JWT-SHARED-SECRET-VALUE',
+  sessionLifespanInMinutes: 10080,
+  allowedOrigins: [],
+
+  subscriptions: {
+    allowFrequencyModification: false,
+    allowNextDateModification: false,
+  },
+
+  date_created: '2020-07-17T21:27:00.121Z',
+  date_modified: '2020-07-17T21:27:00.121Z',
+};
