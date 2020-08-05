@@ -27,8 +27,7 @@ export class Product extends Translatable {
 
   public render() {
     return html`
-      <div>This is Product</div>
-      <x-section
+      <x-section>
         <x-group frame>
           <article class="product flex flex-row flex-wrap justify-between overflow-hidden">
             <img
