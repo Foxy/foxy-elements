@@ -57,11 +57,11 @@ export class DonationForm extends Translatable {
     };
   }
 
-  public defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
+  private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
   public currency = '';
 
   @property({ type: String })
-  public storeSubdomain = this.defaultSubdomain;
+  public storeSubdomain = this.__defaultSubdomain;
 
   @property({ type: String })
   public name = 'FOXYDONATIONFORM';
@@ -199,7 +199,7 @@ export class DonationForm extends Translatable {
           if (this.storeSubdomain.endsWith('.foxycart.com')) {
             storeName = this.storeSubdomain.replace('.foxycart.com', '');
           }
-          script.src = `https://cdn.foxycart.com/${storeName}/loader.js`;
+          script.src = src;
           document.head.appendChild(script);
         }
       }
@@ -232,7 +232,7 @@ export class DonationForm extends Translatable {
       this.fieldPrice!.setAttribute('value', this.valueOptions[0]);
     }
     this.value = this.fieldPrice!.value;
-    if (this.defaultSubdomain == this.storeSubdomain) {
+    if (this.__defaultSubdomain == this.storeSubdomain) {
       console.error(this._t('donation.errorNoStoreSubdomain'));
     }
   }
