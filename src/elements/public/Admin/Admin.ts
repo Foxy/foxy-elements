@@ -15,12 +15,12 @@ import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 type StoreCurie = keyof Omit<FxStore['_links'], 'curies'>;
 
 interface RelElement extends Element {
-  constructor: { rel: string };
   href: string;
+  rel: string;
 }
 
 function isRelElement(node: Node): node is RelElement {
-  return node.nodeType === Node.ELEMENT_NODE && 'rel' in node.constructor;
+  return node.nodeType === Node.ELEMENT_NODE && 'rel' in node;
 }
 
 export class Admin extends Translatable {
@@ -76,7 +76,7 @@ export class Admin extends Translatable {
         const node = addedNodes[i];
         if (!isRelElement(node)) continue;
 
-        const curie = `fx:${node.constructor.rel}`;
+        const curie = `fx:${node.rel}`;
         const links = this.__service.state.context.store?._links;
 
         if (links && curie in links) node.href = links[curie as StoreCurie].href;
