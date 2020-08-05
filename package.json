@@ -9,6 +9,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json",
     "wca:watch": "onchange \"src/**/*.ts\" -- npm run wca",
