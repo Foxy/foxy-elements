@@ -57,114 +57,114 @@ export class DonationForm extends Translatable {
     };
   }
 
-  defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
-  currency = '';
+  public defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
+  public currency = '';
 
   @property({ type: String })
-  storeSubdomain = this.defaultSubdomain;
+  public storeSubdomain = this.defaultSubdomain;
 
   @property({ type: String })
-  name = 'FOXYDONATIONFORM';
+  public name = 'FOXYDONATIONFORM';
 
   @property({ type: String })
-  code = '';
+  public code = '';
 
   @property({ type: String })
-  image = '';
+  public image = '';
 
   @property({ type: String })
-  url = '';
+  public url = '';
 
   @query('input[name=name]')
-  fieldName?: HTMLInputElement;
+  public fieldName?: HTMLInputElement;
 
   @query('input[name=price]')
-  fieldPrice?: HTMLInputElement;
+  public fieldPrice?: HTMLInputElement;
 
   @query('input[name=designation]')
-  fieldDesignation?: HTMLInputElement;
+  public fieldDesignation?: HTMLInputElement;
 
   @query('input[name=quantity]')
-  fieldQuantity?: HTMLInputElement;
+  public fieldQuantity?: HTMLInputElement;
 
   @query('input[name=sub_frequency]')
-  fieldSubFrequency?: HTMLInputElement;
+  public fieldSubFrequency?: HTMLInputElement;
 
   @query('input[name=anonymous]')
-  fieldAnonymous?: HTMLInputElement;
+  public fieldAnonymous?: HTMLInputElement;
 
   @query('input[name=comment]')
-  fieldComment?: HTMLInputElement;
+  public fieldComment?: HTMLInputElement;
 
   @property({ type: String })
-  value = '100';
+  public value = '100';
 
   @property({ type: Number })
-  valueWeight = 1;
+  public valueWeight = 1;
 
   @property({ type: String })
-  valueType = 'radio';
+  public valueType = 'radio';
 
   @property({ type: Array })
-  valueOptions: string[] = [];
+  public valueOptions: string[] = [];
 
   @property({ type: String })
-  valueLabel = 'Select the value';
+  public valueLabel = 'Select the value';
 
   @property({ type: Boolean })
-  askValueOther = false;
+  public askValueOther = false;
 
   @property({ type: Boolean })
-  askDesignationOther = false;
+  public askDesignationOther = false;
 
   // Recurrence
   @property({ type: Boolean })
-  askRecurrence = false;
+  public askRecurrence = false;
 
   @property({ type: Number })
-  recurrenceWeight = 2;
+  public recurrenceWeight = 2;
 
   @property({ type: String })
-  recurrenceLabel = this._t('donation.defaultRecurrenceLabel');
+  public recurrenceLabel = this._t('donation.defaultRecurrenceLabel');
 
   @property({ type: String })
-  designationType = 'checkbox';
+  public designationType = 'checkbox';
 
   @property({ type: Number })
-  designationWeight = 5;
+  public designationWeight = 5;
 
   @property({ type: String })
-  designationLabel = this._t('donation.defaultDesignationLabel');
+  public designationLabel = this._t('donation.defaultDesignationLabel');
 
   @property({ type: Array })
-  designationOptions = [];
+  public designationOptions = [];
 
   // Anonymous
   @property({ type: Boolean })
-  askAnonymous = false;
+  public askAnonymous = false;
 
   @property({ type: Number })
-  anonymousWeight = 4;
+  public anonymousWeight = 4;
 
   // Comment
   @property({ type: Boolean })
-  askComment = false;
+  public askComment = false;
 
   @property({ type: Number })
-  commentWeight = 3;
+  public commentWeight = 3;
 
   @property({ type: String })
-  commentLabel = this._t('donation.defaultCommentLabel');
+  public commentLabel = this._t('donation.defaultCommentLabel');
 
   @property({ type: String })
-  commentPlaceholder = this._t('donation.defaultCommentPlaceholder');
+  public commentPlaceholder = this._t('donation.defaultCommentPlaceholder');
 
   // Submit Button
   @property({ type: Boolean })
-  submitButtonIcon = true;
+  public submitButtonIcon = true;
 
   @property({ type: String })
-  submitButtonText = this._t('donation.defaultSubmitButtonText');
+  public submitButtonText = this._t('donation.defaultSubmitButtonText');
 
   @query('form')
   form?: HTMLFormElement;
@@ -176,7 +176,7 @@ export class DonationForm extends Translatable {
 
   /** Creates a script tag for loader.js if it not exists and sets a
    * ready.done callback */
-  loadFoxy() {
+  private loadFoxy() {
     if (!('FC' in window)) {
       // Compute src
       let storeName = this.storeSubdomain;
@@ -219,13 +219,13 @@ export class DonationForm extends Translatable {
   }
 
   /** Update the form with values from FC */
-  updateFromFC() {
+  private updateFromFC() {
     const FC = (window as CustomWindow).FC;
     this.currency = FC.json.locale_info.currency_symbol;
   }
 
   /** LitElement life cicle */
-  firstUpdated() {
+  public firstUpdated() {
     if (!this.valueOptions.length) {
       this.fieldPrice!.setAttribute('value', this.value);
     } else {
@@ -237,7 +237,7 @@ export class DonationForm extends Translatable {
     }
   }
 
-  handleFrequency = {
+  private handleFrequency = {
     handleEvent: (e: { target: { value: string } }) => {
       if (e.target.value) {
         this.fieldSubFrequency!.value = e.target.value;
@@ -245,7 +245,7 @@ export class DonationForm extends Translatable {
     },
   };
 
-  handleDonationValue = {
+  private handleDonationValue = {
     handleEvent: (e: { target: { value: string } }) => {
       if (e.target.value) {
         this.fieldPrice!.value = e.target.value;
@@ -254,13 +254,13 @@ export class DonationForm extends Translatable {
     },
   };
 
-  handleDonationDesignation = {
+  private handleDonationDesignation = {
     handleEvent: (e: { target: { value: string } }) => {
       this.fieldDesignation!.value = JSON.stringify(e.target.value);
     },
   };
 
-  handleAnonymous = {
+  private handleAnonymous = {
     handleEvent: (e: { target: { checked: boolean } }) => {
       if (this.fieldAnonymous) {
         this.fieldAnonymous.value = e.target!.checked ? 'true' : 'false';
@@ -268,7 +268,7 @@ export class DonationForm extends Translatable {
     },
   };
 
-  handleComment = {
+  private handleComment = {
     handleEvent: (e: { target: { value: string } }) => {
       if (this.fieldComment) {
         this.fieldComment.value = e.target!.value;
@@ -276,15 +276,15 @@ export class DonationForm extends Translatable {
     },
   };
 
-  handleSubmit = {
+  private handleSubmit = {
     form: this.form,
-    handleEvent: (e: Event) => {
-      const fd: any = new FormData(this.form);
+    handleEvent: () => {
+      //const fd: any = new FormData(this.form);
       this.form!.submit();
     },
   };
 
-  weightSort(a: DonationFormField, b: DonationFormField) {
+  private weightSort(a: DonationFormField, b: DonationFormField) {
     if (+a.weight() < +b.weight()) {
       return -1;
     }
@@ -294,7 +294,7 @@ export class DonationForm extends Translatable {
     return 0;
   }
 
-  get fields(): DonationFormField[] {
+  private get fields(): DonationFormField[] {
     return [
       {
         name: 'valueTemplate',
@@ -369,7 +369,7 @@ export class DonationForm extends Translatable {
     ];
   }
 
-  render() {
+  public render() {
     return html`
       <form method="POST" action="https://${this.storeSubdomain}/cart">
         <slot></slot>

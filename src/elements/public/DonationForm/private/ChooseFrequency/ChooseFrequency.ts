@@ -21,21 +21,21 @@ export class ChooseFrequency extends Translatable {
   }
 
   @property({ type: String })
-  label = this._t('choosefrequency.label');
+  public label = this._t('choosefrequency.label');
 
   @property({ type: Boolean })
-  isRecurring = false;
+  public isRecurring = false;
 
   @property({ type: String })
-  value = '';
+  public value = '';
 
   @property({ type: Array })
-  options = ['1w', '.5m', '1m', '3m', '6m', '1y'];
+  public options = ['1w', '.5m', '1m', '3m', '6m', '1y'];
 
   @query('[name=recurring-value]')
-  field?: HTMLInputElement;
+  public field?: HTMLInputElement;
 
-  friendlyFrequency: Record<string, string> = {
+  private _friendlyFrequency: Record<string, string> = {
     '1w': this._t('choosefrequency.week'),
     '.5m': this._t('choosefrequency.halfmonth'),
     '1m': this._t('choosefrequency.month'),
@@ -44,28 +44,28 @@ export class ChooseFrequency extends Translatable {
     '1y': this._t('choosefrequency.year'),
   };
 
-  updated() {
+  public updated() {
     this.dispatchEvent(new Event('change'));
   }
 
-  handleIsRecurring() {
+  private _handleIsRecurring() {
     this.isRecurring = !this.isRecurring;
   }
 
-  handleValue = {
+  private _handleValue = {
     handleEvent: () => {
       this.value = this.field!.value;
     },
   };
 
-  render() {
+  public render() {
     return html`
-      <vaadin-checkbox value="${this.isRecurring}" @click="${this.handleIsRecurring}">
+      <vaadin-checkbox value="${this.isRecurring}" @click="${this._handleIsRecurring}">
         <slot name="recurring">${this._t('choosefrequency.defaultRecurringLabel')}</slot>
       </vaadin-checkbox>
       <slot></slot>
       <vaadin-select
-        @change=${this.handleValue}
+        @change=${this._handleValue}
         name="recurring-value"
         ?hidden="${!this.isRecurring}"
         label="${this.label}"
@@ -74,17 +74,11 @@ export class ChooseFrequency extends Translatable {
         <template>
           <vaadin-list-box>
             ${this.options.map(
-              o => html`<vaadin-item value="${o}">${this.friendlyFrequency[o]}</vaadin-item>`
+              o => html`<vaadin-item value="${o}">${this._friendlyFrequency[o]}</vaadin-item>`
             )}
           </vaadin-list-box>
         </template>
       </vaadin-select>
     `;
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'choose-frequency': ChooseFrequency;
   }
 }

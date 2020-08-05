@@ -4,7 +4,7 @@ import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
 
-customElements.define('x-dropdown', Dropdown);
+customElements.define('x-dropdown', Dropdown as any);
 
 function getSelect(elm: Dropdown) {
   const select = elm.shadowRoot!.querySelector('[data-testid=select]');

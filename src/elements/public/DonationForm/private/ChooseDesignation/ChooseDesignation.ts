@@ -28,62 +28,62 @@ export class ChooseDesignation extends Translatable {
   }
 
   @property({ type: String })
-  name = 'value';
+  public name = 'value';
 
   @property({ type: String })
-  label = '';
+  public label = '';
 
   @property({ type: String })
-  inputType = 'checkbox';
+  public inputType = 'checkbox';
 
-  designationOptions: string[] = [];
+  public designationOptions: string[] = [];
 
   // Is the "Other field active"?
-  activeOther = false;
+  private _activeOther = false;
 
   // Should there be a "Other" field?
   @property({ type: Boolean })
-  askValueOther = false;
+  public askValueOther = false;
 
   @property({ type: Array })
-  value: string[] = [];
+  public value: string[] = [];
 
   @query('#select-designations')
-  selectDesignations: any;
+  public selectDesignations: any;
 
   @query('vaadin-text-field')
-  input?: HTMLInputElement;
+  public input?: HTMLInputElement;
 
-  updated() {
+  public updated() {
     this.dispatchEvent(new Event('change'));
   }
 
-  firstUpdated() {
+  public firstUpdated() {
     if (this.selectDesignations) {
       this.selectDesignations.addEventListener(
         'selected-values-changed',
-        this.handleValue.handleEvent
+        this._handleValue.handleEvent
       );
     }
   }
 
-  handleValue = {
+  private _handleValue = {
     handleEvent: () => {
       if (this.selectDesignations.value as string | Array<string>) {
         if (typeof this.selectDesignations.value == 'string') {
           this.value = [this.selectDesignations.value];
         } else {
           // Verify that "other" field is checked
-          this.activeOther = this.selectDesignations.value.includes('other');
+          this._activeOther = this.selectDesignations.value.includes('other');
           // Rebuilds this.value with the value
           this.value = [].concat(this.selectDesignations.value.filter((i: string) => i != 'other'));
           // Includes the value from "other"
-          if (this.activeOther) {
+          if (this._activeOther) {
             this.value.push(this.input!.value);
           }
         }
       } else if (this.selectDesignations.selectedValues) {
-        this.activeOther = !!this.selectDesignations.selectedValues.find(
+        this._activeOther = !!this.selectDesignations.selectedValues.find(
           (i: number) => i == this.designationOptions.length
         );
         this.value = this.selectDesignations.selectedValues.map(
@@ -93,28 +93,28 @@ export class ChooseDesignation extends Translatable {
     },
   };
 
-  render() {
+  public render() {
     return html`
       <slot></slot>
 
       ${this.designationOptions.length
         ? this.inputType == 'select'
-          ? this.renderSelect()
-          : this.renderRadio()
-        : this.renderText()}
+          ? this._renderSelect()
+          : this._renderRadio()
+        : this._renderText()}
 
       <vaadin-text-field
-        ?hidden=${!this.activeOther}
+        ?hidden=${!this._activeOther}
         type="text"
         label=${this._t('choosedesignation.other')}
         name="other"
         placeholder=${this._t('choosedesignation.custom')}
-        @change=${this.handleValue}
+        @change=${this._handleValue}
       ></vaadin-text-field>
     `;
   }
 
-  renderSelect() {
+  private _renderSelect() {
     return html`
       <vaadin-list-box id="select-designations" multiple>
         <label>${this.label}</label>
@@ -126,11 +126,11 @@ export class ChooseDesignation extends Translatable {
     `;
   }
 
-  renderRadio() {
+  private _renderRadio() {
     return html`
       <vaadin-checkbox-group
         id="select-designations"
-        @change=${this.handleValue}
+        @change=${this._handleValue}
         theme="vertical"
         label="${this.label}"
       >
@@ -149,13 +149,13 @@ export class ChooseDesignation extends Translatable {
     `;
   }
 
-  renderText() {
+  private _renderText() {
     return html`
       <vaadin-text-field
         id="select-designations"
         type="text"
         label="${this.label}"
-        @change=${this.handleValue}
+        @change=${this._handleValue}
       >
       </vaadin-text-field>
     `;
