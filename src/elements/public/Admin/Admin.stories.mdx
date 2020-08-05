@@ -1,6 +1,7 @@
 import { html } from 'lit-html';
 import { Story, Preview, Meta, Props } from '@open-wc/demoing-storybook';
 import { withKnobs, withWebComponentsKnobs } from '@open-wc/demoing-storybook';
+import { customerPortalSettings } from '../CustomerPortalSettings/mocks';
 import { bookmark, store, user } from './mocks';
 import './index';
 
@@ -9,15 +10,18 @@ export const handleRequest = evt => {
     await new Promise(resolve => setTimeout(resolve, 500));
     //
     if (url === '/') return new Response(JSON.stringify(bookmark));
-    if (url === '/stores/8') return new Response(JSON.stringify(store));
-    if (url === '/users/2') return new Response(JSON.stringify(user));
+    if (url.endsWith('/stores/8')) return new Response(JSON.stringify(store));
+    if (url.endsWith('/users/2')) return new Response(JSON.stringify(user));
+    if (url.endsWith('/stores/8/customer_portal_settings')) {
+      return new Response(JSON.stringify(customerPortalSettings));
+    }
     //
     return new Response(null, { status: 404 });
   });
 };
 
 <Meta
-  title="Admin"
+  title="views | <foxy-admin>"
   decorators={[withKnobs, withWebComponentsKnobs]}
   parameters={{ component: 'foxy-admin', options: { selectedPanel: 'storybookjs/knobs/panel' } }}
 />

@@ -1,27 +1,37 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
-import { html, property } from 'lit-element';
-import { OriginsList } from './private/OriginsList/OriginsList';
-import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
-
+import { html, TemplateResult, property } from 'lit-element';
+import { interpret } from 'xstate';
+import { Translatable } from '../../../mixins/translatable';
+import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
+import { Code, I18N, Page, Section, Skeleton } from '../../private/index';
+import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
+import { machine } from './machine';
 import { FrequencyModification } from './private/FrequencyModification/FrequencyModification';
 import { FrequencyModificationChangeEvent } from './private/FrequencyModification/FrequencyModificationChangeEvent';
-
 import { NextDateModification } from './private/NextDateModification/NextDateModification';
 import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
+import { OriginsList } from './private/OriginsList/OriginsList';
+import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
+import { CustomerPortalSettingsLoadSuccessEvent } from './types';
+import { RequestEvent, UnhandledRequestError } from '../../../events/request';
+import { FxCustomerPortalSettings } from '../../../types/hapi';
 
-import { machine } from './machine';
-import { Section, Page, Code, I18N, Skeleton } from '../../private/index';
-import { Translatable } from '../../../mixins/translatable';
-import { interpret } from 'xstate';
+function throwIfNotOk(response: Response) {
+  if (response.ok) return;
+  throw new FriendlyError(response.status === 403 ? 'unauthorized' : 'unknown');
+}
 
 export class CustomerPortalSettings extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-password-field': customElements.get('vaadin-password-field'),
       'x-frequency-modification': FrequencyModification,
       'x-next-date-modification': NextDateModification,
+      'x-loading-screen': LoadingScreen,
+      'x-error-screen': ErrorScreen,
       'x-origins-list': OriginsList,
       'x-skeleton': Skeleton,
       'x-section': Section,
@@ -36,25 +46,48 @@ export class CustomerPortalSettings extends Translatable {
   private __modernUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.esm.js`;
   private __legacyUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.js`;
 
-  constructor() {
+  private __machine = machine.withConfig({
+    services: {
+      load: () => this.__load(),
+      save: () => this.__save(),
+    },
+  });
+
+  private __service = interpret(this.__machine)
+    .onTransition(({ changed }) => changed && this.requestUpdate())
+    .onChange(() => this.requestUpdate());
+
+  public readonly rel = 'customer_portal_settings';
+
+  @property({ type: String, noAccessor: true })
+  public get href(): string | null {
+    return this.__service.state.context.href;
+  }
+  public set href(data: string | null) {
+    this.__service.send({ type: 'SET_HREF', data });
+  }
+
+  public constructor() {
     super('customer-portal-settings');
   }
 
-  public service = interpret(machine)
-    .onChange(() => this.requestUpdate())
-    .onTransition(() => this.requestUpdate())
-    .start();
-
-  @property({ type: Boolean, noAccessor: true })
-  public get disabled() {
-    return this.service.state.matches('disabled');
-  }
-  public set disabled(value: boolean) {
-    this.service.send(value ? 'DISABLE' : 'ENABLE');
+  public connectedCallback(): void {
+    super.connectedCallback();
+    if (!this.__service.initialized) this.__service.start();
   }
 
-  public render() {
-    if (!this.service.state.context) return;
+  public render(): TemplateResult {
+    const { error, newResource } = this.__service.state.context;
+
+    if (this.__service.state.matches('error')) {
+      return html`<x-error-screen lang=${this.lang} type=${error!}></x-error-screen>`;
+    }
+
+    if (this.__service.state.matches('busy')) {
+      return html`<x-loading-screen></x-loading-screen>`;
+    }
+
+    const disabled = this.__service.state.matches('busy');
 
     return html`
       <x-page>
@@ -78,11 +111,12 @@ export class CustomerPortalSettings extends Translatable {
 
           <x-origins-list
             data-testid="origins"
-            .lang=${this.lang}
-            .value=${this.service.state.context.allowedOrigins}
-            .disabled=${this.disabled}
+            lang=${this.lang}
+            ns=${this.ns}
+            .value=${newResource!.allowedOrigins}
+            ?disabled=${disabled}
             @change=${(evt: OriginsListChangeEvent) => {
-              this.service.send({ type: 'SET_ORIGINS', value: evt.detail });
+              this.__service.send({ type: 'SET_ORIGINS', value: evt.detail });
             }}
           >
           </x-origins-list>
@@ -90,22 +124,24 @@ export class CustomerPortalSettings extends Translatable {
 
         <x-frequency-modification
           data-testid="fmod"
-          .lang=${this.lang}
-          .value=${this.service.state.context.subscriptions.allowFrequencyModification}
-          .disabled=${this.disabled}
+          lang=${this.lang}
+          ns=${this.ns}
+          .value=${newResource!.subscriptions.allowFrequencyModification}
+          ?disabled=${disabled}
           @change=${(evt: FrequencyModificationChangeEvent) => {
-            this.service.send({ type: 'SET_FREQUENCY_MODIFICATION', value: evt.detail });
+            this.__service.send({ type: 'SET_FREQUENCY_MODIFICATION', value: evt.detail });
           }}
         >
         </x-frequency-modification>
 
         <x-next-date-modification
           data-testid="ndmod"
-          .lang=${this.lang}
-          .value=${this.service.state.context.subscriptions.allowNextDateModification}
-          .disabled=${this.disabled}
+          lang=${this.lang}
+          ns=${this.ns}
+          .value=${newResource!.subscriptions.allowNextDateModification}
+          ?disabled=${disabled}
           @change=${(evt: NextDateModificationChangeEvent) => {
-            this.service.send({ type: 'SET_NEXT_DATE_MODIFICATION', value: evt.detail });
+            this.__service.send({ type: 'SET_NEXT_DATE_MODIFICATION', value: evt.detail });
           }}
         >
         </x-next-date-modification>
@@ -117,11 +153,11 @@ export class CustomerPortalSettings extends Translatable {
           <vaadin-password-field
             class="w-full"
             data-testid="jwt"
-            .value=${this._isI18nReady ? this.service.state.context.jwtSharedSecret : ''}
-            .disabled=${this.disabled || !this._isI18nReady}
+            .value=${this._isI18nReady ? newResource!.jwtSharedSecret : ''}
+            ?disabled=${disabled || !this._isI18nReady}
             @change=${(evt: InputEvent) => {
               const value = (evt.target as HTMLInputElement).value;
-              this.service.send({ type: 'SET_SECRET', value });
+              this.__service.send({ type: 'SET_SECRET', value });
             }}
           >
           </vaadin-password-field>
@@ -137,11 +173,11 @@ export class CustomerPortalSettings extends Translatable {
             style="min-width: 16rem"
             has-controls
             data-testid="session"
-            .value=${this._isI18nReady ? this.service.state.context.sessionLifespanInMinutes : ''}
-            .disabled=${this.disabled || !this._isI18nReady}
+            .value=${this._isI18nReady ? newResource!.sessionLifespanInMinutes : ''}
+            ?disabled=${disabled || !this._isI18nReady}
             @change=${(evt: InputEvent) => {
               const value = parseInt((evt.target as HTMLInputElement).value);
-              this.service.send({ type: 'SET_SESSION', value });
+              this.__service.send({ type: 'SET_SESSION', value });
             }}
           >
           </vaadin-integer-field>
@@ -160,5 +196,41 @@ export class CustomerPortalSettings extends Translatable {
         </template>
       </x-code>
     `;
+  }
+
+  private async __load(): Promise<CustomerPortalSettingsLoadSuccessEvent['data']> {
+    if (this.href === null) throw new FriendlyError('setup_needed');
+
+    try {
+      const resourceResponse = await RequestEvent.emit({ source: this, init: [this.href] });
+      throwIfNotOk(resourceResponse);
+
+      const resource = (await resourceResponse.json()) as FxCustomerPortalSettings;
+      const storeHref = resource._links['fx:store'].href;
+      const storeResponse = await RequestEvent.emit({ source: this, init: [storeHref] });
+      throwIfNotOk(storeResponse);
+
+      return { store: await storeResponse.json(), resource };
+    } catch (err) {
+      if (err instanceof FriendlyError) throw err;
+      if (err instanceof UnhandledRequestError) throw new FriendlyError('setup_needed');
+      throw new FriendlyError('unknown');
+    }
+  }
+
+  private async __save(): Promise<void> {
+    if (this.href === null) throw new FriendlyError('setup_needed');
+
+    try {
+      const payload = this.__service.state.context.newResource;
+      const options: RequestInit = { method: 'PATCH', body: JSON.stringify(payload!) };
+      const response = await RequestEvent.emit({ source: this, init: [this.href, options] });
+
+      throwIfNotOk(response);
+    } catch (err) {
+      if (err instanceof FriendlyError) throw err;
+      if (err instanceof UnhandledRequestError) throw new FriendlyError('setup_needed');
+      throw new FriendlyError('unknown');
+    }
   }
 }
