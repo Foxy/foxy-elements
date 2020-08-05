@@ -2,9 +2,9 @@ import { Machine } from 'xstate/dist/xstate.web.js';
 
 export interface ChooseValueSchema {
   states: {
-    pending: {};
-    selected: {};
-    other: {};
+    pending: any;
+    selected: any;
+    other: any;
   };
 }
 
