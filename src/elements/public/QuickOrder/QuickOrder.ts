@@ -10,6 +10,7 @@ import { QuickOrderProduct } from './types';
 import { machine } from './machine';
 import { Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
+type CustomWindow = Window & { FC?: any };
 export class QuickOrder extends Translatable {
   public static get scopedElements() {
     return {
@@ -24,13 +25,63 @@ export class QuickOrder extends Translatable {
     };
   }
 
-  private __cdnUrl = 'https://static.www.foxycart.com/beta/s/customer-portal';
-  private __storeUrl = 'https://my-store.tld/s/customer';
-  private __modernUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.esm.js`;
-  private __legacyUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.js`;
+  private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
+
+  @property({ type: String })
+  public storeSubdomain = this.__defaultSubdomain;
 
   constructor() {
     super('quick-order');
+    this.loadFoxy();
+  }
+
+  /** Creates a script tag for loader.js if it not exists and sets a
+   * ready.done callback */
+  private loadFoxy() {
+    if (!('FC' in window)) {
+      // Compute src
+      let storeName = this.storeSubdomain;
+      if (this.storeSubdomain.endsWith('.foxycart.com')) {
+        storeName = this.storeSubdomain.replace('.foxycart.com', '');
+      }
+      const src = `https://cdn.foxycart.com/${storeName}/loader.js`;
+      // Check if script is present
+      const loader = document.querySelector(`script[src="${src}"]`);
+      // Insert loader if not present
+      if (!loader) {
+        const script = document.createElement('script');
+        if (!document.querySelector('foxy-loader-script')) {
+          script.type = 'text/javascript';
+          script.setAttribute('data-cfasync', 'false');
+          script.async = true;
+          script.defer = true;
+          script.setAttribute('id', 'foxy-loader-script');
+          let storeName = this.storeSubdomain;
+          if (this.storeSubdomain.endsWith('.foxycart.com')) {
+            storeName = this.storeSubdomain.replace('.foxycart.com', '');
+          }
+          script.src = src;
+          document.head.appendChild(script);
+        }
+      }
+      const W = window as CustomWindow;
+      W.FC = W.FC || {};
+      // Create FC onload
+      const originalCallback = W.FC.onLoad;
+      W.FC.onLoad = () => {
+        if (originalCallback != undefined) {
+          originalCallback();
+        }
+        W.FC.client.on('ready.done', () => {
+          this.updateFromFC();
+        });
+      };
+    }
+  }
+
+  /** Update the form with values from FC */
+  private updateFromFC() {
+    const FC = (window as CustomWindow).FC;
   }
 
   @property({ type: Array })
@@ -51,19 +102,10 @@ export class QuickOrder extends Translatable {
 
   public render() {
     return html`
-      <div>This is Quick Order</div>
       <x-page>
         Produtos ${this.products} ${this.__renderHeader()}
 
-        <x-section>
-          <x-i18n slot="title" key="quickstart.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-          <x-i18n
-            slot="subtitle"
-            key="quickstart.subtitle"
-            .ns=${this.ns}
-            .lang=${this.lang}
-          ></x-i18n>
-
+        <x-section class="products">
           ${this.products.map(
             (p: QuickOrderProduct) => html`<x-product
               .lang=${this.lang}
@@ -86,18 +128,6 @@ export class QuickOrder extends Translatable {
         .ns=${this.ns}
         .lang=${this.lang}
       ></x-i18n>
-    `;
-  }
-
-  private __renderCode() {
-    return html`
-      <x-code>
-        <template>
-          <script type="module" src=${this.__modernUrl}></script>
-          <script nomodule src=${this.__legacyUrl}></script>
-          <foxy-customer-portal endpoint=${this.__storeUrl}></foxy-customer-portal>
-        </template>
-      </x-code>
     `;
   }
 }
