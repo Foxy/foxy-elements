@@ -6,6 +6,11 @@ const merge = require('deepmerge');
 module.exports = config => {
   config.set(
     merge(createDefaultConfig(config), {
+      client: {
+        mocha: {
+          timeout: 6000,
+        },
+      },
       files: [
         {
           pattern: config.grep ? config.grep : './dist/**/*.test.js',
