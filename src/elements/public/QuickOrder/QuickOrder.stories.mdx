@@ -1,35 +1,101 @@
 import { QuickOrder } from '/dist/elements/public/QuickOrder/QuickOrder.js';
 import { Product } from '/dist/elements/public/QuickOrder/private/Product.js';
 import { Meta, html,  Story, Preview  } from '@open-wc/demoing-storybook';
-window.customElements.define('quick-order', QuickOrder);
-window.customElements.define('product-item', Product);
+window.customElements.define('foxy-order-form', QuickOrder);
+window.customElements.define('foxy-item', Product);
 console.log(QuickOrder);
 
-<Meta 
- title="Quick Order" 
+<Meta
+ title="Quick Order"
  parameters={{ component: 'quick-order'}}
 />
 
 # Quick Order
 
-You may feed the products to the Form using the products parameter, using an array, or add individual producs to the form using the product item custom tag.
+Quick Order Form allows users to place an order based on a list of products.
+
+Users can customize the order editing the product list and the subscription
+settings.
+
+You may feed the products to the Form using either the products parameter or
+using the custom tag `product-item`.
+
+## Using custom tag for the product
+
+By adding `foxy-items` to your `foxy-order-form` your products will be properly
+added to the order. The form will find the products and create the necessary
+fields.
+
+You can use any markup you wish. You may place your products in cards, lists,
+articles sections and even tables, if that's what you like. Foxy-order-form will
+find your products (unless they are in the shadow dom of other elements).
+
+<Preview>
+  <Story name="Using product item custom element">
+    {html`
+    <foxy-order-form>
+      <section class="dietary-food">
+      <foxy-item
+        name="Pup Dog Food"
+        price="69.99"
+        code="abc123"
+        image="path/to/foo.jpg"
+        nutritional_facts="nutritional facts"
+        >
+        High quality nutritious food for you pet
+      </foxy-item>
+      <foxy-item
+        name="Pup Dog Food"
+        price="69.99"
+        code="abc123"
+        image="path/to/foo.jpg"
+        nutritional_facts="nutritional facts"
+        >
+        High quality nutritious food for you pet
+      </foxy-item>
+      </section>
+      <section class="organic-food">
+      <foxy-item
+        name="Pup Dog Food"
+        price="69.99"
+        code="abc123"
+        image="path/to/foo.jpg"
+        nutritional_facts="nutritional facts"
+        >
+        High quality nutritious food for you pet
+      </foxy-item>
+      </section>
+      <section class="bonus>
+      <foxy-item
+        name="Pup Dog Food"
+        price="69.99"
+        code="abc123"
+        image="path/to/foo.jpg"
+        nutritional_facts="nutritional facts"
+        >
+        High quality nutritious food for you pet
+      </foxy-item>
+      </section>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
+## Using an array of products
+
+You may use an array of product objects to feed the form.
+In this scenario you loose a lot of the flexibility, for the product tags will
+be created for you one next to the other. You can still customize their look and
+feel, but you won't be able to build your markup as you wish.
 
 
 Using an array.
 <Preview>
   <Story name="Using Arrays">
-    {html`<quick-order products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'></quick-order>`}
+    {html`
+    <foxy-order-form
+    products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'>
+    </foxy-order-form>
+    `}
   </Story>
 </Preview>
-
-
-Using the custom tag
-<Preview>
-  <Story name="Using product item custom element">
-	{html`<quick-order>
-	<product-item></product-item>
-		<product-item></product-item>
-		<product-item></product-item>
-		<product-item></product-item>
-	</quick-order>`}
-  </Story> </Preview>
