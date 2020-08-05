@@ -1,9 +1,13 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import '@polymer/iron-icon';
+import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
-import { html, TemplateResult, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
+import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import { Translatable } from '../../../mixins/translatable';
+import { FxCustomerPortalSettings } from '../../../types/hapi';
 import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
 import { Code, I18N, Page, Section, Skeleton } from '../../private/index';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
@@ -15,8 +19,6 @@ import { NextDateModificationChangeEvent } from './private/NextDateModification/
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
 import { CustomerPortalSettingsLoadSuccessEvent } from './types';
-import { RequestEvent, UnhandledRequestError } from '../../../events/request';
-import { FxCustomerPortalSettings } from '../../../types/hapi';
 
 function throwIfNotOk(response: Response) {
   if (response.ok) return;
@@ -26,6 +28,8 @@ function throwIfNotOk(response: Response) {
 export class CustomerPortalSettings extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
+      'iron-icon': customElements.get('iron-icon'),
+      'vaadin-button': customElements.get('vaadin-button'),
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-password-field': customElements.get('vaadin-password-field'),
       'x-frequency-modification': FrequencyModification,
@@ -77,20 +81,21 @@ export class CustomerPortalSettings extends Translatable {
   }
 
   public render(): TemplateResult {
-    const { error, newResource } = this.__service.state.context;
-
     if (this.__service.state.matches('error')) {
-      return html`<x-error-screen lang=${this.lang} type=${error!}></x-error-screen>`;
+      return html`
+        <x-error-screen
+          data-testid="error"
+          lang=${this.lang}
+          type=${this.__service.state.context.error!}
+        >
+        </x-error-screen>
+      `;
     }
 
-    if (this.__service.state.matches('busy')) {
-      return html`<x-loading-screen></x-loading-screen>`;
-    }
-
-    const disabled = this.__service.state.matches('busy');
+    const { newResource } = this.__service.state.context;
 
     return html`
-      <x-page>
+      <x-page class="relative">
         <x-i18n class="block" slot="title" key="title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
         <x-i18n class="block" slot="subtitle" key="subtitle" .ns=${this.ns} .lang=${this.lang}>
         </x-i18n>
@@ -109,79 +114,123 @@ export class CustomerPortalSettings extends Translatable {
           <x-i18n slot="title" key="origins.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           <x-i18n slot="subtitle" key="origins.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
 
-          <x-origins-list
-            data-testid="origins"
-            lang=${this.lang}
-            ns=${this.ns}
-            .value=${newResource!.allowedOrigins}
-            ?disabled=${disabled}
-            @change=${(evt: OriginsListChangeEvent) => {
-              this.__service.send({ type: 'SET_ORIGINS', value: evt.detail });
-            }}
-          >
-          </x-origins-list>
+          ${newResource
+            ? html`
+                <x-origins-list
+                  data-testid="origins"
+                  lang=${this.lang}
+                  ns=${this.ns}
+                  .value=${newResource.allowedOrigins}
+                  ?disabled=${!this._isI18nReady}
+                  @change=${(evt: OriginsListChangeEvent) => {
+                    this.__service.send({ type: 'SET_ORIGINS', value: evt.detail });
+                  }}
+                >
+                </x-origins-list>
+              `
+            : ''}
         </x-section>
 
-        <x-frequency-modification
-          data-testid="fmod"
-          lang=${this.lang}
-          ns=${this.ns}
-          .value=${newResource!.subscriptions.allowFrequencyModification}
-          ?disabled=${disabled}
-          @change=${(evt: FrequencyModificationChangeEvent) => {
-            this.__service.send({ type: 'SET_FREQUENCY_MODIFICATION', value: evt.detail });
-          }}
-        >
-        </x-frequency-modification>
+        ${newResource
+          ? html`
+              <x-frequency-modification
+                data-testid="fmod"
+                lang=${this.lang}
+                ns=${this.ns}
+                .value=${newResource!.subscriptions.allowFrequencyModification}
+                ?disabled=${!this._isI18nReady}
+                @change=${(evt: FrequencyModificationChangeEvent) => {
+                  this.__service.send({ type: 'SET_FREQUENCY_MODIFICATION', value: evt.detail });
+                }}
+              >
+              </x-frequency-modification>
 
-        <x-next-date-modification
-          data-testid="ndmod"
-          lang=${this.lang}
-          ns=${this.ns}
-          .value=${newResource!.subscriptions.allowNextDateModification}
-          ?disabled=${disabled}
-          @change=${(evt: NextDateModificationChangeEvent) => {
-            this.__service.send({ type: 'SET_NEXT_DATE_MODIFICATION', value: evt.detail });
-          }}
-        >
-        </x-next-date-modification>
+              <x-next-date-modification
+                data-testid="ndmod"
+                lang=${this.lang}
+                ns=${this.ns}
+                .value=${newResource!.subscriptions.allowNextDateModification}
+                ?disabled=${!this._isI18nReady}
+                @change=${(evt: NextDateModificationChangeEvent) => {
+                  this.__service.send({ type: 'SET_NEXT_DATE_MODIFICATION', value: evt.detail });
+                }}
+              >
+              </x-next-date-modification>
+            `
+          : ''}
 
         <x-section>
           <x-i18n slot="title" key="jwt.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           <x-i18n slot="subtitle" key="jwt.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
 
-          <vaadin-password-field
-            class="w-full"
-            data-testid="jwt"
-            .value=${this._isI18nReady ? newResource!.jwtSharedSecret : ''}
-            ?disabled=${disabled || !this._isI18nReady}
-            @change=${(evt: InputEvent) => {
-              const value = (evt.target as HTMLInputElement).value;
-              this.__service.send({ type: 'SET_SECRET', value });
-            }}
-          >
-          </vaadin-password-field>
+          ${newResource
+            ? html`
+                <vaadin-password-field
+                  class="w-full"
+                  data-testid="jwt"
+                  .value=${this._isI18nReady ? newResource!.jwtSharedSecret : ''}
+                  ?disabled=${!this._isI18nReady}
+                  @change=${(evt: InputEvent) => {
+                    const value = (evt.target as HTMLInputElement).value;
+                    this.__service.send({ type: 'SET_SECRET', value });
+                  }}
+                >
+                </vaadin-password-field>
+              `
+            : ''}
         </x-section>
 
         <x-section>
           <x-i18n slot="title" key="session.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           <x-i18n slot="subtitle" key="session.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
 
-          <vaadin-integer-field
-            min="1"
-            max="40320"
-            style="min-width: 16rem"
-            has-controls
-            data-testid="session"
-            .value=${this._isI18nReady ? newResource!.sessionLifespanInMinutes : ''}
-            ?disabled=${disabled || !this._isI18nReady}
-            @change=${(evt: InputEvent) => {
-              const value = parseInt((evt.target as HTMLInputElement).value);
-              this.__service.send({ type: 'SET_SESSION', value });
-            }}
-          >
-          </vaadin-integer-field>
+          ${newResource
+            ? html`
+                <vaadin-integer-field
+                  min="1"
+                  max="40320"
+                  style="min-width: 16rem"
+                  has-controls
+                  data-testid="session"
+                  .value=${this._isI18nReady ? newResource!.sessionLifespanInMinutes : ''}
+                  ?disabled=${!this._isI18nReady}
+                  @change=${(evt: InputEvent) => {
+                    const value = parseInt((evt.target as HTMLInputElement).value);
+                    this.__service.send({ type: 'SET_SESSION', value });
+                  }}
+                >
+                </vaadin-integer-field>
+              `
+            : ''}
         </x-section>
+
+        ${this.__service.state.matches('idle.dirty')
+          ? html`
+              <div
+                class="sticky flex justify-between bottom-0 p-m bg-base border-t border-contrast-10 -m-m mt-m md:-m-l md:mt-l lg:-m-xl lg:mt-xl"
+              >
+                <vaadin-button
+                  data-testid="save"
+                  theme="primary"
+                  @click=${() => this.__service.send('SAVE')}
+                >
+                  <iron-icon icon="lumo:checkmark" slot="prefix"></iron-icon>
+                  <x-i18n lang=${this.lang} key="save"></x-i18n>
+                </vaadin-button>
+
+                <vaadin-button
+                  data-testid="reset"
+                  theme="tertiary"
+                  @click=${() => this.__service.send('RESET')}
+                >
+                  <x-i18n lang=${this.lang} key="undo_all"></x-i18n>
+                  <iron-icon icon="lumo:reload" slot="suffix"></iron-icon>
+                </vaadin-button>
+              </div>
+            `
+          : this.__service.state.matches('busy')
+          ? html`<x-loading-screen data-testid="loading" class="mt-0"></x-loading-screen>`
+          : ''}
       </x-page>
     `;
   }
