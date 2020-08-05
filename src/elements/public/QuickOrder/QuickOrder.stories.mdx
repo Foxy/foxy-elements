@@ -3,7 +3,6 @@ import { Product } from '/dist/elements/public/QuickOrder/private/Product.js';
 import { Meta, html,  Story, Preview  } from '@open-wc/demoing-storybook';
 window.customElements.define('foxy-order-form', QuickOrder);
 window.customElements.define('foxy-item', Product);
-console.log(QuickOrder);
 
 <Meta
  title="Quick Order"
@@ -14,11 +13,37 @@ console.log(QuickOrder);
 
 Quick Order Form allows users to place an order based on a list of products.
 
-Users can customize the order editing the product list and the subscription
-settings.
+Users can customize the order by editing the product list and the subscription settings.
 
-You may feed the products to the Form using either the products parameter or
-using the custom tag `product-item`.
+You may feed the products to the Form using either:
+
+- using the custom tag `product-item`;
+- the products parameter;
+
+### Product Items
+
+Using the **product-item** approach gives you full control over your form's markup, provided `product-items` are not created in an element's Shadow DOM.
+```html
+<foxy-order-form>
+  <foxy-item></foxy-item>
+  <foxy-item></foxy-item>
+  <foxy-item></foxy-item>
+  <foxy-item></foxy-item>
+</foxy-order-form>
+```
+The downside of this approach is that you have little control of custom markup you may want to add to your form.
+
+### Products Array
+
+Using the **products parameter** is easier to implement if you have a products
+list in memory. It allows you to use something as simple as:
+
+```html
+<foxy-order-form products='[{...},{...},{...}]'>
+</foxy-order-form>
+```
+
+The downside of this approach is that you have little control of custom markup you may want to add to your form.
 
 ## Using custom tag for the product
 
@@ -31,7 +56,7 @@ articles sections and even tables, if that's what you like. Foxy-order-form will
 find your products (unless they are in the shadow dom of other elements).
 
 <Preview>
-  <Story name="Using product item custom element">
+  <Story name="Using product items">
     {html`
     <foxy-order-form>
       <section class="dietary-food">
@@ -55,15 +80,15 @@ find your products (unless they are in the shadow dom of other elements).
       </foxy-item>
       </section>
       <section class="organic-food">
-      <foxy-item
-        name="Pup Dog Food"
-        price="69.99"
-        code="abc123"
-        image="path/to/foo.jpg"
-        nutritional_facts="nutritional facts"
-        >
-        High quality nutritious food for you pet
-      </foxy-item>
+        <foxy-item
+          name="Pup Dog Food"
+          price="69.99"
+          code="abc123"
+          image="path/to/foo.jpg"
+          nutritional_facts="nutritional facts"
+          >
+          High quality nutritious food for you pet
+        </foxy-item>
       </section>
       <section class="bonus>
       <foxy-item
@@ -81,20 +106,158 @@ find your products (unless they are in the shadow dom of other elements).
   </Story>
 </Preview>
 
+### Setting up subscriptions
+
+You can configure subscriptions using the subscription product options, as outlined here: 
+https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options
+
+Please, note that the `sub_frequency` is required.
+
+More information on subscriptions can be found here: https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options
+
+<Preview>
+  <Story name="Product with subscription">
+    {html`
+    <foxy-order-form>
+      <foxy-item
+        name="Pup Dog Food"
+        price="69.99"
+        code="abc123"
+        image="path/to/foo.jpg"
+        sub_frequency="1m"
+        nutritional_facts="nutritional facts"
+        >
+        High quality nutritious food for you pet
+      </foxy-item>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
+### Grouping products using markup
+
+You may use the attribute `data-product-group` to group the child products together.
+
+This is particularly useful to allow users to configure subscription settings to a particular group.
+
+<Preview>
+  <Story name="Grouping with markup">
+    {html`
+    <foxy-order-form>
+      <section class="dietary-food" data-product-group="true">
+        <foxy-item
+          name="Pup Dog Food"
+          price="69.99"
+          code="abc123"
+          image="path/to/foo.jpg"
+          nutritional_facts="nutritional facts"
+          >
+          High quality nutritious food for you pet
+        </foxy-item>
+        <foxy-item
+          name="Pup Dog Food"
+          price="69.99"
+          code="abc123"
+          image="path/to/foo.jpg"
+          nutritional_facts="nutritional facts"
+          >
+          High quality nutritious food for you pet
+        </foxy-item>
+      </section>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
+### Subscriptions Settings for a group
+
+Subscription settings are defined in the group tag.
+
+Since you can use any tag to group products, you can use custom data attributes to configure your group of products.
+
+Please, note that to adhere to prepend `data-` and replace `_` with `-` to the subscription options:
+
+|Option| Attribute|
+|------|----------|
+|sub_frequency|data-sub-frequency|
+|sub_startdate|data-sub-startdate|
+|sub_enddate|data-sub-enddate|
+|sub_token|data-sub-token|
+|sub_cancel|data-sub-cancel|
+|sub_restart|data-sub-restart|
+|sub_modify|data-sub-modify|
+
+<Preview>
+  <Story name="Group subscription settings">
+    {html`
+    <foxy-order-form>
+      <section class="dietary-food" data-product-group="true" data-sub-frequency="60d" >
+        <!-- A subscription will be created for these two items -->
+        <foxy-item
+          name="Pup Dog Food"
+          price="69.99"
+          code="abc123"
+          image="path/to/foo.jpg"
+          nutritional_facts="nutritional facts"
+          >
+          High quality nutritious food for you pet
+        </foxy-item>
+        <foxy-item
+          name="Pup Dog Food"
+          price="69.99"
+          code="abc123"
+          image="path/to/foo.jpg"
+          nutritional_facts="nutritional facts"
+          >
+          High quality nutritious food for you pet
+        </foxy-item>
+      </section>
+      <section class="organic-food">
+        <!-- This item is not part of the subscription -->
+        <foxy-item
+          name="Pup Dog Food"
+          price="69.99"
+          code="abc123"
+          image="path/to/foo.jpg"
+          nutritional_facts="nutritional facts"
+          >
+          High quality nutritious food for you pet
+        </foxy-item>
+      </section>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
 ## Using an array of products
 
 You may use an array of product objects to feed the form.
-In this scenario you loose a lot of the flexibility, for the product tags will
-be created for you one next to the other. You can still customize their look and
-feel, but you won't be able to build your markup as you wish.
+In this scenario you loose some for the product tags will be created for you one next to the other.
+You can still customize their look and feel, but you won't be able to build your markup as you wish.
 
+Products in a group will be displayed as children of a `div` tag with the attribuit `data-product-group`.
 
-Using an array.
 <Preview>
-  <Story name="Using Arrays">
+  <Story name="Using an Array of products">
     {html`
     <foxy-order-form
     products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
+## Grouping products 
+
+You can group products together by creating a simple grouping object.
+The grouping object must contain a `products` field, which is an array of products.
+
+
+<Preview>
+  <Story name="Array of grouped products">
+    {html`
+    <foxy-order-form
+    products='[{"sub_frequency":"1m", "products":[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]},{"name":"Organic Food","price":"80.00"}]'>
     </foxy-order-form>
     `}
   </Story>
