@@ -1,8 +1,8 @@
 import { QuickOrder } from '/dist/elements/public/QuickOrder/QuickOrder.js';
-import { Product } from '/dist/elements/public/QuickOrder/private/Product.js';
+import { ProductItem } from '/dist/elements/public/QuickOrder/ProductItem.js';
 import { Meta, html,  Story, Preview  } from '@open-wc/demoing-storybook';
 window.customElements.define('foxy-order-form', QuickOrder);
-window.customElements.define('foxy-item', Product);
+window.customElements.define('foxy-item', ProductItem);
 
 <Meta
  title="Quick Order"
@@ -108,7 +108,7 @@ find your products (unless they are in the shadow dom of other elements).
 
 ### Setting up subscriptions
 
-You can configure subscriptions using the subscription product options, as outlined here: 
+You can configure subscriptions using the subscription product options, as outlined here:
 https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options
 
 Please, note that the `sub_frequency` is required.
@@ -247,7 +247,7 @@ Products in a group will be displayed as children of a `div` tag with the attrib
   </Story>
 </Preview>
 
-## Grouping products 
+## Grouping products
 
 You can group products together by creating a simple grouping object.
 The grouping object must contain a `products` field, which is an array of products.
