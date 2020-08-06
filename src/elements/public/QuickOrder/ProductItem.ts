@@ -21,6 +21,11 @@ export class ProductItem extends Translatable {
     };
   }
 
+  /** Avoid default shadow root */
+  createRenderRoot(): ProductItem {
+    return this;
+  }
+
   private __vocabulary = {
     remove: 'Remove',
   };
