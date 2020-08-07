@@ -37,6 +37,9 @@ export class ProductItem extends Translatable {
   /** LitElement life cicle */
   public firstUpdated(): void {
     this.__propertyToValue();
+    if (this.parentElement?.hasAttribute('data-product-group')) {
+      this.__inGroup = true;
+    }
   }
 
   private __default_image = {
@@ -97,6 +100,8 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   alt?: string;
 
+  private __inGroup = false;
+
   public render() {
     return html`
       <article
@@ -115,10 +120,12 @@ export class ProductItem extends Translatable {
         <x-section class="item-info p-s min-w-2">
           <div class="price">${this.value?.price}</div>
         </x-section>
-        <x-section class="actions p-s min-w-3">
-          <x-number-field value="1" min="0" has-controls></x-number-field>
-          <x-checkbox data-testid="toggle">${this.__vocabulary.remove}</x-checkbox>
-        </x-section>
+        ${this.__inGroup
+          ? ''
+          : html` <x-section class="actions p-s min-w-3">
+              <x-number-field value="1" min="0" has-controls></x-number-field>
+              <x-checkbox data-testid="toggle">${this.__vocabulary.remove}</x-checkbox>
+            </x-section>`}
       </article>
     `;
   }

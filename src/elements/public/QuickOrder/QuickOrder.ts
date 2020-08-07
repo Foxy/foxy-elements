@@ -54,9 +54,9 @@ export class QuickOrder extends Translatable {
               Please, check https://wiki.foxycart.com/v/2.0/products#subscription_product_options for possible values.
               Each frequency must be a in the format:
               - 1d (a number followed by d, for day)
-              - 1w (a number followed by w, for day)
-              - 1m (a number followed by m, for day)
-              - 1y (a number followed by y, for day)
+              - 1w (a number followed by w, for week)
+              - 1m (a number followed by m, for month)
+              - 1y (a number followed by y, for year)
               or .5m (no other decimals are allowed, and this is only for months)
               `,
             f
@@ -149,7 +149,7 @@ export class QuickOrder extends Translatable {
   private __productsFromArray(p: QuickOrderProduct | ProductGroup) {
     if (p.products && Array.isArray(p.products) && p.products.length) {
       return html` <article
-        data-product="true"
+        data-product-group="true"
         class="product group  border border-contrast-10 rounded p-m"
       >
         ${p.products.map((i: QuickOrderProduct) => html`<x-product .value=${i}></x-product>`)}
