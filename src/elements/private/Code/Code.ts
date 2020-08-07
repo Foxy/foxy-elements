@@ -1,4 +1,4 @@
-import { html, internalProperty, query, css } from 'lit-element';
+import { css, CSSResultArray, html, internalProperty, query, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { CodeReadyEvent } from './CodeReadyEvent';
 
@@ -7,7 +7,7 @@ type ExtendedWindow = Window & {
 };
 
 export class Code extends Themeable {
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -33,11 +33,11 @@ export class Code extends Themeable {
 
   private __ready = false;
 
-  get ready() {
+  get ready(): boolean {
     return this.__ready;
   }
 
-  async firstUpdated() {
+  async firstUpdated(): Promise<void> {
     const slot = this.shadowRoot!.querySelector('slot');
     const window = this.ownerDocument!.defaultView as null | ExtendedWindow;
     const template = slot!.assignedElements()[0] as HTMLTemplateElement;
@@ -73,7 +73,7 @@ export class Code extends Themeable {
     });
   }
 
-  render() {
+  render(): TemplateResult {
     return html`
       <link
         rel="stylesheet"

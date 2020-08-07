@@ -1,15 +1,16 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { property, html } from 'lit-element';
-import { JSONataInput } from '../JSONataInput/JSONataInput';
-import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
+import { Checkbox, Group, I18N, Section } from '../../../../private/index';
 import { FrequencyList } from '../FrequencyList/FrequencyList';
 import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';
-import { Checkbox, Section, Group, I18N } from '../../../../private/index';
+import { JSONataInput } from '../JSONataInput/JSONataInput';
+import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
 import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
 import { FrequencyModificationRule } from './FrequencyModificationRule';
 
 export class FrequencyModification extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-frequency-list': FrequencyList,
       'x-jsonata-input': JSONataInput,
@@ -45,7 +46,7 @@ export class FrequencyModification extends Translatable {
     return typeof this.value === 'boolean' ? [] : this.value.values;
   }
 
-  public render() {
+  public render(): TemplateResult {
     const disabled = this.disabled || this.value === false;
 
     return html`

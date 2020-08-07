@@ -1,11 +1,12 @@
-import { html, property } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { html, property, TemplateResult } from 'lit-element';
 import { cache } from 'lit-html/directives/cache';
 import { Translatable } from '../../../../../mixins/translatable';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
 import { translateWeekday } from '../../../../../utils/translate-weekday';
-import { Group, Warning, I18N } from '../../../../private/index';
+import { Group, I18N, Warning } from '../../../../private/index';
 import { AllowedDays } from '../AllowedDays/AllowedDays';
 import { AllowedDaysChangeEvent } from '../AllowedDays/AllowedDaysChangeEvent';
 import { DisallowedDates } from '../DisallowedDates/DisallowedDates';
@@ -19,7 +20,7 @@ import { NextDateModificationRuleRemoveEvent } from './NextDateModificationRuleR
 import { Rule } from './Rule';
 
 export class NextDateModificationRule extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-disallowed-dates': DisallowedDates,
       'x-jsonata-input': JSONataInput,
@@ -45,7 +46,7 @@ export class NextDateModificationRule extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     const { min, max, allowedDays, jsonataQuery, disallowedDates } = this.value;
     const hasOffset = min || max;
     const hasAllowed = allowedDays && allowedDays.days.length > 0;

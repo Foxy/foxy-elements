@@ -1,8 +1,8 @@
-import { html, css } from 'lit-element';
+import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
 import { Page } from '../page/Page';
 
 export class Section extends Page {
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -13,7 +13,7 @@ export class Section extends Page {
     ];
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <section class="leading-s">
         <header>

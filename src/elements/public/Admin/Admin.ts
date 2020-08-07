@@ -2,15 +2,15 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Router } from '@vaadin/router';
 import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
+import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import { Translatable } from '../../../mixins/translatable';
 import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
-import { machine, AdminLoadSuccessEvent } from './machine';
+import { AdminLoadSuccessEvent, machine } from './machine';
 import { navigation } from './navigation';
 import { AdminNavigation, Navigation } from './private/AdminNavigation/AdminNavigation';
 import { routes } from './routes';
 import { FxBookmark, FxStore } from './types';
-import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 
 type StoreCurie = keyof Omit<FxStore['_links'], 'curies'>;
 

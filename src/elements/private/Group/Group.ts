@@ -1,11 +1,11 @@
-import { html, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Group extends Themeable {
   @property({ type: Boolean })
   public frame = false;
 
-  public render() {
+  public render(): TemplateResult {
     const frameClass = 'border border-contrast-10';
 
     return html`

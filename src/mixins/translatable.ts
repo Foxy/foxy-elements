@@ -86,15 +86,15 @@ export abstract class Translatable extends Themeable {
   private __lang = (this._i18n.options.fallbackLng as string[])[0];
   private __ns = (this._i18n.options.fallbackNS as string[])[0];
 
-  protected get _i18n() {
+  protected get _i18n(): i18n {
     return Translatable.__i18n ?? Translatable.__initI18N();
   }
 
-  protected get _whenI18nReady() {
+  protected get _whenI18nReady(): Promise<TFunction> {
     return Translatable.__whenI18NReady;
   }
 
-  protected get _isI18nReady() {
+  protected get _isI18nReady(): boolean {
     return Translatable.__isI18NReady;
   }
 
@@ -128,7 +128,7 @@ export abstract class Translatable extends Themeable {
   }
 
   @property({ type: String, noAccessor: true })
-  public get ns() {
+  public get ns(): string {
     return this.__ns;
   }
   public set ns(value: string) {
@@ -138,7 +138,7 @@ export abstract class Translatable extends Themeable {
     });
   }
 
-  protected get _t() {
+  protected get _t(): TFunction {
     const ns = [this.__ns, this._i18n.options.fallbackNS as string];
     return this._i18n.getFixedT(this.__lang, ns);
   }

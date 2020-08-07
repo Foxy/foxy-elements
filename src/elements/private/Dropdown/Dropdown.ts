@@ -1,10 +1,11 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-select';
-import { html } from 'lit-element';
+import { html, TemplateResult } from 'lit-element';
 import { Choice } from '../choice/Choice';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
 
 export class Dropdown extends Choice {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
       'vaadin-select': customElements.get('vaadin-select'),
@@ -12,7 +13,7 @@ export class Dropdown extends Choice {
     };
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <vaadin-select
         class="w-full"

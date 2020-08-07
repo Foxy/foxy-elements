@@ -1,9 +1,9 @@
 import '@vaadin/vaadin-lumo-styles';
-import { html, css } from 'lit-element';
+import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Page extends Themeable {
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -14,7 +14,7 @@ export class Page extends Themeable {
     ];
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <article class="relative p-m md:p-l lg:p-xl">
         <header class="space-y-xs leading-s font-lumo">

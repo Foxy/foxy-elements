@@ -1,14 +1,15 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
-import { html, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { Checkbox, Section, I18N } from '../../../../private/index';
+import { Checkbox, I18N, Section } from '../../../../private/index';
 import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
 import { NextDateModificationRuleChangeEvent } from '../NextDateModificationRule/NextDateModificationRuleChangeEvent';
-import { Rule } from './Rule';
 import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
+import { Rule } from './Rule';
 
 export class NextDateModification extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-next-date-modification-rule': NextDateModificationRule,
       'vaadin-button': customElements.get('vaadin-button'),
@@ -33,7 +34,7 @@ export class NextDateModification extends Translatable {
     return typeof this.value === 'boolean' ? [] : this.value;
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <x-checkbox
         .checked=${Boolean(this.value)}
