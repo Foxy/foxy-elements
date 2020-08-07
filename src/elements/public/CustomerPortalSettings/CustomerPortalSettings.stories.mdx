@@ -1,8 +1,8 @@
 import { html } from 'lit-html';
 import { Story, Preview, Meta, Props } from '@open-wc/demoing-storybook';
 import { withKnobs, withWebComponentsKnobs } from '@open-wc/demoing-storybook';
-import { store } from '../Admin/mocks';
-import { customerPortalSettings } from './mocks';
+import { store } from '../../../mocks/FxStore';
+import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
 import './index';
 
 export const handleRequest = evt => {

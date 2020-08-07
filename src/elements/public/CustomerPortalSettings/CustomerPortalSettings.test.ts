@@ -2,12 +2,17 @@ import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
 import { RequestEvent } from '../../../events/request';
+
+import {
+  customerPortalSettings,
+  customerPortalSettingsMinimal,
+} from '../../../mocks/FxCustomerPortalSettings';
+
+import { store } from '../../../mocks/FxStore';
 import { FxCustomerPortalSettings } from '../../../types/hapi';
 import { ErrorScreen, ErrorType } from '../../private/ErrorScreen/ErrorScreen';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
-import { store } from '../Admin/mocks';
 import { CustomerPortalSettings } from './CustomerPortalSettings';
-import { customerPortalSettings, customerPortalSettingsMinimal } from './mocks';
 import { FrequencyModification } from './private/FrequencyModification/FrequencyModification';
 import { FrequencyModificationChangeEvent } from './private/FrequencyModification/FrequencyModificationChangeEvent';
 import { NextDateModification } from './private/NextDateModification/NextDateModification';

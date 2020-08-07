@@ -1,4 +1,4 @@
-import { FxCustomerPortalSettings } from '../../../types/hapi';
+import { FxCustomerPortalSettings } from '../types/hapi';
 
 export const customerPortalSettings: FxCustomerPortalSettings = {
   _links: {
