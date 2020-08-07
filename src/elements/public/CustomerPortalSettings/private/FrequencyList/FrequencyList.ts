@@ -1,13 +1,14 @@
-import { property, html } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
+import { ListChangeEvent } from '../../../../private/events';
+import { I18N, List, Skeleton } from '../../../../private/index';
 import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
 import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
-import { ListChangeEvent } from '../../../../private/events';
-import { List, I18N, Skeleton } from '../../../../private/index';
 import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
 
 export class FrequencyList extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': customElements.get('vaadin-button'),
@@ -30,7 +31,7 @@ export class FrequencyList extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <x-list
         data-testid="list"

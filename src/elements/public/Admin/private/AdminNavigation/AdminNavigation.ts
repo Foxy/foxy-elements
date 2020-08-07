@@ -1,12 +1,14 @@
-import { css, html, internalProperty, property } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { css, CSSResultArray, html, internalProperty, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { AdminNavigationTopLink } from './AdminNavigationTopGroup/AdminNavigationTopLink/AdminNavigationTopLink';
 
 import {
   AdminNavigationTopGroup,
   NavigationGroup,
   NavigationLink,
 } from './AdminNavigationTopGroup/AdminNavigationTopGroup';
+
+import { AdminNavigationTopLink } from './AdminNavigationTopGroup/AdminNavigationTopLink/AdminNavigationTopLink';
 
 export interface NavigationTopItem {
   icon: string;
@@ -23,7 +25,7 @@ export interface NavigationTopGroup
 export type Navigation = Array<NavigationTopGroup | NavigationTopLink>;
 
 export class AdminNavigation extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-admin-navigation-top-group': AdminNavigationTopGroup,
       'x-admin-navigation-top-link': AdminNavigationTopLink,
@@ -31,7 +33,7 @@ export class AdminNavigation extends Translatable {
     };
   }
 
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -79,12 +81,12 @@ export class AdminNavigation extends Translatable {
   @property({ type: Array })
   public navigation: Navigation = [];
 
-  public connectedCallback() {
+  public connectedCallback(): void {
     super.connectedCallback();
     this.__resizeQL.addListener(this.__resizeListener);
   }
 
-  public render() {
+  public render(): TemplateResult {
     const navClass = [
       'pointer-events-auto p-xs group bg-base border-t border-contrast-10 flex',
       'md:bg-contrast-5 md:p-s md:border-t-0 md:border-r md:space-y-s md:flex-col md:h-full md:overflow-auto',
@@ -113,11 +115,11 @@ export class AdminNavigation extends Translatable {
     `;
   }
 
-  public updated(changedPropeties: Map<keyof AdminNavigation, unknown>) {
+  public updated(changedPropeties: Map<keyof AdminNavigation, unknown>): void {
     if (changedPropeties.has('route')) this.__resetGroups();
   }
 
-  public disconnectedCallback() {
+  public disconnectedCallback(): void {
     super.disconnectedCallback();
     this.__resizeQL.removeListener(this.__resizeListener);
   }

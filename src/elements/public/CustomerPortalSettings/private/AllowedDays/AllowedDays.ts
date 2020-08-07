@@ -1,14 +1,16 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { MonthdayPicker, WeekdayPicker, Choice, I18N } from '../../../../private/index';
-import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 
 import {
-  WeekdayPickerChangeEvent,
-  MonthdayPickerChangeEvent,
   ChoiceChangeEvent,
+  MonthdayPickerChangeEvent,
+  WeekdayPickerChangeEvent,
 } from '../../../../private/events';
+
+import { Choice, I18N, MonthdayPicker, WeekdayPicker } from '../../../../private/index';
+import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 
 export interface Rule {
   type: 'day' | 'month';
@@ -16,7 +18,7 @@ export interface Rule {
 }
 
 export class AllowedDays extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-monthday-picker': MonthdayPicker,
       'x-weekday-picker': WeekdayPicker,
@@ -41,7 +43,7 @@ export class AllowedDays extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <x-choice
         data-testid="choice"

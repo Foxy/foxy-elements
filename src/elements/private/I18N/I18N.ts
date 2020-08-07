@@ -1,16 +1,20 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { TOptions } from 'i18next';
-import { html, property, css } from 'lit-element';
+import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { Skeleton } from '../Skeleton/Skeleton';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type I18NOptions = TOptions<any>;
+
 export class I18N extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-skeleton': Skeleton,
     };
   }
 
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -25,13 +29,13 @@ export class I18N extends Translatable {
   public key = '';
 
   @property({ type: Object })
-  public opts?: TOptions<any>;
+  public opts?: I18NOptions;
 
-  public get whenReady() {
+  public get whenReady(): Promise<unknown> {
     return this._whenI18nReady!.then(() => this.updateComplete);
   }
 
-  public render() {
+  public render(): TemplateResult {
     if (this._isI18nReady) {
       return html`${this._t(this.key, this.opts)}<slot></slot>`;
     } else {

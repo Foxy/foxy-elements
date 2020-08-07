@@ -1,13 +1,14 @@
-import { html, property } from 'lit-element';
-import { concatTruthy } from '../../../utils/concat-truthy';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
+import { concatTruthy } from '../../../utils/concat-truthy';
 import { I18N } from '../I18N/I18N';
 import { MonthdayPickerChangeEvent } from './MonthdayPickerChangeEvent';
 
 export class MonthdayPicker extends Translatable {
   protected static readonly _allDays = Array.from(new Array(31), (_, i) => i + 1);
 
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-i18n': I18N,
     };
@@ -19,7 +20,7 @@ export class MonthdayPicker extends Translatable {
   @property({ type: Array })
   public value: number[] = [];
 
-  protected _getLabelClass(day: number) {
+  protected _getLabelClass(day: number): string {
     let base = 'flex items-center justify-center m-xs p-s rounded text-m font-medium ';
 
     base += 'sm:p-0 sm:h-m sm:w-l ';
@@ -31,7 +32,7 @@ export class MonthdayPicker extends Translatable {
     return base;
   }
 
-  public render() {
+  public render(): TemplateResult {
     const translatedDays = MonthdayPicker._allDays.map(day => {
       try {
         return day.toLocaleString(this.lang, { minimumIntegerDigits: 2 });
@@ -80,17 +81,17 @@ export class MonthdayPicker extends Translatable {
     `;
   }
 
-  protected _handleChange(evt: Event, day: number) {
+  protected _handleChange(evt: Event, day: number): void {
     evt.stopPropagation();
     this._toggle(day);
     this._sendChange();
   }
 
-  protected _sendChange() {
+  protected _sendChange(): void {
     this.dispatchEvent(new MonthdayPickerChangeEvent(this.value));
   }
 
-  protected _toggle(value: number) {
+  protected _toggle(value: number): void {
     const index = this.value.indexOf(value);
     this.value = index === -1 ? [...this.value, value] : this.value.filter((_, i) => i !== index);
   }

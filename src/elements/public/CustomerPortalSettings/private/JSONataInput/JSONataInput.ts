@@ -1,12 +1,13 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { ChoiceChangeEvent } from '../../../../private/events';
 import { Choice, I18N } from '../../../../private/index';
 import { JSONataInputChangeEvent } from './JSONataInputChangeEvent';
 
 export class JSONataInput extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-choice': Choice,
@@ -30,7 +31,7 @@ export class JSONataInput extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <x-choice
         data-testid="choice"

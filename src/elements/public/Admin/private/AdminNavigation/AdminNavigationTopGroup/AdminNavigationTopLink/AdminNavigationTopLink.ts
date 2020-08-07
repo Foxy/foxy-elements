@@ -1,9 +1,10 @@
-import { html, property } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../../../mixins/translatable';
 import { I18N } from '../../../../../../private/index';
 
 export class AdminNavigationTopLink extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'x-i18n': I18N,
@@ -22,7 +23,7 @@ export class AdminNavigationTopLink extends Translatable {
   @property({ type: String })
   public icon = '';
 
-  public render() {
+  public render(): TemplateResult {
     const wrapperClass = [
       'text-center block cursor-pointer transition-colors duration-200 rounded focus:outline-none',
       'md:border md:border-transparent md:rounded-t-l md:rounded-b-l md:hover:text-primary md:focus:shadow-outline',
