@@ -1,15 +1,16 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
-import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { ChoiceChangeEvent } from '../../../../private/events';
 import { Choice, Group, I18N } from '../../../../private/index';
+import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
+import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
 import { OffsetInputChangeEvent } from './OffsetInputChangeEvent';
 
 export class OffsetInput extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-frequency-input': FrequencyInput,
@@ -50,7 +51,7 @@ export class OffsetInput extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <x-group>
         <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key=${`ndmod.${this.type}`}>

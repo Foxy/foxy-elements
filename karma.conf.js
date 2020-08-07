@@ -6,13 +6,18 @@ const merge = require('deepmerge');
 module.exports = config => {
   config.set(
     merge(createDefaultConfig(config), {
+      client: {
+        mocha: {
+          timeout: 6000,
+        },
+      },
       files: [
         {
           pattern: config.grep ? config.grep : './dist/**/*.test.js',
           type: 'module',
         },
         {
-          pattern: './translations/**/*.json',
+          pattern: './src/mocks/translations/**/*.json',
           included: false,
           nocache: false,
           watched: false,
@@ -20,7 +25,7 @@ module.exports = config => {
         },
       ],
       proxies: {
-        '/translations/': '/base/translations/',
+        '/translations/': '/base/src/mocks/translations/',
       },
       plugins: [require.resolve('@open-wc/karma-esm'), 'karma-*'],
       frameworks: ['esm'],

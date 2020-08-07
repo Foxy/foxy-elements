@@ -1,6 +1,7 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import { html, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { DropdownChangeEvent } from '../../../../private/events';
@@ -10,7 +11,7 @@ import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
 export class FrequencyInput extends Translatable {
   public static readonly defaultValue = '1w';
 
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-button': customElements.get('vaadin-button'),
@@ -38,7 +39,7 @@ export class FrequencyInput extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <div class="grid grid-cols-2 gap-s">
         <vaadin-integer-field

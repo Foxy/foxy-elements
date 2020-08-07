@@ -1,12 +1,13 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-checkbox';
-import { property, html } from 'lit-element';
-import { Themeable } from '../../../mixins/themeable';
+import { html, property, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
-import { CheckboxMachine } from './CheckboxMachine';
+import { Themeable } from '../../../mixins/themeable';
 import { CheckboxChangeEvent } from './CheckboxChangeEvent';
+import { CheckboxMachine } from './CheckboxMachine';
 
 export class Checkbox extends Themeable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-checkbox': customElements.get('vaadin-checkbox'),
     };
@@ -25,7 +26,7 @@ export class Checkbox extends Themeable {
     .start();
 
   @property({ type: Boolean, noAccessor: true })
-  public get checked() {
+  public get checked(): boolean {
     return this.__service.state.matches('checked');
   }
   public set checked(value: boolean) {
@@ -33,7 +34,7 @@ export class Checkbox extends Themeable {
   }
 
   @property({ type: Boolean, noAccessor: true })
-  public get disabled() {
+  public get disabled(): boolean {
     const states = ['checked.disabled', 'unchecked.disabled'];
     return states.some(state => this.__service.state.matches(state));
   }
@@ -41,7 +42,7 @@ export class Checkbox extends Themeable {
     this.__service.send(value ? 'DISABLE' : 'ENABLE');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <vaadin-checkbox
         class="w-full"

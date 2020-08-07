@@ -15,6 +15,10 @@ export class LoadingScreen extends Themeable {
           left: 0;
         }
 
+        .top-center {
+          top: calc(50% - (var(--lumo-size-xl) / 2));
+        }
+
         @keyframes dash0 {
           from {
             transform: translate(0, 0);
@@ -56,10 +60,10 @@ export class LoadingScreen extends Themeable {
 
   public render(): TemplateResult {
     return html`
-      <div class="h-full bg-base text-primary flex items-center justify-center">
+      <div class="h-full bg-base text-primary">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          class="fill-current w-xl h-xl"
+          class="fill-current w-xl h-xl mx-auto sticky top-center"
           shape-rendering="geometricPrecision"
           text-rendering="geometricPrecision"
           viewBox="0 0 64 64"

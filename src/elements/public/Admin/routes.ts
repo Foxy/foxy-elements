@@ -56,7 +56,7 @@ export const routes: Parameters<Router['setRoutes']>[0] = [
   {
     name: 'customer-portal-settings',
     path: '/settings/customer-portal',
-    action: () => import('../CustomerPortalSettings/index').then(() => void 0),
+    action: (): Promise<void> => import('../CustomerPortalSettings/index').then(() => void 0),
     component: 'foxy-customer-portal-settings',
   },
   {

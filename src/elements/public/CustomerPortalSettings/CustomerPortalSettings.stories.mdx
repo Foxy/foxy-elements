@@ -1,0 +1,91 @@
+import { html } from 'lit-html';
+import { Story, Preview, Meta, Props } from '@open-wc/demoing-storybook';
+import { withKnobs, withWebComponentsKnobs } from '@open-wc/demoing-storybook';
+import { store } from '../../../mocks/FxStore';
+import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
+import './index';
+
+export const handleRequest = evt => {
+  evt.detail.handle(async url => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    //
+    if (url.endsWith('/stores/8')) return new Response(JSON.stringify(store));
+    if (url.endsWith('/stores/8/customer_portal_settings')) {
+      return new Response(JSON.stringify(customerPortalSettings));
+    }
+    //
+    return new Response(null, { status: 404 });
+  });
+};
+
+<Meta
+  title="relations | <foxy-customer-portal-settings>"
+  decorators={[withKnobs, withWebComponentsKnobs]}
+  parameters={{
+    component: 'foxy-customer-portal-settings',
+    options: { selectedPanel: 'storybookjs/knobs/panel' },
+  }}
+/>
+
+# Customer Portal Settings
+
+[![hAPI](https://img.shields.io/badge/hAPI-customer__portal__settings-green.svg)](https://api.foxycart.com/rels/customer_portal_settings)
+
+The `<foxy-customer-portal-settings>` element is a **relation element** that provides a visual interface for
+interacting with the `customer_portal_settings` hAPI relation.
+
+## Setup
+
+All relation elements need an `href` attribute to know where to load their content from and a
+request handler to connect to the backend. You can check if your component is configured properly by
+running your project and looking for the error message like below – if it isn't there, then you're
+good to go.
+
+<Preview>
+  <Story name="Default" height="320px">
+    {html`<foxy-customer-portal-settings></foxy-customer-portal-settings>`}
+  </Story>
+</Preview>
+
+You can learn more about how request handlers work in `<foxy-admin>` docs. The href attribute is a full path to the customer portal settings
+resource to load into the component. If you're working with our hAPI, setting up this element is as easy as wrapping it into `<foxy-api>`
+and setting the `href` attribute on the node:
+
+```html
+<foxy-api endpoint="https://foxy-demo.foxycart.com/s/admin">
+  <foxy-customer-portal-settings
+    href="https://foxy-demo.foxycart.com/s/admin/stores/8/customer_portal_settings"
+  >
+  </foxy-customer-portal-settings>
+</foxy-api>
+```
+
+A properly configured element should look like this:
+
+<Preview>
+  <Story name="Configured" height="320px">
+    {html`
+      <foxy-customer-portal-settings
+        href="https://foxy-demo.foxycart.com/s/admin/stores/8/customer_portal_settings"
+        @request=${handleRequest}
+      >
+      </foxy-customer-portal-settings>
+    `}
+  </Story>
+</Preview>
+
+## Customize
+
+Just like every other element in this package, `<foxy-customer-portal-settings>` is powered by an amazing Vaadin Lumo
+theme that comes with a ton of customizable CSS Custom Properties. For more details and examples please
+refer to the `<foxy-admin>` docs.
+
+## Localize
+
+Our admin will try to detect and use the most suitable language for the user agent, but you can always
+override the automatic detection by setting the `lang` attribute/property. For more details and examples please
+refer to the `<foxy-admin>` docs.
+
+## API
+
+<Props of="foxy-customer-portal-settings" />

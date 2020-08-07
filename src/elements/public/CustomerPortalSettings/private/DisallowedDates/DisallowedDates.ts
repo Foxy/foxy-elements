@@ -1,12 +1,13 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-date-picker';
-import { property, html } from 'lit-element';
-import { ListChangeEvent } from '../../../../private/events';
-import { List, I18N, Skeleton } from '../../../../private/index';
-import { DisallowedDatesChangeEvent } from './DisallowedDatesChangeEvent';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
+import { ListChangeEvent } from '../../../../private/events';
+import { I18N, List, Skeleton } from '../../../../private/index';
+import { DisallowedDatesChangeEvent } from './DisallowedDatesChangeEvent';
 
 export class DisallowedDates extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-date-picker': customElements.get('vaadin-date-picker'),
       'x-skeleton': Skeleton,
@@ -25,7 +26,7 @@ export class DisallowedDates extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <x-list
         data-testid="list"

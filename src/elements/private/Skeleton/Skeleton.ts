@@ -1,8 +1,8 @@
-import { css, html } from 'lit-element';
+import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Skeleton extends Themeable {
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -28,7 +28,7 @@ export class Skeleton extends Themeable {
     ];
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <div class="relative">
         <span class="opacity-0"><slot></slot></span>

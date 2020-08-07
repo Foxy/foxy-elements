@@ -42,12 +42,17 @@
       "path": "./src/elements/public/CustomerPortalSettings/index.ts",
       "attributes": [
         {
+<<<<<<< HEAD
           "name": "disabled",
           "type": "boolean"
         },
         {
           "name": "service",
           "description": "Active interpreter service (can be shut down and replaced)."
+=======
+          "name": "href",
+          "type": "string | null"
+>>>>>>> dc30c119172555bf9c41adb70993b204e48cfe02
         },
         {
           "name": "lang",
@@ -63,6 +68,7 @@
       "properties": [
         {
           "name": "rel",
+<<<<<<< HEAD
           "type": "string",
           "default": "\"customer_portal_settings\""
         },
@@ -75,6 +81,15 @@
           "name": "service",
           "attribute": "service",
           "description": "Active interpreter service (can be shut down and replaced)."
+=======
+          "type": "\"customer_portal_settings\"",
+          "default": "\"customer_portal_settings\""
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "type": "string | null"
+>>>>>>> dc30c119172555bf9c41adb70993b204e48cfe02
         },
         {
           "name": "lang",
@@ -94,11 +109,14 @@
           "type": "CSSResult | CSSResultArray",
           "default": "[null,null]"
         }
+<<<<<<< HEAD
       ],
       "events": [
         {
           "name": "change"
         }
+=======
+>>>>>>> dc30c119172555bf9c41adb70993b204e48cfe02
       ]
     }
   ]

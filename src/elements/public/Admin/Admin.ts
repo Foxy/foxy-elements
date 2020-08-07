@@ -2,25 +2,25 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Router } from '@vaadin/router';
 import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
+import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import { Translatable } from '../../../mixins/translatable';
 import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
-import { machine, AdminLoadSuccessEvent } from './machine';
+import { AdminLoadSuccessEvent, machine } from './machine';
 import { navigation } from './navigation';
 import { AdminNavigation, Navigation } from './private/AdminNavigation/AdminNavigation';
 import { routes } from './routes';
 import { FxBookmark, FxStore } from './types';
-import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 
 type StoreCurie = keyof Omit<FxStore['_links'], 'curies'>;
 
 interface RelElement extends Element {
-  constructor: { rel: string };
   href: string;
+  rel: string;
 }
 
 function isRelElement(node: Node): node is RelElement {
-  return node.nodeType === Node.ELEMENT_NODE && 'rel' in node.constructor;
+  return node.nodeType === Node.ELEMENT_NODE && 'rel' in node;
 }
 
 export class Admin extends Translatable {
@@ -76,7 +76,7 @@ export class Admin extends Translatable {
         const node = addedNodes[i];
         if (!isRelElement(node)) continue;
 
-        const curie = `fx:${node.constructor.rel}`;
+        const curie = `fx:${node.rel}`;
         const links = this.__service.state.context.store?._links;
 
         if (links && curie in links) node.href = links[curie as StoreCurie].href;

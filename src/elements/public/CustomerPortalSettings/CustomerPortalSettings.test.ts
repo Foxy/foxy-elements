@@ -1,6 +1,17 @@
 import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
+import { RequestEvent } from '../../../events/request';
+
+import {
+  customerPortalSettings,
+  customerPortalSettingsMinimal,
+} from '../../../mocks/FxCustomerPortalSettings';
+
+import { store } from '../../../mocks/FxStore';
+import { FxCustomerPortalSettings } from '../../../types/hapi';
+import { ErrorScreen, ErrorType } from '../../private/ErrorScreen/ErrorScreen';
+import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
 import { CustomerPortalSettings } from './CustomerPortalSettings';
 import { FrequencyModification } from './private/FrequencyModification/FrequencyModification';
 import { FrequencyModificationChangeEvent } from './private/FrequencyModification/FrequencyModificationChangeEvent';
@@ -8,68 +19,21 @@ import { NextDateModification } from './private/NextDateModification/NextDateMod
 import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
-import { CustomerPortalSettingsResource } from './types';
 
 customElements.define('foxy-customer-portal-settings', CustomerPortalSettings);
 
-const samples: Record<string, CustomerPortalSettingsResource> = {
-  minimal: {
-    _links: {
-      self: {
-        href: 'https://foxy.io/s/admin/stores/8/customer_portal_settings',
-      },
-    },
+/**
+ * Since `setTimeout(cb, Infinite)` doesn't work, we need something else to
+ * keep promises pending in the "infinite loading" scenario. A few decades should do it.
+ */
+const KINDA_INFINITE = Date.now();
 
-    sso: true,
-    jwtSharedSecret: 'JWT-SHARED-SECRET-VALUE',
-    sessionLifespanInMinutes: 10080,
-    allowedOrigins: [],
-
-    subscriptions: {
-      allowFrequencyModification: false,
-      allowNextDateModification: false,
-    },
-
-    date_created: '2020-07-17T21:27:00.121Z',
-    date_modified: '2020-07-17T21:27:00.121Z',
-  },
-
-  complete: {
-    _links: {
-      self: {
-        href: 'https://foxy.io/s/admin/stores/8/customer_portal_settings',
-      },
-    },
-
-    sso: true,
-    jwtSharedSecret: 'JWT-SHARED-SECRET-VALUE',
-    sessionLifespanInMinutes: 10080,
-    allowedOrigins: ['http://localhost:8000', 'https://foxy.io'],
-
-    subscriptions: {
-      allowFrequencyModification: {
-        jsonataQuery: '$contains(frequency, "w")',
-        values: ['2w', '4w', '6w'],
-      },
-
-      allowNextDateModification: [
-        {
-          min: '2w',
-          max: '6w',
-          jsonataQuery: '$contains(frequency, "w")',
-          disallowedDates: [new Date().toISOString()],
-          allowedDays: {
-            type: 'month',
-            days: [1, 2, 3, 14, 15, 16],
-          },
-        },
-      ],
-    },
-
-    date_created: '2020-07-17T21:27:00.121Z',
-    date_modified: '2020-07-17T21:27:00.121Z',
-  },
+const samples: Record<string, FxCustomerPortalSettings> = {
+  minimal: customerPortalSettingsMinimal,
+  complete: customerPortalSettings,
 };
+
+// #region utils
 
 function getRefs(element: CustomerPortalSettings) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
@@ -77,14 +41,34 @@ function getRefs(element: CustomerPortalSettings) {
   return {
     origins: $('[data-testid=origins]') as OriginsList | null,
     session: $('[data-testid=session]') as HTMLInputElement | null,
+    loading: $('[data-testid=loading]') as LoadingScreen | null,
+    error: $('[data-testid=error]') as ErrorScreen | null,
     ndmod: $('[data-testid=ndmod]') as NextDateModification | null,
+    reset: $('[data-testid=reset]') as HTMLButtonElement | null,
     fmod: $('[data-testid=fmod]') as FrequencyModification | null,
+    save: $('[data-testid=save]') as HTMLButtonElement | null,
     jwt: $('[data-testid=jwt]') as HTMLInputElement | null,
   };
 }
 
-function testInteractivity(disabled: boolean) {
+async function waitForRef(getRef: () => HTMLElement | null) {
+  while (getRef() === null) await new Promise(resolve => setTimeout(resolve));
+}
+
+function clearListeners(target: EventTarget) {
+  target.removeEventListener('request', handleRequestWithError);
+  target.removeEventListener('request', handleRequestWithSuccess);
+  target.removeEventListener('request', handleRequestWithInfiniteLoading);
+  target.removeEventListener('request', handleRequestWithUnauthorizedError);
+}
+
+// #endregion utils
+
+// #region assertions
+
+function testError(type: ErrorType) {
   return async (element: CustomerPortalSettings) => {
+    await waitForRef(() => getRefs(element).error);
     await element.updateComplete;
     const refs = getRefs(element);
 
@@ -97,81 +81,241 @@ function testInteractivity(disabled: boolean) {
   };
 }
 
-function testContent(value?: CustomerPortalSettingsResource) {
+function testContent(value: FxCustomerPortalSettings) {
   return async (element: CustomerPortalSettings) => {
+    await waitForRef(() => getRefs(element).jwt);
     await element.updateComplete;
     const refs = getRefs(element);
 
-    expect(element.service.state.context).to.deep.equal(value);
-    if (!value) return;
+    const refs = getRefs(element);
 
-    expect(refs.fmod!.value).to.deep.equal(value.subscriptions.allowFrequencyModification);
     expect(refs.jwt!.value).to.deep.equal(value.jwtSharedSecret);
+    expect(refs.fmod!.value).to.deep.equal(value.subscriptions.allowFrequencyModification);
     expect(refs.ndmod!.value).to.deep.equal(value.subscriptions.allowNextDateModification);
     expect(refs.origins!.value).to.deep.equal(value.allowedOrigins);
     expect(refs.session!.value).to.deep.equal(String(value.sessionLifespanInMinutes));
   };
 }
 
+async function testLoading(element: CustomerPortalSettings) {
+  await waitForRef(() => getRefs(element).loading);
+  await element.updateComplete;
+  expect(getRefs(element).loading).to.be.visible;
+}
+
+// #endregion assertions
+
+// #region handlers
+
+function handleRequestWithError(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+  detail.handle(() => Promise.resolve(new Response(null, { status: 500 })));
+}
+
+function handleRequestWithSuccess(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+
+  detail.handle(async url => {
+    if (url.toString().endsWith('/stores/8')) return new Response(JSON.stringify(store));
+    if (url.toString().endsWith('/stores/8/customer_portal_settings')) {
+      return new Response(JSON.stringify(samples.minimal));
+    }
+
+    return new Response(null, { status: 404 });
+  });
+}
+
+function handleRequestWithInfiniteLoading(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+  detail.handle(() => new Promise(resolve => setTimeout(resolve, KINDA_INFINITE)));
+}
+
+function handleRequestWithUnauthorizedError(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+  detail.handle(() => Promise.resolve(new Response(null, { status: 403 })));
+}
+
+// #endregion handlers
+
 const machine = createMachine({
-  id: 'cps',
-  meta: { test: () => true },
-  initial: 'empty',
+  id: 'customer-portal-settings',
+  initial: 'unconfigured',
   states: {
-    empty: {
-      on: { DISABLE: '.disabled', ENABLE: '.enabled' },
-      meta: { test: testContent() },
-      initial: 'enabled',
-      states: {
-        enabled: {
-          meta: { test: testInteractivity(false) },
-          on: { SET_CONTENT: '#cps.minimal.enabled' },
-        },
-        disabled: {
-          meta: { test: testInteractivity(true) },
-          on: { SET_CONTENT: '#cps.minimal.disabled' },
-        },
+    unconfigured: {
+      meta: { test: testError('setup_needed') },
+      on: {
+        LOAD_UNAUTHORIZED: 'unauthorized',
+        LOAD_INFINITE: 'loading',
+        LOAD_SUCCESS: 'clean',
+        LOAD_ERROR: 'error',
       },
     },
-    minimal: {
-      on: { DISABLE: '.disabled', ENABLE: '.enabled' },
+    unauthorized: {
+      meta: { test: testError('unauthorized') },
+    },
+    loading: {
+      meta: { test: testLoading },
+    },
+    clean: {
       meta: { test: testContent(samples.minimal) },
-      initial: 'enabled',
-      states: {
-        enabled: {
-          meta: { test: testInteractivity(false) },
-          on: { EDIT_CONTENT: '#cps.complete.enabled' },
-        },
-        disabled: {
-          meta: { test: testInteractivity(true) },
-        },
-      },
+      on: { EMULATE_INPUT: 'dirty' },
     },
-    complete: {
-      on: { DISABLE: '.disabled', ENABLE: '.enabled' },
+    dirty: {
       meta: { test: testContent(samples.complete) },
-      initial: 'enabled',
-      states: {
-        enabled: { meta: { test: testInteractivity(false) } },
-        disabled: { meta: { test: testInteractivity(true) } },
+      on: {
+        SAVE_UNAUTHORIZED: 'unauthorized',
+        SAVE_INFINITE: 'saving',
+        SAVE_SUCCESS: 'saved',
+        SAVE_ERROR: 'error',
+        RESET: 'clean',
       },
     },
+=======
+async function testLoading(element: CustomerPortalSettings) {
+  await waitForRef(() => getRefs(element).loading);
+  await element.updateComplete;
+  expect(getRefs(element).loading).to.be.visible;
+}
+
+// #endregion assertions
+
+// #region handlers
+
+function handleRequestWithError(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+  detail.handle(() => Promise.resolve(new Response(null, { status: 500 })));
+}
+
+function handleRequestWithSuccess(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+
+  detail.handle(async url => {
+    if (url.toString().endsWith('/stores/8')) return new Response(JSON.stringify(store));
+    if (url.toString().endsWith('/stores/8/customer_portal_settings')) {
+      return new Response(JSON.stringify(samples.minimal));
+    }
+
+    return new Response(null, { status: 404 });
+  });
+}
+
+function handleRequestWithInfiniteLoading(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+  detail.handle(() => new Promise(resolve => setTimeout(resolve, KINDA_INFINITE)));
+}
+
+function handleRequestWithUnauthorizedError(evt: Event) {
+  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
+  detail.handle(() => Promise.resolve(new Response(null, { status: 403 })));
+}
+
+// #endregion handlers
+
+const machine = createMachine({
+  id: 'customer-portal-settings',
+  initial: 'unconfigured',
+  states: {
+    unconfigured: {
+      meta: { test: testError('setup_needed') },
+      on: {
+        LOAD_UNAUTHORIZED: 'unauthorized',
+        LOAD_INFINITE: 'loading',
+        LOAD_SUCCESS: 'clean',
+        LOAD_ERROR: 'error',
+      },
+    },
+    unauthorized: {
+      meta: { test: testError('unauthorized') },
+    },
+    loading: {
+      meta: { test: testLoading },
+    },
+    clean: {
+      meta: { test: testContent(samples.minimal) },
+      on: { EMULATE_INPUT: 'dirty' },
+    },
+    dirty: {
+      meta: { test: testContent(samples.complete) },
+      on: {
+        SAVE_UNAUTHORIZED: 'unauthorized',
+        SAVE_INFINITE: 'saving',
+        SAVE_SUCCESS: 'saved',
+        SAVE_ERROR: 'error',
+        RESET: 'clean',
+      },
+    },
+    saving: {
+      meta: { test: testLoading },
+    },
+    saved: {
+      meta: { test: testContent(samples.complete) },
+    },
+    error: {
+      meta: { test: testError('unknown') },
+    },
+>>>>>>> dc30c119172555bf9c41adb70993b204e48cfe02
   },
 });
 
 const model = createModel<CustomerPortalSettings>(machine).withEvents({
-  ENABLE: { exec: element => void (element.disabled = false) },
-  DISABLE: { exec: element => void (element.disabled = true) },
-  SET_CONTENT: {
-    exec: async element => {
-      element.service.state.context = samples.minimal;
-      await element.requestUpdate();
+  LOAD_UNAUTHORIZED: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithUnauthorizedError);
+      element.href = samples.minimal._links.self.href;
     },
   },
-  EDIT_CONTENT: {
+  LOAD_INFINITE: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithInfiniteLoading);
+      element.href = samples.minimal._links.self.href;
+    },
+  },
+  LOAD_SUCCESS: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithSuccess);
+      element.href = samples.minimal._links.self.href;
+    },
+  },
+  LOAD_ERROR: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithError);
+      element.href = samples.minimal._links.self.href;
+    },
+  },
+  SAVE_UNAUTHORIZED: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithUnauthorizedError);
+      getRefs(element).save!.click();
+    },
+  },
+  SAVE_INFINITE: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithInfiniteLoading);
+      getRefs(element).save!.click();
+    },
+  },
+  SAVE_SUCCESS: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithSuccess);
+      getRefs(element).save!.click();
+    },
+  },
+  SAVE_ERROR: {
+    exec: element => {
+      clearListeners(element);
+      element.addEventListener('request', handleRequestWithError);
+      getRefs(element).save!.click();
+    },
+  },
+  EMULATE_INPUT: {
     exec: async element => {
-      if (element.service.state.context === undefined) return;
-
       const refs = getRefs(element);
 
       refs.fmod!.value = samples.complete.subscriptions.allowFrequencyModification;
@@ -186,15 +330,14 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
       refs.origins!.value = samples.complete.allowedOrigins;
       refs.origins!.dispatchEvent(new OriginsListChangeEvent(refs.origins!.value));
 
-      const whenChanged = new Promise(resolve =>
-        element.addEventListener('change', resolve, { once: true })
-      );
-
       refs.session!.value = samples.complete.sessionLifespanInMinutes.toString();
       refs.session!.dispatchEvent(new Event('change'));
 
-      await whenChanged;
+      await new Promise(resolve => setTimeout(resolve, 5000));
     },
+  },
+  RESET: {
+    exec: element => getRefs(element).reset!.click(),
   },
 });
 

@@ -1,14 +1,15 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, query, property } from 'lit-element';
+import { html, property, query, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { ListChangeEvent } from '../../../../private/events';
-import { Group, List, I18N, Skeleton } from '../../../../private/index';
-import { OriginsListChangeEvent } from './OriginsListChangeEvent';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
+import { ListChangeEvent } from '../../../../private/events';
+import { Group, I18N, List, Skeleton } from '../../../../private/index';
+import { OriginsListChangeEvent } from './OriginsListChangeEvent';
 
 export class OriginsList extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-button': customElements.get('vaadin-button'),
@@ -33,7 +34,7 @@ export class OriginsList extends Translatable {
     super('customer-portal-settings');
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <x-group frame>
         <x-list

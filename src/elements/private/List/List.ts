@@ -1,9 +1,10 @@
-import { html, property } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { html, property, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { ListChangeEvent } from './ListChangeEvent';
 
 export class List extends Themeable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),
     };
@@ -18,7 +19,7 @@ export class List extends Themeable {
   @property({ type: Object })
   public getText: (value: string) => string = v => v;
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <div class="font-lumo text-m w-full">
         <ul>

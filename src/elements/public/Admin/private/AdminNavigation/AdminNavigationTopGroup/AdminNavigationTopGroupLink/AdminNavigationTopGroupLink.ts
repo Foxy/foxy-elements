@@ -1,16 +1,17 @@
-import { html, property, css } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../../../mixins/translatable';
 import { I18N } from '../../../../../../private/index';
 
 export class AdminNavigationTopGroupLink extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'x-i18n': I18N,
     };
   }
 
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -39,7 +40,7 @@ export class AdminNavigationTopGroupLink extends Translatable {
   @property({ type: String })
   public href = '';
 
-  public render() {
+  public render(): TemplateResult {
     const textClass = [
       'transition-colors duration-200 relative text-primary',
       'md:text-s md:font-medium md:group-hover:text-primary',

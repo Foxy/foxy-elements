@@ -1,4 +1,5 @@
-import { css, html, property } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../../mixins/translatable';
 import { I18N } from '../../../../../private/index';
 import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink/AdminNavigationTopGroupLink';
@@ -17,7 +18,7 @@ export interface NavigationGroup<TChildren = NavigationLink> extends NavigationI
 }
 
 export class AdminNavigationTopGroup extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-admin-navigation-top-group-link': AdminNavigationTopGroupLink,
       'iron-icon': customElements.get('iron-icon'),
@@ -25,7 +26,7 @@ export class AdminNavigationTopGroup extends Translatable {
     };
   }
 
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -58,7 +59,7 @@ export class AdminNavigationTopGroup extends Translatable {
   @property({ type: Boolean })
   public open = false;
 
-  public render() {
+  public render(): TemplateResult {
     const detailsClass = [
       'font-lumo transition-colors duration-100',
       'md:border md:border-transparent md:rounded-t-l md:rounded-b-l',

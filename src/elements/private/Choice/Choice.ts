@@ -1,12 +1,13 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
-import { html, property } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { actions, interpret } from 'xstate/dist/xstate.web.js';
 import { Themeable } from '../../../mixins/themeable';
 import { ChoiceChangeEvent } from './ChoiceChangeEvent';
 import { ChoiceContext, ChoiceMachine } from './ChoiceMachine';
 
 export class Choice extends Themeable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-radio-button': customElements.get('vaadin-radio-button'),
       'vaadin-radio-group': customElements.get('vaadin-radio-group'),
@@ -35,7 +36,7 @@ export class Choice extends Themeable {
     .start();
 
   @property({ type: Boolean, noAccessor: true })
-  public get disabled() {
+  public get disabled(): boolean {
     return this.__service.state.matches('disabled');
   }
   public set disabled(value: boolean) {
@@ -43,7 +44,7 @@ export class Choice extends Themeable {
   }
 
   @property({ type: String, noAccessor: true })
-  public get value() {
+  public get value(): string {
     return this.__service.state.context.value;
   }
   public set value(value: ChoiceContext['value']) {
@@ -51,7 +52,7 @@ export class Choice extends Themeable {
   }
 
   @property({ type: Array, noAccessor: true })
-  public get items() {
+  public get items(): ChoiceContext['items'] {
     return this.__service.state.context.items;
   }
   public set items(items: ChoiceContext['items']) {
@@ -59,14 +60,14 @@ export class Choice extends Themeable {
   }
 
   @property({ type: Object, noAccessor: true })
-  public get getText() {
+  public get getText(): ChoiceContext['getText'] {
     return this.__service.state.context.getText;
   }
   public set getText(getText: ChoiceContext['getText']) {
     this.__service.send({ type: 'INIT', getText });
   }
 
-  public render() {
+  public render(): TemplateResult {
     return html`
       <vaadin-radio-group class="w-full" style="padding: 8px 0 0 13px">
         ${this.items.map(
