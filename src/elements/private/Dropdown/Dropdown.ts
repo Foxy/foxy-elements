@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-select';
 import { html, TemplateResult } from 'lit-element';
-import { Choice } from '../choice/Choice';
+import { Choice } from '../Choice/Choice';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
 
 export class Dropdown extends Choice {
