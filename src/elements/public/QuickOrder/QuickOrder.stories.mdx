@@ -59,46 +59,37 @@ find your products (unless they are in the shadow dom of other elements).
   <Story name="Using product items">
     {html`
     <foxy-order-form>
-      <section class="dietary-food">
-      <foxy-item
-        name="Pup Dog Food"
-        price="69.99"
-        code="abc123"
-        image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-        nutritional_facts="nutritional facts"
-        >
-        High quality nutritious food for you pet
-      </foxy-item>
-      <foxy-item
-        name="Pup Dog Food"
-        price="69.99"
-        code="abc123"
-        image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-        nutritional_facts="nutritional facts"
-        >
-        High quality nutritious food for you pet
-      </foxy-item>
-      </section>
-      <section class="organic-food">
-        <foxy-item
-          name="Pup Dog Food"
-          price="69.99"
-          code="abc123"
-          image="path/to/foo.jpg"
-          nutritional_facts="nutritional facts"
-          >
-          High quality nutritious food for you pet
+      <style>
+      .dietary-food {
+        font-weight: 100;
+        border: solid thin silver;
+        border-radius: 6px;
+        padding: 1em;
+      display: flex;
+      height: 6em;
+      overflow:hidden;
+    }
+    .dietary-food img {
+      height: 4em
+    }
+    </style>
+      <h2>diet food</h2>
+      <section class="dietary-food" style="">
+        <foxy-item name="pup dog food" price="59.99"
+          image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+          high quality nutritious food for you pet
+        </foxy-item>
+        <foxy-item name="pup dog rich food" price="69.99"
+          image="https://www.foxy.io/merchants/shopping-cart-full.svg" >
+          Delicious!
         </foxy-item>
       </section>
-      <section class="bonus>
+      <h2>Special item</h2>
       <foxy-item
-        name="Pup Dog Food"
+        name="pup dog food"
         price="69.99"
-        code="abc123"
-        image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-        nutritional_facts="nutritional facts"
-        >
-        High quality nutritious food for you pet
+        image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+        And a special bonus for you
       </foxy-item>
       </section>
     </foxy-order-form>
