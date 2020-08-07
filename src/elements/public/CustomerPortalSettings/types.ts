@@ -23,6 +23,7 @@ export interface CustomerPortalSettingsLoadErrorEvent {
 }
 
 export interface CustomerPortalSettingsResetEvent {
+  type: 'RESET';
 }
 
 export interface CustomerPortalSettingsSetHrefEvent {
