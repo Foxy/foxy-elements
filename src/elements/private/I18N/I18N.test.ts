@@ -1,15 +1,9 @@
 import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
-import { version } from '../../../env';
 import { I18N } from './I18N';
 
 customElements.define('x-i18n', I18N);
-
-const meta = {
-  i18nStamp: Date.now(),
-  i18nVersion: version,
-};
 
 const samples = {
   ns: {
@@ -30,20 +24,15 @@ const samples = {
   } as const,
   text: {
     en: {
-      global: { test: 'dolor sit {{value}}', ...meta },
-      custom: { test: '{{value}} elit, sed do', ...meta },
+      global: { test: 'dolor sit {{value}}' },
+      custom: { test: '{{value}} elit, sed do' },
     },
     fr: {
-      global: { test: 'elit, sed {{value}} do', ...meta },
-      custom: { test: 'dolor {{value}} sit', ...meta },
+      global: { test: 'elit, sed {{value}} do' },
+      custom: { test: 'dolor {{value}} sit' },
     },
   },
 };
-
-localStorage.setItem('foxy_i18n_en-global', JSON.stringify(samples.text.en.global));
-localStorage.setItem('foxy_i18n_en-custom', JSON.stringify(samples.text.en.custom));
-localStorage.setItem('foxy_i18n_fr-global', JSON.stringify(samples.text.fr.global));
-localStorage.setItem('foxy_i18n_fr-custom', JSON.stringify(samples.text.fr.custom));
 
 function testNs(ns: 'global' | 'custom') {
   return async (element: I18N) => {
