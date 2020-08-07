@@ -107,9 +107,9 @@ Please, note that the `sub_frequency` is required.
 More information on subscriptions can be found here: https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options
 
 <Preview>
-  <Story name="Product with subscription">
+  <Story name="Product with subscription" >
     {html`
-    <foxy-order-form>
+    <foxy-order-form frequencyOptions='["1d", "1w", ".5m", "1m"]'>
       <foxy-item
         name="Pup Dog Food"
         price="69.99"
@@ -134,7 +134,7 @@ This is particularly useful to allow users to configure subscription settings to
 <Preview>
   <Story name="Grouping with markup">
     {html`
-    <foxy-order-form>
+    <foxy-order-form frequencyOptions='["1d", "1w", ".5m", "1m"]'>
       <section class="dietary-food" data-product-group="true">
         <foxy-item
           name="Pup Dog Food"
@@ -181,7 +181,7 @@ Please, note that to adhere to prepend `data-` and replace `_` with `-` to the s
 <Preview>
   <Story name="Group subscription settings">
     {html`
-    <foxy-order-form>
+    <foxy-order-form frequencyOptions='["1d", "1w", ".5m", "1m"]'>
       <section class="dietary-food" data-product-group="true" data-sub-frequency="60d" >
         <!-- A subscription will be created for these two items -->
         <foxy-item
@@ -232,6 +232,7 @@ Products in a group will be displayed as children of a `div` tag with the attrib
   <Story name="Using an Array of products">
     {html`
     <foxy-order-form
+   frequencyOptions='["1d", "1w", ".5m", "1m"]'
     products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'>
     </foxy-order-form>
     `}
@@ -248,6 +249,7 @@ The grouping object must contain a `products` field, which is an array of produc
   <Story name="Array of grouped products">
     {html`
     <foxy-order-form
+      frequencyOptions='["1d", "1w", ".5m", "1m"]'
     products='[{"sub_frequency":"1m", "products":[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]},{"name":"Organic Food","price":"80.00"}]'>
     </foxy-order-form>
     `}

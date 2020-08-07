@@ -1,13 +1,18 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
+import '@vaadin/vaadin-icons/vaadin-icons';
 import { html, property, query, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
-import { Dropdown } from '../../private/index';
+import { Dropdown, Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
 import { QuickOrderProduct, ProductGroup } from './types';
 
-import { Section, Page, Code, I18N, Skeleton } from '../../private/index';
+export interface FrequencyOption {
+  number: number;
+  period: string;
+  periodCode: string;
+}
 
 export class QuickOrder extends Translatable {
   public static get scopedElements() {
@@ -15,6 +20,7 @@ export class QuickOrder extends Translatable {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-password-field': customElements.get('vaadin-password-field'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'iron-icon': customElements.get('iron-icon'),
       'x-product': ProductItem,
       'x-skeleton': Skeleton,
       'x-section': Section,
@@ -30,6 +36,39 @@ export class QuickOrder extends Translatable {
   @property({ type: String })
   public storeSubdomain = this.__defaultSubdomain;
 
+  @property({
+    type: Array,
+    converter: value => {
+      if (value == null) {
+        return [];
+      }
+      const freqArray = JSON.parse(value);
+      if (!Array.isArray(freqArray)) {
+        console.error(`Frequency options must be an array.`);
+        return [];
+      }
+      for (const f of freqArray) {
+        if (!QuickOrder.__validFrequency(f)) {
+          console.error(
+            `Invalid frequency option.
+              Please, check https://wiki.foxycart.com/v/2.0/products#subscription_product_options for possible values.
+              Each frequency must be a in the format:
+              - 1d (a number followed by d, for day)
+              - 1w (a number followed by w, for day)
+              - 1m (a number followed by m, for day)
+              - 1y (a number followed by y, for day)
+              or .5m (no other decimals are allowed, and this is only for months)
+              `,
+            f
+          );
+          return [];
+        }
+      }
+      return freqArray.map(e => QuickOrder.__friendlyFreq(e));
+    },
+  })
+  public frequencyOptions: FrequencyOption[] = [];
+
   @query('form')
   form?: HTMLFormElement;
 
@@ -39,23 +78,34 @@ export class QuickOrder extends Translatable {
 
   private __productElements: ProductItem[] = [];
 
+  private static __friendlyFreq(value: string): FrequencyOption {
+    const matches = value.match(/^(\.?\d+)([dwmy])$/);
+    if (!matches) {
+      throw new Error('Invalid frequency string');
+    }
+    const friendlyTimeSpan: { [name: string]: string } = {
+      d: 'day',
+      w: 'week',
+      m: 'month',
+      y: 'year',
+    };
+    return {
+      number: Number(matches[1]),
+      period: friendlyTimeSpan[matches[2]],
+      periodCode: matches[2],
+    };
+  }
+
   /**
-   * 60d = every 60 days.
-   * 2w = every two weeks.
-   *      For date calculations, 1w = 7d.
-   * 1m = every month.
-   *      When you use the m unit, FoxyCart will assign billing to the current (or assigned) day of the month, to be repeated every x months.
-   *      The date will be moved up when necessary; if set to the 31st, it will process on the 30th of months with 30 days (or 28th/29th of February).
-   * 1y = every year.
-   * .5m = twice a month.
-   *     IMPORTANT: The .5 value only works with m (months). This value will setup bi-monthly subscriptions, once on the start date, and again 15 days later. Example: if you set it to start on the 3rd, it will run on the 3rd and the 18th of each month.
-   *
+   * Checks if a frequency complies with possible values
    */
-  private __items = [
-    'Every Week',
-    'Each week',
-    'Each day'
-  ];
+  private static __validFrequency(strFrequency: string | null) {
+    if (strFrequency === null) {
+      return false;
+    } else {
+      return !!strFrequency.match(/^(\.5m|\d+[dwmy])$/);
+    }
+  }
 
   private handleSubmit = {
     form: this.form,
@@ -74,23 +124,21 @@ export class QuickOrder extends Translatable {
       <x-page>
         <x-section class="products">
           <form>
-          <slot></slot>
-          ${this.products.map(this.__productsFromArray)}
+            <slot></slot>
+            ${this.products.map(this.__productsFromArray)}
           </form>
         </x-section>
         <x-section class="actions">
-          <x-dropdown
-          data-testid="units"
-          .items=${this.__items}
-        >
-        </x-dropdown>
-          <vaadin-button
-            type="submit"
-            role="submit"
-            @click=${this.handleSubmit}>
-            <x-i18n key="continue"
-                    .ns=${this.ns}
-                    .lang=${this.lang}></x-i18n>
+          ${this.frequencyOptions.length
+            ? html`<x-dropdown
+                data-testid="units"
+                .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}
+              >
+              </x-dropdown>`
+            : ''}
+          <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
+            <iron-icon icon="vaadin:user-heart" slot="prefix"></iron-icon>
+            <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           </vaadin-button>
         </x-section>
       </x-page>
