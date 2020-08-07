@@ -68,29 +68,6 @@ export class CustomerPortalSettings extends Translatable {
     return this.__service.state.context.href;
   }
   public set href(data: string | null) {
-  }
-
-  public render() {
-    if (!this.service.state.context) return;
-=======
-  private __machine = machine.withConfig({
-    services: {
-      load: () => this.__load(),
-      save: () => this.__save(),
-    },
-  });
-
-  private __service = interpret(this.__machine)
-    .onTransition(({ changed }) => changed && this.requestUpdate())
-    .onChange(() => this.requestUpdate());
-
-  public readonly rel = 'customer_portal_settings';
-
-  @property({ type: String, noAccessor: true })
-  public get href(): string | null {
-    return this.__service.state.context.href;
-  }
-  public set href(data: string | null) {
     this.__service.send({ type: 'SET_HREF', data });
   }
 
@@ -114,7 +91,6 @@ export class CustomerPortalSettings extends Translatable {
         </x-error-screen>
       `;
     }
->>>>>>> dc30c119172555bf9c41adb70993b204e48cfe02
 
     const { newResource } = this.__service.state.context;
 
@@ -123,21 +99,17 @@ export class CustomerPortalSettings extends Translatable {
         <x-i18n class="block" slot="title" key="title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
         <x-i18n class="block" slot="subtitle" key="subtitle" .ns=${this.ns} .lang=${this.lang}>
         </x-i18n>
-
         <x-section>
           <x-i18n slot="title" key="quickstart.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           <x-i18n slot="subtitle" key="quickstart.subtitle" .ns=${this.ns} .lang=${this.lang}>
           </x-i18n>
-
           ${this._isI18nReady
             ? this.__renderCode()
             : html`<x-skeleton class="block">${this.__renderCode}</x-skeleton>`}
         </x-section>
-
         <x-section>
           <x-i18n slot="title" key="origins.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           <x-i18n slot="subtitle" key="origins.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-
           ${newResource
             ? html`
                 <x-origins-list
@@ -154,7 +126,6 @@ export class CustomerPortalSettings extends Translatable {
               `
             : ''}
         </x-section>
-
         ${newResource
           ? html`
               <x-frequency-modification
@@ -168,7 +139,6 @@ export class CustomerPortalSettings extends Translatable {
                 }}
               >
               </x-frequency-modification>
-
               <x-next-date-modification
                 data-testid="ndmod"
                 lang=${this.lang}
@@ -182,11 +152,9 @@ export class CustomerPortalSettings extends Translatable {
               </x-next-date-modification>
             `
           : ''}
-
         <x-section>
           <x-i18n slot="title" key="jwt.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           <x-i18n slot="subtitle" key="jwt.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-
           ${newResource
             ? html`
                 <vaadin-password-field
@@ -203,11 +171,9 @@ export class CustomerPortalSettings extends Translatable {
               `
             : ''}
         </x-section>
-
         <x-section>
           <x-i18n slot="title" key="session.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           <x-i18n slot="subtitle" key="session.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-
           ${newResource
             ? html`
                 <vaadin-integer-field
@@ -227,7 +193,6 @@ export class CustomerPortalSettings extends Translatable {
               `
             : ''}
         </x-section>
-
         ${this.__service.state.matches('idle.dirty')
           ? html`
               <div
@@ -241,7 +206,6 @@ export class CustomerPortalSettings extends Translatable {
                   <iron-icon icon="lumo:checkmark" slot="prefix"></iron-icon>
                   <x-i18n lang=${this.lang} key="save"></x-i18n>
                 </vaadin-button>
-
                 <vaadin-button
                   data-testid="reset"
                   theme="tertiary"

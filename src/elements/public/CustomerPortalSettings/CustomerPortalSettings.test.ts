@@ -70,14 +70,7 @@ function testError(type: ErrorType) {
   return async (element: CustomerPortalSettings) => {
     await waitForRef(() => getRefs(element).error);
     await element.updateComplete;
-    const refs = getRefs(element);
-
-    expect(element.disabled).to.be.oneOf([disabled, undefined]);
-    expect(refs.session?.disabled).to.be.oneOf([disabled, undefined]);
-    expect(refs.origins?.disabled).to.be.oneOf([disabled, undefined]);
-    expect(refs.ndmod?.disabled).to.be.oneOf([disabled, undefined]);
-    expect(refs.fmod?.disabled).to.be.oneOf([disabled, undefined]);
-    expect(refs.jwt?.disabled).to.be.oneOf([disabled, undefined]);
+    expect(getRefs(element).error?.type).to.equal(type);
   };
 }
 
@@ -85,7 +78,6 @@ function testContent(value: FxCustomerPortalSettings) {
   return async (element: CustomerPortalSettings) => {
     await waitForRef(() => getRefs(element).jwt);
     await element.updateComplete;
-    const refs = getRefs(element);
 
     const refs = getRefs(element);
 
@@ -170,80 +162,6 @@ const machine = createMachine({
         RESET: 'clean',
       },
     },
-=======
-async function testLoading(element: CustomerPortalSettings) {
-  await waitForRef(() => getRefs(element).loading);
-  await element.updateComplete;
-  expect(getRefs(element).loading).to.be.visible;
-}
-
-// #endregion assertions
-
-// #region handlers
-
-function handleRequestWithError(evt: Event) {
-  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
-  detail.handle(() => Promise.resolve(new Response(null, { status: 500 })));
-}
-
-function handleRequestWithSuccess(evt: Event) {
-  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
-
-  detail.handle(async url => {
-    if (url.toString().endsWith('/stores/8')) return new Response(JSON.stringify(store));
-    if (url.toString().endsWith('/stores/8/customer_portal_settings')) {
-      return new Response(JSON.stringify(samples.minimal));
-    }
-
-    return new Response(null, { status: 404 });
-  });
-}
-
-function handleRequestWithInfiniteLoading(evt: Event) {
-  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
-  detail.handle(() => new Promise(resolve => setTimeout(resolve, KINDA_INFINITE)));
-}
-
-function handleRequestWithUnauthorizedError(evt: Event) {
-  const { detail } = evt as RequestEvent<CustomerPortalSettings>;
-  detail.handle(() => Promise.resolve(new Response(null, { status: 403 })));
-}
-
-// #endregion handlers
-
-const machine = createMachine({
-  id: 'customer-portal-settings',
-  initial: 'unconfigured',
-  states: {
-    unconfigured: {
-      meta: { test: testError('setup_needed') },
-      on: {
-        LOAD_UNAUTHORIZED: 'unauthorized',
-        LOAD_INFINITE: 'loading',
-        LOAD_SUCCESS: 'clean',
-        LOAD_ERROR: 'error',
-      },
-    },
-    unauthorized: {
-      meta: { test: testError('unauthorized') },
-    },
-    loading: {
-      meta: { test: testLoading },
-    },
-    clean: {
-      meta: { test: testContent(samples.minimal) },
-      on: { EMULATE_INPUT: 'dirty' },
-    },
-    dirty: {
-      meta: { test: testContent(samples.complete) },
-      on: {
-        SAVE_UNAUTHORIZED: 'unauthorized',
-        SAVE_INFINITE: 'saving',
-        SAVE_SUCCESS: 'saved',
-        SAVE_ERROR: 'error',
-        RESET: 'clean',
-      },
-    },
     saving: {
       meta: { test: testLoading },
     },
@@ -253,7 +171,6 @@ const machine = createMachine({
     error: {
       meta: { test: testError('unknown') },
     },
->>>>>>> dc30c119172555bf9c41adb70993b204e48cfe02
   },
 });
 
