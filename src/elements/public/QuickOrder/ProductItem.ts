@@ -9,8 +9,14 @@ import { Checkbox, Section, Group, I18N } from '../../private/index';
  * The product may be configured using HTML properties or a JS object.
  * Relevant properties are mapped to a QuickOrderProduct object that is used by
  * the QuickOrderForm.
+ *
+ * The product id may be set manually by the user or created automatically by the component.
+ * An error is thrown if an attempt is made to create two products with the same id.
  */
 export class ProductItem extends Translatable {
+  // A list of product properties as defined in Foxy Cart Documentation
+  private static productProperties = Object.keys(EmptyProduct);
+
   public static get scopedElements() {
     return {
       'x-checkbox': Checkbox,
@@ -104,12 +110,9 @@ export class ProductItem extends Translatable {
   @property({ type: Boolean, reflect: true })
   product = true;
 
-  public render() {
+  public render(): TemplateResult {
     return html`
-      <article
-        data-product="true"
-        class="product flex flex-row flex-wrap justify-between overflow-hidden"
-      >
+      <article class="product flex flex-row flex-wrap justify-between overflow-hidden">
         <img
           class="max-w-xs min-w-1 block"
           alt="${this.value?.alt ?? this.__default_image.alt}"
