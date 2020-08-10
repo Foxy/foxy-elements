@@ -34,12 +34,13 @@ export class ProductItem extends Translatable {
     super('quick-order');
   }
 
+  private get __isChildProduct() {
+    return !!this.value?.parent_code;
+  }
+
   /** LitElement life cicle */
   public firstUpdated(): void {
     this.__propertyToValue();
-    if (this.parentElement?.hasAttribute('data-product-group')) {
-      this.__inGroup = true;
-    }
   }
 
   private __default_image = {
@@ -100,7 +101,8 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   alt?: string;
 
-  private __inGroup = false;
+  @property({ type: Boolean, reflect: true })
+  product = true;
 
   public render() {
     return html`
