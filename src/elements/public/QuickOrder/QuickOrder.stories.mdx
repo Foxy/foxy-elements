@@ -127,6 +127,36 @@ More information on subscriptions can be found here: https://wiki.foxycart.com/v
 
 ### Grouping products using markup
 
+You don't need to do any extra work to allow for a multi-product checkout.
+
+The `<foxy-item>` component will automatically add ids to the relevant inputs in order to allow for multiple products in a single checkout.
+
+You can still use your own ids. `<foxy-item>` will use incremental ids, greater than the last one used.
+Please note that there cannot be two `<foxy-item>` in the same page with the same `id`.
+
+
+
+
+
+## Using an array of products
+
+You may use an array of product objects to feed the form.
+In this scenario you loose some for the product tags will be created for you one next to the other.
+You can still customize their look and feel, but you won't be able to build your markup as you wish.
+
+Products in a group will be displayed as children of a `div` tag with the attribuit `data-product-group`.
+
+<Preview>
+  <Story name="Using an Array of products">
+    {html`
+    <foxy-order-form
+   frequencyOptions='["1d", "1w", ".5m", "1m"]'
+    products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
 You may use the attribute `data-product-group` to group the child products together.
 
 This is particularly useful to allow users to configure subscription settings to a particular group.
@@ -159,6 +189,51 @@ This is particularly useful to allow users to configure subscription settings to
     `}
   </Story>
 </Preview>
+
+## Adding Child products
+
+<Preview>
+  <Story name="Child Products">
+    {html`
+	<foxy-order-form>
+	      <h2>diet food</h2>
+	      <section class="dietary-food" style="">
+          <foxy-item name="Food Pack" price="0.00" 
+            image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+            <foxy-item name="pup dog rich food" price="69.99"
+              image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+              quantity_min="1"
+              >
+              Delicious!
+            </foxy-item>
+            <foxy-item name="pup dog rich food" price="69.99"
+              image="https://www.foxy.io/merchants/shopping-cart-full.svg" 
+              quantity_min="1"
+              >
+              Delicious!
+            </foxy-item>
+          </foxy-item>
+	      </section>
+    </foxy-order-form>    
+    `}
+  </Story>
+</Preview>
+
+
+## Adding Child products using a product array
+
+You can use the `children` field a product in the product array to add children to a product.
+
+<Preview>
+  <Story name="Child products with a JS object">
+    {html`
+    <foxy-order-form
+    products='[ { "name":"Cub Puppy", "price":"75.95" }, { "name":"Bird Dog", "price":"64.95", "children":[ { "name": "Tiny food", "price": "10.00" }, { "name": "Not so tiny food", "price": "8.00" } ] }]'>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
 
 ### Subscriptions Settings for a group
 
@@ -215,25 +290,6 @@ Please, note that to adhere to prepend `data-` and replace `_` with `-` to the s
           High quality nutritious food for you pet
         </foxy-item>
       </section>
-    </foxy-order-form>
-    `}
-  </Story>
-</Preview>
-
-## Using an array of products
-
-You may use an array of product objects to feed the form.
-In this scenario you loose some for the product tags will be created for you one next to the other.
-You can still customize their look and feel, but you won't be able to build your markup as you wish.
-
-Products in a group will be displayed as children of a `div` tag with the attribuit `data-product-group`.
-
-<Preview>
-  <Story name="Using an Array of products">
-    {html`
-    <foxy-order-form
-   frequencyOptions='["1d", "1w", ".5m", "1m"]'
-    products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'>
     </foxy-order-form>
     `}
   </Story>
