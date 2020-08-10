@@ -80,16 +80,13 @@ describe('Choose Value input', () => {
     );
     await new Promise(resolve => setTimeout(resolve, 1000)).then(async () => {
       const vselect = el.shadowRoot?.querySelector('vaadin-select');
-      //console.debug('VSELECT ', vselect)
       const textSelect = (vselect as HTMLSelectElement).shadowRoot!.querySelector(
         'vaadin-select-text-field'
       );
-      //console.debug('TEXTSELECT ', textSelect);
       (textSelect as HTMLInputElement).click();
       const over = document?.querySelector('vaadin-select-overlay');
       const content = over?.shadowRoot?.querySelector('#content');
       const items = content?.shadowRoot?.querySelectorAll('vaadin-item');
-      //console.debug('ITEMS', items);
       expect(items?.length).to.be.greaterThan(1);
       const secondItem = items![1];
       const listener = oneEvent(el, 'change');
