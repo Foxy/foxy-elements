@@ -27,9 +27,22 @@ export class ProductItem extends Translatable {
     };
   }
 
-  /** Avoid default shadow root */
-  createRenderRoot(): ProductItem {
-    return this;
+  private static __existingIds: number[] = [];
+
+  private static __newId() {
+    // Get the maximum value
+    const newId =
+      ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
+    ProductItem.__addCustomId(newId);
+    return newId;
+  }
+
+  private static __addCustomId(customId: string | number) {
+    const newId = Number(customId);
+    if (ProductItem.__existingIds.includes(newId)) {
+      throw new Error('Attempt to create two different products with the same id');
+    }
+    ProductItem.__existingIds.push(newId);
   }
 
   private __vocabulary = {
@@ -47,6 +60,10 @@ export class ProductItem extends Translatable {
   /** LitElement life cicle */
   public firstUpdated(): void {
     this.__propertyToValue();
+    this.__setId();
+    this.__setCode();
+    this.__setParentCode();
+    this.__createChildren();
   }
 
   private __default_image = {
@@ -68,8 +85,8 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   public url?: string;
 
-  @property({ type: String })
-  public code?: string;
+  @property({ type: String, reflect: true })
+  public code?: string | number;
 
   @property({ type: String })
   public parent_code?: string;
@@ -125,14 +142,38 @@ export class ProductItem extends Translatable {
         <x-section class="item-info p-s min-w-2">
           <div class="price">${this.value?.price}</div>
         </x-section>
-        ${this.__inGroup
+        ${this.__isChildProduct
           ? ''
           : html` <x-section class="actions p-s min-w-3">
               <x-number-field value="1" min="0" has-controls></x-number-field>
               <x-checkbox data-testid="toggle">${this.__vocabulary.remove}</x-checkbox>
             </x-section>`}
+        <slot></slot>
       </article>
     `;
+  }
+
+  private __setId() {
+    if (!this.value?.id) {
+      this.value!.id = ProductItem.__newId();
+    } else {
+      // The user provided a custom id
+      ProductItem.__addCustomId(this.value!.id);
+    }
+  }
+
+  private __setCode() {
+    if (!this.code && this.value && !this.value.code) {
+      this.value.code = `RAND${Math.random()}`;
+      this.code = this.value!.code;
+    }
+  }
+
+  private __setParentCode() {
+    const productParent = this.parentElement;
+    if (productParent?.hasAttribute('product')) {
+      this.value!.parent_code = (productParent as ProductItem).value?.code;
+    }
   }
 
   /** Captures values set as properties to build the value property of the component.  */
