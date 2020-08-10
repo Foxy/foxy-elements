@@ -152,7 +152,9 @@ export class QuickOrder extends Translatable {
         data-product-group="true"
         class="product group  border border-contrast-10 rounded p-m"
       >
-        ${p.products.map((i: QuickOrderProduct) => html`<x-product .value=${i}></x-product>`)}
+        ${(p.products as QuickOrderProduct[]).map(
+          (i: QuickOrderProduct) => html`<x-product .value=${i}></x-product>`
+        )}
       </article>`;
     } else {
       return html`<x-product .value=${p}></x-product>`;

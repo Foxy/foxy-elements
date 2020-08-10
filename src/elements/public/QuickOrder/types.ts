@@ -1,24 +1,30 @@
-export interface QuickOrderProduct {
-  name: string;
-  price: number;
-  image?: string;
-  url?: string;
-  code?: string;
-  parent_code?: string;
-  quantity?: number;
-  quantity_max?: number;
-  quantity_min?: number;
-  category?: string;
-  expires?: string;
-  weight?: string;
-  length?: number;
-  width?: number;
-  height?: number;
-  shipto?: string;
-  id?: string;
-  alt?: string;
-  [propName: string]: string | number | null | undefined;
-}
+import { ProductItem } from './ProductItem';
+
+export const EmptyProduct = {
+  name: '',
+  price: 0,
+  image: '',
+  url: '',
+  code: '',
+  parent_code: '',
+  quantity: 0,
+  quantity_max: 0,
+  quantity_min: 0,
+  description: '',
+  category: '',
+  expires: '',
+  weight: 0,
+  length: 0,
+  width: 0,
+  height: 0,
+  shipto: '',
+  id: 0,
+  alt: '',
+  products: [],
+  children: [],
+};
+
+export type QuickOrderProduct = Partial<typeof EmptyProduct>;
 
 export interface ProductGroup {
   products: QuickOrderProduct[];

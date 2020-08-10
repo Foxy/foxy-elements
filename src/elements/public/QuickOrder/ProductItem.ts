@@ -1,6 +1,6 @@
 import { Translatable } from '../../../mixins/translatable';
-import { QuickOrderProduct } from './types';
-import { html, property } from 'lit-element';
+import { QuickOrderProduct, EmptyProduct } from './types';
+import { html, property, TemplateResult } from 'lit-element';
 import { Checkbox, Section, Group, I18N } from '../../private/index';
 
 /**
@@ -191,29 +191,23 @@ export class ProductItem extends Translatable {
         });
       }
     }
-    const productProperties = [
-      'name',
-      'price',
-      'image',
-      'url',
-      'code',
-      'parent_code',
-      'quantity',
-      'quantity_max',
-      'quantity_min',
-      'category',
-      'expires',
-      'weight',
-      'length',
-      'width',
-      'height',
-      'shipto',
-      'id',
-      'alt',
-    ];
-    for (const i of productProperties) {
-      if (!(this.value![i] as string | null)) {
-        this.value![i] = this.getAttribute(i);
+    type T = Partial<Record<string, string | number>>;
+    for (const i of ProductItem.productProperties) {
+      if (!(this.value! as T)[i]) {
+        const attr = this.getAttribute(i);
+        if (attr) {
+          (this.value! as T)[i] = attr;
+        }
+      }
+    }
+  }
+
+  private __createChildren() {
+    if (this.value && this.value.children && this.value.children.length) {
+      for (const p of this.value.children) {
+        const product = new ProductItem();
+        product.value = p;
+        this.appendChild(product);
       }
     }
   }
