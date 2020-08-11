@@ -6,7 +6,7 @@ import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
-import { QuickOrderProduct, ProductGroup } from './types';
+import { EmptyProduct, QuickOrderProduct, ProductGroup } from './types';
 
 export interface FrequencyOption {
   number: number;
@@ -108,9 +108,21 @@ export class QuickOrder extends Translatable {
   private handleSubmit = {
     form: this.form,
     handleEvent: () => {
-      const fd: any = new FormData(this.form);
-      console.table(fd);
-      //this.form!.submit();
+      const productElements: NodeListOf<ProductItem> = this.querySelectorAll('[product]');
+      if (productElements && productElements.length) {
+        const productsData = new FormData();
+        type T = Record<string, string>;
+        productElements.forEach(p => {
+          const values = p.value as T;
+          for (const field of Object.keys(EmptyProduct)) {
+            const key = p.id + field;
+            if (values[field]) {
+              productsData.append(key, (p.value as T)[field]);
+            }
+          }
+        });
+        //this.form!.submit();
+      }
     },
   };
 
