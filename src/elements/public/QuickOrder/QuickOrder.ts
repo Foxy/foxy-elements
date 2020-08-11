@@ -76,8 +76,6 @@ export class QuickOrder extends Translatable {
     super('quick-order');
   }
 
-  private __productElements: ProductItem[] = [];
-
   private static __friendlyFreq(value: string): FrequencyOption {
     const matches = value.match(/^(\.?\d+)([dwmy])$/);
     if (!matches) {
@@ -130,10 +128,7 @@ export class QuickOrder extends Translatable {
         </x-section>
         <x-section class="actions">
           ${this.frequencyOptions.length
-            ? html`<x-dropdown
-                data-testid="units"
-                .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}
-              >
+            ? html`<x-dropdown .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}>
               </x-dropdown>`
             : ''}
           <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
@@ -159,11 +154,5 @@ export class QuickOrder extends Translatable {
     } else {
       return html`<x-product .value=${p}></x-product>`;
     }
-  }
-
-  private __findProducts() {
-    this.querySelectorAll('[data-product=true]').forEach(p =>
-      this.__productElements.push(p as ProductItem)
-    );
   }
 }
