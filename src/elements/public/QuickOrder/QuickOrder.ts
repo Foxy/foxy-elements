@@ -6,7 +6,7 @@ import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
-import { QuickOrderProduct, ProductGroup } from './types';
+import { QuickOrderProduct } from './types';
 
 export interface FrequencyOption {
   number: number;
@@ -74,15 +74,169 @@ export class QuickOrder extends Translatable {
   })
   public frequencyOptions: FrequencyOption[] = [];
 
+  @property({ type: String })
+  sub_frequency?: string;
+
+  @property({ type: String })
+  sub_startdate?: string;
+
+  @property({ type: String })
+  sub_enddate?: string;
+
   @query('form')
   form?: HTMLFormElement;
+
+  /**
+   * An array with both products created as elements and created parameter
+   */
+  private get __productElements(): Array<ProductItem> {
+    const insideShadow = this.shadowRoot?.querySelectorAll('[product]');
+    const outsideShadow = this.querySelectorAll('[product]');
+    const result: Array<ProductItem> = [];
+    insideShadow?.forEach(e => {
+      result.push(e as ProductItem);
+    });
+    outsideShadow?.forEach(e => {
+      result.push(e as ProductItem);
+    });
+    return result;
+  }
 
   constructor() {
     super('quick-order');
   }
 
-  private __productElements: ProductItem[] = [];
+  private __handleFrequency = {
+    handleEvent: (ev: CustomEvent) => {
+      const newfrequency = (ev as CustomEvent).detail
+        .replace(/([wydm])\w*/, '$1')
+        .replace(/ /g, '')
+        .replace(/^0/, '');
+      if (QuickOrder.__validFrequency(newfrequency)) {
+        this.sub_frequency = newfrequency;
+      }
+    },
+  };
 
+  private handleSubmit = {
+    form: this.form,
+    handleEvent: () => {
+      const fd: FormData = new FormData(this.form);
+      this.__productElements?.forEach(e => {
+        if (e.value) {
+          this.__fillFormData(fd, e.value);
+        }
+      });
+      if (this.sub_frequency) {
+        fd.append('sub_frequency', this.sub_frequency!);
+        if (QuickOrder.__validDate(this.sub_startdate)) {
+          fd.append('sub_startdate', this.sub_startdate!);
+        }
+        if (QuickOrder.__validDateFuture(this.sub_enddate)) {
+          fd.append('sub_enddate', this.sub_enddate!);
+        }
+      }
+      fd.forEach(console.log);
+    },
+  };
+
+  @property({ type: Array })
+  products: QuickOrderProduct[] = [];
+
+  public render(): TemplateResult {
+    return html`
+      <x-page>
+        <x-section class="products">
+          <form>
+            <slot></slot>
+            ${this.products.map(p => html`<x-product .value=${p}></x-product>`)}
+          </form>
+        </x-section>
+        <x-section class="actions">
+          ${this.frequencyOptions.length
+            ? html`<x-dropdown
+                data-testid="units"
+                @change=${this.__handleFrequency}
+                .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}
+              >
+              </x-dropdown>`
+            : ''}
+          <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
+            <iron-icon icon="vaadin:user-heart" slot="prefix"></iron-icon>
+            <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          </vaadin-button>
+        </x-section>
+      </x-page>
+    `;
+  }
+
+  /**
+   * Fills a FormData object with values from a QuickOrder Product
+   *
+   * Prefixes names with the id of the product
+   */
+  private __fillFormData(fd: FormData, p: QuickOrderProduct) {
+    if (!p.id) {
+      throw new Error('Attempt to convert a product without a propper ID');
+    }
+    const rec = p as Record<string, unknown>;
+    for (const key of Object.keys(rec)) {
+      if (key !== 'id') {
+        const fieldValue: unknown = rec[key];
+        if (!Array.isArray(fieldValue)) {
+          fd.append(`${rec['id']}:${key}`, `${fieldValue}`);
+        }
+      }
+    }
+  }
+
+  /**
+   * Validates a string for subscription start date or end date according to
+   * https://wiki.foxycart.com/v/2.0/products#subscription_product_options
+   */
+  private static __validDate(strDate: string | null | undefined) {
+    if (strDate === null || strDate === undefined) {
+      return false;
+    }
+    if (strDate.match(/^(\d{1,2}|\d{8})$/)) {
+      return true;
+    }
+    if (!strDate.match(/^.5m/) && QuickOrder.__validFrequency(strDate)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks if a string date is in the future
+   */
+  private static __validDateFuture(strDate: string | null | undefined) {
+    let valid = false;
+    if (QuickOrder.__validDate(strDate)) {
+      if (strDate!.match(/^\d{8}/)) {
+        const now = new Date();
+        valid = now.toISOString().replace(/(-|T.*)/g, '') <= strDate!;
+      } else {
+        valid = true;
+      }
+    }
+    return valid;
+  }
+
+  /**
+   * Checks if a frequency complies with possible values
+   */
+  private static __validFrequency(strFrequency: string | null | undefined) {
+    if (!strFrequency) {
+      return false;
+    } else {
+      return !!strFrequency.match(/^(\.5m|\d+[dwmy])$/);
+    }
+  }
+
+  /**
+   * Returns an object with human friendly values for a given frequency
+   */
   private static __friendlyFreq(value: string): FrequencyOption {
     const matches = value.match(/^(\.?\d+)([dwmy])$/);
     if (!matches) {
@@ -99,76 +253,5 @@ export class QuickOrder extends Translatable {
       period: friendlyTimeSpan[matches[2]],
       periodCode: matches[2],
     };
-  }
-
-  /**
-   * Checks if a frequency complies with possible values
-   */
-  private static __validFrequency(strFrequency: string | null) {
-    if (strFrequency === null) {
-      return false;
-    } else {
-      return !!strFrequency.match(/^(\.5m|\d+[dwmy])$/);
-    }
-  }
-
-  private handleSubmit = {
-    form: this.form,
-    handleEvent: () => {
-      const fd: any = new FormData(this.form);
-      console.table(fd);
-      //this.form!.submit();
-    },
-  };
-
-  @property({ type: Array })
-  products: QuickOrderProduct[] = [];
-
-  public render(): TemplateResult {
-    return html`
-      <x-page>
-        <x-section class="products">
-          <form>
-            <slot></slot>
-            ${this.products.map(this.__productsFromArray)}
-          </form>
-        </x-section>
-        <x-section class="actions">
-          ${this.frequencyOptions.length
-            ? html`<x-dropdown
-                data-testid="units"
-                .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}
-              >
-              </x-dropdown>`
-            : ''}
-          <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
-            <iron-icon icon="vaadin:user-heart" slot="prefix"></iron-icon>
-            <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-          </vaadin-button>
-        </x-section>
-      </x-page>
-    `;
-  }
-
-  /** Renders either a group or a single product */
-  private __productsFromArray(p: QuickOrderProduct | ProductGroup) {
-    if (p.products && Array.isArray(p.products) && p.products.length) {
-      return html` <article
-        data-product-group="true"
-        class="product group  border border-contrast-10 rounded p-m"
-      >
-        ${(p.products as QuickOrderProduct[]).map(
-          (i: QuickOrderProduct) => html`<x-product .value=${i}></x-product>`
-        )}
-      </article>`;
-    } else {
-      return html`<x-product .value=${p}></x-product>`;
-    }
-  }
-
-  private __findProducts() {
-    this.querySelectorAll('[data-product=true]').forEach(p =>
-      this.__productElements.push(p as ProductItem)
-    );
   }
 }

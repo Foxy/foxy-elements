@@ -127,6 +127,25 @@ export class ProductItem extends Translatable {
   @property({ type: Boolean, reflect: true })
   product = true;
 
+  @property({ type: Array })
+  open = [];
+
+  public updated(changed: unknown): void {
+    this.dispatchEvent(new Event('change'));
+  }
+
+  private handleQuantity = {
+    handleEvent: (ev: Event) => {
+      this.quantity = Number((ev.target as HTMLInputElement).value);
+    },
+  };
+
+  private handleExclude = {
+    handleEvent: (ev: Event) => {
+      console.log(ev.target);
+    },
+  };
+
   public render(): TemplateResult {
     return html`
       <article class="product flex flex-row flex-wrap justify-between overflow-hidden">
@@ -145,8 +164,15 @@ export class ProductItem extends Translatable {
         ${this.__isChildProduct
           ? ''
           : html` <x-section class="actions p-s min-w-3">
-              <x-number-field value="1" min="0" has-controls></x-number-field>
-              <x-checkbox data-testid="toggle">${this.__vocabulary.remove}</x-checkbox>
+              <x-number-field
+                @change=${this.handleQuantity}
+                value="1"
+                min="0"
+                has-controls
+              ></x-number-field>
+              <x-checkbox @change=${this.handleExclude} data-testid="toggle"
+                >${this.__vocabulary.remove}</x-checkbox
+              >
             </x-section>`}
         <slot></slot>
       </article>
