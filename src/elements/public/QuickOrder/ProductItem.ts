@@ -124,6 +124,9 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   alt?: string;
 
+  @property({ type: String })
+  signature?: string;
+
   @property({ type: Boolean, reflect: true })
   product = true;
 

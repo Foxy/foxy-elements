@@ -175,6 +175,22 @@ export class QuickOrder extends Translatable {
    *
    * Prefixes names with the id of the product
    */
+  /**
+   * Adds a signature to a post field
+   */
+  private __addSignature(name: string, signature: string, open?: string | boolean) {
+    // Check for malformed signature
+    if (signature.length != 64) {
+      if (name.match(/(\d+:)?name$/)) {
+        console.error('Product', name, 'Wrong signature: ', signature);
+      } else {
+        console.error('Wrong signature: ', signature);
+      }
+      throw new Error('There is something wrong with the signature. It should have 64 characters.');
+    }
+    return `${name}||${signature}${open ? '||open' : ''}`;
+  }
+
   private __fillFormData(fd: FormData, p: QuickOrderProduct) {
     if (!p.id) {
       throw new Error('Attempt to convert a product without a propper ID');

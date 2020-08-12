@@ -20,6 +20,8 @@ export const EmptyProduct = {
   shipto: '',
   id: 0,
   alt: '',
+  signature: '',
+  open: [],
   products: [],
   children: [],
 };
