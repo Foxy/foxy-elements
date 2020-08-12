@@ -91,10 +91,10 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   public parent_code?: string;
 
-  @property({ type: String })
+  @property({ type: Number })
   public quantity?: number;
 
-  @property({ type: String })
+  @property({ type: Number })
   public quantity_max?: number;
 
   @property({ type: String })
@@ -109,13 +109,13 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   public weight?: string;
 
-  @property({ type: String })
+  @property({ type: Number })
   public length?: number;
 
-  @property({ type: String })
+  @property({ type: Number })
   public width?: number;
 
-  @property({ type: String })
+  @property({ type: Number })
   public height?: number;
 
   @property({ type: String })
