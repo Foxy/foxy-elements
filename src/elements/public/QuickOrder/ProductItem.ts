@@ -153,6 +153,9 @@ export class ProductItem extends Translatable {
     `;
   }
 
+  /**
+   * Create an ID if none is provided by the user.
+   */
   private __setId() {
     if (!this.value?.id) {
       this.value!.id = ProductItem.__newId();
@@ -162,6 +165,9 @@ export class ProductItem extends Translatable {
     }
   }
 
+  /**
+   * Creates a code if none is provided by the user
+   */
   private __setCode() {
     if (!this.code && this.value && !this.value.code) {
       this.value.code = `RAND${Math.random()}`;
@@ -169,6 +175,9 @@ export class ProductItem extends Translatable {
     }
   }
 
+  /**
+   * Find if this product item is a child of another product item and sets the parent code accordingly
+   */
   private __setParentCode() {
     const productParent = this.parentElement;
     if (productParent?.hasAttribute('product')) {
@@ -202,6 +211,9 @@ export class ProductItem extends Translatable {
     }
   }
 
+  /**
+   * Create child product items from children field.
+   */
   private __createChildren() {
     if (this.value && this.value.children && this.value.children.length) {
       for (const p of this.value.children) {

@@ -14,6 +14,11 @@ export interface FrequencyOption {
   periodCode: string;
 }
 
+/**
+ * This Quick Order Form accepts products either as a JS array or as child elements of type ProductItem
+ *
+ * Product Elements are found by retrieving both product-item elements within and without shadow root.
+ */
 export class QuickOrder extends Translatable {
   public static get scopedElements() {
     return {
