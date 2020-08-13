@@ -37,6 +37,10 @@ export class QuickOrder extends Translatable {
   }
 
   private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
+  private __childProductsObserver?: MutationObserver;
+
+  @property({ type: Number })
+  private totalPrice = 0;
 
   @property({ type: String })
   public storeSubdomain = this.__defaultSubdomain;
@@ -86,24 +90,31 @@ export class QuickOrder extends Translatable {
   @query('form')
   form?: HTMLFormElement;
 
+  @property({ type: Array })
+  products: QuickOrderProduct[] = [];
+
   /**
    * An array with both products created as elements and created parameter
    */
-  private get __productElements(): Array<ProductItem> {
-    const insideShadow = this.shadowRoot?.querySelectorAll('[product]');
-    const outsideShadow = this.querySelectorAll('[product]');
-    const result: Array<ProductItem> = [];
-    insideShadow?.forEach(e => {
-      result.push(e as ProductItem);
-    });
-    outsideShadow?.forEach(e => {
-      result.push(e as ProductItem);
-    });
-    return result;
-  }
+  private __productElements: Array<ProductItem>;
 
   constructor() {
     super('quick-order');
+    this.__productElements = [];
+    this.__childProductsObserver = new MutationObserver(this.__observeChildren);
+    this.__childProductsObserver.observe(this, {
+      childList: true,
+      attributes: false,
+      subtree: true,
+    });
+    this.updateComplete.then(() => {
+      this.querySelectorAll('[product]').forEach(e => {
+        const p = e as ProductItem;
+        p.addEventListener('change', this.__productChange.bind(this));
+        this.__productElements.push(p);
+        setTimeout(this.__computeTotalPrice.bind(this));
+      });
+    });
   }
 
   private __handleFrequency = {
@@ -122,7 +133,7 @@ export class QuickOrder extends Translatable {
     form: this.form,
     handleEvent: () => {
       const fd: FormData = new FormData(this.form);
-      this.__productElements?.forEach(e => {
+      this.__productElements.forEach(e => {
         if (e.value) {
           this.__fillFormData(fd, e.value);
         }
@@ -136,12 +147,9 @@ export class QuickOrder extends Translatable {
           fd.append('sub_enddate', this.sub_enddate!);
         }
       }
-      fd.forEach(console.log);
+      fd.forEach(e => console.log('field in submit', e));
     },
   };
-
-  @property({ type: Array })
-  products: QuickOrderProduct[] = [];
 
   public render(): TemplateResult {
     return html`
@@ -149,7 +157,12 @@ export class QuickOrder extends Translatable {
         <x-section class="products">
           <form>
             <slot></slot>
-            ${this.products.map(p => html`<x-product .value=${p}></x-product>`)}
+            ${this.products.map(
+              p => html`<x-product @change=${this.__productChange} .value=${p}></x-product>`
+            )}
+            <div class="summary">
+              <div class="total">${this.totalPrice}</div>
+            </div>
           </form>
         </x-section>
         <x-section class="actions">
@@ -269,5 +282,35 @@ export class QuickOrder extends Translatable {
       period: friendlyTimeSpan[matches[2]],
       periodCode: matches[2],
     };
+  }
+
+  /** Subscribe to late inserted products. */
+  private __observeChildren(mutationList: MutationRecord[]): void {
+    mutationList.forEach(m => {
+      if (m.type == 'childList') {
+        m.addedNodes.forEach(n => {
+          if (n.nodeType === Node.DOCUMENT_NODE) {
+            const e = n as HTMLElement;
+            e.addEventListener('change', this.__productChange);
+          }
+        });
+      }
+    });
+  }
+
+  /** Updates the form on product change */
+  private __productChange(): void {
+    this.__computeTotalPrice();
+  }
+
+  private __computeTotalPrice(): void {
+    let totalPrice = 0;
+    this.__productElements.forEach(e => {
+      const prod = e as ProductItem;
+      if (prod.totalPrice) {
+        totalPrice += prod.totalPrice;
+      }
+    });
+    this.totalPrice = Number(totalPrice.toFixed(2));
   }
 }

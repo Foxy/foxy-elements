@@ -7,7 +7,7 @@ export const EmptyProduct = {
   url: '',
   code: '',
   parent_code: '',
-  quantity: 0,
+  quantity: 1,
   quantity_max: 0,
   quantity_min: 0,
   description: '',

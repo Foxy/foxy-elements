@@ -1,6 +1,6 @@
 import { Translatable } from '../../../mixins/translatable';
 import { QuickOrderProduct, EmptyProduct } from './types';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, property, TemplateResult, queryAll } from 'lit-element';
 import { Checkbox, Section, Group, I18N } from '../../private/index';
 
 /**
@@ -64,6 +64,7 @@ export class ProductItem extends Translatable {
     this.__setCode();
     this.__setParentCode();
     this.__createChildren();
+    this.__computeTotalPrice();
   }
 
   private __default_image = {
@@ -73,11 +74,14 @@ export class ProductItem extends Translatable {
 
   public value: QuickOrderProduct | undefined;
 
+  @property({ type: Number, reflect: true, attribute: 'total-price' })
+  public totalPrice?: number = this.__computeTotalPrice();
+
   @property({ type: String })
   public name?: string;
 
   @property({ type: String })
-  public price?: number;
+  public price?: number = 0;
 
   @property({ type: String })
   public image?: string;
@@ -92,7 +96,7 @@ export class ProductItem extends Translatable {
   public parent_code?: string;
 
   @property({ type: Number })
-  public quantity?: number;
+  public quantity?: number = 1;
 
   @property({ type: Number })
   public quantity_max?: number;
@@ -133,19 +137,31 @@ export class ProductItem extends Translatable {
   @property({ type: Array })
   open = [];
 
+  @queryAll('[product]')
+  public childProducts?: NodeListOf<ProductItem>;
+
   public updated(changed: unknown): void {
     this.dispatchEvent(new Event('change'));
   }
 
   private handleQuantity = {
     handleEvent: (ev: Event) => {
-      this.quantity = Number((ev.target as HTMLInputElement).value);
+      const newValue = Number((ev.target as HTMLInputElement).value);
+      if (this.value?.quantity === 0 && newValue) {
+        const check = this.shadowRoot?.querySelector('[name=remove]');
+        if (check) {
+          (check as Checkbox).checked = false;
+        }
+      }
+      this.value!.quantity = newValue;
+      this.__setTotalPrice();
     },
   };
 
   private handleExclude = {
     handleEvent: (ev: Event) => {
-      console.log(ev.target);
+      this.value!.quantity = 0;
+      this.__setTotalPrice();
     },
   };
 
@@ -163,21 +179,26 @@ export class ProductItem extends Translatable {
         </x-section>
         <x-section class="item-info p-s min-w-2">
           <div class="price">${this.value?.price}</div>
+          ${this.value?.price != this.totalPrice && this.totalPrice
+            ? html`<div class="price total">${this.totalPrice}</div>`
+            : ''}
         </x-section>
         ${this.__isChildProduct
           ? ''
           : html` <x-section class="actions p-s min-w-3">
               <x-number-field
                 @change=${this.handleQuantity}
-                value="1"
+                value="${this.value?.quantity}"
                 min="0"
                 has-controls
               ></x-number-field>
-              <x-checkbox @change=${this.handleExclude} data-testid="toggle"
+              <x-checkbox name="remove" @change=${this.handleExclude}
                 >${this.__vocabulary.remove}</x-checkbox
               >
             </x-section>`}
-        <slot></slot>
+        <section class="child-products">
+          <slot></slot>
+        </section>
       </article>
     `;
   }
@@ -207,7 +228,7 @@ export class ProductItem extends Translatable {
   /**
    * Find if this product item is a child of another product item and sets the parent code accordingly
    */
-  private __setParentCode() {
+  private __setParentCode(): void {
     const productParent = this.parentElement;
     if (productParent?.hasAttribute('product')) {
       this.value!.parent_code = (productParent as ProductItem).value?.code;
@@ -215,12 +236,13 @@ export class ProductItem extends Translatable {
   }
 
   /** Captures values set as properties to build the value property of the component.  */
-  private __propertyToValue() {
+  private __propertyToValue(): void {
     if (this.value === undefined) {
       if (this.name && this.price) {
         this.value = {
           name: this.name,
           price: this.price,
+          quantity: 1,
         };
       } else {
         console.error('The name and price attributes of a product are required.', {
@@ -238,18 +260,52 @@ export class ProductItem extends Translatable {
         }
       }
     }
+    if (this.value && !this.value.quantity) {
+      this.value.quantity = 1;
+      this.quantity = 1;
+    }
   }
 
   /**
    * Create child product items from children field.
    */
-  private __createChildren() {
+  private __createChildren(): void {
     if (this.value && this.value.children && this.value.children.length) {
       for (const p of this.value.children) {
         const product = new ProductItem();
         product.value = p;
+        product.__computeTotalPrice();
         this.appendChild(product);
       }
+    }
+  }
+
+  private __setTotalPrice() {
+    this.totalPrice = this.__computeTotalPrice();
+  }
+
+  /**
+   * The price of the total qty of each of the child products
+   */
+  private __computeTotalPrice(): number {
+    // Get all child products
+    const myChildProducts = this.querySelectorAll('[product]');
+    const myPrice = this.qtyPrice();
+    myChildProducts.forEach((e, priceObj) => {
+      const p = e as ProductItem;
+    });
+    return myPrice;
+  }
+
+  /**
+   * The price of the total qty of this product
+   */
+  public qtyPrice(): number {
+    if (!this.value?.price || !this.value?.quantity) {
+      return 0;
+    } else {
+      const result = this.value.price * this.value.quantity;
+      return Number(result.toFixed(2));
     }
   }
 }
