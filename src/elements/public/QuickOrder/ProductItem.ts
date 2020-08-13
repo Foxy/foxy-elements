@@ -167,7 +167,11 @@ export class ProductItem extends Translatable {
 
   public render(): TemplateResult {
     return html`
-      <article class="product flex flex-row flex-wrap justify-between overflow-hidden">
+      <article
+        class="product flex flex-row flex-wrap justify-between ${this.value?.quantity
+          ? ''
+          : 'removed'}"
+      >
         <img
           class="max-w-xs min-w-1 block"
           alt="${this.value?.alt ?? this.__default_image.alt}"
