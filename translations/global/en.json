@@ -13,8 +13,10 @@
   "minute_plural": "Minutes",
   "duration": "{{count}} {{units, lowercase}}",
   "and": "and",
+  "edit": "Edit",
   "save": "Save changes",
   "undo_all": "Undo all",
+  "close": "Close",
   "weekday-picker": {
     "hint": "Allow selecting only {{days, list}} of the month."
   },

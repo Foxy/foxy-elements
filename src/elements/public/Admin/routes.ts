@@ -1,8 +1,8 @@
-import { Router } from '@vaadin/router';
+import { Route } from '@vaadin/router';
 
 const TODO = 'x-not-implemented';
 
-export const routes: Parameters<Router['setRoutes']>[0] = [
+export const routes: Route[] = [
   {
     path: '/',
     name: 'dashboard',

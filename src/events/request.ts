@@ -1,4 +1,10 @@
-export class UnhandledRequestError extends Error {}
+export class UnhandledRequestError extends Error {
+  constructor() {
+    super(
+      'Unhandled request detected. Please add a request handler to connect this component to a backend.'
+    );
+  }
+}
 
 export interface RequestEventPayload<TSource extends HTMLElement> {
   source: TSource;

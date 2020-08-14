@@ -8,6 +8,7 @@ import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScree
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
 import { AdminLoadSuccessEvent, machine } from './machine';
 import { navigation } from './navigation';
+import { AdminDashboard } from './private/AdminDashboard/AdminDashboard';
 import { AdminNavigation, Navigation } from './private/AdminNavigation/AdminNavigation';
 import { routes } from './routes';
 import { FxBookmark, FxStore } from './types';
@@ -27,6 +28,7 @@ export class Admin extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'x-admin-navigation': AdminNavigation,
+      'x-admin-dashboard': AdminDashboard,
       'x-loading-screen': LoadingScreen,
       'x-error-screen': ErrorScreen,
     };
@@ -95,6 +97,9 @@ export class Admin extends Translatable {
 
   public constructor() {
     super('admin');
+    const dashboardRoute = this.__routes.find(v => v.name === 'dashboard');
+    if (dashboardRoute)
+      dashboardRoute.component = (this.constructor as any).getScopedTagName('x-admin-dashboard');
   }
 
   public connectedCallback(): void {

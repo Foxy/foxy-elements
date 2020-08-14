@@ -41,3 +41,19 @@ vaadin-button {
 @tailwind components;
 
 @tailwind utilities;
+
+@responsive {
+  .grid-rows-auto {
+    grid-auto-rows: 1fr;
+  }
+
+  .icon-inline {
+    --iron-icon-height: 1em;
+    --iron-icon-width: 1em;
+  }
+
+  .bg-blurred {
+    backdrop-filter: blur(25px);
+    background: var(--lumo-tint-80pct);
+  }
+}
