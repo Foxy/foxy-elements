@@ -18,11 +18,12 @@ Donation form is a Web Component that aims to provide customizable donation form
 In it's most basic form it is simply a button the user can click to donate a pre-determined value.
 
 <Preview>
-  <Story name="The simplest form">
-    {html`<donation-form
-      storeSubdomain="jamstackecommerceexample.foxycart.com"
-      value="100"
-      ></donation-form>`}
+<Story name="The simplest form">
+  {html`
+    <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
+                   value="100"
+    ></donation-form>
+  `}
   </Story>
 </Preview>
 
@@ -31,12 +32,13 @@ In it's most basic form it is simply a button the user can click to donate a pre
 You can offer some value choices by simply adding the "valueOptions" attribute.
 
 <Preview>
-<Story name="Value Choices">
-  {html`<donation-form 
-      storeSubdomain="jamstackecommerceexample.foxycart.com"
-      valueOptions="[10, 30, 50, 100]"
-      ></donation-form>`}
-</Story>
+  <Story name="Value Choices">
+  {html`
+    <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
+                   valueOptions="[10, 30, 50, 100]"
+    ></donation-form>
+  `}
+  </Story>
 </Preview>
 
 ## Allow for a recurrent contribution
@@ -53,13 +55,13 @@ If you want to provide images within the form, use slots instead.
 
 <Preview>
   <Story name="Recurrent contribution">
-      {html`<donation-form
-	  storeSubdomain="jamstackecommerceexample.foxycart.com"
-	  name="I'll be a part of this"
-	  image="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Children_holding_hands_together.png/320px-Children_holding_hands_together.png"
-	  askRecurrence
-	  valueOptions="[10, 30, 50, 100]"
-	  ></donation-form>`}
+    {html`
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
+                     name="I'll be a part of this"
+                     image="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Children_holding_hands_together.png/320px-Children_holding_hands_together.png"
+                     askRecurrence
+                     valueOptions="[10, 30, 50, 100]"
+      ></donation-form>`}
   </Story>
 </Preview>
 
@@ -69,11 +71,11 @@ You can use the "askValueOther" attribute to add a field "other" where the user 
 
 <Preview>
   <Story name="Custom ammount">
-      {html`<donation-form
-	  storeSubdomain="jamstackecommerceexample.foxycart.com"
-	  valueOptions="[10, 30, 50, 100]"
-	  askValueOther 
-	  ></donation-form>`}
+    {html`
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
+                     valueOptions="[10, 30, 50, 100]"
+                     askValueOther 
+      ></donation-form>`}
   </Story>
 </Preview>
 
@@ -86,12 +88,12 @@ You can use the "designationOptions" to allow for specifying a designation.
 
 <Preview>
   <Story name="Choose a Designation">
-      {html`<donation-form
-	    storeSubdomain="jamstackecommerceexample.foxycart.com"
-	    valueOptions="[10, 30, 50, 100]"
-	    designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
-	    askValueOther="true"
-	    askDesignationOther="true"
+      {html`
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
+                     valueOptions="[10, 30, 50, 100]"
+                     designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
+                     askValueOther="true"
+                     askDesignationOther="true"
 	    ></donation-form>`}
   </Story>
 </Preview>
@@ -106,7 +108,18 @@ Notice in the previous example that designation after the value by default. To i
 
 <Preview>
   <Story name="Change order and type">
-      {html`<donation-form storeSubdomain="jamstackecommerceexample.foxycart.com" valueOptions="[10, 30, 50, 100]" designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]' askValueOther="true" askDesignationOther="true" valueType="select" designationType="select" designationWeight="1" valueWeight="2" ></donation-form>`}
+      {html`
+      <donation-form storeSubdomain="jamstackecommerceexample.foxycart.com"
+                     valueOptions="[10, 30, 50, 100]"
+                     designationOptions='["Rebuild the School", "Medical Assistance", "Psicological Assistance", "Daily Meals"]'
+                     askValueOther="true"
+                     askDesignationOther="true"
+                     valueType="select"
+                     designationType="select"
+                     designationWeight="1"
+                     valueWeight="2"
+      ></donation-form>`
+      }
   </Story>
 </Preview>
 
@@ -118,7 +131,11 @@ Please notice that the "anonymous" options only means that the donner does not w
 
 <Preview>
   <Story name="Comment and anonymous">
-      {html`<donation-form askComment askAnonymous valueOptions="[20, 100, 250]" > </donation-form>`}
+      {html`
+      <donation-form askComment
+                     askAnonymous
+                     valueOptions="[20, 100, 250]"
+      ></donation-form>`}
   </Story>
 </Preview>
 
@@ -128,7 +145,29 @@ You can include whatever markup you wish above with your form parts. Simply use 
 
 <Preview>
   <Story name="Your own markup">
-      {html`<donation-form valueOptions="[1, 2, 3]" askValueOther="askValueOther" askComment="askComment" askAnonymous="askAnonymous" askDesignation="askDesignation" commentWeight="8" anonymousWeight="0" valueWeight="8" valueType="select"><p slot="value"> You have a crucial role in our mission. None of this could have been done without your generous donation.   </p> <strong slot="anonymous">Would you like to remain anonymous?</strong> <p slot="comment">Would you like to leave us a message?</p> </donation-form>`}
+      {html`
+      <donation-form valueOptions="[1, 2, 3]"
+                     askValueOther="askValueOther"
+                     askComment="askComment"
+                     askAnonymous="askAnonymous"
+                     askDesignation="askDesignation"
+                     commentWeight="8"
+                     anonymousWeight="0"
+                     valueWeight="8"
+                     valueType="select">
+        <p slot="value">
+          You have a crucial role in our mission. None of this could have been done without your generous donation.
+        </p>
+        <p>
+          <strong slot="anonymous">
+            Would you like to remain anonymous?
+          </strong>
+        </p>
+        <p slot="comment">
+          Would you like to leave us a message?
+        </p>
+      </donation-form>
+      `}
   </Story>
 </Preview>
 
@@ -139,6 +178,18 @@ If you want to add a markup after any given part, you can use the "after-part" s
 
 <Preview>
   <Story name="Slots">
-      {html`<donation-form askValueOther askComment askAnonymous askDesignation > <div slot="after-comment">After Comment</div> <div slot="after-anonymous">After Anonymous</div> </donation-form>`}
+    {html`
+      <donation-form askValueOther
+                     askComment
+                     askAnonymous
+                     askDesignation>
+        <div slot="after-comment">
+          After Comment
+        </div>
+        <div slot="after-anonymous">
+          After Anonymous
+        </div>
+      </donation-form>
+    `}
   </Story>
 </Preview>
