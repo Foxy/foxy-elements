@@ -1,12 +1,13 @@
 import { html, property, query } from 'lit-element';
-import { Stateful } from '../../../../../mixins/stateful';
-import { ChooseValueMachine, ChooseValueEvent, ChooseValueSchema } from './ChooseValueMachine';
+import { ChooseValueMachine } from './ChooseValueMachine';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@vaadin/vaadin-select/vaadin-select';
 import '@vaadin/vaadin-list-box/vaadin-list-box';
 import '@vaadin/vaadin-item/vaadin-item-mixin';
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 import '@vaadin/vaadin-radio-button/vaadin-radio-button';
+import { Translatable } from '../../../../../mixins/translatable';
+import { interpret } from 'xstate';
 
 /**
  * An element to select a value for donation
@@ -14,7 +15,7 @@ import '@vaadin/vaadin-radio-button/vaadin-radio-button';
  * @slot - This element has a slot
  * @csspart button - The button
  */
-export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEvent> {
+export class ChooseValue extends Translatable {
   public static get scopedElements() {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
@@ -26,6 +27,11 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
     };
   }
   private _valuePair: [number | string, number | string] = [0, 0];
+
+  public service = interpret(ChooseValueMachine)
+    .onChange(() => this.requestUpdate())
+    .onTransition(({ changed }) => changed && this.requestUpdate())
+    .start();
 
   @property({ type: String })
   public name = 'value';
@@ -54,7 +60,7 @@ export class ChooseValue extends Stateful<void, ChooseValueSchema, ChooseValueEv
   public input?: HTMLInputElement;
 
   constructor() {
-    super(() => ChooseValueMachine, 'donation-form');
+    super('donation-form');
 
     this.service.onTransition(state => {
       if (state.value == 'other') {
