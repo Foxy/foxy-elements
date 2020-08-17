@@ -50,7 +50,7 @@ describe('Choose Designation input', () => {
     // Allow firstUpdated to create event listeners
     (el as ChooseDesignation).requestUpdate();
     const otherValue = el.shadowRoot?.querySelector('[value=other]');
-    expect(otherValue?.innerHTML).to.equal('<!---->Other<!---->');
+    expect(otherValue?.innerHTML).to.equal('<!---->choosedesignation.other<!---->');
     const listener = oneEvent(el, 'change');
     (otherValue as HTMLInputElement).click();
     await listener;
