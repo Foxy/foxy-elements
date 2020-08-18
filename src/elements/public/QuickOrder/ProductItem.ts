@@ -64,7 +64,7 @@ export class ProductItem extends Translatable {
     this.__setCode();
     this.__setParentCode();
     this.__createChildren();
-    this.__computeTotalPrice();
+    this.__setTotalPrice();
   }
 
   private __default_image = {
@@ -96,7 +96,7 @@ export class ProductItem extends Translatable {
   public parent_code?: string;
 
   @property({ type: Number })
-  public quantity?: number = 1;
+  public quantity?: number;
 
   @property({ type: Number })
   public quantity_max?: number;
@@ -131,13 +131,13 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   signature?: string;
 
-  @property({ type: Boolean, reflect: true })
-  product = true;
+  @property({ type: Boolean, reflect: true, attribute: 'data-product' })
+  isProduct = true;
 
   @property({ type: Array })
   open = [];
 
-  @queryAll('[product]')
+  @queryAll('[data-product]')
   public childProducts?: NodeListOf<ProductItem>;
 
   public updated(changed: unknown): void {
@@ -234,7 +234,7 @@ export class ProductItem extends Translatable {
    */
   private __setParentCode(): void {
     const productParent = this.parentElement;
-    if (productParent?.hasAttribute('product')) {
+    if (productParent?.hasAttribute('data-product')) {
       this.value!.parent_code = (productParent as ProductItem).value?.code;
     }
   }
@@ -246,7 +246,6 @@ export class ProductItem extends Translatable {
         this.value = {
           name: this.name,
           price: this.price,
-          quantity: 1,
         };
       } else {
         console.error('The name and price attributes of a product are required.', {
@@ -264,7 +263,8 @@ export class ProductItem extends Translatable {
         }
       }
     }
-    if (this.value && !this.value.quantity) {
+    // Set default quantity
+    if (this.value && this.value.quantity == undefined && this.quantity === undefined) {
       this.value.quantity = 1;
       this.quantity = 1;
     }
@@ -293,7 +293,7 @@ export class ProductItem extends Translatable {
    */
   private __computeTotalPrice(): number {
     // Get all child products
-    const myChildProducts = this.querySelectorAll('[product]');
+    const myChildProducts = this.querySelectorAll('[data-product]');
     const myPrice = this.qtyPrice();
     myChildProducts.forEach((e, priceObj) => {
       const p = e as ProductItem;
