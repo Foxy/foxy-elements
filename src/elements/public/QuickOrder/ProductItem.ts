@@ -15,8 +15,20 @@ import { Checkbox, Section, Group, I18N } from '../../private/index';
  */
 export class ProductItem extends Translatable {
   // A list of product properties as defined in Foxy Cart Documentation
+
+  /**
+   * Static fields and methods
+   **/
+
+  // A list of all existing ids to guarantee unicity
+  private static __existingIds: number[] = [];
+
+  // A list of the product properties
   private static productProperties = Object.keys(EmptyProduct);
 
+  /**
+   * Custom elements used in the component
+   */
   public static get scopedElements() {
     return {
       'x-checkbox': Checkbox,
@@ -27,17 +39,32 @@ export class ProductItem extends Translatable {
     };
   }
 
-  private static __existingIds: number[] = [];
-
-  private static __newId() {
+  /**
+   * Creates a new unique id to be used in the form
+   *
+   * Ids are used to distinguish different products in a single form.
+   * Ids are prepended to fields names to allow Foxy Cart to know to what
+   * product a particular field relates.
+   *
+   * @return number the newly created id
+   */
+  private static __newId(): number {
     // Get the maximum value
     const newId =
       ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
-    ProductItem.__addCustomId(newId);
+    ProductItem.__acknowledgeId(newId);
     return newId;
   }
 
-  private static __addCustomId(customId: string | number) {
+  /**
+   * Acknowledges an id
+   *
+   * Ids are acknowledged in order to guarantee they are unique.
+   * Throws an exception if the id is already acknowledged.
+   *
+   * @argument number the id to acknowledge
+   */
+  private static __acknowledgeId(customId: string | number): void {
     const newId = Number(customId);
     if (ProductItem.__existingIds.includes(newId)) {
       throw new Error('Attempt to create two different products with the same id');
@@ -45,33 +72,35 @@ export class ProductItem extends Translatable {
     ProductItem.__existingIds.push(newId);
   }
 
+  // A set of sentences used in the component. They are centralized to ease the
+  // implementation of internationalization.
   private __vocabulary = {
     remove: 'Remove',
   };
 
+  /**
+   * Instance fields and methods
+   */
+
+  // Call Translatable parent with the name of the translation file
   public constructor() {
     super('quick-order');
   }
 
+  // Is this instance child of another product
   private get __isChildProduct() {
     return !!this.value?.parent_code;
   }
 
-  /** LitElement life cicle */
-  public firstUpdated(): void {
-    this.__propertyToValue();
-    this.__setId();
-    this.__setCode();
-    this.__setParentCode();
-    this.__createChildren();
-    this.__setTotalPrice();
-  }
-
+  // Default image values to allow the product to be ran out-of-the box with
+  // example images.
   private __default_image = {
     src: 'https://www.foxy.io/merchants/shopping-cart-full.svg',
     alt: 'A sketch of a shopping cart with three boxes',
   };
 
+  // Value is the source of truth for the product
+  // TODO: evaluate if the product attributes should play this role
   public value: QuickOrderProduct | undefined;
 
   @property({ type: Number, reflect: true, attribute: 'total-price' })
@@ -96,7 +125,7 @@ export class ProductItem extends Translatable {
   public parent_code?: string;
 
   @property({ type: Number })
-  public quantity?: number;
+  public quantity = 1;
 
   @property({ type: Number })
   public quantity_max?: number;
@@ -142,6 +171,20 @@ export class ProductItem extends Translatable {
 
   public updated(changed: unknown): void {
     this.dispatchEvent(new Event('change'));
+  }
+
+  /** LitElement life cicle */
+  public firstUpdated(): void {
+    this.__isInitialAttributesValid();
+    this.__propertyToValue();
+    this.__setId();
+    this.__setCode();
+    this.__setParentCode();
+    this.__createChildren();
+    this.__setTotalPrice();
+    if (!this.__isValid()) {
+      console.error('Invalid product', this.value);
+    }
   }
 
   private handleQuantity = {
@@ -215,7 +258,7 @@ export class ProductItem extends Translatable {
       this.value!.id = ProductItem.__newId();
     } else {
       // The user provided a custom id
-      ProductItem.__addCustomId(this.value!.id);
+      ProductItem.__acknowledgeId(this.value!.id);
     }
   }
 
@@ -242,12 +285,12 @@ export class ProductItem extends Translatable {
   /** Captures values set as properties to build the value property of the component.  */
   private __propertyToValue(): void {
     if (this.value === undefined) {
-      if (this.name && this.price) {
-        this.value = {
-          name: this.name,
-          price: this.price,
-        };
-      } else {
+      this.value = {
+        name: this.name ? this.name : '',
+        price: this.price ? this.price : 0,
+        quantity: this.quantity,
+      };
+      if (!(this.name && this.price && this.name.length > 0 && this.price >= 0)) {
         console.error('The name and price attributes of a product are required.', {
           name: this.name,
           price: this.price,
@@ -262,11 +305,6 @@ export class ProductItem extends Translatable {
           (this.value! as T)[i] = attr;
         }
       }
-    }
-    // Set default quantity
-    if (this.value && this.value.quantity == undefined && this.quantity === undefined) {
-      this.value.quantity = 1;
-      this.quantity = 1;
     }
   }
 
@@ -311,5 +349,40 @@ export class ProductItem extends Translatable {
       const result = this.value.price * this.value.quantity;
       return Number(result.toFixed(2));
     }
+  }
+
+  private __isInitialAttributesValid() {
+    if (!(this.name && this.price && this.name.length > 0 && this.price >= 0)) {
+      console.error('The name and price attributes of a product are required.', {
+        name: this.name,
+        price: this.price,
+      });
+    }
+    if (this.price! < 0) {
+      console.error('Product added with negative price');
+    }
+    if (this.quantity === 0) {
+      console.error('Product added with zero quantity');
+    }
+    if (this.quantity_min && this.quantity < this.quantity_min) {
+      console.error('Quantity amount is less than minimum quantity');
+    }
+    if (this.quantity_max && this.quantity > this.quantity_max) {
+      console.error('Quantity amount is more than maximum quantity');
+    }
+  }
+
+  /**
+   * Constraints Products must eventually adhere to.
+   **/
+  private __isValid() {
+    return (
+      this.value &&
+      this.value.price! >= 0 &&
+      this.value.name &&
+      this.value.id &&
+      this.value.quantity! >= 0 &&
+      (!this.value.quantity_min || this.value.quantity! >= this.value.quantity_min)
+    );
   }
 }
