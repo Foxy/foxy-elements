@@ -1,49 +1,57 @@
-import { expect } from '@open-wc/testing';
+import { expect, fixture, html, elementUpdated } from '@open-wc/testing';
+import { ProductItem } from './ProductItem';
+import * as sinon from 'sinon';
 
-describe('The product Item remains always valid', async () => {
+/**
+ * Avoid CustomElementsRegistry collisions
+ *
+ * not using defineCE because lit-html doesn't support dynamic tags by default.
+ */
+class TestProductItem extends ProductItem {}
+
+customElements.define('x-productitem', TestProductItem);
+
+describe('The product Item remain always valid', async () => {
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    logSpy.restore();
+  });
+
   it('Prices should be zero or positive', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Should validate frequency format', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Should validate initial date', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Should validate end date', async () => {
-    expect(true).to.equal(false);
+    let el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
+    await elementUpdated(el);
+    expect(logSpy.calledWith('Product added with negative price')).to.be.false;
+    el = await fixture(html` <x-productitem name="p1" price="-10"></x-productitem> `);
+    await elementUpdated(el);
+    expect(logSpy.calledWith('Product added with negative price')).to.be.true;
   });
 
   it('Should validade zero quantity on adding to form', async () => {
-    expect(true).to.equal(false);
+    const el = await fixture(html`
+      <x-productitem name="p1" price="10" quantity="0"></x-productitem>
+    `);
+    await elementUpdated(el);
+    expect(logSpy.calledWith('Product added with zero quantity')).to.be.true;
   });
 
-  it('Should validate minimum quantity', async () => {
-    expect(true).to.equal(false);
+  it('Should validate minimum quantity in attribute', async () => {
+    const el = await fixture(html`
+      <x-productitem name="p1" price="10" quantity="1" quantity_min="2"></x-productitem>
+    `);
+    await elementUpdated(el);
+    expect(logSpy.calledWith('Quantity amount is less than minimum quantity')).to.be.true;
   });
 
-  it('Should validate maximum quantity', async () => {
-    expect(true).to.equal(false);
-  });
-});
-
-describe('The product item reveals its state to the user', async () => {
-  it('Should look like removed when quantity is zero', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Should temporarily look like added when recently added by the user', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Should temporarily look like modified when recently modified by the user', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Should look like invalid if an invalid condition is reached', async () => {
-    expect(true).to.equal(false);
+  it('Should validate maximum quantity in attribute', async () => {
+    const el = await fixture(html`
+      <x-productitem name="p1" price="10" quantity="3" quantity_max="2"></x-productitem>
+    `);
+    await elementUpdated(el);
+    expect(logSpy.calledWith('Quantity amount is more than maximum quantity')).to.be.true;
   });
 });
