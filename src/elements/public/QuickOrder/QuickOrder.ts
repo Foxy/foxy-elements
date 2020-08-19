@@ -52,11 +52,30 @@ export class QuickOrder extends Translatable {
   @property({ type: String })
   sub_frequency?: string;
 
-  @property({ type: String })
+  @property({
+    type: String,
+    converter: value => {
+      if (!QuickOrder.__validDate(value)) {
+        console.error('Invalid start date', value);
+        return '';
+      }
+      return value;
+    },
+  })
   sub_startdate?: string;
 
-  @property({ type: String })
+  @property({
+    type: String,
+    converter: value => {
+      if (!QuickOrder.__validDateFuture(value)) {
+        console.error('Invalid end date', value);
+        return '';
+      }
+      return value;
+    },
+  })
   sub_enddate?: string;
+
   @property({
     type: Array,
     converter: value => {
@@ -267,6 +286,11 @@ export class QuickOrder extends Translatable {
       return false;
     }
     if (strDate.match(/^(\d{1,2}|\d{8})$/)) {
+      if (strDate.match(/^\d{2}$/)) {
+        if (Number(strDate) > 31) {
+          return false;
+        }
+      }
       return true;
     }
     if (!strDate.match(/^.5m/) && QuickOrder.__validFrequency(strDate)) {
