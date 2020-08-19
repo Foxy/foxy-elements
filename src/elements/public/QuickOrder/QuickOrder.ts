@@ -89,7 +89,8 @@ export class QuickOrder extends Translatable {
       }
       for (const f of freqArray) {
         if (!QuickOrder.__validFrequency(f)) {
-          console.error('Invalid frequency',
+          console.error(
+            'Invalid frequency',
             `Invalid frequency option.
               Please, check https://wiki.foxycart.com/v/2.0/products#subscription_product_options for possible values.
               Each frequency must be a in the format:
@@ -156,7 +157,7 @@ export class QuickOrder extends Translatable {
               </x-dropdown>`
             : ''}
           <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
-            <iron-icon icon="vaadin:user-heart" slot="prefix"></iron-icon>
+            <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
             <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
           </vaadin-button>
         </x-section>
