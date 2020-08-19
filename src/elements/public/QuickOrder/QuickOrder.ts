@@ -84,12 +84,12 @@ export class QuickOrder extends Translatable {
       }
       const freqArray = JSON.parse(value);
       if (!Array.isArray(freqArray)) {
-        console.error(`Frequency options must be an array.`);
+        console.error('Invalid frequency', `Frequency options must be an array.`);
         return [];
       }
       for (const f of freqArray) {
         if (!QuickOrder.__validFrequency(f)) {
-          console.error(
+          console.error('Invalid frequency',
             `Invalid frequency option.
               Please, check https://wiki.foxycart.com/v/2.0/products#subscription_product_options for possible values.
               Each frequency must be a in the format:

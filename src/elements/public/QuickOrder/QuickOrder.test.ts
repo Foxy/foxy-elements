@@ -15,6 +15,16 @@ customElements.define('x-form', TestQuickOrder);
 customElements.define('x-item', TestQuickOrderProductItem);
 
 describe('The form should allow new products to be added', async () => {
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    logSpy.restore();
+  });
+
   it('Should recognize new products added as JS array', async () => {
     const el = await fixture(html`
       <x-form
@@ -182,14 +192,14 @@ describe('The form should remain valid', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    expect(logSpy.callCount).to.equal(0);
+    expect(logSpy.calledWith('Invalid frequency')).to.be.false;
     el = await fixture(html`
       <x-form store-subdomain="test.foxycart.com" frequencyOptions='["5", "10d"]'>
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
     `);
     await elementUpdated(el);
-    expect(logSpy.callCount).to.equal(1);
+    expect(logSpy.calledWith('Invalid frequency')).to.be.true;
   });
 
   // TODO: o erro está no uso de __validFrequency ao invés de ValidDate no QuickOrder
@@ -213,7 +223,11 @@ describe('The form should remain valid', async () => {
           </x-form>
         `);
         await elementUpdated(el);
-        expect(logSpy.callCount).to.equal(list[1]);
+        if (list[1]) {
+          expect(logSpy.calledWith('Invalid start date')).to.be.true;
+        } else {
+          expect(logSpy.calledWith('Invalid start date')).to.be.false;
+        }
       }
     }
   });

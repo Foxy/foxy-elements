@@ -24,7 +24,7 @@ export class ProductItem extends Translatable {
   private static __existingIds: number[] = [];
 
   // A list of the product properties
-  private static productProperties = Object.keys(EmptyProduct);
+  private static __productProperties = Object.keys(EmptyProduct);
 
   /**
    * Custom elements used in the component
@@ -92,6 +92,9 @@ export class ProductItem extends Translatable {
     return !!this.value?.parent_code;
   }
 
+  @property({type: Boolean})
+  private __modified = false;
+
   // Default image values to allow the product to be ran out-of-the box with
   // example images.
   private __default_image = {
@@ -103,13 +106,15 @@ export class ProductItem extends Translatable {
   // TODO: evaluate if the product attributes should play this role
   public value: QuickOrderProduct | undefined;
 
+  public productFields: QuickOrderProduct | undefined;
+
   @property({ type: Number, reflect: true, attribute: 'total-price' })
   public totalPrice?: number = this.__computeTotalPrice();
 
   @property({ type: String })
   public name?: string;
 
-  @property({ type: String })
+  @property({ type: Number })
   public price?: number = 0;
 
   @property({ type: String })
@@ -175,7 +180,6 @@ export class ProductItem extends Translatable {
 
   /** LitElement life cicle */
   public firstUpdated(): void {
-    this.__isInitialAttributesValid();
     this.__propertyToValue();
     this.__setId();
     this.__setCode();
@@ -196,6 +200,9 @@ export class ProductItem extends Translatable {
           (check as Checkbox).checked = false;
         }
       }
+      if (this.value!.quantity != newValue) {
+        this.__modified = true;
+      }
       this.value!.quantity = newValue;
       this.__setTotalPrice();
     },
@@ -210,13 +217,8 @@ export class ProductItem extends Translatable {
 
   public render(): TemplateResult {
     return html`
-      <article
-        class="product flex flex-row flex-wrap justify-between ${this.value?.quantity
-          ? ''
-          : 'removed'}"
-      >
-        <img
-          class="max-w-xs min-w-1 block"
+      <article class="product flex flex-row flex-wrap justify-between ${this.value?.quantity ? '' : 'removed'} ${this.__modified ? 'modified': ''}" >
+        <img class="max-w-xs min-w-1 block"
           alt="${this.value?.alt ?? this.__default_image.alt}"
           src="${this.value?.image ?? this.__default_image.src}"
         />
@@ -234,6 +236,7 @@ export class ProductItem extends Translatable {
           ? ''
           : html` <x-section class="actions p-s min-w-3">
               <x-number-field
+                name="quantity"
                 @change=${this.handleQuantity}
                 value="${this.value?.quantity}"
                 min="0"
@@ -298,7 +301,7 @@ export class ProductItem extends Translatable {
       }
     }
     type T = Partial<Record<string, string | number>>;
-    for (const i of ProductItem.productProperties) {
+    for (const i of ProductItem.__productProperties) {
       if (!(this.value! as T)[i]) {
         const attr = this.getAttribute(i);
         if (attr) {
@@ -351,38 +354,30 @@ export class ProductItem extends Translatable {
     }
   }
 
-  private __isInitialAttributesValid() {
-    if (!(this.name && this.price && this.name.length > 0 && this.price >= 0)) {
-      console.error('The name and price attributes of a product are required.', {
-        name: this.name,
-        price: this.price,
-      });
-    }
-    if (this.price! < 0) {
-      console.error('Product added with negative price');
-    }
-    if (this.quantity === 0) {
-      console.error('Product added with zero quantity');
-    }
-    if (this.quantity_min && this.quantity < this.quantity_min) {
-      console.error('Quantity amount is less than minimum quantity');
-    }
-    if (this.quantity_max && this.quantity > this.quantity_max) {
-      console.error('Quantity amount is more than maximum quantity');
-    }
-  }
-
   /**
    * Constraints Products must eventually adhere to.
    **/
   private __isValid() {
-    return (
-      this.value &&
-      this.value.price! >= 0 &&
-      this.value.name &&
-      this.value.id &&
-      this.value.quantity! >= 0 &&
-      (!this.value.quantity_min || this.value.quantity! >= this.value.quantity_min)
-    );
+    const error = [];
+    if (!this.value!.name){
+      error.push('The name and price attributes of a product are required.');
+    }
+    if (!this.value!.price) {
+      error.push('The name and price attributes of a product are required.');
+    }
+    if (this.value!.price! < 0) {
+      error.push('Product added with negative price.');
+    }
+    if (this.value!.quantity_min && this.value!.quantity! < this.value!.quantity_min) {
+      error.push('Quantity amount is less than minimum quantity.');
+    }
+    if (this.value!.quantity_max && this.value!.quantity! > this.value!.quantity_max) {
+      error.push('Quantity amount is more than maximum quantity.');
+    }
+    if (!this.value!.id) {
+      error.push('The product has no id');
+    }
+    console.error(...error);
+    return !!error.length;
   }
 }
