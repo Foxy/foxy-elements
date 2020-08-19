@@ -1,10 +1,18 @@
-import { fixture, fixtureCleanup, expect, html, elementUpdated } from '@open-wc/testing';
+import { fixture, fixtureCleanup, expect, html, elementUpdated, nextFrame } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
 import { ProductItem } from './ProductItem';
 
-customElements.define('x-form', QuickOrder);
-customElements.define('x-item', ProductItem);
+/**
+ * Avoid CustomElementsRegistry collisions
+ *
+ * not using defineCE because lit-html doesn't support dynamic tags by default.
+ */
+class TestQuickOrder extends QuickOrder {}
+class TestQuickOrderProductItem extends ProductItem {}
+
+customElements.define('x-form', TestQuickOrder);
+customElements.define('x-item', TestQuickOrderProductItem);
 
 describe('The form should allow new products to be added', async () => {
   it('Should recognize new products added as JS array', async () => {
@@ -33,6 +41,7 @@ describe('The form should allow new products to be added', async () => {
     expect(products).to.have.lengthOf(3);
     // Products will be found in the DOM even if not recognized by QuickOrder
     // So we check if the price was properly updated
+    await nextFrame();
     expect((el as QuickOrder).totalPrice).to.equal(30);
   });
 
@@ -67,7 +76,7 @@ describe('The form should allow new products to be added', async () => {
     `);
     await elementUpdated(el);
     expect((el as QuickOrder).totalPrice).to.equal(40);
-    const lateProduct = new ProductItem();
+    const lateProduct = new TestQuickOrderProductItem();
     lateProduct.price = 20;
     lateProduct.name = '3';
     lateProduct.setAttribute('data-product', 'true');
@@ -150,6 +159,7 @@ describe('The form should remain valid', async () => {
     const submitBtn = el.shadowRoot?.querySelector('[type=submit]');
     expect(submitBtn).to.exist;
     if (submitBtn) {
+      logSpy.reset();
       (submitBtn as HTMLInputElement).click();
       interface withSend {
         send?: { args: any[] };
@@ -158,8 +168,85 @@ describe('The form should remain valid', async () => {
       const r: FakeRequest = requests[0];
       const fd: FormData = r.send!.args[0][0];
       expect(valuesFromField(fd, 'price').every(v => Number(v) >= 0)).to.be.true;
+      expect(logSpy.callCount).to.equal(2);
     }
-    expect(logSpy.callCount).to.equal(2);
+  });
+
+  it('Should validate frequency format', async () => {
+    let el = await fixture(html`
+      <x-form
+        store-subdomain="test.foxycart.com"
+        frequencyOptions='["5d", "10d", "15d", "1m", "1y", ".5m"]'
+      >
+        <x-item name="p3" price="10.00" quantity="3"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    expect(logSpy.callCount).to.equal(0);
+    el = await fixture(html`
+      <x-form store-subdomain="test.foxycart.com" frequencyOptions='["5", "10d"]'>
+        <x-item name="p3" price="10.00" quantity="3"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    expect(logSpy.callCount).to.equal(1);
+  });
+
+  // TODO: o erro está no uso de __validFrequency ao invés de ValidDate no QuickOrder
+  it('Should validate initial date', async () => {
+    const validDates = ['20201010', '20', '2', '1d', '12w', '2y', '10m'];
+    const invalidDates = ['202010100', '80', '.5m', 'tomorrow', 'today', '-1'];
+
+    for (const list of [
+      [validDates, 0],
+      [invalidDates, 1],
+    ]) {
+      for (const dateString of list[0] as string[]) {
+        logSpy.reset();
+        const el = await fixture(html`
+          <x-form
+            store-subdomain="test.foxycart.com"
+            sub_startdate="${dateString}"
+            frequencyOptions='["5d", "10d"]'
+          >
+            <x-item name="p3" price="10.00" quantity="3"></x-item>
+          </x-form>
+        `);
+        await elementUpdated(el);
+        expect(logSpy.callCount).to.equal(list[1]);
+      }
+    }
+  });
+
+  it('Should validate end date', async () => {
+    const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+    const tomorrowStr = tomorrow.toISOString().replace(/(-|T.*)/g, '');
+    const validDates = [tomorrowStr, '20', '2', '1d', '12w', '2y', '10m'];
+    const invalidDates = ['20191010', '219810100', '80', '.5m', 'tomorrow', '-1'];
+
+    for (const list of [
+      [validDates, 0],
+      [invalidDates, 1],
+    ]) {
+      for (const dateString of list[0] as string[]) {
+        logSpy.reset();
+        const el = await fixture(html`
+          <x-form
+            store-subdomain="test.foxycart.com"
+            sub_enddate="${dateString}"
+            frequencyOptions='["5d", "10d"]'
+          >
+            <x-item name="p3" price="10.00"></x-item>
+          </x-form>
+        `);
+        await elementUpdated(el);
+        if (list[1]) {
+          expect(logSpy.calledWith('Invalid end date')).to.be.true;
+        } else {
+          expect(logSpy.calledWith('Invalid end date')).to.be.false;
+        }
+      }
+    }
   });
 });
 
