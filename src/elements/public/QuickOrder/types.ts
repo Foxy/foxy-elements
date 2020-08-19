@@ -1,5 +1,3 @@
-import { ProductItem } from './ProductItem';
-
 export const EmptyProduct = {
   name: '',
   price: 0,
