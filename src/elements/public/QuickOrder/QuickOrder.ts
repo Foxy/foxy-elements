@@ -42,7 +42,7 @@ export class QuickOrder extends Translatable {
   private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
   private __childProductsObserver?: MutationObserver;
 
-  @property({ type: Number, attribute: 'total-price' })
+  @property({ type: Number, attribute: 'total-price', reflect: true })
   public totalPrice = 0;
 
   @property({ type: String, attribute: 'store-subdomain' })

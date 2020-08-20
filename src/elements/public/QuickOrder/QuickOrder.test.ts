@@ -274,7 +274,7 @@ describe('The form should remain valid', async () => {
 });
 
 describe('The form should be aware of its products', async () => {
-  it('Show the total price of the products', async () => {
+  it('Shows the total price of the products added as tags', async () => {
     const el = await fixture(html`
       <x-form store-subdomain="test.foxycart.com">
         <x-item name="p1" price="10.00" quantity="3"></x-item>
@@ -284,20 +284,20 @@ describe('The form should be aware of its products', async () => {
       </x-form>
     `);
     await elementUpdated(el);
+    await nextFrame();
     expect(el.getAttribute('total-price')).to.equal('70');
   });
 
-  it('Show the total price of the products', async () => {
+  it('Shows the total price of the products added as arrays ', async () => {
     const el = await fixture(html`
-      <x-form store-subdomain="test.foxycart.com">
-        <x-item name="p1" value='{"name": "p1", "price":"10.00"}' quantity="3"></x-item>
-        <x-item name="p2" value='{"name": "p1", "price":"10.00"}'></x-item>
-        <x-item name="p3" value='{"name": "p1", "price":"10.00", "quantity": "2"}'></x-item>
-        <x-item name="p4" price="10.00"></x-item>
+      <x-form
+        store-subdomain="test.foxycart.com"
+        products='[{"name": "p1", "price":"10.00"},{"name": "p1", "price":"10.00"},{"name": "p1", "price":"10.00", "quantity": "2"},{"name":"p4","price":10}]'
+      >
       </x-form>
     `);
     await elementUpdated(el);
-    expect(el.getAttribute('total-price')).to.equal('70');
+    expect((el as TestQuickOrder).totalPrice).to.equal(50);
   });
 
   it('Update the total price as quantities change', async () => {

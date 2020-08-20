@@ -112,8 +112,7 @@ export class ProductItem extends Translatable {
     alt: 'A sketch of a shopping cart with three boxes',
   };
 
-  // Value is the source of truth for the product
-  // TODO: evaluate if the product attributes should play this role
+  @property({ type: Object })
   public set value(v: QuickOrderProduct) {
     for (const k in v) {
       // Remove from this.value any unknown key
