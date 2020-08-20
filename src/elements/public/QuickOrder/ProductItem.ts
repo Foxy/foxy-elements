@@ -85,6 +85,16 @@ export class ProductItem extends Translatable {
   // Call Translatable parent with the name of the translation file
   public constructor() {
     super('quick-order');
+    this.productId = this.__setId(); // make compiler happy
+    this.updateComplete.then(() => {
+      this.__setCode();
+      this.__setParentCode();
+      this.__createChildren();
+      this.__setTotalPrice();
+      if (!this.__isValid(true)) {
+        console.error('Invalid product', 'in product', this.value);
+      }
+    });
   }
 
   // Is this instance child of another product
@@ -92,7 +102,7 @@ export class ProductItem extends Translatable {
     return !!this.value?.parent_code;
   }
 
-  @property({type: Boolean})
+  @property({ type: Boolean })
   private __modified = false;
 
   // Default image values to allow the product to be ran out-of-the box with
@@ -104,9 +114,25 @@ export class ProductItem extends Translatable {
 
   // Value is the source of truth for the product
   // TODO: evaluate if the product attributes should play this role
-  public value: QuickOrderProduct | undefined;
+  public set value(v: QuickOrderProduct) {
+    for (const k in v) {
+      // Remove from this.value any unknown key
+      if (!ProductItem.__productProperties.includes(k)) {
+        console.error(`Key ${k} is not allowed as a product key.`);
+        delete (v as any)[k];
+      }
+    }
+    Object.assign(this, v);
+  }
 
-  public productFields: QuickOrderProduct | undefined;
+  public get value(): QuickOrderProduct {
+    const r: any = {};
+    const me = this as any;
+    for (const k of ProductItem.__productProperties) {
+      r[k] = me[k];
+    }
+    return r as QuickOrderProduct;
+  }
 
   @property({ type: Number, reflect: true, attribute: 'total-price' })
   public totalPrice?: number = this.__computeTotalPrice();
@@ -115,7 +141,7 @@ export class ProductItem extends Translatable {
   public name?: string;
 
   @property({ type: Number })
-  public price?: number = 0;
+  public price = 0;
 
   @property({ type: String })
   public image?: string;
@@ -127,7 +153,7 @@ export class ProductItem extends Translatable {
   public code?: string | number;
 
   @property({ type: String })
-  public parent_code?: string;
+  public parent_code?: string | number;
 
   @property({ type: Number })
   public quantity = 1;
@@ -171,65 +197,57 @@ export class ProductItem extends Translatable {
   @property({ type: Array })
   open = [];
 
-  @queryAll('[data-product]')
-  public childProducts?: NodeListOf<ProductItem>;
+  @property({ type: Array })
+  childProducts: QuickOrderProduct[] = [];
+
+  @property({ type: String })
+  description = '';
+
+  @property({ type: Number })
+  productId: number;
 
   public updated(changed: unknown): void {
     this.dispatchEvent(new Event('change'));
   }
 
-  /** LitElement life cicle */
-  public firstUpdated(): void {
-    this.__propertyToValue();
-    this.__setId();
-    this.__setCode();
-    this.__setParentCode();
-    this.__createChildren();
-    this.__setTotalPrice();
-    if (!this.__isValid()) {
-      console.error('Invalid product', this.value);
-    }
-  }
-
   private handleQuantity = {
     handleEvent: (ev: Event) => {
       const newValue = Number((ev.target as HTMLInputElement).value);
-      if (this.value?.quantity === 0 && newValue) {
-        const check = this.shadowRoot?.querySelector('[name=remove]');
-        if (check) {
-          (check as Checkbox).checked = false;
-        }
-      }
-      if (this.value!.quantity != newValue) {
+      if (this.quantity != newValue) {
         this.__modified = true;
       }
-      this.value!.quantity = newValue;
+      this.quantity = newValue;
       this.__setTotalPrice();
     },
   };
 
   private handleExclude = {
     handleEvent: (ev: Event) => {
-      this.value!.quantity = 0;
+      this.quantity = 0;
       this.__setTotalPrice();
     },
   };
 
   public render(): TemplateResult {
     return html`
-      <article class="product flex flex-row flex-wrap justify-between ${this.value?.quantity ? '' : 'removed'} ${this.__modified ? 'modified': ''}" >
-        <img class="max-w-xs min-w-1 block"
-          alt="${this.value?.alt ?? this.__default_image.alt}"
-          src="${this.value?.image ?? this.__default_image.src}"
+      <article
+        class="product flex flex-row flex-wrap justify-between ${this.quantity
+          ? ''
+          : 'removed'} ${this.__modified ? 'modified' : ''}"
+      >
+        <img
+          class="max-w-xs min-w-1 block"
+          alt="${this.alt ?? this.__default_image.alt}"
+          src="${this.image ?? this.__default_image.src}"
         />
         <x-section class="description flex flex-wrap flex-column p-s min-w-xl">
-          <h1>${this.value?.name}</h1>
-          <div class="product-description">${this.value?.description}</div>
+          <h1>${this.name}</h1>
+          <div class="product-description">${this.description}</div>
         </x-section>
         <x-section class="item-info p-s min-w-2">
-          <div class="price">${this.value?.price}</div>
-          ${this.value?.price != this.totalPrice && this.totalPrice
-            ? html`<div class="price total">${this.totalPrice}</div>`
+          <div class="price">${this.price ? Number(this.price).toFixed(2) : ''}</div>
+          ${this.price != this.totalPrice && this.totalPrice
+            ? html`<div class="price total">${Number(this.totalPrice.toFixed(2)).toFixed(2)}</div>`
             : ''}
         </x-section>
         ${this.__isChildProduct
@@ -238,11 +256,14 @@ export class ProductItem extends Translatable {
               <x-number-field
                 name="quantity"
                 @change=${this.handleQuantity}
-                value="${this.value?.quantity}"
+                value="${this.quantity}"
                 min="0"
                 has-controls
               ></x-number-field>
-              <x-checkbox name="remove" @change=${this.handleExclude}
+              <x-checkbox
+                name="remove"
+                @change=${this.handleExclude}
+                .checked=${this.quantity ? false : true}
                 >${this.__vocabulary.remove}</x-checkbox
               >
             </x-section>`}
@@ -256,22 +277,22 @@ export class ProductItem extends Translatable {
   /**
    * Create an ID if none is provided by the user.
    */
-  private __setId() {
-    if (!this.value?.id) {
-      this.value!.id = ProductItem.__newId();
+  private __setId(): number {
+    if (!this.productId) {
+      this.productId = ProductItem.__newId();
     } else {
       // The user provided a custom id
-      ProductItem.__acknowledgeId(this.value!.id);
+      ProductItem.__acknowledgeId(this.productId);
     }
+    return this.productId;
   }
 
   /**
    * Creates a code if none is provided by the user
    */
   private __setCode() {
-    if (!this.code && this.value && !this.value.code) {
-      this.value.code = `RAND${Math.random()}`;
-      this.code = this.value!.code;
+    if (!this.code) {
+      this.code = `RAND${Math.random()}`;
     }
   }
 
@@ -281,7 +302,7 @@ export class ProductItem extends Translatable {
   private __setParentCode(): void {
     const productParent = this.parentElement;
     if (productParent?.hasAttribute('data-product')) {
-      this.value!.parent_code = (productParent as ProductItem).value?.code;
+      this.parent_code = (productParent as ProductItem).code;
     }
   }
 
@@ -315,13 +336,13 @@ export class ProductItem extends Translatable {
    * Create child product items from children field.
    */
   private __createChildren(): void {
-    if (this.value && this.value.children && this.value.children.length) {
-      for (const p of this.value.children) {
+    if (this.childProducts && this.childProducts.length) {
+      this.childProducts.forEach(p => {
         const product = new ProductItem();
         product.value = p;
         product.__computeTotalPrice();
         this.appendChild(product);
-      }
+      });
     }
   }
 
@@ -335,10 +356,13 @@ export class ProductItem extends Translatable {
   private __computeTotalPrice(): number {
     // Get all child products
     const myChildProducts = this.querySelectorAll('[data-product]');
-    const myPrice = this.qtyPrice();
-    myChildProducts.forEach((e, priceObj) => {
+    let myPrice = 0;
+    myChildProducts.forEach(e => {
       const p = e as ProductItem;
+      p.totalPrice && (myPrice += p.totalPrice);
     });
+    myPrice += this.price;
+    myPrice *= this.quantity;
     return myPrice;
   }
 
@@ -346,38 +370,37 @@ export class ProductItem extends Translatable {
    * The price of the total qty of this product
    */
   public qtyPrice(): number {
-    if (!this.value?.price || !this.value?.quantity) {
+    if (!this.price || !this.quantity) {
       return 0;
     } else {
-      const result = this.value.price * this.value.quantity;
-      return Number(result.toFixed(2));
+      return this.price * this.quantity;
     }
   }
 
   /**
    * Constraints Products must eventually adhere to.
    **/
-  private __isValid() {
+  private __isValid(initial = false) {
     const error = [];
-    if (!this.value!.name){
-      error.push('The name and price attributes of a product are required.');
+    if (!this.name || !this.name.length) {
+      error.push('The name attribute of a product is required.');
     }
-    if (!this.value!.price) {
-      error.push('The name and price attributes of a product are required.');
+    if (this.price === undefined || (initial && this.price == 0)) {
+      error.push('The price attribute of a product is required.');
     }
-    if (this.value!.price! < 0) {
+    if (this.price! < 0) {
       error.push('Product added with negative price.');
     }
-    if (this.value!.quantity_min && this.value!.quantity! < this.value!.quantity_min) {
+    if (this.quantity_min && this.quantity! < this.quantity_min) {
       error.push('Quantity amount is less than minimum quantity.');
     }
-    if (this.value!.quantity_max && this.value!.quantity! > this.value!.quantity_max) {
+    if (this.quantity_max && this.quantity! > this.quantity_max) {
       error.push('Quantity amount is more than maximum quantity.');
     }
-    if (!this.value!.id) {
-      error.push('The product has no id');
+    if (!this.productId) {
+      error.push('The product has no product id');
     }
     console.error(...error);
-    return !!error.length;
+    return !error.length;
   }
 }

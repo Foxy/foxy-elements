@@ -16,12 +16,12 @@ export const EmptyProduct = {
   width: 0,
   height: 0,
   shipto: '',
-  id: 0,
+  productId: 0,
   alt: '',
   signature: '',
   open: [],
   products: [],
-  children: [],
+  childProducts: [],
 };
 
 export type QuickOrderProduct = Partial<typeof EmptyProduct>;
