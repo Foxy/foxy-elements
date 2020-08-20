@@ -52,12 +52,12 @@ export class Checkbox extends Themeable {
         .disabled=${this.disabled}
         @change=${(evt: Event) => [evt.stopPropagation(), this.__service.send('TOGGLE')]}
       >
-        <div style="padding-left: 0.5rem">
+        <div class="font-lumo text-body" style="padding-left: 0.5rem">
           <slot></slot>
         </div>
       </vaadin-checkbox>
 
-      <div style="padding-left: 2.2rem">
+      <div class="font-lumo text-body" style="padding-left: 2.2rem">
         <slot name="content"></slot>
       </div>
     `;
