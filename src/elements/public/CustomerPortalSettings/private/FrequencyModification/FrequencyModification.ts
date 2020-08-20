@@ -100,7 +100,7 @@ export class FrequencyModification extends Translatable {
   }
 
   private __handleQueryChange(evt: JSONataInputChangeEvent) {
-    this.value = { ...this.__normalizedValue, jsonataQuery: evt.detail };
+    this.value = { ...this.__normalizedValue, jsonataQuery: evt.detail as string };
     this.__sendChange();
   }
 

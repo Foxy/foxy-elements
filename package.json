@@ -30,6 +30,7 @@
     "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c"
   },
   "dependencies": {
+    "@open-wc/lit-helpers": "^0.3.11",
     "@open-wc/scoped-elements": "^1.1.1",
     "@open-wc/testing": "^2.5.18",
     "@polymer/iron-iconset-svg": "^3.0.1",
