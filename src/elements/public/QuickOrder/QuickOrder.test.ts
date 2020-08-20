@@ -1,4 +1,12 @@
-import { fixture, fixtureCleanup, expect, html, elementUpdated, nextFrame } from '@open-wc/testing';
+import {
+  fixture,
+  fixtureCleanup,
+  expect,
+  html,
+  elementUpdated,
+  nextFrame,
+  aTimeout,
+} from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
 import { ProductItem } from './ProductItem';
@@ -102,7 +110,8 @@ describe('The form should allow new products to be added', async () => {
         <x-item id="second" name="p2" price="10.00"></x-item>
       </x-form>
     `);
-    const toRemove = el.shadowRoot?.querySelector('#first');
+    await elementUpdated(el);
+    const toRemove = el.querySelector('#first');
     if (toRemove) {
       el.removeChild(toRemove);
     }
@@ -261,6 +270,53 @@ describe('The form should remain valid', async () => {
         }
       }
     }
+  });
+});
+
+describe('The form should be aware of its products', async () => {
+  it('Show the total price of the products', async () => {
+    const el = await fixture(html`
+      <x-form store-subdomain="test.foxycart.com">
+        <x-item name="p1" price="10.00" quantity="3"></x-item>
+        <x-item name="p2" price="10.00" quantity="1"></x-item>
+        <x-item name="p3" price="10.00" quantity="2"></x-item>
+        <x-item name="p4" price="10.00" quantity="1"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    expect(el.getAttribute('total-price')).to.equal('70');
+  });
+
+  it('Show the total price of the products', async () => {
+    const el = await fixture(html`
+      <x-form store-subdomain="test.foxycart.com">
+        <x-item name="p1" value='{"name": "p1", "price":"10.00"}' quantity="3"></x-item>
+        <x-item name="p2" value='{"name": "p1", "price":"10.00"}'></x-item>
+        <x-item name="p3" value='{"name": "p1", "price":"10.00", "quantity": "2"}'></x-item>
+        <x-item name="p4" price="10.00"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    expect(el.getAttribute('total-price')).to.equal('70');
+  });
+
+  it('Update the total price as quantities change', async () => {
+    const el = await fixture(html`
+      <x-form store-subdomain="test.foxycart.com">
+        <x-item name="p1" price="10.00" quantity="3"></x-item>
+        <x-item name="p2" price="10.00"></x-item>
+        <x-item name="p3" price="10.00" quantity="2"></x-item>
+        <x-item name="p4" price="10.00"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    expect(el.getAttribute('total-price')).to.equal('70');
+    const firstProduct = el.shadowRoot?.querySelector('[data-product]');
+    expect(firstProduct).to.exist;
+    (firstProduct as ProductItem)!.value!.quantity = 30;
+    firstProduct!.dispatchEvent(new CustomEvent('change'));
+    await elementUpdated(el);
+    expect(el.getAttribute('total-price')).to.equal('340');
   });
 });
 

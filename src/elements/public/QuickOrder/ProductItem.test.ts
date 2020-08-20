@@ -22,18 +22,21 @@ describe('The product Item remain always valid', async () => {
     logSpy.restore();
   });
 
-
   it('Should require name and price', async () => {
-    let el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
+    let el: TestProductItem = await fixture(
+      html` <x-productitem name="p1" price="10"></x-productitem> `
+    );
     await elementUpdated(el);
-    expect(logSpy.calledWith('The name and price attributes of a product are required.')).to.be.false;
-    el = await fixture(html` <x-productitem name="p1" ></x-productitem> `);
-    await elementUpdated(el);
-    expect(logSpy.calledWith('The name and price attributes of a product are required.')).to.be.true;
+    expect(logSpy.calledWith('The name attribute of a product is required.')).to.be.false;
+    expect(logSpy.calledWith('The price attribute of a product is required.')).to.be.false;
     logSpy.reset();
-    el = await fixture(html` <x-productitem price="10" ></x-productitem> `);
+    el = await fixture(html` <x-productitem name="p2"></x-productitem> `);
     await elementUpdated(el);
-    expect(logSpy.calledWith('The name and price attributes of a product are required.')).to.be.true;
+    expect(logSpy.calledWith('The price attribute of a product is required.')).to.be.true;
+    logSpy.reset();
+    el = await fixture(html` <x-productitem price="10"></x-productitem> `);
+    await elementUpdated(el);
+    expect(logSpy.calledWith('The name attribute of a product is required.')).to.be.true;
   });
 
   it('Prices should be zero or positive', async () => {
@@ -74,9 +77,7 @@ describe('The product item reveals its state to the user', async () => {
   });
 
   it('Should look like removed when quantity is zero', async () => {
-    const el = await fixture(html`
-      <x-productitem name="p1" price="10"></x-productitem>
-    `);
+    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
     await elementUpdated(el);
     const xNumber = qtyField(el);
     xNumber.value = '0';
@@ -86,25 +87,20 @@ describe('The product item reveals its state to the user', async () => {
   });
 
   it('Should look like modified when modified by the user', async () => {
-    const el = await fixture(html`
-      <x-productitem name="p1" price="10"></x-productitem>
-    `);
+    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
     const modified = (e: Element) => e.shadowRoot!.querySelectorAll('.modified');
     expect(modified(el).length).to.equal(0);
     const xNumber = qtyField(el);
     xNumber.value = '2';
     xNumber.dispatchEvent(new CustomEvent('change'));
     await elementUpdated(el);
-    console.log(el);
     expect(modified(el).length).to.equal(1);
   });
-
 });
-
 
 /** Helper functions */
 
-function qtyField (el: Element): HTMLInputElement {
+function qtyField(el: Element): HTMLInputElement {
   const qtyWidget = el.shadowRoot!.querySelector('[name=quantity]');
   expect(qtyWidget).to.exist;
   const xNumber = qtyWidget as HTMLInputElement;
