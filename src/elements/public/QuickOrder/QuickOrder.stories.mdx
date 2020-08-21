@@ -9,11 +9,11 @@ window.customElements.define('foxy-item', ProductItem);
  parameters={{ component: 'quick-order'}}
 />
 
-# Quick Order
+# Quick Order Form
 
-Quick Order Form allows users to place an order based on a list of products.
+Quick Order Form provides a straighforward way to create an e-commerce form to add products to a cart.
 
-Users can customize the order by editing the product list and the subscription settings.
+You simply feed your form with the products and it will take care of the rest for you.
 
 You may feed the products to the Form using either:
 
@@ -22,7 +22,9 @@ You may feed the products to the Form using either:
 
 ### Product Items
 
-Using the **product-item** approach gives you full control over your form's markup, provided `product-items` are not created in an element's Shadow DOM.
+Using the **product-item** approach gives you full control over your form's markup.
+This approach allow you to create your form writing your HTML in readable way.
+
 ```html
 <foxy-order-form>
   <foxy-item></foxy-item>
@@ -31,29 +33,54 @@ Using the **product-item** approach gives you full control over your form's mark
   <foxy-item></foxy-item>
 </foxy-order-form>
 ```
-The downside of this approach is that you have little control of custom markup you may want to add to your form.
+
+You can use your favorite template engine to provide the form and products their attributes.
 
 ### Products Array
 
-Using the **products parameter** is easier to implement if you have a products
-list in memory. It allows you to use something as simple as:
+If you are fetching your products from a server as a JSON object, you can feed your form using the 
+**products parameter**.
+This approach allows you to use something as simple as:
 
 ```html
 <foxy-order-form products='[{...},{...},{...}]'>
 </foxy-order-form>
 ```
 
+Please, note that the `products` value must be valid JSON.
+
 The downside of this approach is that you have little control of custom markup you may want to add to your form.
 
-## Using custom tag for the product
+## Basics of a Product
 
-By adding `foxy-items` to your `foxy-order-form` your products will be properly
-added to the order. The form will find the products and create the necessary
-fields.
+A product must have a name and a price.
+All products will have a `data-product` attribute that allow the form to identify it as a product.
 
-You can use any markup you wish. You may place your products in cards, lists,
-articles sections and even tables, if that's what you like. Foxy-order-form will
-find your products (unless they are in the shadow dom of other elements).
+Foxy Cart handles both basic and advanced features and many of them are accessible by setting products parameters.
+
+Here are some of the attributes you can use:
+
+|Attribute| Description| Example |
+|---------|---------|---------|
+|image|Shows a thumbnail of this image in the cart.| `<foxy-item image="http://mysite/myimage.png"></foxy-item>`|
+|quantity_max|Maximum quantity that should be allowed per product, per cart.|`<foxy-item quantity_max="5"></foxy-item>`|
+|weight|Product's per-product weight, used for shipping rate requests.|`<foxy-item weight="3"></foxy-item>`|
+|category|Category identifier for the product.|`<foxy-item category="food"></foxy-item>`|
+
+It pays off to learn more about the product and what you can do with it. Please, vist the [Product's parameters page](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters) to learn more.
+
+## Usage
+
+### Using custom tag for the product
+
+By adding `foxy-items` to your `foxy-order-form` your products will be properly added to the order. The form will find the products and create the propper submission.
+
+You can use any markup you wish, making the form unique to your store and even easily adding your own functionality to it.
+
+You may place your products in cards, lists, articles sections and even tables if you with.
+
+Foxy-order-form will find your products and of course leave your tags alone.
+You can use custom elements, but `foxy-order-form` will not find them if they are in a Shadow DOM.
 
 <Preview>
   <Story name="Using product items">
@@ -66,9 +93,19 @@ find your products (unless they are in the shadow dom of other elements).
         border-radius: 6px;
         padding: 1em;
         display: flex;
+        margin-bottom: 1em;
+        background: #fafafa;
       }
       .dietary-food img {
         height: 4em
+      }
+      table {
+        margin: 1em;
+      }
+      table td {
+        border: solid thin silver;
+        border-collapse: collapse;
+        padding: 0.5em;
       }
       </style>
       <h2>diet food</h2>
@@ -87,7 +124,14 @@ find your products (unless they are in the shadow dom of other elements).
         name="pup dog food"
         price="69.99"
         image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-        And a special bonus for you
+        <section style="display: flex">
+          <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
+          <table>
+            <tr><td>Easily digested</td><td>✓</td></tr>
+            <tr><td>Perfectly balenced</td><td>✓</td></tr>
+            <tr><td>Environmentaly responsible</td><td>✓</td></tr>
+          </table>
+        </section>
       </foxy-item>
       </section>
     </foxy-order-form>
