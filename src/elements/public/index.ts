@@ -1,3 +1,3 @@
 export { CustomerPortalSettings } from './CustomerPortalSettings/CustomerPortalSettings';
-export { DonationForm } from './DonationForm/DonationForm';
+export { Donation } from './Donation/Donation';
 export { Admin } from './Admin/Admin';
