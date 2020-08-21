@@ -119,6 +119,7 @@ export abstract class Translatable extends Themeable {
   public get lang(): string {
     return this.__lang;
   }
+
   public set lang(value: string) {
     if (!value || value === 'undefined') return;
     this.__lang = value;
