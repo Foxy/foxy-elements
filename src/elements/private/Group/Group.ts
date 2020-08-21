@@ -9,8 +9,8 @@ export class Group extends Themeable {
     const frameClass = 'border border-contrast-10';
 
     return html`
-      <section class="space-y-s">
-        <h3 class=${`text-s font-lumo text-tertiary ${this.frame ? '' : 'pl-m'}`}>
+      <section class="space-y-s font-lumo antialiased">
+        <h3 class=${`text-s font-medium text-secondary leading-none ${this.frame ? '' : 'pl-m'}`}>
           <slot name="header"></slot>
         </h3>
 
