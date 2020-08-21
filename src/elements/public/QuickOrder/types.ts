@@ -24,4 +24,6 @@ export const EmptyProduct = {
   childProducts: [],
 };
 
-export type QuickOrderProduct = Partial<typeof EmptyProduct>;
+export type QuickOrderProduct = Partial<typeof EmptyProduct> & {
+  [key: string]: string | number | undefined;
+};

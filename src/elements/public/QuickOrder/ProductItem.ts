@@ -72,12 +72,6 @@ export class ProductItem extends Translatable {
     ProductItem.__existingIds.push(newId);
   }
 
-  // A set of sentences used in the component. They are centralized to ease the
-  // implementation of internationalization.
-  private __vocabulary = {
-    remove: 'Remove',
-  };
-
   /**
    * Instance fields and methods
    */
@@ -85,7 +79,7 @@ export class ProductItem extends Translatable {
   // Call Translatable parent with the name of the translation file
   public constructor() {
     super('quick-order');
-    this.productId = this.__setId(); // make compiler happy
+    this.productId = this.__setId();
     this.updateComplete.then(() => {
       this.__setCode();
       this.__setParentCode();
@@ -96,6 +90,12 @@ export class ProductItem extends Translatable {
       }
     });
   }
+
+  // A set of sentences used in the component. They are centralized to ease the
+  // implementation of internationalization.
+  private __vocabulary = {
+    remove: 'Remove',
+  };
 
   // Is this instance child of another product
   private get __isChildProduct() {
@@ -115,20 +115,15 @@ export class ProductItem extends Translatable {
   @property({ type: Object })
   public set value(v: QuickOrderProduct) {
     for (const k in v) {
-      // Remove from this.value any unknown key
-      if (!ProductItem.__productProperties.includes(k)) {
-        console.error(`Key ${k} is not allowed as a product key.`);
-        delete (v as any)[k];
-      }
+      this.setAttribute(k, v[k] ? v[k]!.toString() : '');
     }
-    Object.assign(this, v);
   }
 
   public get value(): QuickOrderProduct {
     const r: any = {};
     const me = this as any;
-    for (const k of ProductItem.__productProperties) {
-      r[k] = me[k];
+    for (let i = 0; i < this.attributes.length; i++) {
+      r[this.attributes[i].name] = this.attributes[i].value;
     }
     return r as QuickOrderProduct;
   }
@@ -202,10 +197,11 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   description = '';
 
-  @property({ type: Number })
+  @property({ type: Number, attribute: 'product-id' })
   productId: number;
 
   public updated(changed: unknown): void {
+    this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
   }
 
@@ -216,14 +212,12 @@ export class ProductItem extends Translatable {
         this.__modified = true;
       }
       this.quantity = newValue;
-      this.__setTotalPrice();
     },
   };
 
   private handleExclude = {
     handleEvent: (ev: Event) => {
       this.quantity = 0;
-      this.__setTotalPrice();
     },
   };
 
@@ -277,13 +271,16 @@ export class ProductItem extends Translatable {
    * Create an ID if none is provided by the user.
    */
   private __setId(): number {
+    let productId;
     if (!this.productId) {
-      this.productId = ProductItem.__newId();
+      productId = ProductItem.__newId();
+      this.setAttribute('product-id', productId.toString());
     } else {
-      // The user provided a custom id
+      // The user provided a custom id as an attribute
       ProductItem.__acknowledgeId(this.productId);
+      productId = this.productId;
     }
-    return this.productId;
+    return productId;
   }
 
   /**
@@ -401,5 +398,20 @@ export class ProductItem extends Translatable {
     }
     console.error(...error);
     return !error.length;
+  }
+
+  private __isAcceptableParameter(key: string) {
+    // Remove from this.value any unknown key
+    if (ProductItem.__productProperties.includes(key)) {
+      return true;
+    }
+    // Avoid overriding class fields
+    for (const k in this) {
+      if (key == k) {
+        return false;
+      }
+    }
+    // Accept custom attributes
+    return true;
   }
 }
