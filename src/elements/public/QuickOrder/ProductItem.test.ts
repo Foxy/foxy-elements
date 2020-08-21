@@ -1,4 +1,5 @@
 import { expect, fixture, html, elementUpdated } from '@open-wc/testing';
+import { QuickOrderProduct } from './types';
 import { ProductItem } from './ProductItem';
 import * as sinon from 'sinon';
 
@@ -95,6 +96,20 @@ describe('The product item reveals its state to the user', async () => {
     xNumber.dispatchEvent(new CustomEvent('change'));
     await elementUpdated(el);
     expect(modified(el).length).to.equal(1);
+  });
+});
+
+describe('The product item accepts custom parameters', async () => {
+  it('Should accept custom parameters', async () => {
+    const el = await fixture(
+      html`<x-productitem name="p1" price="10" material="rubber" size="10"></x-productitem> `
+    );
+    await elementUpdated(el);
+    const product: QuickOrderProduct = (el as ProductItem).value;
+    expect(product.price).to.equal('10');
+    expect(product.name).to.equal('p1');
+    expect(product.material).to.equal('rubber');
+    expect(product.size).to.equal('10');
   });
 });
 

@@ -1,12 +1,4 @@
-import {
-  fixture,
-  fixtureCleanup,
-  expect,
-  html,
-  elementUpdated,
-  nextFrame,
-  aTimeout,
-} from '@open-wc/testing';
+import { fixture, fixtureCleanup, expect, html, elementUpdated, nextFrame } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
 import { ProductItem } from './ProductItem';
@@ -274,6 +266,16 @@ describe('The form should remain valid', async () => {
 });
 
 describe('The form should be aware of its products', async () => {
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    logSpy.restore();
+  });
+
   it('Shows the total price of the products added as tags', async () => {
     const el = await fixture(html`
       <x-form store-subdomain="test.foxycart.com">
@@ -284,7 +286,6 @@ describe('The form should be aware of its products', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    await nextFrame();
     expect(el.getAttribute('total-price')).to.equal('70');
   });
 
@@ -311,10 +312,10 @@ describe('The form should be aware of its products', async () => {
     `);
     await elementUpdated(el);
     expect(el.getAttribute('total-price')).to.equal('70');
-    const firstProduct = el.shadowRoot?.querySelector('[data-product]');
+    const firstProduct = el.querySelector('[data-product]');
     expect(firstProduct).to.exist;
-    (firstProduct as ProductItem)!.value!.quantity = 30;
-    firstProduct!.dispatchEvent(new CustomEvent('change'));
+    (firstProduct as ProductItem)!.setAttribute('quantity', '30');
+    await elementUpdated(firstProduct!);
     await elementUpdated(el);
     expect(el.getAttribute('total-price')).to.equal('340');
   });
