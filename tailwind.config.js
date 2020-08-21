@@ -200,7 +200,7 @@ module.exports = {
   purge: {
     enabled: false,
   },
-  variants: ['responsive', 'group-hover', 'group-focus', 'hover', 'focus', 'disabled'],
+  variants: ['responsive', 'group-hover', 'focus-within', 'hover', 'focus', 'disabled'],
   theme: {
     colors: colorsMap,
     spacing: spacingMap,
