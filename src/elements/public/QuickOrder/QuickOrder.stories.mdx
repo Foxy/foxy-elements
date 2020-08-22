@@ -141,12 +141,9 @@ You can use custom elements, but `foxy-order-form` will not find them if they ar
 
 ### Setting up subscriptions
 
-You can configure subscriptions using the subscription product options, as outlined here:
-https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options
+To offer a subscription option to your clients you need to provide the subscription options to your clients.
 
-Please, note that the `sub_frequency` is required.
-
-More information on subscriptions can be found here: https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options
+You can configure subscriptions using the subscription product options, as outlined at [https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options](Subscription Product Options).
 
 <Preview>
   <Story name="Product with subscription" >
@@ -155,12 +152,8 @@ More information on subscriptions can be found here: https://wiki.foxycart.com/v
       <foxy-item
         name="Pup Dog Food"
         price="69.99"
-        code="abc123"
         image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-        sub_frequency="1m"
-        nutritional_facts="nutritional facts"
         >
-        High quality nutritious food for you pet
       </foxy-item>
     </foxy-order-form>
     `}
@@ -186,8 +179,8 @@ You can still customize their look and feel, but you won't be able to build your
   <Story name="Using an Array of products">
     {html`
     <foxy-order-form
-   frequencyOptions='["1d", "1w", ".5m", "1m"]'
-    products='[{"name":"Cub Puppy","price":"75.95", "updated": "test",  "nutritional_facts": "oi", "quantity_min": 42},{"name":"Bird Dog","price":"64.95"}]'>
+		  frequencyOptions='["1d", "1w", ".5m", "1m"]'
+	    products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'>
     </foxy-order-form>
     `}
   </Story>
@@ -195,26 +188,17 @@ You can still customize their look and feel, but you won't be able to build your
 
 ## Adding Child products
 
+Child products allow you to bundle a set of products together. You can achieve this by nesting `foxy-item` custom tags.
+
 <Preview>
   <Story name="Child Products">
     {html`
 	<foxy-order-form>
 	      <h2>diet food</h2>
 	      <section class="dietary-food" >
-          <foxy-item name="Food Pack" price="0.00" 
-            image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-            <foxy-item name="pup dog rich food" price="69.99"
-              image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-              quantity_min="1"
-              >
-              Delicious!
-            </foxy-item>
-            <foxy-item name="pup dog rich food" price="69.99"
-              image="https://www.foxy.io/merchants/shopping-cart-full.svg" 
-              quantity_min="1"
-              >
-              Delicious!
-            </foxy-item>
+          <foxy-item name="Food Pack" price="0.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+            <foxy-item name="pup dog rich food" price="69.99" image="https://www.foxy.io/merchants/shopping-cart-full.svg" > </foxy-item>
+            <foxy-item name="pup dog rich food" price="69.99" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
           </foxy-item>
 	      </section>
     </foxy-order-form>    
@@ -222,16 +206,33 @@ You can still customize their look and feel, but you won't be able to build your
   </Story>
 </Preview>
 
-
 ## Adding Child products using a product array
 
-You can use the `children` field a product in the product array to add children to a product.
+You can also use the `children` field of a product in the product array to add children to a product.
 
 <Preview>
-  <Story name="Child products with a JS object">
+  <Story name="Child products with a JS Array">
     {html`
     <foxy-order-form
-    products='[ { "name":"Cub Puppy", "price":"75.95" }, { "name":"Bird Dog", "price":"64.95", "children":[ { "name": "Tiny food", "price": "10.00" }, { "name": "Not so tiny food", "price": "8.00" } ] }]'>
+	    products='[
+		    {
+			    "name":"Cub Puppy",
+			    "price":"75.95"
+			    },
+		    {
+			    "name":"Bird Dog",
+			    "price":"64.95",
+			    "children":[
+				    {
+					    "name":"Tiny food",
+					    "price":"10.00"
+				    },
+				    {
+					    "name":"Not so tiny food",
+					    "price":"8.00"
+				    }
+			    ]
+		    }]'>
     </foxy-order-form>
     `}
   </Story>
