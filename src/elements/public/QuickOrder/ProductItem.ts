@@ -115,7 +115,15 @@ export class ProductItem extends Translatable {
   @property({ type: Object })
   public set value(v: QuickOrderProduct) {
     for (const k in v) {
-      this.setAttribute(k, v[k] ? v[k]!.toString() : '');
+      let attrValue = '';
+      if (typeof v[k] == 'object') {
+        attrValue = JSON.stringify(v[k]);
+      } else {
+        if (v[k]) {
+          attrValue = v[k]!.toString();
+        }
+      }
+      this.setAttribute(k, v[k] ? attrValue : '');
     }
   }
 
@@ -191,7 +199,7 @@ export class ProductItem extends Translatable {
   @property({ type: Array })
   open = [];
 
-  @property({ type: Array })
+  @property({ type: Array, attribute: 'children' })
   childProducts: QuickOrderProduct[] = [];
 
   @property({ type: String })
