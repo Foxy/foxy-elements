@@ -52,6 +52,7 @@ describe('Most basic usage', async () => {
     fixtureCleanup();
     el = await fixture(html`<x-donation></x-donation>`);
     expect(logSpy.callCount).to.equal(1);
+    logSpy.restore();
   });
 });
 

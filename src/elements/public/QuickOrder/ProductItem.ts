@@ -1,6 +1,6 @@
 import { Translatable } from '../../../mixins/translatable';
 import { QuickOrderProduct, EmptyProduct } from './types';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, property, TemplateResult, queryAll } from 'lit-element';
 import { Checkbox, Section, Group, I18N } from '../../private/index';
 
 /**
@@ -15,8 +15,20 @@ import { Checkbox, Section, Group, I18N } from '../../private/index';
  */
 export class ProductItem extends Translatable {
   // A list of product properties as defined in Foxy Cart Documentation
-  private static productProperties = Object.keys(EmptyProduct);
 
+  /**
+   * Static fields and methods
+   **/
+
+  // A list of all existing ids to guarantee unicity
+  private static __existingIds: number[] = [];
+
+  // A list of the product properties
+  private static __productProperties = Object.keys(EmptyProduct);
+
+  /**
+   * Custom elements used in the component
+   */
   public static get scopedElements() {
     return {
       'x-checkbox': Checkbox,
@@ -27,17 +39,32 @@ export class ProductItem extends Translatable {
     };
   }
 
-  private static __existingIds: number[] = [];
-
-  private static __newId() {
+  /**
+   * Creates a new unique id to be used in the form
+   *
+   * Ids are used to distinguish different products in a single form.
+   * Ids are prepended to fields names to allow Foxy Cart to know to what
+   * product a particular field relates.
+   *
+   * @return number the newly created id
+   */
+  private static __newId(): number {
     // Get the maximum value
     const newId =
       ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
-    ProductItem.__addCustomId(newId);
+    ProductItem.__acknowledgeId(newId);
     return newId;
   }
 
-  private static __addCustomId(customId: string | number) {
+  /**
+   * Acknowledges an id
+   *
+   * Ids are acknowledged in order to guarantee they are unique.
+   * Throws an exception if the id is already acknowledged.
+   *
+   * @argument number the id to acknowledge
+   */
+  private static __acknowledgeId(customId: string | number): void {
     const newId = Number(customId);
     if (ProductItem.__existingIds.includes(newId)) {
       throw new Error('Attempt to create two different products with the same id');
@@ -45,39 +72,78 @@ export class ProductItem extends Translatable {
     ProductItem.__existingIds.push(newId);
   }
 
+  /**
+   * Instance fields and methods
+   */
+
+  // Call Translatable parent with the name of the translation file
+  public constructor() {
+    super('quick-order');
+    this.productId = this.__setId();
+    this.updateComplete.then(() => {
+      this.__setCode();
+      this.__setParentCode();
+      this.__createChildren();
+      this.__setTotalPrice();
+      if (!this.__isValid(true)) {
+        console.error('Invalid product', 'in product', this.value);
+      }
+    });
+  }
+
+  // A set of sentences used in the component. They are centralized to ease the
+  // implementation of internationalization.
   private __vocabulary = {
     remove: 'Remove',
   };
 
-  public constructor() {
-    super('quick-order');
-  }
-
+  // Is this instance child of another product
   private get __isChildProduct() {
     return !!this.value?.parent_code;
   }
 
-  /** LitElement life cicle */
-  public firstUpdated(): void {
-    this.__propertyToValue();
-    this.__setId();
-    this.__setCode();
-    this.__setParentCode();
-    this.__createChildren();
-  }
+  @property({ type: Boolean })
+  private __modified = false;
 
+  // Default image values to allow the product to be ran out-of-the box with
+  // example images.
   private __default_image = {
     src: 'https://www.foxy.io/merchants/shopping-cart-full.svg',
     alt: 'A sketch of a shopping cart with three boxes',
   };
 
-  public value: QuickOrderProduct | undefined;
+  @property({ type: Object })
+  public set value(v: QuickOrderProduct) {
+    for (const k in v) {
+      let attrValue = '';
+      if (typeof v[k] == 'object') {
+        attrValue = JSON.stringify(v[k]);
+      } else {
+        if (v[k]) {
+          attrValue = v[k]!.toString();
+        }
+      }
+      this.setAttribute(k, v[k] ? attrValue : '');
+    }
+  }
+
+  public get value(): QuickOrderProduct {
+    const r: any = {};
+    const me = this as any;
+    for (let i = 0; i < this.attributes.length; i++) {
+      r[this.attributes[i].name] = this.attributes[i].value;
+    }
+    return r as QuickOrderProduct;
+  }
+
+  @property({ type: Number, reflect: true, attribute: 'total-price' })
+  public totalPrice?: number = this.__computeTotalPrice();
 
   @property({ type: String })
   public name?: string;
 
-  @property({ type: String })
-  public price?: number;
+  @property({ type: Number })
+  public price = 0;
 
   @property({ type: String })
   public image?: string;
@@ -89,12 +155,12 @@ export class ProductItem extends Translatable {
   public code?: string | number;
 
   @property({ type: String })
-  public parent_code?: string;
+  public parent_code?: string | number;
 
-  @property({ type: String })
-  public quantity?: number;
+  @property({ type: Number })
+  public quantity = 1;
 
-  @property({ type: String })
+  @property({ type: Number })
   public quantity_max?: number;
 
   @property({ type: String })
@@ -109,13 +175,13 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   public weight?: string;
 
-  @property({ type: String })
+  @property({ type: Number })
   public length?: number;
 
-  @property({ type: String })
+  @property({ type: Number })
   public width?: number;
 
-  @property({ type: String })
+  @property({ type: Number })
   public height?: number;
 
   @property({ type: String })
@@ -124,67 +190,135 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   alt?: string;
 
-  @property({ type: Boolean, reflect: true })
-  product = true;
+  @property({ type: String })
+  signature?: string;
+
+  @property({ type: Boolean, reflect: true, attribute: 'data-product' })
+  isProduct = true;
+
+  @property({ type: Array })
+  open = [];
+
+  @property({ type: Array, attribute: 'children' })
+  childProducts: QuickOrderProduct[] = [];
+
+  @property({ type: String })
+  description = '';
+
+  @property({ type: Number, attribute: 'product-id' })
+  productId: number;
+
+  public updated(changed: unknown): void {
+    this.__setTotalPrice();
+    this.dispatchEvent(new Event('change'));
+  }
+
+  private handleQuantity = {
+    handleEvent: (ev: Event) => {
+      const newValue = Number((ev.target as HTMLInputElement).value);
+      if (this.quantity != newValue) {
+        this.__modified = true;
+      }
+      this.quantity = newValue;
+    },
+  };
+
+  private handleExclude = {
+    handleEvent: (ev: Event) => {
+      this.quantity = 0;
+    },
+  };
 
   public render(): TemplateResult {
     return html`
-      <article class="product flex flex-row flex-wrap justify-between overflow-hidden">
+      <article
+        class="product flex flex-row flex-wrap justify-between ${this.quantity
+          ? ''
+          : 'removed'} ${this.__modified ? 'modified' : ''}"
+      >
         <img
           class="max-w-xs min-w-1 block"
-          alt="${this.value?.alt ?? this.__default_image.alt}"
-          src="${this.value?.image ?? this.__default_image.src}"
+          alt="${this.alt ?? this.__default_image.alt}"
+          src="${this.image ?? this.__default_image.src}"
         />
         <x-section class="description flex flex-wrap flex-column p-s min-w-xl">
-          <h1>${this.value?.name}</h1>
-          <div class="product-description">${this.value?.description}</div>
+          <h1>${this.name}</h1>
+          <div class="product-description">${this.description}</div>
         </x-section>
         <x-section class="item-info p-s min-w-2">
-          <div class="price">${this.value?.price}</div>
+          <div class="price">${this.price ? Number(this.price).toFixed(2) : ''}</div>
+          ${this.price != this.totalPrice && this.totalPrice
+            ? html`<div class="price total">${Number(this.totalPrice.toFixed(2)).toFixed(2)}</div>`
+            : ''}
         </x-section>
         ${this.__isChildProduct
           ? ''
           : html` <x-section class="actions p-s min-w-3">
-              <x-number-field value="1" min="0" has-controls></x-number-field>
-              <x-checkbox data-testid="toggle">${this.__vocabulary.remove}</x-checkbox>
+              <x-number-field
+                name="quantity"
+                @change=${this.handleQuantity}
+                value="${this.quantity}"
+                min="0"
+                has-controls
+              ></x-number-field>
+              <x-checkbox
+                name="remove"
+                @change=${this.handleExclude}
+                .checked=${this.quantity ? false : true}
+                >${this.__vocabulary.remove}</x-checkbox
+              >
             </x-section>`}
-        <slot></slot>
+        <section class="child-products">
+          <slot></slot>
+        </section>
       </article>
     `;
   }
 
-  private __setId() {
-    if (!this.value?.id) {
-      this.value!.id = ProductItem.__newId();
+  /**
+   * Create an ID if none is provided by the user.
+   */
+  private __setId(): number {
+    let productId;
+    if (!this.productId) {
+      productId = ProductItem.__newId();
+      this.setAttribute('product-id', productId.toString());
     } else {
-      // The user provided a custom id
-      ProductItem.__addCustomId(this.value!.id);
+      // The user provided a custom id as an attribute
+      ProductItem.__acknowledgeId(this.productId);
+      productId = this.productId;
     }
+    return productId;
   }
 
+  /**
+   * Creates a code if none is provided by the user
+   */
   private __setCode() {
-    if (!this.code && this.value && !this.value.code) {
-      this.value.code = `RAND${Math.random()}`;
-      this.code = this.value!.code;
+    if (!this.code) {
+      this.code = `RAND${Math.random()}`;
     }
   }
 
-  private __setParentCode() {
+  /**
+   * Find if this product item is a child of another product item and sets the parent code accordingly
+   */
+  private __setParentCode(): void {
     const productParent = this.parentElement;
-    if (productParent?.hasAttribute('product')) {
-      this.value!.parent_code = (productParent as ProductItem).value?.code;
+    if (productParent?.hasAttribute('data-product')) {
+      this.parent_code = (productParent as ProductItem).code;
     }
   }
 
   /** Captures values set as properties to build the value property of the component.  */
-  private __propertyToValue() {
+  private __propertyToValue(): void {
     if (this.value === undefined) {
-      if (this.name && this.price) {
-        this.value = {
-          name: this.name,
-          price: this.price,
-        };
-      } else {
+      this.value = {
+        name: this.name ? this.name : '',
+        price: this.price ? this.price : 0,
+        quantity: this.quantity,
+      };
+      if (!(this.name && this.price && this.name.length > 0 && this.price >= 0)) {
         console.error('The name and price attributes of a product are required.', {
           name: this.name,
           price: this.price,
@@ -192,7 +326,7 @@ export class ProductItem extends Translatable {
       }
     }
     type T = Partial<Record<string, string | number>>;
-    for (const i of ProductItem.productProperties) {
+    for (const i of ProductItem.__productProperties) {
       if (!(this.value! as T)[i]) {
         const attr = this.getAttribute(i);
         if (attr) {
@@ -202,13 +336,90 @@ export class ProductItem extends Translatable {
     }
   }
 
-  private __createChildren() {
-    if (this.value && this.value.children && this.value.children.length) {
-      for (const p of this.value.children) {
+  /**
+   * Create child product items from children field.
+   */
+  private __createChildren(): void {
+    if (this.childProducts && this.childProducts.length) {
+      this.childProducts.forEach(p => {
         const product = new ProductItem();
         product.value = p;
+        product.__computeTotalPrice();
         this.appendChild(product);
+      });
+    }
+  }
+
+  private __setTotalPrice() {
+    this.totalPrice = this.__computeTotalPrice();
+  }
+
+  /**
+   * The price of the total qty of each of the child products
+   */
+  private __computeTotalPrice(): number {
+    // Get all child products
+    const myChildProducts = this.querySelectorAll('[data-product]');
+    let myPrice = 0;
+    myChildProducts.forEach(e => {
+      const p = e as ProductItem;
+      p.totalPrice && (myPrice += p.totalPrice);
+    });
+    myPrice += this.price;
+    myPrice *= this.quantity;
+    return myPrice;
+  }
+
+  /**
+   * The price of the total qty of this product
+   */
+  public qtyPrice(): number {
+    if (!this.price || !this.quantity) {
+      return 0;
+    } else {
+      return this.price * this.quantity;
+    }
+  }
+
+  /**
+   * Constraints Products must eventually adhere to.
+   **/
+  private __isValid(initial = false) {
+    const error = [];
+    if (!this.name || !this.name.length) {
+      error.push('The name attribute of a product is required.');
+    }
+    if (this.price === undefined || (initial && this.price == 0)) {
+      error.push('The price attribute of a product is required.');
+    }
+    if (this.price! < 0) {
+      error.push('Product added with negative price.');
+    }
+    if (this.quantity_min && this.quantity! < this.quantity_min) {
+      error.push('Quantity amount is less than minimum quantity.');
+    }
+    if (this.quantity_max && this.quantity! > this.quantity_max) {
+      error.push('Quantity amount is more than maximum quantity.');
+    }
+    if (!this.productId) {
+      error.push('The product has no product id');
+    }
+    console.error(...error);
+    return !error.length;
+  }
+
+  private __isAcceptableParameter(key: string) {
+    // Remove from this.value any unknown key
+    if (ProductItem.__productProperties.includes(key)) {
+      return true;
+    }
+    // Avoid overriding class fields
+    for (const k in this) {
+      if (key == k) {
+        return false;
       }
     }
+    // Accept custom attributes
+    return true;
   }
 }

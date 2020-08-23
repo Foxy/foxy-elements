@@ -6,7 +6,7 @@ import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
-import { EmptyProduct, QuickOrderProduct, ProductGroup } from './types';
+import { QuickOrderProduct } from './types';
 
 export interface FrequencyOption {
   number: number;
@@ -14,6 +14,14 @@ export interface FrequencyOption {
   periodCode: string;
 }
 
+/**
+ * This Quick Order Form accepts products either as a JS array or as child elements of type ProductItem
+ *
+ * Product Elements are found by retrieving both product-item elements within and without shadow root.
+ *
+ * Product Items are validated before being submited.
+ * Code and Id fields are added automatically if not provided.
+ */
 export class QuickOrder extends Translatable {
   public static get scopedElements() {
     return {
@@ -32,9 +40,41 @@ export class QuickOrder extends Translatable {
   }
 
   private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
+  private __childProductsObserver?: MutationObserver;
 
-  @property({ type: String })
+  @property({ type: Number, attribute: 'total-price', reflect: true })
+  public totalPrice = 0;
+
+  @property({ type: String, attribute: 'store-subdomain' })
   public storeSubdomain = this.__defaultSubdomain;
+
+  /** Frequency related attributes */
+  @property({ type: String })
+  sub_frequency?: string;
+
+  @property({
+    type: String,
+    converter: value => {
+      if (!QuickOrder.__validDate(value)) {
+        console.error('Invalid start date', value);
+        return '';
+      }
+      return value;
+    },
+  })
+  sub_startdate?: string;
+
+  @property({
+    type: String,
+    converter: value => {
+      if (!QuickOrder.__validDateFuture(value)) {
+        console.error('Invalid end date', value);
+        return '';
+      }
+      return value;
+    },
+  })
+  sub_enddate?: string;
 
   @property({
     type: Array,
@@ -44,12 +84,13 @@ export class QuickOrder extends Translatable {
       }
       const freqArray = JSON.parse(value);
       if (!Array.isArray(freqArray)) {
-        console.error(`Frequency options must be an array.`);
+        console.error('Invalid frequency', `Frequency options must be an array.`);
         return [];
       }
       for (const f of freqArray) {
         if (!QuickOrder.__validFrequency(f)) {
           console.error(
+            'Invalid frequency',
             `Invalid frequency option.
               Please, check https://wiki.foxycart.com/v/2.0/products#subscription_product_options for possible values.
               Each frequency must be a in the format:
@@ -69,13 +110,229 @@ export class QuickOrder extends Translatable {
   })
   public frequencyOptions: FrequencyOption[] = [];
 
-  @query('form')
-  form?: HTMLFormElement;
+  @property({ type: Array })
+  products: QuickOrderProduct[] = [];
+
+  /**
+   * An array with both products created as elements and created parameter
+   */
+  private __productElements: Array<ProductItem>;
 
   constructor() {
     super('quick-order');
+    this.__productElements = [];
+    this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
+    this.__childProductsObserver.observe(this, {
+      childList: true,
+      attributes: false,
+      subtree: true,
+    });
+    this.updateComplete.then(() => {
+      this.__checkSubdomain();
+      this.__findProductElements();
+      this.__computeTotalPrice();
+    });
   }
 
+  public render(): TemplateResult {
+    return html`
+      <x-page>
+        <form>
+          <x-section class="products">
+            <slot></slot>
+            ${this.products.map(
+              p => html` <x-product @change=${this.__productChange} .value=${p}> </x-product>`
+            )}
+          </x-section>
+          ${this.frequencyOptions.length
+            ? html` <x-section class="subscription">
+                <x-dropdown
+                  data-testid="units"
+                  @change=${this.__handleFrequency}
+                  .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}
+                >
+                </x-dropdown>
+              </x-section>`
+            : ''}
+        </form>
+        <x-section class="summary">
+          <div class="total">${this.totalPrice.toFixed(2)}</div>
+        </x-section>
+        <x-section class="actions">
+          <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
+            <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
+            <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          </vaadin-button>
+        </x-section>
+      </x-page>
+    `;
+  }
+
+  /**
+   * Handles the user input for frequenty field
+   * - converts week, year, day and month into first letter only
+   * - removes spaces
+   * - removes leading zeroes
+   * - validates input as propper frequency option
+   **/
+  private __handleFrequency = {
+    handleEvent: (ev: CustomEvent) => {
+      const newfrequency = (ev as CustomEvent).detail
+        .replace(/([wydm])\w*/, '$1')
+        .replace(/ /g, '')
+        .replace(/^0/, '');
+      if (QuickOrder.__validFrequency(newfrequency)) {
+        this.sub_frequency = newfrequency;
+      }
+    },
+  };
+
+  /**
+   * Handles the submission of the form
+   *
+   * - creates a FormData
+   * - fill the FormData with product values
+   * - add order wide fields to the FormData
+   * - submits the form
+   */
+  private handleSubmit = {
+    handleEvent: () => {
+      const fd: FormData = new FormData();
+      const productsAdded = this.__formDataFill(fd);
+      if (productsAdded == 0) return;
+      this.__formDataAddSubscriptionFields(fd);
+      const request = new XMLHttpRequest();
+      request.open('POST', `https://${this.storeSubdomain}/cart`);
+      request.send(fd);
+    },
+  };
+
+  /**
+   * Adds a signature to a post field
+   *
+   * This method does not compute the signature. It must be provided.
+   *
+   * @argument name The name of the field
+   * @argument signature The computed signature to add to the field
+   * @argument open Whether the field value is customized by the user
+   * @return signedName the name of the field with the signature
+   */
+  private __addSignature(name: string, signature: string, open?: string | boolean): string {
+    // Check for malformed signature
+    if (signature.length != 64) {
+      if (name.match(/(\d+:)?name$/)) {
+        console.error('Product', name, 'Wrong signature: ', signature);
+      } else {
+        console.error('Wrong signature: ', signature);
+      }
+      throw new Error('There is something wrong with the signature. It should have 64 characters.');
+    }
+    return `${name}||${signature}${open ? '||open' : ''}`;
+  }
+
+  /**
+   * Add all products from this.__productElements to a FormData
+   *
+   * - Iterate of products in productElements
+   * - Add valid products to Form Data
+   *
+   * @argument fd the FormData instance to fill
+   * @return added  the number of products added
+   **/
+  private __formDataFill(fd: FormData): number {
+    let added = 0;
+    this.__productElements.forEach(e => {
+      if (e.value && this.__validProduct(e.value as QuickOrderProduct)) {
+        this.__formDataAddProduct(fd, e.value);
+        added++;
+      } else {
+        console.error('Invalid product', e.value);
+      }
+    });
+    return added;
+  }
+
+  /** Adds a product to a form data */
+  private __formDataAddProduct(fd: FormData, p: QuickOrderProduct) {
+    if (!p['product-id']) {
+      throw new Error('Attempt to convert a product without a propper ID');
+    }
+    const rec = p as Record<string, unknown>;
+    for (const key of Object.keys(rec)) {
+      if (key !== 'product-id') {
+        const fieldValue: unknown = rec[key];
+        if (!Array.isArray(fieldValue)) {
+          fd.append(`${rec['product-id']}:${key}`, `${fieldValue}`);
+        }
+      }
+    }
+  }
+
+  /** Adds subscription fields to a FormData */
+  private __formDataAddSubscriptionFields(fd: FormData) {
+    if (this.sub_frequency) {
+      fd.append('sub_frequency', this.sub_frequency!);
+      if (QuickOrder.__validDate(this.sub_startdate)) {
+        fd.append('sub_startdate', this.sub_startdate!);
+      }
+      if (QuickOrder.__validDateFuture(this.sub_enddate)) {
+        fd.append('sub_enddate', this.sub_enddate!);
+      }
+    }
+  }
+
+  /**
+   * Validates a string for subscription start date or end date according to
+   * https://wiki.foxycart.com/v/2.0/products#subscription_product_options
+   */
+  private static __validDate(strDate: string | null | undefined) {
+    if (strDate === null || strDate === undefined) {
+      return false;
+    }
+    if (strDate.match(/^(\d{1,2}|\d{8})$/)) {
+      if (strDate.match(/^\d{2}$/)) {
+        if (Number(strDate) > 31) {
+          return false;
+        }
+      }
+      return true;
+    }
+    if (!strDate.match(/^.5m/) && QuickOrder.__validFrequency(strDate)) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Checks if a string date is in the future
+   */
+  private static __validDateFuture(strDate: string | null | undefined) {
+    let valid = false;
+    if (QuickOrder.__validDate(strDate)) {
+      if (strDate!.match(/^\d{8}/)) {
+        const now = new Date();
+        valid = now.toISOString().replace(/(-|T.*)/g, '') <= strDate!;
+      } else {
+        valid = true;
+      }
+    }
+    return valid;
+  }
+
+  /**
+   * Checks if a frequency complies with possible values
+   */
+  private static __validFrequency(strFrequency: string | null | undefined) {
+    if (!strFrequency) {
+      return false;
+    } else {
+      return !!strFrequency.match(/^(\.5m|\d+[dwmy])$/);
+    }
+  }
+
+  /**
+   * Returns an object with human friendly values for a given frequency
+   */
   private static __friendlyFreq(value: string): FrequencyOption {
     const matches = value.match(/^(\.?\d+)([dwmy])$/);
     if (!matches) {
@@ -94,77 +351,58 @@ export class QuickOrder extends Translatable {
     };
   }
 
-  /**
-   * Checks if a frequency complies with possible values
-   */
-  private static __validFrequency(strFrequency: string | null) {
-    if (strFrequency === null) {
-      return false;
-    } else {
-      return !!strFrequency.match(/^(\.5m|\d+[dwmy])$/);
-    }
-  }
-
-  private handleSubmit = {
-    form: this.form,
-    handleEvent: () => {
-      const productElements: NodeListOf<ProductItem> = this.querySelectorAll('[product]');
-      if (productElements && productElements.length) {
-        const productsData = new FormData();
-        type T = Record<string, string>;
-        productElements.forEach(p => {
-          const values = p.value as T;
-          for (const field of Object.keys(EmptyProduct)) {
-            const key = p.id + field;
-            if (values[field]) {
-              productsData.append(key, (p.value as T)[field]);
-            }
+  /** Subscribe to late inserted products. */
+  private __observeChildren(mutationList: MutationRecord[]): void {
+    mutationList.forEach(m => {
+      if (m.type == 'childList') {
+        m.addedNodes.forEach(n => {
+          if (n.nodeType === Node.DOCUMENT_NODE) {
+            const e = n as HTMLElement;
+            e.addEventListener('change', this.__productChange);
           }
         });
-        //this.form!.submit();
       }
-    },
-  };
-
-  @property({ type: Array })
-  products: QuickOrderProduct[] = [];
-
-  public render(): TemplateResult {
-    return html`
-      <x-page>
-        <x-section class="products">
-          <form>
-            <slot></slot>
-            ${this.products.map(this.__productsFromArray)}
-          </form>
-        </x-section>
-        <x-section class="actions">
-          ${this.frequencyOptions.length
-            ? html`<x-dropdown .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}>
-              </x-dropdown>`
-            : ''}
-          <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
-            <iron-icon icon="vaadin:user-heart" slot="prefix"></iron-icon>
-            <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-          </vaadin-button>
-        </x-section>
-      </x-page>
-    `;
+    });
+    this.__findProductElements();
+    this.__computeTotalPrice();
   }
 
-  /** Renders either a group or a single product */
-  private __productsFromArray(p: QuickOrderProduct | ProductGroup) {
-    if (p.products && Array.isArray(p.products) && p.products.length) {
-      return html` <article
-        data-product-group="true"
-        class="product group  border border-contrast-10 rounded p-m"
-      >
-        ${(p.products as QuickOrderProduct[]).map(
-          (i: QuickOrderProduct) => html`<x-product .value=${i}></x-product>`
-        )}
-      </article>`;
-    } else {
-      return html`<x-product .value=${p}></x-product>`;
+  /** Updates the form on product change */
+  private __productChange(): void {
+    this.__computeTotalPrice();
+  }
+
+  private __computeTotalPrice(): void {
+    let totalPrice = 0;
+    this.__productElements.forEach(e => {
+      const prod = e as ProductItem;
+      if (prod.totalPrice) {
+        totalPrice += Number(prod.totalPrice);
+      }
+    });
+    this.totalPrice = Number(totalPrice.toFixed(2));
+  }
+
+  private __findProductElements() {
+    this.__productElements = [];
+    const addToProductElements = (e: Element) => {
+      const p = e as ProductItem;
+      p.addEventListener('change', this.__productChange.bind(this));
+      this.__productElements.push(p);
+    };
+    this.shadowRoot?.querySelectorAll('[data-product]').forEach(addToProductElements);
+    this.querySelectorAll('[data-product]').forEach(addToProductElements);
+  }
+
+  private __checkSubdomain() {
+    if (this.storeSubdomain === this.__defaultSubdomain) {
+      console.error(
+        "No 'store-subdomain' atrribute was provided. It is necessary to provide this attribute to use it with your store."
+      );
     }
+  }
+
+  private __validProduct(p: QuickOrderProduct) {
+    return p.quantity && p.quantity > 0 && p.price && p.price >= 0;
   }
 }
