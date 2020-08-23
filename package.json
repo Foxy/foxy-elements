@@ -16,7 +16,7 @@
     "cpx": "cpx \"src/**/*.stories.mdx\" dist",
     "cpx:watch": "cpx \"src/**/*.stories.mdx\" dist --watch",
     "storybook": "concurrently --kill-others \"ttsc --watch\" \"npm run cpx:watch\" \"npm run wca:watch\" \"start-storybook\"",
-    "storybook:build": "npm run lint && rimraf dist && ttsc && npm run cpx && npm run wca && build-storybook",
+    "storybook:build": "npm run lint && rimraf dist && ttsc && node postbuild.js && npm run cpx && npm run wca && build-storybook",
     "lint": "npm run lint:eslint && npm run lint:prettier",
     "lint:eslint": "eslint --ext .ts,.html . --ignore-path .gitignore",
     "lint:prettier": "prettier \"**/*.js\" \"**/*.ts\" --check --ignore-path .gitignore",
