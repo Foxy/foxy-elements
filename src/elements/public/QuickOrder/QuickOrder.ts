@@ -49,7 +49,7 @@ export class QuickOrder extends Translatable {
     return data;
   }
 
-  private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
+  private __defaultStore = 'jamstackecommerceexample.foxycart.com';
   private __childProductsObserver?: MutationObserver;
 
   @property({ type: String })
@@ -58,8 +58,8 @@ export class QuickOrder extends Translatable {
   @property({ type: Number, attribute: 'total', reflect: true })
   public total = 0;
 
-  @property({ type: String, attribute: 'subdomain' })
-  public subdomain = this.__defaultSubdomain;
+  @property({ type: String, attribute: 'store' })
+  public store = this.__defaultStore;
 
   /** Frequency related attributes */
   @property({ type: String })
@@ -227,7 +227,7 @@ export class QuickOrder extends Translatable {
   private handleSubmit = {
     handleEvent: () => {
       const request = new XMLHttpRequest();
-      request.open('POST', `https://${this.subdomain}/cart`);
+      request.open('POST', `https://${this.store}/cart`);
       request.send(this.__data);
     },
   };
