@@ -4,7 +4,7 @@ import '@vaadin/vaadin-icons/vaadin-icons';
 import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
-import { Dropdown, Section, Page, Code, I18N, Skeleton } from '../../private/index';
+import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
 
 import { QuickOrderChangeEvent } from './QuickOrderChangeEvent';
 import { QuickOrderProduct } from './types';
@@ -33,6 +33,7 @@ export class QuickOrder extends Translatable {
       'x-product': ProductItem,
       'x-skeleton': Skeleton,
       'x-section': Section,
+      'x-error-screen': ErrorScreen,
       'x-i18n': I18N,
       'x-page': Page,
       'x-code': Code,
@@ -148,6 +149,9 @@ export class QuickOrder extends Translatable {
   }
 
   public render(): TemplateResult {
+    if (!this.store || !this.currency) {
+      return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
+    }
     return html`
       <x-page>
         <form>
