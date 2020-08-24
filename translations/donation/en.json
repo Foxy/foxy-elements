@@ -4,5 +4,6 @@
   "designation": "Designation",
   "anonymous": "Remain anonynous",
   "amount": "Amount",
-  "donate": "Donate {{amount}}"
+  "donate": "Donate {{amount}}",
+  "donate_recurrently": "Donate {{amount}} {{frequency, lowercase}}"
 }

@@ -189,9 +189,12 @@ export class Donation extends Translatable {
           <div class="flex-1 p-s">
             <vaadin-button class="w-full" theme="primary" @click=${() => this.__form.submit()}>
               <x-i18n
-                .opts=${{ amount: this.__translateAmount(this.amount) }}
+                .opts=${{
+                  amount: this.__translateAmount(this.amount),
+                  frequency: this.frequency ? this.__translateFrequency(this.frequency) : '',
+                }}
                 lang=${this.lang}
-                key="donate"
+                key=${this.frequency && !this.frequencies?.length ? 'donate_recurrently' : 'donate'}
                 ns=${this.ns}
               >
               </x-i18n>
