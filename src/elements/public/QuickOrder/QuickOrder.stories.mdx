@@ -85,7 +85,7 @@ You can use custom elements, but `foxy-order-form` will not find them if they ar
 <Preview>
   <Story name="Using product items">
     {html`
-    <foxy-order-form>
+    <foxy-order-form currency="usd">
       <style>
       .dietary-food {
         font-weight: 100;
@@ -148,7 +148,8 @@ You can configure subscriptions using the subscription product options, as outli
 <Preview>
   <Story name="Product with subscription" >
     {html`
-    <foxy-order-form frequencyOptions='["1d", "1w", ".5m", "1m"]'>
+    <foxy-order-form currency="usd"
+                     frequencyOptions='["1d", "1w", ".5m", "1m"]'>
       <foxy-item
         name="Pup Dog Food"
         price="69.99"
@@ -180,7 +181,9 @@ You can still customize their look and feel, but you won't be able to build your
     {html`
     <foxy-order-form
 		  frequencyOptions='["1d", "1w", ".5m", "1m"]'
-	    products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'>
+	    products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
+      currency="usd"
+      >
     </foxy-order-form>
     `}
   </Story>
@@ -193,7 +196,9 @@ Child products allow you to bundle a set of products together. You can achieve t
 <Preview>
   <Story name="Child Products">
     {html`
-	<foxy-order-form>
+	<foxy-order-form
+      currency="usd"
+  >
 	      <h2>diet food</h2>
 	      <section class="dietary-food" >
           <foxy-item name="Food Pack" price="0.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg">
@@ -201,7 +206,7 @@ Child products allow you to bundle a set of products together. You can achieve t
             <foxy-item name="pup dog rich food" price="69.99" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
           </foxy-item>
 	      </section>
-    </foxy-order-form>    
+    </foxy-order-form>
     `}
   </Story>
 </Preview>
@@ -214,6 +219,7 @@ You can also use the `children` field of a product in the product array to add c
   <Story name="Child products with a JS Array">
     {html`
     <foxy-order-form
+      currency="usd"
 	    products='[
 		    {
 			    "name":"Cub Puppy",
@@ -252,7 +258,10 @@ Check out the documentation for more details.
 <Preview>
   <Story name="Start and End Dates" >
     {html`
-    <foxy-order-form frequencyOptions='["1d", "1w", ".5m", "1m"]' sub_startdate="20200505" sub_enddate="20210505" >
+    <foxy-order-form frequencyOptions='["1d", "1w", ".5m", "1m"]'
+                    currency="usd"
+                    sub_startdate="20200505"
+                    sub_enddate="20210505" >
       <foxy-item
         name="Pup Dog Food"
         price="69.99"
