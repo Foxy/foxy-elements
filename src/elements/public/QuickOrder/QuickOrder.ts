@@ -42,11 +42,14 @@ export class QuickOrder extends Translatable {
   private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
   private __childProductsObserver?: MutationObserver;
 
-  @property({ type: Number, attribute: 'total-price', reflect: true })
-  public totalPrice = 0;
+  @property({ type: String })
+  public currency?: string;
 
-  @property({ type: String, attribute: 'store-subdomain' })
-  public storeSubdomain = this.__defaultSubdomain;
+  @property({ type: Number, attribute: 'total', reflect: true })
+  public total = 0;
+
+  @property({ type: String, attribute: 'subdomain' })
+  public subdomain = this.__defaultSubdomain;
 
   /** Frequency related attributes */
   @property({ type: String })
@@ -373,14 +376,14 @@ export class QuickOrder extends Translatable {
   }
 
   private __computeTotalPrice(): void {
-    let totalPrice = 0;
+    let total = 0;
     this.__productElements.forEach(e => {
       const prod = e as ProductItem;
-      if (prod.totalPrice) {
-        totalPrice += Number(prod.totalPrice);
+      if (prod.total) {
+        total += Number(prod.total);
       }
     });
-    this.totalPrice = Number(totalPrice.toFixed(2));
+    this.total = Number(total.toFixed(2));
   }
 
   private __findProductElements() {
@@ -394,8 +397,9 @@ export class QuickOrder extends Translatable {
     this.querySelectorAll('[data-product]').forEach(addToProductElements);
   }
 
-  private __checkSubdomain() {
-    if (this.storeSubdomain === this.__defaultSubdomain) {
+  /** Subdomain should not be empty */
+  private __checkSubdomain(): void {
+    if (this.subdomain === this.__defaultSubdomain) {
       console.error(
         "No 'store-subdomain' atrribute was provided. It is necessary to provide this attribute to use it with your store."
       );

@@ -136,8 +136,11 @@ export class ProductItem extends Translatable {
     return r as QuickOrderProduct;
   }
 
-  @property({ type: Number, reflect: true, attribute: 'total-price' })
-  public totalPrice?: number = this.__computeTotalPrice();
+  @property({ type: String })
+  public currency?: string;
+
+  @property({ type: Number, reflect: true, attribute: 'total' })
+  public total?: number = this.__computeTotalPrice();
 
   @property({ type: String })
   public name?: string;

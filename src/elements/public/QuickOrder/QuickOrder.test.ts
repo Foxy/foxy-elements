@@ -111,7 +111,7 @@ describe('The form should allow new products to be added', async () => {
       el.removeChild(toRemove);
     }
     await elementUpdated(el);
-    expect((el as QuickOrder).totalPrice).to.equal(10);
+    expect((el as QuickOrder).total).to.equal(10);
   });
 });
 
