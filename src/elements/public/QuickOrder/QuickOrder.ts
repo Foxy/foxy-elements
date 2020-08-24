@@ -6,6 +6,7 @@ import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton } from '../../private/index';
 
+import { QuickOrderChangeEvent } from './QuickOrderChangeEvent';
 import { QuickOrderProduct } from './types';
 
 export interface FrequencyOption {
@@ -37,6 +38,14 @@ export class QuickOrder extends Translatable {
       'x-code': Code,
       'x-dropdown': Dropdown,
     };
+  }
+
+  private get __data() {
+    const data = new FormData();
+    const productsAdded = this.__formDataFill(data);
+    if (productsAdded == 0) return;
+    this.__formDataAddSubscriptionFields(data);
+    return data;
   }
 
   private __defaultSubdomain = 'jamstackecommerceexample.foxycart.com';
@@ -169,6 +178,10 @@ export class QuickOrder extends Translatable {
         </x-section>
       </x-page>
     `;
+  }
+
+  public updated(): void {
+    this.dispatchEvent(new QuickOrderChangeEvent(this.__data!));
   }
 
   /**
