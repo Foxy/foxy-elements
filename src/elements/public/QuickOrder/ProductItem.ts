@@ -80,6 +80,12 @@ export class ProductItem extends Translatable {
   public constructor() {
     super('quick-order');
     this.productId = this.__setId();
+    this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
+    this.__childProductsObserver.observe(this, {
+      childList: true,
+      attributes: false,
+      subtree: true,
+    });
     this.updateComplete.then(() => {
       this.__setCode();
       this.__setParentCode();
@@ -90,6 +96,8 @@ export class ProductItem extends Translatable {
       }
     });
   }
+
+  private __childProductsObserver?: MutationObserver;
 
   // A set of sentences used in the component. They are centralized to ease the
   // implementation of internationalization.
@@ -436,5 +444,33 @@ export class ProductItem extends Translatable {
     } else {
       return '';
     }
+  }
+
+  private __observeChildren(mutationList: MutationRecord[]): void {
+    mutationList.forEach(m => {
+      if (m.type == 'childList') {
+        m.addedNodes.forEach(n => {
+          if (n.nodeType === Node.DOCUMENT_NODE) {
+            this.__acknowledgeProduct(n as ProductItem);
+          }
+        });
+      }
+    });
+    this.__computeTotalPrice();
+  }
+
+  private __acknowledgeChildProducts() {
+    this.shadowRoot
+      ?.querySelectorAll('[data-product]')
+      .forEach(e => this.__acknowledgeProduct(e as ProductItem));
+    this.querySelectorAll('[data-product]').forEach(e =>
+      this.__acknowledgeProduct(e as ProductItem)
+    );
+  }
+
+  private __acknowledgeProduct(e: ProductItem): void {
+    e.addEventListener('change', this.__computeTotalPrice.bind(this));
+    e.isProduct = false;
+    e.isChildProduct = true;
   }
 }
