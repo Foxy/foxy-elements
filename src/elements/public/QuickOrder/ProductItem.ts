@@ -127,7 +127,7 @@ export class ProductItem extends Translatable {
       if (typeof v[k] == 'object') {
         attrValue = JSON.stringify(v[k]);
       } else {
-        if (v[k]) {
+        if (v[k] || v[k] === 0) {
           attrValue = v[k]!.toString();
         }
       }
