@@ -140,6 +140,7 @@ export class QuickOrder extends Translatable {
       subtree: true,
     });
     this.updateComplete.then(() => {
+      this.__createProductsFromProductArray();
       this.__checkSubdomain();
       this.__findProductElements();
       this.__computeTotalPrice();
@@ -152,9 +153,6 @@ export class QuickOrder extends Translatable {
         <form>
           <x-section class="products">
             <slot></slot>
-            ${this.products.map(
-              p => html` <x-product @change=${this.__productChange} .value=${p}> </x-product>`
-            )}
           </x-section>
           ${this.frequencyOptions.length
             ? html` <x-section class="subscription">
@@ -168,7 +166,7 @@ export class QuickOrder extends Translatable {
             : ''}
         </form>
         <x-section class="summary">
-          <div class="total">${this.totalPrice.toFixed(2)}</div>
+          <div class="total">${this.__translateAmount(this.total)}</div>
         </x-section>
         <x-section class="actions">
           <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
@@ -178,6 +176,17 @@ export class QuickOrder extends Translatable {
         </x-section>
       </x-page>
     `;
+  }
+
+  /** Create child ProductItems from products array
+   */
+  private __createProductsFromProductArray() {
+    const productsSection = this.querySelector('.products');
+    for (const p of this.products) {
+      const newProduct = new ProductItem();
+      newProduct.value = p;
+      productsSection!.appendChild(newProduct);
+    }
   }
 
   public updated(): void {
@@ -213,13 +222,9 @@ export class QuickOrder extends Translatable {
    */
   private handleSubmit = {
     handleEvent: () => {
-      const fd: FormData = new FormData();
-      const productsAdded = this.__formDataFill(fd);
-      if (productsAdded == 0) return;
-      this.__formDataAddSubscriptionFields(fd);
       const request = new XMLHttpRequest();
-      request.open('POST', `https://${this.storeSubdomain}/cart`);
-      request.send(fd);
+      request.open('POST', `https://${this.subdomain}/cart`);
+      request.send(this.__data);
     },
   };
 
@@ -399,15 +404,17 @@ export class QuickOrder extends Translatable {
     this.total = Number(total.toFixed(2));
   }
 
-  private __findProductElements() {
+  /** Find product elements identified with custom attribute data-product */
+  private __findProductElements(): void {
     this.__productElements = [];
-    const addToProductElements = (e: Element) => {
+    this.querySelectorAll('[data-product]').forEach((e: Element) => {
       const p = e as ProductItem;
       p.addEventListener('change', this.__productChange.bind(this));
+      if (!p.currency) {
+        p.currency = this.currency;
+      }
       this.__productElements.push(p);
-    };
-    this.shadowRoot?.querySelectorAll('[data-product]').forEach(addToProductElements);
-    this.querySelectorAll('[data-product]').forEach(addToProductElements);
+    });
   }
 
   /** Subdomain should not be empty */
@@ -419,7 +426,20 @@ export class QuickOrder extends Translatable {
     }
   }
 
-  private __validProduct(p: QuickOrderProduct) {
-    return p.quantity && p.quantity > 0 && p.price && p.price >= 0;
+  /** Checks if product has quantity and price */
+  private __validProduct(p: QuickOrderProduct): boolean {
+    return !!(p.quantity && p.quantity > 0 && p.price && p.price >= 0);
+  }
+
+  private __translateAmount(amount: number) {
+    if (this.currency) {
+      return amount.toLocaleString(this.lang, {
+        minimumFractionDigits: 0,
+        currency: this.currency!,
+        style: 'currency',
+      });
+    } else {
+      return '';
+    }
   }
 }
