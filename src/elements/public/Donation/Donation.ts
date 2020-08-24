@@ -28,7 +28,7 @@ export class Donation extends Translatable {
     const data = new FormData();
 
     data.set('name', this.name!);
-    data.set('price', this.amount!.toString());
+    data.set('price', `${this.amount!.toFixed(2)}${this.currency}`);
     data.set('quantity', '1');
 
     if (this.designation && this.designation.length > 0) {
