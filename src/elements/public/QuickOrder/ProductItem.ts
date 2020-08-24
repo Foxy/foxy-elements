@@ -90,6 +90,7 @@ export class ProductItem extends Translatable {
       this.__setCode();
       this.__setParentCode();
       this.__createChildren();
+      this.__acknowledgeChildProducts();
       this.__setTotalPrice();
       if (!this.__isValid(true)) {
         console.error('Invalid product', 'in product', this.value);
@@ -104,11 +105,6 @@ export class ProductItem extends Translatable {
   private __vocabulary = {
     remove: 'Remove',
   };
-
-  // Is this instance child of another product
-  private get __isChildProduct() {
-    return !!this.value?.parent_code;
-  }
 
   @internalProperty()
   private __modified = false;
@@ -143,7 +139,7 @@ export class ProductItem extends Translatable {
     return r as QuickOrderProduct;
   }
 
-  @property({ type: String })
+  @property({ type: String, reflect: true })
   public currency?: string;
 
   @property({ type: Number, reflect: true, attribute: 'total' })
@@ -167,7 +163,7 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   public parent_code?: string | number;
 
-  @property({ type: Number })
+  @property({ type: Number, reflect: true })
   public quantity = 1;
 
   @property({ type: Number })
@@ -206,6 +202,9 @@ export class ProductItem extends Translatable {
   @property({ type: Boolean, reflect: true, attribute: 'data-product' })
   isProduct = true;
 
+  @property({ type: Boolean, reflect: true, attribute: 'data-child-product' })
+  isChildProduct = false;
+
   @property({ type: Array })
   open = [];
 
@@ -215,8 +214,8 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   description = '';
 
-  @property({ type: Number, attribute: 'product-id' })
-  productId: number;
+  @internalProperty()
+  private productId: number;
 
   public updated(changed: unknown): void {
     this.__setTotalPrice();
@@ -247,38 +246,61 @@ export class ProductItem extends Translatable {
           : 'removed'} ${this.__modified ? 'modified' : ''}"
       >
         <img
-          class="max-w-xs min-w-1 block"
+          class="max-w-xs min-w-1 block w-full sm:w-auto flex-grow"
           alt="${this.alt ?? this.__default_image.alt}"
           src="${this.image ?? this.__default_image.src}"
         />
-        <x-section class="description flex flex-wrap flex-column p-s min-w-xl">
-          <h1>${this.name}</h1>
-          <div class="product-description">${this.description}</div>
-        </x-section>
-        <x-section class="item-info p-s min-w-2">
-          <div class="price">${this.__translateAmount(this.price)}</div>
-          ${this.price != this.total && this.total
-            ? html`<div class="price total">${this.__translateAmount(this.total)}</div>`
-            : ''}
-        </x-section>
-        ${this.__isChildProduct
-          ? ''
-          : html` <x-section class="actions p-s min-w-3">
-              <x-number-field
-                name="quantity"
-                @change=${this.handleQuantity}
-                value="${this.quantity}"
-                min="0"
-                has-controls
-              ></x-number-field>
-              <x-checkbox
-                name="remove"
-                @change=${this.handleExclude}
-                .checked=${this.quantity ? false : true}
-                >${this.__vocabulary.remove}</x-checkbox
-              >
-            </x-section>`}
-        <section class="child-products">
+        <section class="description p-s min-w-xl w-full sm:w-auto flex-third">
+          <h1 class="text-primary text-bold font-size-m">${this.name}</h1>
+          <div class="product-description">
+            ${this.description}
+          </div>
+        </section>
+        <section class="item-info p-s min-w-2 w-full sm:w-auto flex-grow">
+          <div class="price text-right text-primary p-s">
+            ${this.price
+              ? html`
+                  <span
+                    class="price each ${this.quantity == 0 ? 'text-shade-50' : ''} ${this
+                      .quantity == 1
+                      ? 'font-bold'
+                      : ''} "
+                  >
+                    ${this.__translateAmount(this.price)}
+                  </span>
+                `
+              : ''}
+            ${this.price != this.total && this.total
+              ? html`
+                  <span class="quantity times text-shade-50 m-xs text-xs">
+                    &times;${this.quantity}
+                  </span>
+                  <span class="price total ${this.quantity > 1 ? 'font-bold' : ''}">
+                    ${this.__translateAmount(this.total)}
+                  </span>
+                `
+              : ''}
+          </div>
+          ${this.isChildProduct
+            ? ''
+            : html` <div class="quantity p-s min-w-3 w-full md:w-auto">
+                <x-number-field
+                  class="w-full"
+                  name="quantity"
+                  @change=${this.handleQuantity}
+                  value="${this.quantity}"
+                  min="0"
+                  has-controls
+                ></x-number-field>
+                <x-checkbox
+                  name="remove"
+                  @change=${this.handleExclude}
+                  .checked=${this.quantity ? false : true}
+                  >${this.__vocabulary.remove}</x-checkbox
+                >
+              </div>`}
+        </section>
+        <section class="child-products w-full p-s">
           <slot></slot>
         </section>
       </article>
@@ -356,6 +378,7 @@ export class ProductItem extends Translatable {
         product.value = p;
         product.currency = this.currency;
         product.__computeTotalPrice();
+        this.__acknowledgeProduct(product);
         this.appendChild(product);
       });
     }
@@ -370,7 +393,7 @@ export class ProductItem extends Translatable {
    */
   private __computeTotalPrice(): number {
     // Get all child products
-    const myChildProducts = this.querySelectorAll('[data-product]');
+    const myChildProducts = this.querySelectorAll('[data-child-product]');
     let myPrice = 0;
     myChildProducts.forEach(e => {
       const p = e as ProductItem;

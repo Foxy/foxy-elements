@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-icons/vaadin-icons';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, property, TemplateResult, queryAll } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
@@ -129,11 +129,12 @@ export class QuickOrder extends Translatable {
   /**
    * An array with both products created as elements and created parameter
    */
-  private __productElements: Array<ProductItem>;
+  private get __productElements(): NodeListOf<ProductItem> {
+    return this.querySelectorAll('[data-product]');
+  }
 
   constructor() {
     super('quick-order');
-    this.__productElements = [];
     this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
     this.__childProductsObserver.observe(this, {
       childList: true,
@@ -142,8 +143,7 @@ export class QuickOrder extends Translatable {
     });
     this.updateComplete.then(() => {
       this.__createProductsFromProductArray();
-      this.__checkSubdomain();
-      this.__findProductElements();
+      this.__acknowledgeProductElements();
       this.__computeTotalPrice();
     });
   }
@@ -155,9 +155,9 @@ export class QuickOrder extends Translatable {
     return html`
       <x-page>
         <form>
-          <x-section class="products">
+          <section class="products">
             <slot></slot>
-          </x-section>
+          </section>
           ${this.frequencyOptions.length
             ? html` <x-section class="subscription">
                 <x-dropdown
@@ -169,14 +169,18 @@ export class QuickOrder extends Translatable {
               </x-section>`
             : ''}
         </form>
-        <x-section class="summary">
-          <div class="total">${this.__translateAmount(this.total)}</div>
-        </x-section>
-        <x-section class="actions">
-          <vaadin-button type="submit" role="submit" @click=${this.handleSubmit}>
-            <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
-            <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-          </vaadin-button>
+        <x-section class="actions w-full sm:w-auto">
+          <div class="flex -m-s">
+            <div class="flex-1 p-s flex-grow sm:flex-grow-0">
+              <vaadin-button class="w-full" type="submit" role="submit" @click=${this.handleSubmit}>
+                <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
+                <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+                <span class="total font-bold text-primary"
+                  >${this.__translateAmount(this.total)}</span
+                >
+              </vaadin-button>
+            </div>
+          </div>
         </x-section>
       </x-page>
     `;
@@ -266,8 +270,8 @@ export class QuickOrder extends Translatable {
    **/
   private __formDataFill(fd: FormData): number {
     let added = 0;
-    this.__productElements.forEach(e => {
-      if (e.value && this.__validProduct(e.value as QuickOrderProduct)) {
+    this.__productElements?.forEach(e => {
+      if (this.__validProduct(e.value as QuickOrderProduct)) {
         this.__formDataAddProduct(fd, e.value);
         added++;
       } else {
@@ -279,15 +283,15 @@ export class QuickOrder extends Translatable {
 
   /** Adds a product to a form data */
   private __formDataAddProduct(fd: FormData, p: QuickOrderProduct): void {
-    if (!p['product-id']) {
+    if (!p.productId) {
       throw new Error('Attempt to convert a product without a propper ID');
     }
     const rec = p as Record<string, unknown>;
     for (const key of Object.keys(rec)) {
-      if (key !== 'product-id') {
+      if (key !== 'productId') {
         const fieldValue: unknown = rec[key];
         if (!Array.isArray(fieldValue)) {
-          fd.append(`${rec['product-id']}:${key}`, `${fieldValue}`);
+          fd.append(`${rec.productId}:${key}`, `${fieldValue}`);
         }
       }
     }
@@ -388,7 +392,7 @@ export class QuickOrder extends Translatable {
         });
       }
     });
-    this.__findProductElements();
+    this.__acknowledgeProductElements();
     this.__computeTotalPrice();
   }
 
@@ -399,7 +403,7 @@ export class QuickOrder extends Translatable {
 
   private __computeTotalPrice(): void {
     let total = 0;
-    this.__productElements.forEach(e => {
+    this.__productElements?.forEach(e => {
       const prod = e as ProductItem;
       if (prod.total) {
         total += Number(prod.total);
@@ -408,31 +412,19 @@ export class QuickOrder extends Translatable {
     this.total = Number(total.toFixed(2));
   }
 
-  /** Find product elements identified with custom attribute data-product */
-  private __findProductElements(): void {
-    this.__productElements = [];
-    this.querySelectorAll('[data-product]').forEach((e: Element) => {
+  private __acknowledgeProductElements(): void {
+    this.__productElements?.forEach((e: Element) => {
       const p = e as ProductItem;
       p.addEventListener('change', this.__productChange.bind(this));
       if (!p.currency) {
         p.currency = this.currency;
       }
-      this.__productElements.push(p);
     });
-  }
-
-  /** Subdomain should not be empty */
-  private __checkSubdomain(): void {
-    if (this.subdomain === this.__defaultSubdomain) {
-      console.error(
-        "No 'store-subdomain' atrribute was provided. It is necessary to provide this attribute to use it with your store."
-      );
-    }
   }
 
   /** Checks if product has quantity and price */
   private __validProduct(p: QuickOrderProduct): boolean {
-    return !!(p.quantity && p.quantity > 0 && p.price && p.price >= 0);
+    return !!(p.quantity && p.quantity > 0 && (p.price || p.price === 0));
   }
 
   private __translateAmount(amount: number) {
