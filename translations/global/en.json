@@ -12,9 +12,16 @@
   "minute": "Minute",
   "minute_plural": "Minutes",
   "duration": "{{count}} {{units, lowercase}}",
+  "frequency": "Every {{count}} {{units, lowercase}}",
+  "frequency_0_5m": "Twice a month",
+  "frequency_once": "Just this once",
   "and": "and",
   "save": "Save changes",
   "undo_all": "Undo all",
+  "choice": {
+    "other": "Other",
+    "other_placeholder": "Enter your choice"
+  },
   "weekday-picker": {
     "hint": "Allow selecting only {{days, list}} of the month."
   },

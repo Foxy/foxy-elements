@@ -199,10 +199,8 @@ const sizeMap = {
 module.exports = {
   purge: {
     enabled: false,
-    // enabled: true,
-    // content: ['./src/**/*.*'],
   },
-  variants: ['responsive', 'group-hover', 'group-focus', 'hover', 'focus', 'disabled'],
+  variants: ['responsive', 'group-hover', 'focus-within', 'hover', 'focus', 'disabled'],
   theme: {
     colors: colorsMap,
     spacing: spacingMap,

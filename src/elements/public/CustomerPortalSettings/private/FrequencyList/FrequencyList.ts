@@ -70,7 +70,7 @@ export class FrequencyList extends Translatable {
   }
 
   private __handleNewValueChange(evt: FrequencyInputChangeEvent) {
-    this.__newValue = evt.detail;
+    this.__newValue = evt.detail as string;
   }
 
   private __handleListChange(evt: ListChangeEvent) {

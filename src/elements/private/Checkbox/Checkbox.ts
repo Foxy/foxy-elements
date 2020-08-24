@@ -44,20 +44,22 @@ export class Checkbox extends Themeable {
 
   public render(): TemplateResult {
     return html`
-      <vaadin-checkbox
-        class="w-full"
-        style="margin-left: -3px"
-        data-testid="input"
-        .checked=${this.checked}
-        .disabled=${this.disabled}
-        @change=${(evt: Event) => [evt.stopPropagation(), this.__service.send('TOGGLE')]}
-      >
-        <div style="padding-left: 0.5rem">
-          <slot></slot>
-        </div>
-      </vaadin-checkbox>
+      <div style="height:1.125rem" class="flex items-center">
+        <vaadin-checkbox
+          class="w-full"
+          style="margin: 0 -0.1875rem"
+          data-testid="input"
+          .checked=${this.checked}
+          .disabled=${this.disabled}
+          @change=${(evt: Event) => [evt.stopPropagation(), this.__service.send('TOGGLE')]}
+        >
+          <div class="font-lumo text-body leading-none" style="padding-left: 0.5rem">
+            <slot></slot>
+          </div>
+        </vaadin-checkbox>
+      </div>
 
-      <div style="padding-left: 2.2rem">
+      <div class="font-lumo text-body" style="padding-left: 2.2rem">
         <slot name="content"></slot>
       </div>
     `;

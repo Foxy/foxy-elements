@@ -88,7 +88,7 @@ export class OffsetInput extends Translatable {
   }
 
   private __handleNewValueChange(evt: FrequencyInputChangeEvent) {
-    this.value = evt.detail;
+    this.value = evt.detail as string;
     this.__sendChange();
   }
 
