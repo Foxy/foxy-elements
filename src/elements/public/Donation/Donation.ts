@@ -8,6 +8,7 @@ import { parseDuration } from '../../../utils/parse-duration';
 import { CheckboxChangeEvent, ChoiceChangeEvent, DropdownChangeEvent } from '../../private/events';
 import { Checkbox, Choice, Dropdown, ErrorScreen, Group, I18N } from '../../private/index';
 import { DonationChangeEvent } from './DonationChangeEvent';
+import { DonationSubmitEvent } from './DonationSubmitEvent';
 
 export class Donation extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
@@ -99,6 +100,10 @@ export class Donation extends Translatable {
     super('donation');
   }
 
+  public submit(): void {
+    if (this.dispatchEvent(new DonationSubmitEvent())) this.__form.submit();
+  }
+
   public render(): TemplateResult {
     if (!this.currency || !this.amount || !this.store || !this.name) {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
@@ -187,7 +192,7 @@ export class Donation extends Translatable {
       <section>
         <div class="flex -m-s">
           <div class="flex-1 p-s">
-            <vaadin-button class="w-full" theme="primary" @click=${() => this.__form.submit()}>
+            <vaadin-button class="w-full" theme="primary" @click=${() => this.submit()}>
               <x-i18n
                 .opts=${{
                   amount: this.__translateAmount(this.amount),
