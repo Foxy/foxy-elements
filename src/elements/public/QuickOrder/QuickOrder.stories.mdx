@@ -15,12 +15,30 @@ Quick Order Form provides a straighforward way to create an e-commerce form to a
 
 You simply feed your form with the products and it will take care of the rest for you.
 
-You may feed the products to the Form using either:
 
-- using the custom tag `product-item`;
-- the products parameter;
+You can use your favorite template engine to provide the products their attributes.
 
-### Product Items
+## Minimal setup
+
+This component needs to be configured before use. You can easily spot a misconfigured component on the page – it will display an error message like the one below:
+
+<Preview>
+  <Story name="Default">
+    {html`
+      <div class="container-narrow">
+        <foxy-order-form></foxy-order-form>
+      </div>
+    `}
+  </Story>
+</Preview>
+
+You'll need to provide the following info via the respective attributes for the minimal setup:
+
+1. `store` – store name (your subdomain, e.g the `jamstackecommerceexample` part of `https://jamstackecommerceexample.foxycart.com`);
+1. `currency` – 3-letter currency code (e.g. `usd` for US dollars);
+1. One or more products.  You may feed the products to the Form using either:
+1. - **the `slots` approach** using the provided `<product-item></product-item>` Web Component;
+   - **the `attribute` approach** using the `products` parameter;
 
 Using the **product-item** approach gives you full control over your form's markup.
 This approach allow you to create your form writing your HTML in readable way.
@@ -30,16 +48,10 @@ This approach allow you to create your form writing your HTML in readable way.
   <foxy-item></foxy-item>
   <foxy-item></foxy-item>
   <foxy-item></foxy-item>
-  <foxy-item></foxy-item>
 </foxy-order-form>
 ```
-
-You can use your favorite template engine to provide the form and products their attributes.
-
-### Products Array
-
-If you are fetching your products from a server as a JSON object, you can feed your form using the
-**products parameter**.
+Using the **products parameter** approach is handy if you are fetching your products from a server as a JSON object.
+Please, note that the `products` value must be valid JSON.
 This approach allows you to use something as simple as:
 
 ```html
@@ -47,16 +59,32 @@ This approach allows you to use something as simple as:
 </foxy-order-form>
 ```
 
-Please, note that the `products` value must be valid JSON.
+<Preview>
+  <Story name="Minimal">
+    {html`
+    <div class="container-narrow">
+      <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+        <foxy-item name="Cool Product" price="10"></foxy-item>
+      </foxy-order-form>
+    </div>
+    `}
+  </Story>
+</Preview>
+
 
 The downside of this approach is that you have little control of custom markup you may want to add to your form.
 
 ## Basics of a Product
 
-A product must have a name and a price.
+A product must have a `name`, a `price` and a `currency`.
+The currency will be automatically provided by the `<foxy-order-form>`.
+
+The `description` attribute is used to display a description of the product within the order form. 
+
 All products will have a `data-product` attribute that allow the form to identify it as a product.
 
 Foxy Cart handles both basic and advanced features and many of them are accessible by setting products parameters.
+
 
 Here are some of the attributes you can use:
 
@@ -83,7 +111,28 @@ Foxy-order-form will find your products and of course leave your tags alone.
 You can use custom elements, but `foxy-order-form` will not find them if they are in a Shadow DOM.
 
 <Preview>
-  <Story name="Using product items">
+  <Story name="Using Product Items">
+    {html`
+    <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+        <foxy-item name="pup dog food"
+                   price="59.99"
+                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   description="High quality nutritious food for you pet." >
+        </foxy-item>
+        <foxy-item name="pup dog rich food" price="69.99"
+                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
+        </foxy-item>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
+You can enrich your form by adding your own markup. 
+Provided your products are not inside a Shadow DOM, they will be recognized.
+
+<Preview>
+  <Story name="Using your markup">
     {html`
     <foxy-order-form currency="usd">
       <style>
@@ -92,7 +141,83 @@ You can use custom elements, but `foxy-order-form` will not find them if they ar
         border: solid thin silver;
         border-radius: 6px;
         padding: 1em;
-        display: flex;
+        columns: 2;
+        margin-bottom: 1em;
+        background: #fafafa;
+      }
+      .dietary-food img {
+        height: 4em
+      }
+      table {
+        margin: 1em;
+      }
+      table td {
+        border: solid thin silver;
+        border-collapse: collapse;
+        padding: 0.5em;
+      }
+      section.special-items {
+        padding: 1em;
+        border: double #6666ff;
+        background: #ededff;
+        border-radius: 6px;
+      }
+      </style>
+      <h2>diet food</h2>
+      <section class="dietary-food" >
+        <foxy-item name="pup dog food"
+                   price="59.99"
+                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   description="High quality nutritious food for you pet." >
+        </foxy-item>
+        <foxy-item name="pup dog rich food" price="69.99"
+          image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+          description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
+          >
+        </foxy-item>
+      </section>
+      <section class="special-items">
+          <h2>Special item</h2>
+          <foxy-item
+            name="pup dog food"
+            price="69.99"
+            image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+            <section style="display: flex">
+              <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
+              <table>
+                <tr><td>Easily digested</td><td>✓</td></tr>
+                <tr><td>Perfectly balenced</td><td>✓</td></tr>
+                <tr><td>Environmentaly responsible</td><td>✓</td></tr>
+              </table>
+          </foxy-item>
+        </section>
+      </section>
+      </section>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
+
+## Product slots
+
+The `<foxy-item></foxy-item>` custom element has a `description` slot and a default slot.
+
+The `description` slot is used to add a rich description to your product.
+
+The unnamed ― default ― slot is used to add child products.
+You can also add any custom markup to it that may be needed to better organize your child products.
+
+<Preview>
+  <Story name="Product slots">
+    {html`
+    <foxy-order-form currency="usd">
+      <style>
+      .dietary-food {
+        font-weight: 100;
+        border: solid thin silver;
+        border-radius: 6px;
+        padding: 1em;
+        columns: 2;
         margin-bottom: 1em;
         background: #fafafa;
       }
@@ -109,35 +234,28 @@ You can use custom elements, but `foxy-order-form` will not find them if they ar
       }
       </style>
       <h2>diet food</h2>
-      <section class="dietary-food" >
-        <foxy-item name="pup dog food" price="59.99"
-          image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-          high quality nutritious food for you pet
+        <foxy-item name="Health package"
+                   description="The world class nutrition pack for your pet. This nutrition pack provides your pet with the world's best nutrition, combined with the perfect food to recover after intense competitions."
+                   price="0" >
+          <section class="dietary-food" >
+            <foxy-item name="A1 Health" price="89.99"
+              image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+              description="Scientific food, perfect nutrition"
+              >
+            </foxy-item>
+            <foxy-item name="A1 Restore" price="99.99"
+              image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+              description="Sport food to high intensity athletes"
+              >
+            </foxy-item>
+          </section>
         </foxy-item>
-        <foxy-item name="pup dog rich food" price="69.99"
-          image="https://www.foxy.io/merchants/shopping-cart-full.svg" >
-          Delicious!
-        </foxy-item>
-      </section>
-      <h2>Special item</h2>
-      <foxy-item
-        name="pup dog food"
-        price="69.99"
-        image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-        <section style="display: flex">
-          <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
-          <table>
-            <tr><td>Easily digested</td><td>✓</td></tr>
-            <tr><td>Perfectly balenced</td><td>✓</td></tr>
-            <tr><td>Environmentaly responsible</td><td>✓</td></tr>
-          </table>
-        </section>
-      </foxy-item>
       </section>
     </foxy-order-form>
     `}
   </Story>
 </Preview>
+
 
 ### Setting up subscriptions
 
@@ -219,6 +337,7 @@ You can also use the `children` field of a product in the product array to add c
   <Story name="Child products with a JS Array">
     {html`
     <foxy-order-form
+      store="jamstackecommerceexample"
       currency="usd"
 	    products='[
 		    {
@@ -265,9 +384,9 @@ Check out the documentation for more details.
       <foxy-item
         name="Pup Dog Food"
         price="69.99"
+        description="High quality nutritious food for you pet "
         sub_frequency="1m"
         >
-        High quality nutritious food for you pet
       </foxy-item>
     </foxy-order-form>
     `}

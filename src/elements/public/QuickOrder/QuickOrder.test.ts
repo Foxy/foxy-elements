@@ -28,21 +28,20 @@ describe('The form should allow new products to be added', async () => {
   it('Should recognize new products added as JS array', async () => {
     const el = await fixture(html`
       <x-form
-        subdomain="test.foxycart.com"
+        store="test.foxycart.com"
         products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
         currency="usd"
       >
       </x-form>
     `);
     await elementUpdated(el);
-    await aTimeout(2);
     const products = el.querySelectorAll('[data-product]');
     expect(products).to.have.lengthOf(2);
   });
 
   it('Should recognize new products added as product item tags', async () => {
     const el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com">
+      <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10.00"></x-item>
         <x-item name="p2" price="10.00"></x-item>
         <x-item name="p3" price="10.00"></x-item>
@@ -61,7 +60,7 @@ describe('The form should allow new products to be added', async () => {
     const el = await fixture(html`
       <x-form
         currency="usd"
-        subdomain="test.foxycart.com"
+        store="test.foxycart.com"
         products='[{"name": "p1", "price": "1"}, {"name": "p2", "price": "2"}]'
       ></x-form>
     `);
@@ -82,7 +81,7 @@ describe('The form should allow new products to be added', async () => {
 
   it('Should recognize new products added later as product item tags', async () => {
     const el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com">
+      <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="20.00"></x-item>
         <x-item name="p2" price="20.00"></x-item>
       </x-form>
@@ -100,7 +99,7 @@ describe('The form should allow new products to be added', async () => {
 
   it('Should recognize child products removed from the DOM', async () => {
     const el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com">
+      <x-form currency="usd" store="test.foxycart.com">
         <x-item id="first" name="p1" price="10.00"></x-item>
         <x-item id="second" name="p2" price="10.00"></x-item>
       </x-form>
@@ -136,9 +135,7 @@ describe('The form should remain valid', async () => {
   });
 
   it('Should print an error message if no store is provided', async () => {
-    const el = await fixture(
-      html` <x-form currency="usd" subdomain="test.foxycart.com"></x-form> `
-    );
+    const el = await fixture(html` <x-form currency="usd" store="test.foxycart.com"></x-form> `);
     await elementUpdated(el);
     expect(logSpy.callCount).to.equal(0);
     fixtureCleanup();
@@ -149,7 +146,7 @@ describe('The form should remain valid', async () => {
 
   it('Should not send a new order with empty products', async () => {
     const el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com">
+      <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10.00" quantity="0"></x-item>
         <x-item name="p2" price="10.00" quantity="0"></x-item>
       </x-form>
@@ -165,7 +162,7 @@ describe('The form should remain valid', async () => {
 
   it('Should not allow negative prices or quantities', async () => {
     const el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com">
+      <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="-10.00"></x-item>
         <x-item name="p2" price="10.00" quantity="-3"></x-item>
         <x-item name="p3" price="10.00" quantity="3"></x-item>
@@ -192,7 +189,7 @@ describe('The form should remain valid', async () => {
     let el = await fixture(html`
       <x-form
         currency="usd"
-        subdomain="test.foxycart.com"
+        store="test.foxycart.com"
         frequencyOptions='["5d", "10d", "15d", "1m", "1y", ".5m"]'
       >
         <x-item name="p3" price="10.00" quantity="3"></x-item>
@@ -201,7 +198,7 @@ describe('The form should remain valid', async () => {
     await elementUpdated(el);
     expect(logSpy.calledWith('Invalid frequency')).to.be.false;
     el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com" frequencyOptions='["5", "10d"]'>
+      <x-form currency="usd" store="test.foxycart.com" frequencyOptions='["5", "10d"]'>
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
     `);
@@ -223,7 +220,7 @@ describe('The form should remain valid', async () => {
         const el = await fixture(html`
           <x-form
             currency="usd"
-            subdomain="test.foxycart.com"
+            store="test.foxycart.com"
             sub_startdate="${dateString}"
             frequencyOptions='["5d", "10d"]'
           >
@@ -255,7 +252,7 @@ describe('The form should remain valid', async () => {
         const el = await fixture(html`
           <x-form
             currency="usd"
-            subdomain="test.foxycart.com"
+            store="test.foxycart.com"
             sub_enddate="${dateString}"
             frequencyOptions='["5d", "10d"]'
           >
@@ -286,7 +283,7 @@ describe('The form should be aware of its products', async () => {
 
   it('Shows the total price of the products added as tags', async () => {
     const el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com">
+      <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10.00" quantity="3"></x-item>
         <x-item name="p2" price="10.00" quantity="1"></x-item>
         <x-item name="p3" price="10.00" quantity="2"></x-item>
@@ -300,7 +297,7 @@ describe('The form should be aware of its products', async () => {
   it('Shows the total price of the products added as arrays ', async () => {
     const el = await fixture(html`
       <x-form
-        subdomain="test.foxycart.com"
+        store="test.foxycart.com"
         products='[{"name": "p1", "price":"10.00"},{"name": "p1", "price":"10.00"},{"name": "p1", "price":"10.00", "quantity": "2"},{"name":"p4","price":10}]'
       >
       </x-form>
@@ -311,7 +308,7 @@ describe('The form should be aware of its products', async () => {
 
   it('Update the total price as quantities change', async () => {
     const el = await fixture(html`
-      <x-form currency="usd" subdomain="test.foxycart.com">
+      <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10.00" quantity="3"></x-item>
         <x-item name="p2" price="10.00"></x-item>
         <x-item name="p3" price="10.00" quantity="2"></x-item>
