@@ -24,7 +24,7 @@ export interface FrequencyOption {
  * Code and Id fields are added automatically if not provided.
  */
 export class QuickOrder extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): Record<string, unknown> {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-password-field': customElements.get('vaadin-password-field'),
@@ -269,7 +269,7 @@ export class QuickOrder extends Translatable {
   }
 
   /** Adds a product to a form data */
-  private __formDataAddProduct(fd: FormData, p: QuickOrderProduct) {
+  private __formDataAddProduct(fd: FormData, p: QuickOrderProduct): void {
     if (!p['product-id']) {
       throw new Error('Attempt to convert a product without a propper ID');
     }
@@ -285,7 +285,7 @@ export class QuickOrder extends Translatable {
   }
 
   /** Adds subscription fields to a FormData */
-  private __formDataAddSubscriptionFields(fd: FormData) {
+  private __formDataAddSubscriptionFields(fd: FormData): void {
     if (this.sub_frequency) {
       fd.append('sub_frequency', this.sub_frequency!);
       if (QuickOrder.__validDate(this.sub_startdate)) {
@@ -301,7 +301,7 @@ export class QuickOrder extends Translatable {
    * Validates a string for subscription start date or end date according to
    * https://wiki.foxycart.com/v/2.0/products#subscription_product_options
    */
-  private static __validDate(strDate: string | null | undefined) {
+  private static __validDate(strDate: string | null | undefined): boolean {
     if (strDate === null || strDate === undefined) {
       return false;
     }
@@ -322,7 +322,7 @@ export class QuickOrder extends Translatable {
   /**
    * Checks if a string date is in the future
    */
-  private static __validDateFuture(strDate: string | null | undefined) {
+  private static __validDateFuture(strDate: string | null | undefined): boolean {
     let valid = false;
     if (QuickOrder.__validDate(strDate)) {
       if (strDate!.match(/^\d{8}/)) {
@@ -338,7 +338,7 @@ export class QuickOrder extends Translatable {
   /**
    * Checks if a frequency complies with possible values
    */
-  private static __validFrequency(strFrequency: string | null | undefined) {
+  private static __validFrequency(strFrequency: string | null | undefined): boolean {
     if (!strFrequency) {
       return false;
     } else {
