@@ -181,11 +181,11 @@ export class QuickOrder extends Translatable {
   /** Create child ProductItems from products array
    */
   private __createProductsFromProductArray() {
-    const productsSection = this.querySelector('.products');
     for (const p of this.products) {
       const newProduct = new ProductItem();
       newProduct.value = p;
-      productsSection!.appendChild(newProduct);
+      newProduct.currency = this.currency;
+      this.appendChild(newProduct);
     }
   }
 

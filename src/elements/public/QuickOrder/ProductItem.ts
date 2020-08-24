@@ -354,6 +354,7 @@ export class ProductItem extends Translatable {
       this.childProducts.forEach(p => {
         const product = new ProductItem();
         product.value = p;
+        product.currency = this.currency;
         product.__computeTotalPrice();
         this.appendChild(product);
       });
@@ -441,7 +442,7 @@ export class ProductItem extends Translatable {
         style: 'currency',
       });
     } else {
-      return '';
+      return 'No currency available';
     }
   }
 
