@@ -1,6 +1,6 @@
 import { Translatable } from '../../../mixins/translatable';
 import { QuickOrderProduct, EmptyProduct } from './types';
-import { html, property, TemplateResult, queryAll } from 'lit-element';
+import { html, property, internalProperty, TemplateResult } from 'lit-element';
 import { Checkbox, Section, Group, I18N } from '../../private/index';
 
 /**
@@ -102,7 +102,7 @@ export class ProductItem extends Translatable {
     return !!this.value?.parent_code;
   }
 
-  @property({ type: Boolean })
+  @internalProperty()
   private __modified = false;
 
   // Default image values to allow the product to be ran out-of-the box with
@@ -246,9 +246,9 @@ export class ProductItem extends Translatable {
           <div class="product-description">${this.description}</div>
         </x-section>
         <x-section class="item-info p-s min-w-2">
-          <div class="price">${this.price ? Number(this.price).toFixed(2) : ''}</div>
-          ${this.price != this.totalPrice && this.totalPrice
-            ? html`<div class="price total">${Number(this.totalPrice.toFixed(2)).toFixed(2)}</div>`
+          <div class="price">${this.__translateAmount(this.price)}</div>
+          ${this.price != this.total && this.total
+            ? html`<div class="price total">${this.__translateAmount(this.total)}</div>`
             : ''}
         </x-section>
         ${this.__isChildProduct
@@ -294,7 +294,7 @@ export class ProductItem extends Translatable {
   /**
    * Creates a code if none is provided by the user
    */
-  private __setCode() {
+  private __setCode(): void {
     if (!this.code) {
       this.code = `RAND${Math.random()}`;
     }
@@ -350,8 +350,8 @@ export class ProductItem extends Translatable {
     }
   }
 
-  private __setTotalPrice() {
-    this.totalPrice = this.__computeTotalPrice();
+  private __setTotalPrice(): void {
+    this.total = this.__computeTotalPrice();
   }
 
   /**
@@ -363,7 +363,7 @@ export class ProductItem extends Translatable {
     let myPrice = 0;
     myChildProducts.forEach(e => {
       const p = e as ProductItem;
-      p.totalPrice && (myPrice += p.totalPrice);
+      p.total && (myPrice += p.total);
     });
     myPrice += this.price;
     myPrice *= this.quantity;
@@ -384,7 +384,7 @@ export class ProductItem extends Translatable {
   /**
    * Constraints Products must eventually adhere to.
    **/
-  private __isValid(initial = false) {
+  private __isValid(initial = false): boolean {
     const error = [];
     if (!this.name || !this.name.length) {
       error.push('The name attribute of a product is required.');
@@ -408,7 +408,7 @@ export class ProductItem extends Translatable {
     return !error.length;
   }
 
-  private __isAcceptableParameter(key: string) {
+  private __isAcceptableParameter(key: string): boolean {
     // Remove from this.value any unknown key
     if (ProductItem.__productProperties.includes(key)) {
       return true;
@@ -421,5 +421,17 @@ export class ProductItem extends Translatable {
     }
     // Accept custom attributes
     return true;
+  }
+
+  private __translateAmount(amount: number) {
+    if (this.currency) {
+      return amount.toLocaleString(this.lang, {
+        minimumFractionDigits: 0,
+        currency: this.currency!,
+        style: 'currency',
+      });
+    } else {
+      return '';
+    }
   }
 }
