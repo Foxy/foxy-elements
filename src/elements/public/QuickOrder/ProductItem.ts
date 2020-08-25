@@ -133,8 +133,8 @@ export class ProductItem extends Translatable {
 
   public get value(): QuickOrderProduct {
     const r: Record<keyof QuickOrderProduct, unknown> = {};
-    for (const k of ProductItem.__productProperties) {
-      r[k as keyof ProductItem] = this[k as keyof ProductItem];
+    for (let i = 0; i < this.attributes.length; i++) {
+      r[this.attributes[i].name] = this.attributes[i].value;
     }
     return r as QuickOrderProduct;
   }

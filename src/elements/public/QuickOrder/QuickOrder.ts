@@ -283,15 +283,17 @@ export class QuickOrder extends Translatable {
 
   /** Adds a product to a form data */
   private __formDataAddProduct(fd: FormData, p: QuickOrderProduct): void {
-    if (!p.productId) {
+    const idKey = 'product-id';
+    if (!p[idKey]) {
+      console.log('here is the quickorder product', p);
       throw new Error('Attempt to convert a product without a propper ID');
     }
     const rec = p as Record<string, unknown>;
     for (const key of Object.keys(rec)) {
-      if (key !== 'productId') {
+      if (key !== idKey) {
         const fieldValue: unknown = rec[key];
         if (!Array.isArray(fieldValue)) {
-          fd.append(`${rec.productId}:${key}`, `${fieldValue}`);
+          fd.append(`${rec[idKey]}:${key}`, `${fieldValue}`);
         }
       }
     }
