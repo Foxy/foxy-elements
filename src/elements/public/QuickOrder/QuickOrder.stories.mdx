@@ -159,36 +159,46 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
         background: #ededff;
         border-radius: 6px;
       }
+      .special-items h1, .dietary-food h1 {
+        font-size: 1.2em;
+        font-weight: 400;
+        padding: 1em 0;
+      }
       </style>
-      <h2>diet food</h2>
-      <section class="dietary-food" >
-        <foxy-item name="pup dog food"
-                   price="59.99"
-                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-                   description="High quality nutritious food for you pet." >
-        </foxy-item>
-        <foxy-item name="pup dog rich food" price="69.99"
-          image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-          description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
-          >
-        </foxy-item>
-      </section>
-      <section class="special-items">
-          <h2>Special item</h2>
-          <foxy-item
-            name="pup dog food"
-            price="69.99"
-            image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-            <section style="display: flex">
-              <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
-              <table>
-                <tr><td>Easily digested</td><td>✓</td></tr>
-                <tr><td>Perfectly balenced</td><td>✓</td></tr>
-                <tr><td>Environmentaly responsible</td><td>✓</td></tr>
-              </table>
+
+      <section>
+        <h1>Diet food</h1>
+        <section class="dietary-food" >
+          <foxy-item name="pup dog food"
+                     price="59.99"
+                     image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                     description="High quality nutritious food for you pet." >
+          </foxy-item>
+          <foxy-item name="pup dog rich food" price="69.99"
+            image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+            description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
+            >
           </foxy-item>
         </section>
       </section>
+
+      <section>
+      <h1>Special Item</h1>
+        <section class="special-items">
+            <foxy-item
+              name="pup dog food"
+              price="69.99"
+              image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+              <section style="display: flex">
+                <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
+                <table>
+                  <tr><td>Easily digested</td><td>✓</td></tr>
+                  <tr><td>Perfectly balenced</td><td>✓</td></tr>
+                  <tr><td>Environmentaly responsible</td><td>✓</td></tr>
+                </table>
+            </foxy-item>
+          </section>
+        </section>
       </section>
     </foxy-order-form>
     `}
@@ -243,13 +253,14 @@ Child products allow you to bundle a set of products together. You can achieve t
   <Story name="Child Products">
     {html`
   <foxy-order-form
+      store="jamstackecommerceexample"
       currency="usd"
   >
-        <h2>diet food</h2>
+        <h2>Diet food</h2>
         <section >
-          <foxy-item name="Food Pack" price="0.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-            <foxy-item name="pup dog rich food" price="69.99" image="https://www.foxy.io/merchants/shopping-cart-full.svg" > </foxy-item>
-            <foxy-item name="pup dog rich food" price="69.99" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
+          <foxy-item name="Bundle Package" price="0.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+            <foxy-item name="The smart choice" price="50.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
+            <foxy-item name="The interesting bit" price="30.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
           </foxy-item>
         </section>
     </foxy-order-form>
