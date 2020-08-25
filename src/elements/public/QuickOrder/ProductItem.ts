@@ -76,10 +76,10 @@ export class ProductItem extends Translatable {
    * Instance fields and methods
    */
 
-  // Call Translatable parent with the name of the translation file
   public constructor() {
     super('quick-order');
-    this.productId = this.__setId();
+    this.setAttribute('data-product', 'true');
+    this.__setId();
     this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
     this.__childProductsObserver.observe(this, {
       childList: true,
@@ -214,8 +214,8 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   description = '';
 
-  @internalProperty()
-  private productId: number;
+  @property({ type: Number, reflect: true, attribute: 'product-id' })
+  private productId?: number;
 
   public updated(changed: unknown): void {
     this.__setTotalPrice();
@@ -310,17 +310,13 @@ export class ProductItem extends Translatable {
   /**
    * Create an ID if none is provided by the user.
    */
-  private __setId(): number {
-    let productId;
+  private __setId(): void {
     if (!this.productId) {
-      productId = ProductItem.__newId();
-      this.setAttribute('product-id', productId.toString());
+      this.productId = ProductItem.__newId();
     } else {
       // The user provided a custom id as an attribute
       ProductItem.__acknowledgeId(this.productId);
-      productId = this.productId;
     }
-    return productId;
   }
 
   /**

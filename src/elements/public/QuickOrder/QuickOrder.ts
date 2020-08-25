@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-icons/vaadin-icons';
-import { html, property, TemplateResult, queryAll } from 'lit-element';
+import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
@@ -285,7 +285,6 @@ export class QuickOrder extends Translatable {
   private __formDataAddProduct(fd: FormData, p: QuickOrderProduct): void {
     const idKey = 'product-id';
     if (!p[idKey]) {
-      console.log('here is the quickorder product', p);
       throw new Error('Attempt to convert a product without a propper ID');
     }
     const rec = p as Record<string, unknown>;
