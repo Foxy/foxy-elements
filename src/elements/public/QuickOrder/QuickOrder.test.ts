@@ -1,18 +1,26 @@
-import { fixture, fixtureCleanup, expect, html, elementUpdated, nextFrame } from '@open-wc/testing';
+import { fixture, expect, html, elementUpdated, nextFrame } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
-import { ProductItem } from './ProductItem';
+import { Product } from './types';
+import { mockProduct } from '../../../mocks/ProductItem';
 
 /**
  * Avoid CustomElementsRegistry collisions
  *
  * not using defineCE because lit-html doesn't support dynamic tags by default.
  */
-class TestQuickOrder extends QuickOrder {}
-class TestQuickOrderProductItem extends ProductItem {}
+class TestQuickOrder extends QuickOrder {
+  createProduct(p: Product) {
+    const mockProdEl = document.createElement('div');
+    mockProdEl.setAttribute('name', p.name!);
+    mockProdEl.setAttribute('price', p.price!.toString());
+    mockProdEl.setAttribute('value', JSON.stringify(p));
+    mockProdEl.setAttribute('product', 'true');
+    return mockProdEl;
+  }
+}
 
 customElements.define('x-form', TestQuickOrder);
-customElements.define('x-item', TestQuickOrderProductItem);
 
 describe('The form should allow new products to be added', async () => {
   let logSpy: sinon.SinonStub;
@@ -29,26 +37,33 @@ describe('The form should allow new products to be added', async () => {
     const el = await fixture(html`
       <x-form
         store="test.foxycart.com"
-        products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
         currency="usd"
+        products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
       >
       </x-form>
     `);
     await elementUpdated(el);
-    const products = el.querySelectorAll('[data-product]');
+    logSpy.restore();
+    const products = el.querySelectorAll('[product]');
     expect(products).to.have.lengthOf(2);
   });
 
   it('Should recognize new products added as product item tags', async () => {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="10.00"></x-item>
-        <x-item name="p2" price="10.00"></x-item>
-        <x-item name="p3" price="10.00"></x-item>
+        <x-item name="p1" price="10.00" product="true"></x-item>
+        <x-item name="p2" price="10.00" product="true"></x-item>
+        <x-item name="p3" price="10.00" product="true"></x-item>
       </x-form>
     `);
+    const p1 = (el as TestQuickOrder).createProduct({ name: 'p1', price: 10 });
+    el.appendChild(p1);
+    const p2 = (el as TestQuickOrder).createProduct({ name: 'p2', price: 10 });
+    el.appendChild(p2);
+    const p3 = (el as TestQuickOrder).createProduct({ name: 'p3', price: 10 });
+    el.appendChild(p3);
     await elementUpdated(el);
-    const products = el.querySelectorAll('[data-product]');
+    const products = el.querySelectorAll('[product]');
     expect(products).to.have.lengthOf(3);
     // Products will be found in the DOM even if not recognized by QuickOrder
     // So we check if the price was properly updated
@@ -65,17 +80,17 @@ describe('The form should allow new products to be added', async () => {
       ></x-form>
     `);
     await elementUpdated(el);
-    let products = el.shadowRoot?.querySelectorAll('[data-product]');
+    let products = el.shadowRoot?.querySelectorAll('[product]');
     expect(products).to.have.lengthOf(2);
     // Increase the number of products
     (el as QuickOrder).products = [...(el as QuickOrder).products, { name: 'p3', price: 3 }];
     await elementUpdated(el);
-    products = el.shadowRoot?.querySelectorAll('[data-product]');
+    products = el.shadowRoot?.querySelectorAll('[product]');
     expect(products).to.have.lengthOf(3);
     // Decrease the number of products
     (el as QuickOrder).products = [(el as QuickOrder).products[0]];
     await elementUpdated(el);
-    products = el.shadowRoot?.querySelectorAll('[data-product]');
+    products = el.shadowRoot?.querySelectorAll('[product]');
     expect(products).to.have.lengthOf(1);
   });
 
@@ -88,10 +103,7 @@ describe('The form should allow new products to be added', async () => {
     `);
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(40);
-    const lateProduct = new TestQuickOrderProductItem();
-    lateProduct.price = 20;
-    lateProduct.name = '3';
-    lateProduct.setAttribute('data-product', 'true');
+    const lateProduct = (el as QuickOrder).createProduct(mockProduct);
     el.appendChild(lateProduct);
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(60);
@@ -307,9 +319,9 @@ describe('The form should be aware of its products', async () => {
     `);
     await elementUpdated(el);
     expect(el.getAttribute('total-price')).to.equal('70');
-    const firstProduct = el.querySelector('[data-product]');
+    const firstProduct = el.querySelector('[product]');
     expect(firstProduct).to.exist;
-    (firstProduct as ProductItem)!.setAttribute('quantity', '30');
+    firstProduct!.setAttribute('quantity', '30');
     await elementUpdated(firstProduct!);
     await elementUpdated(el);
     expect(el.getAttribute('total-price')).to.equal('340');
