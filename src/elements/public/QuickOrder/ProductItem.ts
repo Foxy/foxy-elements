@@ -1,5 +1,5 @@
 import { Translatable } from '../../../mixins/translatable';
-import { QuickOrderProduct, EmptyProduct } from './types';
+import { Product } from './types';
 import { html, property, internalProperty, TemplateResult } from 'lit-element';
 import { Checkbox, Section, Group, I18N } from '../../private/index';
 
@@ -7,14 +7,12 @@ import { Checkbox, Section, Group, I18N } from '../../private/index';
  * This component allows a user to configure a product.
  *
  * The product may be configured using HTML properties or a JS object.
- * Relevant properties are mapped to a QuickOrderProduct object that is used by
- * the QuickOrderForm.
  *
- * The product id may be set manually by the user or created automatically by the component.
- * An error is thrown if an attempt is made to create two products with the same id.
  */
-export class ProductItem extends Translatable {
+export class ProductItem extends Translatable implements Product {
   // A list of product properties as defined in Foxy Cart Documentation
+
+  [k: string]: any;
 
   /**
    * Static fields and methods
@@ -23,13 +21,10 @@ export class ProductItem extends Translatable {
   // A list of all existing ids to guarantee unicity
   private static __existingIds: number[] = [];
 
-  // A list of the product properties
-  private static __productProperties = Object.keys(EmptyProduct);
-
   /**
    * Custom elements used in the component
    */
-  public static get scopedElements() {
+  public static get scopedElements(): Record<string, unknown> {
     return {
       'x-checkbox': Checkbox,
       'x-section': Section,
@@ -78,8 +73,9 @@ export class ProductItem extends Translatable {
 
   public constructor() {
     super('quick-order');
-    this.setAttribute('product', 'true');
-    this.__setId();
+    if (!this.getAttribute('combined')) {
+      this.setAttribute('product', 'true');
+    }
     this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
     this.__childProductsObserver.observe(this, {
       childList: true,
@@ -92,7 +88,7 @@ export class ProductItem extends Translatable {
       this.__createChildren();
       this.__acknowledgeChildProducts();
       this.__setTotalPrice();
-      if (!this.__isValid(true)) {
+      if (!this.__isValid()) {
         console.error('Invalid product', 'in product', this.value);
       }
     });
@@ -117,26 +113,26 @@ export class ProductItem extends Translatable {
   };
 
   @property({ type: Object })
-  public set value(v: QuickOrderProduct) {
+  public set value(v: Product) {
     for (const k in v) {
       let attrValue = '';
-      if (typeof v[k] == 'object') {
-        attrValue = JSON.stringify(v[k]);
+      if (typeof v[k as keyof Product] == 'object') {
+        attrValue = JSON.stringify(v[k as keyof Product]);
       } else {
-        if (v[k] || v[k] === 0) {
-          attrValue = v[k]!.toString();
+        if (v[k as keyof Product] || v[k as keyof Product] === 0) {
+          attrValue = v[k as keyof Product]!.toString();
         }
       }
-      this.setAttribute(k, v[k] ? attrValue : '');
+      this.setAttribute(k, v[k as keyof Product] ? attrValue : '');
     }
   }
 
-  public get value(): QuickOrderProduct {
-    const r: Record<keyof QuickOrderProduct, unknown> = {};
+  public get value(): Product {
+    const r: Partial<Record<keyof Product, unknown>> = {};
     for (let i = 0; i < this.attributes.length; i++) {
       r[this.attributes[i].name] = this.attributes[i].value;
     }
-    return r as QuickOrderProduct;
+    return r as Product;
   }
 
   @property({ type: String, reflect: true })
@@ -178,8 +174,8 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   public expires?: string;
 
-  @property({ type: String })
-  public weight?: string;
+  @property({ type: Number })
+  public weight?: number;
 
   @property({ type: Number })
   public length?: number;
@@ -196,26 +192,26 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   alt?: string;
 
-  @property({ type: String })
-  signature?: string;
-
   @property({ type: Boolean, reflect: true, attribute: 'product' })
   isProduct = true;
 
   @property({ type: Boolean, reflect: true, attribute: 'combined' })
   isChildProduct = false;
 
-  @property({ type: Array })
-  open = [];
-
   @property({ type: Array, attribute: 'children' })
-  childProducts: QuickOrderProduct[] = [];
+  childProducts: Product[] = [];
 
   @property({ type: String })
   description = '';
 
-  @property({ type: Number, reflect: true, attribute: 'product-id' })
-  private productId?: number;
+  @property({ type: Object })
+  signature?: Record<string, string>;
+
+  @property({ type: Object })
+  open?: Record<string, string>;
+
+  @property({ type: Number, reflect: true })
+  public pid: number = ProductItem.__newId();
 
   public updated(changed: unknown): void {
     this.__setTotalPrice();
@@ -308,18 +304,6 @@ export class ProductItem extends Translatable {
   }
 
   /**
-   * Create an ID if none is provided by the user.
-   */
-  private __setId(): void {
-    if (!this.productId) {
-      this.productId = ProductItem.__newId();
-    } else {
-      // The user provided a custom id as an attribute
-      ProductItem.__acknowledgeId(this.productId);
-    }
-  }
-
-  /**
    * Creates a code if none is provided by the user
    */
   private __setCode(): void {
@@ -335,32 +319,6 @@ export class ProductItem extends Translatable {
     const productParent = this.parentElement;
     if (productParent?.hasAttribute('product')) {
       this.parent_code = (productParent as ProductItem).code;
-    }
-  }
-
-  /** Captures values set as properties to build the value property of the component.  */
-  private __propertyToValue(): void {
-    if (this.value === undefined) {
-      this.value = {
-        name: this.name ? this.name : '',
-        price: this.price ? this.price : 0,
-        quantity: this.quantity,
-      };
-      if (!(this.name && this.price && this.name.length > 0 && this.price >= 0)) {
-        console.error('The name and price attributes of a product are required.', {
-          name: this.name,
-          price: this.price,
-        });
-      }
-    }
-    type T = Partial<Record<string, string | number>>;
-    for (const i of ProductItem.__productProperties) {
-      if (!(this.value! as T)[i]) {
-        const attr = this.getAttribute(i);
-        if (attr) {
-          (this.value! as T)[i] = attr;
-        }
-      }
     }
   }
 
@@ -414,43 +372,28 @@ export class ProductItem extends Translatable {
   /**
    * Constraints Products must eventually adhere to.
    **/
-  private __isValid(initial = false): boolean {
+  private __isValid(): boolean {
     const error = [];
     if (!this.name || !this.name.length) {
       error.push('The name attribute of a product is required.');
     }
-    if (this.price === undefined || (initial && this.price == 0)) {
+    if (!this.price && this.price !== 0) {
       error.push('The price attribute of a product is required.');
     }
-    if (this.price! < 0) {
+    if (this.price && this.price! < 0) {
       error.push('Product added with negative price.');
     }
-    if (this.quantity_min && this.quantity! < this.quantity_min) {
+    if (this.quantity_min && this.quantity && this.quantity < this.quantity_min) {
       error.push('Quantity amount is less than minimum quantity.');
     }
-    if (this.quantity_max && this.quantity! > this.quantity_max) {
+    if (this.quantity_max && this.quantity && this.quantity > this.quantity_max) {
       error.push('Quantity amount is more than maximum quantity.');
     }
-    if (!this.productId) {
+    if (!this.pid) {
       error.push('The product has no product id');
     }
     console.error(...error);
     return !error.length;
-  }
-
-  private __isAcceptableParameter(key: string): boolean {
-    // Remove from this.value any unknown key
-    if (ProductItem.__productProperties.includes(key)) {
-      return true;
-    }
-    // Avoid overriding class fields
-    for (const k in this) {
-      if (key == k) {
-        return false;
-      }
-    }
-    // Accept custom attributes
-    return true;
   }
 
   private __translateAmount(amount: number) {
@@ -480,9 +423,9 @@ export class ProductItem extends Translatable {
 
   private __acknowledgeChildProducts() {
     this.shadowRoot
-      ?.querySelectorAll('product')
+      ?.querySelectorAll('[product]')
       .forEach(e => this.__acknowledgeProduct(e as ProductItem));
-    this.querySelectorAll('product').forEach(e => this.__acknowledgeProduct(e as ProductItem));
+    this.querySelectorAll('[product]').forEach(e => this.__acknowledgeProduct(e as ProductItem));
   }
 
   private __acknowledgeProduct(e: ProductItem): void {

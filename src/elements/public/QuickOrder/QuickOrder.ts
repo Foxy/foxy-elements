@@ -7,7 +7,7 @@ import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
 
 import { QuickOrderChangeEvent } from './QuickOrderChangeEvent';
-import { QuickOrderProduct } from './types';
+import { Product } from './types';
 
 export interface FrequencyOption {
   number: number;
@@ -123,13 +123,13 @@ export class QuickOrder extends Translatable {
   public frequencyOptions: FrequencyOption[] = [];
 
   @property({ type: Array })
-  products: QuickOrderProduct[] = [];
+  products: Product[] = [];
 
   /**
    * An array with both products created as elements and created parameter
    */
   private get __productElements(): NodeListOf<ProductItem> {
-    return this.querySelectorAll('product');
+    return this.querySelectorAll('[product]');
   }
 
   constructor() {
@@ -189,9 +189,7 @@ export class QuickOrder extends Translatable {
    */
   private __createProductsFromProductArray() {
     for (const p of this.products) {
-      const newProduct = new ProductItem();
-      newProduct.value = p;
-      newProduct.currency = this.currency;
+      const newProduct = this.createProduct(p);
       this.appendChild(newProduct);
     }
   }
@@ -270,7 +268,7 @@ export class QuickOrder extends Translatable {
   private __formDataFill(fd: FormData): number {
     let added = 0;
     this.__productElements?.forEach(e => {
-      if (this.__validProduct(e.value as QuickOrderProduct)) {
+      if (this.__validProduct(e.value as Product)) {
         this.__formDataAddProduct(fd, e.value);
         added++;
       } else {
@@ -281,8 +279,8 @@ export class QuickOrder extends Translatable {
   }
 
   /** Adds a product to a form data */
-  private __formDataAddProduct(fd: FormData, p: QuickOrderProduct): void {
-    const idKey = 'product-id';
+  private __formDataAddProduct(fd: FormData, p: Product): void {
+    const idKey = 'pid';
     if (!p[idKey]) {
       throw new Error('Attempt to convert a product without a propper ID');
     }
@@ -423,7 +421,7 @@ export class QuickOrder extends Translatable {
   }
 
   /** Checks if product has quantity and price */
-  private __validProduct(p: QuickOrderProduct): boolean {
+  private __validProduct(p: Product): boolean {
     return !!(p.quantity && p.quantity > 0 && (p.price || p.price === 0));
   }
 
@@ -437,5 +435,12 @@ export class QuickOrder extends Translatable {
     } else {
       return '';
     }
+  }
+
+  createProduct(p: Product): Element {
+    const newProduct = new ProductItem();
+    newProduct.value = p;
+    newProduct.currency = this.currency;
+    return newProduct;
   }
 }
