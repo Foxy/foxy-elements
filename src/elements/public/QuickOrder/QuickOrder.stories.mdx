@@ -79,7 +79,7 @@ The downside of this approach is that you have little control of custom markup y
 A product must have a `name`, a `price` and a `currency`.
 The currency will be automatically provided by the `<foxy-order-form>`.
 
-The `description` attribute is used to display a description of the product within the order form. 
+The `description` attribute is used to display a description of the product within the order form.
 
 All products will have a `data-product` attribute that allow the form to identify it as a product.
 
@@ -128,7 +128,7 @@ You can use custom elements, but `foxy-order-form` will not find them if they ar
   </Story>
 </Preview>
 
-You can enrich your form by adding your own markup. 
+You can enrich your form by adding your own markup.
 Provided your products are not inside a Shadow DOM, they will be recognized.
 
 <Preview>
@@ -198,64 +198,6 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
   </Story>
 </Preview>
 
-## Product slots
-
-The `<foxy-item></foxy-item>` custom element has a `description` slot and a default slot.
-
-The `description` slot is used to add a rich description to your product.
-
-The unnamed ― default ― slot is used to add child products.
-You can also add any custom markup to it that may be needed to better organize your child products.
-
-<Preview>
-  <Story name="Product slots">
-    {html`
-    <foxy-order-form currency="usd">
-      <style>
-      .dietary-food {
-        font-weight: 100;
-        border: solid thin silver;
-        border-radius: 6px;
-        padding: 1em;
-        columns: 2;
-        margin-bottom: 1em;
-        background: #fafafa;
-      }
-      .dietary-food img {
-        height: 4em
-      }
-      table {
-        margin: 1em;
-      }
-      table td {
-        border: solid thin silver;
-        border-collapse: collapse;
-        padding: 0.5em;
-      }
-      </style>
-      <h2>diet food</h2>
-        <foxy-item name="Health package"
-                   description="The world class nutrition pack for your pet. This nutrition pack provides your pet with the world's best nutrition, combined with the perfect food to recover after intense competitions."
-                   price="0" >
-          <section class="dietary-food" >
-            <foxy-item name="A1 Health" price="89.99"
-              image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-              description="Scientific food, perfect nutrition"
-              >
-            </foxy-item>
-            <foxy-item name="A1 Restore" price="99.99"
-              image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-              description="Sport food to high intensity athletes"
-              >
-            </foxy-item>
-          </section>
-        </foxy-item>
-      </section>
-    </foxy-order-form>
-    `}
-  </Story>
-</Preview>
-
 
 ### Setting up subscriptions
 
@@ -268,39 +210,27 @@ You can configure subscriptions using the subscription product options, as outli
     {html`
     <foxy-order-form currency="usd"
                      frequencyOptions='["1d", "1w", ".5m", "1m"]'>
-      <foxy-item
-        name="Pup Dog Food"
-        price="69.99"
-        image="https://www.foxy.io/merchants/shopping-cart-full.svg"
-        >
+      <foxy-item name="Pup Dog Food"
+                 price="69.99"
+                 image="https://www.foxy.io/merchants/shopping-cart-full.svg" >
       </foxy-item>
     </foxy-order-form>
     `}
   </Story>
 </Preview>
 
-### Grouping products using markup
-
-You don't need to do any extra work to allow for a multi-product checkout.
-
-The `<foxy-item>` component will automatically add ids to the relevant inputs in order to allow for multiple products in a single checkout.
-
-You can still use your own ids. `<foxy-item>` will use incremental ids, greater than the last one used.
-Please note that there cannot be two `<foxy-item>` in the same page with the same `id`.
-
 ## Using an array of products
 
-You may use an array of product objects to feed the form.
-In this scenario you loose some for the product tags will be created for you one next to the other.
-You can still customize their look and feel, but you won't be able to build your markup as you wish.
+You may use an array of product objects to feed data to the form.
+
+In this scenario you loose some flexibility for the product tags will be created for you one next to the other.
 
 <Preview>
   <Story name="Using an Array of products">
     {html`
     <foxy-order-form
-		  frequencyOptions='["1d", "1w", ".5m", "1m"]'
-	    products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
       currency="usd"
+      products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
       >
     </foxy-order-form>
     `}
@@ -314,16 +244,16 @@ Child products allow you to bundle a set of products together. You can achieve t
 <Preview>
   <Story name="Child Products">
     {html`
-	<foxy-order-form
+  <foxy-order-form
       currency="usd"
   >
-	      <h2>diet food</h2>
-	      <section class="dietary-food" >
+        <h2>diet food</h2>
+        <section >
           <foxy-item name="Food Pack" price="0.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg">
             <foxy-item name="pup dog rich food" price="69.99" image="https://www.foxy.io/merchants/shopping-cart-full.svg" > </foxy-item>
             <foxy-item name="pup dog rich food" price="69.99" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
           </foxy-item>
-	      </section>
+        </section>
     </foxy-order-form>
     `}
   </Story>
@@ -339,25 +269,25 @@ You can also use the `children` field of a product in the product array to add c
     <foxy-order-form
       store="jamstackecommerceexample"
       currency="usd"
-	    products='[
-		    {
-			    "name":"Cub Puppy",
-			    "price":"75.95"
-			    },
-		    {
-			    "name":"Bird Dog",
-			    "price":"64.95",
-			    "children":[
-				    {
-					    "name":"Tiny food",
-					    "price":"10.00"
-				    },
-				    {
-					    "name":"Not so tiny food",
-					    "price":"8.00"
-				    }
-			    ]
-		    }]'>
+      products='[
+        {
+          "name":"Artists Drawing Set",
+          "price":"75.95",
+          "children":[
+            {
+              "name":"Nanking Pencil",
+              "price":"0"
+            },
+            {
+              "name":"Blank Canvas",
+              "price":"0"
+            },
+            {
+              "name":"Water based paint",
+              "price":"0"
+            }
+          ]}
+        ]'>
     </foxy-order-form>
     `}
   </Story>
