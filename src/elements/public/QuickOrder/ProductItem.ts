@@ -78,7 +78,7 @@ export class ProductItem extends Translatable {
 
   public constructor() {
     super('quick-order');
-    this.setAttribute('data-product', 'true');
+    this.setAttribute('product', 'true');
     this.__setId();
     this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
     this.__childProductsObserver.observe(this, {
@@ -199,10 +199,10 @@ export class ProductItem extends Translatable {
   @property({ type: String })
   signature?: string;
 
-  @property({ type: Boolean, reflect: true, attribute: 'data-product' })
+  @property({ type: Boolean, reflect: true, attribute: 'product' })
   isProduct = true;
 
-  @property({ type: Boolean, reflect: true, attribute: 'data-child-product' })
+  @property({ type: Boolean, reflect: true, attribute: 'combined' })
   isChildProduct = false;
 
   @property({ type: Array })
@@ -333,7 +333,7 @@ export class ProductItem extends Translatable {
    */
   private __setParentCode(): void {
     const productParent = this.parentElement;
-    if (productParent?.hasAttribute('data-product')) {
+    if (productParent?.hasAttribute('product')) {
       this.parent_code = (productParent as ProductItem).code;
     }
   }
@@ -389,7 +389,7 @@ export class ProductItem extends Translatable {
    */
   private __computeTotalPrice(): number {
     // Get all child products
-    const myChildProducts = this.querySelectorAll('[data-child-product]');
+    const myChildProducts = this.querySelectorAll('[combined]');
     let myPrice = 0;
     myChildProducts.forEach(e => {
       const p = e as ProductItem;
@@ -480,11 +480,9 @@ export class ProductItem extends Translatable {
 
   private __acknowledgeChildProducts() {
     this.shadowRoot
-      ?.querySelectorAll('[data-product]')
+      ?.querySelectorAll('product')
       .forEach(e => this.__acknowledgeProduct(e as ProductItem));
-    this.querySelectorAll('[data-product]').forEach(e =>
-      this.__acknowledgeProduct(e as ProductItem)
-    );
+    this.querySelectorAll('product').forEach(e => this.__acknowledgeProduct(e as ProductItem));
   }
 
   private __acknowledgeProduct(e: ProductItem): void {

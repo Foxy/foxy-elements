@@ -130,7 +130,7 @@ export class QuickOrder extends Translatable {
    * An array with both products created as elements and created parameter
    */
   private get __productElements(): NodeListOf<ProductItem> {
-    return this.querySelectorAll('[data-product]');
+    return this.querySelectorAll('product');
   }
 
   constructor() {
