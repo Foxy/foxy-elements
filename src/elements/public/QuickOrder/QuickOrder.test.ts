@@ -134,16 +134,6 @@ describe('The form should remain valid', async () => {
     logSpy.restore();
   });
 
-  it('Should print an error message if no store is provided', async () => {
-    const el = await fixture(html` <x-form currency="usd" store="test.foxycart.com"></x-form> `);
-    await elementUpdated(el);
-    expect(logSpy.callCount).to.equal(0);
-    fixtureCleanup();
-    await fixture(html`<x-form></x-form>`);
-    await elementUpdated(el);
-    expect(logSpy.callCount).to.equal(1);
-  });
-
   it('Should not send a new order with empty products', async () => {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
