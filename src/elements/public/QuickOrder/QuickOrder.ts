@@ -49,7 +49,6 @@ export class QuickOrder extends Translatable {
     return data;
   }
 
-  private __defaultStore = 'jamstackecommerceexample.foxycart.com';
   private __childProductsObserver?: MutationObserver;
 
   @property({ type: String })
@@ -59,7 +58,7 @@ export class QuickOrder extends Translatable {
   public total = 0;
 
   @property({ type: String, attribute: 'store' })
-  public store = this.__defaultStore;
+  public store?: string;
 
   /** Frequency related attributes */
   @property({ type: String })

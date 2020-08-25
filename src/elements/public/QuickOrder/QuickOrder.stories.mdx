@@ -131,7 +131,7 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
 <Preview>
   <Story name="Using your markup">
     {html`
-    <foxy-order-form currency="usd">
+    <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
       <style>
       .dietary-food {
         font-weight: 100;
@@ -205,7 +205,8 @@ You can configure subscriptions using the subscription product options, as outli
 <Preview>
   <Story name="Product with subscription" >
     {html`
-    <foxy-order-form currency="usd"
+    <foxy-order-form store="jamstackecommerceexample.foxycart.com"
+                     currency="usd"
                      frequencyOptions='["1d", "1w", ".5m", "1m"]'>
       <foxy-item name="Pup Dog Food"
                  price="69.99"
@@ -225,7 +226,7 @@ In this scenario you loose some flexibility for the product tags will be created
 <Preview>
   <Story name="Using an Array of products">
     {html`
-    <foxy-order-form
+    <foxy-order-form store="jamstackecommerceexample.foxycart.com"
       currency="usd"
       products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
       >
