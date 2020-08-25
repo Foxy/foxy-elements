@@ -195,6 +195,16 @@ const sizeMap = {
   xl: cssVar('size-xl', '3.5rem'),
 };
 
+const flexMap = {
+  '1': '1 1 0%',
+  auto: '1 1 auto',
+  initial: '0 1 auto',
+  inherit: 'inherit',
+  none: 'none',
+  third: '1 1 calc( 100% / 3 )',
+  '2': '2 2 0%',
+}
+
 // eslint-disable-next-line no-undef
 module.exports = {
   purge: {
@@ -210,6 +220,7 @@ module.exports = {
     fontFamily: fontFamilyMap,
     fontSize: fontSizeMap,
     lineHeight: lineHeightMap,
+    flex: flexMap,
     extend: {
       height: sizeMap,
       width: sizeMap,
