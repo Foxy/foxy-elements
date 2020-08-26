@@ -245,15 +245,7 @@ export class Donation extends Translatable {
     `;
   }
 
-  public updated(changedProperties: Map<keyof Donation, unknown>): void {
-    if (changedProperties.has('designations')) {
-      this.designation = this.designation ?? this.designations?.[0] ?? null;
-    }
-
-    if (changedProperties.has('frequencies')) {
-      this.frequency = this.frequency ?? this.frequencies?.[0] ?? null;
-    }
-
+  public updated(): void {
     this.dispatchEvent(new DonationChangeEvent(this.__data));
   }
 
