@@ -250,6 +250,9 @@ export class ProductItem extends Translatable implements Product {
   };
 
   public render(): TemplateResult {
+    if (!this.__isValid()) {
+      return html``;
+    }
     return html`
       <article
         class="product flex flex-row flex-wrap justify-between ${this.quantity ? '' : 'removed'} ${
