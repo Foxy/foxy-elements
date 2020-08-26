@@ -1,5 +1,5 @@
 import { Translatable } from '../../../../mixins/translatable';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, TemplateResult, internalProperty, property } from 'lit-element';
 import { I18N } from '../../../private/index';
 
 /**
@@ -19,26 +19,30 @@ export class Price extends Translatable {
   }
 
   /** The price of a single unity */
-  @property({ type: Number })
-  public price?: number;
+  @property({ attribute: false })
+  public price: number | null = null;
 
-  @property({ type: Array })
-  public prices: number[] = [];
+  @property({ attribute: false })
+  public prices: number[] | null = null;
 
-  @property({ type: String, reflect: true })
-  public currency?: string;
+  @property({ attribute: false })
+  public currency: string | null = null;
 
-  @property({ type: Number })
-  public quantity?: number;
+  @property({ attribute: false })
+  public quantity: number | null = null;
 
   private get __totalParts(): number {
-    return this.prices.reduce((a, b) => a + b);
+    if (this.prices) {
+      return this.prices.reduce((a, b) => a + b, 0);
+    } else {
+      return 0;
+    }
   }
 
-  /** The resulting total price */
+  @internalProperty()
   public get total(): number {
-    if (this.price && this.quantity) {
-      return this.quantity * (this.price + this.__totalParts);
+    if (this.quantity) {
+      return this.quantity * ((this.price ? this.price : 0) + this.__totalParts);
     } else {
       return 0;
     }
@@ -48,46 +52,56 @@ export class Price extends Translatable {
     super('quick-order');
   }
 
-  public updated(changed: unknown): void {
-    this.dispatchEvent(new CustomEvent('change', { detail: this.total }));
-  }
-
   public render(): TemplateResult {
-    if (this.quantity === undefined || this.price === undefined) {
+    if (
+      this.quantity === null ||
+      this.price === null ||
+      this.prices === null ||
+      this.currency === null
+    ) {
       return html``;
     }
     return html`
-      <div class="price text-right text-primary p-s">
-        <span
-          class="price each ${this.quantity == 0 ? 'text-shade-50' : ''} ${this.quantity == 1
-            ? 'font-bold'
-            : ''} "
-        >
-          ${this.prices.length > 0
-            ? html` ${this.price
-                ? html`(${this.__translateAmount(this.price)} +
-                  ${this.__translateAmount(this.__totalParts)})`
-                : this.__translateAmount(this.__totalParts)}`
-            : this.__translateAmount(this.price)}
-        </span>
-        ${this.price != this.total && this.total
+      <div class="price text-right p-s ${this.quantity == 0 ? 'text-shade-50' : 'text-primary '}">
+        ${this.__pricesLen() > 0
+          ? html` <span class="price parts">
+              ${this.__pricesLen() > 3
+                ? this.__translateAmount(this.__totalParts)
+                : this.prices.map(this.__translateAmount.bind(this)).join(' + ')}
+              ${this.price !== 0 ? ' + ' : ''}
+            </span>`
+          : ''}
+        ${this.price && (this.__pricesLen() > 0 || this.quantity > 1)
+          ? html` <span class="price each">
+              ${this.__translateAmount(this.price)}
+            </span>`
+          : ''}
+        ${this.quantity > 1
           ? html`
               <span class="quantity times text-shade-50 m-xs text-xs">
                 &times;${this.quantity}
               </span>
-              <span class="price total ${this.quantity > 1 ? 'font-bold' : ''}">
-                ${this.__translateAmount(this.total)}
-              </span>
             `
           : ''}
+        <span class="price total font-bold">
+          ${this.__translateAmount(this.total)}
+        </span>
       </div>
     `;
+  }
+
+  private __pricesLen(): number {
+    if (this.prices) {
+      return this.prices.length;
+    } else {
+      return 0;
+    }
   }
 
   private __translateAmount(amount: number) {
     if (this.currency) {
       return amount.toLocaleString(this.lang, {
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 2,
         currency: this.currency!,
         style: 'currency',
       });
