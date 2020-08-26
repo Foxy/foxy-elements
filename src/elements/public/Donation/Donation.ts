@@ -27,20 +27,25 @@ export class Donation extends Translatable {
   private get __data() {
     const data = new FormData();
 
-    data.set('name', this.name!);
-    data.set('price', `${this.amount!.toFixed(2)}${this.currency}`);
-    data.set('quantity', '1');
-
-    if (this.designation && this.designation.length > 0) {
+    if (typeof this.designation === 'string') {
+      data.set('designation', this.designation);
+    } else if (Array.isArray(this.designation)) {
       data.set('designation', JSON.stringify(this.designation));
     }
 
-    if (this.anonymity) data.set('anonymous', this.anonymous.toString());
-    if (this.frequency) data.set('sub_frequency', this.frequency);
-    if (this.comment) data.set('comment', this.comment);
-    if (this.image) data.set('image', this.image);
-    if (this.code) data.set('code', this.code);
-    if (this.url) data.set('url', this.url);
+    if (typeof this.amount === 'number' && typeof this.currency === 'string') {
+      data.set('price', `${this.amount.toFixed(2)}${this.currency}`);
+    }
+
+    if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
+    if (typeof this.comment === 'string') data.set('comment', this.comment);
+    if (typeof this.image === 'string') data.set('image', this.image);
+    if (typeof this.code === 'string') data.set('code', this.code);
+    if (typeof this.name === 'string') data.set('name', this.name);
+    if (typeof this.url === 'string') data.set('url', this.url);
+
+    data.set('anonymous', this.anonymous.toString());
+    data.set('quantity', '1');
 
     return data;
   }
