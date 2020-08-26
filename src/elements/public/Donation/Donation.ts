@@ -129,8 +129,6 @@ export class Donation extends Translatable {
         )}
       </form>
 
-      <slot name="before" class="block mb-m"></slot>
-
       <section>
         ${this.amounts && this.amounts.length > 0
           ? html`

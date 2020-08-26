@@ -333,7 +333,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
 
 ## Add your own markup
 
-You can insert your own content in a number of pre-defined places called slots. This element has 5 of them: `before`, `amount`, `designation`, `comment` and `after` and you can assign any element node to any of them by setting an attribute on it like so: `slot="comment"`. Please note that only `before` and `after` content will be always visible and all other content will be displayed only if the relevant group is present on the screen. You can see the position of each one of them below:
+You can insert your own content in a number of pre-defined places called slots. This element has 3 of them: `amount`, `designation` and `comment`, and you can assign any element node to any of them by setting an attribute on it like so: `slot="comment"`. Please note that your content will be displayed only if the relevant group is present on the screen. You can see the position of each one of them below:
 
 <Preview>
   <Story name="Slots">
@@ -356,11 +356,9 @@ You can insert your own content in a number of pre-defined places called slots. 
           image="https://picsum.photos/320"
           url="https://foxy.io"
         >
-          <code class="slot-content" slot="before">before</code>
           <code class="slot-content" slot="amount">amount</code>
           <code class="slot-content" slot="designation">designation</code>
           <code class="slot-content" slot="comment">comment</code>
-          <code class="slot-content" slot="after">after</code>
         </foxy-donation>
       </div>
     `}
