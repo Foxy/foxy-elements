@@ -428,7 +428,7 @@ export class QuickOrder extends Translatable {
 
   /** Checks if product has quantity and price */
   private __validProduct(p: Product): boolean {
-    return !!(p.quantity && p.quantity > 0 && (p.price || p.price === 0));
+    return !!(p && p.quantity && p.quantity > 0 && (p.price || p.price === 0));
   }
 
   private __translateAmount(amount: number) {
