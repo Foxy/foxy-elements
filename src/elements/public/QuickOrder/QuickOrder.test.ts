@@ -1,4 +1,4 @@
-import { fixture, expect, html, elementUpdated, nextFrame } from '@open-wc/testing';
+import { fixture, expect, html, elementUpdated, nextFrame, oneEvent } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
 import { Product } from './types';
@@ -14,8 +14,9 @@ class TestQuickOrder extends QuickOrder {
     const mockProdEl = document.createElement('div');
     mockProdEl.setAttribute('name', p.name!);
     mockProdEl.setAttribute('price', p.price!.toString());
-    mockProdEl.setAttribute('value', JSON.stringify(p));
     mockProdEl.setAttribute('product', 'true');
+    (mockProdEl as any).value = p;
+    (mockProduct as any).total = p.total;
     return mockProdEl;
   }
 }
@@ -43,31 +44,21 @@ describe('The form should allow new products to be added', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    logSpy.restore();
     const products = el.querySelectorAll('[product]');
     expect(products).to.have.lengthOf(2);
   });
 
   it('Should recognize new products added as product item tags', async () => {
-    const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="10.00" product="true"></x-item>
-        <x-item name="p2" price="10.00" product="true"></x-item>
-        <x-item name="p3" price="10.00" product="true"></x-item>
-      </x-form>
-    `);
-    const p1 = (el as TestQuickOrder).createProduct({ name: 'p1', price: 10 });
+    const el = await fixture(html` <x-form currency="usd" store="test.foxycart.com"> </x-form> `);
+    const p1 = (el as TestQuickOrder).createProduct({ name: 'p4', price: 10, total: 10 });
     el.appendChild(p1);
-    const p2 = (el as TestQuickOrder).createProduct({ name: 'p2', price: 10 });
+    const p2 = (el as TestQuickOrder).createProduct({ name: 'p5', price: 10, total: 10 });
     el.appendChild(p2);
-    const p3 = (el as TestQuickOrder).createProduct({ name: 'p3', price: 10 });
+    const p3 = (el as TestQuickOrder).createProduct({ name: 'p6', price: 10, total: 10 });
     el.appendChild(p3);
     await elementUpdated(el);
-    const products = el.querySelectorAll('[product]');
-    expect(products).to.have.lengthOf(3);
     // Products will be found in the DOM even if not recognized by QuickOrder
     // So we check if the price was properly updated
-    await nextFrame();
     expect((el as QuickOrder).total).to.equal(30);
   });
 
@@ -182,17 +173,20 @@ describe('The form should remain valid', async () => {
       interface FakeRequest extends sinon.SinonFakeXMLHttpRequest, withSend {}
       const r: FakeRequest = requests[0];
       const fd: FormData = r.send!.args[0][0];
-      expect(valuesFromField(fd, 'price').every(v => Number(v) >= 0)).to.be.true;
-      expect(logSpy.callCount).to.equal(2);
+      expect(fd).to.exist;
+      if (fd) {
+        expect(valuesFromField(fd, 'price').every(v => Number(v) >= 0)).to.be.true;
+        expect(logSpy.callCount).to.equal(2);
+      }
     }
   });
 
   it('Should validate frequency format', async () => {
     let el = await fixture(html`
       <x-form
-        currency="usd"
         store="test.foxycart.com"
-        frequencyOptions='["5d", "10d", "15d", "1m", "1y", ".5m"]'
+        currency="usd"
+        frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]'
       >
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
@@ -200,7 +194,7 @@ describe('The form should remain valid', async () => {
     await elementUpdated(el);
     expect(logSpy.calledWith('Invalid frequency')).to.be.false;
     el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com" frequencyOptions='["5", "10d"]'>
+      <x-form currency="usd" store="test.foxycart.com" frequencies='["5", "10d"]'>
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
     `);
@@ -224,7 +218,7 @@ describe('The form should remain valid', async () => {
             currency="usd"
             store="test.foxycart.com"
             sub_startdate="${dateString}"
-            frequencyOptions='["5d", "10d"]'
+            frequencies='["5d", "10d"]'
           >
             <x-item name="p3" price="10.00" quantity="3"></x-item>
           </x-form>
@@ -256,7 +250,7 @@ describe('The form should remain valid', async () => {
             currency="usd"
             store="test.foxycart.com"
             sub_enddate="${dateString}"
-            frequencyOptions='["5d", "10d"]'
+            frequencies='["5d", "10d"]'
           >
             <x-item name="p3" price="10.00"></x-item>
           </x-form>

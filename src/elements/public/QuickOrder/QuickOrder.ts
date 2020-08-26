@@ -120,7 +120,7 @@ export class QuickOrder extends Translatable {
       return freqArray.map(e => QuickOrder.__friendlyFreq(e));
     },
   })
-  public frequencyOptions: FrequencyOption[] = [];
+  public frequencies: FrequencyOption[] = [];
 
   @property({ type: Array })
   products: Product[] = [];
@@ -154,22 +154,26 @@ export class QuickOrder extends Translatable {
     return html`
       <x-page>
         <form>
-          <section class="products">
+          <section class="products p-s border-primary-10 border rounded-s ">
             <slot></slot>
           </section>
-          ${this.frequencyOptions.length
-            ? html` <x-section class="subscription">
-                <x-dropdown
-                  data-testid="units"
-                  @change=${this.__handleFrequency}
-                  .items=${this.frequencyOptions.map(e => `${e.number} ${e.period}`)}
-                >
-                </x-dropdown>
-              </x-section>`
-            : ''}
         </form>
         <x-section class="actions w-full sm:w-auto">
-          <div class="flex -m-s">
+          <div class="flex justify-end">
+            ${this.frequencies.length
+              ? html` <div class="subscription flex-1 p-s flex-grow sm:flex-grow-0">
+                  <x-dropdown
+                    .items=${this.frequencies
+                      .map(e => `${e.number} ${e.period}`)
+                      .concat(['Just this once'])}
+                    value="[Just this once]"
+                    @change=${this.__handleFrequency}
+                    type="text"
+                    lang=${this.lang}
+                  >
+                  </x-dropdown>
+                </div>`
+              : ''}
             <div class="flex-1 p-s flex-grow sm:flex-grow-0">
               <vaadin-button class="w-full" type="submit" role="submit" @click=${this.handleSubmit}>
                 <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
@@ -213,6 +217,8 @@ export class QuickOrder extends Translatable {
         .replace(/^0/, '');
       if (QuickOrder.__validFrequency(newfrequency)) {
         this.sub_frequency = newfrequency;
+      } else {
+        this.sub_frequency = '';
       }
     },
   };
