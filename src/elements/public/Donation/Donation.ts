@@ -80,10 +80,10 @@ export class Donation extends Translatable {
   @property({ type: String })
   public comment: null | string = null;
 
-  @property({ type: Boolean })
+  @property({ reflect: true, type: Boolean })
   public anonymity = false;
 
-  @property({ type: Boolean })
+  @property({ reflect: true, type: Boolean })
   public anonymous = false;
 
   @property({ type: String })
