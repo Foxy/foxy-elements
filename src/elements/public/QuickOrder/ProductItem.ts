@@ -1,5 +1,6 @@
 import { Translatable } from '../../../mixins/translatable';
 import { Product } from './types';
+import { Price } from './private/index';
 import { html, property, internalProperty, TemplateResult } from 'lit-element';
 import { Checkbox, Section, Group, I18N } from '../../private/index';
 
@@ -31,6 +32,7 @@ export class ProductItem extends Translatable implements Product {
       'x-group': Group,
       'x-number-field': customElements.get('vaadin-number-field'),
       'x-i18n': I18N,
+      'x-price': Price,
     };
   }
 
@@ -145,7 +147,7 @@ export class ProductItem extends Translatable implements Product {
   public name?: string;
 
   @property({ type: Number })
-  public price = 0;
+  public price?: number;
 
   @property({ type: String })
   public image?: string;
@@ -213,6 +215,19 @@ export class ProductItem extends Translatable implements Product {
   @property({ type: Number, reflect: true })
   public pid: number = ProductItem.__newId();
 
+  @internalProperty()
+  private get __childPrices(): number[] {
+    const childPrices: number[] = [];
+    const myChildProducts = this.querySelectorAll('[combined]');
+    myChildProducts.forEach(e => {
+      const p = e as ProductItem;
+      if (p.total) {
+        childPrices.push(p.total);
+      }
+    });
+    return childPrices;
+  }
+
   public updated(changed: unknown): void {
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
@@ -237,9 +252,9 @@ export class ProductItem extends Translatable implements Product {
   public render(): TemplateResult {
     return html`
       <article
-        class="product flex flex-row flex-wrap justify-between ${this.quantity
-          ? ''
-          : 'removed'} ${this.__modified ? 'modified' : ''}"
+        class="product flex flex-row flex-wrap justify-between ${this.quantity ? '' : 'removed'} ${
+      this.__modified ? 'modified' : ''
+    }"
       >
         <img
           class="max-w-xs min-w-1 block w-full sm:w-auto flex-grow"
@@ -254,47 +269,31 @@ export class ProductItem extends Translatable implements Product {
         </section>
         <section class="item-info p-s min-w-2 w-full sm:w-auto flex-grow">
           <div class="price text-right text-primary p-s">
-            ${this.price
-              ? html`
-                  <span
-                    class="price each ${this.quantity == 0 ? 'text-shade-50' : ''} ${this
-                      .quantity == 1
-                      ? 'font-bold'
-                      : ''} "
+            <x-price .price=${this.price}
+                     .prices=${this.__childPrices}
+                     .currency=${this.currency}
+                     .quantity=${this.quantity}>
+            </x-price>
+          ${
+            this.isChildProduct
+              ? ''
+              : html` <div class="quantity p-s min-w-3 w-full md:w-auto">
+                  <x-number-field
+                    class="w-full"
+                    name="quantity"
+                    @change=${this.handleQuantity}
+                    value="${this.quantity}"
+                    min="0"
+                    has-controls
+                  ></x-number-field>
+                  <x-checkbox
+                    name="remove"
+                    @change=${this.handleExclude}
+                    .checked=${this.quantity ? false : true}
+                    >${this.__vocabulary.remove}</x-checkbox
                   >
-                    ${this.__translateAmount(this.price)}
-                  </span>
-                `
-              : ''}
-            ${this.price != this.total && this.total
-              ? html`
-                  <span class="quantity times text-shade-50 m-xs text-xs">
-                    &times;${this.quantity}
-                  </span>
-                  <span class="price total ${this.quantity > 1 ? 'font-bold' : ''}">
-                    ${this.__translateAmount(this.total)}
-                  </span>
-                `
-              : ''}
-          </div>
-          ${this.isChildProduct
-            ? ''
-            : html` <div class="quantity p-s min-w-3 w-full md:w-auto">
-                <x-number-field
-                  class="w-full"
-                  name="quantity"
-                  @change=${this.handleQuantity}
-                  value="${this.quantity}"
-                  min="0"
-                  has-controls
-                ></x-number-field>
-                <x-checkbox
-                  name="remove"
-                  @change=${this.handleExclude}
-                  .checked=${this.quantity ? false : true}
-                  >${this.__vocabulary.remove}</x-checkbox
-                >
-              </div>`}
+                </div>`
+          }
         </section>
         <section class="child-products w-full p-s">
           <slot></slot>
@@ -353,7 +352,7 @@ export class ProductItem extends Translatable implements Product {
       const p = e as ProductItem;
       p.total && (myPrice += p.total);
     });
-    myPrice += this.price;
+    myPrice += this.price!;
     myPrice *= this.quantity;
     return myPrice;
   }
