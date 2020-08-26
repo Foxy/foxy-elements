@@ -106,16 +106,24 @@ export class Donation extends Translatable {
   }
 
   public submit(): void {
+    /* istanbul ignore if  */
     if (this.dispatchEvent(new DonationSubmitEvent())) this.__form.submit();
   }
 
   public render(): TemplateResult {
     if (!this.currency || !this.amount || !this.store || !this.name) {
-      return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
+      return html`
+        <x-error-screen data-testid="error" type="setup_needed" class="relative"></x-error-screen>
+      `;
     }
 
     return html`
-      <form class="sr-only" method="POST" action="https://${this.store}.foxycart.com/cart">
+      <form
+        class="sr-only"
+        method="POST"
+        action="https://${this.store}.foxycart.com/cart"
+        data-testid="form"
+      >
         ${[...this.__data.entries()].map(
           ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
         )}
@@ -132,14 +140,15 @@ export class Donation extends Translatable {
                   ?custom=${!!this.custom?.includes('amount')}
                   .getText=${(v: string) => this.__translateAmount(parseInt(v, 10))}
                   .items=${this.amounts.map(String)}
-                  value=${this.amount.toString()}
+                  .value=${this.amount.toString()}
                   type="integer"
                   lang=${this.lang}
                   min="1"
                   ns=${this.ns}
+                  data-testid="amount"
                   @change=${(evt: ChoiceChangeEvent) => {
                     const value = parseInt(evt.detail as string);
-                    this.amount = isNaN(value) ? 1 : value;
+                    this.amount = isNaN(value) ? /* istanbul ignore next */ 1 : value;
                   }}
                 >
                 </x-choice>
@@ -162,6 +171,7 @@ export class Donation extends Translatable {
                   type="textarea"
                   lang=${this.lang}
                   ns=${this.ns}
+                  data-testid="designation"
                   @change=${(evt: ChoiceChangeEvent) => {
                     this.designation = evt.detail as string[];
                   }}
@@ -182,6 +192,7 @@ export class Donation extends Translatable {
                 value=${this.comment!}
                 label=${this._t('comment_label').toString()}
                 class="w-full"
+                data-testid="comment"
                 @input=${(evt: InputEvent) => {
                   evt.stopPropagation();
                   this.comment = (evt.target as HTMLTextAreaElement).value;
@@ -197,7 +208,12 @@ export class Donation extends Translatable {
       <section>
         <div class="flex -m-s">
           <div class="flex-1 p-s">
-            <vaadin-button class="w-full" theme="primary" @click=${() => this.submit()}>
+            <vaadin-button
+              class="w-full"
+              theme="primary"
+              data-testid="submit"
+              @click=${() => this.submit()}
+            >
               <x-i18n
                 .opts=${{
                   amount: this.__translateAmount(this.amount),
@@ -218,6 +234,7 @@ export class Donation extends Translatable {
                     .value=${this.frequency}
                     .items=${this.frequencies}
                     .getText=${this.__translateFrequency.bind(this)}
+                    data-testid="frequency"
                     @change=${(evt: DropdownChangeEvent) => {
                       this.frequency = evt.detail as string;
                     }}
@@ -232,6 +249,7 @@ export class Donation extends Translatable {
           ? html`
               <x-checkbox
                 class="mt-m"
+                data-testid="anonymity"
                 ?checked=${this.anonymous}
                 @change=${(evt: CheckboxChangeEvent) => (this.anonymous = evt.detail)}
               >
