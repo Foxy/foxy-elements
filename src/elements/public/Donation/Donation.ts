@@ -206,6 +206,19 @@ export class Donation extends Translatable {
       </section>
 
       <section>
+        ${this.anonymity
+          ? html`
+              <x-checkbox
+                class="my-m"
+                data-testid="anonymity"
+                ?checked=${this.anonymous}
+                @change=${(evt: CheckboxChangeEvent) => (this.anonymous = evt.detail)}
+              >
+                ${this._t('anonymous')}
+              </x-checkbox>
+            `
+          : ''}
+
         <div class="flex -m-s">
           <div class="flex-1 p-s">
             <vaadin-button
@@ -244,22 +257,7 @@ export class Donation extends Translatable {
               `
             : ''}
         </div>
-
-        ${this.anonymity
-          ? html`
-              <x-checkbox
-                class="mt-m"
-                data-testid="anonymity"
-                ?checked=${this.anonymous}
-                @change=${(evt: CheckboxChangeEvent) => (this.anonymous = evt.detail)}
-              >
-                ${this._t('anonymous')}
-              </x-checkbox>
-            `
-          : ''}
       </section>
-
-      <slot name="after" class="block mt-m"></slot>
     `;
   }
 
