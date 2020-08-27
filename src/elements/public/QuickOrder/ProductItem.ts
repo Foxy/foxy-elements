@@ -75,9 +75,6 @@ export class ProductItem extends Translatable implements Product {
 
   public constructor() {
     super('quick-order');
-    if (!this.getAttribute('combined')) {
-      this.setAttribute('product', 'true');
-    }
     this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
     this.__childProductsObserver.observe(this, {
       childList: true,
@@ -85,6 +82,9 @@ export class ProductItem extends Translatable implements Product {
       subtree: true,
     });
     this.updateComplete.then(() => {
+      if (!this.getAttribute('combined')) {
+        this.setAttribute('product', 'true');
+      }
       this.__setCode();
       this.__setParentCode();
       this.__createChildren();
