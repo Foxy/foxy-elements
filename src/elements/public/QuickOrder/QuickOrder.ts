@@ -213,7 +213,7 @@ export class QuickOrder extends Translatable {
   }
 
   public updated(changedProperties: Map<string, any>): void {
-    if (changedProperties.has('products')) {
+    if (changedProperties.get('products') != undefined) {
       this.__removeProductsFromProductArray();
       this.__createProductsFromProductArray();
     }

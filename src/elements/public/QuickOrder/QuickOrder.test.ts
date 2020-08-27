@@ -94,6 +94,7 @@ describe('The form should allow new products to be added', async () => {
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(40);
     const lateProduct = new MockProduct();
+    lateProduct.total = 20;
     el.appendChild(lateProduct);
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(60);
