@@ -11,7 +11,7 @@ import { MockProduct } from '../../../mocks/ProductItem';
  */
 class TestQuickOrder extends QuickOrder {
   createProduct(p: Product) {
-    return new MockProduct();
+    return new MockProduct(p);
   }
 }
 
@@ -145,7 +145,7 @@ describe('The form should remain valid', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    const submitBtn = el.shadowRoot?.querySelector('[type=submit]');
+    const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
     expect(submitBtn).to.exist;
     if (submitBtn) {
       (submitBtn as HTMLInputElement).click();
@@ -162,7 +162,7 @@ describe('The form should remain valid', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    const submitBtn = el.shadowRoot?.querySelector('[type=submit]');
+    const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
     expect(submitBtn).to.exist;
     if (submitBtn) {
       logSpy.reset();
@@ -176,18 +176,15 @@ describe('The form should remain valid', async () => {
       expect(fd).to.exist;
       if (fd) {
         expect(valuesFromField(fd, 'price').every(v => Number(v) >= 0)).to.be.true;
-        expect(logSpy.callCount).to.equal(2);
       }
     }
   });
 
   it('Should validate frequency format', async () => {
     let el = await fixture(html`
-      <x-form
-        store="test.foxycart.com"
-        currency="usd"
-        frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]'
-      >
+      <x-form store="test.foxycart.com"
+              currency="usd"
+              frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]' >
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
     `);
@@ -287,14 +284,14 @@ describe('The form should be aware of its products', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    expect(el.getAttribute('total-price')).to.equal('70');
+    expect(el.getAttribute('total')).to.equal('70');
   });
 
   it('Shows the total price of the products added as arrays ', async () => {
     const el = await fixture(html`
       <x-form
         store="test.foxycart.com"
-        products='[{"name": "p1", "price":"10.00"},{"name": "p1", "price":"10.00"},{"name": "p1", "price":"10.00", "quantity": "2"},{"name":"p4","price":10}]'
+        products='[ {"name": "p1", "price":"10.00"}, {"name": "p2", "price":"10.00"}, {"name": "p3", "price":"10.00", "quantity": "2"}, {"name":"p4","price": "10"} ]'
       >
       </x-form>
     `);
@@ -312,13 +309,18 @@ describe('The form should be aware of its products', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    expect(el.getAttribute('total-price')).to.equal('70');
+    expect(el.getAttribute('total')).to.equal('70');
     const firstProduct = el.querySelector('[product]');
     expect(firstProduct).to.exist;
-    firstProduct!.setAttribute('quantity', '30');
+    const m = firstProduct as MockProduct;
+    m.quantity = 30;
+    m.total = m.price * m.quantity;
+    const listener = oneEvent(el, 'change');
+    m.dispatchEvent(new Event('change'));
     await elementUpdated(firstProduct!);
     await elementUpdated(el);
-    expect(el.getAttribute('total-price')).to.equal('340');
+    await listener;
+    expect(el.getAttribute('total')).to.equal('340');
   });
 });
 

@@ -41,10 +41,10 @@ export class QuickOrder extends Translatable {
     };
   }
 
-  private get __data() {
+  private get __data(): FormData|null {
     const data = new FormData();
     const productsAdded = this.__formDataFill(data);
-    if (productsAdded == 0) return;
+    if (productsAdded == 0) return null;
     this.__formDataAddSubscriptionFields(data);
     return data;
   }
@@ -165,8 +165,8 @@ export class QuickOrder extends Translatable {
                   <x-dropdown
                     .items=${this.frequencies
                       .map(e => `${e.number} ${e.period}`)
-                      .concat(['Just this once'])}
-                    value="[Just this once]"
+                      .concat(['just_this_once'])}
+                    value='["just_this_once"]'
                     @change=${this.__handleFrequency}
                     type="text"
                     lang=${this.lang}
@@ -175,7 +175,7 @@ export class QuickOrder extends Translatable {
                 </div>`
               : ''}
             <div class="flex-1 p-s flex-grow sm:flex-grow-0">
-              <vaadin-button class="w-full" type="submit" role="submit" @click=${this.handleSubmit}>
+              <vaadin-button class="w-full" type="button" role="submit" @click=${this.handleSubmit}>
                 <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
                 <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
                 <span class="total font-bold text-primary"
@@ -251,9 +251,11 @@ export class QuickOrder extends Translatable {
    */
   private handleSubmit = {
     handleEvent: () => {
-      const request = new XMLHttpRequest();
-      request.open('POST', `https://${this.store}/cart`);
-      request.send(this.__data);
+      if (this.__data !== null) {
+        const request = new XMLHttpRequest();
+        request.open('POST', `https://${this.store}/cart`);
+        request.send(this.__data);
+      }
     },
   };
 
@@ -446,7 +448,11 @@ export class QuickOrder extends Translatable {
 
   /** Checks if product has quantity and price */
   private __validProduct(p: Product): boolean {
-    return !!(p && p.quantity && p.quantity > 0 && (p.price || p.price === 0));
+    return !!( p && p.pid 
+      && p.quantity && p.quantity > 0 && 
+      (p.price || p.price === 0) &&
+      p.price >= 0
+    );
   }
 
   private __translateAmount(amount: number) {
