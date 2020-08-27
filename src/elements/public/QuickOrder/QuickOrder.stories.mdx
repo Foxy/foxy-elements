@@ -383,3 +383,46 @@ Check out the documentation for more details.
     `}
   </Story>
 </Preview>
+
+
+## Changing products list
+
+### With a new product list property
+
+You can set a new list of products by changing the `products` attribute of the `foxy-order-form`.
+Please, note that this is a destructive operation: all products will be removed an new products will be added.
+
+Also, note that only the products, not additional markup, will be removed.
+
+<Preview>
+  <Story name="Changing the products list">
+    {html`
+    <foxy-order-form id="to-change-product-list"
+      store="jamstackecommerceexample"
+      currency="usd"
+      products='[
+        {
+          "name":"Artists Drawing Set",
+          "price":"75.95",
+          "children":[
+            {
+              "name":"Nanking Pencil",
+              "price":"0"
+            },
+            {
+              "name":"Blank Canvas",
+              "price":"0"
+            },
+            {
+              "name":"Water based paint",
+              "price":"0"
+            }
+          ]}
+        ]'>
+    </foxy-order-form>
+    <button type="button" onclick="document.querySelector('#to-change-product-list').products = [{name:'Changed', price: 5}];"> Change me </button>
+    `}
+  </Story>
+</Preview>
+
+
