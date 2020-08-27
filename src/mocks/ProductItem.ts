@@ -8,16 +8,32 @@ export class MockProduct extends HTMLElement implements Product {
   public quantity = 1;
   public pid = 0;
 
-  constructor() {
+  constructor(p?: Product) {
     super();
-    this.pid = Math.random();
     this.setAttribute('product', 'true');
-    const attrPrice = this.getAttribute('price');
-    if (attrPrice !== null) {
-      this.price = Number(attrPrice);
-      this.total = this.price;
+    this.pid = Math.random();
+    if (p) {
+      if (p.name) this.name = p.name;
+      if (p.price) this.price = p.price!;
+      if (p.quantity) this.quantity = p.quantity!;
+    } else {
+      this.__fromAttr('name');
+      this.__fromAttr('price');
+      this.__fromAttr('quantity');
     }
-    const attrQty = this.getAttribute('quantity');
-    if (attrQty !== null) this.quantity = Number(attrQty);
+    this.total = this.price * this.quantity;
+  }
+
+  get value () {
+    return {
+      pid: this.pid,
+      price: this.price,
+      quantity: this.quantity
+    }
+  }
+
+  private __fromAttr(key: string) {
+    const value = this.getAttribute(key);
+    if (value !== null) this[key] = value;
   }
 }
