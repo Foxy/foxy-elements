@@ -395,8 +395,9 @@ Please, note that this is a destructive operation: all products will be removed 
 Also, note that only the products, not additional markup, will be removed.
 
 <Preview>
-  <Story name="Changing the products list">
+  <Story name="Change products list">
     {html`
+		<div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
     <foxy-order-form id="to-change-product-list"
       store="jamstackecommerceexample"
       currency="usd"
@@ -420,9 +421,80 @@ Also, note that only the products, not additional markup, will be removed.
           ]}
         ]'>
     </foxy-order-form>
-    <button type="button" onclick="document.querySelector('#to-change-product-list').products = [{name:'Changed', price: 5}];"> Change me </button>
+    <button type="button"
+            style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+            onclick="document.querySelector('#to-change-product-list').products = [{name:'Changed', price: 5}];">
+    	Replace the products
+    </button>
+    </div>
     `}
   </Story>
 </Preview>
 
+### By adding or removing tags
+
+You can add or remove product tags to the form to maintain the form.
+
+<Preview>
+  <Story name="Add a tag" >
+    {html`
+		<div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+    <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
+                     store="jamstackecommerceexample"
+                     currency="usd"
+                     sub_startdate="20200505"
+                     sub_enddate="20210505" >
+      <button type="button"
+              style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+              onclick="var a=document.createElement('foxy-item'); this.parentElement.appendChild(a); a.name = 'New product'; a.price = 3; a.quantity = 2;">
+        Add a new product
+      </button>
+      <foxy-item
+        name="Pup Dog Food"
+        price="69.99"
+        description="High quality nutritious food for you pet "
+        sub_frequency="1m"
+        >
+      </foxy-item>
+    </foxy-order-form>
+    </div>
+    `}
+  </Story>
+</Preview>
+
+
+### By adding an array of products
+
+
+<Preview>
+  <Story name="Add an array of products" >
+    {html`
+		<div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+    <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
+                     store="jamstackecommerceexample"
+                     currency="usd"
+                     sub_startdate="20200505"
+                     sub_enddate="20210505"
+                     >
+      <button type="button"
+              style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+              onclick="this.parentElement.addProducts([{name: 'new item', price: 4.2}])">
+        Add a new product
+      </button>
+      <foxy-item
+        name="Pup Dog Food"
+        price="69.99"
+        description="High quality nutritious food for you pet "
+        sub_frequency="1m"
+        >
+      </foxy-item>
+    </foxy-order-form>
+    </div>
+    `}
+  </Story>
+</Preview>
+
+
+
+### By removing a single product
 
