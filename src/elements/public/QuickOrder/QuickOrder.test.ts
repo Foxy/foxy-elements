@@ -182,9 +182,11 @@ describe('The form should remain valid', async () => {
 
   it('Should validate frequency format', async () => {
     let el = await fixture(html`
-      <x-form store="test.foxycart.com"
-              currency="usd"
-              frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]' >
+      <x-form
+        store="test.foxycart.com"
+        currency="usd"
+        frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]'
+      >
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
     `);
@@ -199,7 +201,6 @@ describe('The form should remain valid', async () => {
     expect(logSpy.calledWith('Invalid frequency')).to.be.true;
   });
 
-  // TODO: o erro está no uso de __validFrequency ao invés de ValidDate no QuickOrder
   it('Should validate initial date', async () => {
     const validDates = ['20201010', '20', '2', '1d', '12w', '2y', '10m'];
     const invalidDates = ['202010100', '80', '.5m', 'tomorrow', 'today', '-1'];
@@ -321,6 +322,72 @@ describe('The form should be aware of its products', async () => {
     await elementUpdated(el);
     await listener;
     expect(el.getAttribute('total')).to.equal('340');
+  });
+});
+
+describe('The form submits a valid POST to forxycart', async () => {
+  let xhr: sinon.SinonFakeXMLHttpRequestStatic;
+  let requests: sinon.SinonFakeXMLHttpRequest[];
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    xhr = sinon.useFakeXMLHttpRequest();
+    requests = [];
+    xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
+      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      requests.push(xhr);
+    };
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    xhr.restore();
+    logSpy.restore();
+  });
+
+  it('Prepends ids to the products', async () => {
+    expect(true).to.equal(false);
+  });
+
+  it('Concatenates signatures', async () => {
+    expect(true).to.equal(false);
+  });
+
+  it('Configure parent_code', async () => {
+    expect(true).to.equal(false);
+  });
+
+  it('Concatenates open to custom fields', async () => {
+    expect(true).to.equal(false);
+  });
+});
+
+describe('The form reveaws its state to the user', async () => {
+  let xhr: sinon.SinonFakeXMLHttpRequestStatic;
+  let requests: sinon.SinonFakeXMLHttpRequest[];
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    xhr = sinon.useFakeXMLHttpRequest();
+    requests = [];
+    xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
+      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      requests.push(xhr);
+    };
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    xhr.restore();
+    logSpy.restore();
+  });
+
+  it('Displays frequency information', async () => {
+    expect(true).to.equal(false);
+  });
+
+  it('Disables submit button when no product is valid', async () => {
+    expect(true).to.equal(false);
   });
 });
 
