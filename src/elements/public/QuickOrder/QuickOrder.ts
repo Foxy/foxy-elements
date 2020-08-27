@@ -189,16 +189,34 @@ export class QuickOrder extends Translatable {
     `;
   }
 
-  /** Create child ProductItems from products array
-   */
-  private __createProductsFromProductArray() {
-    for (const p of this.products) {
+  /** Add new products */
+  public addProducts(newProducts: Product[]) {
+    for (const p of newProducts) {
       const newProduct = this.createProduct(p);
       this.appendChild(newProduct);
     }
+    if (this.products != newProducts) {
+      this.products.concat(newProducts);
+    }
   }
 
-  public updated(): void {
+  /** Create child ProductItems from products array
+   */
+  private __createProductsFromProductArray() {
+    this.addProducts(this.products);
+  }
+
+  private __removeProductsFromProductArray() {
+    this.__productElements.forEach(p => {
+      p.parentElement!.removeChild(p);
+    });
+  }
+
+  public updated(changedProperties: Map<string, any>): void {
+    if (changedProperties.has('products')) {
+      this.__removeProductsFromProductArray();
+      this.__createProductsFromProductArray();
+    }
     this.dispatchEvent(new QuickOrderChangeEvent(this.__data!));
   }
 
