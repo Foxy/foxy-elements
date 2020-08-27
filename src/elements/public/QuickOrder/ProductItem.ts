@@ -420,7 +420,7 @@ export class ProductItem extends Translatable implements Product {
         });
       }
     });
-    this.__computeTotalPrice();
+    this.__setTotalPrice();
   }
 
   private __acknowledgeChildProducts() {
@@ -431,7 +431,7 @@ export class ProductItem extends Translatable implements Product {
   }
 
   private __acknowledgeProduct(e: ProductItem): void {
-    e.addEventListener('change', this.__computeTotalPrice.bind(this));
+    e.addEventListener('change', this.__setTotalPrice.bind(this));
     e.isProduct = false;
     e.isChildProduct = true;
   }
