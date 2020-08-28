@@ -365,7 +365,7 @@ describe('The form should add frequency fields', async () => {
     logSpy.restore();
   });
 
-  it('Should field to choose frequencies', async () => {
+  it('Should provide field to choose frequencies', async () => {
     expect(true).to.equal(false);
   });
 

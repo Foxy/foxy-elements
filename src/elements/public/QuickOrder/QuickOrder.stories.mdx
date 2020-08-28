@@ -243,7 +243,8 @@ In this scenario you loose some flexibility for the product tags will be created
 
 ## Adding Child products
 
-Child products allow you to bundle a set of products together. You can achieve this by nesting `foxy-item` custom tags, or using the `children` product of the product object within the JS array.
+Child products allow you to bundle a set of products together. You can achieve
+this by nesting `foxy-item` custom tags, or using the `products` product of the product object within the JS array.
 
 ### A product bundle
 
@@ -280,16 +281,16 @@ Here the same example bundle created with tags.
           "name": "Bundle Package",
           "price":"0.00",
           "image":"https://www.foxy.io/merchants/shopping-cart-full.svg",
-          "children": [
+          "products": [
             {
               "name": "The smart choice",
               "price": "50",
-              "image":"https://www.foxy.io/merchants/shopping-cart-full.svg" 
+              "image":"https://www.foxy.io/merchants/shopping-cart-full.svg"
             },
             {
               "name": "The interesting bit",
               "price": "30",
-              "image":"https://www.foxy.io/merchants/shopping-cart-full.svg" 
+              "image":"https://www.foxy.io/merchants/shopping-cart-full.svg"
             }
           ]
         }
@@ -300,7 +301,7 @@ Here the same example bundle created with tags.
   </Story>
 </Preview>
 
-### Bonus products 
+### Bonus products
 
 Setting the price of the children to zero you effectivelly create a bonus product, where upon purchasing a product your client gets another for free.
 
@@ -314,7 +315,7 @@ Setting the price of the children to zero you effectivelly create a bonus produc
         {
           "name":"Artists Drawing Set",
           "price":"75.95",
-          "children":[
+          "products":[
             {
               "name":"Nanking Pencil",
               "price":"0"
@@ -405,7 +406,7 @@ Also, note that only the products, not additional markup, will be removed.
         {
           "name":"Artists Drawing Set",
           "price":"75.95",
-          "children":[
+          "products":[
             {
               "name":"Nanking Pencil",
               "price":"0"
