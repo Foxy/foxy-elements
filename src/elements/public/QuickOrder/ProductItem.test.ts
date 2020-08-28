@@ -119,7 +119,7 @@ describe('The product item reveals its state to the user', async () => {
   });
 });
 
-describe('The product item accepts custom parameters', async () => {
+describe('Product item provides an interface to set values', async () => {
   it('Should accept custom parameters', async () => {
     const el = await fixture(
       html`<x-productitem
@@ -131,11 +131,39 @@ describe('The product item accepts custom parameters', async () => {
       ></x-productitem> `
     );
     await elementUpdated(el);
-    const product: Product & { material?: string; size?: string } = (el as ProductItem).value;
+    const product: Product & { material?: string; size?: string } = (el as TestProductItem).value;
     expect(product.price).to.equal('10');
     expect(product.name).to.equal('p1');
     expect(product.material).to.equal('rubber');
     expect(product.size).to.equal('10');
+  });
+
+  it('Should create parameters from value object', async () => {
+    const el = await fixture(
+      html`<x-productitem
+        name="p1"
+        price="10"
+        material="rubber"
+        size="10"
+        currency="usd"
+      ></x-productitem> `
+    );
+    await elementUpdated(el);
+    const product = el as TestProductItem;
+    product.value = {
+      ...product.value,
+      color: 'blue',
+      strength: 50,
+      products: [{ name: 'a', price: 1 }],
+    };
+    expect(product.getAttribute('color')).to.equal('blue');
+    expect(product.getAttribute('strength')).to.equal('50');
+    await elementUpdated(el);
+    expect(product.getAttribute('products')).to.equal('[{"name":"a","price":1}]');
+    await elementUpdated(el);
+    const childProducts = product.querySelector('[combined]');
+    console.log(product.outerHTML);
+    expect(childProducts).to.exist.and.to.have('length').equal(1);
   });
 });
 

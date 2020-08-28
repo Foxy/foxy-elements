@@ -115,6 +115,18 @@ describe('The form should allow new products to be added', async () => {
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(10);
   });
+
+  it('Should create new valid products', async () => {
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com">
+        <x-item id="first" name="p1" price="10.00"></x-item>
+        <x-item id="second" name="p2" price="10.00"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    const newProduct = (el as TestQuickOrder).createProduct({ name: 'p3', price: 1 });
+    expect(newProduct).to.exist.and.have.property('currency').equal('usd');
+  });
 });
 
 describe('The form should remain valid', async () => {
@@ -194,6 +206,14 @@ describe('The form should remain valid', async () => {
     expect(logSpy.calledWith('Invalid frequency')).to.be.false;
     el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com" frequencies='["5", "10d"]'>
+        <x-item name="p3" price="10.00" quantity="3"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    logSpy.reset();
+    expect(logSpy.calledWith('Invalid frequency')).to.be.true;
+    el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com" frequencies='[""]'>
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
     `);
@@ -325,6 +345,35 @@ describe('The form should be aware of its products', async () => {
   });
 });
 
+describe('The form should add frequency fields', async () => {
+  let xhr: sinon.SinonFakeXMLHttpRequestStatic;
+  let requests: sinon.SinonFakeXMLHttpRequest[];
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    xhr = sinon.useFakeXMLHttpRequest();
+    requests = [];
+    xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
+      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      requests.push(xhr);
+    };
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    xhr.restore();
+    logSpy.restore();
+  });
+
+  it('Should provide field to choose frequencies', async () => {
+    expect(true).to.equal(false);
+  });
+
+  it('Should add initial and end dates', async () => {
+    expect(true).to.equal(false);
+  });
+});
+
 describe('The form submits a valid POST to forxycart', async () => {
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
@@ -390,7 +439,6 @@ describe('The form reveaws its state to the user', async () => {
     expect(true).to.equal(false);
   });
 });
-
 /** Helper functions **/
 
 /**

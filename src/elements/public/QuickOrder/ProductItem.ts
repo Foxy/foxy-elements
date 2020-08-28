@@ -75,7 +75,7 @@ export class ProductItem extends Translatable implements Product {
 
   public constructor() {
     super('quick-order');
-    this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
+    this.__childProductsObserver = new MutationObserver(this.__observeProducts.bind(this));
     this.__childProductsObserver.observe(this, {
       childList: true,
       attributes: false,
@@ -87,7 +87,7 @@ export class ProductItem extends Translatable implements Product {
       }
       this.__setCode();
       this.__setParentCode();
-      this.__createChildren();
+      this.__createProducts();
       this.__acknowledgeChildProducts();
       this.__setTotalPrice();
       if (!this.__isValid()) {
@@ -97,12 +97,6 @@ export class ProductItem extends Translatable implements Product {
   }
 
   private __childProductsObserver?: MutationObserver;
-
-  // A set of sentences used in the component. They are centralized to ease the
-  // implementation of internationalization.
-  private __vocabulary = {
-    remove: 'Remove',
-  };
 
   @internalProperty()
   private __modified = false;
@@ -200,7 +194,7 @@ export class ProductItem extends Translatable implements Product {
   @property({ type: Boolean, reflect: true, attribute: 'combined' })
   isChildProduct = false;
 
-  @property({ type: Array, attribute: 'children' })
+  @property({ type: Array, attribute: 'products' })
   childProducts: Product[] = [];
 
   @property({ type: String })
@@ -228,7 +222,10 @@ export class ProductItem extends Translatable implements Product {
     return childPrices;
   }
 
-  public updated(changed: unknown): void {
+  public updated(changed: Map<string, any>): void {
+    if (changed.get('products') != undefined) {
+      this.__createProducts();
+    }
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
   }
@@ -293,7 +290,7 @@ export class ProductItem extends Translatable implements Product {
                     name="remove"
                     @change=${this.handleExclude}
                     .checked=${this.quantity ? false : true}
-                    >${this.__vocabulary.remove}</x-checkbox
+                    >${this._t('product.remove')}</x-checkbox
                   >
                 </div>`
           }
@@ -325,9 +322,9 @@ export class ProductItem extends Translatable implements Product {
   }
 
   /**
-   * Create child product items from children field.
+   * Create child product items from products field.
    */
-  private __createChildren(): void {
+  private __createProducts(): void {
     if (this.childProducts && this.childProducts.length) {
       this.childProducts.forEach(p => {
         const product = new ProductItem();
@@ -406,11 +403,11 @@ export class ProductItem extends Translatable implements Product {
         style: 'currency',
       });
     } else {
-      return 'No currency available';
+      return this._t('error.no_currency');
     }
   }
 
-  private __observeChildren(mutationList: MutationRecord[]): void {
+  private __observeProducts(mutationList: MutationRecord[]): void {
     mutationList.forEach(m => {
       if (m.type == 'childList') {
         m.addedNodes.forEach(n => {
