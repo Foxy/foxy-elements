@@ -178,6 +178,7 @@ export class Choice extends Translatable {
           value: other ? VALUE_OTHER : item,
           name: multiple ? item : 'choice',
           'data-testid': `item-${item}`,
+          '?disabled': this.disabled,
           '?checked': checked,
           '@change': (evt: Event) => {
             const checked = (evt.target as HTMLInputElement).checked;
