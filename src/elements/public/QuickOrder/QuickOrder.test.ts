@@ -115,6 +115,18 @@ describe('The form should allow new products to be added', async () => {
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(10);
   });
+
+  it('Should create new valid products', async () => {
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com">
+        <x-item id="first" name="p1" price="10.00"></x-item>
+        <x-item id="second" name="p2" price="10.00"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    const newProduct = (el as TestQuickOrder).createProduct({ name: 'p3', price: 1 });
+    expect(newProduct).to.exist.and.have.property('currency').equal('usd');
+  });
 });
 
 describe('The form should remain valid', async () => {
@@ -182,9 +194,11 @@ describe('The form should remain valid', async () => {
 
   it('Should validate frequency format', async () => {
     let el = await fixture(html`
-      <x-form store="test.foxycart.com"
-              currency="usd"
-              frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]' >
+      <x-form
+        store="test.foxycart.com"
+        currency="usd"
+        frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]'
+      >
         <x-item name="p3" price="10.00" quantity="3"></x-item>
       </x-form>
     `);
@@ -196,10 +210,17 @@ describe('The form should remain valid', async () => {
       </x-form>
     `);
     await elementUpdated(el);
+    logSpy.reset();
+    expect(logSpy.calledWith('Invalid frequency')).to.be.true;
+    el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com" frequencies='[""]'>
+        <x-item name="p3" price="10.00" quantity="3"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
     expect(logSpy.calledWith('Invalid frequency')).to.be.true;
   });
 
-  // TODO: o erro está no uso de __validFrequency ao invés de ValidDate no QuickOrder
   it('Should validate initial date', async () => {
     const validDates = ['20201010', '20', '2', '1d', '12w', '2y', '10m'];
     const invalidDates = ['202010100', '80', '.5m', 'tomorrow', 'today', '-1'];
@@ -321,6 +342,35 @@ describe('The form should be aware of its products', async () => {
     await elementUpdated(el);
     await listener;
     expect(el.getAttribute('total')).to.equal('340');
+  });
+});
+
+describe('The form should add frequency fields', async () => {
+  let xhr: sinon.SinonFakeXMLHttpRequestStatic;
+  let requests: sinon.SinonFakeXMLHttpRequest[];
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    xhr = sinon.useFakeXMLHttpRequest();
+    requests = [];
+    xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
+      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      requests.push(xhr);
+    };
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    xhr.restore();
+    logSpy.restore();
+  });
+
+  it('Should field to choose frequencies', async () => {
+    expect(true).to.equal(false);
+  });
+
+  it('Should add initial and end dates', async () => {
+    expect(true).to.equal(false);
   });
 });
 
