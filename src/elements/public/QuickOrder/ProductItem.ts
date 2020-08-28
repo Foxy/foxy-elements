@@ -98,12 +98,6 @@ export class ProductItem extends Translatable implements Product {
 
   private __childProductsObserver?: MutationObserver;
 
-  // A set of sentences used in the component. They are centralized to ease the
-  // implementation of internationalization.
-  private __vocabulary = {
-    remove: 'Remove',
-  };
-
   @internalProperty()
   private __modified = false;
 
@@ -293,7 +287,7 @@ export class ProductItem extends Translatable implements Product {
                     name="remove"
                     @change=${this.handleExclude}
                     .checked=${this.quantity ? false : true}
-                    >${this.__vocabulary.remove}</x-checkbox
+                    >${this._t('product.remove')}</x-checkbox
                   >
                 </div>`
           }
@@ -406,7 +400,7 @@ export class ProductItem extends Translatable implements Product {
         style: 'currency',
       });
     } else {
-      return 'No currency available';
+      return this._t('error.no_currency');
     }
   }
 

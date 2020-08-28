@@ -41,7 +41,7 @@ export class QuickOrder extends Translatable {
     };
   }
 
-  private get __data(): FormData|null {
+  private get __data(): FormData | null {
     const data = new FormData();
     const productsAdded = this.__formDataFill(data);
     if (productsAdded == 0) return null;
@@ -117,10 +117,10 @@ export class QuickOrder extends Translatable {
           return [];
         }
       }
-      return freqArray.map(e => QuickOrder.__friendlyFreq(e));
+      return freqArray;
     },
   })
-  public frequencies: FrequencyOption[] = [];
+  public frequencies: string[] = [];
 
   @property({ type: Array })
   products: Product[] = [];
@@ -164,9 +164,10 @@ export class QuickOrder extends Translatable {
               ? html` <div class="subscription flex-1 p-s flex-grow sm:flex-grow-0">
                   <x-dropdown
                     .items=${this.frequencies
+                      .map(e => this.__friendlyFreq(e))
                       .map(e => `${e.number} ${e.period}`)
-                      .concat(['just_this_once'])}
-                    value='["just_this_once"]'
+                      .concat([this._t('freq.just_this_once')])}
+                    .value=${this._t('freq.just_this_once')}
                     @change=${this.__handleFrequency}
                     type="text"
                     lang=${this.lang}
@@ -177,7 +178,7 @@ export class QuickOrder extends Translatable {
             <div class="flex-1 p-s flex-grow sm:flex-grow-0">
               <vaadin-button class="w-full" type="button" role="submit" @click=${this.handleSubmit}>
                 <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
-                <x-i18n key="continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+                <x-i18n key="form.continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
                 <span class="total font-bold text-primary"
                   >${this.__translateAmount(this.total)}</span
                 >
@@ -386,16 +387,16 @@ export class QuickOrder extends Translatable {
   /**
    * Returns an object with human friendly values for a given frequency
    */
-  private static __friendlyFreq(value: string): FrequencyOption {
+  private __friendlyFreq(value: string): FrequencyOption {
     const matches = value.match(/^(\.?\d+)([dwmy])$/);
     if (!matches) {
-      throw new Error('Invalid frequency string');
+      throw new Error(this._t('error.invalid_frequency'));
     }
     const friendlyTimeSpan: { [name: string]: string } = {
-      d: 'day',
-      w: 'week',
-      m: 'month',
-      y: 'year',
+      d: this._t('freq.day'),
+      w: this._t('freq.week'),
+      m: this._t('freq.month'),
+      y: this._t('freq.year'),
     };
     return {
       number: Number(matches[1]),
@@ -448,8 +449,11 @@ export class QuickOrder extends Translatable {
 
   /** Checks if product has quantity and price */
   private __validProduct(p: Product): boolean {
-    return !!( p && p.pid 
-      && p.quantity && p.quantity > 0 && 
+    return !!(
+      p &&
+      p.pid &&
+      p.quantity &&
+      p.quantity > 0 &&
       (p.price || p.price === 0) &&
       p.price >= 0
     );
