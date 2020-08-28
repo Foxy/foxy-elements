@@ -28,7 +28,7 @@ function testEnabled(elm: Dropdown) {
 function testContent(elm: Dropdown) {
   const items = Array.from(getItems(elm));
 
-  expect(items.length).to.equal(elm.items!.length);
+  expect(items.length).to.equal(elm.items?.length ?? 0);
 
   items.forEach((item, index) => {
     expect(item.value).to.equal(elm.items![index]);
