@@ -45,7 +45,7 @@ export class JSONataInput extends Translatable {
 
         ${this.__choice === this.__items[1]
           ? html`
-              <div slot=${this.__items[1]} class="space-y-s">
+              <div slot=${this.__items[1]} class="space-y-s pb-m">
                 <p class="text-s text-tertiary leading-s">
                   <x-i18n .ns=${this.ns} .lang=${this.lang} key="jsonata.hint"></x-i18n>
                 </p>

@@ -23,7 +23,7 @@ export class OffsetInput extends Translatable {
   private readonly __items = ['none', 'custom'] as const;
 
   private get __choice() {
-    return this.__items[this.value === undefined ? 0 : 1];
+    return this.__items[!this.value ? 0 : 1];
   }
 
   @property({ type: Boolean })
