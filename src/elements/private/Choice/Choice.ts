@@ -1,14 +1,16 @@
 import { spread } from '@open-wc/lit-helpers/src/spread';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import '@polymer/iron-icon';
+import '@vaadin/vaadin-lumo-styles/icons';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-lumo-styles/icons';
-import '@polymer/iron-icon';
-import { css, CSSResultArray, html, internalProperty, property, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
+import { AttributePart } from 'lit-html';
+import { interpret } from 'xstate';
 import { Translatable } from '../../../mixins/translatable';
 import { ChoiceChangeEvent } from './ChoiceChangeEvent';
-import { AttributePart } from 'lit-html';
+import { machine } from './machine';
 
 const VALUE_OTHER = `@foxy.io/elements::other[${(Math.pow(10, 10) * Math.random()).toFixed(0)}]`;
 
@@ -22,7 +24,7 @@ function radio(checked: boolean, attrs: (part: AttributePart) => void, label: Te
       <div class="item flex items-center justify-center">
         <div class="flex radio rounded-full ${box} focus-within:shadow-outline">
           <div class="dot m-auto rounded-full bg-tint shadow-xs ${dot}"></div>
-          <input type="radio" class="sr-only" ?checked=${checked} ...=${attrs} />
+          <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
       <div class="font-lumo text-body leading-m">
@@ -42,7 +44,7 @@ function check(checked: boolean, attrs: (part: AttributePart) => void, label: Te
       <div class="item flex items-center justify-center text-primary-contrast">
         <div class="check rounded-s ${box} focus-within:shadow-outline">
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
-          <input type="checkbox" class="sr-only" ?checked=${checked} ...=${attrs} />
+          <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
       <div class="font-lumo text-body leading-m">
@@ -114,9 +116,10 @@ export class Choice extends Translatable {
     const attributes = spread({
       placeholder: this._t('choice.other').toString(),
       class: 'w-full mb-m',
-      value: this.__customValue,
+      value: this.__service.state.context.customValue,
       max: this.max,
       min: this.min,
+      'data-testid': 'field',
       '@input': handleInput,
       '@change': handleInput,
     });
@@ -130,70 +133,93 @@ export class Choice extends Translatable {
     }
   }
 
-  @internalProperty()
-  private __customValue = '';
-
-  @internalProperty()
-  private __customValueVisible = false;
-
-  @property({ type: Boolean })
-  public disabled = false;
+  private __service = interpret(machine)
+    .onChange(() => this.requestUpdate())
+    .onTransition(({ changed }) => changed && this.requestUpdate())
+    .start();
 
   @property({ type: Boolean })
-  public custom = false;
+  public get disabled(): boolean {
+    return this.__service.state.matches('interactivity.disabled');
+  }
+  public set disabled(data: boolean) {
+    this.__service.send('SET_DISABLED', { data });
+  }
+
+  @property({ type: Boolean })
+  public get custom(): boolean {
+    return this.__service.state.matches('extension.present');
+  }
+  public set custom(data: boolean) {
+    this.__service.send('SET_CUSTOM', { data });
+  }
 
   @property({ type: String })
-  public type: 'text' | 'textarea' | 'integer' = 'text';
+  public get type(): 'text' | 'textarea' | 'integer' {
+    return this.__service.state.context.type;
+  }
+  public set type(data: 'text' | 'textarea' | 'integer') {
+    this.__service.send('SET_TYPE', { data });
+  }
 
   @property({ type: Number })
-  public min: number | null = null;
+  public get min(): number | null {
+    return this.__service.state.context.min;
+  }
+  public set min(data: number | null) {
+    this.__service.send('SET_MIN', { data });
+  }
 
   @property({ type: Number })
-  public max: number | null = null;
+  public get max(): number | null {
+    return this.__service.state.context.max;
+  }
+  public set max(data: number | null) {
+    this.__service.send('SET_MAX', { data });
+  }
 
   @property({ type: Array })
-  public value: null | string | string[] = null;
+  public get value(): null | string | string[] {
+    return this.__service.state.context.value;
+  }
+  public set value(data: null | string | string[]) {
+    this.__service.send('SET_VALUE', { data });
+  }
 
   @property({ type: Array })
-  public items: string[] = [];
+  public get items(): string[] {
+    return this.__service.state.context.items;
+  }
+  public set items(data: string[]) {
+    this.__service.send('SET_ITEMS', { data });
+  }
 
-  @property({ type: Object })
+  @property({ attribute: false })
   public getText: (value: string) => string = v => v;
 
   public render(): TemplateResult {
     const items = this.custom ? [...this.items, VALUE_OTHER] : this.items;
     const multiple = Array.isArray(this.value);
+    const otherChecked = this.__service.state.matches('extension.present.selected');
 
     const children = html`
       ${items.map((item, index, array) => {
         const other = this.custom && index === array.length - 1;
 
         const checked = other
-          ? this.__customValueVisible
+          ? otherChecked
           : multiple
           ? !!this.value?.includes(item)
-          : !this.__customValueVisible && item === String(this.value);
+          : item === String(this.value);
 
         const attributes = spread({
           value: other ? VALUE_OTHER : item,
           name: multiple ? item : 'choice',
           'data-testid': `item-${item}`,
           '?disabled': this.disabled,
-          '?checked': checked,
           '@change': (evt: Event) => {
             const checked = (evt.target as HTMLInputElement).checked;
-
-            if (multiple) {
-              if (item === VALUE_OTHER) this.__customValueVisible = checked;
-            } else {
-              this.__customValueVisible = checked && item === VALUE_OTHER;
-            }
-
-            if (item === VALUE_OTHER) {
-              this.__customValue = multiple ? '' : (this.value as string);
-            }
-
-            const newItem = item === VALUE_OTHER ? this.__customValue : item;
+            const newItem = item === VALUE_OTHER ? '' : item;
             const value = this.value;
 
             if (Array.isArray(value)) {
@@ -224,7 +250,7 @@ export class Choice extends Translatable {
           ${multiple ? check(checked, attributes, label) : radio(checked, attributes, label)}
 
           <div class="mr-m ml-xxl">
-            ${item === VALUE_OTHER && this.__customValueVisible ? this.__field : ''}
+            ${item === VALUE_OTHER && otherChecked ? this.__field : ''}
             ${item !== VALUE_OTHER ? html`<slot name=${item}></slot>` : ''}
           </div>
         `;
