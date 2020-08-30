@@ -195,6 +195,7 @@ export class QuickOrder extends Translatable {
     for (const p of newProducts) {
       const newProduct = this.createProduct(p);
       this.appendChild(newProduct);
+      this.__acknowledgeProductElement(newProduct as ProductItem);
     }
     if (this.products != newProducts) {
       this.products.concat(newProducts);
@@ -440,11 +441,15 @@ export class QuickOrder extends Translatable {
   private __acknowledgeProductElements(): void {
     this.__productElements?.forEach((e: Element) => {
       const p = e as ProductItem;
-      p.addEventListener('change', this.__productChange.bind(this));
-      if (!p.currency) {
-        p.currency = this.currency;
-      }
+      this.__acknowledgeProductElement(p);
     });
+  }
+
+  private __acknowledgeProductElement(p: ProductItem) {
+    p.addEventListener('change', this.__productChange.bind(this));
+    if (!p.currency) {
+      p.currency = this.currency;
+    }
   }
 
   /** Checks if product has quantity and price */

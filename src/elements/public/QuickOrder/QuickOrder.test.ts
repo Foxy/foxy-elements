@@ -411,7 +411,7 @@ describe('The form submits a valid POST to forxycart', async () => {
   });
 });
 
-describe('The form reveaws its state to the user', async () => {
+describe('The form reveals its state to the user', async () => {
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
   let logSpy: sinon.SinonStub;
