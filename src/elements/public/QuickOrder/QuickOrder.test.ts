@@ -116,7 +116,7 @@ describe('The form should allow new products to be added', async () => {
     expect((el as QuickOrder).total).to.equal(10);
   });
 
-  it('Should create new valid products', async () => {
+  it('Should add new valid products', async () => {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item id="first" name="p1" price="10.00"></x-item>
@@ -124,8 +124,11 @@ describe('The form should allow new products to be added', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    const newProduct = (el as TestQuickOrder).createProduct({ name: 'p3', price: 1 });
-    expect(newProduct).to.exist.and.have.property('currency').equal('usd');
+    (el as TestQuickOrder).addProducts([{ name: 'p3', price: 10 }]);
+    await elementUpdated(el);
+    const products = el.querySelectorAll('[product]');
+    expect(products).to.exist;
+    expect(products.length).to.equal(3);
   });
 });
 
@@ -210,7 +213,6 @@ describe('The form should remain valid', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    logSpy.reset();
     expect(logSpy.calledWith('Invalid frequency')).to.be.true;
     el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com" frequencies='[""]'>
@@ -221,67 +223,64 @@ describe('The form should remain valid', async () => {
     expect(logSpy.calledWith('Invalid frequency')).to.be.true;
   });
 
-  it('Should validate initial date', async () => {
-    const validDates = ['20201010', '20', '2', '1d', '12w', '2y', '10m'];
-    const invalidDates = ['202010100', '80', '.5m', 'tomorrow', 'today', '-1'];
-
-    for (const list of [
-      [validDates, 0],
-      [invalidDates, 1],
-    ]) {
-      for (const dateString of list[0] as string[]) {
-        logSpy.reset();
+  interface DateFormatTest {
+    it: string;
+    dates: string[];
+    dateType: string;
+    logMessage: string;
+    logHappens: boolean;
+  }
+  const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+  const tomorrowStr = tomorrow.toISOString().replace(/(-|T.*)/g, '');
+  const dateFormatsTests: DateFormatTest[] = [
+    {
+      it: 'Should accept valid start date formats',
+      dates: ['20201010', '20', '2', '1d', '12w', '2y', '10m'],
+      logMessage: 'Invalid start date',
+      dateType: 'start',
+      logHappens: false,
+    },
+    {
+      it: 'Should not accept invalid start date formats',
+      dates: ['202010100', '80', '.5m', 'tomorrow', 'today', '-1'],
+      logMessage: 'Invalid start date',
+      dateType: 'start',
+      logHappens: true,
+    },
+    {
+      it: 'Should accept valid end date formats',
+      dates: [tomorrowStr, '20', '2', '1d', '12w', '2y', '10m'],
+      logMessage: 'Invalid end date',
+      dateType: 'end',
+      logHappens: false,
+    },
+    {
+      it: 'Should not accept invalid end date formats',
+      dates: ['20191010', '219810100', '80', '.5m', 'tomorrow', '-1'],
+      dateType: 'end',
+      logMessage: 'Invalid end date',
+      logHappens: true,
+    },
+  ];
+  for (const t of dateFormatsTests) {
+    it(t.it, async () => {
+      for (const d of t.dates) {
         const el = await fixture(html`
           <x-form
             currency="usd"
             store="test.foxycart.com"
-            sub_startdate="${dateString}"
             frequencies='["5d", "10d"]'
-          >
-            <x-item name="p3" price="10.00" quantity="3"></x-item>
-          </x-form>
-        `);
-        await elementUpdated(el);
-        if (list[1]) {
-          expect(logSpy.calledWith('Invalid start date')).to.be.true;
-        } else {
-          expect(logSpy.calledWith('Invalid start date')).to.be.false;
-        }
-      }
-    }
-  });
-
-  it('Should validate end date', async () => {
-    const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-    const tomorrowStr = tomorrow.toISOString().replace(/(-|T.*)/g, '');
-    const validDates = [tomorrowStr, '20', '2', '1d', '12w', '2y', '10m'];
-    const invalidDates = ['20191010', '219810100', '80', '.5m', 'tomorrow', '-1'];
-
-    for (const list of [
-      [validDates, 0],
-      [invalidDates, 1],
-    ]) {
-      for (const dateString of list[0] as string[]) {
-        logSpy.reset();
-        const el = await fixture(html`
-          <x-form
-            currency="usd"
-            store="test.foxycart.com"
-            sub_enddate="${dateString}"
-            frequencies='["5d", "10d"]'
+            sub_enddate="${t.dateType == 'end' ? d : ''}"
+            sub_startdate="${t.dateType == 'start' ? d : ''}"
           >
             <x-item name="p3" price="10.00"></x-item>
           </x-form>
         `);
         await elementUpdated(el);
-        if (list[1]) {
-          expect(logSpy.calledWith('Invalid end date')).to.be.true;
-        } else {
-          expect(logSpy.calledWith('Invalid end date')).to.be.false;
-        }
+        expect(logSpy.calledWith(t.logMessage)).to.equal(t.logHappens);
       }
-    }
-  });
+    });
+  }
 });
 
 describe('The form should be aware of its products', async () => {
@@ -395,6 +394,18 @@ describe('The form submits a valid POST to forxycart', async () => {
   });
 
   it('Prepends ids to the products', async () => {
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com">
+        <x-item name="p1" price="10.00" quantity="3"></x-item>
+        <x-item name="p2" price="10.00" quantity="1"></x-item>
+        <x-item name="p3" price="10.00" quantity="2"></x-item>
+        <x-item name="p4" price="10.00" quantity="1"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
+    expect(submitBtn).to.exist;
+    (submitBtn! as HTMLInputElement).click();
     expect(true).to.equal(false);
   });
 

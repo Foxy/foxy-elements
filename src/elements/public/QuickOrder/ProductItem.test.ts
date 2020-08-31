@@ -150,20 +150,14 @@ describe('Product item provides an interface to set values', async () => {
     );
     await elementUpdated(el);
     const product = el as TestProductItem;
+
     product.value = {
       ...product.value,
       color: 'blue',
       strength: 50,
-      products: [{ name: 'a', price: 1 }],
     };
     expect(product.getAttribute('color')).to.equal('blue');
     expect(product.getAttribute('strength')).to.equal('50');
-    await elementUpdated(el);
-    expect(product.getAttribute('products')).to.equal('[{"name":"a","price":1}]');
-    await elementUpdated(el);
-    const childProducts = product.querySelector('[combined]');
-    console.log(product.outerHTML);
-    expect(childProducts).to.exist.and.to.have('length').equal(1);
   });
 });
 
