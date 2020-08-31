@@ -18,7 +18,8 @@ You simply feed your form with the products and it will take care of the rest fo
 
 You can use your favorite template engine to provide the products their attributes.
 
-## Minimal setup
+
+## Unconfigured 
 
 This component needs to be configured before use. You can easily spot a misconfigured component on the page – it will display an error message like the one below:
 
@@ -32,6 +33,9 @@ This component needs to be configured before use. You can easily spot a misconfi
   </Story>
 </Preview>
 
+
+## Minimal setup
+
 You'll need to provide the following info via the respective attributes for the minimal setup:
 
 1. `store` – store name (your subdomain, e.g the `jamstackecommerceexample` part of `https://jamstackecommerceexample.foxycart.com`);
@@ -40,7 +44,11 @@ You'll need to provide the following info via the respective attributes for the 
 1. - **the `slots` approach** using the provided `<product-item></product-item>` Web Component;
    - **the `attribute` approach** using the `products` parameter;
 
-Using the **product-item** approach gives you full control over your form's markup.
+
+### The `slots` approach
+
+Using the `slots` approach gives you full control over your form's markup.
+
 This approach allow you to create your form writing your HTML in readable way.
 
 ```html
@@ -50,17 +58,9 @@ This approach allow you to create your form writing your HTML in readable way.
   <foxy-item></foxy-item>
 </foxy-order-form>
 ```
-Using the **products parameter** approach is handy if you are fetching your products from a server as a JSON object.
-Please, note that the `products` value must be valid JSON.
-This approach allows you to use something as simple as:
-
-```html
-<foxy-order-form products='[{...},{...},{...}]'>
-</foxy-order-form>
-```
 
 <Preview>
-  <Story name="Minimal">
+  <Story name="Minimal slots approach">
     {html`
     <div class="container-narrow">
       <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
@@ -71,8 +71,35 @@ This approach allows you to use something as simple as:
   </Story>
 </Preview>
 
+### The `attribute` approach
+
+Using the `attribute` approach is handy if you are fetching your products from a server as a JSON object.
+
+Please, note that the `products` value must be valid JSON.
+
+This approach allows you to use something as simple as:
+
+```html
+<foxy-order-form products='[{...},{...},{...}]'>
+</foxy-order-form>
+```
 
 The downside of this approach is that you have little control of custom markup you may want to add to your form.
+
+<Preview>
+  <Story name="Minimal attributes approach">
+    {html`
+    <div class="container-narrow">
+      <foxy-order-form store="jamstackecommerceexample.foxycart.com"
+                       currency="usd"
+                       products='[{"name":"Cool Product", "price": 5}]'
+                       >
+      </foxy-order-form>
+    </div>
+    `}
+  </Story>
+</Preview>
+
 
 ## Basics of a Product
 
@@ -98,14 +125,14 @@ It pays off to learn more about the product and what you can do with it. Please,
 
 ### Using custom tag for the product
 
-By adding `foxy-items` to your `foxy-order-form` your products will be properly added to the order. The form will find the products and create the propper submission.
+By adding `<foxy-items>` to your `<foxy-order-form>` your products will be properly added to the order.
 
 You can use any markup you wish, making the form unique to your store and even easily adding your own functionality to it.
 
 You may place your products in cards, lists, articles sections and even tables if you with.
 
 Foxy-order-form will find your products and of course leave your tags alone.
-You can use custom elements, but `foxy-order-form` will not find them if they are in a Shadow DOM.
+Please, note that `foxy-order-form` will not find them if they are in a Shadow DOM.
 
 <Preview>
   <Story name="Using Product Items">
@@ -129,7 +156,7 @@ You can enrich your form by adding your own markup.
 Provided your products are not inside a Shadow DOM, they will be recognized.
 
 <Preview>
-  <Story name="Using your markup">
+  <Story name="Enrich the form using your markup">
     {html`
     <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
       <style>
@@ -243,8 +270,8 @@ In this scenario you loose some flexibility for the product tags will be created
 
 ## Adding Child products
 
-Child products allow you to bundle a set of products together. You can achieve
-this by nesting `foxy-item` custom tags, or using the `products` product of the product object within the JS array.
+Child products allow you to bundle a set of products together.
+You can achieve this by nesting `<foxy-item>` custom tags, or using the `products` field of the product object within the JS array, as in `[{"name":"My product", "price": 0, "products": [{... Bundled Products Here ...}]}]`.
 
 ### A product bundle
 
@@ -268,7 +295,7 @@ Here is an example bundle created with tags.
   </Story>
 </Preview>
 
-Here the same example bundle created with tags.
+Here you have a product bundle example created with an array.
 
 <Preview>
   <Story name="Product bundle with array">
@@ -393,6 +420,24 @@ Check out the documentation for more details.
 You can set a new list of products by changing the `products` attribute of the `foxy-order-form`.
 Please, note that this is a destructive operation: all products will be removed an new products will be added.
 
+Consider this example code:
+
+```javascript
+  // Get the form
+  var myform = document.querySelector('#to-change-product-list');
+  // Set a new value for the products array
+  myform.products = [
+    {
+      name: "Nice Pants",
+      price: 30
+    },
+    {
+      name: "Yellow T-Shirt",
+      price: 12
+    }
+  ];
+```
+
 Also, note that only the products, not additional markup, will be removed.
 
 <Preview>
@@ -432,40 +477,13 @@ Also, note that only the products, not additional markup, will be removed.
   </Story>
 </Preview>
 
-### By adding or removing tags
-
-You can add or remove product tags to the form to maintain the form.
-
-<Preview>
-  <Story name="Add a tag" >
-    {html`
-		<div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
-    <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
-                     store="jamstackecommerceexample"
-                     currency="usd"
-                     sub_startdate="20200505"
-                     sub_enddate="20210505" >
-      <button type="button"
-              style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
-              onclick="var a=document.createElement('foxy-item'); this.parentElement.appendChild(a); a.name = 'New product'; a.price = 3; a.quantity = 2;">
-        Add a new product
-      </button>
-      <foxy-item
-        name="Pup Dog Food"
-        price="69.99"
-        description="High quality nutritious food for you pet "
-        sub_frequency="1m"
-        >
-      </foxy-item>
-    </foxy-order-form>
-    </div>
-    `}
-  </Story>
-</Preview>
-
-
 ### By adding an array of products
 
+You can add one or more products to the form using the `addProducts` method of the form.
+
+```javascript
+  myForm.addProducts([{name: "Office chair", price: 200}, {name: "Office table", price: 100}]);
+```
 
 <Preview>
   <Story name="Add an array of products" >
@@ -495,7 +513,41 @@ You can add or remove product tags to the form to maintain the form.
   </Story>
 </Preview>
 
+### By removing an array of products
+
+Custumers may remove products from the form using the quantity button or the remove checkbox.
+
+There may be circumstances, however, where the application itself must remove a product from the form.
+
+You can achieve this by providing a new products array or you may choose to remove a product.
+
+You will need to use the product id called `pid`.
+
+Consider the following code:
+
+```javascript
 
 
-### By removing a single product
 
+```
+
+<Preview>
+  <Story name="Removing a product by Product Id">
+    {html`
+    <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+        <foxy-item name="pup dog food"
+                   price="59.99"
+                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   description="High quality nutritious food for you pet." >
+        </foxy-item>
+        <foxy-item name="pup dog rich food" price="69.99"
+                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
+        </foxy-item>
+        <button type="button" 
+              style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+              onclick="this.parentElement.removeProducts([1]);">Remove product 1</button>
+    </foxy-order-form>
+    `}
+  </Story>
+</Preview>
