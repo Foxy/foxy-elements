@@ -475,7 +475,7 @@ export class QuickOrder extends Translatable {
   private __translateAmount(amount: number) {
     if (this.currency) {
       return amount.toLocaleString(this.lang, {
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 2,
         currency: this.currency!,
         style: 'currency',
       });
@@ -486,8 +486,7 @@ export class QuickOrder extends Translatable {
 
   createProduct(p: Product): Element {
     const newProduct = new ProductItem();
-    newProduct.value = p;
-    newProduct.currency = this.currency;
+    newProduct.value = { ...p, currency: this.currency };
     return newProduct;
   }
 }
