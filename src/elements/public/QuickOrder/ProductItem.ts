@@ -1,8 +1,8 @@
 import { Translatable } from '../../../mixins/translatable';
 import { Product } from './types';
 import { Price } from './private/index';
-import { html, property, internalProperty, TemplateResult } from 'lit-element';
-import { Checkbox, Section, Group, I18N } from '../../private/index';
+import { html, css, property, internalProperty, CSSResultArray, TemplateResult } from 'lit-element';
+import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../private/index';
 
 /**
  * This component allows a user to configure a product.
@@ -33,6 +33,7 @@ export class ProductItem extends Translatable implements Product {
       'x-number-field': customElements.get('vaadin-number-field'),
       'x-i18n': I18N,
       'x-price': Price,
+      'x-error-screen': ErrorScreen,
     };
   }
 
@@ -241,7 +242,7 @@ export class ProductItem extends Translatable implements Product {
 
   public render(): TemplateResult {
     if (!this.__isValid()) {
-      return html``;
+      return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     return html`
       <article
@@ -387,6 +388,9 @@ export class ProductItem extends Translatable implements Product {
     }
     if (!this.pid) {
       error.push('The product has no product id');
+    }
+    if (!this.currency) {
+      error.push('The product has no currency');
     }
     console.error(...error);
     return !error.length;
