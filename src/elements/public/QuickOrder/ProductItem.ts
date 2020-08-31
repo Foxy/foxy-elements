@@ -101,13 +101,6 @@ export class ProductItem extends Translatable implements Product {
   @internalProperty()
   private __modified = false;
 
-  // Default image values to allow the product to be ran out-of-the box with
-  // example images.
-  private __default_image = {
-    src: 'https://www.foxy.io/merchants/shopping-cart-full.svg',
-    alt: 'A sketch of a shopping cart with three boxes',
-  };
-
   @property({ type: Object })
   public set value(v: Product) {
     for (const k in v) {
@@ -256,11 +249,15 @@ export class ProductItem extends Translatable implements Product {
       this.__modified ? 'modified' : ''
     }"
       >
-        <img
-          class="max-w-xs min-w-1 block w-full sm:w-auto flex-grow"
-          alt="${this.alt ?? this.__default_image.alt}"
-          src="${this.image ?? this.__default_image.src}"
-        />
+        ${
+          this.image
+            ? html` <img
+                class="max-w-xs min-w-1 block w-full sm:w-auto flex-grow"
+                alt="${this.alt ?? ''}"
+                src="${this.image}"
+              />`
+            : ''
+        }
         <section class="description p-s min-w-xl w-full sm:w-auto flex-third">
           <h1 class="text-primary text-bold font-size-m">${this.name}</h1>
           <div class="product-description">
