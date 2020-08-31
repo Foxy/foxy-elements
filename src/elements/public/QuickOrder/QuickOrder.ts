@@ -202,15 +202,23 @@ export class QuickOrder extends Translatable {
     }
   }
 
+  /** Remove products */
+  public removeProducts(productIds: number[]) {
+    this.__removeProductsFromProductArray((p: ProductItem) => productIds.includes(p.pid));
+  }
+
   /** Create child ProductItems from products array
    */
   private __createProductsFromProductArray() {
     this.addProducts(this.products);
   }
 
-  private __removeProductsFromProductArray() {
+  /** Removes product items from the form based on a condition */
+  private __removeProductsFromProductArray(condition = (e: ProductItem) => true) {
     this.__productElements.forEach(p => {
-      p.parentElement!.removeChild(p);
+      if (condition(p)) {
+        p.parentElement!.removeChild(p);
+      }
     });
   }
 
