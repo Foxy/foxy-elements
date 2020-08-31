@@ -7,6 +7,7 @@ export class MockProduct extends HTMLElement implements Product {
   public price = 10;
   public quantity = 1;
   public pid = 0;
+  public currency = '';
 
   constructor(p?: Product) {
     super();
@@ -14,8 +15,9 @@ export class MockProduct extends HTMLElement implements Product {
     this.pid = Math.random();
     if (p) {
       if (p.name) this.name = p.name;
-      if (p.price) this.price = p.price!;
-      if (p.quantity) this.quantity = p.quantity!;
+      if (p.price) this.price = p.price;
+      if (p.quantity) this.quantity = p.quantity;
+      if (p.currency) this.currency = p.currency;
     } else {
       this.__fromAttr('name');
       this.__fromAttr('price');
@@ -24,12 +26,20 @@ export class MockProduct extends HTMLElement implements Product {
     this.total = this.price * this.quantity;
   }
 
-  get value () {
+  get value() {
     return {
       pid: this.pid,
       price: this.price,
-      quantity: this.quantity
-    }
+      currency: this.currency,
+      quantity: this.quantity,
+    };
+  }
+
+  set value(p: Product) {
+    this.name = p.name!;
+    this.price = p.price!;
+    this.quantity = p.quantity!;
+    this.currency = p.currency!;
   }
 
   private __fromAttr(key: string) {
