@@ -16,6 +16,7 @@ export interface Product {
   width?: number;
   height?: number;
   shipto?: string;
+  currency?: string;
   pid?: number;
   alt?: string;
   open?: Record<string, string>;
