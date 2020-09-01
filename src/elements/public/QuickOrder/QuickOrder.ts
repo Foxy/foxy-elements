@@ -163,13 +163,15 @@ export class QuickOrder extends Translatable {
             ${this.frequencies.length
               ? html` <div class="subscription flex-1 p-s flex-grow sm:flex-grow-0">
                   <x-dropdown
-                    .items=${this.frequencies
-                      .map(e => this.__friendlyFreq(e))
-                      .map(e => `${e.number} ${e.period}`)
-                      .concat([this._t('freq.just_this_once')])}
-                    .value=${this._t('freq.just_this_once')}
+                    .items=${this.frequencies.concat(['freq.just_this_once'])}
+                    .value="freq.just_this_once"
+                    .getText=${(v: string) => {
+                      const friendly = this.__friendlyFreq(v);
+                      return `${friendly.number} ${friendly.period}`;
+                    }}
                     @change=${this.__handleFrequency}
                     type="text"
+                    name="frequency"
                     lang=${this.lang}
                   >
                   </x-dropdown>
@@ -397,6 +399,13 @@ export class QuickOrder extends Translatable {
    * Returns an object with human friendly values for a given frequency
    */
   private __friendlyFreq(value: string): FrequencyOption {
+    if (value == 'freq.just_this_once') {
+      return {
+        number: 1,
+        period: this._t('freq.just_this_once'),
+        periodCode: '',
+      };
+    }
     const matches = value.match(/^(\.?\d+)([dwmy])$/);
     if (!matches) {
       throw new Error(this._t('error.invalid_frequency'));
