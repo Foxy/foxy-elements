@@ -163,16 +163,16 @@ export class QuickOrder extends Translatable {
             ${this.frequencies.length
               ? html` <div class="subscription flex-1 p-s flex-grow sm:flex-grow-0">
                   <x-dropdown
-                    .items=${this.frequencies.concat(['freq.just_this_once'])}
-                    .value="freq.just_this_once"
-                    .getText=${(v: string) => {
-                      const friendly = this.__friendlyFreq(v);
-                      return `${friendly.number} ${friendly.period}`;
-                    }}
-                    @change=${this.__handleFrequency}
                     type="text"
                     name="frequency"
                     lang=${this.lang}
+                    .value=${'freq.just_this_once'}
+                    .items=${this.frequencies.concat(['freq.just_this_once'])}
+                    .getText=${(v: string) => {
+                      const friendly = this.__friendlyFreq(v);
+                      return `${friendly.number ? friendly.number + ' ' : ''}${friendly.period}`;
+                    }}
+                    @change=${this.__handleFrequency}
                   >
                   </x-dropdown>
                 </div>`
@@ -401,7 +401,7 @@ export class QuickOrder extends Translatable {
   private __friendlyFreq(value: string): FrequencyOption {
     if (value == 'freq.just_this_once') {
       return {
-        number: 1,
+        number: 0,
         period: this._t('freq.just_this_once'),
         periodCode: '',
       };
