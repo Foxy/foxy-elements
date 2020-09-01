@@ -15,6 +15,35 @@ export class ProductItem extends Translatable implements Product {
 
   [k: string]: any;
 
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        [name='quantity']::part(input-field) {
+          background: transparent;
+        }
+        [name='quantity']::part(input-field):hover {
+          background: transparent;
+        }
+        [name='quantity']::part(input-field):after {
+          background-color: transparent;
+          transition: none;
+          opacity: 0;
+        }
+        [name='quantity']::part(decrease-button),
+        [name='quantity']::part(increase-button) {
+          background: var(--lumo-contrast-10pct);
+          border-radius: 100%;
+          transition: background-color 0.2s;
+        }
+        [name='quantity']::part(decrease-button):hover,
+        [name='quantity']::part(increase-button):hover {
+          background-color: var(--lumo-contrast-50pct);
+        }
+      `,
+    ];
+  }
+
   /**
    * Static fields and methods
    **/
@@ -265,7 +294,7 @@ export class ProductItem extends Translatable implements Product {
             ${this.description}
           </div>
         </section>
-        <section class="item-info p-s min-w-2 w-full sm:w-auto flex-grow">
+        <section class="item-info p-s min-w-1 w-full max-w-xxs sm:w-auto flex-grow">
           <div class="price text-right text-primary p-s">
             <x-price .price=${this.price}
                      .prices=${this.__childPrices}
@@ -275,9 +304,8 @@ export class ProductItem extends Translatable implements Product {
           ${
             this.isChildProduct
               ? ''
-              : html` <div class="quantity p-s min-w-3 w-full md:w-auto">
+              : html` <div class="quantity-wrapper p-s max-w-xxs w-full md:w-auto text-s">
                   <x-number-field
-                    class="w-full"
                     name="quantity"
                     @change=${this.handleQuantity}
                     value="${this.quantity}"
@@ -285,6 +313,7 @@ export class ProductItem extends Translatable implements Product {
                     has-controls
                   ></x-number-field>
                   <x-checkbox
+                    class="text-xs"
                     name="remove"
                     @change=${this.handleExclude}
                     .checked=${this.quantity ? false : true}
@@ -293,7 +322,7 @@ export class ProductItem extends Translatable implements Product {
                 </div>`
           }
         </section>
-        <section class="child-products w-full p-s">
+        <section class="child-products w-full ${this.products ? 'p-s' : ''}">
           <slot></slot>
         </section>
       </article>

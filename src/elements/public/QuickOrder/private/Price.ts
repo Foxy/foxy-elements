@@ -1,5 +1,5 @@
 import { Translatable } from '../../../../mixins/translatable';
-import { html, TemplateResult, internalProperty, property } from 'lit-element';
+import { html, css, CSSResultArray, TemplateResult, internalProperty, property } from 'lit-element';
 import { I18N } from '../../../private/index';
 
 /**
@@ -9,6 +9,10 @@ import { I18N } from '../../../private/index';
  * quantity.
  */
 export class Price extends Translatable {
+  static get styles() {
+    return [super.styles, css``];
+  }
+
   /**
    * Custom elements used in the component
    */
@@ -62,7 +66,11 @@ export class Price extends Translatable {
       return html``;
     }
     return html`
-      <div class="price text-right p-s ${this.quantity == 0 ? 'text-shade-50' : 'text-primary '}">
+      <div
+        class="price max-w-xxs text-right p-s ${this.quantity == 0
+          ? 'text-shade-50'
+          : 'text-primary '}"
+      >
         ${this.__pricesLen() > 0
           ? html` <span class="price parts">
               ${this.__pricesLen() > 3
