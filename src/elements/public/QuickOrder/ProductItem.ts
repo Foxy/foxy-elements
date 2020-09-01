@@ -218,7 +218,7 @@ export class ProductItem extends Translatable implements Product {
   isChildProduct = false;
 
   @property({ type: Array, attribute: 'products' })
-  childProducts: Product[] = [];
+  products: Product[] = [];
 
   @property({ type: String })
   description = '';
@@ -352,8 +352,8 @@ export class ProductItem extends Translatable implements Product {
    * Create child product items from products field.
    */
   private __createProducts(): void {
-    if (this.childProducts && this.childProducts.length) {
-      this.childProducts.forEach(p => {
+    if (this.products && this.products.length) {
+      this.products.forEach(p => {
         const product = new ProductItem();
         product.value = p;
         product.currency = this.currency;
