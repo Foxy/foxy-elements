@@ -1,6 +1,7 @@
 import { Product } from '../elements/public/QuickOrder/types';
 
 export class MockProduct extends HTMLElement implements Product {
+  static pidSource = 1;
   [k: string]: any;
   public name = 'Mock Product';
   public total = 10;
@@ -8,11 +9,12 @@ export class MockProduct extends HTMLElement implements Product {
   public quantity = 1;
   public pid = 0;
   public currency = '';
+  public code: string | number = '';
+  public parent_code: string | number = '';
 
   constructor(p?: Product) {
     super();
-    this.setAttribute('product', 'true');
-    this.pid = Math.random();
+    this.pid = MockProduct.pidSource++;
     if (p) {
       if (p.name) this.name = p.name;
       if (p.price) this.price = p.price;
@@ -22,17 +24,25 @@ export class MockProduct extends HTMLElement implements Product {
       this.__fromAttr('name');
       this.__fromAttr('price');
       this.__fromAttr('quantity');
+      this.__fromAttr('code');
     }
     this.total = this.price * this.quantity;
   }
 
+  connectedCallback() {
+    this.setAttribute('product', 'true');
+  }
+
   get value() {
-    return {
+    const result = {
       pid: this.pid,
       price: this.price,
       currency: this.currency,
       quantity: this.quantity,
     };
+    if (this.signatures) (result as any).signatures = this.signatures;
+    if (this.code) (result as any).code = this.code;
+    return result;
   }
 
   set value(p: Product) {
@@ -40,6 +50,9 @@ export class MockProduct extends HTMLElement implements Product {
     this.price = p.price!;
     this.quantity = p.quantity!;
     this.currency = p.currency!;
+    this.signatures = p.signatures;
+    this.code = p.code!;
+    this.parent_code = p.parent_code!;
   }
 
   private __fromAttr(key: string) {
