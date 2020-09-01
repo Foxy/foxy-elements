@@ -219,7 +219,7 @@ export class QuickOrder extends Translatable {
   private __removeProductsFromProductArray(condition = (e: ProductItem) => true) {
     this.__productElements.forEach(p => {
       if (condition(p)) {
-        p.parentElement!.removeChild(p);
+        p.remove();
       }
     });
   }
