@@ -327,13 +327,19 @@ export class QuickOrder extends Translatable {
   /** Adds a product to a form data */
   private __formDataAddProduct(fd: FormData, p: Product): void {
     const idKey = 'pid';
+    const reservedAttributes = [idKey, 'signatures', 'currency'];
     if (!p[idKey]) {
       throw new Error('Attempt to convert a product without a propper ID');
     }
     const rec = p as Record<string, unknown>;
-    for (const key of Object.keys(rec)) {
-      if (key !== idKey) {
+    for (let key of Object.keys(rec)) {
+      if (!reservedAttributes.includes(key)) {
         const fieldValue: unknown = rec[key];
+        // Adds a signature if possible
+        if (p.code && p.signatures && p.signatures[key]) {
+          key = this.__addSignature(key, p.signatures[key], p.open && p.open[key]);
+        }
+        // Prepend the id
         if (!Array.isArray(fieldValue)) {
           fd.append(`${rec[idKey]}:${key}`, `${fieldValue}`);
         }
