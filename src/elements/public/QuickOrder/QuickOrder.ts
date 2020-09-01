@@ -6,7 +6,7 @@ import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
 
-import { QuickOrderChangeEvent } from './QuickOrderChangeEvent';
+import { QuickOrderChangeEvent, QuickOrderResponseEvent, QuickOrderSubmitEvent } from './events';
 import { Product } from './types';
 
 export interface FrequencyOption {
@@ -263,13 +263,21 @@ export class QuickOrder extends Translatable {
    */
   private handleSubmit = {
     handleEvent: () => {
+      this.dispatchEvent(new QuickOrderSubmitEvent(this.__data!));
       if (this.__data !== null) {
         const request = new XMLHttpRequest();
-        request.open('POST', `https://${this.store}/cart`);
+        request.open('POST', `https://${this.store}/cart`, true);
+        request.onload = (e: ProgressEvent<EventTarget>) => {
+          this.dispatchEvent(new QuickOrderResponseEvent(e));
+        };
         request.send(this.__data);
       }
     },
   };
+
+  public onSubmissionResponse(e: ProgressEvent<EventTarget>) {
+    console.log(e);
+  }
 
   /**
    * Adds a signature to a post field
