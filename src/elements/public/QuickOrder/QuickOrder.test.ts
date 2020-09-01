@@ -1,4 +1,12 @@
-import { fixture, expect, html, elementUpdated, nextFrame, oneEvent } from '@open-wc/testing';
+import {
+  aTimeout,
+  fixture,
+  expect,
+  html,
+  elementUpdated,
+  nextFrame,
+  oneEvent,
+} from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
 import { Product } from './types';
@@ -365,11 +373,14 @@ describe('The form should add frequency fields', async () => {
   });
 
   it('Should provide field to choose frequencies', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Should add initial and end dates', async () => {
-    expect(true).to.equal(false);
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com" frequencies='["1m", "3m"]'>
+        <x-item name="p1" price="10.00"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    const freqInput = el.shadowRoot?.querySelector('[name=frequency]');
+    expect(freqInput).to.exist;
   });
 });
 
@@ -403,18 +414,35 @@ describe('The form submits a valid POST to forxycart', async () => {
       </x-form>
     `);
     await elementUpdated(el);
-    const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
-    expect(submitBtn).to.exist;
-    (submitBtn! as HTMLInputElement).click();
-    expect(true).to.equal(false);
+    const s = getSubmissionSpy(el as TestQuickOrder, requests);
+    expect(s.called).to.equal(true);
+    expect(s.callCount).to.equal(1);
+    for (const k of s.firstCall.args[0].keys()) {
+      expect(k.match(/^\d+:.*$/).index).to.equal(0);
+    }
   });
 
   it('Concatenates signatures', async () => {
-    expect(true).to.equal(false);
-  });
-
-  it('Configure parent_code', async () => {
-    expect(true).to.equal(false);
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com">
+        <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
+        <x-item name="p2" code="MyCode2" price="10.00" quantity="1"></x-item>
+      </x-form>
+    `);
+    const sig64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const signatures = { name: sig64, code: sig64, price: sig64, quantity: sig64 };
+    await elementUpdated(el);
+    const products = el.querySelectorAll('[product]');
+    expect(products).to.exist;
+    products!.forEach(p => {
+      (p as MockProduct).signatures = signatures;
+    });
+    const s = getSubmissionSpy(el as TestQuickOrder, requests);
+    expect(s.called).to.equal(true);
+    expect(s.callCount).to.equal(1);
+    for (const k of s.firstCall.args[0].keys()) {
+      expect(k).to.match(/.*\|\|a{64}$/);
+    }
   });
 
   it('Concatenates open to custom fields', async () => {
@@ -465,4 +493,18 @@ function valuesFromField(formData: FormData, name: string): FormDataEntryValue[]
     }
   });
   return values;
+}
+
+function getSubmissionSpy(
+  el: TestQuickOrder,
+  requests: sinon.SinonFakeXMLHttpRequest[]
+): sinon.SinonSpy {
+  const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
+  expect(submitBtn).to.exist;
+  (submitBtn! as HTMLInputElement).click();
+  expect(requests[0]).to.exist;
+  const r = requests[0];
+  expect(r.method).to.equal('POST');
+  const s: sinon.SinonSpy = (r as any).send;
+  return s;
 }
