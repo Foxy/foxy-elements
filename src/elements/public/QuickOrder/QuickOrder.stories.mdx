@@ -257,15 +257,17 @@ You may use an array of product objects to feed data to the form.
 In this scenario you loose some flexibility for the product tags will be created for you one next to the other.
 
 <Preview>
-  <Story name="Using an Array of products">
-    {html`
-    <foxy-order-form store="jamstackecommerceexample.foxycart.com"
-      currency="usd"
-      products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
-      >
-    </foxy-order-form>
-    `}
-  </Story>
+  <div class="container-narrow">
+    <Story name="Using an Array of products">
+      {html`
+      <foxy-order-form store="jamstackecommerceexample.foxycart.com"
+        currency="usd"
+        products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
+        >
+      </foxy-order-form>
+      `}
+    </Story>
+  </div>
 </Preview>
 
 ## Adding Child products
@@ -335,29 +337,31 @@ Setting the price of the children to zero you effectivelly create a bonus produc
 <Preview>
   <Story name="Bonus product">
     {html`
-    <foxy-order-form
-      store="jamstackecommerceexample"
-      currency="usd"
-      products='[
-        {
-          "name":"Artists Drawing Set",
-          "price":"75.95",
-          "products":[
-            {
-              "name":"Nanking Pencil",
-              "price":"0"
-            },
-            {
-              "name":"Blank Canvas",
-              "price":"0"
-            },
-            {
-              "name":"Water based paint",
-              "price":"0"
-            }
-          ]}
-        ]'>
-    </foxy-order-form>
+    <div class="container-narrow">
+      <foxy-order-form
+        store="jamstackecommerceexample"
+        currency="usd"
+        products='[
+          {
+            "name":"Artists Drawing Set",
+            "price":"75.95",
+            "products":[
+              {
+                "name":"Nanking Pencil",
+                "price":"0"
+              },
+              {
+                "name":"Blank Canvas",
+                "price":"0"
+              },
+              {
+                "name":"Water based paint",
+                "price":"0"
+              }
+            ]}
+          ]'>
+      </foxy-order-form>
+    </div>
     `}
   </Story>
 </Preview>
@@ -393,23 +397,25 @@ You may set specific dates with the format `YYYYMMDD`, or relative dates using a
 Check out the documentation for more details.
 
 <Preview>
-  <Story name="Start and End Dates" >
-    {html`
-    <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
-                     store="jamstackecommerceexample"
-                     currency="usd"
-                     sub_startdate="20200505"
-                     sub_enddate="20210505" >
-      <foxy-item
-        name="Pup Dog Food"
-        price="69.99"
-        description="High quality nutritious food for you pet "
-        sub_frequency="1m"
-        >
-      </foxy-item>
-    </foxy-order-form>
-    `}
-  </Story>
+  <div class="container-narrow">
+    <Story name="Start and End Dates" >
+      {html`
+      <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
+                       store="jamstackecommerceexample"
+                       currency="usd"
+                       sub_startdate="20200505"
+                       sub_enddate="20210505" >
+        <foxy-item
+          name="Pup Dog Food"
+          price="69.99"
+          description="High quality nutritious food for you pet "
+          sub_frequency="1m"
+          >
+        </foxy-item>
+      </foxy-order-form>
+      `}
+    </Story>
+  </div>
 </Preview>
 
 
