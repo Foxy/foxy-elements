@@ -20,7 +20,7 @@ export interface Product {
   pid?: number;
   alt?: string;
   open?: Record<string, string>;
+  signatures?: Record<string, string>;
   products?: Product[];
-  childProducts?: Product[];
   [key: string]: string | number | undefined | Product[] | Record<string, string> | null;
 }
