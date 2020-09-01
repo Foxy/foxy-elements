@@ -224,7 +224,7 @@ export class ProductItem extends Translatable implements Product {
   description = '';
 
   @property({ type: Object })
-  signature?: Record<string, string>;
+  signatures?: Record<string, string>;
 
   @property({ type: Object })
   open?: Record<string, string>;
