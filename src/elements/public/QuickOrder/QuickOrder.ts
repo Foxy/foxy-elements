@@ -91,7 +91,7 @@ export class QuickOrder extends Translatable {
   @property({
     type: Array,
     converter: value => {
-      if (value == null) {
+      if (!value) {
         return [];
       }
       const freqArray = JSON.parse(value);
@@ -160,7 +160,7 @@ export class QuickOrder extends Translatable {
         </form>
         <x-section class="actions w-full sm:w-auto">
           <div class="flex justify-end">
-            ${this.frequencies.length
+            ${this.frequencies && this.frequencies.length
               ? html` <div class="subscription flex-1 p-s flex-grow sm:flex-grow-0">
                   <x-dropdown
                     type="text"
@@ -292,11 +292,6 @@ export class QuickOrder extends Translatable {
   private __addSignature(name: string, signature: string, open?: string | boolean): string {
     // Check for malformed signature
     if (signature.length != 64) {
-      if (name.match(/(\d+:)?name$/)) {
-        console.error('Product', name, 'Wrong signature: ', signature);
-      } else {
-        console.error('Wrong signature: ', signature);
-      }
       throw new Error('There is something wrong with the signature. It should have 64 characters.');
     }
     return `${name}||${signature}${open ? '||open' : ''}`;

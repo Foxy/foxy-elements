@@ -1,15 +1,6 @@
-import {
-  fixture,
-  expect,
-  html,
-  elementUpdated,
-  nextFrame,
-  aTimeout,
-  oneEvent,
-} from '@open-wc/testing';
+import { fixture, expect, html, elementUpdated } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { Price } from './Price';
-import { extname } from 'path';
 
 /**
  * Avoid CustomElementsRegistry collisions

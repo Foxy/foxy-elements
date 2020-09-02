@@ -1,12 +1,4 @@
-import {
-  aTimeout,
-  fixture,
-  expect,
-  html,
-  elementUpdated,
-  nextFrame,
-  oneEvent,
-} from '@open-wc/testing';
+import { fixture, expect, html, elementUpdated } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
 import { Product } from './types';
@@ -26,7 +18,7 @@ class TestQuickOrder extends QuickOrder {
 customElements.define('x-form', TestQuickOrder);
 customElements.define('x-item', MockProduct);
 
-describe('The form should allow new products to be added', async () => {
+describe('The form should allow new products to be added and removed', async () => {
   let logSpy: sinon.SinonStub;
 
   beforeEach(function () {
@@ -93,29 +85,17 @@ describe('The form should allow new products to be added', async () => {
   });
 
   it('Should recognize new products added later as product item tags', async () => {
-    const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="20.00"></x-item>
-        <x-item name="p2" price="20.00"></x-item>
-      </x-form>
-    `);
-    await elementUpdated(el);
-    expect((el as QuickOrder).total).to.equal(40);
+    const el = await formWith2products(10, 10);
+    expect((el as QuickOrder).total).to.equal(20);
     const lateProduct = new MockProduct();
     lateProduct.total = 20;
     el.appendChild(lateProduct);
     await elementUpdated(el);
-    expect((el as QuickOrder).total).to.equal(60);
+    expect((el as QuickOrder).total).to.equal(40);
   });
 
   it('Should recognize child products removed from the DOM', async () => {
-    const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item id="first" name="p1" price="10.00"></x-item>
-        <x-item id="second" name="p2" price="10.00"></x-item>
-      </x-form>
-    `);
-    await elementUpdated(el);
+    const el = await formWith2products(10, 10);
     const toRemove = el.querySelector('#first');
     if (toRemove) {
       el.removeChild(toRemove);
@@ -125,18 +105,23 @@ describe('The form should allow new products to be added', async () => {
   });
 
   it('Should add new valid products', async () => {
-    const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item id="first" name="p1" price="10.00"></x-item>
-        <x-item id="second" name="p2" price="10.00"></x-item>
-      </x-form>
-    `);
-    await elementUpdated(el);
+    const el = await formWith2products(10, 10);
     (el as TestQuickOrder).addProducts([{ name: 'p3', price: 10 }]);
     await elementUpdated(el);
     const products = el.querySelectorAll('[product]');
     expect(products).to.exist;
     expect(products.length).to.equal(3);
+  });
+
+  it('Should remove products by product id', async () => {
+    const el = await formWith2products(10, 10);
+    let products = el.querySelectorAll('[product]');
+    const pid = (products[0] as MockProduct).pid;
+    el.removeProducts([pid]);
+    await elementUpdated(el);
+    products = el.querySelectorAll('[product]');
+    expect(products).to.exist;
+    expect(products.length).to.equal(1);
   });
 });
 
@@ -203,33 +188,53 @@ describe('The form should remain valid', async () => {
     }
   });
 
-  it('Should validate frequency format', async () => {
-    let el = await fixture(html`
-      <x-form
-        store="test.foxycart.com"
-        currency="usd"
-        frequencies='["5d", "10d", "15d", "1m", "1y", ".5m"]'
-      >
-        <x-item name="p3" price="10.00" quantity="3"></x-item>
-      </x-form>
-    `);
-    await elementUpdated(el);
-    expect(logSpy.calledWith('Invalid frequency')).to.be.false;
-    el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com" frequencies='["5", "10d"]'>
-        <x-item name="p3" price="10.00" quantity="3"></x-item>
-      </x-form>
-    `);
-    await elementUpdated(el);
-    expect(logSpy.calledWith('Invalid frequency')).to.be.true;
-    el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com" frequencies='[""]'>
-        <x-item name="p3" price="10.00" quantity="3"></x-item>
-      </x-form>
-    `);
-    await elementUpdated(el);
-    expect(logSpy.calledWith('Invalid frequency')).to.be.true;
-  });
+  interface FrequencyFormatTest {
+    it: string;
+    frequencies: string[] | null | string;
+    logHappens: boolean;
+  }
+  const frequencyTests: FrequencyFormatTest[] = [
+    {
+      it: 'Should accept valid frequencies',
+      frequencies: ['5d', '10d', '15d', '1m', '1y', '.5m'],
+      logHappens: false,
+    },
+    {
+      it: 'Should reject numeric frequencies',
+      frequencies: ['5', '10d'],
+      logHappens: true,
+    },
+    {
+      it: 'Should reject empty string frequencies',
+      frequencies: [''],
+      logHappens: true,
+    },
+    {
+      it: 'Should not accept string frequencies, it must be an array',
+      frequencies: '5d, 10d',
+      logHappens: true,
+    },
+    {
+      it: 'Should not accept null frequency, it must be an array, ',
+      frequencies: null,
+      logHappens: true,
+    },
+  ];
+
+  for (const t of frequencyTests) {
+    it(t.it, async () => {
+      const tpl = html`
+        <x-form store="test.foxycart.com" currency="usd" .frequencies=${t.frequencies}>
+          <x-item name="p3" price="10.00" quantity="3"></x-item>
+        </x-form>
+      `;
+      if (t.logHappens) {
+        expect(async () => await fixture(tpl)).to.throw;
+      } else {
+        expect(async () => await fixture(tpl)).not.to.throw;
+      }
+    });
+  }
 
   interface DateFormatTest {
     it: string;
@@ -343,11 +348,8 @@ describe('The form should be aware of its products', async () => {
     const m = firstProduct as MockProduct;
     m.quantity = 30;
     m.total = m.price * m.quantity;
-    const listener = oneEvent(el, 'change');
     m.dispatchEvent(new Event('change'));
-    await elementUpdated(firstProduct!);
     await elementUpdated(el);
-    await listener;
     expect(el.getAttribute('total')).to.equal('340');
   });
 });
@@ -385,6 +387,8 @@ describe('The form should add frequency fields', async () => {
 });
 
 describe('The form submits a valid POST to forxycart', async () => {
+  const sig64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  const signatures = { name: sig64, code: sig64, price: sig64, quantity: sig64 };
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
   let logSpy: sinon.SinonStub;
@@ -404,16 +408,26 @@ describe('The form submits a valid POST to forxycart', async () => {
     logSpy.restore();
   });
 
-  it('Prepends ids to the products', async () => {
+  it('Validates the size of the signature', async () => {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="10.00" quantity="3"></x-item>
-        <x-item name="p2" price="10.00" quantity="1"></x-item>
-        <x-item name="p3" price="10.00" quantity="2"></x-item>
-        <x-item name="p4" price="10.00" quantity="1"></x-item>
+        <x-item id="first" name="p1" price="10" code="code1"></x-item>
+        <x-item id="second" name="p2" price="10" code="code2"></x-item>
       </x-form>
     `);
     await elementUpdated(el);
+    const products = el.querySelectorAll('[product]');
+    expect(products).to.exist;
+    const wrongSig = { ...signatures, ...{ price: 'aaaaaaa' } };
+    products!.forEach(p => {
+      (p as MockProduct).signatures = wrongSig;
+    });
+    await elementUpdated(el);
+    expect(() => getSubmissionSpy(el as TestQuickOrder, requests)).to.throw;
+  });
+
+  it('Prepends ids to the products', async () => {
+    const el = await formWith2products(10, 10);
     const s = getSubmissionSpy(el as TestQuickOrder, requests);
     expect(s.called).to.equal(true);
     expect(s.callCount).to.equal(1);
@@ -429,8 +443,6 @@ describe('The form submits a valid POST to forxycart', async () => {
         <x-item name="p2" code="MyCode2" price="10.00" quantity="1"></x-item>
       </x-form>
     `);
-    const sig64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-    const signatures = { name: sig64, code: sig64, price: sig64, quantity: sig64 };
     await elementUpdated(el);
     const products = el.querySelectorAll('[product]');
     expect(products).to.exist;
@@ -446,7 +458,47 @@ describe('The form submits a valid POST to forxycart', async () => {
   });
 
   it('Concatenates open to custom fields', async () => {
-    expect(true).to.equal(false);
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com">
+        <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
+      </x-form>
+    `);
+    const open = { color: true };
+    await elementUpdated(el);
+    const products = el.querySelectorAll('[product]');
+    expect(products).to.exist;
+    (signatures as any).color = signatures.name;
+    products!.forEach(p => {
+      (p as MockProduct).signatures = signatures;
+      (p as MockProduct).open = open;
+      (p as MockProduct).color = 'blue';
+    });
+    const s = getSubmissionSpy(el as TestQuickOrder, requests);
+    expect(s.callCount).to.equal(1);
+    let found = false;
+    for (const k of s.firstCall.args[0].keys()) {
+      if (k.match(/\d+:color\|\|a{64}\|\|open$/)) {
+        found = true;
+      }
+    }
+    expect(found).to.equal(true);
+  });
+
+  it('Sends valid subscription fields', async () => {
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
+        <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    const frequencyField = el.shadowRoot?.querySelector('[name=frequency]');
+    expect(frequencyField).to.exist;
+    frequencyField?.dispatchEvent(new CustomEvent('change', { detail: '1d' }));
+    await elementUpdated(el);
+    const s = getSubmissionSpy(el as TestQuickOrder, requests);
+    expect(s.callCount).to.equal(1);
+    const fd: FormData = s.firstCall.args[0];
+    expect(fd.get('sub_frequency')).to.exist.and.to.equal('1d');
   });
 });
 
@@ -470,15 +522,23 @@ describe('The form reveals its state to the user', async () => {
     logSpy.restore();
   });
 
-  it('Displays frequency information', async () => {
-    expect(true).to.equal(false);
-  });
-
   it('Disables submit button when no product is valid', async () => {
     expect(true).to.equal(false);
   });
 });
+
 /** Helper functions **/
+
+async function formWith2products(price1: number, price2: number) {
+  const el = await fixture(html`
+    <x-form currency="usd" store="test.foxycart.com">
+      <x-item id="first" name="p1" price="${price1}"></x-item>
+      <x-item id="second" name="p2" price="${price2}"></x-item>
+    </x-form>
+  `);
+  await elementUpdated(el);
+  return el as TestQuickOrder;
+}
 
 /**
  * Returns FormDataEntryValues for fields with a particular name, following
