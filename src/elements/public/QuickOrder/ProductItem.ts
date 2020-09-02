@@ -19,26 +19,34 @@ export class ProductItem extends Translatable implements Product {
     return [
       super.styles,
       css`
-        [name='quantity']::part(input-field) {
-          background: transparent;
+        article.product {
+          margin: 0 auto;
+          display: grid;
+          grid-template-areas:
+            'picture quantity'
+            'description description'
+            'children children'
+            'price price';
         }
-        [name='quantity']::part(input-field):hover {
-          background: transparent;
+        @media (min-width: 640px) {
+          article.product {
+            grid-template-areas:
+              'picture description description quantity'
+              'picture children children children'
+              'picture price price price';
+          }
         }
-        [name='quantity']::part(input-field):after {
-          background-color: transparent;
-          transition: none;
-          opacity: 0;
+        section.quantity {
+          grid-area: quantity;
         }
-        [name='quantity']::part(decrease-button),
-        [name='quantity']::part(increase-button) {
-          background: var(--lumo-contrast-10pct);
-          border-radius: 100%;
-          transition: background-color 0.2s;
+        section.description {
+          grid-area: description;
         }
-        [name='quantity']::part(decrease-button):hover,
-        [name='quantity']::part(increase-button):hover {
-          background-color: var(--lumo-contrast-50pct);
+        section.price {
+          grid-area: price;
+        }
+        section.child-products {
+          grid-area: children;
         }
       `,
     ];
@@ -264,70 +272,72 @@ export class ProductItem extends Translatable implements Product {
     },
   };
 
-  private handleExclude = {
-    handleEvent: (ev: Event) => {
-      this.quantity = 0;
-    },
-  };
-
   public render(): TemplateResult {
     if (!this.__isValid()) {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
-    return html`
-      <article
-        class="product flex flex-row flex-wrap justify-between ${this.quantity ? '' : 'removed'} ${
-      this.__modified ? 'modified' : ''
-    }"
-      >
-        ${
-          this.image
-            ? html` <img
-                class="max-w-xs min-w-1 block w-full sm:w-auto flex-grow"
+    if (this.isChildProduct) {
+      return html`
+        <article class="product-summary p-s m-s border-b-2 border-shade-30">
+          <h1 class="text-header font-bold text-size-m">
+            ${this.name}
+          </h1>
+          <section class="description text-body">
+            ${this.description ? html`<p>${this.description}</p>` : ''}
+            <slot></slot>
+          </section>
+          <section class="quantity">
+            ${this.quantity}
+          </section>
+        </article>
+      `;
+    } else {
+      return html`
+        <article
+          class="product p-m ${this.quantity ? '' : 'removed'} ${this.__modified ? 'modified' : ''}"
+        >
+          ${this.image
+            ? html` <x-picture
+                class="max-w-xs min-w-1 block w-full sm:w-auto "
                 alt="${this.alt ?? ''}"
                 src="${this.image}"
-              />`
-            : ''
-        }
-        <section class="description p-s min-w-xl w-full sm:w-auto flex-third">
-          <h1 class="text-primary text-bold font-size-m">${this.name}</h1>
-          <div class="product-description">
-            ${this.description}
-          </div>
-        </section>
-        <section class="item-info p-s min-w-1 w-full max-w-xxs sm:w-auto flex-grow">
-          <div class="price text-right text-primary p-s">
-            <x-price .price=${this.price}
-                     .prices=${this.__childPrices}
-                     .currency=${this.currency}
-                     .quantity=${this.quantity}>
+                quantity="${this.quantity}"
+              >
+                <x-picture
+              /></x-picture>`
+            : ''}
+          <section class="description p-s min-w-xl w-full sm:w-auto ">
+            <h1 class="text-header font-bold font-size-xl">${this.name}</h1>
+            <div class="product-description text-body">
+              ${this.description}
+              <slot></slot>
+            </div>
+          </section>
+          <section class="price text-right text-primary p-s">
+            <x-price
+              .price=${this.price}
+              .prices=${this.__childPrices}
+              .currency=${this.currency}
+              .quantity=${this.quantity}
+            >
             </x-price>
-          ${
-            this.isChildProduct
-              ? ''
-              : html` <div class="quantity-wrapper p-s max-w-xxs w-full md:w-auto text-s">
-                  <x-number-field
-                    name="quantity"
-                    @change=${this.handleQuantity}
-                    value="${this.quantity}"
-                    min="0"
-                    has-controls
-                  ></x-number-field>
-                  <x-checkbox
-                    class="text-xs"
-                    name="remove"
-                    @change=${this.handleExclude}
-                    .checked=${this.quantity ? false : true}
-                    >${this._t('product.remove')}</x-checkbox
-                  >
-                </div>`
-          }
-        </section>
-        <section class="child-products w-full ${this.products ? 'p-s' : ''}">
-          <slot></slot>
-        </section>
-      </article>
-    `;
+          </section>
+          <section class="quantity p-s max-w-xxs w-full md:w-auto text-s">
+            <x-number-field
+              name="quantity"
+              @change=${this.handleQuantity}
+              value="${this.quantity}"
+              min="0"
+              has-controls
+            ></x-number-field>
+            ${this.quantity > 1 ? html`<div class="price-each">${this.price}</div>` : ''}
+          </section>
+          <section class="child-products w-full ${this.products ? 'p-s' : ''}">
+            <slot name="products"></slot>
+          </section>
+        </article>
+      `;
+    }
   }
 
   /**
