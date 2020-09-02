@@ -11,6 +11,8 @@ export class MockProduct extends HTMLElement implements Product {
   public currency = '';
   public code: string | number = '';
   public parent_code: string | number = '';
+  public open?: Record<string, boolean>;
+  public signatures?: Record<string, string>;
 
   constructor(p?: Product) {
     super();
@@ -42,6 +44,8 @@ export class MockProduct extends HTMLElement implements Product {
     };
     if (this.signatures) (result as any).signatures = this.signatures;
     if (this.code) (result as any).code = this.code;
+    if (this.color) (result as any).color = this.color;
+    if (this.open) (result as any).open = this.open;
     return result;
   }
 
@@ -53,6 +57,7 @@ export class MockProduct extends HTMLElement implements Product {
     this.signatures = p.signatures;
     this.code = p.code!;
     this.parent_code = p.parent_code!;
+    this.color = p.color;
   }
 
   private __fromAttr(key: string) {
