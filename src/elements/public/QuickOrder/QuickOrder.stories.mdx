@@ -64,7 +64,7 @@ This approach allow you to create your form writing your HTML in readable way.
     {html`
     <div class="container-narrow">
       <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
-        <foxy-item name="Cool Product" price="10"></foxy-item>
+        <foxy-item name="Cool Product" price="10" image="https://placedog.net/200"></foxy-item>
       </foxy-order-form>
     </div>
     `}
@@ -92,7 +92,7 @@ The downside of this approach is that you have little control of custom markup y
     <div class="container-narrow">
       <foxy-order-form store="jamstackecommerceexample.foxycart.com"
                        currency="usd"
-                       products='[{"name":"Cool Product", "price": 5}]'
+                       products='[{"name":"Cool Product", "price": 5, "image":"https://placedog.net/200", "quantity": 2, "description": "I do deserve a tasty food" }]'
                        >
       </foxy-order-form>
     </div>
@@ -140,11 +140,11 @@ Please, note that `foxy-order-form` will not find them if they are in a Shadow D
     <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
         <foxy-item name="pup dog food"
                    price="59.99"
-                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   image="http://placedog.net/200"
                    description="High quality nutritious food for you pet." >
         </foxy-item>
         <foxy-item name="pup dog rich food" price="69.99"
-                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   image="http://placedog.net/200"
                    description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
         </foxy-item>
     </foxy-order-form>
@@ -196,11 +196,11 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
         <section class="dietary-food">
           <foxy-item name="pup dog food"
                      price="59.99"
-                     image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                     image="http://placedog.net/200"
                      description="High quality nutritious food for you pet." >
           </foxy-item>
           <foxy-item name="pup dog rich food" price="69.99"
-            image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+            image="http://placedog.net/200"
             description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
             >
           </foxy-item>
@@ -210,7 +210,7 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
             <foxy-item
               name="pup dog food"
               price="69.99"
-              image="https://www.foxy.io/merchants/shopping-cart-full.svg">
+              image="http://placedog.net/200">
               <section style="display: flex">
                 <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
                 <table>
@@ -242,7 +242,7 @@ You can configure subscriptions using the subscription product options, as outli
                        frequencies='["1d", "1w", ".5m", "1m"]'>
         <foxy-item name="Pup Dog Food"
                    price="69.99"
-                   image="https://www.foxy.io/merchants/shopping-cart-full.svg" >
+                   image="http://placedog.net/200" >
         </foxy-item>
       </foxy-order-form>
     <div>
@@ -288,9 +288,14 @@ Here is an example bundle created with tags.
       store="jamstackecommerceexample"
       currency="usd"
   >
-      <foxy-item name="Bundle Package" price="0.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-        <foxy-item name="The smart choice" price="50.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
-        <foxy-item name="The interesting bit" price="30.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
+      <foxy-item name="Bundle Package" price="0.00" image="http://placedog.net/200">
+        <p>The most avanced dog food bundle you will find out there. Well balanced, delicious and scientifically evaluated.</p>
+        <foxy-item slot="products" name="The smart choice" price="50.00" image="http://placedog.net/200">
+          The smart choice is one your puppy is always trying to do, but need you to lead the way.
+        </foxy-item>
+        <foxy-item slot="products" name="The interesting bit" price="30.00" image="http://placedog.net/200">
+          The world is full of interesting stuff but there is but one <strong>interesting bit</strong>, that's for sure.
+        </foxy-item>
       </foxy-item>
     </foxy-order-form>
     `}
@@ -309,17 +314,17 @@ Here you have a product bundle example created with an array.
         {
           "name": "Bundle Package",
           "price":"0.00",
-          "image":"https://www.foxy.io/merchants/shopping-cart-full.svg",
+          "image":"http://placedog.net/200",
           "products": [
             {
               "name": "The smart choice",
               "price": "50",
-              "image":"https://www.foxy.io/merchants/shopping-cart-full.svg"
+              "image":"http://placedog.net/200"
             },
             {
               "name": "The interesting bit",
               "price": "30",
-              "image":"https://www.foxy.io/merchants/shopping-cart-full.svg"
+              "image":"http://placedog.net/200"
             }
           ]
         }
@@ -377,9 +382,9 @@ If you set prices to both parent and child products, you can make products that 
       store="jamstackecommerceexample"
       currency="usd"
   >
-      <foxy-item name="Purple Jacket" description="Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!" price="80.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg">
-        <foxy-item name="Purple pants" price="40.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
-        <foxy-item name="Purple boots" price="40.00" image="https://www.foxy.io/merchants/shopping-cart-full.svg"> </foxy-item>
+      <foxy-item name="Purple Jacket" description="Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!" price="80.00" image="http://placedog.net/200">
+        <foxy-item slot="products" name="Purple pants" price="40.00" image="http://placedog.net/200"> </foxy-item>
+        <foxy-item slot="products" name="Purple boots" price="40.00" image="http://placedog.net/200"> </foxy-item>
       </foxy-item>
     </foxy-order-form>
     `}
@@ -548,11 +553,11 @@ myForm.removeProducts([productToRemove.pid]);
     <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
         <foxy-item name="pup dog food"
                    price="59.99"
-                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   image="http://placedog.net/200"
                    description="High quality nutritious food for you pet." >
         </foxy-item>
         <foxy-item name="pup dog rich food" price="69.99"
-                   image="https://www.foxy.io/merchants/shopping-cart-full.svg"
+                   image="http://placedog.net/200"
                    description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
         </foxy-item>
         <button type="button" 
