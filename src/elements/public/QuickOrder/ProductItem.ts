@@ -1,6 +1,6 @@
 import { Translatable } from '../../../mixins/translatable';
 import { Product } from './types';
-import { Price } from './private/index';
+import { Price, Picture } from './private/index';
 import { html, css, property, internalProperty, CSSResultArray, TemplateResult } from 'lit-element';
 import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../private/index';
 
@@ -62,6 +62,7 @@ export class ProductItem extends Translatable implements Product {
       'x-number-field': customElements.get('vaadin-number-field'),
       'x-i18n': I18N,
       'x-price': Price,
+      'x-picture': Picture,
       'x-error-screen': ErrorScreen,
     };
   }
