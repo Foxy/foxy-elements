@@ -227,7 +227,7 @@ export class ProductItem extends Translatable implements Product {
   signatures?: Record<string, string>;
 
   @property({ type: Object })
-  open?: Record<string, string>;
+  open?: Record<string, boolean>;
 
   @property({ type: Number, reflect: true })
   public pid: number = ProductItem.__newId();

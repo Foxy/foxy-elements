@@ -19,8 +19,15 @@ export interface Product {
   currency?: string;
   pid?: number;
   alt?: string;
-  open?: Record<string, string>;
+  open?: Record<string, boolean>;
   signatures?: Record<string, string>;
   products?: Product[];
-  [key: string]: string | number | undefined | Product[] | Record<string, string> | null;
+  [key: string]:
+    | string
+    | number
+    | undefined
+    | Product[]
+    | Record<string, string>
+    | Record<string, boolean>
+    | null;
 }
