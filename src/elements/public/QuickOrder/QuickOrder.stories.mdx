@@ -257,17 +257,17 @@ You may use an array of product objects to feed data to the form.
 In this scenario you loose some flexibility for the product tags will be created for you one next to the other.
 
 <Preview>
-  <div class="container-narrow">
     <Story name="Using an Array of products">
-      {html`
-      <foxy-order-form store="jamstackecommerceexample.foxycart.com"
-        currency="usd"
-        products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
-        >
-      </foxy-order-form>
-      `}
+    {html`
+      <div class="container-narrow">
+        <foxy-order-form store="jamstackecommerceexample.foxycart.com"
+                         currency="usd"
+                         products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
+                         >
+        </foxy-order-form>
+      </div>
+        `}
     </Story>
-  </div>
 </Preview>
 
 ## Adding Child products
@@ -397,9 +397,9 @@ You may set specific dates with the format `YYYYMMDD`, or relative dates using a
 Check out the documentation for more details.
 
 <Preview>
-  <div class="container-narrow">
     <Story name="Start and End Dates" >
       {html`
+    <div class="container-narrow">
       <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
                        store="jamstackecommerceexample"
                        currency="usd"
@@ -413,9 +413,9 @@ Check out the documentation for more details.
           >
         </foxy-item>
       </foxy-order-form>
+    </div>
       `}
     </Story>
-  </div>
 </Preview>
 
 
@@ -525,16 +525,21 @@ Custumers may remove products from the form using the quantity button or the rem
 
 There may be circumstances, however, where the application itself must remove a product from the form.
 
-You can achieve this by providing a new products array or you may choose to remove a product.
+You may simply remove the product directly:
 
-You will need to use the product id called `pid`.
+```javascript
+myForm.querySelector('[name="pup dog food"]').remove();
+```
+
+You can also this by providing a new products array or you may choose to remove a product.
+
+You will need to use the product id called `pid`, like so:
 
 Consider the following code:
 
 ```javascript
-
-
-
+var productToRemove = myForm.querySelector('SomePropertyUniqueToProductToRemove');
+myForm.removeProducts([productToRemove.pid]);
 ```
 
 <Preview>
@@ -552,7 +557,7 @@ Consider the following code:
         </foxy-item>
         <button type="button" 
               style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
-              onclick="this.parentElement.removeProducts([1]);">Remove product 1</button>
+              onclick="this.parentElement.removeProducts([this.parentElement.children[0].pid]);">Remove first product</button>
     </foxy-order-form>
     `}
   </Story>
