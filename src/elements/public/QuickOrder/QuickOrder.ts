@@ -152,7 +152,7 @@ export class QuickOrder extends Translatable {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     return html`
-      <x-page>
+      <x-page class="shadow-xl">
         <form>
           <section class="products p-s border-primary-10 border rounded-s ">
             <slot></slot>
