@@ -152,7 +152,7 @@ export class QuickOrder extends Translatable {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     return html`
-      <form class="shadow-xl max-w-xl mx-auto m-m ">
+      <form class="shadow-xl max-w-xl mx-auto m-m p-s ">
         <section class="products">
           <slot></slot>
         </section>
@@ -175,7 +175,7 @@ export class QuickOrder extends Translatable {
                   </x-dropdown>
                 </div>`
               : ''}
-            <div class="flex-1 p-s flex-grow sm:flex-grow-0">
+            <div class="flex-1 flex-grow sm:flex-grow-0">
               <vaadin-button class="w-full" type="button" role="submit" @click=${this.handleSubmit}>
                 <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
                 <x-i18n key="form.continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>

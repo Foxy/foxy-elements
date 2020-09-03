@@ -23,10 +23,10 @@ export class ProductItem extends Translatable implements Product {
           margin: 0 auto;
           display: grid;
           grid:
-            'picture quantity'
-            'description description'
-            'children children'
-            'price price' / auto auto;
+            'picture picture quantity'
+            'description description description'
+            'children children children'
+            'price price price' / auto auto 104px;
           grid-column-gap: 32px;
         }
         @media (min-width: 640px) {
@@ -279,7 +279,7 @@ export class ProductItem extends Translatable implements Product {
       return html`
         <article class="product-summary flex justify-between p-s m-s border-b-2 border-shade-5">
           <div class="description">
-            <h1 class="text-header font-bold text-size-m">
+            <h1 class="text-header font-bold text-m">
               ${this.name}
             </h1>
             <section class="description text-body">
@@ -303,8 +303,8 @@ export class ProductItem extends Translatable implements Product {
         >
           <x-picture-grid .images=${this.__images}></x-picture-grid>
           <section class="description min-w-xl w-full sm:w-auto ">
-            <h1 class="text-header font-bold font-size-xl">${this.name}</h1>
-            <div class="product-description text-body">
+            <h1 class="text-header font-bold text-l">${this.name}</h1>
+            <div class="product-description text-secondary">
               ${this.description}
               <slot></slot>
             </div>
@@ -327,7 +327,11 @@ export class ProductItem extends Translatable implements Product {
               min="0"
               has-controls
             ></x-number-field>
-            ${this.quantity > 1 ? html`<div class="price-each">${this.price}</div>` : ''}
+            ${this.quantity > 1 && this.price
+              ? html`<div class="price-each text-secondary text-xs text-center">
+                  ${this.__translateAmount(this.price!)} ${this._t('price.each')}
+                </div>`
+              : ''}
           </section>
           <section class="child-products w-full">
             <slot name="products"></slot>
@@ -441,7 +445,7 @@ export class ProductItem extends Translatable implements Product {
   private __translateAmount(amount: number) {
     if (this.currency) {
       return amount.toLocaleString(this.lang, {
-        minimumFractionDigits: 0,
+        minimumFractionDigits: 2,
         currency: this.currency!,
         style: 'currency',
       });
@@ -477,7 +481,6 @@ export class ProductItem extends Translatable implements Product {
   }
 
   public getImageDescription() {
-    console.log('asked about my image', this.image, this.alt, this.quantity, this);
     return {
       src: this.image,
       alt: this.alt,
