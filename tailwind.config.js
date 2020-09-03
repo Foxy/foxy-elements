@@ -201,6 +201,9 @@ module.exports = {
   purge: {
     enabled: false,
   },
+  future: {
+    removeDeprecatedGapUtilities: true,
+  },
   variants: ['responsive', 'group-hover', 'focus-within', 'hover', 'focus', 'disabled'],
   theme: {
     colors: colorsMap,
