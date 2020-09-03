@@ -12,7 +12,6 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json",
-    "wca:watch": "onchange \"src/**/*.ts\" -- npm run wca",
     "cpx": "cpx \"src/**/*.stories.mdx\" dist",
     "cpx:watch": "cpx \"src/**/*.stories.mdx\" dist --watch",
     "storybook": "concurrently --kill-others \"ttsc --watch\" \"npm run cpx:watch\" \"start-storybook\"",
@@ -79,7 +78,6 @@
     "husky": "^4.2.5",
     "karma": "^5.2.1",
     "lint-staged": "^10.3.0",
-    "onchange": "^7.0.2",
     "postcss": "^7.0.32",
     "prettier": "^2.1.1",
     "rimraf": "^3.0.2",
