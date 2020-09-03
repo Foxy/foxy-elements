@@ -1,3 +1,5 @@
-import { ChoiceChangeEvent } from '../choice/ChoiceChangeEvent';
-
-export class DropdownChangeEvent extends ChoiceChangeEvent {}
+export class DropdownChangeEvent extends CustomEvent<string | null> {
+  constructor(detail: string | null) {
+    super('change', { detail });
+  }
+}

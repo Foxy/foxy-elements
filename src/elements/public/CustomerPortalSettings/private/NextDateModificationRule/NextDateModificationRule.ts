@@ -108,7 +108,7 @@ export class NextDateModificationRule extends Translatable {
                 .value=${jsonataQuery}
                 .disabled=${this.disabled}
                 @change=${(evt: JSONataInputChangeEvent) => {
-                  this.value = { ...this.value, jsonataQuery: evt.detail };
+                  this.value = { ...this.value, jsonataQuery: evt.detail as string };
                   this.__sendUpdate();
                 }}
               >

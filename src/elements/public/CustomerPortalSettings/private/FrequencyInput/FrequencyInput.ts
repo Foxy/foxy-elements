@@ -74,7 +74,7 @@ export class FrequencyInput extends Translatable {
   }
 
   private __handleUnitsChange(evt: DropdownChangeEvent) {
-    this.value = this.value.replace(String(this.__unitsValue), evt.detail);
+    this.value = this.value.replace(String(this.__unitsValue), evt.detail as string);
     this.__sendChange();
   }
 

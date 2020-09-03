@@ -23,7 +23,7 @@ export class OffsetInput extends Translatable {
   private readonly __items = ['none', 'custom'] as const;
 
   private get __choice() {
-    return this.__items[this.value === undefined ? 0 : 1];
+    return this.__items[!this.value ? 0 : 1];
   }
 
   @property({ type: Boolean })
@@ -88,7 +88,7 @@ export class OffsetInput extends Translatable {
   }
 
   private __handleNewValueChange(evt: FrequencyInputChangeEvent) {
-    this.value = evt.detail;
+    this.value = evt.detail as string;
     this.__sendChange();
   }
 

@@ -19,6 +19,7 @@ vaadin-select {
   margin-bottom: -4px;
 }
 
+vaadin-text-area,
 vaadin-text-field,
 vaadin-date-picker,
 vaadin-email-field,

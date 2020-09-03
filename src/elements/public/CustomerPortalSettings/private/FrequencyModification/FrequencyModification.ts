@@ -77,12 +77,8 @@ export class FrequencyModification extends Translatable {
                 </x-group>
 
                 <x-group frame>
-                  <x-i18n
-                    slot="header"
-                    .ns=${this.ns}
-                    .lang=${this.lang}
-                    key="fmod.options"
-                  ></x-i18n>
+                  <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.options">
+                  </x-i18n>
                   <x-frequency-list
                     data-testid="frequency"
                     .lang=${this.lang}
@@ -100,7 +96,7 @@ export class FrequencyModification extends Translatable {
   }
 
   private __handleQueryChange(evt: JSONataInputChangeEvent) {
-    this.value = { ...this.__normalizedValue, jsonataQuery: evt.detail };
+    this.value = { ...this.__normalizedValue, jsonataQuery: evt.detail as string };
     this.__sendChange();
   }
 
