@@ -27,9 +27,7 @@ function radio(checked: boolean, attrs: (part: AttributePart) => void, label: Te
           <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">
-        ${label}
-      </div>
+      <div class="font-lumo text-body leading-m">${label}</div>
     </label>
   `;
 }
@@ -47,9 +45,7 @@ function check(checked: boolean, attrs: (part: AttributePart) => void, label: Te
           <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">
-        ${label}
-      </div>
+      <div class="font-lumo text-body leading-m">${label}</div>
     </label>
   `;
 }
