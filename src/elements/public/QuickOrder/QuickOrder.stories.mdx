@@ -64,7 +64,9 @@ This approach allow you to create your form writing your HTML in readable way.
     {html`
     <div class="container-narrow">
       <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
-        <foxy-item name="Cool Product" price="10" image="https://placedog.net/200"></foxy-item>
+        <foxy-item name="Cool Product" price="10" image="https://placedog.net/200">
+        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest. Iam id ipsum absurdum, maximum malum neglegi. Haeret in salebra. Quasi ego id curem, quid ille aiat aut neget. Istam voluptatem perpetuam quis potest praestare sapienti?</div>
+        </foxy-item>
       </foxy-order-form>
     </div>
     `}
@@ -350,18 +352,22 @@ Setting the price of the children to zero you effectivelly create a bonus produc
           {
             "name":"Artists Drawing Set",
             "price":"75.95",
+            "image": "http://placedog.net/200",
             "products":[
               {
                 "name":"Nanking Pencil",
-                "price":"0"
+                "price":"0",
+                "image": "http://placedog.net/200"
               },
               {
                 "name":"Blank Canvas",
-                "price":"0"
+                "price":"0",
+                "image": "http://placedog.net/200"
               },
               {
                 "name":"Water based paint",
-                "price":"0"
+                "price":"0",
+                "image": "http://placedog.net/200"
               }
             ]}
           ]'>
