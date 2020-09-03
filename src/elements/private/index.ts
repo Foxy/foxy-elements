@@ -3,6 +3,7 @@ export * from './Choice/Choice';
 export * from './Code/Code';
 export * from './Dropdown/Dropdown';
 export * from './ErrorScreen/ErrorScreen';
+export * from './Editable/Editable';
 export * from './Group/Group';
 export * from './I18N/I18N';
 export * from './List/List';

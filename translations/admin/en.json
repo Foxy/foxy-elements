@@ -25,5 +25,30 @@
     "billing": "Billing",
     "profile": "Profile",
     "signout": "Sign out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "widgets": {
+      "add": "Add widget",
+      "edit": "Edit widget",
+      "title": "Overview",
+      "source": "Source",
+      "source_show": "Show source",
+      "source_error": "This URL is unreachable",
+      "source_hint": "Resource path relative to store (skip for store itself).",
+      "source_link": "See docs",
+      "jsonata": "Display",
+      "jsonata_hint": "JSONata query selecting data from the resource.",
+      "jsonata_link": "Learn JSONata",
+      "label": "Label",
+      "label_empty": "No label",
+      "label_placeholder": "Active subscriptions",
+      "subtitle": "Add more insights by clicking the plus button. Drag and drop to reorder.",
+      "subscriptions_active": "Active subscriptions",
+      "subscriptions_tomorrow": "Subscriptions running tomorrow",
+      "subscriptions_next7days": "Subscriptions running in 7 days",
+      "transactions_last30days": "Transactions in the last 30 days",
+      "custom": "Custom"
+    }
   }
 }

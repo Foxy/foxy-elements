@@ -2,6 +2,8 @@ import { html } from 'lit-html';
 import { Story, Preview, Meta, Props } from '@open-wc/demoing-storybook';
 import { withKnobs, withWebComponentsKnobs } from '@open-wc/demoing-storybook';
 import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
+import { subscriptions } from '../../../mocks/FxSubscriptions';
+import { transactions } from '../../../mocks/FxTransactions';
 import { bookmark } from '../../../mocks/FxBookmark';
 import { store } from '../../../mocks/FxStore';
 import { user } from '../../../mocks/FxUser';
@@ -11,12 +13,26 @@ export const handleRequest = evt => {
   evt.detail.handle(async url => {
     await new Promise(resolve => setTimeout(resolve, 500));
     //
-    if (url === '/') return new Response(JSON.stringify(bookmark));
-    if (url.endsWith('/stores/8')) return new Response(JSON.stringify(store));
-    if (url.endsWith('/users/2')) return new Response(JSON.stringify(user));
-    if (url.endsWith('/stores/8/customer_portal_settings')) {
+    if (url.includes('/stores/8/subscriptions')) {
+      return new Response(JSON.stringify(subscriptions));
+    }
+    if (url.includes('/stores/8/transactions')) {
+      return new Response(JSON.stringify(transactions));
+    }
+    if (url.includes('/stores/8/customer_portal_settings')) {
       return new Response(JSON.stringify(customerPortalSettings));
     }
+    if (url.includes('/stores/8')) {
+      return new Response(JSON.stringify(store));
+    }
+    if (url.includes('/users/2')) {
+      return new Response(JSON.stringify(user));
+    }
+    if (url === '/') {
+      return new Response(JSON.stringify(bookmark));
+    }
+    //
+    console.error('Unhandled route: ', url);
     //
     return new Response(null, { status: 404 });
   });

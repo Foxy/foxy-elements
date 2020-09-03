@@ -10,6 +10,7 @@ module.exports = {
     require('./plugins/set-node-env')('development'),
     require('./plugins/fix-xstate-chalk-imports'),
     require('./plugins/use-es-version-of-xstate'),
+    require('./plugins/fix-jsonata-import'),
     require('./plugins/tailwind'),
   ],
 };
