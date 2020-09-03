@@ -278,23 +278,29 @@ export class ProductItem extends Translatable implements Product {
     }
     if (this.isChildProduct) {
       return html`
-        <article class="product-summary p-s m-s border-b-2 border-shade-30">
-          <h1 class="text-header font-bold text-size-m">
-            ${this.name}
-          </h1>
-          <section class="description text-body">
-            ${this.description ? html`<p>${this.description}</p>` : ''}
-            <slot></slot>
-          </section>
-          <section class="quantity">
-            ${this.quantity}
-          </section>
+        <article class="product-summary flex justify-between p-s m-s border-b-2 border-shade-5">
+          <div class="description">
+            <h1 class="text-header font-bold text-size-m">
+              ${this.name}
+            </h1>
+            <section class="description text-body">
+              ${this.description ? html`<p>${this.description}</p>` : ''}
+              <slot></slot>
+            </section>
+          </div>
+          ${this.quantity < 2
+            ? ''
+            : html` <section class="quantity w-24 font-bold text-secondary">
+                ${this.quantity} items
+              </section>`}
         </article>
       `;
     } else {
       return html`
         <article
-          class="product p-m ${this.quantity ? '' : 'removed'} ${this.__modified ? 'modified' : ''}"
+          class="product sm:p-m ${this.quantity ? '' : 'removed'} ${this.__modified
+            ? 'modified'
+            : ''}"
         >
           ${this.image
             ? html` <x-picture

@@ -153,11 +153,9 @@ export class QuickOrder extends Translatable {
     }
     return html`
       <x-page class="shadow-xl">
-        <form>
-          <section class="products p-s border-primary-10 border rounded-s ">
-            <slot></slot>
-          </section>
-        </form>
+        <section class="products">
+          <slot></slot>
+        </section>
         <x-section class="actions w-full sm:w-auto">
           <div class="flex justify-end">
             ${this.frequencies && this.frequencies.length
