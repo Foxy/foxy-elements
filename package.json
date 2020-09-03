@@ -36,7 +36,6 @@
     "@vaadin/router": "^1.7.2",
     "@vaadin/vaadin": "^15.0.6",
     "i18next": "^19.7.0",
-    "i18next-browser-languagedetector": "^6.0.1",
     "i18next-http-backend": "^1.0.18",
     "jsonata": "^1.8.3",
     "lit-element": "^2.4.0",

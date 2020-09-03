@@ -1,5 +1,4 @@
 import i18next, { FormatFunction, i18n, TFunction } from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
 import { cdn } from '../env';
 import { Themeable } from './themeable';
@@ -59,8 +58,6 @@ export abstract class Translatable extends Themeable {
 
   private static __initI18N() {
     this.__i18n = i18next.createInstance();
-
-    this.__i18n.use(LanguageDetector);
     this.__i18n.use(HttpApi);
 
     this.__whenI18NReady = this.__i18n.init({
