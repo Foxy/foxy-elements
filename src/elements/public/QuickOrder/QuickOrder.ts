@@ -152,7 +152,7 @@ export class QuickOrder extends Translatable {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     return html`
-      <x-page class="shadow-xl">
+      <form class="shadow-xl max-w-xl mx-auto m-m ">
         <section class="products">
           <slot></slot>
         </section>
@@ -186,7 +186,7 @@ export class QuickOrder extends Translatable {
             </div>
           </div>
         </x-section>
-      </x-page>
+      </form>
     `;
   }
 

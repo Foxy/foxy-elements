@@ -1,6 +1,6 @@
 import { Translatable } from '../../../mixins/translatable';
-import { Product } from './types';
-import { Price, Picture } from './private/index';
+import { Product, ImageDescription } from './types';
+import { Price, Picture, PictureGrid } from './private/index';
 import { html, css, property, internalProperty, CSSResultArray, TemplateResult } from 'lit-element';
 import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../private/index';
 
@@ -22,18 +22,20 @@ export class ProductItem extends Translatable implements Product {
         article.product {
           margin: 0 auto;
           display: grid;
-          grid-template-areas:
+          grid:
             'picture quantity'
             'description description'
             'children children'
-            'price price';
+            'price price' / auto auto;
+          grid-column-gap: 32px;
         }
         @media (min-width: 640px) {
           article.product {
-            grid-template-areas:
-              'picture description description quantity'
-              'picture children children children'
-              'picture price price price';
+            grid:
+              'picture description description  quantity'
+              'picture children children  children'
+              'picture price price price' / 88px auto 100px 104px;
+            grid-column-gap: 32px;
           }
         }
         section.quantity {
@@ -71,6 +73,7 @@ export class ProductItem extends Translatable implements Product {
       'x-i18n': I18N,
       'x-price': Price,
       'x-picture': Picture,
+      'x-picture-grid': PictureGrid,
       'x-error-screen': ErrorScreen,
     };
   }
@@ -128,7 +131,7 @@ export class ProductItem extends Translatable implements Product {
       this.__setParentCode();
       this.__createProducts();
       this.__acknowledgeChildProducts();
-      this.__setTotalPrice();
+      this.__changedChildProduct();
       if (!this.__isValid()) {
         console.error('Invalid product', 'in product', this.value);
       }
@@ -242,17 +245,10 @@ export class ProductItem extends Translatable implements Product {
   public pid: number = ProductItem.__newId();
 
   @internalProperty()
-  private get __childPrices(): number[] {
-    const childPrices: number[] = [];
-    const myChildProducts = this.querySelectorAll('[combined]');
-    myChildProducts.forEach(e => {
-      const p = e as ProductItem;
-      if (p.total) {
-        childPrices.push(p.total);
-      }
-    });
-    return childPrices;
-  }
+  private __childPrices: number[] = [];
+
+  @internalProperty()
+  private __images: ImageDescription[] = [];
 
   public updated(changed: Map<string, any>): void {
     if (changed.get('products') != undefined) {
@@ -269,6 +265,9 @@ export class ProductItem extends Translatable implements Product {
         this.__modified = true;
       }
       this.quantity = newValue;
+      this.__images = ([this.getImageDescription()] as ImageDescription[]).concat(
+        this.__images.slice(1, this.__images.length)
+      );
     },
   };
 
@@ -302,24 +301,15 @@ export class ProductItem extends Translatable implements Product {
             ? 'modified'
             : ''}"
         >
-          ${this.image
-            ? html` <x-picture
-                class="max-w-xs min-w-1 block w-full sm:w-auto "
-                alt="${this.alt ?? ''}"
-                src="${this.image}"
-                quantity="${this.quantity}"
-              >
-                <x-picture
-              /></x-picture>`
-            : ''}
-          <section class="description p-s min-w-xl w-full sm:w-auto ">
+          <x-picture-grid .images=${this.__images}></x-picture-grid>
+          <section class="description min-w-xl w-full sm:w-auto ">
             <h1 class="text-header font-bold font-size-xl">${this.name}</h1>
             <div class="product-description text-body">
               ${this.description}
               <slot></slot>
             </div>
           </section>
-          <section class="price text-right text-primary p-s">
+          <section class="price text-right text-primary ">
             <x-price
               .price=${this.price}
               .prices=${this.__childPrices}
@@ -328,8 +318,9 @@ export class ProductItem extends Translatable implements Product {
             >
             </x-price>
           </section>
-          <section class="quantity p-s max-w-xxs w-full md:w-auto text-s">
+          <section class="quantity max-w-xxs w-full md:w-auto text-s">
             <x-number-field
+              class="w-full"
               name="quantity"
               @change=${this.handleQuantity}
               value="${this.quantity}"
@@ -338,7 +329,7 @@ export class ProductItem extends Translatable implements Product {
             ></x-number-field>
             ${this.quantity > 1 ? html`<div class="price-each">${this.price}</div>` : ''}
           </section>
-          <section class="child-products w-full ${this.products ? 'p-s' : ''}">
+          <section class="child-products w-full">
             <slot name="products"></slot>
           </section>
         </article>
@@ -390,11 +381,16 @@ export class ProductItem extends Translatable implements Product {
    */
   private __computeTotalPrice(): number {
     // Get all child products
+    if (!this.price) {
+      return 0;
+    }
+    if (!this.__childPrices) {
+      return this.price * this.quantity;
+    }
     const myChildProducts = this.querySelectorAll('[combined]');
     let myPrice = 0;
-    myChildProducts.forEach(e => {
-      const p = e as ProductItem;
-      p.total && (myPrice += p.total);
+    this.__childPrices.forEach(p => {
+      myPrice += p;
     });
     myPrice += this.price!;
     myPrice *= this.quantity;
@@ -475,8 +471,52 @@ export class ProductItem extends Translatable implements Product {
   }
 
   private __acknowledgeProduct(e: ProductItem): void {
-    e.addEventListener('change', this.__setTotalPrice.bind(this));
+    e.addEventListener('change', this.__changedChildProduct.bind(this));
     e.isProduct = false;
     e.isChildProduct = true;
+  }
+
+  public getImageDescription() {
+    console.log('asked about my image', this.image, this.alt, this.quantity, this);
+    return {
+      src: this.image,
+      alt: this.alt,
+      quantity: this.quantity,
+    };
+  }
+
+  /** React to changes in child products */
+  private __changedChildProduct() {
+    // Reset child attributes lists
+    const newProductPrices: number[] = [];
+    const newProductImages: ImageDescription[] = [];
+    if (this.image) {
+      newProductImages.push(this.getImageDescription());
+    }
+    // Create collection functions
+    const collectPrices = (p: ProductItem) => {
+      if (p.total !== undefined) {
+        newProductPrices.push(p.total);
+      }
+    };
+    const collectImages = (p: ProductItem) => {
+      newProductImages.push(p.getImageDescription());
+    };
+    // Collect information of every child
+    this.__onEachChildProduct([collectPrices, collectImages]);
+    // Update atributes reggarding child products
+    this.__childPrices = newProductPrices;
+    this.__images = newProductImages;
+    this.__setTotalPrice();
+  }
+
+  /** Execute a list of actions against all child products */
+  private __onEachChildProduct(actions: ((c: ProductItem) => void)[]) {
+    const myChildProducts = this.querySelectorAll('[combined]');
+    for (const c of myChildProducts) {
+      for (const actOn of actions) {
+        actOn(c as ProductItem);
+      }
+    }
   }
 }

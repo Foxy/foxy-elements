@@ -7,12 +7,8 @@ export class Picture extends Themeable {
       super.styles,
       css`
         .product.image {
-          height: 100px;
-          width: 100px;
         }
         .back {
-          height: 100px;
-          width: 100px;
           position: absolute;
           transform: rotate(0);
           transition: 0.3s transform;
@@ -37,20 +33,38 @@ export class Picture extends Themeable {
   @property({ type: Number })
   public quantity?: number;
 
+  @property({ type: Number })
+  public width?: number;
+
+  @property({ type: Number })
+  public height?: number;
+
   public render(): TemplateResult {
     return html`
-      <div class="product image m-m ${this.quantity && this.quantity > 1 ? 'multiple' : ''}">
+      <div
+        class="product w-full h-full image ${this.quantity && this.quantity > 1 ? 'multiple' : ''}"
+      >
         <img
+          style="${this.__imageSize()}"
           class="back object-cover w-full h-full rounded-s shadow-xl"
           src="${this.src}"
           alt="${this.alt}"
         />
         <img
+          style="${this.__imageSize()}"
+          width="${this.width}"
+          height="${this.height}"
           class="front object-cover w-full h-full rounded-s shadow-xl"
           src="${this.src}"
           alt="${this.alt}"
         />
       </div>
     `;
+  }
+
+  private __imageSize() {
+    return `${this.width ? 'width:' + this.width + 'px;' : ''} ${
+      this.height ? 'height:' + this.height + 'px;' : ''
+    }`;
   }
 }

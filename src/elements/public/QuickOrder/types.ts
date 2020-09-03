@@ -31,3 +31,9 @@ export interface Product {
     | Record<string, boolean>
     | null;
 }
+
+export interface ImageDescription {
+  src?: string;
+  alt?: string;
+  quantity?: number;
+}
