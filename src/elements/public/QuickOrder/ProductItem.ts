@@ -26,7 +26,7 @@ export class ProductItem extends Translatable implements Product {
             'picture picture quantity'
             'description description description'
             'children children children'
-            'price price price' / auto auto 104px;
+            'price price price' / 88px auto 104px;
           grid-column-gap: 32px;
         }
         @media (min-width: 640px) {
