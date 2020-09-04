@@ -7,10 +7,8 @@ export class Picture extends Themeable {
       super.styles,
       css`
         .back {
-          position: absolute;
           transform: rotate(0);
           transition: 0.3s transform;
-          z-index: -1;
           opacity: 0.4;
         }
         .multiple .back {
@@ -42,7 +40,7 @@ export class Picture extends Themeable {
       >
         <img
           style="${this.__imageSize()}"
-          class="back object-cover w-full h-full rounded-s shadow-xl"
+          class="back object-cover w-full h-full rounded-s shadow-xl absolute"
           src="${this.src}"
           alt="${this.alt}"
         />
@@ -50,7 +48,7 @@ export class Picture extends Themeable {
           style="${this.__imageSize()}"
           width="${this.width}"
           height="${this.height}"
-          class="front object-cover w-full h-full rounded-s shadow-xl"
+          class="front object-cover w-full h-full rounded-s shadow-xl relative"
           src="${this.src}"
           alt="${this.alt}"
         />
