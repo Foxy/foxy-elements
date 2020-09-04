@@ -153,14 +153,14 @@ export class QuickOrder extends Translatable {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     return html`
-      <form class="shadow-xl max-w-xl rounded-l mx-auto m-m p-s sm:p-l">
+      <form class="shadow-xl max-w-xl rounded-l mx-auto sm:m-m p-s sm:p-l">
         <section class="products">
           <slot></slot>
         </section>
         <x-section class="actions w-full sm:w-auto">
-          <div class="flex justify-end">
+          <div class="sm:flex justify-end">
             ${this.frequencies && this.frequencies.length
-              ? html` <div class="subscription flex-1 flex-grow sm:flex-grow-0 sm:mr-m sm:mb-m">
+              ? html` <div class="subscription flex-1 flex-grow sm:mb-0 sm:mr-m mb-m">
                   <x-dropdown
                     type="text"
                     name="frequency"
@@ -173,8 +173,13 @@ export class QuickOrder extends Translatable {
                   </x-dropdown>
                 </div>`
               : ''}
-            <div class="flex-1 flex-grow sm:flex-grow-0">
-              <vaadin-button theme="primary" role="submit" @click=${this.handleSubmit}>
+            <div class="flex-1 flex-grow">
+              <vaadin-button
+                class="w-full sm:w-auto"
+                theme="primary"
+                role="submit"
+                @click=${this.handleSubmit}
+              >
                 <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
                 <x-i18n key="form.continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
                 <span class="total font-bold">${this.__translateAmount(this.total)}</span>

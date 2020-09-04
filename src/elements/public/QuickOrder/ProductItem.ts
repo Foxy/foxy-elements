@@ -318,7 +318,7 @@ export class ProductItem extends Translatable implements Product {
       return html`
         <article class="product-item">
           <x-picture-grid .images=${this.__images}></x-picture-grid>
-          <section class="description min-w-xl w-full sm:w-auto ">
+          <section class="description min-w-xl w-full mt-l sm:w-auto sm:mt-0">
             <h1 class="text-header font-bold text-l leading-none mb-m">${this.name}</h1>
             <div class="product-description text-secondary">
               ${this.description}
