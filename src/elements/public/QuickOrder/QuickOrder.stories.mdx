@@ -94,7 +94,14 @@ The downside of this approach is that you have little control of custom markup y
     <div class="container-narrow">
       <foxy-order-form store="jamstackecommerceexample.foxycart.com"
                        currency="usd"
-                       products='[{"name":"Cool Product", "price": 5, "image":"https://placedog.net/200", "quantity": 2, "description": "I do deserve a tasty food" }]'
+                       products='[
+                       {
+                         "name":"Cool Product",
+                         "price": 5,
+                         "image":"https://placedog.net/200",
+                         "quantity": 2,
+                         "description": "I do deserve a tasty food" 
+                         }]'
                        >
       </foxy-order-form>
     </div>
@@ -270,7 +277,14 @@ In this scenario you loose some flexibility for the product tags will be created
       <div class="container-narrow">
         <foxy-order-form store="jamstackecommerceexample.foxycart.com"
                          currency="usd"
-                         products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
+                         products='[{
+                             "name":"Cub Puppy",
+                             "price":"75.95"
+                           },
+                           {
+                             "name":"Bird Dog",
+                             "price":"64.95"
+                           }]'
                          >
         </foxy-order-form>
       </div>
@@ -471,30 +485,34 @@ Also, note that only the products, not additional markup, will be removed.
 <Preview>
   <Story name="Change products list">
     {html`
-		<div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
-    <foxy-order-form id="to-change-product-list"
-      store="jamstackecommerceexample"
-      currency="usd"
-      products='[
-        {
-          "name":"Artists Drawing Set",
-          "price":"75.95",
-          "products":[
-            {
-              "name":"Nanking Pencil",
-              "price":"0"
-            },
-            {
-              "name":"Blank Canvas",
-              "price":"0"
-            },
-            {
-              "name":"Water based paint",
-              "price":"0"
-            }
-          ]}
-        ]'>
-    </foxy-order-form>
+      <div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+        <foxy-order-form id="to-change-product-list"
+          store="jamstackecommerceexample"
+          currency="usd"
+          products='[
+          {
+            "name":"Artists Drawing Set",
+              "price":"75.95",
+              "image": "http://placedog.net/200",
+              "products":[
+              {
+                "name":"Nanking Pencil",
+                "image": "http://placedog.net/200",
+                "price":"0"
+              },
+              {
+                "name":"Blank Canvas",
+                "image": "http://placedog.net/200",
+                "price":"0"
+              },
+              {
+                "name":"Water based paint",
+                "image": "http://placedog.net/200",
+                "price":"0"
+              }
+              ]}
+            ]'>
+        </foxy-order-form>
     <button type="button"
             style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
             onclick="document.querySelector('#to-change-product-list').products = [{name:'Changed', price: 5}];">
