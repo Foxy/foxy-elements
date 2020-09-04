@@ -1,6 +1,7 @@
 {
-  "form": {
-    "continue": "Continue"
+  "checkout": {
+    "buy": "Buy for {{value}}",
+    "subscribe": "Subscribe for {{value}}/{{period}}"
   },
   "freq": {
     "just_this_once": "Just this once",
@@ -18,6 +19,8 @@
   },
   "product": {
     "remove": "Remove"
+  },
+  "price": {
+    "each": "Each"
   }
-
 }
