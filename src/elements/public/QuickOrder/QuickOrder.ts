@@ -153,7 +153,7 @@ export class QuickOrder extends Translatable {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     return html`
-      <form class="shadow-xl max-w-xl mx-auto m-m p-s sm:p-l">
+      <form class="shadow-xl max-w-xl rounded-l mx-auto m-m p-s sm:p-l">
         <section class="products">
           <slot></slot>
         </section>
@@ -398,6 +398,9 @@ export class QuickOrder extends Translatable {
     }
   }
 
+  /**
+   * TODO: This same method is available in Donation Form
+   */
   private __translateFrequency(frequency: string) {
     if (frequency.startsWith('0')) return this._t('frequency_once');
     if (frequency === '.5m') return this._t('frequency_0_5m');
