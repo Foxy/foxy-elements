@@ -127,9 +127,6 @@ export class ProductItem extends Translatable implements Product {
       subtree: true,
     });
     this.updateComplete.then(() => {
-      if (!this.getAttribute('combined')) {
-        this.setAttribute('product', 'true');
-      }
       this.__setCode();
       this.__setParentCode();
       this.__createProducts();
@@ -284,7 +281,9 @@ export class ProductItem extends Translatable implements Product {
     }
     if (this.isChildProduct) {
       return html`
-        <article class="product-summary flex justify-between py-m">
+        <article
+          class="product-summary flex justify-between py-m ${this.quantity ? '' : 'removed'}"
+        >
           <div class="description">
             <h1 class="text-header font-bold text-m mb-s leading-none">
               ${this.name}
@@ -303,7 +302,11 @@ export class ProductItem extends Translatable implements Product {
       `;
     } else {
       return html`
-        <article class="product-item">
+        <article
+          class="product-item py-m ${this.quantity ? '' : 'removed'} ${this.modified
+            ? 'modified'
+            : ''}"
+        >
           <x-picture-grid .images=${this.__images}></x-picture-grid>
           <section class="description min-w-xl w-full mt-l sm:w-auto sm:mt-0">
             <h1 class="text-header font-bold text-l leading-none mb-m">${this.name}</h1>
@@ -387,14 +390,10 @@ export class ProductItem extends Translatable implements Product {
    * The price of the total qty of each of the child products
    */
   private __computeTotalPrice(): number {
-    // Get all child products
-    if (!this.price) {
-      return 0;
-    }
     if (!this.__childPrices) {
+      if (!this.price) return 0;
       return this.price * this.quantity;
     }
-    const myChildProducts = this.querySelectorAll('[combined]');
     let myPrice = 0;
     this.__childPrices.forEach(p => {
       myPrice += p;
@@ -481,9 +480,10 @@ export class ProductItem extends Translatable implements Product {
     e.addEventListener('change', this.__changedChildProduct.bind(this));
     e.isProduct = false;
     e.isChildProduct = true;
+    e.classList.add('border-b', 'border-shade-5', 'last:border-b-0');
   }
 
-  public getImageDescription() {
+  public getImageDescription(): ImageDescription {
     return {
       src: this.image,
       alt: this.alt,
