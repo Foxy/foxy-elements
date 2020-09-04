@@ -1,5 +1,5 @@
 import { Translatable } from '../../../../mixins/translatable';
-import { html, css, CSSResultArray, TemplateResult, internalProperty, property } from 'lit-element';
+import { html, css, CSSResultArray, TemplateResult, property, internalProperty } from 'lit-element';
 import { ImageDescription } from '../types';
 import { Picture } from './index';
 
@@ -13,7 +13,7 @@ export class PictureGrid extends Translatable {
   private static __baseWidth = 88;
   private static __baseGap = 4;
 
-  static get styles() {
+  static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -42,16 +42,17 @@ export class PictureGrid extends Translatable {
 
   private __areas = ['first', 'second', 'third', 'fourth'];
 
+  @internalProperty()
   private __images: ImageDescription[] = [];
 
   @property({ type: Array })
   public set images(value: ImageDescription[]) {
     this.__images = value.filter(i => {
-      i.src && i.src !== 'null' && i.src !== 'undefined';
+      return i.src && i.src !== 'null' && i.src !== 'undefined';
     });
   }
 
-  public get images() {
+  public get images(): ImageDescription[] {
     return this.__images;
   }
 
@@ -59,18 +60,18 @@ export class PictureGrid extends Translatable {
   private __eachHeight = PictureGrid.__baseWidth;
 
   public render(): TemplateResult {
-    if (!this.images || !this.images.length) {
+    if (!this.__images || !this.__images.length) {
       return html`${this._t('no_images')}`;
     }
     return html` <div
-      class="image-grid flex flex-wrap max-w-xs min-w-1 block w-full sm:w-auto ${this.images
+      class="image-grid flex flex-wrap max-w-xs min-w-1 block w-full sm:w-auto ${this.__images
         .length > 1
         ? 'multiple'
         : ''}"
     >
-      ${this.images.length == 1
-        ? this.__renderPicture(this.images[0], 0)
-        : this.images.map(this.__renderPicture.bind(this))}
+      ${this.__images.length == 1
+        ? this.__renderPicture(this.__images[0], 0)
+        : this.__images.map(this.__renderPicture.bind(this))}
     </div>`;
   }
 
@@ -79,12 +80,12 @@ export class PictureGrid extends Translatable {
     this.__setWidth();
   }
 
-  public updated() {
+  public updated(): void {
     this.__setWidth();
   }
 
-  private __setWidth() {
-    if (this.images.length > 1) {
+  private __setWidth(): void {
+    if (this.__images.length > 1) {
       this.__eachHeight = PictureGrid.__baseWidth / 2;
       this.__eachWidth = PictureGrid.__baseWidth / 2;
     } else {
@@ -94,7 +95,6 @@ export class PictureGrid extends Translatable {
   }
 
   private __renderPicture(description: ImageDescription, index: number): TemplateResult {
-    const multiple = this.images.length > 1;
     return html` <x-picture
       width="${this.__eachWidth}"
       height="${this.__eachHeight}"
