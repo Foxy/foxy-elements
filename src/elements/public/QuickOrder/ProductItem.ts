@@ -290,6 +290,14 @@ export class ProductItem extends Translatable implements Product {
     } else {
       this.classList.remove('modified');
     }
+    this.classList.add(
+      'border-shade-5',
+      'border-b',
+      'last:border-b-0',
+      'py-m',
+      'last:pb-0',
+      'pt-m'
+    );
   }
 
   public render(): TemplateResult {
