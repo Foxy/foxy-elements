@@ -1,6 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-icons/vaadin-icons';
+import { parseDuration } from '../../../utils/parse-duration';
 import { html, property, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
@@ -164,12 +165,9 @@ export class QuickOrder extends Translatable {
                     type="text"
                     name="frequency"
                     lang=${this.lang}
-                    .value=${'freq.just_this_once'}
-                    .items=${this.frequencies.concat(['freq.just_this_once'])}
-                    .getText=${(v: string) => {
-                      const friendly = this.__friendlyFreq(v);
-                      return `${friendly.number ? friendly.number + ' ' : ''}${friendly.period}`;
-                    }}
+                    .value=${'0'}
+                    .items=${this.frequencies.concat(['0'])}
+                    .getText=${this.__translateFrequency.bind(this)}
                     @change=${this.__handleFrequency}
                   >
                   </x-dropdown>
@@ -400,32 +398,14 @@ export class QuickOrder extends Translatable {
     }
   }
 
-  /**
-   * Returns an object with human friendly values for a given frequency
-   */
-  private __friendlyFreq(value: string): FrequencyOption {
-    if (value == 'freq.just_this_once') {
-      return {
-        number: 0,
-        period: this._t('freq.just_this_once'),
-        periodCode: '',
-      };
-    }
-    const matches = value.match(/^(\.?\d+)([dwmy])$/);
-    if (!matches) {
-      throw new Error(this._t('error.invalid_frequency'));
-    }
-    const friendlyTimeSpan: { [name: string]: string } = {
-      d: this._t('freq.day'),
-      w: this._t('freq.week'),
-      m: this._t('freq.month'),
-      y: this._t('freq.year'),
-    };
-    return {
-      number: Number(matches[1]),
-      period: friendlyTimeSpan[matches[2]],
-      periodCode: matches[2],
-    };
+  private __translateFrequency(frequency: string) {
+    if (frequency.startsWith('0')) return this._t('frequency_once');
+    if (frequency === '.5m') return this._t('frequency_0_5m');
+    const { count, units } = parseDuration(frequency);
+    return this._t('frequency', {
+      units: this._t(units, { count }),
+      count,
+    });
   }
 
   /** Subscribe to late inserted products. */
