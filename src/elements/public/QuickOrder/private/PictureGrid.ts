@@ -45,18 +45,27 @@ export class PictureGrid extends Translatable {
   @internalProperty()
   private __images: ImageDescription[] = [];
 
+  @internalProperty()
+  private __missingImages: TemplateResult[] = [];
+
   @property({ type: Array })
   public set images(value: ImageDescription[]) {
     this.__images = value.filter(i => {
       return i.src && i.src !== 'null' && i.src !== 'undefined';
     });
+    this.__missingImages = [];
+    for (let i = 0; i < 4 - this.__images.length; i++) {
+      this.__missingImages.push(this.__renderShadow());
+    }
   }
 
   public get images(): ImageDescription[] {
     return this.__images;
   }
 
+  @internalProperty()
   private __eachWidth = PictureGrid.__baseWidth;
+  @internalProperty()
   private __eachHeight = PictureGrid.__baseWidth;
 
   public render(): TemplateResult {
@@ -71,7 +80,7 @@ export class PictureGrid extends Translatable {
     >
       ${this.__images.length == 1
         ? this.__renderPicture(this.__images[0], 0)
-        : this.__images.map(this.__renderPicture.bind(this))}
+        : this.__images.map(this.__renderPicture.bind(this)).concat(this.__missingImages)}
     </div>`;
   }
 
@@ -92,6 +101,10 @@ export class PictureGrid extends Translatable {
       this.__eachHeight = PictureGrid.__baseWidth;
       this.__eachWidth = PictureGrid.__baseWidth;
     }
+  }
+
+  private __renderShadow() {
+    return html`<div class="block w-full h-full rounded-s relative bg-shade-20"></div>`;
   }
 
   private __renderPicture(description: ImageDescription, index: number): TemplateResult {
