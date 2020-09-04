@@ -10,12 +10,6 @@ import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../.
 import { QuickOrderChangeEvent, QuickOrderResponseEvent, QuickOrderSubmitEvent } from './events';
 import { Product } from './types';
 
-export interface FrequencyOption {
-  number: number;
-  period: string;
-  periodCode: string;
-}
-
 /**
  * This Quick Order Form accepts products either as a JS array or as child elements of type ProductItem
  *
@@ -123,6 +117,15 @@ export class QuickOrder extends Translatable {
   })
   public frequencies: string[] = [];
 
+  private __submitBtnText(value: string): string {
+    if (!this.sub_frequency || this.sub_frequency == '0') {
+      return this._t('checkout.buy', { value });
+    } else {
+      const duration = parseDuration(this.sub_frequency);
+      return this._t('checkout.subscribe', { value, period: this._t(duration.units) });
+    }
+  }
+
   @property({ type: Array })
   products: Product[] = [];
 
@@ -181,8 +184,9 @@ export class QuickOrder extends Translatable {
                 @click=${this.handleSubmit}
               >
                 <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
-                <x-i18n key="form.continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-                <span class="total font-bold">${this.__translateAmount(this.total)}</span>
+                <span class="total font-bold"
+                  >${this.__submitBtnText(this.__translateAmount(this.total))}</span
+                >
               </vaadin-button>
             </div>
           </div>
