@@ -150,7 +150,8 @@ export class ProductItem extends Translatable implements Product {
       if (typeof v[k as keyof Product] == 'object') {
         attrValue = JSON.stringify(v[k as keyof Product]);
       } else {
-        if (v[k as keyof Product] || v[k as keyof Product] === 0) {
+        const key = k as keyof Product;
+        if ((v[key] && v[key] !== 'undefined') || v[key] === 0) {
           attrValue = v[k as keyof Product]!.toString();
         }
       }
