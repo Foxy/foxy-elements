@@ -176,7 +176,6 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
         border: solid thin silver;
         border-radius: 6px;
         padding: 1em;
-        columns: 2;
         margin-bottom: 1em;
         background: #fafafa;
       }
@@ -224,7 +223,7 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
               name="pup dog food"
               price="69.99"
               image="http://placedog.net/200">
-              <section style="display: flex">
+              <section>
                 <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
                 <table>
                   <tr><td>Easily digested</td><td>✓</td></tr>
@@ -253,7 +252,7 @@ You can configure subscriptions using the subscription product options, as outli
     <div class="container-narrow">
       <foxy-order-form store="jamstackecommerceexample.foxycart.com"
                        currency="usd"
-                       frequencies='["1d", "1w", ".5m", "1m"]'>
+                       frequencies='["1d", "1w", ".5m", "1m", "3m"]'>
         <foxy-item name="Pup Dog Food"
                    price="69.99"
                    image="http://placedog.net/200" >
