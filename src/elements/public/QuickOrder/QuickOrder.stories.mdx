@@ -65,7 +65,7 @@ This approach allow you to create your form writing your HTML in readable way.
     <div class="container-narrow">
       <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
         <foxy-item name="Cool Product" price="10" image="https://placedog.net/200">
-        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest. Iam id ipsum absurdum, maximum malum neglegi. Haeret in salebra. Quasi ego id curem, quid ille aiat aut neget. Istam voluptatem perpetuam quis potest praestare sapienti?</div>
+        <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
       </foxy-order-form>
     </div>
@@ -144,10 +144,12 @@ Please, note that `foxy-order-form` will not find them if they are in a Shadow D
                    price="59.99"
                    image="http://placedog.net/200"
                    description="High quality nutritious food for you pet." >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
         <foxy-item name="pup dog rich food" price="69.99"
                    image="http://placedog.net/200"
                    description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
     </foxy-order-form>
     `}
@@ -200,11 +202,13 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
                      price="59.99"
                      image="http://placedog.net/200"
                      description="High quality nutritious food for you pet." >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
           </foxy-item>
           <foxy-item name="pup dog rich food" price="69.99"
             image="http://placedog.net/200"
             description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
             >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
           </foxy-item>
         </section>
         <h1>Special Item</h1>
@@ -221,6 +225,7 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
                   <tr><td>Environmentaly responsible</td><td>✓</td></tr>
                 </table>
               </section>
+              <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
             </foxy-item>
         </section>
     </foxy-order-form>
@@ -245,6 +250,7 @@ You can configure subscriptions using the subscription product options, as outli
         <foxy-item name="Pup Dog Food"
                    price="69.99"
                    image="http://placedog.net/200" >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
       </foxy-order-form>
     <div>
@@ -293,10 +299,10 @@ Here is an example bundle created with tags.
       <foxy-item name="Bundle Package" price="0.00" image="http://placedog.net/200">
         <p>The most avanced dog food bundle you will find out there. Well balanced, delicious and scientifically evaluated.</p>
         <foxy-item slot="products" name="The smart choice" price="50.00" image="http://placedog.net/200" quantity="3">
-          The smart choice is one your puppy is always trying to do, but need you to lead the way.
+          <div>The smart choice is one your puppy is always trying to do, but need you to lead the way.</div>
         </foxy-item>
         <foxy-item slot="products" name="The interesting bit" price="30.00" image="http://placedog.net/200" quantity="2">
-          The world is full of interesting stuff but there is but one <strong>interesting bit</strong>, that's for sure.
+          <div>The world is full of interesting stuff but there is but one <strong>interesting bit</strong>, that's for sure.</div>
         </foxy-item>
       </foxy-item>
     </foxy-order-form>
@@ -389,8 +395,12 @@ If you set prices to both parent and child products, you can make products that 
       currency="usd"
   >
       <foxy-item name="Purple Jacket" description="Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!" price="80.00" image="http://placedog.net/200">
-        <foxy-item slot="products" name="Purple pants" price="40.00" image="http://placedog.net/200"> </foxy-item>
-        <foxy-item slot="products" name="Purple boots" price="40.00" image="http://placedog.net/200"> </foxy-item>
+        <foxy-item slot="products" name="Purple pants" price="40.00" image="http://placedog.net/200">
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
+        </foxy-item>
+        <foxy-item slot="products" name="Purple boots" price="40.00" image="http://placedog.net/200">
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
+        </foxy-item>
       </foxy-item>
     </foxy-order-form>
     `}
@@ -422,6 +432,7 @@ Check out the documentation for more details.
           description="High quality nutritious food for you pet "
           sub_frequency="1m"
           >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
       </foxy-order-form>
     </div>
@@ -523,6 +534,7 @@ You can add one or more products to the form using the `addProducts` method of t
         description="High quality nutritious food for you pet "
         sub_frequency="1m"
         >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
       </foxy-item>
     </foxy-order-form>
     </div>
@@ -561,10 +573,12 @@ myForm.removeProducts([productToRemove.pid]);
                    price="59.99"
                    image="http://placedog.net/200"
                    description="High quality nutritious food for you pet." >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
         <foxy-item name="pup dog rich food" price="69.99"
                    image="http://placedog.net/200"
                    description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
         <button type="button" 
               style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
