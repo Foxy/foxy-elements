@@ -282,7 +282,9 @@ export class ProductItem extends Translatable implements Product {
     if (this.isChildProduct) {
       return html`
         <article
-          class="product-summary flex justify-between py-m ${this.quantity ? '' : 'removed'}"
+          class="product-summary duration-100 flex justify-between py-m ${this.quantity
+            ? ''
+            : 'removed opacity-50'}"
         >
           <div class="description">
             <h1 class="text-header font-bold text-m mb-s leading-none">
@@ -303,7 +305,8 @@ export class ProductItem extends Translatable implements Product {
     } else {
       return html`
         <article
-          class="product-item py-m ${this.quantity ? '' : 'removed'} ${this.modified
+          class="product-item duration-100 py-m ${this.quantity ? '' : 'removed opacity-50'} ${this
+            .modified
             ? 'modified'
             : ''}"
         >
