@@ -297,8 +297,8 @@ export class ProductItem extends Translatable implements Product {
           </div>
           ${this.quantity < 2
             ? ''
-            : html` <section class="quantity w-24 font-bold text-secondary">
-                ${this.quantity} items
+            : html` <section class="quantity w-auto font-normal text-secondary">
+                ${this._t('product.items', { quantity: this.quantity })}
               </section>`}
         </article>
       `;

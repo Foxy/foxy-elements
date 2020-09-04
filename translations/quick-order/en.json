@@ -18,7 +18,8 @@
     "no_currency": "No currency available."
   },
   "product": {
-    "remove": "Remove"
+    "remove": "Remove",
+    "items": "{{quantity}} items"
   },
   "price": {
     "each": "Each"
