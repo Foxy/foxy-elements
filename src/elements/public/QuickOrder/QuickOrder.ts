@@ -133,7 +133,10 @@ export class QuickOrder extends Translatable {
       return this._t('checkout.buy', { value });
     } else {
       const duration = parseDuration(this.sub_frequency);
-      return this._t('checkout.subscribe', { value, period: this._t(duration.units) });
+      return this._t('checkout.subscribe', {
+        value,
+        period: this._t(duration.units).toLowerCase(),
+      });
     }
   }
 
@@ -171,7 +174,7 @@ export class QuickOrder extends Translatable {
         <section class="products">
           <slot></slot>
         </section>
-        <x-section class="actions w-full sm:w-auto">
+        <x-section class="actions w-full sm:w-auto flex justify-end">
           <div
             class="grid grid-flow-row grid-rows-2 grid-cols-1 sm:grid-rows-1 sm:grid-flow-col sm:grid-cols-2 gap-m"
           >
@@ -196,8 +199,7 @@ export class QuickOrder extends Translatable {
                 role="submit"
                 @click=${this.handleSubmit}
               >
-                <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
-                <span class="total font-bold"
+                <span class="total font-normal"
                   >${this.__submitBtnText(this.__translateAmount(this.total))}</span
                 >
               </vaadin-button>
