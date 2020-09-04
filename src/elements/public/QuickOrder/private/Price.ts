@@ -62,40 +62,12 @@ export class Price extends Translatable {
       return html``;
     }
     return html`
-      <div class="price max-w-xxs p-s ${this.quantity == 0 ? 'text-disabled' : 'text-header '}">
-        ${this.__pricesLen() > 0
-          ? html` <span class="price parts">
-              ${this.__pricesLen() > 3
-                ? this.__translateAmount(this.__totalParts)
-                : this.prices.map(this.__translateAmount.bind(this)).join(' + ')}
-              ${this.price !== 0 ? ' + ' : ''}
-            </span>`
-          : ''}
-        ${this.price && (this.__pricesLen() > 0 || this.quantity > 1)
-          ? html` <span class="price each">
-              ${this.__translateAmount(this.price)}
-            </span>`
-          : ''}
-        ${this.quantity > 1
-          ? html`
-              <span class="quantity times text-disabled m-xs text-xs">
-                &times;${this.quantity}
-              </span>
-            `
-          : ''}
+      <div class="price max-w-xxs ${this.quantity == 0 ? 'text-disabled' : 'text-header '}">
         <span class="price total font-bold">
           ${this.__translateAmount(this.total)}
         </span>
       </div>
     `;
-  }
-
-  private __pricesLen(): number {
-    if (this.prices) {
-      return this.prices.length;
-    } else {
-      return 0;
-    }
   }
 
   private __translateAmount(amount: number) {
