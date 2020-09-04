@@ -19,7 +19,7 @@ export class ProductItem extends Translatable implements Product {
     return [
       super.styles,
       css`
-        article.product {
+        article.product-item {
           margin: 0 auto;
           display: grid;
           grid:
@@ -30,7 +30,7 @@ export class ProductItem extends Translatable implements Product {
           grid-column-gap: 32px;
         }
         @media (min-width: 640px) {
-          article.product {
+          article.product-item {
             grid:
               'picture description description  quantity'
               'picture children children  children'
@@ -250,15 +250,19 @@ export class ProductItem extends Translatable implements Product {
   @internalProperty()
   private __images: ImageDescription[] = [];
 
+  @internalProperty()
+  private __childrenCount = 0;
+
   public updated(changed: Map<string, any>): void {
     if (changed.get('products') != undefined) {
       this.__createProducts();
     }
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
+    this.__setHostClasses();
   }
 
-  private handleQuantity = {
+  private __handleQuantity = {
     handleEvent: (ev: Event) => {
       const newValue = Number((ev.target as HTMLInputElement).value);
       if (this.quantity != newValue) {
@@ -271,18 +275,34 @@ export class ProductItem extends Translatable implements Product {
     },
   };
 
+  private __setHostClasses() {
+    if (this.isChildProduct) {
+      this.classList.add('child-product', 'flex', 'border-b', 'border-shade-5', 'last:border-b-0');
+    }
+    if (!this.quantity) {
+      this.classList.add('removed');
+    } else {
+      this.classList.remove('removed');
+    }
+    if (!this.modified) {
+      this.classList.add('modified');
+    } else {
+      this.classList.remove('modified');
+    }
+  }
+
   public render(): TemplateResult {
     if (!this.__isValid()) {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     if (this.isChildProduct) {
       return html`
-        <article class="product-summary flex justify-between p-s m-s border-b-2 border-shade-5">
+        <article class="product-summary flex justify-between py-m">
           <div class="description">
-            <h1 class="text-header font-bold text-m">
+            <h1 class="text-header font-bold text-m mb-s leading-none">
               ${this.name}
             </h1>
-            <section class="description text-body">
+            <section class="description text-secondary">
               ${this.description ? html`<p>${this.description}</p>` : ''}
               <slot></slot>
             </section>
@@ -296,20 +316,16 @@ export class ProductItem extends Translatable implements Product {
       `;
     } else {
       return html`
-        <article
-          class="product sm:p-m ${this.quantity ? '' : 'removed'} ${this.__modified
-            ? 'modified'
-            : ''}"
-        >
+        <article class="product-item">
           <x-picture-grid .images=${this.__images}></x-picture-grid>
           <section class="description min-w-xl w-full sm:w-auto ">
-            <h1 class="text-header font-bold text-l">${this.name}</h1>
+            <h1 class="text-header font-bold text-l leading-none mb-m">${this.name}</h1>
             <div class="product-description text-secondary">
               ${this.description}
               <slot></slot>
             </div>
           </section>
-          <section class="price text-right text-primary ">
+          <section class="price text-left text-header text-l">
             <x-price
               .price=${this.price}
               .prices=${this.__childPrices}
@@ -320,9 +336,9 @@ export class ProductItem extends Translatable implements Product {
           </section>
           <section class="quantity max-w-xxs w-full md:w-auto text-s">
             <x-number-field
-              class="w-full"
+              class="w-full p-0"
               name="quantity"
-              @change=${this.handleQuantity}
+              @change=${this.__handleQuantity}
               value="${this.quantity}"
               min="0"
               has-controls
@@ -333,7 +349,7 @@ export class ProductItem extends Translatable implements Product {
                 </div>`
               : ''}
           </section>
-          <section class="child-products w-full">
+          <section class="child-products w-full ${this.__childrenCount ? 'mt-m' : ''}">
             <slot name="products"></slot>
           </section>
         </article>
@@ -493,6 +509,7 @@ export class ProductItem extends Translatable implements Product {
     // Reset child attributes lists
     const newProductPrices: number[] = [];
     const newProductImages: ImageDescription[] = [];
+    let newChildrenCount = 0;
     if (this.image) {
       newProductImages.push(this.getImageDescription());
     }
@@ -505,11 +522,13 @@ export class ProductItem extends Translatable implements Product {
     const collectImages = (p: ProductItem) => {
       newProductImages.push(p.getImageDescription());
     };
+    const countChildren = () => (newChildrenCount += 1);
     // Collect information of every child
-    this.__onEachChildProduct([collectPrices, collectImages]);
+    this.__onEachChildProduct([collectPrices, collectImages, countChildren]);
     // Update atributes reggarding child products
     this.__childPrices = newProductPrices;
     this.__images = newProductImages;
+    this.__childrenCount = newChildrenCount;
     this.__setTotalPrice();
   }
 

@@ -66,11 +66,7 @@ export class Price extends Translatable {
       return html``;
     }
     return html`
-      <div
-        class="price max-w-xxs text-right p-s ${this.quantity == 0
-          ? 'text-shade-50'
-          : 'text-primary '}"
-      >
+      <div class="price max-w-xxs p-s ${this.quantity == 0 ? 'text-disabled' : 'text-header '}">
         ${this.__pricesLen() > 0
           ? html` <span class="price parts">
               ${this.__pricesLen() > 3
@@ -86,7 +82,7 @@ export class Price extends Translatable {
           : ''}
         ${this.quantity > 1
           ? html`
-              <span class="quantity times text-shade-50 m-xs text-xs">
+              <span class="quantity times text-disabled m-xs text-xs">
                 &times;${this.quantity}
               </span>
             `

@@ -152,14 +152,14 @@ export class QuickOrder extends Translatable {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
     return html`
-      <form class="shadow-xl max-w-xl mx-auto m-m p-s ">
+      <form class="shadow-xl max-w-xl mx-auto m-m p-s sm:p-l">
         <section class="products">
           <slot></slot>
         </section>
         <x-section class="actions w-full sm:w-auto">
           <div class="flex justify-end">
             ${this.frequencies && this.frequencies.length
-              ? html` <div class="subscription flex-1 p-s flex-grow sm:flex-grow-0">
+              ? html` <div class="subscription flex-1 flex-grow sm:flex-grow-0 sm:mr-m sm:mb-m">
                   <x-dropdown
                     type="text"
                     name="frequency"
@@ -176,12 +176,10 @@ export class QuickOrder extends Translatable {
                 </div>`
               : ''}
             <div class="flex-1 flex-grow sm:flex-grow-0">
-              <vaadin-button class="w-full" type="button" role="submit" @click=${this.handleSubmit}>
+              <vaadin-button theme="primary" role="submit" @click=${this.handleSubmit}>
                 <iron-icon icon="vaadin:cart" slot="prefix"></iron-icon>
                 <x-i18n key="form.continue" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-                <span class="total font-bold text-primary"
-                  >${this.__translateAmount(this.total)}</span
-                >
+                <span class="total font-bold">${this.__translateAmount(this.total)}</span>
               </vaadin-button>
             </div>
           </div>
