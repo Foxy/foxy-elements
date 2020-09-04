@@ -193,6 +193,7 @@ const sizeMap = {
   m: cssVar('size-m', '2.25rem'),
   l: cssVar('size-l', '2.75rem'),
   xl: cssVar('size-xl', '3.5rem'),
+  xxl: cssVar('size-xxl', '8rem'),
 };
 
 const flexMap = {
