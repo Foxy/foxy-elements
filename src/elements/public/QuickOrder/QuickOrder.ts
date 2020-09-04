@@ -269,10 +269,6 @@ export class QuickOrder extends Translatable {
     },
   };
 
-  public onSubmissionResponse(e: ProgressEvent<EventTarget>) {
-    console.log(e);
-  }
-
   /**
    * Adds a signature to a post field
    *

@@ -1,5 +1,5 @@
 import { Translatable } from '../../../../mixins/translatable';
-import { html, css, CSSResultArray, TemplateResult, internalProperty, property } from 'lit-element';
+import { html, TemplateResult, internalProperty, property } from 'lit-element';
 import { I18N } from '../../../private/index';
 
 /**
@@ -9,10 +9,6 @@ import { I18N } from '../../../private/index';
  * quantity.
  */
 export class Price extends Translatable {
-  static get styles() {
-    return [super.styles, css``];
-  }
-
   /**
    * Custom elements used in the component
    */

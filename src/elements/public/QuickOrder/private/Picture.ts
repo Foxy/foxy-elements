@@ -6,8 +6,6 @@ export class Picture extends Themeable {
     return [
       super.styles,
       css`
-        .product.image {
-        }
         .back {
           position: absolute;
           transform: rotate(0);
@@ -17,8 +15,6 @@ export class Picture extends Themeable {
         }
         .multiple .back {
           transform: rotate(-10deg);
-        }
-        .front {
         }
       `,
     ];
