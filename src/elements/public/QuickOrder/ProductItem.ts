@@ -50,6 +50,9 @@ export class ProductItem extends Translatable implements Product {
         section.child-products {
           grid-area: children;
         }
+        ::slotted([combined].last\\:border-b-0:last-child) {
+          border-bottom-width: 0 !important;
+        }
       `,
     ];
   }
@@ -260,7 +263,6 @@ export class ProductItem extends Translatable implements Product {
     }
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
-    this.__setHostClasses();
   }
 
   private __handleQuantity = {
@@ -275,30 +277,6 @@ export class ProductItem extends Translatable implements Product {
       );
     },
   };
-
-  private __setHostClasses() {
-    if (this.isChildProduct) {
-      this.classList.add('child-product', 'flex', 'border-b', 'border-shade-5', 'last:border-b-0');
-    }
-    if (!this.quantity) {
-      this.classList.add('removed');
-    } else {
-      this.classList.remove('removed');
-    }
-    if (!this.modified) {
-      this.classList.add('modified');
-    } else {
-      this.classList.remove('modified');
-    }
-    this.classList.add(
-      'border-shade-5',
-      'border-b',
-      'last:border-b-0',
-      'py-m',
-      'last:pb-0',
-      'pt-m'
-    );
-  }
 
   public render(): TemplateResult {
     if (!this.__isValid()) {

@@ -36,6 +36,17 @@ export class QuickOrder extends Translatable {
     };
   }
 
+  static get styles() {
+    return [
+      super.styles,
+      css`
+        ::slotted([product].last\\:border-b-0:last-child) {
+          border-bottom-width: 0 !important;
+        }
+      `,
+    ];
+  }
+
   private get __data(): FormData | null {
     const data = new FormData();
     const productsAdded = this.__formDataFill(data);
@@ -454,6 +465,7 @@ export class QuickOrder extends Translatable {
     this.__productElements?.forEach((e: Element) => {
       const p = e as ProductItem;
       this.__acknowledgeProductElement(p);
+      p.classList.add('border-b', 'border-shade-5', 'last:border-b-0');
     });
   }
 
