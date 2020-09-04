@@ -203,14 +203,23 @@ const flexMap = {
   none: 'none',
   third: '1 1 calc( 100% / 3 )',
   '2': '2 2 0%',
-}
+};
 
 // eslint-disable-next-line no-undef
 module.exports = {
   purge: {
     enabled: false,
   },
-  variants: ['responsive', 'group-hover', 'focus-within', 'hover', 'focus', 'disabled'],
+  variants: [
+    'responsive',
+    'group-hover',
+    'focus-within',
+    'hover',
+    'focus',
+    'disabled',
+    'first',
+    'last',
+  ],
   theme: {
     colors: colorsMap,
     spacing: spacingMap,
