@@ -2,7 +2,7 @@ import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-icons/vaadin-icons';
 import { parseDuration } from '../../../utils/parse-duration';
-import { html, css, property, TemplateResult } from 'lit-element';
+import { html, css, property, TemplateResult, internalProperty } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
@@ -126,6 +126,10 @@ export class QuickOrder extends Translatable {
       return freqArray;
     },
   })
+  @internalProperty()
+  private __hasValidProducts = false;
+
+  @property({ type: Array })
   public frequencies: string[] = [];
 
   private __submitBtnText(value: string): string {
@@ -197,6 +201,7 @@ export class QuickOrder extends Translatable {
                 class="w-full "
                 theme="primary"
                 role="submit"
+                ?disabled=${!this.__hasValidProducts}
                 @click=${this.handleSubmit}
               >
                 <span class="total font-normal"
@@ -211,7 +216,7 @@ export class QuickOrder extends Translatable {
   }
 
   /** Add new products */
-  public addProducts(newProducts: Product[]) {
+  public addProducts(newProducts: Product[]): void {
     for (const p of newProducts) {
       const newProduct = this.createProduct(p);
       this.appendChild(newProduct);
@@ -223,7 +228,7 @@ export class QuickOrder extends Translatable {
   }
 
   /** Remove products */
-  public removeProducts(productIds: number[]) {
+  public removeProducts(productIds: number[]): void {
     this.__removeProductsFromProductArray((p: ProductItem) => productIds.includes(p.pid));
   }
 
@@ -246,6 +251,10 @@ export class QuickOrder extends Translatable {
     if (changedProperties.get('products') != undefined) {
       this.__removeProductsFromProductArray();
       this.__createProductsFromProductArray();
+    }
+    const newHasValidProducts = !!this.__data;
+    if (newHasValidProducts != this.__hasValidProducts) {
+      this.__hasValidProducts = newHasValidProducts;
     }
     this.dispatchEvent(new QuickOrderChangeEvent(this.__data!));
   }

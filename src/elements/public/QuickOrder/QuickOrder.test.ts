@@ -355,25 +355,6 @@ describe('The form should be aware of its products', async () => {
 });
 
 describe('The form should add frequency fields', async () => {
-  let xhr: sinon.SinonFakeXMLHttpRequestStatic;
-  let requests: sinon.SinonFakeXMLHttpRequest[];
-  let logSpy: sinon.SinonStub;
-
-  beforeEach(function () {
-    xhr = sinon.useFakeXMLHttpRequest();
-    requests = [];
-    xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
-      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
-      requests.push(xhr);
-    };
-    logSpy = sinon.stub(console, 'error');
-  });
-
-  afterEach(function () {
-    xhr.restore();
-    logSpy.restore();
-  });
-
   it('Should provide field to choose frequencies', async () => {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com" frequencies='["1m", "3m"]'>
@@ -523,7 +504,13 @@ describe('The form reveals its state to the user', async () => {
   });
 
   it('Disables submit button when no product is valid', async () => {
-    expect(true).to.equal(false);
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
+        <x-item name="p1" code="MyCode" price="10.00" quantity="0"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    expect(el.shadowRoot?.querySelector('[role=submit][disabled]')).to.exist;
   });
 });
 
