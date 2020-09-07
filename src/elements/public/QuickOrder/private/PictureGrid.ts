@@ -1,9 +1,9 @@
-import { Translatable } from '../../../../mixins/translatable';
+import { Themeable } from '../../../../mixins/themeable';
 import { html, css, CSSResultArray, TemplateResult, property, internalProperty } from 'lit-element';
 import { ImageDescription } from '../types';
 import { Picture } from './index';
 
-export class PictureGrid extends Translatable {
+export class PictureGrid extends Themeable {
   public static get scopedElements(): Record<string, unknown> {
     return {
       'x-picture': Picture,
@@ -65,12 +65,13 @@ export class PictureGrid extends Translatable {
 
   @internalProperty()
   private __eachWidth = PictureGrid.__baseWidth;
+
   @internalProperty()
   private __eachHeight = PictureGrid.__baseWidth;
 
   public render(): TemplateResult {
     if (!this.__images || !this.__images.length) {
-      return html`${this._t('no_images')}`;
+      return html``;
     }
     return html` <div
       class="image-grid flex flex-wrap max-w-xs min-w-1 block w-full sm:w-auto ${this.__images
