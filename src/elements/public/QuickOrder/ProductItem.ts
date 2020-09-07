@@ -112,7 +112,6 @@ export class ProductItem extends Translatable implements Product {
     });
     this.updateComplete.then(() => {
       this.__setCode();
-      this.__setParentCode();
       this.__createProducts();
       this.__acknowledgeChildProducts();
       this.__changedChildProduct();
@@ -344,16 +343,6 @@ export class ProductItem extends Translatable implements Product {
   }
 
   /**
-   * Find if this product item is a child of another product item and sets the parent code accordingly
-   */
-  private __setParentCode(): void {
-    const productParent = this.parentElement;
-    if (productParent?.hasAttribute('product')) {
-      this.parent_code = (productParent as ProductItem).code;
-    }
-  }
-
-  /**
    * Create child product items from products field.
    */
   private __createProducts(): void {
@@ -471,6 +460,9 @@ export class ProductItem extends Translatable implements Product {
     e.isProduct = false;
     e.isChildProduct = true;
     e.classList.add('border-b', 'border-shade-5', 'last:border-b-0');
+    if (this.code) {
+      e.parent_code = this.code;
+    }
   }
 
   public getImageDescription(): ImageDescription {
