@@ -381,17 +381,6 @@ export class ProductItem extends Translatable implements Product {
   }
 
   /**
-   * The price of the total qty of this product
-   */
-  public qtyPrice(): number {
-    if (!this.price || !this.quantity) {
-      return 0;
-    } else {
-      return this.price * this.quantity;
-    }
-  }
-
-  /**
    * Constraints Products must eventually adhere to.
    **/
   private __isValid(): boolean {
