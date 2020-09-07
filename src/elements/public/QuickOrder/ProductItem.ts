@@ -94,24 +94,8 @@ export class ProductItem extends Translatable implements Product {
     // Get the maximum value
     const newId =
       ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
-    ProductItem.__acknowledgeId(newId);
-    return newId;
-  }
-
-  /**
-   * Acknowledges an id
-   *
-   * Ids are acknowledged in order to guarantee they are unique.
-   * Throws an exception if the id is already acknowledged.
-   *
-   * @argument number the id to acknowledge
-   */
-  private static __acknowledgeId(customId: string | number): void {
-    const newId = Number(customId);
-    if (ProductItem.__existingIds.includes(newId)) {
-      throw new Error('Attempt to create two different products with the same id');
-    }
     ProductItem.__existingIds.push(newId);
+    return newId;
   }
 
   /**
@@ -375,7 +359,10 @@ export class ProductItem extends Translatable implements Product {
   private __createProducts(): void {
     if (this.products && this.products.length) {
       this.products.forEach(p => {
-        const product = new ProductItem();
+        // Use a reference to the constructor of the instance in order to avoid issues in tests
+        type AConstructorTypeOf<T> = new (...args: any[]) => T;
+        const productConstructor = this.constructor;
+        const product = new (productConstructor as AConstructorTypeOf<ProductItem>)();
         product.value = p;
         product.currency = this.currency;
         product.__computeTotalPrice();

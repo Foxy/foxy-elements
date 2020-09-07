@@ -161,6 +161,38 @@ describe('Product item provides an interface to set values', async () => {
   });
 });
 
+describe('Product item recognizes its children', async () => {
+  it('Should recognize children created with slots', async () => {
+    const el = await fixture(
+      html`
+        <x-productitem name="p1" price="10" currency="usd">
+          <div slot="product" class="bundled">
+            <x-productitem name="p2" price="3"></x-productitem>
+            <x-productitem name="p3" price="4"></x-productitem>
+          </div>
+        </x-productitem>
+      `
+    );
+    await elementUpdated(el);
+    expect((el as TestProductItem).total).to.equal(17);
+  });
+
+  it('Should recognize children created products array', async () => {
+    const el = await fixture(
+      html`
+        <x-productitem
+          name="p1"
+          price="10"
+          currency="usd"
+          products='[{"name":"p2","price":3}, {"name":"p3","price":4}]'
+        ></x-productitem>
+      `
+    );
+    await elementUpdated(el);
+    expect((el as TestProductItem).total).to.equal(17);
+  });
+});
+
 /** Helper functions */
 
 function qtyField(el: Element): HTMLInputElement {
