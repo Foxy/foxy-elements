@@ -18,8 +18,8 @@ class TestQuickOrder extends QuickOrder {
 customElements.define('x-form', TestQuickOrder);
 customElements.define('x-item', MockProduct);
 
-describe('The form should allow new products to be added and removed', async () => {
-  it('Should recognize new products added as JS array', async () => {
+describe('The form should allow new products to be added and removed', async function () {
+  it('Should recognize new products added as JS array', async function () {
     const el = await fixture(html`
       <x-form
         store="test.foxycart.com"
@@ -33,7 +33,7 @@ describe('The form should allow new products to be added and removed', async () 
     expect(products).to.have.lengthOf(2);
   });
 
-  it('Should recognize new products added as product item tags', async () => {
+  it('Should recognize new products added as product item tags', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10"></x-item>
@@ -47,7 +47,7 @@ describe('The form should allow new products to be added and removed', async () 
     expect((el as QuickOrder).total).to.equal(30);
   });
 
-  it('Should recognize changes to JS array', async () => {
+  it('Should recognize changes to JS array', async function () {
     const el = await fixture(html`
       <x-form
         currency="usd"
@@ -74,7 +74,7 @@ describe('The form should allow new products to be added and removed', async () 
     expect(products).to.have.lengthOf(1);
   });
 
-  it('Should recognize new products added later as product item tags', async () => {
+  it('Should recognize new products added later as product item tags', async function () {
     const el = await formWith2products(10, 10);
     expect((el as QuickOrder).total).to.equal(20);
     const lateProduct = new MockProduct();
@@ -84,7 +84,7 @@ describe('The form should allow new products to be added and removed', async () 
     expect((el as QuickOrder).total).to.equal(40);
   });
 
-  it('Should recognize child products removed from the DOM', async () => {
+  it('Should recognize child products removed from the DOM', async function () {
     const el = await formWith2products(10, 10);
     const toRemove = el.querySelector('#first');
     if (toRemove) {
@@ -94,7 +94,7 @@ describe('The form should allow new products to be added and removed', async () 
     expect((el as QuickOrder).total).to.equal(10);
   });
 
-  it('Should add new valid products', async () => {
+  it('Should add new valid products', async function () {
     const el = await formWith2products(10, 10);
     (el as TestQuickOrder).addProducts([{ name: 'p3', price: 10 }]);
     await elementUpdated(el);
@@ -103,7 +103,7 @@ describe('The form should allow new products to be added and removed', async () 
     expect(products.length).to.equal(3);
   });
 
-  it('Should remove products by product id', async () => {
+  it('Should remove products by product id', async function () {
     const el = await formWith2products(10, 10);
     let products = el.querySelectorAll('[product]');
     const pid = (products[0] as MockProduct).pid;
@@ -115,7 +115,7 @@ describe('The form should allow new products to be added and removed', async () 
   });
 });
 
-describe('The form should remain valid', async () => {
+describe('The form should remain valid', async function () {
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
   let logSpy: sinon.SinonStub;
@@ -135,7 +135,7 @@ describe('The form should remain valid', async () => {
     logSpy.restore();
   });
 
-  it('Should not send a new order with empty products', async () => {
+  it('Should not send a new order with empty products', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10.00" quantity="0"></x-item>
@@ -151,7 +151,7 @@ describe('The form should remain valid', async () => {
     }
   });
 
-  it('Should not allow negative prices or quantities', async () => {
+  it('Should not allow negative prices or quantities', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="-10.00"></x-item>
@@ -212,7 +212,7 @@ describe('The form should remain valid', async () => {
   ];
 
   for (const t of frequencyTests) {
-    it(t.it, async () => {
+    it(t.it, async function () {
       const el = await fixture(html`
         <x-form
           store="test.foxycart.com"
@@ -267,7 +267,7 @@ describe('The form should remain valid', async () => {
     },
   ];
   for (const t of dateFormatsTests) {
-    it(t.it, async () => {
+    it(t.it, async function () {
       for (const d of t.dates) {
         const el = await fixture(html`
           <x-form
@@ -287,8 +287,8 @@ describe('The form should remain valid', async () => {
   }
 });
 
-describe('The form should be aware of its products', async () => {
-  it('Shows the total price of the products added as tags', async () => {
+describe('The form should be aware of its products', async function () {
+  it('Shows the total price of the products added as tags', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10.00" quantity="3"></x-item>
@@ -301,7 +301,7 @@ describe('The form should be aware of its products', async () => {
     expect(el.getAttribute('total')).to.equal('70');
   });
 
-  it('Shows the total price of the products added as arrays ', async () => {
+  it('Shows the total price of the products added as arrays ', async function () {
     const el = await fixture(html`
       <x-form
         store="test.foxycart.com"
@@ -313,7 +313,7 @@ describe('The form should be aware of its products', async () => {
     expect((el as TestQuickOrder).total).to.equal(50);
   });
 
-  it('Update the total price as quantities change', async () => {
+  it('Update the total price as quantities change', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" price="10.00" quantity="3"></x-item>
@@ -335,8 +335,8 @@ describe('The form should be aware of its products', async () => {
   });
 });
 
-describe('The form should add frequency fields', async () => {
-  it('Should provide field to choose frequencies', async () => {
+describe('The form should add frequency fields', async function () {
+  it('Should provide field to choose frequencies', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com" frequencies='["1m", "3m"]'>
         <x-item name="p1" price="10.00"></x-item>
@@ -348,7 +348,7 @@ describe('The form should add frequency fields', async () => {
   });
 });
 
-describe('The form submits a valid POST to forxycart', async () => {
+describe('The form submits a valid POST to forxycart', async function () {
   const sig64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
   const signatures = { name: sig64, code: sig64, price: sig64, quantity: sig64 };
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
@@ -370,7 +370,7 @@ describe('The form submits a valid POST to forxycart', async () => {
     logSpy.restore();
   });
 
-  it('Prepends ids to the products', async () => {
+  it('Prepends ids to the products', async function () {
     const el = await formWith2products(10, 10);
     const s = getSubmissionSpy(el as TestQuickOrder, requests);
     expect(s.called).to.equal(true);
@@ -380,7 +380,7 @@ describe('The form submits a valid POST to forxycart', async () => {
     }
   });
 
-  it('Concatenates signatures', async () => {
+  it('Concatenates signatures', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
@@ -401,7 +401,7 @@ describe('The form submits a valid POST to forxycart', async () => {
     }
   });
 
-  it('Concatenates open to custom fields', async () => {
+  it('Concatenates open to custom fields', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
         <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
@@ -428,7 +428,7 @@ describe('The form submits a valid POST to forxycart', async () => {
     expect(found).to.equal(true);
   });
 
-  it('Sends valid subscription fields', async () => {
+  it('Sends valid subscription fields', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
         <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
@@ -446,7 +446,7 @@ describe('The form submits a valid POST to forxycart', async () => {
   });
 });
 
-describe('The form reveals its state to the user', async () => {
+describe('The form reveals its state to the user', async function () {
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
   let logSpy: sinon.SinonStub;
@@ -466,7 +466,7 @@ describe('The form reveals its state to the user', async () => {
     logSpy.restore();
   });
 
-  it('Disables submit button when no product is valid', async () => {
+  it('Disables submit button when no product is valid', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
         <x-item name="p1" code="MyCode" price="10.00" quantity="0"></x-item>
@@ -476,7 +476,7 @@ describe('The form reveals its state to the user', async () => {
     expect(el.shadowRoot?.querySelector('[role=submit][disabled]')).to.exist;
   });
 
-  it('Dispataches event upon server response', async () => {
+  it('Dispataches event upon server response', async function () {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
         <x-item name="p1" price="10.00"></x-item>
