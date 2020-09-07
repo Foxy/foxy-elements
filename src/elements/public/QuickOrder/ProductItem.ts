@@ -306,7 +306,7 @@ export class ProductItem extends Translatable implements Product {
       return html`
         <article
           class="product-item duration-100 py-m ${this.quantity ? '' : 'removed opacity-50'} ${this
-            .modified
+            .__modified
             ? 'modified'
             : ''}"
         >
