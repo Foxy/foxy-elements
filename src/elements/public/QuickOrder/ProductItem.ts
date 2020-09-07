@@ -248,10 +248,8 @@ export class ProductItem extends Translatable implements Product {
   private __handleQuantity = {
     handleEvent: (ev: Event) => {
       const newValue = Number((ev.target as HTMLInputElement).value);
-      if (this.quantity != newValue) {
-        this.__modified = true;
-      }
       this.quantity = newValue;
+      this.__modified = true;
       this.__images = ([this.getImageDescription()] as ImageDescription[]).concat(
         this.__images.slice(1, this.__images.length)
       );
