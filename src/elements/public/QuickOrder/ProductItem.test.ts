@@ -12,14 +12,18 @@ class TestProductItem extends ProductItem {}
 
 customElements.define('x-productitem', TestProductItem);
 
-describe('The product Item remain always valid', async () => {
-  let logSpy: sinon.SinonStub;
+let logSpy: sinon.SinonStub;
 
-  beforeEach(function () {
+describe('The product Item remain always valid', async () => {
+  before(function () {
     logSpy = sinon.stub(console, 'error');
   });
 
   afterEach(function () {
+    logSpy.reset();
+  });
+
+  after(function () {
     logSpy.restore();
   });
 
@@ -83,16 +87,6 @@ describe('The product Item remain always valid', async () => {
 });
 
 describe('The product item reveals its state to the user', async () => {
-  let logSpy: sinon.SinonStub;
-
-  beforeEach(function () {
-    logSpy = sinon.stub(console, 'error');
-  });
-
-  afterEach(function () {
-    logSpy.restore();
-  });
-
   it('Should look like removed when quantity is zero', async () => {
     const el = await fixture(
       html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `

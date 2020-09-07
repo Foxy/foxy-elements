@@ -19,16 +19,6 @@ customElements.define('x-form', TestQuickOrder);
 customElements.define('x-item', MockProduct);
 
 describe('The form should allow new products to be added and removed', async () => {
-  let logSpy: sinon.SinonStub;
-
-  beforeEach(function () {
-    logSpy = sinon.stub(console, 'error');
-  });
-
-  afterEach(function () {
-    logSpy.restore();
-  });
-
   it('Should recognize new products added as JS array', async () => {
     const el = await fixture(html`
       <x-form
@@ -298,16 +288,6 @@ describe('The form should remain valid', async () => {
 });
 
 describe('The form should be aware of its products', async () => {
-  let logSpy: sinon.SinonStub;
-
-  beforeEach(function () {
-    logSpy = sinon.stub(console, 'error');
-  });
-
-  afterEach(function () {
-    logSpy.restore();
-  });
-
   it('Shows the total price of the products added as tags', async () => {
     const el = await fixture(html`
       <x-form currency="usd" store="test.foxycart.com">
