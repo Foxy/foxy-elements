@@ -161,6 +161,28 @@ describe('The product item reveals its state to the user', async () => {
       '.description p'
     );
   });
+
+  it('Should show the quantity when it is child quantity is 2 or more', async () => {
+    const withMoreThan1 = await fixture(
+      html`
+        <x-productitem name="p1" price="10" currency="usd">
+          <x-productitem name="p2" price="10" quantity="2" currency="usd"></x-productitem>
+        </x-productitem>
+      `
+    );
+    const withOutMoreThan1 = await fixture(
+      html`
+        <x-productitem name="p1" price="10" currency="usd">
+          <x-productitem name="p2" price="10" currency="usd"></x-productitem>
+        </x-productitem>
+      `
+    );
+    await expectSelectorToExist(
+      withMoreThan1.querySelector('[combined]')!,
+      withOutMoreThan1.querySelector('[combined]')!,
+      'article .quantity'
+    );
+  });
 });
 
 describe('Product item provides an interface to set values', async () => {
