@@ -11,7 +11,7 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json",
+    "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json && node postwca.js",
     "cpx": "cpx \"src/**/*.stories.mdx\" dist",
     "cpx:watch": "cpx \"src/**/*.stories.mdx\" dist --watch",
     "storybook": "concurrently --kill-others \"ttsc --watch\" \"npm run cpx:watch\" \"start-storybook\"",

@@ -10,7 +10,26 @@ import { Checkbox, Choice, Dropdown, ErrorScreen, Group, I18N } from '../../priv
 import { DonationChangeEvent } from './DonationChangeEvent';
 import { DonationSubmitEvent } from './DonationSubmitEvent';
 
+interface DonationEventsMap {
+  change: typeof DonationChangeEvent;
+  submit: typeof DonationSubmitEvent;
+}
+
+/**
+ * A custom element providing customizable donation forms.
+ *
+ * @fires Donation#change - Instance of {@link Donation.events.change}. Emitted after user input triggers a change in the form data.
+ * @fires Donation#submit - Instance of {@link Donation.events.submit}. Emitted when the form is submitted. Cancelling this event will stop the submission.
+ *
+ * @slot amount - Space below the amount selector, if it's visible.
+ * @slot designation - Space below the designation selector, if it's visible.
+ * @slot comment - Space below the comment field, if it's visible.
+ *
+ * @element foxy-donation
+ * @since 0.3.0
+ */
 export class Donation extends Translatable {
+  /** @readonly */
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-area': customElements.get('vaadin-text-area'),
@@ -21,6 +40,14 @@ export class Donation extends Translatable {
       'x-choice': Choice,
       'x-group': Group,
       'x-i18n': I18N,
+    };
+  }
+
+  /** @readonly */
+  public static get events(): DonationEventsMap {
+    return {
+      change: DonationChangeEvent,
+      submit: DonationSubmitEvent,
     };
   }
 
@@ -53,9 +80,15 @@ export class Donation extends Translatable {
   @query('form')
   private __form!: HTMLFormElement;
 
+  /**
+   * 3-letter lowercase currency code, e.g. "usd" or "eur".
+   */
   @property({ type: String })
   public currency: null | string = null;
 
+  /**
+   * Customizable selectors.
+   */
   @property({ type: Array })
   public custom: null | string[] = null;
 

@@ -13,8 +13,9 @@ export abstract class Themeable extends ScopedElementsMixin(LitElement) {
    * any other project building setup included with this package. The content in the
    * template literal below will be replaced with the relevant styles during build – DO NOT change this.
    * Using `unsafeCSS` to skip additional sanitization since it's our own code anyway.
+   * @readonly
    */
-  static styles: CSSResult | CSSResultArray = [
+  public static readonly styles: CSSResult | CSSResultArray = [
     unsafeCSS`{{ output }}`,
     css`
       :host {
