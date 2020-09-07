@@ -1,20 +1,13 @@
-import './index.js';
-import {
-  Meta,
-  withKnobs,
-  withWebComponentsKnobs,
-  html,
-  Story,
-  Preview,
-} from '@open-wc/demoing-storybook';
+import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
+import { action } from '@storybook/addon-actions';
+import { html } from 'lit-html';
+import { Donation } from './Donation';
+import './index';
 
 <Meta
-  title="integrations | <foxy-donation>"
-  decorators={[withKnobs, withWebComponentsKnobs]}
-  parameters={{
-    component: 'foxy-donation',
-    options: { selectedPanel: 'storybookjs/knobs/panel' },
-  }}
+  title="Integrations/Donation"
+  component="foxy-donation"
+  decorators={[Story => html`<div class="container-narrow">${Story()}</div>`]}
 />
 
 # Donation
@@ -25,112 +18,117 @@ Donation form is a web component that aims to provide customizable donation form
 
 This component needs to be configured before use. You can easily spot a misconfigured component on the page – it will display an error message like the one below:
 
-<Preview>
-  <Story name="Default">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation></foxy-donation>
-      </div>
-    `}
-  </Story>
-</Preview>
+<Canvas>
+  <Story name="Default">{() => html`<foxy-donation></foxy-donation>`}</Story>
+</Canvas>
 
 You'll need to provide the following info via the respective attributes for the minimal setup:
 
-1. `store` – store name (your subdomain, e.g the `jamstackecommerceexample` part of `https://jamstackecommerceexample.foxycart.com`);
-2. `currency` – 3-letter currency code (e.g. `usd` for US dollars);
-3. `amount` – donation amount (e.g. `25` for `$25`);
-4. `name` – cart item name (e.g. `One-Time Donation`).
+| Property / Attribute | Description             | Example                    |
+| -------------------- | ----------------------- | -------------------------- |
+| `currency`           | 3-letter currency code. | `usd`                      |
+| `amount`             | Donation amount.        | `25`                       |
+| `store`              | Your store subdomain.   | `jamstackecommerceexample` |
+| `name`               | Cart item name.         | `One-Time Donation`        |
 
 Once you've set the above attributes, you'll see the most basic version of this element – a one-click donation button that you can put anywhere on your page:
 
-<Preview>
-  <Story name="Minimal">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-        >
-        </foxy-donation>
-      </div>
+<Canvas>
+  <Story
+    name="Minimal"
+    args={{
+      store: 'jamstackecommerceexample',
+      currency: 'usd',
+      amount: 25,
+      name: 'One-Time Donation',
+    }}
+  >
+    {args => html`
+      <foxy-donation
+        store=${args.store}
+        currency=${args.currency}
+        amount=${args.amount}
+        name=${args.name}
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Customizing amount
 
 If you'd like your visitors to be able to pick a donation amount from a list of predefined values, you can specify them via the `amounts` attribute using JSON like so: `amounts="[25, 50, 75]"`. The order of items will be respected.
 
-<Preview>
-  <Story name="Amount options">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-        >
-        </foxy-donation>
-      </div>
+<Canvas>
+  <Story
+    name="Amount options"
+    args={{
+      store: 'jamstackecommerceexample',
+      currency: 'usd',
+      amount: 25,
+      name: 'One-Time Donation',
+      amounts: [25, 50, 75],
+    }}
+  >
+    {args => html`
+      <foxy-donation
+        .store=${args.store}
+        .currency=${args.currency}
+        .amount=${args.amount}
+        .name=${args.name}
+        .amounts=${args.amounts}
+        @change=${action('change')}
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 Quite often it's suitable to ask users for a donation amount outside of the list of predefined values. You can enable this option by setting the `custom` attribute on our donation form element: `custom='["amount"]'`. Please note that you'll need at least one amount option in the `amounts` array for this option to work.
 
-<Preview>
+<Canvas>
   <Story name="Custom amount">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount"]'
-        >
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount"]'
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Adding designations
 
 Sometimes you might want to ask your donners to pick a cause to contribute to, which can be particularly useful if your organization has multiple donation-sponsored programs. To display a designation picker, provide the list of choices in the `designations` attribute value in form of a JSON array like this: `designations=["Medical Care", "Daily Meals", "Housing"]`. You can also pre-select a specific designation by setting the `designation` attribute: `designation='"Daily Meals"'`. Please note that `designation` accepts only JSON values.
 
-<Preview>
+<Canvas>
   <Story name="Designation options">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount"]'
-          designations='["Medical Care", "Daily Meals", "Housing"]'
-          designation='"Daily Meals"'
-        >
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount"]'
+        designations='["Medical Care", "Daily Meals", "Housing"]'
+        designation='"Daily Meals"'
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 Multiple selection is also possible. To turn it on, simply assign a JSON array instead of a string to the `designation` attribute like so: `designation='["Daily Meals", "Housing"]'`.
 
-<Preview>
+<Canvas>
   <Story name="Multiple designations">
-    {html`
-      <div class="container-narrow">
+    {() => html`
         <foxy-donation
           store="jamstackecommerceexample"
           currency="usd"
@@ -145,13 +143,13 @@ Multiple selection is also possible. To turn it on, simply assign a JSON array i
       </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 Just like with the amount, you can enable custom designations by adding "designation" to the `custom` attribute array: `custom='["amount", "designation"]'`. This works both in single and multiple selection modes.
 
-<Preview>
+<Canvas>
   <Story name="Custom designation">
-    {html`
+    {() => html`
       <div class="container-narrow">
         <foxy-donation
           store="jamstackecommerceexample"
@@ -167,15 +165,15 @@ Just like with the amount, you can enable custom designations by adding "designa
       </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Enabling recurrent donations
 
 You can easily allow your website visitors to commit to a recurrent contribution by providing a recurrence pattern in the `frequency` attribute. Recurrent patterns consist of an integer (1, 2, 3...) and a unit (`d`, for days, `w` for weeks, `m` for months, `y` for years), e.g. `2w` translates to a bi-weekly donation and `1y` – to a yearly one. There's also a special value of `.5m` that creates a recurring payment running twice a month. Let's default to a monthly donation in the following example: `frequency="1m"`.
 
-<Preview>
+<Canvas>
   <Story name="Recurrent donation">
-    {html`
+    {() => html`
       <div class="container-narrow">
         <foxy-donation
           store="jamstackecommerceexample"
@@ -192,175 +190,165 @@ You can easily allow your website visitors to commit to a recurrent contribution
       </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 If you feel like providing no recurrence options is a bit restrictive, you can use the `frequencies` attribute to give your donners more choice. Let's add twice a month, every month and every year as options in addition to a one-time payment: `frequencies='["0d", ".5m", "1m", "1y"]'`. Note how we've used a JSON array here – just like in `designations` and `amounts`.
 
-<Preview>
+<Canvas>
   <Story name="Recurrence options">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount", "designation"]'
-          designations='["Medical Care", "Daily Meals", "Housing"]'
-          designation='["Daily Meals", "Housing"]'
-          frequency="1m"
-          frequencies='["0d", ".5m", "1m", "1y"]'
-        >
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount", "designation"]'
+        designations='["Medical Care", "Daily Meals", "Housing"]'
+        designation='["Daily Meals", "Housing"]'
+        frequency="1m"
+        frequencies='["0d", ".5m", "1m", "1y"]'
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Comment
 
 If you'd like your donners to be able to leave a short message (visible only to you), you can set the `comment` attribute on the element to display a text field at the bottom. You can also pre-populate it with a custom text by assigning a value to the same attribute.
 
-<Preview>
+<Canvas>
   <Story name="Comment">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount", "designation"]'
-          designations='["Medical Care", "Daily Meals", "Housing"]'
-          designation='["Daily Meals", "Housing"]'
-          frequency="1m"
-          frequencies='["0d", ".5m", "1m", "1y"]'
-          comment
-        >
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount", "designation"]'
+        designations='["Medical Care", "Daily Meals", "Housing"]'
+        designation='["Daily Meals", "Housing"]'
+        frequency="1m"
+        frequencies='["0d", ".5m", "1m", "1y"]'
+        comment
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Anonymity
 
 Giving your donners an option to remain anonymous is often a reasonable idea. While we can't hide the customer info from the transactions, we can let you know that they've requested to keep their identity off the records. To enable this option, set the `anonymity` attribute on an element (no value required – it's a boolean attribute).
 
-<Preview>
+<Canvas>
   <Story name="Anonymity">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount", "designation"]'
-          designations='["Medical Care", "Daily Meals", "Housing"]'
-          designation='["Daily Meals", "Housing"]'
-          frequency="1m"
-          frequencies='["0d", ".5m", "1m", "1y"]'
-          comment
-          anonymity
-        >
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount", "designation"]'
+        designations='["Medical Care", "Daily Meals", "Housing"]'
+        designation='["Daily Meals", "Housing"]'
+        frequency="1m"
+        frequencies='["0d", ".5m", "1m", "1y"]'
+        comment
+        anonymity
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 You can also enable anonymous donations by default by setting the `anonymous` attribute:
 
-<Preview>
+<Canvas>
   <Story name="Anonymous by default">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount", "designation"]'
-          designations='["Medical Care", "Daily Meals", "Housing"]'
-          designation='["Daily Meals", "Housing"]'
-          frequency="1m"
-          frequencies='["0d", ".5m", "1m", "1y"]'
-          comment
-          anonymity
-          anonymous
-        >
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount", "designation"]'
+        designations='["Medical Care", "Daily Meals", "Housing"]'
+        designation='["Daily Meals", "Housing"]'
+        frequency="1m"
+        frequencies='["0d", ".5m", "1m", "1y"]'
+        comment
+        anonymity
+        anonymous
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Customizing the cart display
 
 You can use the `name`, `image` and `url` attributes to customize how the donation will be shown in the cart. Only `name` is required – all other attributes are optional. None of these options will affect the form appearance and will be shown during the checkout instead.
 
-<Preview>
+<Canvas>
   <Story name="Cart display">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount", "designation"]'
-          designations='["Medical Care", "Daily Meals", "Housing"]'
-          designation='["Daily Meals", "Housing"]'
-          frequency="1m"
-          frequencies='["0d", ".5m", "1m", "1y"]'
-          comment
-          anonymity
-          anonymous
-          image="https://picsum.photos/320"
-          url="https://foxy.io"
-        >
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount", "designation"]'
+        designations='["Medical Care", "Daily Meals", "Housing"]'
+        designation='["Daily Meals", "Housing"]'
+        frequency="1m"
+        frequencies='["0d", ".5m", "1m", "1y"]'
+        comment
+        anonymity
+        anonymous
+        image="https://picsum.photos/320"
+        url="https://foxy.io"
+      >
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Add your own markup
 
 You can insert your own content in a number of pre-defined places called slots. This element has 3 of them: `amount`, `designation` and `comment`, and you can assign any element node to any of them by setting an attribute on it like so: `slot="comment"`. Please note that your content will be displayed only if the relevant group is present on the screen. You can see the position of each one of them below:
 
-<Preview>
+<Canvas>
   <Story name="Slots">
-    {html`
-      <div class="container-narrow">
-        <foxy-donation
-          store="jamstackecommerceexample"
-          currency="usd"
-          amount="25"
-          name="One-Time Donation"
-          amounts="[25, 50, 75]"
-          custom='["amount", "designation"]'
-          designations='["Medical Care", "Daily Meals", "Housing"]'
-          designation='["Daily Meals", "Housing"]'
-          frequency="1m"
-          frequencies='["0d", ".5m", "1m", "1y"]'
-          comment
-          anonymity
-          anonymous
-          image="https://picsum.photos/320"
-          url="https://foxy.io"
-        >
-          <code class="slot-content" slot="amount">amount</code>
-          <code class="slot-content" slot="designation">designation</code>
-          <code class="slot-content" slot="comment">comment</code>
-        </foxy-donation>
-      </div>
+    {() => html`
+      <foxy-donation
+        store="jamstackecommerceexample"
+        currency="usd"
+        amount="25"
+        name="One-Time Donation"
+        amounts="[25, 50, 75]"
+        custom='["amount", "designation"]'
+        designations='["Medical Care", "Daily Meals", "Housing"]'
+        designation='["Daily Meals", "Housing"]'
+        frequency="1m"
+        frequencies='["0d", ".5m", "1m", "1y"]'
+        comment
+        anonymity
+        anonymous
+        image="https://picsum.photos/320"
+        url="https://foxy.io"
+      >
+        <code class="slot-content" slot="amount">amount</code>
+        <code class="slot-content" slot="designation">designation</code>
+        <code class="slot-content" slot="comment">comment</code>
+      </foxy-donation>
     `}
   </Story>
-</Preview>
+</Canvas>
+
+<ArgsTable of="foxy-donation" />

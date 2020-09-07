@@ -1,11 +1,17 @@
-import { addParameters, setCustomElements } from '@open-wc/demoing-storybook';
+/* global window */
 
-addParameters({ docs: { iframeHeight: '200px' } });
+import { configure, setCustomElements } from '@storybook/web-components';
+import customElements from '../custom-elements.json';
 
-(async () => {
-  const base = import.meta.url;
-  const customElements = await fetch(new URL('../custom-elements.json', base).toString());
-  const customElementsJSON = await customElements.json();
+const context = require.context('../src/elements/public', true, /\.stories\.(js|mdx)$/);
 
-  setCustomElements(customElementsJSON);
-})();
+setCustomElements(customElements);
+configure(context, module);
+
+if (module.hot) {
+  module.hot.accept(context.id, () => {
+    const currentLocationHref = window.location.href;
+    window.history.pushState(null, null, currentLocationHref);
+    window.location.reload();
+  });
+}
