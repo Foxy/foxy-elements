@@ -1,4 +1,4 @@
-import { fixture, expect, html, elementUpdated } from '@open-wc/testing';
+import { fixture, expect, html, elementUpdated, oneEvent } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { QuickOrder } from './QuickOrder';
 import { Product } from './types';
@@ -492,6 +492,22 @@ describe('The form reveals its state to the user', async () => {
     `);
     await elementUpdated(el);
     expect(el.shadowRoot?.querySelector('[role=submit][disabled]')).to.exist;
+  });
+
+  it('Dispataches event upon server response', async () => {
+    const el = await fixture(html`
+      <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
+        <x-item name="p1" price="10.00"></x-item>
+      </x-form>
+    `);
+    await elementUpdated(el);
+    const callback = sinon.spy();
+    el.addEventListener('load', callback);
+    const listener = oneEvent(el, 'load');
+    getSubmissionSpy(el as TestQuickOrder, requests);
+    requests[0].respond(200, { 'Content-Type': 'application/json' }, '[1,2]');
+    await listener;
+    expect(callback.called).to.be.true;
   });
 });
 
