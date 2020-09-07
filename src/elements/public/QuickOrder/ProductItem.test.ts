@@ -98,6 +98,7 @@ describe('The product item reveals its state to the user', async () => {
       html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
     );
     await elementUpdated(el);
+    expect(el.shadowRoot?.querySelectorAll('.removed')).to.be.empty;
     const xNumber = qtyField(el);
     xNumber.value = '0';
     xNumber.dispatchEvent(new CustomEvent('change'));
@@ -116,6 +117,55 @@ describe('The product item reveals its state to the user', async () => {
     xNumber.dispatchEvent(new CustomEvent('change'));
     await elementUpdated(el);
     expect(modified(el).length).to.equal(1);
+  });
+
+  it('Should look like removed when it is child and has zero quantity', async () => {
+    const removed = await fixture(
+      html`
+        <x-productitem name="p1" price="10" currency="usd">
+          <x-productitem name="p2" price="10" currency="usd" quantity="0"></x-productitem>
+        </x-productitem>
+      `
+    );
+    const notremoved = await fixture(
+      html`
+        <x-productitem name="p1" price="10" currency="usd">
+          <x-productitem name="p2" price="10" currency="usd"></x-productitem>
+        </x-productitem>
+      `
+    );
+    await elementUpdated(removed);
+    await elementUpdated(notremoved);
+    const childRemoved = removed.querySelector('[combined]');
+    const childNotRemoved = notremoved.querySelector('[combined]');
+    await expectSelectorToExist(childRemoved!, childNotRemoved!, 'article.removed');
+  });
+
+  it('Should show the description when it is child and a description is provided', async () => {
+    const withDescription = await fixture(
+      html`
+        <x-productitem name="p1" price="10" currency="usd">
+          <x-productitem
+            name="p2"
+            price="10"
+            currency="usd"
+            description="Lorem Ipsum"
+          ></x-productitem>
+        </x-productitem>
+      `
+    );
+    const withOutDescription = await fixture(
+      html`
+        <x-productitem name="p1" price="10" currency="usd">
+          <x-productitem name="p2" price="10" currency="usd"></x-productitem>
+        </x-productitem>
+      `
+    );
+    await expectSelectorToExist(
+      withDescription.querySelector('[combined]')!,
+      withOutDescription.querySelector('[combined]')!,
+      '.description p'
+    );
   });
 });
 
@@ -209,4 +259,23 @@ function qtyField(el: Element): HTMLInputElement {
   expect(qtyWidget).to.exist;
   const xNumber = qtyWidget as HTMLInputElement;
   return xNumber;
+}
+
+async function expectSelectorToExist(
+  elementWith: Element,
+  elementWithOut: Element,
+  selector: string,
+  shadow = true
+) {
+  expect(elementWith).to.exist;
+  expect(elementWithOut).to.exist;
+  await elementUpdated(elementWith);
+  await elementUpdated(elementWithOut);
+  if (shadow) {
+    expect(elementWith.shadowRoot!.querySelector(selector)).to.exist;
+    expect(elementWithOut.shadowRoot!.querySelector(selector)).not.to.exist;
+  } else {
+    expect(elementWith.querySelector(selector)).to.exist;
+    expect(elementWithOut.querySelector(selector)).not.to.exist;
+  }
 }
