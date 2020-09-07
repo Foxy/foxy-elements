@@ -191,6 +191,15 @@ describe('Product item recognizes its children', async () => {
     await elementUpdated(el);
     expect((el as TestProductItem).total).to.equal(17);
   });
+
+  it('Should recognize children added by setting "value" attribute', async () => {
+    const el = await fixture(
+      html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
+    );
+    (el as TestProductItem).value = { products: [{ name: 'p2', price: 8 }] };
+    await elementUpdated(el);
+    expect((el as TestProductItem).total).to.equal(18);
+  });
 });
 
 /** Helper functions */
