@@ -223,16 +223,17 @@ describe('The form should remain valid', async () => {
 
   for (const t of frequencyTests) {
     it(t.it, async () => {
-      const tpl = html`
-        <x-form store="test.foxycart.com" currency="usd" .frequencies=${t.frequencies}>
+      const el = await fixture(html`
+        <x-form
+          store="test.foxycart.com"
+          currency="usd"
+          frequencies="${JSON.stringify(t.frequencies)}"
+        >
           <x-item name="p3" price="10.00" quantity="3"></x-item>
         </x-form>
-      `;
-      if (t.logHappens) {
-        expect(async () => await fixture(tpl)).to.throw;
-      } else {
-        expect(async () => await fixture(tpl)).not.to.throw;
-      }
+      `);
+      await elementUpdated(el);
+      expect(logSpy.calledWith('Invalid frequency')).to.equal(t.logHappens);
     });
   }
 

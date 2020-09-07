@@ -95,8 +95,7 @@ export class QuickOrder extends Translatable {
   sub_enddate?: string;
 
   @property({
-    type: Array,
-    converter: value => {
+    converter: (value, type) => {
       if (!value) {
         return [];
       }
@@ -123,14 +122,13 @@ export class QuickOrder extends Translatable {
           return [];
         }
       }
-      return freqArray;
+      return freqArray.filter(QuickOrder.__validFrequency);
     },
   })
+  public frequencies: string[] = [];
+
   @internalProperty()
   private __hasValidProducts = false;
-
-  @property({ type: Array })
-  public frequencies: string[] = [];
 
   private __submitBtnText(value: string): string {
     if (!this.sub_frequency || this.sub_frequency == '0') {
