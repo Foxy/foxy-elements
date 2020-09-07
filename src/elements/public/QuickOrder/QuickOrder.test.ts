@@ -370,24 +370,6 @@ describe('The form submits a valid POST to forxycart', async () => {
     logSpy.restore();
   });
 
-  it('Validates the size of the signature', async () => {
-    const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item id="first" name="p1" price="10" code="code1"></x-item>
-        <x-item id="second" name="p2" price="10" code="code2"></x-item>
-      </x-form>
-    `);
-    await elementUpdated(el);
-    const products = el.querySelectorAll('[product]');
-    expect(products).to.exist;
-    const wrongSig = { ...signatures, ...{ price: 'aaaaaaa' } };
-    products!.forEach(p => {
-      (p as MockProduct).signatures = wrongSig;
-    });
-    await elementUpdated(el);
-    expect(() => getSubmissionSpy(el as TestQuickOrder, requests)).to.throw;
-  });
-
   it('Prepends ids to the products', async () => {
     const el = await formWith2products(10, 10);
     const s = getSubmissionSpy(el as TestQuickOrder, requests);
