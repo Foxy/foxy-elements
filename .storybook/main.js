@@ -18,10 +18,12 @@ module.exports = {
     ],
   },
   rollup: config => {
+    const commonjs = require('rollup-plugin-commonjs');
     const copy = require('rollup-plugin-copy');
     const env = require('rollup-plugin-inject-process-env');
 
     config.plugins.unshift(
+      commonjs(),
       copy({ targets: [{ src: 'translations', dest: 'storybook-static' }] }),
       env({ NODE_ENV: 'production' })
     );
