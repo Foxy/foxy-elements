@@ -12,8 +12,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json && node postwca.js",
-    "cpx": "cpx \"src/**/*.stories.mdx\" dist",
-    "cpx:watch": "cpx \"src/**/*.stories.mdx\" dist --watch",
+    "cpx": "cpx \"src/static/**/*.*\" \"dist/cdn\"",
     "storybook": "start-storybook -s ./src/static -p 8000",
     "storybook:build": "build-storybook -s ./src/static",
     "lint": "npm run lint:eslint && npm run lint:prettier",
@@ -26,7 +25,7 @@
     "test:watch": "concurrently --kill-others \"ttsc --watch\" \"karma start --auto-watch=true --single-run=false\"",
     "test:update-snapshots": "ttsc && karma start --update-snapshots",
     "test:prune-snapshots": "ttsc && karma start --prune-snapshots",
-    "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c"
+    "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx"
   },
   "dependencies": {
     "@open-wc/lit-helpers": "^0.3.11",
