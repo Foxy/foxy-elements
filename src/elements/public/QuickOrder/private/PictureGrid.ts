@@ -1,5 +1,5 @@
 import { Themeable } from '../../../../mixins/themeable';
-import { html, css, CSSResultArray, TemplateResult, property, internalProperty } from 'lit-element';
+import { html, css, CSSResultArray, TemplateResult, PropertyDeclarations } from 'lit-element';
 import { ImageDescription } from '../types';
 import { Picture } from './index';
 
@@ -42,13 +42,21 @@ export class PictureGrid extends Themeable {
 
   private __areas = ['first', 'second', 'third', 'fourth'];
 
-  @internalProperty()
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __images: {},
+      __missingImages: {},
+      __eachWidth: {},
+      __eachHeight: {},
+      images: { type: Array },
+    };
+  }
+
   private __images: ImageDescription[] = [];
 
-  @internalProperty()
   private __missingImages: TemplateResult[] = [];
 
-  @property({ type: Array })
   public set images(value: ImageDescription[]) {
     this.__images = value.filter(i => {
       return i.src && i.src !== 'null' && i.src !== 'undefined';
@@ -63,10 +71,8 @@ export class PictureGrid extends Themeable {
     return this.__images;
   }
 
-  @internalProperty()
   private __eachWidth = PictureGrid.__baseWidth;
 
-  @internalProperty()
   private __eachHeight = PictureGrid.__baseWidth;
 
   public render(): TemplateResult {

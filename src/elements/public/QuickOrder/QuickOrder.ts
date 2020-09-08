@@ -2,7 +2,7 @@ import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-icons/vaadin-icons';
 import { parseDuration } from '../../../utils/parse-duration';
-import { html, css, property, TemplateResult, internalProperty } from 'lit-element';
+import { html, css, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
@@ -36,7 +36,7 @@ export class QuickOrder extends Translatable {
     };
   }
 
-  static get styles() {
+  static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -45,6 +45,69 @@ export class QuickOrder extends Translatable {
         }
       `,
     ];
+  }
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      currency: { type: String },
+      total: { type: Number, attribute: 'total', reflect: true },
+      store: { type: String, attribute: 'store' },
+      sub_frequency: { type: String },
+      sub_startdate: {
+        type: String,
+        converter: value => {
+          if (!QuickOrder.__validDate(value)) {
+            console.error('Invalid start date', value);
+            return '';
+          }
+          return value;
+        },
+      },
+      sub_enddate: {
+        type: String,
+        converter: value => {
+          if (!QuickOrder.__validDateFuture(value)) {
+            console.error('Invalid end date', value);
+            return '';
+          }
+          return value;
+        },
+      },
+      frequencies: {
+        converter: (value, type) => {
+          if (!value) {
+            return [];
+          }
+          const freqArray = JSON.parse(value);
+          if (!Array.isArray(freqArray)) {
+            console.error('Invalid frequency', `Frequency options must be an array.`);
+            return [];
+          }
+          for (const f of freqArray) {
+            if (!QuickOrder.__validFrequency(f)) {
+              console.error(
+                'Invalid frequency',
+                `Invalid frequency option.
+              Please, check https://wiki.foxycart.com/v/2.0/products#subscription_product_options for possible values.
+              Each frequency must be a in the format:
+              - 1d (a number followed by d, for day)
+              - 1w (a number followed by w, for week)
+              - 1m (a number followed by m, for month)
+              - 1y (a number followed by y, for year)
+              or .5m (no other decimals are allowed, and this is only for months)
+              `,
+                f
+              );
+              return [];
+            }
+          }
+          return freqArray.filter(QuickOrder.__validFrequency);
+        },
+      },
+      products: { type: Array },
+      __hasValidProducts: {},
+    };
   }
 
   private get __data(): FormData | null {
@@ -57,77 +120,21 @@ export class QuickOrder extends Translatable {
 
   private __childProductsObserver?: MutationObserver;
 
-  @property({ type: String })
   public currency?: string;
 
-  @property({ type: Number, attribute: 'total', reflect: true })
   public total = 0;
 
-  @property({ type: String, attribute: 'store' })
   public store?: string;
 
   /** Frequency related attributes */
-  @property({ type: String })
-  sub_frequency?: string;
+  public sub_frequency?: string;
 
-  @property({
-    type: String,
-    converter: value => {
-      if (!QuickOrder.__validDate(value)) {
-        console.error('Invalid start date', value);
-        return '';
-      }
-      return value;
-    },
-  })
-  sub_startdate?: string;
+  public sub_startdate?: string;
 
-  @property({
-    type: String,
-    converter: value => {
-      if (!QuickOrder.__validDateFuture(value)) {
-        console.error('Invalid end date', value);
-        return '';
-      }
-      return value;
-    },
-  })
-  sub_enddate?: string;
+  public sub_enddate?: string;
 
-  @property({
-    converter: (value, type) => {
-      if (!value) {
-        return [];
-      }
-      const freqArray = JSON.parse(value);
-      if (!Array.isArray(freqArray)) {
-        console.error('Invalid frequency', `Frequency options must be an array.`);
-        return [];
-      }
-      for (const f of freqArray) {
-        if (!QuickOrder.__validFrequency(f)) {
-          console.error(
-            'Invalid frequency',
-            `Invalid frequency option.
-              Please, check https://wiki.foxycart.com/v/2.0/products#subscription_product_options for possible values.
-              Each frequency must be a in the format:
-              - 1d (a number followed by d, for day)
-              - 1w (a number followed by w, for week)
-              - 1m (a number followed by m, for month)
-              - 1y (a number followed by y, for year)
-              or .5m (no other decimals are allowed, and this is only for months)
-              `,
-            f
-          );
-          return [];
-        }
-      }
-      return freqArray.filter(QuickOrder.__validFrequency);
-    },
-  })
   public frequencies: string[] = [];
 
-  @internalProperty()
   private __hasValidProducts = false;
 
   private __submitBtnText(value: string): string {
@@ -142,7 +149,6 @@ export class QuickOrder extends Translatable {
     }
   }
 
-  @property({ type: Array })
   products: Product[] = [];
 
   /**

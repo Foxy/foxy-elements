@@ -1,8 +1,8 @@
 import { Themeable } from '../../../../mixins/themeable';
-import { html, css, CSSResultArray, TemplateResult, internalProperty, property } from 'lit-element';
+import { html, css, CSSResultArray, TemplateResult, PropertyDeclarations } from 'lit-element';
 
 export class Picture extends Themeable {
-  static get styles() {
+  static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -18,19 +18,25 @@ export class Picture extends Themeable {
     ];
   }
 
-  @property({ type: String })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      alt: { type: String },
+      height: { type: Number },
+      quantity: { type: Number },
+      src: { type: String },
+      width: { type: Number },
+    };
+  }
+
   public src?: string;
 
-  @property({ type: String })
   public alt?: string;
 
-  @property({ type: Number })
   public quantity?: number;
 
-  @property({ type: Number })
   public width?: number;
 
-  @property({ type: Number })
   public height?: number;
 
   public render(): TemplateResult {

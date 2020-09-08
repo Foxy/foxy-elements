@@ -1,5 +1,5 @@
 import { Translatable } from '../../../../mixins/translatable';
-import { html, TemplateResult, internalProperty, property } from 'lit-element';
+import { html, TemplateResult, PropertyDeclarations } from 'lit-element';
 import { I18N } from '../../../private/index';
 
 /**
@@ -18,17 +18,23 @@ export class Price extends Translatable {
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      price: { attribute: false },
+      prices: { attribute: false },
+      currency: { attribute: false },
+      quantity: { attribute: false },
+      total: {},
+    };
+  }
   /** The price of a single unity */
-  @property({ attribute: false })
   public price: number | null = null;
 
-  @property({ attribute: false })
   public prices: number[] | null = null;
 
-  @property({ attribute: false })
   public currency: string | null = null;
 
-  @property({ attribute: false })
   public quantity: number | null = null;
 
   private get __totalParts(): number {
@@ -39,7 +45,6 @@ export class Price extends Translatable {
     }
   }
 
-  @internalProperty()
   public get total(): number {
     if (this.quantity) {
       return this.quantity * ((this.price ? this.price : 0) + this.__totalParts);

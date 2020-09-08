@@ -1,7 +1,7 @@
 import { Translatable } from '../../../mixins/translatable';
 import { Product, ImageDescription } from './types';
 import { Price, Picture, PictureGrid } from './private/index';
-import { html, css, property, internalProperty, CSSResultArray, TemplateResult } from 'lit-element';
+import { html, css, PropertyDeclarations, CSSResultArray, TemplateResult } from 'lit-element';
 import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../private/index';
 
 /**
@@ -15,7 +15,7 @@ export class ProductItem extends Translatable implements Product {
 
   [k: string]: any;
 
-  static get styles() {
+  static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -123,10 +123,45 @@ export class ProductItem extends Translatable implements Product {
 
   private __childProductsObserver?: MutationObserver;
 
-  @internalProperty()
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __modified: {},
+      category: { type: String },
+      code: { type: String, reflect: true },
+      currency: { type: String, reflect: true },
+      expires: { type: String },
+      height: { type: Number },
+      image: { type: String },
+      length: { type: Number },
+      name: { type: String },
+      parent_code: { type: String },
+      price: { type: Number },
+      quantity: { type: Number, reflect: true },
+      quantity_max: { type: Number },
+      quantity_min: { type: String },
+      shipto: { type: String },
+      total: { type: Number, reflect: true, attribute: 'total' },
+      url: { type: String },
+      value: { type: Object },
+      weight: { type: Number },
+      width: { type: Number },
+      __childPrices: {},
+      __childrenCount: {},
+      __images: {},
+      alt: { type: String },
+      description: { type: String },
+      isChildProduct: { type: Boolean, reflect: true, attribute: 'combined' },
+      isProduct: { type: Boolean, reflect: true, attribute: 'product' },
+      open: { type: Object },
+      pid: { type: Number, reflect: true },
+      products: { type: Array, attribute: 'products' },
+      signatures: { type: Object },
+    };
+  }
+
   private __modified = false;
 
-  @property({ type: Object })
   public set value(v: Product) {
     for (const k in v) {
       let attrValue = '';
@@ -150,91 +185,62 @@ export class ProductItem extends Translatable implements Product {
     return r as Product;
   }
 
-  @property({ type: String, reflect: true })
   public currency?: string;
 
-  @property({ type: Number, reflect: true, attribute: 'total' })
   public total?: number = this.__computeTotalPrice();
 
-  @property({ type: String })
   public name?: string;
 
-  @property({ type: Number })
   public price?: number;
 
-  @property({ type: String })
   public image?: string;
 
-  @property({ type: String })
   public url?: string;
 
-  @property({ type: String, reflect: true })
   public code?: string | number;
 
-  @property({ type: String })
   public parent_code?: string | number;
 
-  @property({ type: Number, reflect: true })
   public quantity = 1;
 
-  @property({ type: Number })
   public quantity_max?: number;
 
-  @property({ type: String })
   public quantity_min?: number;
 
-  @property({ type: String })
   public category?: string;
 
-  @property({ type: String })
   public expires?: string;
 
-  @property({ type: Number })
   public weight?: number;
 
-  @property({ type: Number })
   public length?: number;
 
-  @property({ type: Number })
   public width?: number;
 
-  @property({ type: Number })
   public height?: number;
 
-  @property({ type: String })
   public shipto?: string;
 
-  @property({ type: String })
-  alt?: string;
+  public alt?: string;
 
-  @property({ type: Boolean, reflect: true, attribute: 'product' })
-  isProduct = true;
+  public isProduct = true;
 
-  @property({ type: Boolean, reflect: true, attribute: 'combined' })
-  isChildProduct = false;
+  public isChildProduct = false;
 
-  @property({ type: Array, attribute: 'products' })
-  products: Product[] = [];
+  public products: Product[] = [];
 
-  @property({ type: String })
-  description = '';
+  public description = '';
 
-  @property({ type: Object })
-  signatures?: Record<string, string>;
+  public signatures?: Record<string, string>;
 
-  @property({ type: Object })
-  open?: Record<string, boolean>;
+  public open?: Record<string, boolean>;
 
-  @property({ type: Number, reflect: true })
   public pid: number = ProductItem.__newId();
 
-  @internalProperty()
   private __childPrices: number[] = [];
 
-  @internalProperty()
   private __images: ImageDescription[] = [];
 
-  @internalProperty()
   private __childrenCount = 0;
 
   public updated(changed: Map<string, any>): void {
