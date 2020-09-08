@@ -1,4 +1,4 @@
-import { css, CSSResultArray, html, internalProperty, query, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { CodeReadyEvent } from './CodeReadyEvent';
 
@@ -25,11 +25,18 @@ export class Code extends Themeable {
     ];
   }
 
-  @internalProperty()
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __code: {},
+    };
+  }
+
   private __code = '';
 
-  @query('code')
-  private __container!: HTMLElement;
+  private get __container(): HTMLElement {
+    return this.shadowRoot!.querySelector('code')!;
+  }
 
   private __ready = false;
 

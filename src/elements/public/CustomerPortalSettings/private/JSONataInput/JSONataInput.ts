@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { ChoiceChangeEvent } from '../../../../private/events';
 import { Choice, I18N } from '../../../../private/index';
@@ -21,10 +21,16 @@ export class JSONataInput extends Translatable {
     return this.__items[this.value === '*' ? 0 : 1];
   }
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: String },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: String })
   public value = '*';
 
   public constructor() {

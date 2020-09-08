@@ -1,7 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-button';
-import { query } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import SortableJS from 'sortablejs/modular/sortable.core.esm.js';
 import { interpret } from 'xstate';
@@ -51,11 +50,13 @@ export class AdminDashboard extends Translatable {
   private __service = interpret(this.__machine);
   private __sortable: SortableJS | null = null;
 
-  @query('#widgets')
-  private __widgets!: HTMLElement | null;
+  private get __widgets(): HTMLElement | null {
+    return this.shadowRoot!.querySelector('#widgets');
+  }
 
-  @query('#widget-editor')
-  private __widgetEditor!: WidgetEditor;
+  private get __widgetEditor(): WidgetEditor {
+    return this.shadowRoot!.querySelector('#widget-editor') as WidgetEditor;
+  }
 
   public constructor() {
     super('admin');

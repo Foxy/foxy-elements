@@ -1,12 +1,13 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Router } from '@vaadin/router';
-import { css, html, internalProperty, property } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
 import { Navigation } from '../navigation';
 import { AdminNavigationTopGroup } from './AdminNavigationTopGroup';
 import { AdminNavigationTopLink } from './AdminNavigationTopLink';
 
 export class AdminNavigation extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-admin-navigation-top-group': AdminNavigationTopGroup,
       'x-admin-navigation-top-link': AdminNavigationTopLink,
@@ -14,7 +15,7 @@ export class AdminNavigation extends Translatable {
     };
   }
 
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -52,25 +53,31 @@ export class AdminNavigation extends Translatable {
     history.replaceState(history.state, document.title, url.toString());
   }
 
-  @internalProperty()
   private __openGroups: number[] = [];
 
-  @property({ type: Object })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      router: { type: Object },
+      navigation: { type: Array },
+      activeGroupIndexKey: { type: String },
+      __openGroups: {},
+    };
+  }
+
   public router?: Router;
 
-  @property({ type: Array })
   public navigation: Navigation = [];
 
-  @property({ type: String })
   public activeGroupIndexKey = 'group';
 
-  public connectedCallback() {
+  public connectedCallback(): void {
     super.connectedCallback();
     addEventListener('vaadin-router-location-changed', this.__routerListener);
     addEventListener('resize', this.__resizeListener);
   }
 
-  public render() {
+  public render(): TemplateResult {
     const navClass = [
       'pointer-events-auto p-xs group bg-base border-t border-contrast-10 flex',
       'md:bg-contrast-5 md:p-s md:border-t-0 md:border-r md:space-y-s md:flex-col md:h-full md:overflow-auto',
@@ -99,11 +106,11 @@ export class AdminNavigation extends Translatable {
     `;
   }
 
-  public updated(changedPropeties: Map<keyof AdminNavigation, unknown>) {
+  public updated(changedPropeties: Map<keyof AdminNavigation, unknown>): void {
     if (changedPropeties.has('router')) this.__resetGroups();
   }
 
-  public disconnectedCallback() {
+  public disconnectedCallback(): void {
     super.disconnectedCallback();
     removeEventListener('vaadin-router-location-changed', this.__routerListener);
     removeEventListener('resize', this.__resizeListener);

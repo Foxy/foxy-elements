@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { concatTruthy } from '../../../utils/concat-truthy';
 import { I18N } from '../I18N/I18N';
@@ -14,10 +14,16 @@ export class MonthdayPicker extends Translatable {
     };
   }
 
-  @property({ type: Boolean })
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: Array },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: Array })
   public value: number[] = [];
 
   protected _getLabelClass(day: number): string {

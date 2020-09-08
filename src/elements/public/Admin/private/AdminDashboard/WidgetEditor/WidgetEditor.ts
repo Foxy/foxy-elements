@@ -3,7 +3,7 @@ import '@polymer/iron-icon';
 import '@polymer/iron-icons';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field';
-import { css, CSSResultArray, property, query } from 'lit-element';
+import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { debounce } from 'lodash-es';
 import { interpret } from 'xstate';
@@ -93,22 +93,33 @@ export class WidgetEditor extends Translatable {
     );
   }
 
-  @query('#jsonata')
-  private readonly __jsonata!: HTMLInputElement;
+  private get __jsonata(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('#jsonata')! as HTMLInputElement;
+  }
 
-  @query('#dialog')
-  private readonly __dialog!: Dialog;
+  private get __dialog(): Dialog {
+    return this.shadowRoot!.querySelector('#dialog')! as Dialog;
+  }
 
-  @query('#source')
-  private readonly __source!: HTMLInputElement;
+  private get __source(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('#source')! as HTMLInputElement;
+  }
 
-  @query('#label')
-  private readonly __label!: HTMLInputElement;
+  private get __label(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('#label')! as HTMLInputElement;
+  }
 
-  @query('#code')
-  private readonly __code!: Dialog | null;
+  private get __code(): Dialog | null {
+    return this.shadowRoot!.querySelector('#code')! as Dialog;
+  }
 
-  @property({ type: String, noAccessor: true })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      store: { type: String, noAccessor: true },
+    };
+  }
+
   public get store(): string {
     return this.__service.state.context.store;
   }

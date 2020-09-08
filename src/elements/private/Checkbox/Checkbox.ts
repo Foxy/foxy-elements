@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-lumo-styles/icons';
-import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
 import { Themeable } from '../../../mixins/themeable';
 import { CheckboxChangeEvent } from './CheckboxChangeEvent';
@@ -30,6 +30,14 @@ export class Checkbox extends Themeable {
     ];
   }
 
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      checked: { type: Boolean, noAccessor: true },
+      disabled: { type: Boolean, noAccessor: true },
+    };
+  }
+
   private readonly __machine = CheckboxMachine.withConfig({
     actions: {
       sendChange: () => {
@@ -42,7 +50,6 @@ export class Checkbox extends Themeable {
     .onTransition(state => state.changed && this.requestUpdate())
     .start();
 
-  @property({ type: Boolean, noAccessor: true })
   public get checked(): boolean {
     return this.__service.state.matches('checked');
   }
@@ -50,7 +57,6 @@ export class Checkbox extends Themeable {
     if (value !== this.checked) this.__service.send('FORCE_TOGGLE');
   }
 
-  @property({ type: Boolean, noAccessor: true })
   public get disabled(): boolean {
     const states = ['checked.disabled', 'unchecked.disabled'];
     return states.some(state => this.__service.state.matches(state));

@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
-import { property, query } from 'lit-element';
+import { PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 import { parseDuration } from '../../../utils/parse-duration';
@@ -77,61 +77,68 @@ export class Donation extends Translatable {
     return data;
   }
 
-  @query('form')
-  private __form!: HTMLFormElement;
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      currency: { type: String },
+      custom: { type: Array },
+      amount: { type: Number },
+      amounts: { type: Array },
+      frequency: { type: String },
+      frequencies: { type: Array },
+      designation: { type: Array },
+      designations: { type: Array },
+      comment: { type: String },
+      anonymity: { reflect: true, type: Boolean },
+      anonymous: { reflect: true, type: Boolean },
+      image: { type: String },
+      store: { type: String },
+      name: { type: String },
+      code: { type: String },
+      url: { type: String },
+    };
+  }
+
+  private get __form(): HTMLFormElement {
+    return this.shadowRoot!.querySelector('form')!;
+  }
 
   /**
    * 3-letter lowercase currency code, e.g. "usd" or "eur".
    */
-  @property({ type: String })
   public currency: null | string = null;
 
   /**
    * Customizable selectors.
    */
-  @property({ type: Array })
   public custom: null | string[] = null;
 
-  @property({ type: Number })
   public amount: null | number = null;
 
-  @property({ type: Array })
   public amounts: null | number[] = null;
 
-  @property({ type: String })
   public frequency: null | string = null;
 
-  @property({ type: Array })
   public frequencies: null | string[] = null;
 
-  @property({ type: Array })
   public designation: null | string | string[] = null;
 
-  @property({ type: Array })
   public designations: null | string[] = null;
 
-  @property({ type: String })
   public comment: null | string = null;
 
-  @property({ reflect: true, type: Boolean })
   public anonymity = false;
 
-  @property({ reflect: true, type: Boolean })
   public anonymous = false;
 
-  @property({ type: String })
   public image: null | string = null;
 
-  @property({ type: String })
   public store: null | string = null;
 
-  @property({ type: String })
   public name: null | string = null;
 
-  @property({ type: String })
   public code: null | string = null;
 
-  @property({ type: String })
   public url: null | string = null;
 
   public constructor() {

@@ -1,12 +1,13 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Router } from '@vaadin/router';
-import { html, property, css } from 'lit-element';
+import { html, css, CSSResultArray, TemplateResult, PropertyDeclarations } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
 import { I18N } from '../../../private/index';
 import { NavigationTopGroup } from '../navigation';
 import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink';
 
 export class AdminNavigationTopGroup extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'x-admin-navigation-top-group-link': AdminNavigationTopGroupLink,
       'iron-icon': customElements.get('iron-icon'),
@@ -14,7 +15,7 @@ export class AdminNavigationTopGroup extends Translatable {
     };
   }
 
-  public static get styles() {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
@@ -38,24 +39,30 @@ export class AdminNavigationTopGroup extends Translatable {
 
   private __routerListener = () => this.requestUpdate();
 
-  @property()
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      inactive: {},
+      router: { type: Object },
+      group: { type: Object },
+      open: { type: Boolean },
+    };
+  }
+
   public inactive = false;
 
-  @property({ type: Object })
   public router?: Router;
 
-  @property({ type: Object })
   public group: NavigationTopGroup = { label: '', icon: '', children: [] };
 
-  @property({ type: Boolean })
   public open = false;
 
-  public connectedCallback() {
+  public connectedCallback(): void {
     super.connectedCallback();
     window.addEventListener('vaadin-router-location-changed', this.__routerListener);
   }
 
-  public render() {
+  public render(): TemplateResult {
     const highlighted = !this.inactive && (this.open || this.__active);
 
     const detailsClass = [
@@ -155,7 +162,7 @@ export class AdminNavigationTopGroup extends Translatable {
     `;
   }
 
-  public disconnectedCallback() {
+  public disconnectedCallback(): void {
     super.disconnectedCallback();
     window.removeEventListener('vaadin-router-location-changed', this.__routerListener);
   }

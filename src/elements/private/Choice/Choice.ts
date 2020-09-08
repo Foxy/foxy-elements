@@ -5,7 +5,7 @@ import '@vaadin/vaadin-lumo-styles/icons';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { AttributePart } from 'lit-html';
 import { interpret } from 'xstate';
 import { Translatable } from '../../../mixins/translatable';
@@ -95,6 +95,20 @@ export class Choice extends Translatable {
     ];
   }
 
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      custom: { type: Boolean },
+      type: { type: String },
+      min: { type: Number },
+      max: { type: Number },
+      value: { type: Array },
+      items: { type: Array },
+      getText: { attribute: false },
+    };
+  }
+
   private get __field() {
     const handleInput = (evt: Event) => {
       evt.stopPropagation();
@@ -134,7 +148,6 @@ export class Choice extends Translatable {
     .onTransition(({ changed }) => changed && this.requestUpdate())
     .start();
 
-  @property({ type: Boolean })
   public get disabled(): boolean {
     return this.__service.state.matches('interactivity.disabled');
   }
@@ -142,7 +155,6 @@ export class Choice extends Translatable {
     this.__service.send('SET_DISABLED', { data });
   }
 
-  @property({ type: Boolean })
   public get custom(): boolean {
     return this.__service.state.matches('extension.present');
   }
@@ -150,7 +162,6 @@ export class Choice extends Translatable {
     this.__service.send('SET_CUSTOM', { data });
   }
 
-  @property({ type: String })
   public get type(): 'text' | 'textarea' | 'integer' {
     return this.__service.state.context.type;
   }
@@ -158,7 +169,6 @@ export class Choice extends Translatable {
     this.__service.send('SET_TYPE', { data });
   }
 
-  @property({ type: Number })
   public get min(): number | null {
     return this.__service.state.context.min;
   }
@@ -166,7 +176,6 @@ export class Choice extends Translatable {
     this.__service.send('SET_MIN', { data });
   }
 
-  @property({ type: Number })
   public get max(): number | null {
     return this.__service.state.context.max;
   }
@@ -174,7 +183,6 @@ export class Choice extends Translatable {
     this.__service.send('SET_MAX', { data });
   }
 
-  @property({ type: Array })
   public get value(): null | string | string[] {
     return this.__service.state.context.value;
   }
@@ -182,7 +190,6 @@ export class Choice extends Translatable {
     this.__service.send('SET_VALUE', { data });
   }
 
-  @property({ type: Array })
   public get items(): string[] {
     return this.__service.state.context.items;
   }
@@ -190,7 +197,6 @@ export class Choice extends Translatable {
     this.__service.send('SET_ITEMS', { data });
   }
 
-  @property({ attribute: false })
   public getText: (value: string) => string = v => v;
 
   public render(): TemplateResult {

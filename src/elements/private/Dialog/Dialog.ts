@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { css, CSSResultArray, property, query, internalProperty } from 'lit-element';
+import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 import { I18N } from '../I18N/I18N';
@@ -100,19 +100,26 @@ export class Dialog extends Translatable {
     ];
   }
 
-  @query('#surface')
-  private __surface!: HTMLDivElement | null;
+  private get __surface(): HTMLDivElement | null {
+    return this.shadowRoot!.querySelector('#surface');
+  }
 
-  @property({ type: String, reflect: true })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      stack: { type: String, reflect: true },
+      size: { type: String, reflect: true },
+      __rendered: {},
+      __open: {},
+    };
+  }
+
   public stack = 'default';
 
-  @property({ type: String, reflect: true })
   public size: 'small' | 'medium' | 'large' = 'medium';
 
-  @internalProperty()
   private __rendered = false;
 
-  @internalProperty()
   private __open = false;
 
   public async open(): Promise<void> {

@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import jsonata from 'jsonata';
-import { css, CSSResultArray, property } from 'lit-element';
+import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { interpret } from 'xstate';
 import { RequestEvent, UnhandledRequestError } from '../../../../../../events/request';
@@ -53,10 +53,16 @@ export class Widget extends Translatable {
     }
   }
 
-  @property({ type: String })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      query: { type: String },
+      href: { type: String },
+    };
+  }
+
   public query = '';
 
-  @property({ type: String })
   public href = '';
 
   public connectedCallback(): void {

@@ -1,6 +1,13 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { TOptions } from 'i18next';
-import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
+import {
+  css,
+  CSSResultArray,
+  html,
+  property,
+  TemplateResult,
+  PropertyDeclarations,
+} from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { Skeleton } from '../Skeleton/Skeleton';
 
@@ -11,6 +18,14 @@ export class I18N extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'x-skeleton': Skeleton,
+    };
+  }
+
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      key: { type: String, reflect: true },
+      opts: { type: Object },
     };
   }
 
@@ -25,10 +40,8 @@ export class I18N extends Translatable {
     ];
   }
 
-  @property({ type: String, reflect: true })
   public key = '';
 
-  @property({ type: Object })
   public opts?: I18NOptions;
 
   public get whenReady(): Promise<unknown> {

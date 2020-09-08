@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { css, CSSResultArray, property } from 'lit-element';
+import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 
@@ -30,7 +30,13 @@ export class Editable extends Translatable {
     ];
   }
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      editable: { type: Boolean },
+    };
+  }
+
   public editable = false;
 
   public render(): TemplateResult {

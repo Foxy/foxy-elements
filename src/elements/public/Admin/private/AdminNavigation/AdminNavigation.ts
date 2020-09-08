@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { css, CSSResultArray, html, internalProperty, property, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 
 import {
@@ -30,6 +30,15 @@ export class AdminNavigation extends Translatable {
       'x-admin-navigation-top-group': AdminNavigationTopGroup,
       'x-admin-navigation-top-link': AdminNavigationTopLink,
       'iron-icon': customElements.get('iron-icon'),
+    };
+  }
+
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __openGroups: {},
+      route: { type: String },
+      navigation: { type: Array },
     };
   }
 
@@ -72,13 +81,10 @@ export class AdminNavigation extends Translatable {
     history.replaceState(history.state, document.title, url.toString());
   }
 
-  @internalProperty()
   private __openGroups: number[] = [];
 
-  @property({ type: String })
   public route = '';
 
-  @property({ type: Array })
   public navigation: Navigation = [];
 
   public connectedCallback(): void {

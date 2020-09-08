@@ -2,7 +2,7 @@ import i18next, { FormatFunction, i18n, TFunction } from 'i18next';
 import HttpApi from 'i18next-http-backend';
 import { cdn } from '../env';
 import { Themeable } from './themeable';
-import { property } from 'lit-element';
+import { PropertyDeclarations } from 'lit-element';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -95,6 +95,13 @@ export abstract class Translatable extends Themeable {
     return Translatable.__isI18NReady;
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      lang: { type: String, noAccessor: true },
+      ns: { type: String, noAccessor: true },
+    };
+  }
+
   /**
    * Creates class instance and starts loading missing translations
    * in background. Triggers render when ready.
@@ -112,7 +119,6 @@ export abstract class Translatable extends Themeable {
    * content in. Assigning a value to this property will load new
    * translations in background and trigger a render afterwards.
    */
-  @property({ type: String, noAccessor: true })
   public get lang(): string {
     return this.__lang;
   }
@@ -125,7 +131,6 @@ export abstract class Translatable extends Themeable {
     });
   }
 
-  @property({ type: String, noAccessor: true })
   public get ns(): string {
     return this.__ns;
   }

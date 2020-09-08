@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { DropdownChangeEvent } from '../../../../private/events';
@@ -29,10 +29,16 @@ export class FrequencyInput extends Translatable {
     return parseDuration(this.value ?? '').units;
   }
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: String },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: String })
   public value = FrequencyInput.defaultValue;
 
   public constructor() {

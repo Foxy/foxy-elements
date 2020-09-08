@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 
 import {
@@ -29,10 +29,16 @@ export class AllowedDays extends Translatable {
 
   private readonly __items = ['all', 'month', 'day'] as const;
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: Object },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: Object })
   public value?: Rule;
 
   public constructor() {

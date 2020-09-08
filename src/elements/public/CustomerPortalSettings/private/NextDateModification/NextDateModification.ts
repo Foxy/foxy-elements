@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { Checkbox, I18N, Section } from '../../../../private/index';
 import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
@@ -20,10 +20,16 @@ export class NextDateModification extends Translatable {
     };
   }
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: Array },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: Array })
   public value: Rule[] | boolean = false;
 
   public constructor() {

@@ -1,4 +1,4 @@
-import { css, CSSResultArray, html, TemplateResult, property } from 'lit-element';
+import { css, CSSResultArray, html, TemplateResult, PropertyDeclarations } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Skeleton extends Themeable {
@@ -28,7 +28,13 @@ export class Skeleton extends Themeable {
     ];
   }
 
-  @property({ type: String })
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      variant: { type: String },
+    };
+  }
+
   public variant: 'static' | 'error' | null = null;
 
   public render(): TemplateResult {

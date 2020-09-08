@@ -1,8 +1,14 @@
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Group extends Themeable {
-  @property({ type: Boolean })
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      frame: { type: Boolean },
+    };
+  }
+
   public frame = false;
 
   public render(): TemplateResult {

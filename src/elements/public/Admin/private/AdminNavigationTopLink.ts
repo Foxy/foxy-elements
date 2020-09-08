@@ -1,11 +1,12 @@
+import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Router } from '@vaadin/router';
-import { html, property } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
 import { I18N } from '../../../private/index';
 import { NavigationTopLink } from '../navigation';
 
 export class AdminNavigationTopLink extends Translatable {
-  public static get scopedElements() {
+  public static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'x-i18n': I18N,
@@ -14,16 +15,22 @@ export class AdminNavigationTopLink extends Translatable {
 
   private __routerListener = this.__handleLocationChange.bind(this);
 
-  @property()
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      inactive: {},
+      router: { type: Object },
+      link: { type: Object },
+    };
+  }
+
   public inactive = false;
 
-  @property({ type: Object })
   public router?: Router;
 
-  @property({ type: Object })
   public link: NavigationTopLink = { label: '', name: '', icon: '' };
 
-  public get href() {
+  public get href(): string {
     try {
       return this.router?.urlForName(this.link.name) ?? '';
     } catch {
@@ -31,17 +38,17 @@ export class AdminNavigationTopLink extends Translatable {
     }
   }
 
-  public connectedCallback() {
+  public connectedCallback(): void {
     super.connectedCallback();
     window.addEventListener('vaadin-router-location-changed', this.__routerListener);
   }
 
-  public disconnectedCallback() {
+  public disconnectedCallback(): void {
     super.disconnectedCallback();
     window.removeEventListener('vaadin-router-location-changed', this.__routerListener);
   }
 
-  public render() {
+  public render(): TemplateResult {
     const current = this.router?.location.route?.name === this.link.name;
 
     const wrapperClass = [

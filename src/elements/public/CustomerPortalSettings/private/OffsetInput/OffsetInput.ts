@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { ChoiceChangeEvent } from '../../../../private/events';
@@ -26,13 +26,19 @@ export class OffsetInput extends Translatable {
     return this.__items[!this.value ? 0 : 1];
   }
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: String },
+      type: { type: String },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: String })
   public value?: string;
 
-  @property({ type: String })
   public type: 'min' | 'max' = 'min';
 
   private get __hint() {

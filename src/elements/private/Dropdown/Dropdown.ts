@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-select';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
 
@@ -23,16 +23,22 @@ export class Dropdown extends Themeable {
 
   private __unexistentValue = getUnexistentValue();
 
-  @property({ type: Boolean })
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      getTex: { type: Object },
+      items: { type: Array },
+      value: { type: String },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: String })
   public value: null | string = null;
 
-  @property({ type: Array })
   public items: null | string[] = null;
 
-  @property({ type: Object })
   public getText: (value: string) => string = v => v;
 
   public render(): TemplateResult {

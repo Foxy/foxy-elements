@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { ListChangeEvent } from './ListChangeEvent';
 
@@ -10,13 +10,19 @@ export class List extends Themeable {
     };
   }
 
-  @property({ type: Array })
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      value: { type: Array },
+      disabled: { type: Boolean },
+      getText: { type: Object },
+    };
+  }
+
   public value: string[] = [];
 
-  @property({ type: Boolean })
   public disabled = false;
 
-  @property({ type: Object })
   public getText: (value: string) => string = v => v;
 
   public render(): TemplateResult {

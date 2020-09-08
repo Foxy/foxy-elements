@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { Checkbox, Group, I18N, Section } from '../../../../private/index';
 import { FrequencyList } from '../FrequencyList/FrequencyList';
@@ -21,10 +21,16 @@ export class FrequencyModification extends Translatable {
     };
   }
 
-  @property({ type: Object })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      value: { type: Object },
+      disabled: { type: Boolean },
+    };
+  }
+
   public value: boolean | FrequencyModificationRule = false;
 
-  @property({ type: Boolean })
   public disabled = false;
 
   public constructor() {

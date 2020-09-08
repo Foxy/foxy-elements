@@ -3,7 +3,7 @@ import '@polymer/iron-icon';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
 import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import { Translatable } from '../../../mixins/translatable';
@@ -63,7 +63,13 @@ export class CustomerPortalSettings extends Translatable {
 
   public readonly rel = 'customer_portal_settings';
 
-  @property({ type: String, noAccessor: true })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      href: { type: String, noAccessor: true },
+    };
+  }
+
   public get href(): string | null {
     return this.__service.state.context.href;
   }
