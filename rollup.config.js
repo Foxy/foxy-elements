@@ -23,7 +23,10 @@ export default {
     nodeResolve({ browser: true }),
     commonjs(),
     babel({ babelHelpers: 'bundled' }),
-    env({ NODE_ENV: 'production' }),
+    env({
+      NODE_ENV: 'production',
+      FOXY_CDN: 'https://static.www.foxycart.com/beta/foxy-elements/0.3.0',
+    }),
     terser(),
   ],
 };
