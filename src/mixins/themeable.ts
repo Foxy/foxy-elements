@@ -15,12 +15,14 @@ export abstract class Themeable extends ScopedElementsMixin(LitElement) {
    * Using `unsafeCSS` to skip additional sanitization since it's our own code anyway.
    * @readonly
    */
-  public static readonly styles: CSSResult | CSSResultArray = [
-    unsafeCSS`{{ output }}`,
-    css`
-      :host {
-        display: block;
-      }
-    `,
-  ];
+  public static get styles(): CSSResult | CSSResultArray {
+    return [
+      unsafeCSS`{{ output }}`,
+      css`
+        :host {
+          display: block;
+        }
+      `,
+    ];
+  }
 }

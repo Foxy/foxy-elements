@@ -85,6 +85,8 @@ export abstract class Translatable extends Themeable {
    * Contains the language this component presents its translatable
    * content in. Assigning a value to this property will load new
    * translations in background and trigger a render afterwards.
+   *
+   * **Example:** `"en"`
    */
   public get lang(): string {
     return this.__lang;
@@ -98,6 +100,13 @@ export abstract class Translatable extends Themeable {
     });
   }
 
+  /**
+   * The namespace to look for the translations in. We use this property to
+   * sync namespace settings with the parent element and it's highly unlikely
+   * that you'll ever need to set or read it in your code.
+   *
+   * **Example:** `"admin"`
+   */
   public get ns(): string {
     return this.__ns;
   }

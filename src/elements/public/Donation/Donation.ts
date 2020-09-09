@@ -18,8 +18,8 @@ interface DonationEventsMap {
 /**
  * A custom element providing customizable donation forms.
  *
- * @fires Donation#change - Instance of {@link Donation.events.change}. Emitted after user input triggers a change in the form data.
- * @fires Donation#submit - Instance of {@link Donation.events.submit}. Emitted when the form is submitted. Cancelling this event will stop the submission.
+ * @fires Donation#change - Instance of `Donation.events.change`. Emitted after user input triggers a change in the form data.
+ * @fires Donation#submit - Instance of `Donation.events.submit`. Emitted when the form is submitted. Cancelling this event will stop the submission.
  *
  * @slot amount - Space below the amount selector, if it's visible.
  * @slot designation - Space below the designation selector, if it's visible.
@@ -40,14 +40,6 @@ export class Donation extends Translatable {
       'x-choice': Choice,
       'x-group': Group,
       'x-i18n': I18N,
-    };
-  }
-
-  /** @readonly */
-  public static get events(): DonationEventsMap {
-    return {
-      change: DonationChangeEvent,
-      submit: DonationSubmitEvent,
     };
   }
 
@@ -74,44 +66,161 @@ export class Donation extends Translatable {
     };
   }
 
-  /** 3-letter lowercase currency code, e.g. "usd" or "eur". */
+  /** @readonly */
+  public static get events(): DonationEventsMap {
+    return {
+      change: DonationChangeEvent,
+      submit: DonationSubmitEvent,
+    };
+  }
+
+  /**
+   * **Required** 3-letter lowercase currency code.
+   *
+   * **Example:** `"usd"`
+   */
   public currency: null | string = null;
 
-  /** Customizable selectors. */
-  public custom: null | string[] = null;
-
+  /**
+   * **Required** donation amount in specified currency. When more than one amount option
+   * is available, this field will contain the selected amount. This value is deliberately not
+   * limited to the predefined options: whatever you set it to will show up in the cart.
+   *
+   * **Example:** `25`
+   */
   public amount: null | number = null;
 
-  public amounts: null | number[] = null;
-
-  public frequency: null | string = null;
-
-  public frequencies: null | string[] = null;
-
-  public designation: null | string | string[] = null;
-
-  public designations: null | string[] = null;
-
-  public comment: null | string = null;
-
-  public anonymity = false;
-
-  public anonymous = false;
-
-  public image: null | string = null;
-
+  /**
+   * **Required** store subdomain. This is usually the part after before `.foxycart.com`
+   * and after `https://`, e.g. the `foxy-demo` bit of `https://foxy-demo.foxycart.com`.
+   *
+   * **Example:** `"foxy-demo"`
+   */
   public store: null | string = null;
 
+  /**
+   * **Required** product name for this donation. This will show up in the cart when this form is submitted.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"One-time donation"`
+   */
   public name: null | string = null;
 
+  /**
+   * Optional parts of the form including a custom ("other") option.
+   * Adding `amount` to this array will enable custom amount and adding `designation`
+   * will render a custom designation field.
+   *
+   * **Example:** `["amount", "designation"]`
+   */
+  public custom: null | ('amount' | 'designation')[] = null;
+
+  /**
+   * Optional donation amount variants. If this property is set, the form will render
+   * the amount selection interface. If this array includes the value of the `amount` property,
+   * it will be pre-selected in the form.
+   *
+   * **Example:** `[25, 50, 75]`
+   */
+  public amounts: null | number[] = null;
+
+  /**
+   * Optional donation frequency string encoded as count (integer) + units (one
+   * of: `d` for days, `w` for weeks, `m` for months, `y` for years). A special
+   * value for twice a month is also supported: `.5m`. If set, the form will
+   * create a subscription with the specified frequency in the cart. This value is deliberately not
+   * limited to the predefined options: whatever you set it to will show up in the cart.
+   *
+   * **Example:** `"1m"`
+   */
+  public frequency: null | string = null;
+
+  /**
+   * Optional donation frequency variants in the same format as `frequency`. If this property is set,
+   * the form will render the frequency selection interface. If this array includes
+   * the value of the `frequency` property, it will be pre-selected in the form.
+   *
+   * **Example:** `["7d", ".5m", "1y"]`
+   */
+  public frequencies: null | string[] = null;
+
+  /**
+   * Optional donation designation(s). The form will serialize and pass this value to the cart
+   * on submission. This value is deliberately not limited to the predefined options:
+   * whatever you set it to will show up in the cart.
+   *
+   * **Example:** `"Medical Care"`
+   * **Example:** `["Medical Care", "Daily Meals"]`
+   */
+  public designation: null | string | string[] = null;
+
+  /**
+   * Optional donation designation(s) variants. If this property is set,
+   * the form will render the designation selection interface: multiple choice
+   * if `designation` is an array and a single choice otherwise. All values overlapping
+   * with the `designation` property will be pre-selected in the form.
+   *
+   * **Example:** `["Medical Care", "Daily Meals", "Area of Greatest Need"]`
+   */
+  public designations: null | string[] = null;
+
+  /**
+   * Optional comment accompanying the donation. If set (even to an empty string),
+   * the form will render a comment field. The value of this property will be updated
+   * as the customer enters their message and will be added to the order as a custom field in the end.
+   *
+   * **Example:** `""`
+   */
+  public comment: null | string = null;
+
+  /**
+   * Optional switch controlling visibility of the anonymity checkbox. If set to `true`, the form
+   * will render the checkbox. All changes in the value are reflected to the attribute.
+   *
+   * **Example:** `true`
+   */
+  public anonymity = false;
+
+  /**
+   * Optional switch marking this donation as anonymous via a custom field when set to `true`. When
+   * the anonymity checkbox is rendered, also checks or unchecks it depending on the value.
+   * All changes in the value are reflected to the attribute.
+   *
+   * **Example:** `true`
+   */
+  public anonymous = false;
+
+  /**
+   * Optional product image URL (absolute path). This property affects cart UI only.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"https://picsum.photos/320"`
+   */
+  public image: null | string = null;
+
+  /**
+   * Optional product code for this donation. This property affects cart UI only.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"ISBN 978-0-12-345678-9"`
+   */
   public code: null | string = null;
 
+  /**
+   * Optional product URL for this donation. Accepts a full URL to the product page, starting
+   * with `http://` or `https://`, or a relative path to the produt from the store's
+   * domain (as configured in the store settings). This property affects cart UI only.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"https://example.com/my-product"`
+   */
   public url: null | string = null;
 
   public constructor() {
     super('donation');
   }
 
+  /** Submits the form, emitting a cancelable `submit` event. */
   public submit(): void {
     /* istanbul ignore if  */
     if (this.dispatchEvent(new DonationSubmitEvent())) this.__form.submit();
