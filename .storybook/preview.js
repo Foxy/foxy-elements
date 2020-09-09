@@ -15,3 +15,7 @@ if (module.hot) {
     window.location.reload();
   });
 }
+
+export const parameters = {
+  backgrounds: { disable: true },
+};
