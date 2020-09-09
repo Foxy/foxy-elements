@@ -6,20 +6,12 @@
   const { promises: fs } = require('fs');
   const path = 'custom-elements.json';
   const json = JSON.parse((await fs.readFile(path)).toString());
-  const types = new Set(['object', 'boolean', 'string', 'number']);
   const cssProperties = require('./custom-properties.json');
 
-  console.log('[postwca]: adding property and attribute knobs');
+  console.log('[postwca]: adding css properties');
 
   json.tags.forEach(tag => {
     tag.cssProperties = cssProperties;
-    ['attributes', 'properties'].forEach(kind => {
-      tag[kind].forEach(attribute => {
-        attribute.storybookKnobs = {
-          type: types.has(attribute.type) ? attribute.type : 'object',
-        };
-      });
-    });
   });
 
   console.log('[postwca]: writing to disk');
