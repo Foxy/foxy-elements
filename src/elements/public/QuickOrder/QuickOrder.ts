@@ -317,10 +317,6 @@ export class QuickOrder extends Translatable {
    * @return signedName the name of the field with the signature
    */
   private __addSignature(name: string, signature: string, open?: string | boolean): string {
-    // Check for malformed signature
-    if (signature.length != 64) {
-      throw new Error('There is something wrong with the signature. It should have 64 characters.');
-    }
     return `${name}||${signature}${open ? '||open' : ''}`;
   }
 
@@ -346,7 +342,12 @@ export class QuickOrder extends Translatable {
     return added;
   }
 
-  /** Adds a product to a form data */
+  /**
+   * Adds a product to a form data
+   *
+   * @argument {FormData} fd the FormData to which the product will be added
+   * @argument {Product} the product to add
+   **/
   private __formDataAddProduct(fd: FormData, p: Product): void {
     const idKey = 'pid';
     const reservedAttributes = [idKey, 'signatures', 'currency'];
@@ -369,7 +370,11 @@ export class QuickOrder extends Translatable {
     }
   }
 
-  /** Adds subscription fields to a FormData */
+  /**
+   * Adds subscription fields to a FormData
+   *
+   * @argument {FormData} fd the FormData to which subscription fields will be added
+   **/
   private __formDataAddSubscriptionFields(fd: FormData): void {
     if (this.sub_frequency) {
       fd.append('sub_frequency', this.sub_frequency!);
@@ -384,7 +389,11 @@ export class QuickOrder extends Translatable {
 
   /**
    * Validates a string for subscription start date or end date according to
-   * https://wiki.foxycart.com/v/2.0/products#subscription_product_options
+   *
+   *
+   * @argument strDate the date as a string to be used as start or end date.
+   *
+   * @see https://wiki.foxycart.com/v/2.0/products#subscription_product_options
    */
   private static __validDate(strDate: string | null | undefined): boolean {
     if (strDate === null || strDate === undefined) {

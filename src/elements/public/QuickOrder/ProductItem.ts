@@ -156,7 +156,20 @@ export class ProductItem extends Translatable implements Product {
       open: { type: Object },
       pid: { type: Number, reflect: true },
       products: { type: Array, attribute: 'products' },
-      signatures: { type: Object },
+      signatures: {
+        type: Object,
+        converter: value => {
+          if (!value) return;
+          const v = (value as unknown) as Record<string, string>;
+          for (const k of Object.keys(value)) {
+            if ((v[k] as string).length != 64) {
+              console.error(
+                'There is something wrong with the signature. It should have 64 characters.'
+              );
+            }
+          }
+        },
+      },
     };
   }
 
