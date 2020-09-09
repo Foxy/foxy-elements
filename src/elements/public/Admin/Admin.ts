@@ -70,6 +70,7 @@ export class Admin extends Translatable {
   }
 
   private __routerListener = () => this.requestUpdate();
+
   private __outletObserver = new MutationObserver(mutations => {
     for (const { type, addedNodes } of mutations) {
       if (type !== 'childList') continue;
@@ -91,8 +92,11 @@ export class Admin extends Translatable {
   });
 
   private __navigation = navigation;
+
   private __service = interpret(this.__machine);
+
   private __router = new Router();
+
   private __routes = routes;
 
   public constructor() {

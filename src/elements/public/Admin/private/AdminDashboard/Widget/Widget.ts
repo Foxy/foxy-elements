@@ -38,21 +38,6 @@ export class Widget extends Translatable {
     ];
   }
 
-  private __machine = machine.withConfig({
-    services: { load: () => this.__load() },
-  });
-
-  private __service = interpret(this.__machine);
-
-  private get __display() {
-    try {
-      return jsonata(this.query).evaluate(this.__service.state.context.resource);
-    } catch (err) {
-      this.__service.send('ERROR');
-      return '';
-    }
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -64,6 +49,12 @@ export class Widget extends Translatable {
   public query = '';
 
   public href = '';
+
+  private __machine = machine.withConfig({
+    services: { load: () => this.__load() },
+  });
+
+  private __service = interpret(this.__machine);
 
   public connectedCallback(): void {
     super.connectedCallback();
@@ -104,6 +95,15 @@ export class Widget extends Translatable {
   public updated(changedProperties: Map<keyof Widget, unknown>): void {
     if (changedProperties.has('query')) this.__service.send('RESET');
     if (changedProperties.has('href')) this.__service.send('RESET');
+  }
+
+  private get __display() {
+    try {
+      return jsonata(this.query).evaluate(this.__service.state.context.resource);
+    } catch (err) {
+      this.__service.send('ERROR');
+      return '';
+    }
   }
 
   private async __load(): Promise<WidgetLoadSuccessEvent['data']> {

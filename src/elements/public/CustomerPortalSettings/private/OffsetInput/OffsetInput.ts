@@ -20,12 +20,6 @@ export class OffsetInput extends Translatable {
     };
   }
 
-  private readonly __items = ['none', 'custom'] as const;
-
-  private get __choice() {
-    return this.__items[!this.value ? 0 : 1];
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -41,17 +35,7 @@ export class OffsetInput extends Translatable {
 
   public type: 'min' | 'max' = 'min';
 
-  private get __hint() {
-    if (!this._isI18nReady) return '';
-    const { count, units } = parseDuration(this.value ?? '');
-
-    return this._t(`ndmod.${this.type}Hint`, {
-      duration: this._t('duration', {
-        count,
-        units: this._t(units ?? '', { count }),
-      }),
-    });
-  }
+  private readonly __items = ['none', 'custom'] as const;
 
   public constructor() {
     super('customer-portal-settings');
@@ -91,6 +75,22 @@ export class OffsetInput extends Translatable {
         </x-choice>
       </x-group>
     `;
+  }
+
+  private get __choice() {
+    return this.__items[!this.value ? 0 : 1];
+  }
+
+  private get __hint() {
+    if (!this._isI18nReady) return '';
+    const { count, units } = parseDuration(this.value ?? '');
+
+    return this._t(`ndmod.${this.type}Hint`, {
+      duration: this._t('duration', {
+        count,
+        units: this._t(units ?? '', { count }),
+      }),
+    });
   }
 
   private __handleNewValueChange(evt: FrequencyInputChangeEvent) {

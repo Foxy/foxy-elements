@@ -34,10 +34,6 @@ export class Code extends Themeable {
 
   private __code = '';
 
-  private get __container(): HTMLElement {
-    return this.shadowRoot!.querySelector('code')!;
-  }
-
   private __ready = false;
 
   get ready(): boolean {
@@ -68,18 +64,6 @@ export class Code extends Themeable {
     this.__ready = true;
   }
 
-  private async __loadScript(src: string, comment: string) {
-    await new Promise((resolve, reject) => {
-      const script = this.ownerDocument!.createElement('script');
-
-      script.onload = resolve;
-      script.onerror = reject;
-      script.src = src;
-
-      this.ownerDocument!.head.append(this.ownerDocument!.createComment(comment), script);
-    });
-  }
-
   render(): TemplateResult {
     return html`
       <link
@@ -90,5 +74,21 @@ export class Code extends Themeable {
       <pre><code>${this.__code}</code></pre>
       <slot></slot>
     `;
+  }
+
+  private get __container(): HTMLElement {
+    return this.shadowRoot!.querySelector('code')!;
+  }
+
+  private async __loadScript(src: string, comment: string) {
+    await new Promise((resolve, reject) => {
+      const script = this.ownerDocument!.createElement('script');
+
+      script.onload = resolve;
+      script.onerror = reject;
+      script.src = src;
+
+      this.ownerDocument!.head.append(this.ownerDocument!.createComment(comment), script);
+    });
   }
 }

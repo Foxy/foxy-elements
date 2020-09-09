@@ -19,8 +19,6 @@ export class FrequencyList extends Translatable {
     };
   }
 
-  private __newValue = FrequencyInput.defaultValue;
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -32,6 +30,8 @@ export class FrequencyList extends Translatable {
   public value: string[] = [];
 
   public disabled = false;
+
+  private __newValue = FrequencyInput.defaultValue;
 
   public constructor() {
     super('customer-portal-settings');

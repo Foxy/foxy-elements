@@ -13,8 +13,6 @@ export class AdminNavigationTopLink extends Translatable {
     };
   }
 
-  private __routerListener = this.__handleLocationChange.bind(this);
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -29,6 +27,8 @@ export class AdminNavigationTopLink extends Translatable {
   public router?: Router;
 
   public link: NavigationTopLink = { label: '', name: '', icon: '' };
+
+  private __routerListener = this.__handleLocationChange.bind(this);
 
   public get href(): string {
     try {

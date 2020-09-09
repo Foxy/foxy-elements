@@ -21,8 +21,6 @@ export class Dropdown extends Themeable {
     };
   }
 
-  private __unexistentValue = getUnexistentValue();
-
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -40,6 +38,8 @@ export class Dropdown extends Themeable {
   public items: null | string[] = null;
 
   public getText: (value: string) => string = v => v;
+
+  private __unexistentValue = getUnexistentValue();
 
   public render(): TemplateResult {
     return html`

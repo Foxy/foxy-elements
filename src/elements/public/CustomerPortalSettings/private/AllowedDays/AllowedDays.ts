@@ -27,8 +27,6 @@ export class AllowedDays extends Translatable {
     };
   }
 
-  private readonly __items = ['all', 'month', 'day'] as const;
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -40,6 +38,8 @@ export class AllowedDays extends Translatable {
   public disabled = false;
 
   public value?: Rule;
+
+  private readonly __items = ['all', 'month', 'day'] as const;
 
   public constructor() {
     super('customer-portal-settings');

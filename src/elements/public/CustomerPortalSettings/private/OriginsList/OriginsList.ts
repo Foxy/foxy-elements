@@ -29,10 +29,6 @@ export class OriginsList extends Translatable {
     };
   }
 
-  private get __newValueInput(): HTMLInputElement {
-    return this.shadowRoot!.querySelector('[name=new-value]') as HTMLInputElement;
-  }
-
   public value: string[] = [];
 
   public disabled = false;
@@ -82,6 +78,10 @@ export class OriginsList extends Translatable {
         </x-list>
       </x-group>
     `;
+  }
+
+  private get __newValueInput(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('[name=new-value]') as HTMLInputElement;
   }
 
   private __sendChange() {

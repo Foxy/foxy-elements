@@ -6,8 +6,6 @@ import { I18N } from '../I18N/I18N';
 import { MonthdayPickerChangeEvent } from './MonthdayPickerChangeEvent';
 
 export class MonthdayPicker extends Translatable {
-  protected static readonly _allDays = Array.from(new Array(31), (_, i) => i + 1);
-
   public static get scopedElements(): ScopedElementsMap {
     return {
       'x-i18n': I18N,
@@ -26,17 +24,7 @@ export class MonthdayPicker extends Translatable {
 
   public value: number[] = [];
 
-  protected _getLabelClass(day: number): string {
-    let base = 'flex items-center justify-center m-xs p-s rounded text-m font-medium ';
-
-    base += 'sm:p-0 sm:h-m sm:w-l ';
-    base += this.value.includes(day) ? 'text-base ' : 'bg-contrast-5 ';
-
-    if (day < 29) base += this.value.includes(day) ? 'bg-primary' : 'text-primary';
-    if (day > 28) base += this.value.includes(day) ? 'bg-error' : 'text-error';
-
-    return base;
-  }
+  protected static readonly _allDays = Array.from(new Array(31), (_, i) => i + 1);
 
   public render(): TemplateResult {
     const translatedDays = MonthdayPicker._allDays.map(day => {
@@ -85,6 +73,18 @@ export class MonthdayPicker extends Translatable {
         )}
       </div>
     `;
+  }
+
+  protected _getLabelClass(day: number): string {
+    let base = 'flex items-center justify-center m-xs p-s rounded text-m font-medium ';
+
+    base += 'sm:p-0 sm:h-m sm:w-l ';
+    base += this.value.includes(day) ? 'text-base ' : 'bg-contrast-5 ';
+
+    if (day < 29) base += this.value.includes(day) ? 'bg-primary' : 'text-primary';
+    if (day > 28) base += this.value.includes(day) ? 'bg-error' : 'text-error';
+
+    return base;
   }
 
   protected _handleChange(evt: Event, day: number): void {

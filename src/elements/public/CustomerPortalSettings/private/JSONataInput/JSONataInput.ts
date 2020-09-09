@@ -15,12 +15,6 @@ export class JSONataInput extends Translatable {
     };
   }
 
-  private readonly __items = ['all', 'some'] as const;
-
-  private get __choice() {
-    return this.__items[this.value === '*' ? 0 : 1];
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -32,6 +26,8 @@ export class JSONataInput extends Translatable {
   public disabled = false;
 
   public value = '*';
+
+  private readonly __items = ['all', 'some'] as const;
 
   public constructor() {
     super('customer-portal-settings');
@@ -71,6 +67,10 @@ export class JSONataInput extends Translatable {
           : ''}
       </x-choice>
     `;
+  }
+
+  private get __choice() {
+    return this.__items[this.value === '*' ? 0 : 1];
   }
 
   private __handleNewValueChange(evt: InputEvent) {

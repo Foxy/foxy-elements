@@ -11,14 +11,14 @@ export class DialogCloseEvent extends CustomEvent<void> {
 }
 
 export class Dialog extends Translatable {
+  public static stacks: Record<string, Dialog[]> = { default: [] };
+
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-button': customElements.get('vaadin-button'),
       'x-i18n': I18N,
     };
   }
-
-  public static stacks: Record<string, Dialog[]> = { default: [] };
 
   public static get styles(): CSSResultArray {
     return [
@@ -98,10 +98,6 @@ export class Dialog extends Translatable {
         }
       `,
     ];
-  }
-
-  private get __surface(): HTMLDivElement | null {
-    return this.shadowRoot!.querySelector('#surface');
   }
 
   static get properties(): PropertyDeclarations {
@@ -198,5 +194,9 @@ export class Dialog extends Translatable {
         </article>
       </div>
     `;
+  }
+
+  private get __surface(): HTMLDivElement | null {
+    return this.shadowRoot!.querySelector('#surface');
   }
 }

@@ -48,15 +48,8 @@ export class AdminDashboard extends Translatable {
   });
 
   private __service = interpret(this.__machine);
+
   private __sortable: SortableJS | null = null;
-
-  private get __widgets(): HTMLElement | null {
-    return this.shadowRoot!.querySelector('#widgets');
-  }
-
-  private get __widgetEditor(): WidgetEditor {
-    return this.shadowRoot!.querySelector('#widget-editor') as WidgetEditor;
-  }
 
   public constructor() {
     super('admin');
@@ -170,6 +163,14 @@ export class AdminDashboard extends Translatable {
         },
       });
     }
+  }
+
+  private get __widgets(): HTMLElement | null {
+    return this.shadowRoot!.querySelector('#widgets');
+  }
+
+  private get __widgetEditor(): WidgetEditor {
+    return this.shadowRoot!.querySelector('#widget-editor') as WidgetEditor;
   }
 
   private async __load(): Promise<AdminDashboardLoadSuccessEvent['data']> {

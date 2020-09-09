@@ -11,6 +11,13 @@ import { PropertyDeclarations } from 'lit-element';
  * referenced externally (outside of the package).
  */
 export abstract class Translatable extends Themeable {
+  static get properties(): PropertyDeclarations {
+    return {
+      lang: { type: String, noAccessor: true },
+      ns: { type: String, noAccessor: true },
+    };
+  }
+
   /**
    * i18next formatter that converts given value to lowecase.
    * @see https://www.i18next.com/translation-function/formatting
@@ -53,54 +60,14 @@ export abstract class Translatable extends Themeable {
   };
 
   private static __whenI18NReady: Promise<TFunction>;
+
   private static __isI18NReady = false;
+
   private static __i18n: i18n;
 
-  private static __initI18N() {
-    this.__i18n = i18next.createInstance();
-    this.__i18n.use(HttpApi);
-
-    this.__whenI18NReady = this.__i18n.init({
-      supportedLngs: ['nl', 'en', 'es', 'sv', 'fi', 'fr', 'de', 'zh', 'no', 'it'],
-      interpolation: { format: Translatable.__f },
-      fallbackLng: 'en',
-      fallbackNS: 'global',
-      defaultNS: 'global',
-      detection: {
-        order: ['querystring', 'navigator', 'htmlTag', 'path', 'subdomain'],
-        caches: [],
-      },
-      backend: {
-        loadPath: `${cdn}/translations/{{ns}}/{{lng}}.json`,
-      },
-    });
-
-    this.__whenI18NReady.then(() => (this.__isI18NReady = true));
-
-    return this.__i18n;
-  }
-
   private __lang = (this._i18n.options.fallbackLng as string[])[0];
+
   private __ns = (this._i18n.options.fallbackNS as string[])[0];
-
-  protected get _i18n(): i18n {
-    return Translatable.__i18n ?? Translatable.__initI18N();
-  }
-
-  protected get _whenI18nReady(): Promise<TFunction> {
-    return Translatable.__whenI18NReady;
-  }
-
-  protected get _isI18nReady(): boolean {
-    return Translatable.__isI18NReady;
-  }
-
-  static get properties(): PropertyDeclarations {
-    return {
-      lang: { type: String, noAccessor: true },
-      ns: { type: String, noAccessor: true },
-    };
-  }
 
   /**
    * Creates class instance and starts loading missing translations
@@ -134,11 +101,48 @@ export abstract class Translatable extends Themeable {
   public get ns(): string {
     return this.__ns;
   }
+
   public set ns(value: string) {
     this.__ns = value;
     this._i18n.loadNamespaces(value).then(() => {
       if (this.__ns === value) this.requestUpdate();
     });
+  }
+
+  private static __initI18N() {
+    this.__i18n = i18next.createInstance();
+    this.__i18n.use(HttpApi);
+
+    this.__whenI18NReady = this.__i18n.init({
+      supportedLngs: ['nl', 'en', 'es', 'sv', 'fi', 'fr', 'de', 'zh', 'no', 'it'],
+      interpolation: { format: Translatable.__f },
+      fallbackLng: 'en',
+      fallbackNS: 'global',
+      defaultNS: 'global',
+      detection: {
+        order: ['querystring', 'navigator', 'htmlTag', 'path', 'subdomain'],
+        caches: [],
+      },
+      backend: {
+        loadPath: `${cdn}/translations/{{ns}}/{{lng}}.json`,
+      },
+    });
+
+    this.__whenI18NReady.then(() => (this.__isI18NReady = true));
+
+    return this.__i18n;
+  }
+
+  protected get _i18n(): i18n {
+    return Translatable.__i18n ?? Translatable.__initI18N();
+  }
+
+  protected get _whenI18nReady(): Promise<TFunction> {
+    return Translatable.__whenI18NReady;
+  }
+
+  protected get _isI18nReady(): boolean {
+    return Translatable.__isI18NReady;
   }
 
   protected get _t(): TFunction {

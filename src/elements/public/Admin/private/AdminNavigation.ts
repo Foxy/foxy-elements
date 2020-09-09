@@ -28,33 +28,6 @@ export class AdminNavigation extends Translatable {
     ];
   }
 
-  private __routerListener = () => this.__resetGroups();
-  private __resizeListener = () => (this.__resetGroups(), this.requestUpdate());
-
-  private get __mobile() {
-    return window.innerWidth < 768;
-  }
-
-  private get __group() {
-    const query = new URLSearchParams(location.search);
-    const group = parseInt(query.get(this.activeGroupIndexKey) ?? '', 10);
-    return isNaN(group) ? undefined : group;
-  }
-  private set __group(value: number | undefined) {
-    const url = new URL(location.toString());
-
-    if (value === undefined) {
-      url.searchParams.delete(this.activeGroupIndexKey);
-      if (this.__group) this.__closeGroup(this.__group);
-    } else {
-      url.searchParams.set(this.activeGroupIndexKey, value.toString(10));
-    }
-
-    history.replaceState(history.state, document.title, url.toString());
-  }
-
-  private __openGroups: number[] = [];
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -70,6 +43,12 @@ export class AdminNavigation extends Translatable {
   public navigation: Navigation = [];
 
   public activeGroupIndexKey = 'group';
+
+  private __routerListener = () => this.__resetGroups();
+
+  private __resizeListener = () => (this.__resetGroups(), this.requestUpdate());
+
+  private __openGroups: number[] = [];
 
   public connectedCallback(): void {
     super.connectedCallback();
@@ -114,6 +93,29 @@ export class AdminNavigation extends Translatable {
     super.disconnectedCallback();
     removeEventListener('vaadin-router-location-changed', this.__routerListener);
     removeEventListener('resize', this.__resizeListener);
+  }
+
+  private get __mobile() {
+    return window.innerWidth < 768;
+  }
+
+  private get __group() {
+    const query = new URLSearchParams(location.search);
+    const group = parseInt(query.get(this.activeGroupIndexKey) ?? '', 10);
+    return isNaN(group) ? undefined : group;
+  }
+
+  private set __group(value: number | undefined) {
+    const url = new URL(location.toString());
+
+    if (value === undefined) {
+      url.searchParams.delete(this.activeGroupIndexKey);
+      if (this.__group) this.__closeGroup(this.__group);
+    } else {
+      url.searchParams.set(this.activeGroupIndexKey, value.toString(10));
+    }
+
+    history.replaceState(history.state, document.title, url.toString());
   }
 
   private __resetGroups() {

@@ -30,15 +30,6 @@ export class AdminNavigationTopGroup extends Translatable {
     ];
   }
 
-  private get __active() {
-    return this.group.children.some(child => {
-      if ('name' in child) return child.name === this.router?.location.route?.name;
-      return child.children.some(({ name }) => name === this.router?.location.route?.name);
-    });
-  }
-
-  private __routerListener = () => this.requestUpdate();
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -56,6 +47,8 @@ export class AdminNavigationTopGroup extends Translatable {
   public group: NavigationTopGroup = { label: '', icon: '', children: [] };
 
   public open = false;
+
+  private __routerListener = () => this.requestUpdate();
 
   public connectedCallback(): void {
     super.connectedCallback();
@@ -165,6 +158,13 @@ export class AdminNavigationTopGroup extends Translatable {
   public disconnectedCallback(): void {
     super.disconnectedCallback();
     window.removeEventListener('vaadin-router-location-changed', this.__routerListener);
+  }
+
+  private get __active() {
+    return this.group.children.some(child => {
+      if ('name' in child) return child.name === this.router?.location.route?.name;
+      return child.children.some(({ name }) => name === this.router?.location.route?.name);
+    });
   }
 
   private __handleToggle(evt: Event) {

@@ -7,12 +7,6 @@ import { WeekdayPickerChangeEvent } from './WeekdayPickerChangeEvent';
 export class WeekdayPicker extends MonthdayPicker {
   protected static readonly _allDays = new Array(7).fill(0).map((_, i) => i);
 
-  protected _getLabelClass(day: number): string {
-    let base = 'flex items-center justify-center m-xs h-m w-xl rounded font-medium ';
-    base += this.value.includes(day) ? 'text-base bg-primary' : 'bg-contrast-5 text-primary';
-    return base;
-  }
-
   public render(): TemplateResult {
     return html`
       <div class="space-y-s">
@@ -44,6 +38,12 @@ export class WeekdayPicker extends MonthdayPicker {
         )}
       </div>
     `;
+  }
+
+  protected _getLabelClass(day: number): string {
+    let base = 'flex items-center justify-center m-xs h-m w-xl rounded font-medium ';
+    base += this.value.includes(day) ? 'text-base bg-primary' : 'bg-contrast-5 text-primary';
+    return base;
   }
 
   protected _sendChange(): void {

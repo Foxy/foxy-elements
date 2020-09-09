@@ -55,37 +55,17 @@ export class AdminNavigation extends Translatable {
     ];
   }
 
-  private __resizeQL = window.matchMedia('(max-width: 768px)');
-  private __resizeListener = () => (this.__resetGroups(), this.requestUpdate());
-  private __activeGroupIndexKey = 'group';
-
-  private get __mobile() {
-    return window.innerWidth < 768;
-  }
-
-  private get __group() {
-    const query = new URLSearchParams(location.search);
-    const group = parseInt(query.get(this.__activeGroupIndexKey) ?? '', 10);
-    return isNaN(group) ? undefined : group;
-  }
-  private set __group(value: number | undefined) {
-    const url = new URL(location.toString());
-
-    if (value === undefined) {
-      url.searchParams.delete(this.__activeGroupIndexKey);
-      if (this.__group) this.__closeGroup(this.__group);
-    } else {
-      url.searchParams.set(this.__activeGroupIndexKey, value.toString(10));
-    }
-
-    history.replaceState(history.state, document.title, url.toString());
-  }
-
-  private __openGroups: number[] = [];
-
   public route = '';
 
   public navigation: Navigation = [];
+
+  private __resizeQL = window.matchMedia('(max-width: 768px)');
+
+  private __resizeListener = () => (this.__resetGroups(), this.requestUpdate());
+
+  private __activeGroupIndexKey = 'group';
+
+  private __openGroups: number[] = [];
 
   public connectedCallback(): void {
     super.connectedCallback();
@@ -128,6 +108,29 @@ export class AdminNavigation extends Translatable {
   public disconnectedCallback(): void {
     super.disconnectedCallback();
     this.__resizeQL.removeListener(this.__resizeListener);
+  }
+
+  private get __mobile() {
+    return window.innerWidth < 768;
+  }
+
+  private get __group() {
+    const query = new URLSearchParams(location.search);
+    const group = parseInt(query.get(this.__activeGroupIndexKey) ?? '', 10);
+    return isNaN(group) ? undefined : group;
+  }
+
+  private set __group(value: number | undefined) {
+    const url = new URL(location.toString());
+
+    if (value === undefined) {
+      url.searchParams.delete(this.__activeGroupIndexKey);
+      if (this.__group) this.__closeGroup(this.__group);
+    } else {
+      url.searchParams.set(this.__activeGroupIndexKey, value.toString(10));
+    }
+
+    history.replaceState(history.state, document.title, url.toString());
   }
 
   private __resetGroups() {

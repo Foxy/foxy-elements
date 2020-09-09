@@ -33,8 +33,6 @@ export class AdminNavigationTopGroupLink extends Translatable {
     ];
   }
 
-  private __routerListener = this.__handleLocationChange.bind(this);
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -44,11 +42,13 @@ export class AdminNavigationTopGroupLink extends Translatable {
     };
   }
 
-  private __active = false;
-
   public link: NavigationTopLink = { label: '', name: '', icon: '' };
 
   public router?: Router;
+
+  private __routerListener = this.__handleLocationChange.bind(this);
+
+  private __active = false;
 
   public get href(): string {
     try {

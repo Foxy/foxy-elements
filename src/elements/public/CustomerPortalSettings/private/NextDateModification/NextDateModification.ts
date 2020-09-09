@@ -36,10 +36,6 @@ export class NextDateModification extends Translatable {
     super('customer-portal-settings');
   }
 
-  private get __normalizedValue() {
-    return typeof this.value === 'boolean' ? [] : this.value;
-  }
-
   public render(): TemplateResult {
     return html`
       <x-checkbox
@@ -88,6 +84,10 @@ export class NextDateModification extends Translatable {
           : ''}
       </x-checkbox>
     `;
+  }
+
+  private get __normalizedValue() {
+    return typeof this.value === 'boolean' ? [] : this.value;
   }
 
   private __addRule() {

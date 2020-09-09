@@ -109,39 +109,7 @@ export class Choice extends Translatable {
     };
   }
 
-  private get __field() {
-    const handleInput = (evt: Event) => {
-      evt.stopPropagation();
-      const customValue = (evt.target as HTMLInputElement).value;
-
-      if (Array.isArray(this.value)) {
-        this.value = this.value.slice(0, this.value.length - 1).concat(customValue);
-      } else {
-        this.value = customValue;
-      }
-
-      this.dispatchEvent(new ChoiceChangeEvent(this.value));
-    };
-
-    const attributes = spread({
-      placeholder: this._t('choice.other').toString(),
-      class: 'w-full mb-m',
-      value: this.__service.state.context.customValue,
-      max: this.max,
-      min: this.min,
-      'data-testid': 'field',
-      '@input': handleInput,
-      '@change': handleInput,
-    });
-
-    if (this.type === 'integer') {
-      return html`<vaadin-integer-field ...=${attributes} has-controls></vaadin-integer-field>`;
-    } else if (this.type === 'textarea') {
-      return html`<vaadin-text-area ...=${attributes}></vaadin-text-area>`;
-    } else {
-      return html`<vaadin-text-field ...=${attributes}></vaadin-text-field>`;
-    }
-  }
+  public getText: (value: string) => string = v => v;
 
   private __service = interpret(machine)
     .onChange(() => this.requestUpdate())
@@ -151,6 +119,7 @@ export class Choice extends Translatable {
   public get disabled(): boolean {
     return this.__service.state.matches('interactivity.disabled');
   }
+
   public set disabled(data: boolean) {
     this.__service.send('SET_DISABLED', { data });
   }
@@ -158,6 +127,7 @@ export class Choice extends Translatable {
   public get custom(): boolean {
     return this.__service.state.matches('extension.present');
   }
+
   public set custom(data: boolean) {
     this.__service.send('SET_CUSTOM', { data });
   }
@@ -165,6 +135,7 @@ export class Choice extends Translatable {
   public get type(): 'text' | 'textarea' | 'integer' {
     return this.__service.state.context.type;
   }
+
   public set type(data: 'text' | 'textarea' | 'integer') {
     this.__service.send('SET_TYPE', { data });
   }
@@ -172,6 +143,7 @@ export class Choice extends Translatable {
   public get min(): number | null {
     return this.__service.state.context.min;
   }
+
   public set min(data: number | null) {
     this.__service.send('SET_MIN', { data });
   }
@@ -179,6 +151,7 @@ export class Choice extends Translatable {
   public get max(): number | null {
     return this.__service.state.context.max;
   }
+
   public set max(data: number | null) {
     this.__service.send('SET_MAX', { data });
   }
@@ -186,6 +159,7 @@ export class Choice extends Translatable {
   public get value(): null | string | string[] {
     return this.__service.state.context.value;
   }
+
   public set value(data: null | string | string[]) {
     this.__service.send('SET_VALUE', { data });
   }
@@ -193,11 +167,10 @@ export class Choice extends Translatable {
   public get items(): string[] {
     return this.__service.state.context.items;
   }
+
   public set items(data: string[]) {
     this.__service.send('SET_ITEMS', { data });
   }
-
-  public getText: (value: string) => string = v => v;
 
   public render(): TemplateResult {
     const items = this.custom ? [...this.items, VALUE_OTHER] : this.items;
@@ -260,5 +233,39 @@ export class Choice extends Translatable {
     `;
 
     return html`<form>${children}</form> `;
+  }
+
+  private get __field() {
+    const handleInput = (evt: Event) => {
+      evt.stopPropagation();
+      const customValue = (evt.target as HTMLInputElement).value;
+
+      if (Array.isArray(this.value)) {
+        this.value = this.value.slice(0, this.value.length - 1).concat(customValue);
+      } else {
+        this.value = customValue;
+      }
+
+      this.dispatchEvent(new ChoiceChangeEvent(this.value));
+    };
+
+    const attributes = spread({
+      placeholder: this._t('choice.other').toString(),
+      class: 'w-full mb-m',
+      value: this.__service.state.context.customValue,
+      max: this.max,
+      min: this.min,
+      'data-testid': 'field',
+      '@input': handleInput,
+      '@change': handleInput,
+    });
+
+    if (this.type === 'integer') {
+      return html`<vaadin-integer-field ...=${attributes} has-controls></vaadin-integer-field>`;
+    } else if (this.type === 'textarea') {
+      return html`<vaadin-text-area ...=${attributes}></vaadin-text-area>`;
+    } else {
+      return html`<vaadin-text-field ...=${attributes}></vaadin-text-field>`;
+    }
   }
 }

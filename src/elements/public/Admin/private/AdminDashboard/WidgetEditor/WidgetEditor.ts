@@ -55,6 +55,13 @@ export class WidgetEditor extends Translatable {
     ];
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      store: { type: String, noAccessor: true },
+    };
+  }
+
   private readonly __service = interpret(
     machine.withConfig({
       services: {
@@ -83,46 +90,10 @@ export class WidgetEditor extends Translatable {
     DEBOUNCE_WAIT
   );
 
-  private get __sourceHref() {
-    return `${this.store}/${this.__service.state.context.source}`;
-  }
-
-  private get __preset() {
-    return this.__service.state.context.presets.find(
-      ({ label }) => label === this.__service.state.context.label
-    );
-  }
-
-  private get __jsonata(): HTMLInputElement {
-    return this.shadowRoot!.querySelector('#jsonata')! as HTMLInputElement;
-  }
-
-  private get __dialog(): Dialog {
-    return this.shadowRoot!.querySelector('#dialog')! as Dialog;
-  }
-
-  private get __source(): HTMLInputElement {
-    return this.shadowRoot!.querySelector('#source')! as HTMLInputElement;
-  }
-
-  private get __label(): HTMLInputElement {
-    return this.shadowRoot!.querySelector('#label')! as HTMLInputElement;
-  }
-
-  private get __code(): Dialog | null {
-    return this.shadowRoot!.querySelector('#code')! as Dialog;
-  }
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      store: { type: String, noAccessor: true },
-    };
-  }
-
   public get store(): string {
     return this.__service.state.context.store;
   }
+
   public set store(value: string) {
     this.__service.send({ type: 'SET_STORE', data: value });
   }
@@ -312,6 +283,36 @@ export class WidgetEditor extends Translatable {
         </code>
       </x-dialog>
     `;
+  }
+
+  private get __sourceHref() {
+    return `${this.store}/${this.__service.state.context.source}`;
+  }
+
+  private get __preset() {
+    return this.__service.state.context.presets.find(
+      ({ label }) => label === this.__service.state.context.label
+    );
+  }
+
+  private get __jsonata(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('#jsonata')! as HTMLInputElement;
+  }
+
+  private get __dialog(): Dialog {
+    return this.shadowRoot!.querySelector('#dialog')! as Dialog;
+  }
+
+  private get __source(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('#source')! as HTMLInputElement;
+  }
+
+  private get __label(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('#label')! as HTMLInputElement;
+  }
+
+  private get __code(): Dialog | null {
+    return this.shadowRoot!.querySelector('#code')! as Dialog;
   }
 
   private async __load(): Promise<WidgetEditorJSONEvent['data']> {

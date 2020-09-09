@@ -37,21 +37,6 @@ export class FrequencyModification extends Translatable {
     super('customer-portal-settings');
   }
 
-  private get __normalizedValue() {
-    return {
-      jsonataQuery: this.__normalizedQuery,
-      values: this.__normalizedValues,
-    };
-  }
-
-  private get __normalizedQuery() {
-    return typeof this.value === 'boolean' ? '*' : this.value.jsonataQuery;
-  }
-
-  private get __normalizedValues() {
-    return typeof this.value === 'boolean' ? [] : this.value.values;
-  }
-
   public render(): TemplateResult {
     const disabled = this.disabled || this.value === false;
 
@@ -99,6 +84,21 @@ export class FrequencyModification extends Translatable {
           : ''}
       </x-checkbox>
     `;
+  }
+
+  private get __normalizedValue() {
+    return {
+      jsonataQuery: this.__normalizedQuery,
+      values: this.__normalizedValues,
+    };
+  }
+
+  private get __normalizedQuery() {
+    return typeof this.value === 'boolean' ? '*' : this.value.jsonataQuery;
+  }
+
+  private get __normalizedValues() {
+    return typeof this.value === 'boolean' ? [] : this.value.values;
   }
 
   private __handleQueryChange(evt: JSONataInputChangeEvent) {

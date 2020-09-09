@@ -53,6 +53,7 @@ export class Checkbox extends Themeable {
   public get checked(): boolean {
     return this.__service.state.matches('checked');
   }
+
   public set checked(value: boolean) {
     if (value !== this.checked) this.__service.send('FORCE_TOGGLE');
   }
@@ -61,6 +62,7 @@ export class Checkbox extends Themeable {
     const states = ['checked.disabled', 'unchecked.disabled'];
     return states.some(state => this.__service.state.matches(state));
   }
+
   public set disabled(value: boolean) {
     this.__service.send(value ? 'DISABLE' : 'ENABLE');
   }

@@ -51,33 +51,8 @@ export class Donation extends Translatable {
     };
   }
 
-  private get __data() {
-    const data = new FormData();
-
-    if (typeof this.designation === 'string') {
-      data.set('designation', this.designation);
-    } else if (Array.isArray(this.designation)) {
-      data.set('designation', JSON.stringify(this.designation));
-    }
-
-    if (typeof this.amount === 'number' && typeof this.currency === 'string') {
-      data.set('price', `${this.amount.toFixed(2)}${this.currency}`);
-    }
-
-    if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
-    if (typeof this.comment === 'string') data.set('comment', this.comment);
-    if (typeof this.image === 'string') data.set('image', this.image);
-    if (typeof this.code === 'string') data.set('code', this.code);
-    if (typeof this.name === 'string') data.set('name', this.name);
-    if (typeof this.url === 'string') data.set('url', this.url);
-
-    data.set('anonymous', this.anonymous.toString());
-    data.set('quantity', '1');
-
-    return data;
-  }
-
-  static get properties(): PropertyDeclarations {
+  /** @readonly */
+  public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       currency: { type: String },
@@ -99,18 +74,10 @@ export class Donation extends Translatable {
     };
   }
 
-  private get __form(): HTMLFormElement {
-    return this.shadowRoot!.querySelector('form')!;
-  }
-
-  /**
-   * 3-letter lowercase currency code, e.g. "usd" or "eur".
-   */
+  /** 3-letter lowercase currency code, e.g. "usd" or "eur". */
   public currency: null | string = null;
 
-  /**
-   * Customizable selectors.
-   */
+  /** Customizable selectors. */
   public custom: null | string[] = null;
 
   public amount: null | number = null;
@@ -301,6 +268,36 @@ export class Donation extends Translatable {
 
   public updated(): void {
     this.dispatchEvent(new DonationChangeEvent(this.__data));
+  }
+
+  private get __data() {
+    const data = new FormData();
+
+    if (typeof this.designation === 'string') {
+      data.set('designation', this.designation);
+    } else if (Array.isArray(this.designation)) {
+      data.set('designation', JSON.stringify(this.designation));
+    }
+
+    if (typeof this.amount === 'number' && typeof this.currency === 'string') {
+      data.set('price', `${this.amount.toFixed(2)}${this.currency}`);
+    }
+
+    if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
+    if (typeof this.comment === 'string') data.set('comment', this.comment);
+    if (typeof this.image === 'string') data.set('image', this.image);
+    if (typeof this.code === 'string') data.set('code', this.code);
+    if (typeof this.name === 'string') data.set('name', this.name);
+    if (typeof this.url === 'string') data.set('url', this.url);
+
+    data.set('anonymous', this.anonymous.toString());
+    data.set('quantity', '1');
+
+    return data;
+  }
+
+  private get __form(): HTMLFormElement {
+    return this.shadowRoot!.querySelector('form')!;
   }
 
   private __translateFrequency(frequency: string) {

@@ -19,16 +19,6 @@ export class FrequencyInput extends Translatable {
     };
   }
 
-  private readonly __items = ['y', 'm', 'w', 'd'] as const;
-
-  private get __numericValue() {
-    return parseDuration(this.value ?? '').count;
-  }
-
-  private get __unitsValue() {
-    return parseDuration(this.value ?? '').units;
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -40,6 +30,8 @@ export class FrequencyInput extends Translatable {
   public disabled = false;
 
   public value = FrequencyInput.defaultValue;
+
+  private readonly __items = ['y', 'm', 'w', 'd'] as const;
 
   public constructor() {
     super('customer-portal-settings');
@@ -70,6 +62,14 @@ export class FrequencyInput extends Translatable {
         </x-dropdown>
       </div>
     `;
+  }
+
+  private get __numericValue() {
+    return parseDuration(this.value ?? '').count;
+  }
+
+  private get __unitsValue() {
+    return parseDuration(this.value ?? '').units;
   }
 
   private __handleNumberChange(evt: Event) {

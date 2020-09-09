@@ -45,9 +45,21 @@ export class CustomerPortalSettings extends Translatable {
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      href: { type: String, noAccessor: true },
+    };
+  }
+
+  public readonly rel = 'customer_portal_settings';
+
   private __cdnUrl = 'https://static.www.foxycart.com/beta/s/customer-portal';
+
   private __storeUrl = 'https://my-store.tld/s/customer';
+
   private __modernUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.esm.js`;
+
   private __legacyUrl = `${this.__cdnUrl}/v0.9/dist/lumo/foxy/foxy.js`;
 
   private __machine = machine.withConfig({
@@ -61,24 +73,16 @@ export class CustomerPortalSettings extends Translatable {
     .onTransition(({ changed }) => changed && this.requestUpdate())
     .onChange(() => this.requestUpdate());
 
-  public readonly rel = 'customer_portal_settings';
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      href: { type: String, noAccessor: true },
-    };
+  public constructor() {
+    super('customer-portal-settings');
   }
 
   public get href(): string | null {
     return this.__service.state.context.href;
   }
+
   public set href(data: string | null) {
     this.__service.send({ type: 'SET_HREF', data });
-  }
-
-  public constructor() {
-    super('customer-portal-settings');
   }
 
   public connectedCallback(): void {
