@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'import', 'html'],
+  plugins: ['@typescript-eslint', 'sort-class-members', 'import', 'html'],
   env: {
     browser: true,
     node: true,
@@ -21,11 +21,27 @@ module.exports = {
     },
   },
   rules: {
-    // disable the rule for all files
+    'sort-class-members/sort-class-members': [
+      'warn',
+      {
+        accessorPairPositioning: 'getThenSet',
+        stopAfterFirstProblem: true,
+        order: [
+          '[static-properties]',
+          '[static-methods]',
+          '[properties]',
+          '[conventional-private-properties]',
+          'constructor',
+          '[methods]',
+          '[conventional-private-methods]',
+        ],
+      },
+    ],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
     'import/named': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': ['error', 'ignorePackages', { ts: 'never' }],
+    'lines-between-class-members': 'warn',
   },
 };
