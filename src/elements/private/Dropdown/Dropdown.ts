@@ -25,7 +25,7 @@ export class Dropdown extends Themeable {
     return {
       ...super.properties,
       disabled: { type: Boolean },
-      getTex: { type: Object },
+      getText: { type: Object, attribute: false },
       items: { type: Array },
       value: { type: String },
     };
