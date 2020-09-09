@@ -1,9 +1,8 @@
 import i18next, { FormatFunction, i18n, TFunction } from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
 import { cdn } from '../env';
 import { Themeable } from './themeable';
-import { property } from 'lit-element';
+import { PropertyDeclarations } from 'lit-element';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -12,6 +11,13 @@ import { property } from 'lit-element';
  * referenced externally (outside of the package).
  */
 export abstract class Translatable extends Themeable {
+  static get properties(): PropertyDeclarations {
+    return {
+      lang: { type: String, noAccessor: true },
+      ns: { type: String, noAccessor: true },
+    };
+  }
+
   /**
    * i18next formatter that converts given value to lowecase.
    * @see https://www.i18next.com/translation-function/formatting
@@ -54,13 +60,66 @@ export abstract class Translatable extends Themeable {
   };
 
   private static __whenI18NReady: Promise<TFunction>;
+
   private static __isI18NReady = false;
+
   private static __i18n: i18n;
+
+  private __lang = (this._i18n.options.fallbackLng as string[])[0];
+
+  private __ns = (this._i18n.options.fallbackNS as string[])[0];
+
+  /**
+   * Creates class instance and starts loading missing translations
+   * in background. Triggers render when ready.
+   *
+   * @param defaultNS Name of the folder translations for this component are stored in. Usually a node name without vendor prefix.
+   */
+  constructor(defaultNS = 'global') {
+    super();
+    this.ns = defaultNS;
+    this._whenI18nReady.then(() => this.requestUpdate());
+  }
+
+  /**
+   * Contains the language this component presents its translatable
+   * content in. Assigning a value to this property will load new
+   * translations in background and trigger a render afterwards.
+   *
+   * **Example:** `"en"`
+   */
+  public get lang(): string {
+    return this.__lang;
+  }
+
+  public set lang(value: string) {
+    if (!value || value === 'undefined') return;
+    this.__lang = value;
+    this._i18n.loadLanguages(value).then(() => {
+      if (this.__lang === value) this.requestUpdate();
+    });
+  }
+
+  /**
+   * The namespace to look for the translations in. We use this property to
+   * sync namespace settings with the parent element and it's highly unlikely
+   * that you'll ever need to set or read it in your code.
+   *
+   * **Example:** `"admin"`
+   */
+  public get ns(): string {
+    return this.__ns;
+  }
+
+  public set ns(value: string) {
+    this.__ns = value;
+    this._i18n.loadNamespaces(value).then(() => {
+      if (this.__ns === value) this.requestUpdate();
+    });
+  }
 
   private static __initI18N() {
     this.__i18n = i18next.createInstance();
-
-    this.__i18n.use(LanguageDetector);
     this.__i18n.use(HttpApi);
 
     this.__whenI18NReady = this.__i18n.init({
@@ -83,9 +142,6 @@ export abstract class Translatable extends Themeable {
     return this.__i18n;
   }
 
-  private __lang = (this._i18n.options.fallbackLng as string[])[0];
-  private __ns = (this._i18n.options.fallbackNS as string[])[0];
-
   protected get _i18n(): i18n {
     return Translatable.__i18n ?? Translatable.__initI18N();
   }
@@ -96,46 +152,6 @@ export abstract class Translatable extends Themeable {
 
   protected get _isI18nReady(): boolean {
     return Translatable.__isI18NReady;
-  }
-
-  /**
-   * Creates class instance and starts loading missing translations
-   * in background. Triggers render when ready.
-   *
-   * @param defaultNS Name of the folder translations for this component are stored in. Usually a node name without vendor prefix.
-   */
-  constructor(defaultNS = 'global') {
-    super();
-    this.ns = defaultNS;
-    this._whenI18nReady.then(() => this.requestUpdate());
-  }
-
-  /**
-   * Contains the language this component presents its translatable
-   * content in. Assigning a value to this property will load new
-   * translations in background and trigger a render afterwards.
-   */
-  @property({ type: String, noAccessor: true })
-  public get lang(): string {
-    return this.__lang;
-  }
-  public set lang(value: string) {
-    if (!value || value === 'undefined') return;
-    this.__lang = value;
-    this._i18n.loadLanguages(value).then(() => {
-      if (this.__lang === value) this.requestUpdate();
-    });
-  }
-
-  @property({ type: String, noAccessor: true })
-  public get ns(): string {
-    return this.__ns;
-  }
-  public set ns(value: string) {
-    this.__ns = value;
-    this._i18n.loadNamespaces(value).then(() => {
-      if (this.__ns === value) this.requestUpdate();
-    });
   }
 
   protected get _t(): TFunction {

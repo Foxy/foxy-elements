@@ -1,191 +1,278 @@
 import { expect, fixture } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { sample } from 'lodash-es';
-import { Machine } from 'xstate/dist/xstate.web.js';
+import { createModel, TestModel } from '@xstate/test';
+import { TestEventConfig, TestPlan } from '@xstate/test/lib/types';
+import { cloneDeep } from 'lodash-es';
+import { AnyEventObject, createMachine, State } from 'xstate';
 import { Choice } from './Choice';
-import { ChoiceEvent } from './ChoiceMachine';
+import { machine } from './machine';
 
+const config = cloneDeep(machine.config);
 customElements.define('x-choice', Choice);
 
-function getRadios(element: Choice) {
-  const radios = element.shadowRoot!.querySelectorAll('[data-testid^=item-]');
-  return Array.from(radios) as HTMLInputElement[];
+function getInputs(element: Choice) {
+  const inputs = element.shadowRoot!.querySelectorAll('input');
+  return Array.from(inputs) as HTMLInputElement[];
 }
 
-function getLabelSlots(element: Choice) {
-  const slots = element.shadowRoot!.querySelectorAll('slot[name]');
-  return (Array.from(slots) as HTMLSlotElement[]).filter(slot => slot.name.endsWith('label'));
+function whenIdle(exec: Required<TestEventConfig<Choice>>['exec']) {
+  return async (...args: Parameters<Required<TestEventConfig<Choice>>['exec']>) => {
+    await args[0].updateComplete;
+    return exec(...args);
+  };
 }
 
-function getContentSlots(element: Choice) {
-  const slots = element.shadowRoot!.querySelectorAll('slot[name]');
-  return (Array.from(slots) as HTMLSlotElement[]).filter(slot => !slot.name.endsWith('label'));
+function createMemo() {
+  const cache = new Set<string>();
+  return (value: any) => {
+    const serializedValue = JSON.stringify(value);
+    if (cache.has(serializedValue)) return false;
+    cache.add(serializedValue);
+    return true;
+  };
 }
 
-function testContent(element: Choice) {
-  const radios = getRadios(element);
-  const labelSlots = getLabelSlots(element);
-  const contentSlots = getContentSlots(element);
+function getPlans(model: TestModel<any, any>) {
+  const wasStateTested = createMemo();
+  const wasChoiceTested = createMemo();
+  const filters: ((state: State<any>) => boolean)[] = [
+    ({ context, value }) => context.items.length && wasStateTested(value),
+    ({ context }) => context.items.length && wasChoiceTested(context),
+  ];
 
-  expect(radios.length).to.equal(element.items.length);
-  expect(contentSlots.length).to.equal(element.items.length);
-
-  element.items.forEach((item, index) => {
-    const radio = radios[index];
-    const labelSlot = labelSlots[index];
-    const contentSlot = contentSlots[index];
-
-    expect(radio).to.exist;
-    expect(radio.value).to.equal(item);
-    expect(radio.checked).to.equal(item === element.value);
-    expect(radio.textContent?.trim()).to.equal(element.getText(item));
-
-    expect(labelSlot).to.exist;
-    expect(labelSlot.innerHTML?.trim()).to.equal(element.getText(item));
-
-    expect(contentSlot).to.exist;
-    expect(contentSlot.innerHTML?.trim()).to.equal('');
-  });
+  return filters
+    .map(filter => model.getSimplePathPlans({ filter }))
+    .reduce((plans, plan) => [...plans, ...plan], [] as TestPlan<any, any>[]);
 }
 
-function testDisabled(element: Choice) {
-  getRadios(element).forEach(radio => expect(radio.disabled).to.be.true);
-}
-
-function testEnabled(element: Choice) {
-  getRadios(element).forEach(radio => expect(radio.disabled).to.be.false);
-}
-
-function testMultiple(...tests: ((element: Choice) => void)[]) {
-  return (element: Choice) => tests.forEach(test => test(element));
-}
-
-function testFirstSelected(element: Choice) {
-  if (element.items.length > 0) expect(element.value).to.equal(element.items[0]);
-}
-
-function testLastSelected(element: Choice) {
-  if (element.items.length > 0) {
-    expect(element.value).to.equal(element.items[element.items.length - 1]);
-  }
-}
-
-const sutMachine = Machine({
-  initial: 'enabled',
-  states: {
-    disabled: {
-      on: {
-        ENABLE: 'enabled',
-        INIT: '.initializedWithProps',
-      },
-      meta: { test: testDisabled },
-      initial: 'any',
-      states: {
-        any: {
-          meta: { test: testContent },
-        },
-        initializedWithProps: {
-          meta: { test: testContent },
-        },
-      },
-    },
-    enabled: {
-      on: {
-        DISABLE: 'disabled',
-        INIT: '.initializedWithProps',
-      },
-      meta: { test: testEnabled },
-      initial: 'any',
-      states: {
-        any: {
-          meta: { test: testContent },
-        },
-        selected: {
-          meta: { test: testContent },
-        },
-        selectedPreviousWithKeyboard: {
-          meta: { test: testMultiple(testContent, testFirstSelected) },
-        },
-        selectedNextWithKeyboard: {
-          meta: { test: testMultiple(testContent, testLastSelected) },
-        },
-        initializedWithProps: {
-          meta: { test: testContent },
-          on: {
-            CHOOSE_PREVIOUS: 'selectedPreviousWithKeyboard',
-            CHOOSE_NEXT: 'selectedNextWithKeyboard',
-            CHOOSE: 'selected',
-          },
-        },
-      },
-    },
+config!.states!.interactivity!.states!.enabled.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    expect(element).to.have.property('disabled', false);
+    getInputs(element).forEach(input => expect(input).to.have.property('disabled', false));
   },
-});
+};
 
-const sutModel = createModel<Choice>(sutMachine).withEvents({
-  CHOOSE_PREVIOUS: {
-    exec: (element, event) => {
-      if (element.items.length < 1) return;
-      const { key } = (event as unknown) as { key: string };
-      const kbEvent = new KeyboardEvent('keydown', { key });
-      getRadios(element)[1].dispatchEvent(kbEvent);
-    },
-    cases: [{ key: 'ArrowUp' }, { key: 'ArrowLeft' }],
+config!.states!.interactivity!.states!.disabled.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    expect(element).to.have.property('disabled', true);
+    getInputs(element).forEach(input => expect(input).to.have.property('disabled', true));
   },
-  CHOOSE_NEXT: {
-    exec: (element, event) => {
-      if (element.items.length < 1) return;
-      const { key } = (event as unknown) as { key: string };
-      const kbEvent = new KeyboardEvent('keydown', { key });
-      getRadios(element)[element.items.length - 2].dispatchEvent(kbEvent);
-    },
-    cases: [{ key: 'ArrowDown' }, { key: 'ArrowRight' }],
-  },
-  DISABLE: {
-    exec: element => void (element.disabled = true),
-  },
-  ENABLE: {
-    exec: element => void (element.disabled = false),
-  },
-  CHOOSE: {
-    exec: element => {
-      if (element.items.length === 0) return;
-      const index = element.items.indexOf(sample(element.items)!);
-      getRadios(element)[index].click();
-    },
-  },
-  INIT: {
-    exec: (element, event) => {
-      const evt = event as ChoiceEvent;
-      if (evt.type !== 'INIT') return;
+};
 
-      if (evt.value) element.value = evt.value;
-      if (evt.items) element.items = evt.items;
-      if (evt.getText) element.getText = evt.getText;
-    },
-    cases: [
-      {},
-      { value: 'foo' },
-      { items: ['foo', 'bar'] },
-      { getText: (v: string) => v.toUpperCase() },
-      { value: 'foo', items: ['foo', 'bar'] },
-      { value: 'foo', getText: (v: string) => v.toUpperCase() },
-      { items: ['foo', 'bar'], getText: (v: string) => v.toUpperCase() },
-      { value: 'foo', items: ['foo', 'bar'], getText: (v: string) => v.toUpperCase() },
-    ],
+config!.states!.selection.states!.single.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const inputs = getInputs(element);
+
+    element.items.forEach((item, index) => {
+      const input = inputs[index];
+      expect(input).to.have.property('value', item);
+      expect(input).to.have.property('checked', element.value === input.value);
+    });
+
+    // testing manual selection when there's at least 2 items
+    if (element.items.length > 1) {
+      const oldValue = element.value;
+      const oldIndex = element.items.indexOf(element.value as string);
+      const newIndex = element.items.findIndex(v => v !== element.value);
+      const newValue = inputs[newIndex]?.value;
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        inputs[newIndex].checked = true;
+        inputs[newIndex].dispatchEvent(new Event('change'));
+
+        await new Promise(r => setTimeout(r, 10));
+        await element.updateComplete;
+
+        expect(element.value).to.equal(newValue);
+        expect(getInputs(element)[newIndex]).to.have.property('checked', true);
+
+        element.value = oldValue;
+      }
+    }
+  },
+};
+
+config!.states!.selection.states!.multiple.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+
+    let inputs = getInputs(element);
+
+    element.items.forEach((item, index) => {
+      const input = inputs[index];
+      expect(input).to.have.property('value', item);
+      expect(input).to.have.property('checked', element.value?.includes(input.value));
+    });
+
+    // testing manual selection when there's at least 1 item and an array value
+    if (element.value && element.items.length > 0) {
+      const oldStatus = inputs[0].checked;
+      const newStatus = !oldStatus;
+
+      inputs[0].checked = newStatus;
+      inputs[0].dispatchEvent(new Event('change'));
+
+      await element.updateComplete;
+      inputs = getInputs(element);
+
+      if (newStatus) {
+        expect(element.value).to.include(element.items[0]);
+      } else {
+        expect(element.value).not.to.include(element.items[0]);
+      }
+
+      expect(inputs[0]).to.have.property('checked', newStatus);
+
+      inputs[0].checked = oldStatus;
+      inputs[0].dispatchEvent(new Event('change'));
+    }
+  },
+};
+
+config!.states!.extension.states!.absent.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field).to.be.null;
+    expect(getInputs(element)).to.have.length(element.items.length);
+  },
+};
+
+config!.states!.extension.states!.present.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    expect(getInputs(element)).to.have.length(element.items.length + 1);
+  },
+};
+
+config!.states!.extension.states!.present.states!.available.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field).to.be.null;
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field).to.be.visible;
+
+    ['input', 'change'].forEach(type => {
+      const oldElementValue = element.value;
+      const newFieldValue = '123';
+
+      field.value = newFieldValue;
+      field.dispatchEvent(new Event(type));
+
+      if (Array.isArray(element.value)) {
+        expect(element.value).to.include(newFieldValue);
+      } else {
+        expect(element.value).to.equal(newFieldValue);
+      }
+
+      element.value = oldElementValue;
+    });
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.text.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.localName).to.equal('vaadin-text-field');
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.textarea.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.localName).to.equal('vaadin-text-area');
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.integer.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.localName).to.equal('vaadin-integer-field');
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.none.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.min).to.be.undefined;
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.custom.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.min).to.equal(element.min);
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.none.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.max).to.be.undefined;
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.custom.meta = {
+  async test(element: Choice) {
+    await element.updateComplete;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.max).to.equal(element.max);
+  },
+};
+
+const model = createModel<Choice>(createMachine(config, machine.options)).withEvents({
+  SET_DISABLED: {
+    exec: whenIdle((element, evt) => (element.disabled = (evt as AnyEventObject).data)),
+    cases: [{ data: true }, { data: false }],
+  },
+  SET_CUSTOM: {
+    exec: whenIdle((element, evt) => (element.custom = (evt as AnyEventObject).data)),
+    cases: [{ data: true }, { data: false }],
+  },
+  SET_ITEMS: {
+    exec: whenIdle((element, evt) => (element.items = (evt as AnyEventObject).data)),
+    cases: [{ data: ['foo', 'bar', 'baz'] }],
+  },
+  SET_VALUE: {
+    exec: whenIdle((element, evt) => (element.value = (evt as AnyEventObject).data)),
+    cases: [{ data: ['foo', 'bar'] }, { data: ['foo', 'qux'] }, { data: 'foo' }, { data: 'qux' }],
+  },
+  SET_TYPE: {
+    exec: whenIdle((element, evt) => (element.type = (evt as AnyEventObject).data)),
+    cases: [{ data: 'integer' }, { data: 'textarea' }],
+  },
+  SET_MIN: {
+    exec: whenIdle((element, evt) => (element.min = (evt as AnyEventObject).data)),
+    cases: [{ data: 0 }],
+  },
+  SET_MAX: {
+    exec: whenIdle((element, evt) => (element.max = (evt as AnyEventObject).data)),
+    cases: [{ data: 10 }],
   },
 });
 
 describe('Choice', () => {
-  sutModel.getSimplePathPlans().forEach(plan => {
+  getPlans(model).forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
         it(path.description, async () => path.test(await fixture('<x-choice></x-choice>')));
       });
     });
-  });
-
-  describe('has full coverage', () => {
-    it('yes', () => sutModel.testCoverage());
   });
 });

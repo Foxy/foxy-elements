@@ -1,29 +1,15 @@
 module.exports = {
-  stories: ['../dist/**/*.stories.mdx'],
-  addons: [
-    'storybook-prebuilt/addon-viewport/register.js',
-    'storybook-prebuilt/addon-knobs/register.js',
-    'storybook-prebuilt/addon-docs/register.js',
-  ],
-  esDevServer: {
-    moduleDirs: ['node_modules'],
-    nodeResolve: true,
-    watch: true,
-    plugins: [
-      require('../plugins/set-node-env')('development'),
-      require('../plugins/fix-xstate-chalk-imports'),
-      require('../plugins/use-es-version-of-xstate'),
-      require('../plugins/tailwind'),
-    ],
-  },
-  rollup: config => {
-    const copy = require('rollup-plugin-copy');
-    const env = require('rollup-plugin-inject-process-env');
+  stories: ['../src/elements/public/**/*.stories.mdx'],
+  addons: ['@storybook/addon-essentials'],
+  webpackFinal: async (config, { configType }) => {
+    const tsRule = config.module.rules.find(rule => String(rule.test).includes('ts'));
+    const path = require('path');
 
-    config.plugins.unshift(
-      copy({ targets: [{ src: 'translations', dest: 'storybook-static' }] }),
-      env({ NODE_ENV: 'production' })
-    );
+    config.module.rules.push({
+      ...tsRule,
+      test: /themeable\.ts$/,
+      use: [...tsRule.use, path.resolve(__dirname, `tailwind.${configType.toLowerCase()}.js`)],
+    });
 
     return config;
   },

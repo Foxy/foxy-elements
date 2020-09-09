@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { cache } from 'lit-html/directives/cache';
 import { Translatable } from '../../../../../mixins/translatable';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
@@ -33,13 +33,19 @@ export class NextDateModificationRule extends Translatable {
     };
   }
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: Object },
+      open: { type: Boolean },
+    };
+  }
+
   public disabled = false;
 
-  @property({ type: Object })
   public value: Rule = { jsonataQuery: '*' };
 
-  @property({ type: Boolean })
   public open = false;
 
   public constructor() {

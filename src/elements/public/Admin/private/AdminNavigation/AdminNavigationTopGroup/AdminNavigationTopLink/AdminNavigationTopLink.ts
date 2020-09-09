@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../../../mixins/translatable';
 import { I18N } from '../../../../../../private/index';
 
@@ -11,16 +11,22 @@ export class AdminNavigationTopLink extends Translatable {
     };
   }
 
-  @property({ type: Boolean })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      active: { type: Boolean },
+      label: { type: String },
+      href: { type: String },
+      icon: { type: String },
+    };
+  }
+
   public active = false;
 
-  @property({ type: String })
   public label = '';
 
-  @property({ type: String })
   public href = '';
 
-  @property({ type: String })
   public icon = '';
 
   public render(): TemplateResult {

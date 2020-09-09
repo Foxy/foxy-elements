@@ -1,15 +1,35 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
-import { property, query } from 'lit-element';
+import { PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 import { parseDuration } from '../../../utils/parse-duration';
 import { CheckboxChangeEvent, ChoiceChangeEvent, DropdownChangeEvent } from '../../private/events';
 import { Checkbox, Choice, Dropdown, ErrorScreen, Group, I18N } from '../../private/index';
 import { DonationChangeEvent } from './DonationChangeEvent';
+import { DonationSubmitEvent } from './DonationSubmitEvent';
 
+interface DonationEventsMap {
+  change: typeof DonationChangeEvent;
+  submit: typeof DonationSubmitEvent;
+}
+
+/**
+ * A custom element providing customizable donation forms.
+ *
+ * @fires Donation#change - Instance of `Donation.events.change`. Emitted after user input triggers a change in the form data.
+ * @fires Donation#submit - Instance of `Donation.events.submit`. Emitted when the form is submitted. Cancelling this event will stop the submission.
+ *
+ * @slot amount - Space below the amount selector, if it's visible.
+ * @slot designation - Space below the designation selector, if it's visible.
+ * @slot comment - Space below the comment field, if it's visible.
+ *
+ * @element foxy-donation
+ * @since 0.3.0
+ */
 export class Donation extends Translatable {
+  /** @readonly */
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-area': customElements.get('vaadin-text-area'),
@@ -23,95 +43,207 @@ export class Donation extends Translatable {
     };
   }
 
-  private get __data() {
-    const data = new FormData();
-
-    data.set('name', this.name!);
-    data.set('price', this.amount!.toString());
-    data.set('quantity', '1');
-
-    if (this.designation && this.designation.length > 0) {
-      data.set('designation', JSON.stringify(this.designation));
-    }
-
-    if (this.anonymity) data.set('anonymous', this.anonymous.toString());
-    if (this.frequency) data.set('sub_frequency', this.frequency);
-    if (this.comment) data.set('comment', this.comment);
-    if (this.image) data.set('image', this.image);
-    if (this.code) data.set('code', this.code);
-    if (this.url) data.set('url', this.url);
-
-    return data;
+  /** @readonly */
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      currency: { type: String },
+      custom: { type: Array },
+      amount: { type: Number },
+      amounts: { type: Array },
+      frequency: { type: String },
+      frequencies: { type: Array },
+      designation: { type: Array },
+      designations: { type: Array },
+      comment: { type: String },
+      anonymity: { reflect: true, type: Boolean },
+      anonymous: { reflect: true, type: Boolean },
+      image: { type: String },
+      store: { type: String },
+      name: { type: String },
+      code: { type: String },
+      url: { type: String },
+    };
   }
 
-  @query('form')
-  private __form!: HTMLFormElement;
+  /** @readonly */
+  public static get events(): DonationEventsMap {
+    return {
+      change: DonationChangeEvent,
+      submit: DonationSubmitEvent,
+    };
+  }
 
-  @property({ type: String })
+  /**
+   * **Required** 3-letter lowercase currency code.
+   *
+   * **Example:** `"usd"`
+   */
   public currency: null | string = null;
 
-  @property({ type: Array })
-  public custom: null | string[] = null;
-
-  @property({ type: Number })
+  /**
+   * **Required** donation amount in specified currency. When more than one amount option
+   * is available, this field will contain the selected amount. This value is deliberately not
+   * limited to the predefined options: whatever you set it to will show up in the cart.
+   *
+   * **Example:** `25`
+   */
   public amount: null | number = null;
 
-  @property({ type: Array })
-  public amounts: null | number[] = null;
-
-  @property({ type: String })
-  public frequency: null | string = null;
-
-  @property({ type: Array })
-  public frequencies: null | string[] = null;
-
-  @property({ type: Array })
-  public designation: null | string | string[] = null;
-
-  @property({ type: Array })
-  public designations: null | string[] = null;
-
-  @property({ type: String })
-  public comment: null | string = null;
-
-  @property({ type: Boolean })
-  public anonymity = false;
-
-  @property({ type: Boolean })
-  public anonymous = false;
-
-  @property({ type: String })
-  public image: null | string = null;
-
-  @property({ type: String })
+  /**
+   * **Required** store subdomain. This is usually the part after before `.foxycart.com`
+   * and after `https://`, e.g. the `foxy-demo` bit of `https://foxy-demo.foxycart.com`.
+   *
+   * **Example:** `"foxy-demo"`
+   */
   public store: null | string = null;
 
-  @property({ type: String })
+  /**
+   * **Required** product name for this donation. This will show up in the cart when this form is submitted.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"One-time donation"`
+   */
   public name: null | string = null;
 
-  @property({ type: String })
+  /**
+   * Optional parts of the form including a custom ("other") option.
+   * Adding `amount` to this array will enable custom amount and adding `designation`
+   * will render a custom designation field.
+   *
+   * **Example:** `["amount", "designation"]`
+   */
+  public custom: null | ('amount' | 'designation')[] = null;
+
+  /**
+   * Optional donation amount variants. If this property is set, the form will render
+   * the amount selection interface. If this array includes the value of the `amount` property,
+   * it will be pre-selected in the form.
+   *
+   * **Example:** `[25, 50, 75]`
+   */
+  public amounts: null | number[] = null;
+
+  /**
+   * Optional donation frequency string encoded as count (integer) + units (one
+   * of: `d` for days, `w` for weeks, `m` for months, `y` for years). A special
+   * value for twice a month is also supported: `.5m`. If set, the form will
+   * create a subscription with the specified frequency in the cart. This value is deliberately not
+   * limited to the predefined options: whatever you set it to will show up in the cart.
+   *
+   * **Example:** `"1m"`
+   */
+  public frequency: null | string = null;
+
+  /**
+   * Optional donation frequency variants in the same format as `frequency`. If this property is set,
+   * the form will render the frequency selection interface. If this array includes
+   * the value of the `frequency` property, it will be pre-selected in the form.
+   *
+   * **Example:** `["7d", ".5m", "1y"]`
+   */
+  public frequencies: null | string[] = null;
+
+  /**
+   * Optional donation designation(s). The form will serialize and pass this value to the cart
+   * on submission. This value is deliberately not limited to the predefined options:
+   * whatever you set it to will show up in the cart.
+   *
+   * **Example:** `"Medical Care"`
+   * **Example:** `["Medical Care", "Daily Meals"]`
+   */
+  public designation: null | string | string[] = null;
+
+  /**
+   * Optional donation designation(s) variants. If this property is set,
+   * the form will render the designation selection interface: multiple choice
+   * if `designation` is an array and a single choice otherwise. All values overlapping
+   * with the `designation` property will be pre-selected in the form.
+   *
+   * **Example:** `["Medical Care", "Daily Meals", "Area of Greatest Need"]`
+   */
+  public designations: null | string[] = null;
+
+  /**
+   * Optional comment accompanying the donation. If set (even to an empty string),
+   * the form will render a comment field. The value of this property will be updated
+   * as the customer enters their message and will be added to the order as a custom field in the end.
+   *
+   * **Example:** `""`
+   */
+  public comment: null | string = null;
+
+  /**
+   * Optional switch controlling visibility of the anonymity checkbox. If set to `true`, the form
+   * will render the checkbox. All changes in the value are reflected to the attribute.
+   *
+   * **Example:** `true`
+   */
+  public anonymity = false;
+
+  /**
+   * Optional switch marking this donation as anonymous via a custom field when set to `true`. When
+   * the anonymity checkbox is rendered, also checks or unchecks it depending on the value.
+   * All changes in the value are reflected to the attribute.
+   *
+   * **Example:** `true`
+   */
+  public anonymous = false;
+
+  /**
+   * Optional product image URL (absolute path). This property affects cart UI only.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"https://picsum.photos/320"`
+   */
+  public image: null | string = null;
+
+  /**
+   * Optional product code for this donation. This property affects cart UI only.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"ISBN 978-0-12-345678-9"`
+   */
   public code: null | string = null;
 
-  @property({ type: String })
+  /**
+   * Optional product URL for this donation. Accepts a full URL to the product page, starting
+   * with `http://` or `https://`, or a relative path to the produt from the store's
+   * domain (as configured in the store settings). This property affects cart UI only.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"https://example.com/my-product"`
+   */
   public url: null | string = null;
 
   public constructor() {
     super('donation');
   }
 
+  /** Submits the form, emitting a cancelable `submit` event. */
+  public submit(): void {
+    /* istanbul ignore if  */
+    if (this.dispatchEvent(new DonationSubmitEvent())) this.__form.submit();
+  }
+
   public render(): TemplateResult {
     if (!this.currency || !this.amount || !this.store || !this.name) {
-      return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
+      return html`
+        <x-error-screen data-testid="error" type="setup_needed" class="relative"></x-error-screen>
+      `;
     }
 
     return html`
-      <form class="sr-only" method="POST" action="https://${this.store}.foxycart.com/cart">
+      <form
+        class="sr-only"
+        method="POST"
+        action="https://${this.store}.foxycart.com/cart"
+        data-testid="form"
+      >
         ${[...this.__data.entries()].map(
           ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
         )}
       </form>
-
-      <slot name="before" class="block mb-m"></slot>
 
       <section>
         ${this.amounts && this.amounts.length > 0
@@ -122,14 +254,15 @@ export class Donation extends Translatable {
                   ?custom=${!!this.custom?.includes('amount')}
                   .getText=${(v: string) => this.__translateAmount(parseInt(v, 10))}
                   .items=${this.amounts.map(String)}
-                  value=${this.amount.toString()}
+                  .value=${this.amount.toString()}
                   type="integer"
                   lang=${this.lang}
                   min="1"
                   ns=${this.ns}
+                  data-testid="amount"
                   @change=${(evt: ChoiceChangeEvent) => {
                     const value = parseInt(evt.detail as string);
-                    this.amount = isNaN(value) ? 1 : value;
+                    this.amount = isNaN(value) ? /* istanbul ignore next */ 1 : value;
                   }}
                 >
                 </x-choice>
@@ -152,6 +285,7 @@ export class Donation extends Translatable {
                   type="textarea"
                   lang=${this.lang}
                   ns=${this.ns}
+                  data-testid="designation"
                   @change=${(evt: ChoiceChangeEvent) => {
                     this.designation = evt.detail as string[];
                   }}
@@ -172,6 +306,7 @@ export class Donation extends Translatable {
                 value=${this.comment!}
                 label=${this._t('comment_label').toString()}
                 class="w-full"
+                data-testid="comment"
                 @input=${(evt: InputEvent) => {
                   evt.stopPropagation();
                   this.comment = (evt.target as HTMLTextAreaElement).value;
@@ -185,13 +320,34 @@ export class Donation extends Translatable {
       </section>
 
       <section>
+        ${this.anonymity
+          ? html`
+              <x-checkbox
+                class="my-m"
+                data-testid="anonymity"
+                ?checked=${this.anonymous}
+                @change=${(evt: CheckboxChangeEvent) => (this.anonymous = evt.detail)}
+              >
+                ${this._t('anonymous')}
+              </x-checkbox>
+            `
+          : ''}
+
         <div class="flex -m-s">
           <div class="flex-1 p-s">
-            <vaadin-button class="w-full" theme="primary" @click=${() => this.__form.submit()}>
+            <vaadin-button
+              class="w-full"
+              theme="primary"
+              data-testid="submit"
+              @click=${() => this.submit()}
+            >
               <x-i18n
-                .opts=${{ amount: this.__translateAmount(this.amount) }}
+                .opts=${{
+                  amount: this.__translateAmount(this.amount),
+                  frequency: this.frequency ? this.__translateFrequency(this.frequency) : '',
+                }}
                 lang=${this.lang}
-                key="donate"
+                key=${this.frequency && !this.frequencies?.length ? 'donate_recurrently' : 'donate'}
                 ns=${this.ns}
               >
               </x-i18n>
@@ -205,6 +361,7 @@ export class Donation extends Translatable {
                     .value=${this.frequency}
                     .items=${this.frequencies}
                     .getText=${this.__translateFrequency.bind(this)}
+                    data-testid="frequency"
                     @change=${(evt: DropdownChangeEvent) => {
                       this.frequency = evt.detail as string;
                     }}
@@ -214,34 +371,42 @@ export class Donation extends Translatable {
               `
             : ''}
         </div>
-
-        ${this.anonymity
-          ? html`
-              <x-checkbox
-                class="mt-m"
-                ?checked=${this.anonymous}
-                @change=${(evt: CheckboxChangeEvent) => (this.anonymous = evt.detail)}
-              >
-                ${this._t('anonymous')}
-              </x-checkbox>
-            `
-          : ''}
       </section>
-
-      <slot name="after" class="block mt-m"></slot>
     `;
   }
 
-  public updated(changedProperties: Map<keyof Donation, unknown>): void {
-    if (changedProperties.has('designations')) {
-      this.designation = this.designation ?? this.designations?.[0] ?? null;
-    }
-
-    if (changedProperties.has('frequencies')) {
-      this.frequency = this.frequency ?? this.frequencies?.[0] ?? null;
-    }
-
+  public updated(): void {
     this.dispatchEvent(new DonationChangeEvent(this.__data));
+  }
+
+  private get __data() {
+    const data = new FormData();
+
+    if (typeof this.designation === 'string') {
+      data.set('designation', this.designation);
+    } else if (Array.isArray(this.designation)) {
+      data.set('designation', JSON.stringify(this.designation));
+    }
+
+    if (typeof this.amount === 'number' && typeof this.currency === 'string') {
+      data.set('price', `${this.amount.toFixed(2)}${this.currency}`);
+    }
+
+    if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
+    if (typeof this.comment === 'string') data.set('comment', this.comment);
+    if (typeof this.image === 'string') data.set('image', this.image);
+    if (typeof this.code === 'string') data.set('code', this.code);
+    if (typeof this.name === 'string') data.set('name', this.name);
+    if (typeof this.url === 'string') data.set('url', this.url);
+
+    data.set('anonymous', this.anonymous.toString());
+    data.set('quantity', '1');
+
+    return data;
+  }
+
+  private get __form(): HTMLFormElement {
+    return this.shadowRoot!.querySelector('form')!;
   }
 
   private __translateFrequency(frequency: string) {

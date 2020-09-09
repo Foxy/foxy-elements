@@ -1,4 +1,4 @@
-import { css, CSSResultArray, html, internalProperty, query, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { CodeReadyEvent } from './CodeReadyEvent';
 
@@ -25,11 +25,14 @@ export class Code extends Themeable {
     ];
   }
 
-  @internalProperty()
-  private __code = '';
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __code: {},
+    };
+  }
 
-  @query('code')
-  private __container!: HTMLElement;
+  private __code = '';
 
   private __ready = false;
 
@@ -61,18 +64,6 @@ export class Code extends Themeable {
     this.__ready = true;
   }
 
-  private async __loadScript(src: string, comment: string) {
-    await new Promise((resolve, reject) => {
-      const script = this.ownerDocument!.createElement('script');
-
-      script.onload = resolve;
-      script.onerror = reject;
-      script.src = src;
-
-      this.ownerDocument!.head.append(this.ownerDocument!.createComment(comment), script);
-    });
-  }
-
   render(): TemplateResult {
     return html`
       <link
@@ -83,5 +74,21 @@ export class Code extends Themeable {
       <pre><code>${this.__code}</code></pre>
       <slot></slot>
     `;
+  }
+
+  private get __container(): HTMLElement {
+    return this.shadowRoot!.querySelector('code')!;
+  }
+
+  private async __loadScript(src: string, comment: string) {
+    await new Promise((resolve, reject) => {
+      const script = this.ownerDocument!.createElement('script');
+
+      script.onload = resolve;
+      script.onerror = reject;
+      script.src = src;
+
+      this.ownerDocument!.head.append(this.ownerDocument!.createComment(comment), script);
+    });
   }
 }

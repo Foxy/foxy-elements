@@ -1,14 +1,16 @@
 import { spread } from '@open-wc/lit-helpers/src/spread';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import '@polymer/iron-icon';
+import '@vaadin/vaadin-lumo-styles/icons';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-lumo-styles/icons';
-import '@polymer/iron-icon';
-import { css, CSSResultArray, html, internalProperty, property, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { AttributePart } from 'lit-html';
+import { interpret } from 'xstate';
 import { Translatable } from '../../../mixins/translatable';
 import { ChoiceChangeEvent } from './ChoiceChangeEvent';
-import { AttributePart } from 'lit-html';
+import { machine } from './machine';
 
 const VALUE_OTHER = `@foxy.io/elements::other[${(Math.pow(10, 10) * Math.random()).toFixed(0)}]`;
 
@@ -22,12 +24,10 @@ function radio(checked: boolean, attrs: (part: AttributePart) => void, label: Te
       <div class="item flex items-center justify-center">
         <div class="flex radio rounded-full ${box} focus-within:shadow-outline">
           <div class="dot m-auto rounded-full bg-tint shadow-xs ${dot}"></div>
-          <input type="radio" class="sr-only" ?checked=${checked} ...=${attrs} />
+          <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">
-        ${label}
-      </div>
+      <div class="font-lumo text-body leading-m">${label}</div>
     </label>
   `;
 }
@@ -42,12 +42,10 @@ function check(checked: boolean, attrs: (part: AttributePart) => void, label: Te
       <div class="item flex items-center justify-center text-primary-contrast">
         <div class="check rounded-s ${box} focus-within:shadow-outline">
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
-          <input type="checkbox" class="sr-only" ?checked=${checked} ...=${attrs} />
+          <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">
-        ${label}
-      </div>
+      <div class="font-lumo text-body leading-m">${label}</div>
     </label>
   `;
 }
@@ -97,102 +95,106 @@ export class Choice extends Translatable {
     ];
   }
 
-  private get __field() {
-    const handleInput = (evt: Event) => {
-      evt.stopPropagation();
-      const customValue = (evt.target as HTMLInputElement).value;
-
-      if (Array.isArray(this.value)) {
-        this.value = this.value.slice(0, this.value.length - 1).concat(customValue);
-      } else {
-        this.value = customValue;
-      }
-
-      this.dispatchEvent(new ChoiceChangeEvent(this.value));
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      custom: { type: Boolean },
+      type: { type: String },
+      min: { type: Number },
+      max: { type: Number },
+      value: { type: Array },
+      items: { type: Array },
+      getText: { attribute: false },
     };
-
-    const attributes = spread({
-      placeholder: this._t('choice.other').toString(),
-      class: 'w-full mb-m',
-      value: this.__customValue,
-      max: this.max,
-      min: this.min,
-      '@input': handleInput,
-      '@change': handleInput,
-    });
-
-    if (this.type === 'integer') {
-      return html`<vaadin-integer-field ...=${attributes} has-controls></vaadin-integer-field>`;
-    } else if (this.type === 'textarea') {
-      return html`<vaadin-text-area ...=${attributes}></vaadin-text-area>`;
-    } else {
-      return html`<vaadin-text-field ...=${attributes}></vaadin-text-field>`;
-    }
   }
 
-  @internalProperty()
-  private __customValue = '';
-
-  @internalProperty()
-  private __customValueVisible = false;
-
-  @property({ type: Boolean })
-  public disabled = false;
-
-  @property({ type: Boolean })
-  public custom = false;
-
-  @property({ type: String })
-  public type: 'text' | 'textarea' | 'integer' = 'text';
-
-  @property({ type: Number })
-  public min: number | null = null;
-
-  @property({ type: Number })
-  public max: number | null = null;
-
-  @property({ type: Array })
-  public value: null | string | string[] = null;
-
-  @property({ type: Array })
-  public items: string[] = [];
-
-  @property({ type: Object })
   public getText: (value: string) => string = v => v;
+
+  private __service = interpret(machine)
+    .onChange(() => this.requestUpdate())
+    .onTransition(({ changed }) => changed && this.requestUpdate())
+    .start();
+
+  public get disabled(): boolean {
+    return this.__service.state.matches('interactivity.disabled');
+  }
+
+  public set disabled(data: boolean) {
+    this.__service.send('SET_DISABLED', { data });
+  }
+
+  public get custom(): boolean {
+    return this.__service.state.matches('extension.present');
+  }
+
+  public set custom(data: boolean) {
+    this.__service.send('SET_CUSTOM', { data });
+  }
+
+  public get type(): 'text' | 'textarea' | 'integer' {
+    return this.__service.state.context.type;
+  }
+
+  public set type(data: 'text' | 'textarea' | 'integer') {
+    this.__service.send('SET_TYPE', { data });
+  }
+
+  public get min(): number | null {
+    return this.__service.state.context.min;
+  }
+
+  public set min(data: number | null) {
+    this.__service.send('SET_MIN', { data });
+  }
+
+  public get max(): number | null {
+    return this.__service.state.context.max;
+  }
+
+  public set max(data: number | null) {
+    this.__service.send('SET_MAX', { data });
+  }
+
+  public get value(): null | string | string[] {
+    return this.__service.state.context.value;
+  }
+
+  public set value(data: null | string | string[]) {
+    this.__service.send('SET_VALUE', { data });
+  }
+
+  public get items(): string[] {
+    return this.__service.state.context.items;
+  }
+
+  public set items(data: string[]) {
+    this.__service.send('SET_ITEMS', { data });
+  }
 
   public render(): TemplateResult {
     const items = this.custom ? [...this.items, VALUE_OTHER] : this.items;
     const multiple = Array.isArray(this.value);
+    const otherChecked = this.__service.state.matches('extension.present.selected');
 
     const children = html`
       ${items.map((item, index, array) => {
         const other = this.custom && index === array.length - 1;
 
         const checked = other
-          ? this.__customValueVisible
+          ? otherChecked
           : multiple
           ? !!this.value?.includes(item)
-          : !this.__customValueVisible && item === String(this.value);
+          : item === String(this.value);
 
         const attributes = spread({
           value: other ? VALUE_OTHER : item,
           name: multiple ? item : 'choice',
           'data-testid': `item-${item}`,
-          '?checked': checked,
+          '?disabled': this.disabled,
           '@change': (evt: Event) => {
             const checked = (evt.target as HTMLInputElement).checked;
-
-            if (multiple) {
-              if (item === VALUE_OTHER) this.__customValueVisible = checked;
-            } else {
-              this.__customValueVisible = checked && item === VALUE_OTHER;
-            }
-
-            if (item === VALUE_OTHER) {
-              this.__customValue = multiple ? '' : (this.value as string);
-            }
-
-            const newItem = item === VALUE_OTHER ? this.__customValue : item;
+            const newItem = item === VALUE_OTHER ? '' : item;
             const value = this.value;
 
             if (Array.isArray(value)) {
@@ -223,7 +225,7 @@ export class Choice extends Translatable {
           ${multiple ? check(checked, attributes, label) : radio(checked, attributes, label)}
 
           <div class="mr-m ml-xxl">
-            ${item === VALUE_OTHER && this.__customValueVisible ? this.__field : ''}
+            ${item === VALUE_OTHER && otherChecked ? this.__field : ''}
             ${item !== VALUE_OTHER ? html`<slot name=${item}></slot>` : ''}
           </div>
         `;
@@ -231,5 +233,39 @@ export class Choice extends Translatable {
     `;
 
     return html`<form>${children}</form> `;
+  }
+
+  private get __field() {
+    const handleInput = (evt: Event) => {
+      evt.stopPropagation();
+      const customValue = (evt.target as HTMLInputElement).value;
+
+      if (Array.isArray(this.value)) {
+        this.value = this.value.slice(0, this.value.length - 1).concat(customValue);
+      } else {
+        this.value = customValue;
+      }
+
+      this.dispatchEvent(new ChoiceChangeEvent(this.value));
+    };
+
+    const attributes = spread({
+      placeholder: this._t('choice.other').toString(),
+      class: 'w-full mb-m',
+      value: this.__service.state.context.customValue,
+      max: this.max,
+      min: this.min,
+      'data-testid': 'field',
+      '@input': handleInput,
+      '@change': handleInput,
+    });
+
+    if (this.type === 'integer') {
+      return html`<vaadin-integer-field ...=${attributes} has-controls></vaadin-integer-field>`;
+    } else if (this.type === 'textarea') {
+      return html`<vaadin-text-area ...=${attributes}></vaadin-text-area>`;
+    } else {
+      return html`<vaadin-text-field ...=${attributes}></vaadin-text-field>`;
+    }
   }
 }

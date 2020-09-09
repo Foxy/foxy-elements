@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { css, CSSResultArray, html, property, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../../mixins/translatable';
 import { I18N } from '../../../../../private/index';
 import { AdminNavigationTopGroupLink } from './AdminNavigationTopGroupLink/AdminNavigationTopGroupLink';
@@ -41,22 +41,28 @@ export class AdminNavigationTopGroup extends Translatable {
     ];
   }
 
-  @property({ type: Boolean })
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      active: { type: Boolean },
+      route: { type: String },
+      items: { type: Array },
+      label: { type: String },
+      icon: { type: String },
+      open: { type: Boolean },
+    };
+  }
+
   public active = false;
 
-  @property({ type: String })
   public route = '';
 
-  @property({ type: Array })
   public items: (NavigationLink | NavigationGroup)[] = [];
 
-  @property({ type: String })
   public label = '';
 
-  @property({ type: String })
   public icon = '';
 
-  @property({ type: Boolean })
   public open = false;
 
   public render(): TemplateResult {

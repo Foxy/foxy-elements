@@ -1,7 +1,8 @@
 import { html } from 'lit-html';
-import { Story, Preview, Meta, Props } from '@open-wc/demoing-storybook';
-import { withKnobs, withWebComponentsKnobs } from '@open-wc/demoing-storybook';
+import { Story, Canvas, Meta, Props } from '@storybook/addon-docs/blocks';
 import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
+import { subscriptions } from '../../../mocks/FxSubscriptions';
+import { transactions } from '../../../mocks/FxTransactions';
 import { bookmark } from '../../../mocks/FxBookmark';
 import { store } from '../../../mocks/FxStore';
 import { user } from '../../../mocks/FxUser';
@@ -11,22 +12,32 @@ export const handleRequest = evt => {
   evt.detail.handle(async url => {
     await new Promise(resolve => setTimeout(resolve, 500));
     //
-    if (url === '/') return new Response(JSON.stringify(bookmark));
-    if (url.endsWith('/stores/8')) return new Response(JSON.stringify(store));
-    if (url.endsWith('/users/2')) return new Response(JSON.stringify(user));
-    if (url.endsWith('/stores/8/customer_portal_settings')) {
+    if (url.includes('/stores/8/subscriptions')) {
+      return new Response(JSON.stringify(subscriptions));
+    }
+    if (url.includes('/stores/8/transactions')) {
+      return new Response(JSON.stringify(transactions));
+    }
+    if (url.includes('/stores/8/customer_portal_settings')) {
       return new Response(JSON.stringify(customerPortalSettings));
     }
+    if (url.includes('/stores/8')) {
+      return new Response(JSON.stringify(store));
+    }
+    if (url.includes('/users/2')) {
+      return new Response(JSON.stringify(user));
+    }
+    if (url === '/') {
+      return new Response(JSON.stringify(bookmark));
+    }
+    //
+    console.error('Unhandled route: ', url);
     //
     return new Response(null, { status: 404 });
   });
 };
 
-<Meta
-  title="views | <foxy-admin>"
-  decorators={[withKnobs, withWebComponentsKnobs]}
-  parameters={{ component: 'foxy-admin', options: { selectedPanel: 'storybookjs/knobs/panel' } }}
-/>
+<Meta title="Views/Admin" component="foxy-admin" />
 
 # Admin
 
@@ -42,11 +53,11 @@ as your first step**. You'll most likely want to fill the entire screen with it,
 absolute or fixed positioning instead of viewport units to avoid scrolling issues in mobile browsers.
 Once you set the element size, you should see the following message:
 
-<Preview withToolbar>
+<Canvas>
   <Story name="Default" height="320px">
-    {html`<foxy-admin class="absolute inset-0"></foxy-admin>`}
+    {() => html`<foxy-admin class="absolute inset-0"></foxy-admin>`}
   </Story>
-</Preview>
+</Canvas>
 
 That means `<foxy-admin>` can't find a data source – by default all our components are
 backend-agnostic, so it's up to the developer to connect them to the API. If you're working with
@@ -60,11 +71,11 @@ our hAPI, it's as easy as wrapping `<foxy-admin>` into `<foxy-api>`:
 
 Now the admin element knows which backend to connect to and you can start using it right away:
 
-<Preview withToolbar>
+<Canvas>
   <Story name="Configured" height="640px">
-    {html`<foxy-admin class="absolute inset-0" @request=${handleRequest}></foxy-admin>`}
+    {() => html`<foxy-admin class="absolute inset-0" @request=${handleRequest}></foxy-admin>`}
   </Story>
-</Preview>
+</Canvas>
 
 If you'd like to use your own backend or would like to intercept API requests for one reason or another
 (e.g. for demos or development, like we do with Storybook here), you'll need

@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { ChoiceChangeEvent } from '../../../../private/events';
 import { Choice, I18N } from '../../../../private/index';
@@ -15,17 +15,19 @@ export class JSONataInput extends Translatable {
     };
   }
 
-  private readonly __items = ['all', 'some'] as const;
-
-  private get __choice() {
-    return this.__items[this.value === '*' ? 0 : 1];
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: String },
+    };
   }
 
-  @property({ type: Boolean })
   public disabled = false;
 
-  @property({ type: String })
   public value = '*';
+
+  private readonly __items = ['all', 'some'] as const;
 
   public constructor() {
     super('customer-portal-settings');
@@ -45,7 +47,7 @@ export class JSONataInput extends Translatable {
 
         ${this.__choice === this.__items[1]
           ? html`
-              <div slot=${this.__items[1]} class="space-y-s">
+              <div slot=${this.__items[1]} class="space-y-s pb-m">
                 <p class="text-s text-tertiary leading-s">
                   <x-i18n .ns=${this.ns} .lang=${this.lang} key="jsonata.hint"></x-i18n>
                 </p>
@@ -65,6 +67,10 @@ export class JSONataInput extends Translatable {
           : ''}
       </x-choice>
     `;
+  }
+
+  private get __choice() {
+    return this.__items[this.value === '*' ? 0 : 1];
   }
 
   private __handleNewValueChange(evt: InputEvent) {

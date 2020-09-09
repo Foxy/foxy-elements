@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { css, CSSResultArray, property } from 'lit-element';
+import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 import { I18N } from '../I18N/I18N';
@@ -39,7 +39,13 @@ export class ErrorScreen extends Translatable {
     ];
   }
 
-  @property({ type: String })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      type: { type: String },
+    };
+  }
+
   public type: ErrorType = 'unknown';
 
   public render(): TemplateResult {

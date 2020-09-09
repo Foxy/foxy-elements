@@ -4,7 +4,7 @@ import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
 
-customElements.define('x-dropdown', Dropdown as any);
+customElements.define('x-dropdown', Dropdown);
 
 function getSelect(elm: Dropdown) {
   const select = elm.shadowRoot!.querySelector('[data-testid=select]');
@@ -28,11 +28,11 @@ function testEnabled(elm: Dropdown) {
 function testContent(elm: Dropdown) {
   const items = Array.from(getItems(elm));
 
-  expect(items.length).to.equal(elm.items.length);
+  expect(items.length).to.equal(elm.items?.length ?? 0);
 
   items.forEach((item, index) => {
-    expect(item.value).to.equal(elm.items[index]);
-    expect(item.textContent).to.equal(elm.getText(elm.items[index]));
+    expect(item.value).to.equal(elm.items![index]);
+    expect(item.textContent).to.equal(elm.getText(elm.items![index]));
   });
 }
 
@@ -40,7 +40,7 @@ async function testSelection(elm: Dropdown) {
   const whenFired = new Promise(resolve => elm.addEventListener('change', resolve));
   const select = getSelect(elm);
 
-  select.value = elm.items[0];
+  select.value = elm.items![0];
   select.dispatchEvent(new CustomEvent('change'));
 
   expect(await whenFired).to.be.instanceOf(DropdownChangeEvent);

@@ -148,6 +148,7 @@ const boxShadowMap = {
     '0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.4)'
   ),
   outline: `0 0 0 2px ${cssVar('primary-color-50pct', 'hsla(214, 90%, 52%, 0.5)')};`,
+  'outline-error': `0 0 0 2px ${cssVar('error-color-50pct', 'hsla(3, 100%, 60%, 0.1)')};`,
   'outline-base': `0 0 0 2px ${cssVar('base-color', '#fff')};`,
 };
 
@@ -193,17 +194,6 @@ const sizeMap = {
   m: cssVar('size-m', '2.25rem'),
   l: cssVar('size-l', '2.75rem'),
   xl: cssVar('size-xl', '3.5rem'),
-  xxl: cssVar('size-xxl', '8rem'),
-};
-
-const flexMap = {
-  '1': '1 1 0%',
-  auto: '1 1 auto',
-  initial: '0 1 auto',
-  inherit: 'inherit',
-  none: 'none',
-  third: '1 1 calc( 100% / 3 )',
-  '2': '2 2 0%',
 };
 
 // eslint-disable-next-line no-undef
@@ -211,16 +201,10 @@ module.exports = {
   purge: {
     enabled: false,
   },
-  variants: [
-    'responsive',
-    'group-hover',
-    'focus-within',
-    'hover',
-    'focus',
-    'disabled',
-    'first',
-    'last',
-  ],
+  future: {
+    removeDeprecatedGapUtilities: true,
+  },
+  variants: ['responsive', 'group-hover', 'focus-within', 'hover', 'focus', 'disabled'],
   theme: {
     colors: colorsMap,
     spacing: spacingMap,
@@ -230,7 +214,6 @@ module.exports = {
     fontFamily: fontFamilyMap,
     fontSize: fontSizeMap,
     lineHeight: lineHeightMap,
-    flex: flexMap,
     extend: {
       height: sizeMap,
       width: sizeMap,
