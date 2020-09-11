@@ -1,18 +1,29 @@
 import { Product } from '../elements/public/QuickOrder/types';
 
-export class MockProduct extends HTMLElement implements Product {
+export class MockProduct extends HTMLElement {
   static pidSource = 1;
-  [k: string]: any;
+
   public name = 'Mock Product';
+
   public total = 10;
+
   public price = 10;
+
   public quantity = 1;
+
   public pid = 0;
+
   public currency = '';
+
   public code: string | number = '';
+
   public parent_code: string | number = '';
+
   public open?: Record<string, boolean>;
+
   public signatures?: Record<string, string>;
+
+  public color?: unknown;
 
   constructor(p?: Product) {
     super();
@@ -31,11 +42,11 @@ export class MockProduct extends HTMLElement implements Product {
     this.total = this.price * this.quantity;
   }
 
-  connectedCallback() {
+  connectedCallback(): void {
     this.setAttribute('product', 'true');
   }
 
-  get value() {
+  get value(): Product {
     const result = {
       pid: this.pid,
       price: this.price,
@@ -62,6 +73,6 @@ export class MockProduct extends HTMLElement implements Product {
 
   private __fromAttr(key: string) {
     const value = this.getAttribute(key);
-    if (value !== null) this[key] = value;
+    if (value !== null) (this as any)[key] = value; // eslint-disable-line no-use-before-define
   }
 }

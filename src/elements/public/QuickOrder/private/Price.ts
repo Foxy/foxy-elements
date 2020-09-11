@@ -28,6 +28,7 @@ export class Price extends Translatable {
       total: {},
     };
   }
+
   /** The price of a single unity */
   public price: number | null = null;
 
@@ -36,22 +37,6 @@ export class Price extends Translatable {
   public currency: string | null = null;
 
   public quantity: number | null = null;
-
-  private get __totalParts(): number {
-    if (this.prices) {
-      return this.prices.reduce((a, b) => a + b, 0);
-    } else {
-      return 0;
-    }
-  }
-
-  public get total(): number {
-    if (this.quantity) {
-      return this.quantity * ((this.price ? this.price : 0) + this.__totalParts);
-    } else {
-      return 0;
-    }
-  }
 
   public constructor() {
     super('quick-order');
@@ -68,11 +53,25 @@ export class Price extends Translatable {
     }
     return html`
       <div class="price max-w-xxs ${this.quantity == 0 ? 'text-disabled' : 'text-header '}">
-        <span class="price total font-bold">
-          ${this.__translateAmount(this.total)}
-        </span>
+        <span class="price total font-bold"> ${this.__translateAmount(this.total)} </span>
       </div>
     `;
+  }
+
+  public get total(): number {
+    if (this.quantity) {
+      return this.quantity * ((this.price ? this.price : 0) + this.__totalParts);
+    } else {
+      return 0;
+    }
+  }
+
+  private get __totalParts(): number {
+    if (this.prices) {
+      return this.prices.reduce((a, b) => a + b, 0);
+    } else {
+      return 0;
+    }
   }
 
   private __translateAmount(amount: number) {

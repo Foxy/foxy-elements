@@ -1,5 +1,5 @@
 import { expect, fixture, html, elementUpdated } from '@open-wc/testing';
-import { Product } from './types';
+import { Product } from '../types';
 import { ProductItem } from './ProductItem';
 import * as sinon from 'sinon';
 

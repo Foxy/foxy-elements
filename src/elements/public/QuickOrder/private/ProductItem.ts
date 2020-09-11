@@ -1,8 +1,8 @@
-import { Translatable } from '../../../mixins/translatable';
-import { Product, ImageDescription } from './types';
-import { Price, Picture, PictureGrid } from './private/index';
+import { Translatable } from '../../../../mixins/translatable';
+import { Product, ImageDescription } from '../types';
+import { Price, Picture, PictureGrid } from './index';
 import { html, css, PropertyDeclarations, CSSResultArray, TemplateResult } from 'lit-element';
-import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../private/index';
+import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../../private/index';
 
 /**
  * This component allows a user to configure a product.
@@ -10,10 +10,11 @@ import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../private/index
  * The product may be configured using HTML properties or a JS object.
  *
  */
-export class ProductItem extends Translatable implements Product {
+export class ProductItem extends Translatable {
   // A list of product properties as defined in Foxy Cart Documentation
 
-  [k: string]: any;
+  // eslint breakes due to the line bellow
+  //[k: string]: any; // eslint-disable-line no-use-before-define
 
   static get styles(): CSSResultArray {
     return [
@@ -58,13 +59,6 @@ export class ProductItem extends Translatable implements Product {
   }
 
   /**
-   * Static fields and methods
-   **/
-
-  // A list of all existing ids to guarantee unicity
-  private static __existingIds: number[] = [];
-
-  /**
    * Custom elements used in the component
    */
   public static get scopedElements(): Record<string, unknown> {
@@ -80,48 +74,6 @@ export class ProductItem extends Translatable implements Product {
       'x-error-screen': ErrorScreen,
     };
   }
-
-  /**
-   * Creates a new unique id to be used in the form
-   *
-   * Ids are used to distinguish different products in a single form.
-   * Ids are prepended to fields names to allow Foxy Cart to know to what
-   * product a particular field relates.
-   *
-   * @return number the newly created id
-   */
-  private static __newId(): number {
-    // Get the maximum value
-    const newId =
-      ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
-    ProductItem.__existingIds.push(newId);
-    return newId;
-  }
-
-  /**
-   * Instance fields and methods
-   */
-
-  public constructor() {
-    super('quick-order');
-    this.__childProductsObserver = new MutationObserver(this.__observeProducts.bind(this));
-    this.__childProductsObserver.observe(this, {
-      childList: true,
-      attributes: false,
-      subtree: true,
-    });
-    this.updateComplete.then(() => {
-      this.__setCode();
-      this.__createProducts();
-      this.__acknowledgeChildProducts();
-      this.__changedChildProduct();
-      if (!this.__isValid()) {
-        console.error('Invalid product', 'in product', this.value);
-      }
-    });
-  }
-
-  private __childProductsObserver?: MutationObserver;
 
   static get properties(): PropertyDeclarations {
     return {
@@ -173,30 +125,7 @@ export class ProductItem extends Translatable implements Product {
     };
   }
 
-  private __modified = false;
-
-  public set value(v: Product) {
-    for (const k in v) {
-      let attrValue = '';
-      if (typeof v[k as keyof Product] == 'object') {
-        attrValue = JSON.stringify(v[k as keyof Product]);
-      } else {
-        const key = k as keyof Product;
-        if ((v[key] && v[key] !== 'undefined') || v[key] === 0) {
-          attrValue = v[k as keyof Product]!.toString();
-        }
-      }
-      this.setAttribute(k, v[k as keyof Product] ? attrValue : '');
-    }
-  }
-
-  public get value(): Product {
-    const r: Partial<Record<keyof Product, unknown>> = {};
-    for (let i = 0; i < this.attributes.length; i++) {
-      r[this.attributes[i].name] = this.attributes[i].value;
-    }
-    return r as Product;
-  }
+  public readonly rel = 'product_item';
 
   public currency?: string;
 
@@ -250,19 +179,18 @@ export class ProductItem extends Translatable implements Product {
 
   public pid: number = ProductItem.__newId();
 
+  // A list of all existing ids to guarantee unicity
+  private static __existingIds: number[] = [];
+
+  private __childProductsObserver?: MutationObserver;
+
+  private __modified = false;
+
   private __childPrices: number[] = [];
 
   private __images: ImageDescription[] = [];
 
   private __childrenCount = 0;
-
-  public updated(changed: Map<string, any>): void {
-    if (changed.get('products') != undefined) {
-      this.__createProducts();
-    }
-    this.__setTotalPrice();
-    this.dispatchEvent(new Event('change'));
-  }
 
   private __handleQuantity = {
     handleEvent: (ev: Event) => {
@@ -274,6 +202,56 @@ export class ProductItem extends Translatable implements Product {
       );
     },
   };
+
+  public constructor() {
+    super('quick-order');
+    this.__childProductsObserver = new MutationObserver(this.__observeProducts.bind(this));
+    this.__childProductsObserver.observe(this, {
+      childList: true,
+      attributes: false,
+      subtree: true,
+    });
+    this.updateComplete.then(() => {
+      this.__setCode();
+      this.__createProducts();
+      this.__acknowledgeChildProducts();
+      this.__changedChildProduct();
+      if (!this.__isValid()) {
+        console.error('Invalid product', 'in product', this.value);
+      }
+    });
+  }
+
+  public get value(): Product {
+    const r: Partial<Record<keyof Product, unknown>> = {};
+    for (let i = 0; i < this.attributes.length; i++) {
+      r[this.attributes[i].name] = this.attributes[i].value;
+    }
+    return r as Product;
+  }
+
+  public set value(v: Product) {
+    for (const k in v) {
+      let attrValue = '';
+      if (typeof v[k as keyof Product] == 'object') {
+        attrValue = JSON.stringify(v[k as keyof Product]);
+      } else {
+        const key = k as keyof Product;
+        if ((v[key] && v[key] !== 'undefined') || v[key] === 0) {
+          attrValue = v[k as keyof Product]!.toString();
+        }
+      }
+      this.setAttribute(k, v[k as keyof Product] ? attrValue : '');
+    }
+  }
+
+  public updated(changed: Map<string, unknown>): void {
+    if (changed.get('products') != undefined) {
+      this.__createProducts();
+    }
+    this.__setTotalPrice();
+    this.dispatchEvent(new Event('change'));
+  }
 
   public render(): TemplateResult {
     if (!this.__isValid()) {
@@ -287,9 +265,7 @@ export class ProductItem extends Translatable implements Product {
             : 'removed opacity-50'}"
         >
           <div class="description">
-            <h1 class="text-header font-bold text-m mb-s leading-none">
-              ${this.name}
-            </h1>
+            <h1 class="text-header font-bold text-m mb-s leading-none">${this.name}</h1>
             <section class="description text-secondary">
               ${this.description ? html`<p>${this.description}</p>` : ''}
               <slot></slot>
@@ -348,6 +324,31 @@ export class ProductItem extends Translatable implements Product {
         </article>
       `;
     }
+  }
+
+  public getImageDescription(): ImageDescription {
+    return {
+      src: this.image,
+      alt: this.alt,
+      quantity: this.quantity,
+    };
+  }
+
+  /**
+   * Creates a new unique id to be used in the form
+   *
+   * Ids are used to distinguish different products in a single form.
+   * Ids are prepended to fields names to allow Foxy Cart to know to what
+   * product a particular field relates.
+   *
+   * @return number the newly created id
+   */
+  private static __newId(): number {
+    // Get the maximum value
+    const newId =
+      ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
+    ProductItem.__existingIds.push(newId);
+    return newId;
   }
 
   /**
@@ -469,14 +470,6 @@ export class ProductItem extends Translatable implements Product {
     if (this.code) {
       e.parent_code = this.code;
     }
-  }
-
-  public getImageDescription(): ImageDescription {
-    return {
-      src: this.image,
-      alt: this.alt,
-      quantity: this.quantity,
-    };
   }
 
   /** React to changes in child products */

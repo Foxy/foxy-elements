@@ -1,12 +1,10 @@
-import { QuickOrder } from '/dist/elements/public/QuickOrder/QuickOrder.js';
-import { ProductItem } from '/dist/elements/public/QuickOrder/ProductItem.js';
-import { Meta, html,  Story, Preview  } from '@open-wc/demoing-storybook';
-window.customElements.define('foxy-order-form', QuickOrder);
-window.customElements.define('foxy-item', ProductItem);
+import { Story, Canvas, Meta, Props } from '@storybook/addon-docs/blocks';
+import { html } from 'lit-html';
+import './index';
 
 <Meta
- title="Quick Order"
- parameters={{ component: 'quick-order'}}
+ title="Integrations/Quick Order"
+ component="foxy-quick-form"
 />
 
 # Quick Order Form
@@ -23,15 +21,15 @@ You can use your favorite template engine to provide the products their attribut
 
 This component needs to be configured before use. You can easily spot a misconfigured component on the page – it will display an error message like the one below:
 
-<Preview>
-  <Story name="Default">
+<Canvas>
+  <Story name="Quick Order Default">
     {html`
       <div class="container-narrow">
-        <foxy-order-form></foxy-order-form>
+        <foxy-quick-form></foxy-quick-form>
       </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 
 ## Minimal setup
@@ -52,26 +50,26 @@ Using the `slots` approach gives you full control over your form's markup.
 This approach allow you to create your form writing your HTML in readable way.
 
 ```html
-<foxy-order-form>
+<foxy-quick-form>
   <foxy-item></foxy-item>
   <foxy-item></foxy-item>
   <foxy-item></foxy-item>
-</foxy-order-form>
+</foxy-quick-form>
 ```
 
-<Preview>
+<Canvas>
   <Story name="Minimal slots approach">
     {html`
     <div class="container-narrow">
-      <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+      <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
         <foxy-item name="Cool Product" price="10" image="https://placedog.net/200">
         <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
-      </foxy-order-form>
+      </foxy-quick-form>
     </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ### The `attribute` approach
 
@@ -82,17 +80,17 @@ Please, note that the `products` value must be valid JSON.
 This approach allows you to use something as simple as:
 
 ```html
-<foxy-order-form products='[{...},{...},{...}]'>
-</foxy-order-form>
+<foxy-quick-form products='[{...},{...},{...}]'>
+</foxy-quick-form>
 ```
 
 The downside of this approach is that you have little control of custom markup you may want to add to your form.
 
-<Preview>
+<Canvas>
   <Story name="Minimal attributes approach">
     {html`
     <div class="container-narrow">
-      <foxy-order-form store="jamstackecommerceexample.foxycart.com"
+      <foxy-quick-form store="jamstackecommerceexample.foxycart.com"
                        currency="usd"
                        products='[
                        {
@@ -103,17 +101,17 @@ The downside of this approach is that you have little control of custom markup y
                          "description": "I do deserve a tasty food" 
                          }]'
                        >
-      </foxy-order-form>
+      </foxy-quick-form>
     </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 
 ## Basics of a Product
 
 A product must have a `name`, a `price` and a `currency`.
-The currency will be automatically provided by the `<foxy-order-form>`.
+The currency will be automatically provided by the `<foxy-quick-form>`.
 
 The `description` attribute is used to display a description of the product within the order form.
 
@@ -134,19 +132,19 @@ It pays off to learn more about the product and what you can do with it. Please,
 
 ### Using custom tag for the product
 
-By adding `<foxy-items>` to your `<foxy-order-form>` your products will be properly added to the order.
+By adding `<foxy-items>` to your `<foxy-quick-form>` your products will be properly added to the order.
 
 You can use any markup you wish, making the form unique to your store and even easily adding your own functionality to it.
 
 You may place your products in cards, lists, articles sections and even tables if you with.
 
 Foxy-order-form will find your products and of course leave your tags alone.
-Please, note that `foxy-order-form` will not find them if they are in a Shadow DOM.
+Please, note that `foxy-quick-form` will not find them if they are in a Shadow DOM.
 
-<Preview>
+<Canvas>
   <Story name="Using Product Items">
     {html`
-    <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+    <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
         <foxy-item name="pup dog food"
                    price="59.99"
                    image="http://placedog.net/200"
@@ -158,18 +156,18 @@ Please, note that `foxy-order-form` will not find them if they are in a Shadow D
                    description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
-    </foxy-order-form>
+    </foxy-quick-form>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 You can enrich your form by adding your own markup.
 Provided your products are not inside a Shadow DOM, they will be recognized.
 
-<Preview>
+<Canvas>
   <Story name="Enrich the form using your markup">
     {html`
-    <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+    <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
       <style>
       .dietary-food {
         font-weight: 100;
@@ -234,10 +232,10 @@ Provided your products are not inside a Shadow DOM, they will be recognized.
               <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
             </foxy-item>
         </section>
-    </foxy-order-form>
+    </foxy-quick-form>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 
 ### Setting up subscriptions
@@ -246,11 +244,11 @@ To offer a subscription option to your clients you need to provide the subscript
 
 You can configure subscriptions using the subscription product options, as outlined at [https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options](Subscription Product Options).
 
-<Preview>
+<Canvas>
   <Story name="Product with subscription" >
     {html`
     <div class="container-narrow">
-      <foxy-order-form store="jamstackecommerceexample.foxycart.com"
+      <foxy-quick-form store="jamstackecommerceexample.foxycart.com"
                        currency="usd"
                        frequencies='["1d", "1w", ".5m", "1m", "3m"]'>
         <foxy-item name="Pup Dog Food"
@@ -258,11 +256,11 @@ You can configure subscriptions using the subscription product options, as outli
                    image="http://placedog.net/200" >
            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
-      </foxy-order-form>
+      </foxy-quick-form>
     <div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Using an array of products
 
@@ -270,11 +268,11 @@ You may use an array of product objects to feed data to the form.
 
 In this scenario you loose some flexibility for the product tags will be created for you one next to the other.
 
-<Preview>
+<Canvas>
     <Story name="Using an Array of products">
     {html`
       <div class="container-narrow">
-        <foxy-order-form store="jamstackecommerceexample.foxycart.com"
+        <foxy-quick-form store="jamstackecommerceexample.foxycart.com"
                          currency="usd"
                          products='[{
                              "name":"Cub Puppy",
@@ -285,11 +283,11 @@ In this scenario you loose some flexibility for the product tags will be created
                              "price":"64.95"
                            }]'
                          >
-        </foxy-order-form>
+        </foxy-quick-form>
       </div>
         `}
     </Story>
-</Preview>
+</Canvas>
 
 ## Adding Child products
 
@@ -302,10 +300,10 @@ Setting the price of the parent product to zero effectively creates a bundled pr
 
 Here is an example bundle created with tags.
 
-<Preview>
+<Canvas>
   <Story name="Product bundle">
     {html`
-  <foxy-order-form
+  <foxy-quick-form
       store="jamstackecommerceexample"
       currency="usd"
   >
@@ -318,17 +316,17 @@ Here is an example bundle created with tags.
           <div>The world is full of interesting stuff but there is but one <strong>interesting bit</strong>, that's for sure.</div>
         </foxy-item>
       </foxy-item>
-    </foxy-order-form>
+    </foxy-quick-form>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 Here you have a product bundle example created with an array.
 
-<Preview>
+<Canvas>
   <Story name="Product bundle with array">
     {html`
-  <foxy-order-form
+  <foxy-quick-form
       store="jamstackecommerceexample"
       currency="usd"
       products='[
@@ -351,20 +349,20 @@ Here you have a product bundle example created with an array.
         }
       ]'
   >
-  </foxy-order-form>
+  </foxy-quick-form>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ### Bonus products
 
 Setting the price of the children to zero you effectivelly create a bonus product, where upon purchasing a product your client gets another for free.
 
-<Preview>
+<Canvas>
   <Story name="Bonus product">
     {html`
     <div class="container-narrow">
-      <foxy-order-form
+      <foxy-quick-form
         store="jamstackecommerceexample"
         currency="usd"
         products='[
@@ -390,20 +388,20 @@ Setting the price of the children to zero you effectivelly create a bonus produc
               }
             ]}
           ]'>
-      </foxy-order-form>
+      </foxy-quick-form>
     </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ### Package deal
 
 If you set prices to both parent and child products, you can make products that are cheaper if bought together.
 
-<Preview>
+<Canvas>
   <Story name="Package deal">
     {html`
-  <foxy-order-form
+  <foxy-quick-form
       store="jamstackecommerceexample"
       currency="usd"
   >
@@ -415,10 +413,10 @@ If you set prices to both parent and child products, you can make products that 
            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
       </foxy-item>
-    </foxy-order-form>
+    </foxy-quick-form>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ### Start and end dates
 
@@ -430,11 +428,11 @@ https://wiki.foxycart.com/v/2.0/products#subscription_product_options
 You may set specific dates with the format `YYYYMMDD`, or relative dates using a number with a letter (d for day, w for week, m for month and y for year) appended to it.
 Check out the documentation for more details.
 
-<Preview>
+<Canvas>
     <Story name="Start and End Dates" >
       {html`
     <div class="container-narrow">
-      <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
+      <foxy-quick-form frequencies='["1d", "1w", ".5m", "1m"]'
                        store="jamstackecommerceexample"
                        currency="usd"
                        sub_startdate="20200505"
@@ -447,18 +445,18 @@ Check out the documentation for more details.
           >
            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
         </foxy-item>
-      </foxy-order-form>
+      </foxy-quick-form>
     </div>
       `}
     </Story>
-</Preview>
+</Canvas>
 
 
 ## Changing products list
 
 ### By replacing the products list
 
-You can set a new list of products by changing the `products` attribute of the `foxy-order-form`.
+You can set a new list of products by changing the `products` attribute of the `foxy-quick-form`.
 Please, note that this is a destructive operation: all products will be removed an new products will be added.
 
 Consider this example code:
@@ -481,11 +479,11 @@ Consider this example code:
 
 Also, note that only the products, not additional markup, will be removed.
 
-<Preview>
+<Canvas>
   <Story name="Change products list">
     {html`
       <div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
-        <foxy-order-form id="to-change-product-list"
+        <foxy-quick-form id="to-change-product-list"
           store="jamstackecommerceexample"
           currency="usd"
           products='[
@@ -511,7 +509,7 @@ Also, note that only the products, not additional markup, will be removed.
               }
               ]}
             ]'>
-        </foxy-order-form>
+        </foxy-quick-form>
     <button type="button"
             style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
             onclick="document.querySelector('#to-change-product-list').products = [{name:'Changed', price: 5}];">
@@ -520,7 +518,7 @@ Also, note that only the products, not additional markup, will be removed.
     </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ### By adding an array of products
 
@@ -530,11 +528,11 @@ You can add one or more products to the form using the `addProducts` method of t
   myForm.addProducts([{name: "Office chair", price: 200}, {name: "Office table", price: 100}]);
 ```
 
-<Preview>
+<Canvas>
   <Story name="Add an array of products" >
     {html`
 		<div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
-    <foxy-order-form frequencies='["1d", "1w", ".5m", "1m"]'
+    <foxy-quick-form frequencies='["1d", "1w", ".5m", "1m"]'
                      store="jamstackecommerceexample"
                      currency="usd"
                      sub_startdate="20200505"
@@ -553,11 +551,11 @@ You can add one or more products to the form using the `addProducts` method of t
         >
            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
       </foxy-item>
-    </foxy-order-form>
+    </foxy-quick-form>
     </div>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ### By removing an array of products
 
@@ -582,10 +580,10 @@ var productToRemove = myForm.querySelector('SomePropertyUniqueToProductToRemove'
 myForm.removeProducts([productToRemove.pid]);
 ```
 
-<Preview>
+<Canvas>
   <Story name="Removing a product by Product Id">
     {html`
-    <foxy-order-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+    <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
         <foxy-item name="pup dog food"
                    price="59.99"
                    image="http://placedog.net/200"
@@ -600,7 +598,7 @@ myForm.removeProducts([productToRemove.pid]);
         <button type="button" 
               style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
               onclick="this.parentElement.removeProducts([this.parentElement.children[0].pid]);">Remove first product</button>
-    </foxy-order-form>
+    </foxy-quick-form>
     `}
   </Story>
-</Preview>
+</Canvas>

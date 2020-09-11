@@ -4,12 +4,13 @@ import '@vaadin/vaadin-icons/vaadin-icons';
 import { parseDuration } from '../../../utils/parse-duration';
 import { html, css, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
-import { ProductItem } from './ProductItem';
+import { ProductItem } from './private';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
 
 import { QuickOrderChangeEvent, QuickOrderResponseEvent, QuickOrderSubmitEvent } from './events';
 import { Product } from './types';
 
+export { ProductItem };
 /**
  * This Quick Order Form accepts products either as a JS array or as child elements of type ProductItem
  *
@@ -110,21 +111,11 @@ export class QuickOrder extends Translatable {
     };
   }
 
-  private get __data(): FormData | null {
-    const data = new FormData();
-    const productsAdded = this.__formDataFill(data);
-    if (productsAdded == 0) return null;
-    this.__formDataAddSubscriptionFields(data);
-    return data;
-  }
-
-  private __childProductsObserver?: MutationObserver;
-
-  public currency?: string;
+  public store?: string;
 
   public total = 0;
 
-  public store?: string;
+  public currency?: string;
 
   /** Frequency related attributes */
   public sub_frequency?: string;
@@ -135,28 +126,54 @@ export class QuickOrder extends Translatable {
 
   public frequencies: string[] = [];
 
-  private __hasValidProducts = false;
-
-  private __submitBtnText(value: string): string {
-    if (!this.sub_frequency || this.sub_frequency == '0') {
-      return this._t('checkout.buy', { value });
-    } else {
-      const duration = parseDuration(this.sub_frequency);
-      return this._t('checkout.subscribe', {
-        value,
-        period: this._t(duration.units).toLowerCase(),
-      });
-    }
-  }
-
-  products: Product[] = [];
+  public products: Product[] = [];
 
   /**
-   * An array with both products created as elements and created parameter
+   * Handles the submission of the form
+   *
+   * - creates a FormData
+   * - fill the FormData with product values
+   * - add order wide fields to the FormData
+   * - submits the form
    */
-  private get __productElements(): NodeListOf<ProductItem> {
-    return this.querySelectorAll('[product]');
-  }
+  private handleSubmit = {
+    handleEvent: () => {
+      this.dispatchEvent(new QuickOrderSubmitEvent(this.__data!));
+      if (this.__data !== null) {
+        const request = new XMLHttpRequest();
+        request.open('POST', `https://${this.store}/cart`, true);
+        request.onload = (e: ProgressEvent<EventTarget>) => {
+          this.dispatchEvent(new QuickOrderResponseEvent(e));
+        };
+        request.send(this.__data);
+      }
+    },
+  };
+
+  private __childProductsObserver?: MutationObserver;
+
+  private __hasValidProducts = false;
+
+  /**
+   * Handles the user input for frequenty field
+   * - converts week, year, day and month into first letter only
+   * - removes spaces
+   * - removes leading zeroes
+   * - validates input as propper frequency option
+   **/
+  private __handleFrequency = {
+    handleEvent: (ev: CustomEvent) => {
+      const newfrequency = (ev as CustomEvent).detail
+        .replace(/([wydm])\w*/, '$1')
+        .replace(/ /g, '')
+        .replace(/^0/, '');
+      if (QuickOrder.__validFrequency(newfrequency)) {
+        this.sub_frequency = newfrequency;
+      } else {
+        this.sub_frequency = '';
+      }
+    },
+  };
 
   constructor() {
     super('quick-order');
@@ -236,6 +253,51 @@ export class QuickOrder extends Translatable {
     this.__removeProductsFromProductArray((p: ProductItem) => productIds.includes(p.pid));
   }
 
+  public updated(changedProperties: Map<string, any>): void {
+    if (changedProperties.get('products') != undefined) {
+      this.__removeProductsFromProductArray();
+      this.__createProductsFromProductArray();
+    }
+    const newHasValidProducts = !!this.__data;
+    if (newHasValidProducts != this.__hasValidProducts) {
+      this.__hasValidProducts = newHasValidProducts;
+    }
+    this.dispatchEvent(new QuickOrderChangeEvent(this.__data!));
+  }
+
+  createProduct(p: Product): Element {
+    const newProduct = new ProductItem();
+    newProduct.value = { ...p, currency: this.currency };
+    return newProduct;
+  }
+
+  private get __data(): FormData | null {
+    const data = new FormData();
+    const productsAdded = this.__formDataFill(data);
+    if (productsAdded == 0) return null;
+    this.__formDataAddSubscriptionFields(data);
+    return data;
+  }
+
+  private __submitBtnText(value: string): string {
+    if (!this.sub_frequency || this.sub_frequency == '0') {
+      return this._t('checkout.buy', { value });
+    } else {
+      const duration = parseDuration(this.sub_frequency);
+      return this._t('checkout.subscribe', {
+        value,
+        period: this._t(duration.units).toLowerCase(),
+      });
+    }
+  }
+
+  /**
+   * An array with both products created as elements and created parameter
+   */
+  private get __productElements(): NodeListOf<ProductItem> {
+    return this.querySelectorAll('[product]');
+  }
+
   /** Create child ProductItems from products array
    */
   private __createProductsFromProductArray() {
@@ -250,61 +312,6 @@ export class QuickOrder extends Translatable {
       }
     });
   }
-
-  public updated(changedProperties: Map<string, any>): void {
-    if (changedProperties.get('products') != undefined) {
-      this.__removeProductsFromProductArray();
-      this.__createProductsFromProductArray();
-    }
-    const newHasValidProducts = !!this.__data;
-    if (newHasValidProducts != this.__hasValidProducts) {
-      this.__hasValidProducts = newHasValidProducts;
-    }
-    this.dispatchEvent(new QuickOrderChangeEvent(this.__data!));
-  }
-
-  /**
-   * Handles the user input for frequenty field
-   * - converts week, year, day and month into first letter only
-   * - removes spaces
-   * - removes leading zeroes
-   * - validates input as propper frequency option
-   **/
-  private __handleFrequency = {
-    handleEvent: (ev: CustomEvent) => {
-      const newfrequency = (ev as CustomEvent).detail
-        .replace(/([wydm])\w*/, '$1')
-        .replace(/ /g, '')
-        .replace(/^0/, '');
-      if (QuickOrder.__validFrequency(newfrequency)) {
-        this.sub_frequency = newfrequency;
-      } else {
-        this.sub_frequency = '';
-      }
-    },
-  };
-
-  /**
-   * Handles the submission of the form
-   *
-   * - creates a FormData
-   * - fill the FormData with product values
-   * - add order wide fields to the FormData
-   * - submits the form
-   */
-  private handleSubmit = {
-    handleEvent: () => {
-      this.dispatchEvent(new QuickOrderSubmitEvent(this.__data!));
-      if (this.__data !== null) {
-        const request = new XMLHttpRequest();
-        request.open('POST', `https://${this.store}/cart`, true);
-        request.onload = (e: ProgressEvent<EventTarget>) => {
-          this.dispatchEvent(new QuickOrderResponseEvent(e));
-        };
-        request.send(this.__data);
-      }
-    },
-  };
 
   /**
    * Adds a signature to a post field
@@ -522,11 +529,5 @@ export class QuickOrder extends Translatable {
     } else {
       return '';
     }
-  }
-
-  createProduct(p: Product): Element {
-    const newProduct = new ProductItem();
-    newProduct.value = { ...p, currency: this.currency };
-    return newProduct;
   }
 }
