@@ -1,5 +1,4 @@
 module.exports = {
-  stories: ['../src/elements/public/**/*.stories.mdx'],
   addons: ['@storybook/addon-essentials'],
   webpackFinal: async (config, { configType }) => {
     const tsRule = config.module.rules.find(rule => String(rule.test).includes('ts'));
