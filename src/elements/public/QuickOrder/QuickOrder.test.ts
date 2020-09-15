@@ -1,6 +1,6 @@
-import { fixture, expect, html, elementUpdated, oneEvent } from '@open-wc/testing';
+import { fixture, expect, html, elementUpdated, oneEvent, aTimeout } from '@open-wc/testing';
 import * as sinon from 'sinon';
-import { QuickOrder } from './QuickOrder';
+import { ProductItem, QuickOrder } from './QuickOrder';
 import { Product } from './types';
 import { MockProduct } from '../../../mocks/ProductItem';
 
@@ -14,19 +14,31 @@ class TestQuickOrder extends QuickOrder {
     return new MockProduct(p);
   }
 }
+class TestRegularQuickOrder extends QuickOrder {
+  constructor() {
+    super();
+  }
+}
 
-customElements.define('x-form', TestQuickOrder);
-customElements.define('x-item', MockProduct);
+class TestMockProduct extends MockProduct {
+  constructor() {
+    super();
+  }
+}
+
+customElements.define('quick-order', TestQuickOrder);
+customElements.define('quick-order-item', TestMockProduct);
+customElements.define('quick-order-regular', TestRegularQuickOrder);
 
 describe('The form should allow new products to be added and removed', async function () {
   it('Should recognize new products added as JS array', async function () {
     const el = await fixture(html`
-      <x-form
+      <quick-order
         store="test.foxycart.com"
         currency="usd"
         products='[{"name":"Cub Puppy","price":"75.95"},{"name":"Bird Dog","price":"64.95"}]'
       >
-      </x-form>
+      </quick-order>
     `);
     await elementUpdated(el);
     const products = el.querySelectorAll('[product]');
@@ -35,11 +47,11 @@ describe('The form should allow new products to be added and removed', async fun
 
   it('Should recognize new products added as product item tags', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="10"></x-item>
-        <x-item name="p2" price="10"></x-item>
-        <x-item name="p3" price="10"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com">
+        <quick-order-item name="p1" price="10"></quick-order-item>
+        <quick-order-item name="p2" price="10"></quick-order-item>
+        <quick-order-item name="p3" price="10"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     // Products will be found in the DOM even if not recognized by QuickOrder
@@ -49,11 +61,11 @@ describe('The form should allow new products to be added and removed', async fun
 
   it('Should recognize changes to JS array', async function () {
     const el = await fixture(html`
-      <x-form
+      <quick-order
         currency="usd"
         store="test.foxycart.com"
         products='[{"name": "p1", "price": "1"}, {"name": "p2", "price": "2"}]'
-      ></x-form>
+      ></quick-order>
     `);
     await elementUpdated(el);
     let products = el.querySelectorAll('[product]');
@@ -113,6 +125,28 @@ describe('The form should allow new products to be added and removed', async fun
     expect(products).to.exist;
     expect(products.length).to.equal(1);
   });
+
+  it('Should provide new products its currency', async function () {
+    // Create the QuickOrder instance directly to avoid overrwriting createProduct
+    const el = await fixture(html`<quick-order-regular currency="usd"></quick-order-regular>`);
+    const p = (el as QuickOrder).createProduct({});
+    expect((p as ProductItem).currency).to.equal('usd');
+  });
+
+  it('Should listen to changes in child elements', async function () {
+    const el = await formWith2products(10, 10);
+    await elementUpdated(el);
+    const input = document.createElement('input');
+    const listener = oneEvent(input, 'change');
+    const changeSpy = sinon.spy(el as any, '__productChange');
+    el.appendChild(input);
+    await elementUpdated(el);
+    input.dispatchEvent(new CustomEvent('change', { detail: 'changing' }));
+    await listener;
+    await aTimeout(3);
+    expect(changeSpy.called).to.be.true;
+    expect(changeSpy.firstCall.args[0].detail).to.equal('changing');
+  });
 });
 
 describe('The form should remain valid', async function () {
@@ -137,10 +171,10 @@ describe('The form should remain valid', async function () {
 
   it('Should not send a new order with empty products', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="10.00" quantity="0"></x-item>
-        <x-item name="p2" price="10.00" quantity="0"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com">
+        <quick-order-item name="p1" price="10.00" quantity="0"></quick-order-item>
+        <quick-order-item name="p2" price="10.00" quantity="0"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
@@ -153,11 +187,11 @@ describe('The form should remain valid', async function () {
 
   it('Should not allow negative prices or quantities', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="-10.00"></x-item>
-        <x-item name="p2" price="10.00" quantity="-3"></x-item>
-        <x-item name="p3" price="10.00" quantity="3"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com">
+        <quick-order-item name="p1" price="-10.00"></quick-order-item>
+        <quick-order-item name="p2" price="10.00" quantity="-3"></quick-order-item>
+        <quick-order-item name="p3" price="10.00" quantity="3"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
@@ -214,13 +248,13 @@ describe('The form should remain valid', async function () {
   for (const t of frequencyTests) {
     it(t.it, async function () {
       const el = await fixture(html`
-        <x-form
+        <quick-order
           store="test.foxycart.com"
           currency="usd"
           frequencies="${JSON.stringify(t.frequencies)}"
         >
-          <x-item name="p3" price="10.00" quantity="3"></x-item>
-        </x-form>
+          <quick-order-item name="p3" price="10.00" quantity="3"></quick-order-item>
+        </quick-order>
       `);
       await elementUpdated(el);
       expect(logSpy.calledWith('Invalid frequency')).to.equal(t.logHappens);
@@ -270,15 +304,15 @@ describe('The form should remain valid', async function () {
     it(t.it, async function () {
       for (const d of t.dates) {
         const el = await fixture(html`
-          <x-form
+          <quick-order
             currency="usd"
             store="test.foxycart.com"
             frequencies='["5d", "10d"]'
             sub_enddate="${t.dateType == 'end' ? d : ''}"
             sub_startdate="${t.dateType == 'start' ? d : ''}"
           >
-            <x-item name="p3" price="10.00"></x-item>
-          </x-form>
+            <quick-order-item name="p3" price="10.00"></quick-order-item>
+          </quick-order>
         `);
         await elementUpdated(el);
         expect(logSpy.calledWith(t.logMessage)).to.equal(t.logHappens);
@@ -290,12 +324,12 @@ describe('The form should remain valid', async function () {
 describe('The form should be aware of its products', async function () {
   it('Shows the total price of the products added as tags', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="10.00" quantity="3"></x-item>
-        <x-item name="p2" price="10.00" quantity="1"></x-item>
-        <x-item name="p3" price="10.00" quantity="2"></x-item>
-        <x-item name="p4" price="10.00" quantity="1"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com">
+        <quick-order-item name="p1" price="10.00" quantity="3"></quick-order-item>
+        <quick-order-item name="p2" price="10.00" quantity="1"></quick-order-item>
+        <quick-order-item name="p3" price="10.00" quantity="2"></quick-order-item>
+        <quick-order-item name="p4" price="10.00" quantity="1"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     expect(el.getAttribute('total')).to.equal('70');
@@ -303,11 +337,11 @@ describe('The form should be aware of its products', async function () {
 
   it('Shows the total price of the products added as arrays ', async function () {
     const el = await fixture(html`
-      <x-form
+      <quick-order
         store="test.foxycart.com"
         products='[ {"name": "p1", "price":"10.00"}, {"name": "p2", "price":"10.00"}, {"name": "p3", "price":"10.00", "quantity": "2"}, {"name":"p4","price": "10"} ]'
       >
-      </x-form>
+      </quick-order>
     `);
     await elementUpdated(el);
     expect((el as TestQuickOrder).total).to.equal(50);
@@ -315,12 +349,12 @@ describe('The form should be aware of its products', async function () {
 
   it('Update the total price as quantities change', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" price="10.00" quantity="3"></x-item>
-        <x-item name="p2" price="10.00"></x-item>
-        <x-item name="p3" price="10.00" quantity="2"></x-item>
-        <x-item name="p4" price="10.00"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com">
+        <quick-order-item name="p1" price="10.00" quantity="3"></quick-order-item>
+        <quick-order-item name="p2" price="10.00"></quick-order-item>
+        <quick-order-item name="p3" price="10.00" quantity="2"></quick-order-item>
+        <quick-order-item name="p4" price="10.00"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     expect(el.getAttribute('total')).to.equal('70');
@@ -338,9 +372,9 @@ describe('The form should be aware of its products', async function () {
 describe('The form should add frequency fields', async function () {
   it('Should provide field to choose frequencies', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com" frequencies='["1m", "3m"]'>
-        <x-item name="p1" price="10.00"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com" frequencies='["1m", "3m"]'>
+        <quick-order-item name="p1" price="10.00"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     const freqInput = el.shadowRoot?.querySelector('[name=frequency]');
@@ -382,10 +416,10 @@ describe('The form submits a valid POST to forxycart', async function () {
 
   it('Concatenates signatures', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
-        <x-item name="p2" code="MyCode2" price="10.00" quantity="1"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com">
+        <quick-order-item name="p1" code="MyCode" price="10.00" quantity="3"></quick-order-item>
+        <quick-order-item name="p2" code="MyCode2" price="10.00" quantity="1"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     const products = el.querySelectorAll('[product]');
@@ -403,9 +437,9 @@ describe('The form submits a valid POST to forxycart', async function () {
 
   it('Concatenates open to custom fields', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com">
-        <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com">
+        <quick-order-item name="p1" code="MyCode" price="10.00" quantity="3"></quick-order-item>
+      </quick-order>
     `);
     const open = { color: true };
     await elementUpdated(el);
@@ -428,11 +462,28 @@ describe('The form submits a valid POST to forxycart', async function () {
     expect(found).to.equal(true);
   });
 
+  it('Does not create empty frequency field', async function () {
+    const el = await fixture(html`
+      <quick-order currency="usd" store="test.foxycart.com" frequencies="">
+        <quick-order-item name="p1" code="MyCode" price="10.00" quantity="3"></quick-order-item>
+      </quick-order>
+    `);
+    await elementUpdated(el);
+    const frequencyField = el.shadowRoot?.querySelector('[name=frequency]');
+    expect(frequencyField).not.to.exist;
+  });
+
   it('Sends valid subscription fields', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
-        <x-item name="p1" code="MyCode" price="10.00" quantity="3"></x-item>
-      </x-form>
+      <quick-order
+        currency="usd"
+        store="test.foxycart.com"
+        frequencies='["1d", "2d", "10d"]'
+        sub_startdate="1m"
+        sub_enddate="1y"
+      >
+        <quick-order-item name="p1" code="MyCode" price="10.00" quantity="3"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     const frequencyField = el.shadowRoot?.querySelector('[name=frequency]');
@@ -443,6 +494,20 @@ describe('The form submits a valid POST to forxycart', async function () {
     expect(s.callCount).to.equal(1);
     const fd: FormData = s.firstCall.args[0];
     expect(fd.get('sub_frequency')).to.exist.and.to.equal('1d');
+  });
+
+  it('Avoids sending empty subscription fields', async function () {
+    const el = await fixture(html`
+      <quick-order currency="usd" store="test.foxycart.com" sub_frequency="1m">
+        <quick-order-item name="p1" code="MyCode" price="10.00" quantity="3"></quick-order-item>
+      </quick-order>
+    `);
+    await elementUpdated(el);
+    const s = getSubmissionSpy(el as TestQuickOrder, requests);
+    expect(s.callCount).to.equal(1);
+    const fd: FormData = s.firstCall.args[0];
+    expect(fd.get('sub_startdate')).not.to.exist;
+    expect(fd.get('sub_enddate')).not.to.exist;
   });
 });
 
@@ -468,9 +533,9 @@ describe('The form reveals its state to the user', async function () {
 
   it('Disables submit button when no product is valid', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
-        <x-item name="p1" code="MyCode" price="10.00" quantity="0"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
+        <quick-order-item name="p1" code="MyCode" price="10.00" quantity="0"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     expect(el.shadowRoot?.querySelector('[role=submit][disabled]')).to.exist;
@@ -478,9 +543,9 @@ describe('The form reveals its state to the user', async function () {
 
   it('Dispataches event upon server response', async function () {
     const el = await fixture(html`
-      <x-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
-        <x-item name="p1" price="10.00"></x-item>
-      </x-form>
+      <quick-order currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
+        <quick-order-item name="p1" price="10.00"></quick-order-item>
+      </quick-order>
     `);
     await elementUpdated(el);
     const callback = sinon.spy();
@@ -497,10 +562,10 @@ describe('The form reveals its state to the user', async function () {
 
 async function formWith2products(price1: number, price2: number) {
   const el = await fixture(html`
-    <x-form currency="usd" store="test.foxycart.com">
-      <x-item id="first" name="p1" price="${price1}"></x-item>
-      <x-item id="second" name="p2" price="${price2}"></x-item>
-    </x-form>
+    <quick-order currency="usd" store="test.foxycart.com">
+      <quick-order-item id="first" name="p1" price="${price1}"></quick-order-item>
+      <quick-order-item id="second" name="p2" price="${price2}"></quick-order-item>
+    </quick-order>
   `);
   await elementUpdated(el);
   return el as TestQuickOrder;

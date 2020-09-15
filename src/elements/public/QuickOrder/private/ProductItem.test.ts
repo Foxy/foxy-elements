@@ -123,6 +123,18 @@ describe('The product Item remain always valid', async function () {
 });
 
 describe('The product item reveals its state to the user', async function () {
+  before(function () {
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    logSpy.reset();
+  });
+
+  after(function () {
+    logSpy.restore();
+  });
+
   it('Should look like removed when quantity is zero', async function () {
     const el = await fixture(
       html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
@@ -222,6 +234,18 @@ describe('The product item reveals its state to the user', async function () {
 });
 
 describe('Product item provides an interface to set values', async function () {
+  before(function () {
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    logSpy.reset();
+  });
+
+  after(function () {
+    logSpy.restore();
+  });
+
   it('Should accept custom parameters', async function () {
     const el = await fixture(
       html`<x-productitem
@@ -264,6 +288,18 @@ describe('Product item provides an interface to set values', async function () {
 });
 
 describe('Product item recognizes its children', async function () {
+  before(function () {
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    logSpy.reset();
+  });
+
+  after(function () {
+    logSpy.restore();
+  });
+
   it('Should recognize children created with slots', async function () {
     const el = await fixture(
       html`

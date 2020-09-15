@@ -41,6 +41,21 @@ describe('Price shows the combined price of bundled products', async () => {
     expect(elPriceTotal).to.exist;
     expect(trim(elPriceTotal!.textContent!)).to.equal('$30.00');
   });
+
+  it('Should not show invalid prices', async () => {
+    let el = await fixture(html` <x-price .currency=${'usd'} .quantity=${2}></x-price> `);
+    await elementUpdated(el);
+    let p = el.shadowRoot?.querySelector('.price');
+    expect(p).not.to.exist;
+    el = await fixture(html` <x-price .price=${10} .quantity=${2}></x-price> `);
+    await elementUpdated(el);
+    p = el.shadowRoot?.querySelector('.price');
+    expect(p).not.to.exist;
+    el = await fixture(html` <x-price .price=${10} .currency=${'usd'}></x-price> `);
+    await elementUpdated(el);
+    p = el.shadowRoot?.querySelector('.price');
+    expect(p).not.to.exist;
+  });
 });
 
 /** Helper functions */

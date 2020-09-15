@@ -4,7 +4,7 @@ import '@vaadin/vaadin-icons/vaadin-icons';
 import { parseDuration } from '../../../utils/parse-duration';
 import { html, css, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
-import { ProductItem } from './private';
+import { ProductItem } from './private/ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
 
 import { QuickOrderChangeEvent, QuickOrderResponseEvent, QuickOrderSubmitEvent } from './events';
@@ -265,8 +265,9 @@ export class QuickOrder extends Translatable {
     this.dispatchEvent(new QuickOrderChangeEvent(this.__data!));
   }
 
-  createProduct(p: Product): Element {
-    const newProduct = new ProductItem();
+  public createProduct(p: Product): Element {
+    const scopedProduct = (this.constructor as any).getScopedTagName('x-product');
+    const newProduct = document.createElement(scopedProduct);
     newProduct.value = { ...p, currency: this.currency };
     return newProduct;
   }
@@ -385,10 +386,10 @@ export class QuickOrder extends Translatable {
   private __formDataAddSubscriptionFields(fd: FormData): void {
     if (this.sub_frequency) {
       fd.append('sub_frequency', this.sub_frequency!);
-      if (QuickOrder.__validDate(this.sub_startdate)) {
+      if (this.sub_startdate) {
         fd.append('sub_startdate', this.sub_startdate!);
       }
-      if (QuickOrder.__validDateFuture(this.sub_enddate)) {
+      if (this.sub_enddate) {
         fd.append('sub_enddate', this.sub_enddate!);
       }
     }
@@ -465,10 +466,8 @@ export class QuickOrder extends Translatable {
     mutationList.forEach(m => {
       if (m.type == 'childList') {
         m.addedNodes.forEach(n => {
-          if (n.nodeType === Node.DOCUMENT_NODE) {
-            const e = n as HTMLElement;
-            e.addEventListener('change', this.__productChange);
-          }
+          const e = n as HTMLElement;
+          e.addEventListener('change', this.__productChange.bind(this));
         });
       }
     });

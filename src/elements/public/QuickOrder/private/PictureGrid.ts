@@ -10,8 +10,16 @@ export class PictureGrid extends Themeable {
     };
   }
 
-  private static __baseWidth = 88;
-  private static __baseGap = 4;
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __images: {},
+      __missingImages: {},
+      __eachWidth: {},
+      __eachHeight: {},
+      images: { type: Array },
+    };
+  }
 
   static get styles(): CSSResultArray {
     return [
@@ -40,22 +48,28 @@ export class PictureGrid extends Themeable {
     ];
   }
 
-  private __areas = ['first', 'second', 'third', 'fourth'];
+  private static __baseWidth = 88;
 
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      __images: {},
-      __missingImages: {},
-      __eachWidth: {},
-      __eachHeight: {},
-      images: { type: Array },
-    };
-  }
+  private static __baseGap = 4;
+
+  private __areas = ['first', 'second', 'third', 'fourth'];
 
   private __images: ImageDescription[] = [];
 
   private __missingImages: TemplateResult[] = [];
+
+  private __eachWidth = PictureGrid.__baseWidth;
+
+  private __eachHeight = PictureGrid.__baseWidth;
+
+  constructor() {
+    super();
+    this.__setWidth();
+  }
+
+  public get images(): ImageDescription[] {
+    return this.__images;
+  }
 
   public set images(value: ImageDescription[]) {
     this.__images = value.filter(i => {
@@ -66,14 +80,6 @@ export class PictureGrid extends Themeable {
       this.__missingImages.push(this.__renderShadow());
     }
   }
-
-  public get images(): ImageDescription[] {
-    return this.__images;
-  }
-
-  private __eachWidth = PictureGrid.__baseWidth;
-
-  private __eachHeight = PictureGrid.__baseWidth;
 
   public render(): TemplateResult {
     if (!this.__images || !this.__images.length) {
@@ -89,11 +95,6 @@ export class PictureGrid extends Themeable {
         ? this.__renderPicture(this.__images[0], 0)
         : this.__images.map(this.__renderPicture.bind(this)).concat(this.__missingImages)}
     </div>`;
-  }
-
-  constructor() {
-    super();
-    this.__setWidth();
   }
 
   public updated(): void {

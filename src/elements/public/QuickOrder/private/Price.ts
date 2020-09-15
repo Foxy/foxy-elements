@@ -75,14 +75,10 @@ export class Price extends Translatable {
   }
 
   private __translateAmount(amount: number) {
-    if (this.currency) {
-      return amount.toLocaleString(this.lang, {
-        minimumFractionDigits: 2,
-        currency: this.currency!,
-        style: 'currency',
-      });
-    } else {
-      return 'No currency available';
-    }
+    return amount.toLocaleString(this.lang, {
+      minimumFractionDigits: 2,
+      currency: this.currency!,
+      style: 'currency',
+    });
   }
 }

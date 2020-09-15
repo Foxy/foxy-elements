@@ -111,9 +111,8 @@ export class ProductItem extends Translatable {
       signatures: {
         type: Object,
         converter: value => {
-          if (!value) return;
           const v = (value as unknown) as Record<string, string>;
-          for (const k of Object.keys(value)) {
+          for (const k of Object.keys(value!)) {
             if ((v[k] as string).length != 64) {
               console.error(
                 'There is something wrong with the signature. It should have 64 characters.'
@@ -431,15 +430,11 @@ export class ProductItem extends Translatable {
   }
 
   private __translateAmount(amount: number) {
-    if (this.currency) {
-      return amount.toLocaleString(this.lang, {
-        minimumFractionDigits: 2,
-        currency: this.currency!,
-        style: 'currency',
-      });
-    } else {
-      return this._t('error.no_currency');
-    }
+    return amount.toLocaleString(this.lang, {
+      minimumFractionDigits: 2,
+      currency: this.currency ? this.currency : '',
+      style: 'currency',
+    });
   }
 
   private __observeProducts(mutationList: MutationRecord[]): void {
