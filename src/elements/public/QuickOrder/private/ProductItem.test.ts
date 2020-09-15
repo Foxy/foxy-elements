@@ -86,33 +86,25 @@ describe('The product Item remain always valid', async function () {
   });
 
   it('Should validate number of chars in a signature', async function () {
-    const sig = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+    const sig = '0123456789012345678901234567890123456789012345678901234567890123';
     const wrongsig = 'aa';
     await fixture(html`<x-productitem
       name="p1"
       price="10"
       currency="usd"
-      signatures='{
-                                      "name":"${sig}",
-                                            "price":"${sig}",
-                                             "quantity":"${sig}",
-                                              }'
+      signatures='{ "name":"${sig}", "price":"${sig}", "quantity":"${sig}"}'
     ></x-productitem> `);
-    logSpy.reset();
     expect(
       logSpy.calledWith(
         'There is something wrong with the signature. It should have 64 characters.'
       )
     ).to.equal(false);
+    logSpy.reset();
     await fixture(html`<x-productitem
       name="p1"
       price="10"
       currency="usd"
-      signatures='{
-                                      "name":"${wrongsig}",
-                                            "price":"${sig}",
-                                             "quantity":"${sig}",
-                                              }'
+      signatures='{ "name":"${wrongsig}", "price":"${sig}", "quantity":"${sig}"}'
     ></x-productitem> `);
     expect(
       logSpy.calledWith(

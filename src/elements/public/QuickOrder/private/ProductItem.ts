@@ -111,14 +111,15 @@ export class ProductItem extends Translatable {
       signatures: {
         type: Object,
         converter: value => {
-          const v = (value as unknown) as Record<string, string>;
-          for (const k of Object.keys(value!)) {
+          const v = (JSON.parse(value!) as unknown) as Record<string, string>;
+          for (const k of Object.keys(v)) {
             if ((v[k] as string).length != 64) {
               console.error(
                 'There is something wrong with the signature. It should have 64 characters.'
               );
             }
           }
+          return v;
         },
       },
     };
@@ -418,9 +419,6 @@ export class ProductItem extends Translatable {
     }
     if (this.quantity_max && this.quantity && this.quantity > this.quantity_max) {
       error.push('Quantity amount is more than maximum quantity.');
-    }
-    if (!this.pid) {
-      error.push('The product has no product id');
     }
     if (!this.currency) {
       error.push('The product has no currency');

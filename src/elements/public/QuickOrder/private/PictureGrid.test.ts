@@ -59,4 +59,11 @@ describe('Display a grid of images', async function () {
     const images = el.shadowRoot!.querySelectorAll('[src]');
     expect(images.length).to.equal(1);
   });
+
+  it('Should retrieve image descriptions', async function () {
+    const el = await fixture(html` <x-grid images='[{"src":"a.png"},{"src":"b.png"}]'> </x-grid> `);
+    await elementUpdated(el);
+    expect((el as PictureGrid).images.length).to.equal(2);
+    expect((el as PictureGrid).images[0].src).to.equal('a.png');
+  });
 });

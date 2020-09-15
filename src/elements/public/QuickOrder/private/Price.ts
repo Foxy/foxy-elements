@@ -32,6 +32,7 @@ export class Price extends Translatable {
   /** The price of a single unity */
   public price: number | null = null;
 
+  /** Other prices that should be considered as part of this price */
   public prices: number[] | null = null;
 
   public currency: string | null = null;
@@ -43,12 +44,7 @@ export class Price extends Translatable {
   }
 
   public render(): TemplateResult {
-    if (
-      this.quantity === null ||
-      this.price === null ||
-      this.prices === null ||
-      this.currency === null
-    ) {
+    if (this.quantity === null || (!this.price && !this.prices) || this.currency === null) {
       return html``;
     }
     return html`

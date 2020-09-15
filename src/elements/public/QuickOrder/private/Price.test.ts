@@ -24,7 +24,7 @@ describe('Price shows the combined price of bundled products', async () => {
 
   it('Should show a simple price', async () => {
     const el = await fixture(html`
-      <x-price .price=${10} .prices=${[]} .currency=${'usd'} .quantity=${2}> </x-price>
+      <x-price .price=${10} .currency=${'usd'} .quantity=${2}> </x-price>
     `);
     await elementUpdated(el);
     const elPriceTotal = el.shadowRoot?.querySelector('.price.total');
@@ -40,6 +40,16 @@ describe('Price shows the combined price of bundled products', async () => {
     const elPriceTotal = el.shadowRoot?.querySelector('.price.total');
     expect(elPriceTotal).to.exist;
     expect(trim(elPriceTotal!.textContent!)).to.equal('$30.00');
+  });
+
+  it('Should add child prices, even if price is zero', async () => {
+    const el = await fixture(html`
+      <x-price .prices=${[3, 2]} .currency=${'usd'} .quantity=${2}> </x-price>
+    `);
+    await elementUpdated(el);
+    const elPriceTotal = el.shadowRoot?.querySelector('.price.total');
+    expect(elPriceTotal).to.exist;
+    expect(trim(elPriceTotal!.textContent!)).to.equal('$10.00');
   });
 
   it('Should not show invalid prices', async () => {
