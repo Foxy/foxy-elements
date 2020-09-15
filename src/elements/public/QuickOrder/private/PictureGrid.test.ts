@@ -19,7 +19,7 @@ describe('Display a grid of images', async function () {
     logSpy.restore();
   });
 
-  it('Should show a singe image if only one is provided', async function () {
+  it('Should show a single image if only one is provided', async function () {
     const el = await fixture(html` <x-grid images='[{"src":"a.png"}]'> </x-grid> `);
     await elementUpdated(el);
     expect(el.shadowRoot).to.exist;
