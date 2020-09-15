@@ -1,10 +1,34 @@
-import { Story, Canvas, Meta, Props } from '@storybook/addon-docs/blocks';
+import { Story, Canvas, Meta, Props, ArgsTable } from '@storybook/addon-docs/blocks';
+import { action } from '@storybook/addon-actions';
 import { html } from 'lit-html';
 import './index';
 
+export const getTemplate = (args, children = '') => html`
+    <foxy-quick-form
+        .frequencies=${args.frequencies ?? null}
+        .currency=${args.currency ?? null}
+        .total=${args.total ?? null}
+        .store=${args.store ?? null}
+        .sub_frequency=${args.sub_frequency ?? null}
+        .sub_startdate=${args.sub_startdate ?? null}
+        .sub_enddate=${args.sub_enddate ?? null}
+        .products=${args.products ?? null}
+        @change=${action('change')}
+        @submit=${evt => (evt.preventDefault(), action('submit')(evt))}
+    >
+        ${children}
+    </foxỹ-quick-form>
+`;
+
 <Meta
- title="Integrations/Quick Order"
- component="foxy-quick-form"
+  title="Integrations/Quick Order"
+  component="foxy-quick-form"
+  decorators={[Story => html`<div class="container-narrow">${Story()}</div>`]}
+  args={{
+    currency: 'usd',
+    store: 'jamstackecommerceexample',
+    products: []
+  }}
 />
 
 # Quick Order Form
@@ -21,13 +45,19 @@ You can use your favorite template engine to provide the products their attribut
 
 This component needs to be configured before use. You can easily spot a misconfigured component on the page – it will display an error message like the one below:
 
-<Canvas>
-  <Story name="Quick Order Default">
-    {html`
-      <div class="container-narrow">
-        <foxy-quick-form></foxy-quick-form>
-      </div>
-    `}
+<Canvas
+    mdxSource={html`
+        <div class="container-narrow">
+          <foxy-quick-form></foxy-quick-form>
+        </div>
+      `}
+  >
+  <Story name="Quick Order Default" args={{
+        store: "",
+        currency: "",
+        products: []
+    }}>
+    {args => html`${getTemplate(args)}`}
   </Story>
 </Canvas>
 
@@ -57,17 +87,17 @@ This approach allow you to create your form writing your HTML in readable way.
 </foxy-quick-form>
 ```
 
-<Canvas>
-  <Story name="Minimal slots approach">
-    {html`
-    <div class="container-narrow">
-      <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+<Canvas
+    mdxSource={html`<foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+      </foxy-quick-form>
+    `}
+    >
+  <Story name="Minimal slots approach" args={{ store:'jamstackecommerceexample', currency: 'usd' }}>
+    {args => html`${getTemplate(args, html`
         <foxy-item name="Cool Product" price="10" image="https://placedog.net/200">
         <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
-        </foxy-item>
-      </foxy-quick-form>
-    </div>
-    `}
+        </foxy-item>`
+    )}`}
   </Story>
 </Canvas>
 
@@ -86,10 +116,8 @@ This approach allows you to use something as simple as:
 
 The downside of this approach is that you have little control of custom markup you may want to add to your form.
 
-<Canvas>
-  <Story name="Minimal attributes approach">
-    {html`
-    <div class="container-narrow">
+<Canvas
+    mdxSource={html`
       <foxy-quick-form store="jamstackecommerceexample.foxycart.com"
                        currency="usd"
                        products='[
@@ -102,8 +130,22 @@ The downside of this approach is that you have little control of custom markup y
                          }]'
                        >
       </foxy-quick-form>
-    </div>
     `}
+    >
+  <Story name="Minimal attributes approach"
+    args={{
+       store:'jamstackecommerceexample.foxycart.com',
+       currency:'usd',
+       products:[ {
+         name:"Cool Product",
+         price:5,
+         image:"https://placedog.net/200",
+         quantity: 2,
+         description:"I do deserve a tasty food"}
+         ]
+       }}
+  >
+    {args => html`${getTemplate(args)}`}
   </Story>
 </Canvas>
 
