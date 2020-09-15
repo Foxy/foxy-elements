@@ -49,7 +49,7 @@ export class Price extends Translatable {
     }
     return html`
       <div class="price max-w-xxs ${this.quantity == 0 ? 'text-disabled' : 'text-header '}">
-        <span class="price total font-bold"> ${this.__translateAmount(this.total)} </span>
+        <span class="price total font-medium"> ${this.__translateAmount(this.total)} </span>
       </div>
     `;
   }

@@ -51,8 +51,23 @@ export class ProductItem extends Translatable {
         section.child-products {
           grid-area: children;
         }
-        ::slotted([combined].last\\:border-b-0:last-child) {
-          border-bottom-width: 0 !important;
+        .product-summary {
+          position: relative;
+        }
+        .product-summary.last {
+          margin-bottom: var(--lumo-space-m);
+        }
+        .product-summary:after {
+          content: ' ';
+          display: block;
+          position: absolute;
+          width: 100vw;
+          border-bottom: solid thin var(--lumo-shade-5pct);
+          left: 0;
+          bottom: 0;
+        }
+        .product-summary.last:after {
+          content: none;
         }
       `,
     ];
@@ -260,12 +275,12 @@ export class ProductItem extends Translatable {
     if (this.isChildProduct) {
       return html`
         <article
-          class="product-summary duration-100 flex justify-between py-m ${this.quantity
-            ? ''
-            : 'removed opacity-50'}"
+          class="product-summary duration-100 flex justify-between py-m ${this.__last
+            ? ' last '
+            : ''} ${this.quantity ? '' : 'removed opacity-50'}"
         >
           <div class="description">
-            <h1 class="text-header font-bold text-m mb-s leading-none">${this.name}</h1>
+            <h1 class="text-header font-medium text-m mb-s leading-none">${this.name}</h1>
             <section class="description text-secondary">
               ${this.description ? html`<p>${this.description}</p>` : ''}
               <slot></slot>
@@ -273,7 +288,7 @@ export class ProductItem extends Translatable {
           </div>
           ${this.quantity < 2
             ? ''
-            : html` <section class="quantity w-xxl font-normal text-secondary">
+            : html` <section class="quantity w-xxl font-normal text-secondary whitespace-no-wrap">
                 ${this._t('product.items', { quantity: this.quantity })}
               </section>`}
         </article>
@@ -288,7 +303,7 @@ export class ProductItem extends Translatable {
         >
           <x-picture-grid .images=${this.__images}></x-picture-grid>
           <section class="description min-w-xl w-full mt-l sm:w-auto sm:mt-0">
-            <h1 class="text-header font-bold text-l leading-none mb-m">${this.name}</h1>
+            <h1 class="text-header font-medium text-l leading-none mb-m">${this.name}</h1>
             <div class="product-description text-secondary">
               ${this.description}
               <slot></slot>
@@ -349,6 +364,10 @@ export class ProductItem extends Translatable {
       ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
     ProductItem.__existingIds.push(newId);
     return newId;
+  }
+
+  private get __last() {
+    return this.parentElement!.querySelector('[combined]:last-of-type') == this;
   }
 
   /**
@@ -459,7 +478,6 @@ export class ProductItem extends Translatable {
     e.addEventListener('change', this.__changedChildProduct.bind(this));
     e.isProduct = false;
     e.isChildProduct = true;
-    e.classList.add('border-b', 'border-shade-5', 'last:border-b-0');
     if (this.code) {
       e.parent_code = this.code;
     }

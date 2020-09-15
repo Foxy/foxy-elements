@@ -37,17 +37,6 @@ export class QuickOrder extends Translatable {
     };
   }
 
-  static get styles(): CSSResultArray {
-    return [
-      super.styles,
-      css`
-        ::slotted([product].last\\:border-b-0:last-child) {
-          border-bottom-width: 0 !important;
-        }
-      `,
-    ];
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -192,10 +181,13 @@ export class QuickOrder extends Translatable {
 
   public render(): TemplateResult {
     if (!this.store || !this.currency) {
-      return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
+      return html`<x-error-screen
+        type="setup_needed"
+        class="relative overflow-hidden"
+      ></x-error-screen>`;
     }
     return html`
-      <form class="shadow-xl max-w-xl rounded-l mx-auto sm:my-m p-s sm:p-l">
+      <form class="max-w-xl rounded-l mx-auto sm:my-m p-s sm:p-l overflow-hidden">
         <section class="products">
           <slot></slot>
         </section>
@@ -495,7 +487,6 @@ export class QuickOrder extends Translatable {
     this.__productElements.forEach((e: Element) => {
       const p = e as ProductItem;
       this.__acknowledgeProductElement(p);
-      p.classList.add('border-b', 'border-shade-5', 'last:border-b-0');
     });
   }
 

@@ -46,7 +46,7 @@ export class Picture extends Themeable {
       >
         <img
           style="${this.__imageSize()}"
-          class="back object-cover w-full h-full rounded-s shadow-xl absolute"
+          class="back object-cover w-full h-full rounded-s shadow-m absolute"
           src="${this.src}"
           alt="${this.alt}"
         />
@@ -54,7 +54,7 @@ export class Picture extends Themeable {
           style="${this.__imageSize()}"
           width="${this.width}"
           height="${this.height}"
-          class="front object-cover w-full h-full rounded-s shadow-xl relative"
+          class="front object-cover w-full h-full rounded-s shadow-m relative"
           src="${this.src}"
           alt="${this.alt}"
         />
