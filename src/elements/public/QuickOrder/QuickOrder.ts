@@ -339,7 +339,7 @@ export class QuickOrder extends Translatable {
    **/
   private __formDataFill(fd: FormData): number {
     let added = 0;
-    this.__productElements?.forEach(e => {
+    this.__productElements.forEach(e => {
       if (this.__validProduct(e.value as Product)) {
         this.__formDataAddProduct(fd, e.value);
         added++;
@@ -482,7 +482,7 @@ export class QuickOrder extends Translatable {
 
   private __computeTotalPrice(): void {
     let total = 0;
-    this.__productElements?.forEach(e => {
+    this.__productElements.forEach(e => {
       const prod = e as ProductItem;
       if (prod.total) {
         total += Number(prod.total);
@@ -492,7 +492,7 @@ export class QuickOrder extends Translatable {
   }
 
   private __acknowledgeProductElements(): void {
-    this.__productElements?.forEach((e: Element) => {
+    this.__productElements.forEach((e: Element) => {
       const p = e as ProductItem;
       this.__acknowledgeProductElement(p);
       p.classList.add('border-b', 'border-shade-5', 'last:border-b-0');
@@ -519,14 +519,10 @@ export class QuickOrder extends Translatable {
   }
 
   private __translateAmount(amount: number) {
-    if (this.currency) {
-      return amount.toLocaleString(this.lang, {
-        minimumFractionDigits: 2,
-        currency: this.currency!,
-        style: 'currency',
-      });
-    } else {
-      return '';
-    }
+    return amount.toLocaleString(this.lang, {
+      minimumFractionDigits: 2,
+      currency: this.currency!,
+      style: 'currency',
+    });
   }
 }
