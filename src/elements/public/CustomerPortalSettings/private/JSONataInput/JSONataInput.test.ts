@@ -1,7 +1,7 @@
 import { expect, fixture } from '@open-wc/testing';
 import { createMachine } from 'xstate';
 import { JSONataInput } from './JSONataInput';
-import { Choice } from '../../../../private';
+import { Choice } from '../../../../private/index';
 import { createModel } from '@xstate/test';
 import { ChoiceChangeEvent } from '../../../../private/events';
 import { JSONataInputChangeEvent } from './JSONataInputChangeEvent';

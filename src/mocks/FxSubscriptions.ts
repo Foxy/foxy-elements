@@ -8,23 +8,23 @@ export const subscriptions = {
       },
     ],
     self: {
-      href: 'https://api-sandbox.foxycart.com/stores/8/subscriptions',
+      href: 'https://api.foxy.test/stores/8/subscriptions',
       title: 'This Collection',
     },
     first: {
-      href: 'https://api-sandbox.foxycart.com/stores/8/subscriptions?offset=0',
+      href: 'https://api.foxy.test/stores/8/subscriptions?offset=0',
       title: 'First Page of this Collection',
     },
     prev: {
-      href: 'https://api-sandbox.foxycart.com/stores/8/subscriptions?offset=0',
+      href: 'https://api.foxy.test/stores/8/subscriptions?offset=0',
       title: 'Previous Page of this Collection',
     },
     next: {
-      href: 'https://api-sandbox.foxycart.com/stores/8/subscriptions?offset=0',
+      href: 'https://api.foxy.test/stores/8/subscriptions?offset=0',
       title: 'Next Page of this Collection',
     },
     last: {
-      href: 'https://api-sandbox.foxycart.com/stores/8/subscriptions?offset=0',
+      href: 'https://api.foxy.test/stores/8/subscriptions?offset=0',
       title: 'Last Page of this Collection',
     },
   },

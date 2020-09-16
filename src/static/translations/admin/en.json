@@ -50,5 +50,10 @@
       "transactions_last30days": "Transactions in the last 30 days",
       "custom": "Custom"
     }
+  },
+  "sign_in": {
+    "header": "Hi there!",
+    "create_link": "Create account",
+    "create_label": "New to Foxy?"
   }
 }

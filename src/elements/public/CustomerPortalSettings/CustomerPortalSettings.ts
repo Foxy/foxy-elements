@@ -22,7 +22,7 @@ import { CustomerPortalSettingsLoadSuccessEvent } from './types';
 
 function throwIfNotOk(response: Response) {
   if (response.ok) return;
-  throw new FriendlyError(response.status === 403 ? 'unauthorized' : 'unknown');
+  throw new FriendlyError(response.status === 401 ? 'unauthorized' : 'unknown');
 }
 
 export class CustomerPortalSettings extends Translatable {

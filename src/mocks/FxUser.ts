@@ -10,19 +10,19 @@ export const user: FxUser = {
       },
     ],
     self: {
-      href: 'https://api-sandbox.foxycart.com/users/2',
+      href: 'https://api.foxy.test/users/2',
       title: 'This User',
     },
     'fx:attributes': {
-      href: 'https://api-sandbox.foxycart.com/users/2/attributes',
+      href: 'https://api.foxy.test/users/2/attributes',
       title: 'Attributes for This User',
     },
     'fx:default_store': {
-      href: 'https://api-sandbox.foxycart.com/stores/8',
+      href: 'https://api.foxy.test/stores/8',
       title: 'Default store for This User.',
     },
     'fx:stores': {
-      href: 'https://api-sandbox.foxycart.com/users/2/stores',
+      href: 'https://api.foxy.test/users/2/stores',
       title: 'Stores for This User',
     },
   },
@@ -38,11 +38,11 @@ export const user: FxUser = {
             },
           ],
           self: {
-            href: 'https://api-sandbox.foxycart.com/user_attributes/2',
+            href: 'https://api.foxy.test/user_attributes/2',
             title: 'This user attribute',
           },
           'fx:user': {
-            href: 'https://api-sandbox.foxycart.com/users/2',
+            href: 'https://api.foxy.test/users/2',
             title: 'This User',
           },
         },
@@ -62,11 +62,11 @@ export const user: FxUser = {
             },
           ],
           self: {
-            href: 'https://api-sandbox.foxycart.com/user_attributes/4',
+            href: 'https://api.foxy.test/user_attributes/4',
             title: 'This user attribute',
           },
           'fx:user': {
-            href: 'https://api-sandbox.foxycart.com/users/2',
+            href: 'https://api.foxy.test/users/2',
             title: 'This User',
           },
         },
@@ -86,11 +86,11 @@ export const user: FxUser = {
             },
           ],
           self: {
-            href: 'https://api-sandbox.foxycart.com/user_attributes/28',
+            href: 'https://api.foxy.test/user_attributes/28',
             title: 'This user attribute',
           },
           'fx:user': {
-            href: 'https://api-sandbox.foxycart.com/users/2',
+            href: 'https://api.foxy.test/users/2',
             title: 'This User',
           },
         },
