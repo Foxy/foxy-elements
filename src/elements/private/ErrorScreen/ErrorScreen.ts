@@ -6,9 +6,11 @@ import { I18N } from '../I18N/I18N';
 
 export type ErrorType = 'unknown' | 'setup_needed' | 'unauthorized';
 
-export class FriendlyError extends Error {
-  constructor(public type: ErrorType = 'unknown') {
-    super();
+export class FriendlyError {
+  public type: ErrorType;
+
+  constructor(type: ErrorType = 'unknown') {
+    this.type = type;
   }
 }
 
