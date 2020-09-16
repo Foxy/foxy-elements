@@ -10,131 +10,131 @@ export const store: FxStore = {
       },
     ],
     self: {
-      href: 'https://api-sandbox.foxycart.com/stores/8',
+      href: 'https://api.foxy.test/stores/8',
       title: 'This Store',
     },
     'fx:attributes': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/attributes',
+      href: 'https://api.foxy.test/stores/8/attributes',
       title: 'Attributes for This Store',
     },
     'fx:store_version': {
-      href: 'https://api-sandbox.foxycart.com/property_helpers/store_versions/21',
+      href: 'https://api.foxy.test/property_helpers/store_versions/21',
       title: 'This store version',
     },
     'fx:users': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/users',
+      href: 'https://api.foxy.test/stores/8/users',
       title: 'Users for This Store',
     },
     'fx:user_accesses': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/user_accesses',
+      href: 'https://api.foxy.test/stores/8/user_accesses',
       title: 'User Access for This Store',
     },
     'fx:customers': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/customers',
+      href: 'https://api.foxy.test/stores/8/customers',
       title: 'Customers for This Store',
     },
     'fx:carts': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/carts',
+      href: 'https://api.foxy.test/stores/8/carts',
       title: 'Carts for This Store',
     },
     'fx:transactions': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/transactions',
+      href: 'https://api.foxy.test/stores/8/transactions',
       title: 'Transactions for This Store',
     },
     'fx:subscriptions': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/subscriptions',
+      href: 'https://api.foxy.test/stores/8/subscriptions',
       title: 'Subscriptions for This Store',
     },
     'fx:subscription_settings': {
-      href: 'https://api-sandbox.foxycart.com/store_subscription_settings/8',
+      href: 'https://api.foxy.test/store_subscription_settings/8',
       title: 'Subscription Settings for This Store',
     },
     'fx:customer_portal_settings': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/customer_portal_settings',
+      href: 'https://api.foxy.test/stores/8/customer_portal_settings',
       title: 'Customer Portal Settings for This Store',
     },
     'fx:process_subscription_webhook': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/process_subscription_webhook',
+      href: 'https://api.foxy.test/stores/8/process_subscription_webhook',
       title: 'POST here to resend the daily subscription webhook notification for this store',
     },
     'fx:item_categories': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/item_categories',
+      href: 'https://api.foxy.test/stores/8/item_categories',
       title: 'Item Categories for This Store',
     },
     'fx:taxes': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/taxes',
+      href: 'https://api.foxy.test/stores/8/taxes',
       title: 'Taxes for This Store',
     },
     'fx:payment_method_sets': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/payment_method_sets',
+      href: 'https://api.foxy.test/stores/8/payment_method_sets',
       title: 'Payment Method Sets for This Store',
     },
     'fx:coupons': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/coupons',
+      href: 'https://api.foxy.test/stores/8/coupons',
       title: 'Coupons for This Store',
     },
     'fx:template_sets': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/template_sets',
+      href: 'https://api.foxy.test/stores/8/template_sets',
       title: 'Template Sets for This Store',
     },
     'fx:template_configs': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/template_configs',
+      href: 'https://api.foxy.test/stores/8/template_configs',
       title: 'Template Configs for This Store',
     },
     'fx:cart_templates': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/cart_templates',
+      href: 'https://api.foxy.test/stores/8/cart_templates',
       title: 'Cart Templates for This Store',
     },
     'fx:cart_include_templates': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/cart_include_templates',
+      href: 'https://api.foxy.test/stores/8/cart_include_templates',
       title: 'Cart Include Templates for This Store',
     },
     'fx:checkout_templates': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/checkout_templates',
+      href: 'https://api.foxy.test/stores/8/checkout_templates',
       title: 'Checkout Templates for This Store',
     },
     'fx:receipt_templates': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/receipt_templates',
+      href: 'https://api.foxy.test/stores/8/receipt_templates',
       title: 'Receipt Templates for This Store',
     },
     'fx:email_templates': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/email_templates',
+      href: 'https://api.foxy.test/stores/8/email_templates',
       title: 'Email Templates for This Store',
     },
     'fx:error_entries': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/error_entries',
+      href: 'https://api.foxy.test/stores/8/error_entries',
       title: 'Error Entries for This Store',
     },
     'fx:downloadables': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/downloadables',
+      href: 'https://api.foxy.test/stores/8/downloadables',
       title: 'Downloadables for This Store',
     },
     'fx:payment_gateways': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/payment_gateways',
+      href: 'https://api.foxy.test/stores/8/payment_gateways',
       title: 'Payment Gateways for This Store',
     },
     'fx:hosted_payment_gateways': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/hosted_payment_gateways',
+      href: 'https://api.foxy.test/stores/8/hosted_payment_gateways',
       title: 'Hosted Payment Gateways for This Store',
     },
     'fx:fraud_protections': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/fraud_protections',
+      href: 'https://api.foxy.test/stores/8/fraud_protections',
       title: 'Fraud Protections for This Store',
     },
     'fx:payment_methods_expiring': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/payment_methods_expiring',
+      href: 'https://api.foxy.test/stores/8/payment_methods_expiring',
       title: 'Customer payment methods which are about to expire',
     },
     'fx:store_shipping_methods': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/store_shipping_methods',
+      href: 'https://api.foxy.test/stores/8/store_shipping_methods',
       title: 'Shipping methods supported by this store',
     },
     'fx:integrations': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/integrations',
+      href: 'https://api.foxy.test/stores/8/integrations',
       title: 'Third party integrations which have been granted OAuth access to this store',
     },
     'fx:native_integrations': {
-      href: 'https://api-sandbox.foxycart.com/stores/8/native_integrations',
+      href: 'https://api.foxy.test/stores/8/native_integrations',
       title: 'Third party integrations which require credentials and configuration.',
     },
     'fx:activate_store_monthly_url': {
@@ -155,7 +155,7 @@ export const store: FxStore = {
   _embedded: {
     'fx:attributes': [],
   },
-  store_version_uri: 'https://api-sandbox.foxycart.com/property_helpers/store_versions/21',
+  store_version_uri: 'https://api.foxy.test/property_helpers/store_versions/21',
   store_name: 'Acme Corporation',
   store_domain: 'acme',
   use_remote_domain: false,
