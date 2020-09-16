@@ -268,7 +268,7 @@ export class SignIn extends Translatable {
       });
 
       const response = await RequestEvent.emit({
-        init: ['foxy://sign-in', { body }],
+        init: ['foxy://sign-in', { body, method: 'POST' }],
         source: this,
       });
 
@@ -294,7 +294,7 @@ export class SignIn extends Translatable {
       const { email } = this.__service.state.context;
       const body = JSON.stringify({ email });
       const response = await RequestEvent.emit({
-        init: ['foxy://reset-password', { body }],
+        init: ['foxy://reset-password', { body, method: 'POST' }],
         source: this,
       });
 

@@ -30,7 +30,11 @@ export class AdminSignOut extends Themeable {
 
   public async firstUpdated(): Promise<void> {
     try {
-      const response = await RequestEvent.emit({ source: this, init: ['foxy://sign-out'] });
+      const response = await RequestEvent.emit({
+        source: this,
+        init: ['foxy://sign-out', { method: 'POST' }],
+      });
+
       if (response.status !== 200) throw new FriendlyError('unknown');
     } catch (err) {
       throw new FriendlyError('unknown');
