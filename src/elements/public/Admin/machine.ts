@@ -48,6 +48,9 @@ export const machine = createMachine<AdminContext>(
       user: null,
     },
     states: {
+      unauthorized: {
+        on: { SIGN_IN: 'loading' },
+      },
       unknown: {
         always: [{ target: 'idle', cond: 'isSignedIn' }, { target: 'loading' }],
       },
@@ -58,15 +61,12 @@ export const machine = createMachine<AdminContext>(
           onError: { target: 'error', actions: 'handleLoadingError' },
         },
       },
-      signin: {
-        on: { SIGN_IN: 'loading' },
-      },
       error: {
-        always: [{ target: 'signin', cond: 'isUnauthorized' }],
+        always: [{ target: 'unauthorized', cond: 'isUnauthorized' }],
         on: { RESET: { target: 'loading', actions: 'reset' } },
       },
       idle: {
-        on: { SIGN_OUT: { target: 'signin', actions: 'reset' } },
+        on: { SIGN_OUT: { target: 'unauthorized', actions: 'reset' } },
       },
     },
     on: {

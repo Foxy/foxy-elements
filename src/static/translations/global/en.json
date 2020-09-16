@@ -20,6 +20,18 @@
   "edit": "Edit",
   "save": "Save changes",
   "undo_all": "Undo all",
+  "email": "Email",
+  "password": "Password",
+  "password_new": "New password",
+  "sign_up": "Create account",
+  "sign_in": "Sign in",
+  "sign_in_reset": "We need you to update your password for security reasons. Please enter a new password and click Continue.",
+  "sign_in_error": "Your credentials are incorrect. Please check your email and password carefully and try again.",
+  "continue": "Continue",
+  "go_back": "Go back",
+  "remember_me": "Remember me",
+  "reset_password": "Reset password",
+  "required": "Please fill in this field",
   "choice": {
     "other": "Other",
     "other_placeholder": "Enter your choice"
@@ -31,6 +43,11 @@
   "monthday-picker": {
     "hint": "Allow selecting only {{days, list}} of the month.",
     "warning": "Please note that dates from 29 to 31 may not always be available depending on the month and year."
+  },
+  "password_reset": {
+    "title": "Check your inbox!",
+    "message": "We've just sent you an email with further instructions. If you have trouble resetting your password, feel free to contact us.",
+    "action": "Contact us"
   },
   "errors": {
     "unknown": {

@@ -116,7 +116,7 @@ export class Widget extends Translatable {
       if (response.ok) {
         return response.json();
       } else {
-        const type = response.status === 403 ? 'unauthorized' : 'unknown';
+        const type = response.status === 401 ? 'unauthorized' : 'unknown';
         throw new FriendlyError(type);
       }
     } catch (err) {

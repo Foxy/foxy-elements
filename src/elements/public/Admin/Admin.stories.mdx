@@ -1,41 +1,7 @@
 import { html } from 'lit-html';
 import { Story, Canvas, Meta, Props } from '@storybook/addon-docs/blocks';
-import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
-import { subscriptions } from '../../../mocks/FxSubscriptions';
-import { transactions } from '../../../mocks/FxTransactions';
-import { bookmark } from '../../../mocks/FxBookmark';
-import { store } from '../../../mocks/FxStore';
-import { user } from '../../../mocks/FxUser';
+import { handleRequest } from './mocks';
 import './index';
-
-export const handleRequest = evt => {
-  evt.detail.handle(async url => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    //
-    if (url.includes('/stores/8/subscriptions')) {
-      return new Response(JSON.stringify(subscriptions));
-    }
-    if (url.includes('/stores/8/transactions')) {
-      return new Response(JSON.stringify(transactions));
-    }
-    if (url.includes('/stores/8/customer_portal_settings')) {
-      return new Response(JSON.stringify(customerPortalSettings));
-    }
-    if (url.includes('/stores/8')) {
-      return new Response(JSON.stringify(store));
-    }
-    if (url.includes('/users/2')) {
-      return new Response(JSON.stringify(user));
-    }
-    if (url === '/') {
-      return new Response(JSON.stringify(bookmark));
-    }
-    //
-    console.error('Unhandled route: ', url);
-    //
-    return new Response(null, { status: 404 });
-  });
-};
 
 <Meta title="Views/Admin" component="foxy-admin" />
 
@@ -76,6 +42,9 @@ Now the admin element knows which backend to connect to and you can start using 
     {() => html`<foxy-admin class="absolute inset-0" @request=${handleRequest}></foxy-admin>`}
   </Story>
 </Canvas>
+
+_Hint: use `hello@foxy.io` and `1234567890` to sign in and `reset@foxy.io` to see_
+_what force password reset looks like._
 
 If you'd like to use your own backend or would like to intercept API requests for one reason or another
 (e.g. for demos or development, like we do with Storybook here), you'll need

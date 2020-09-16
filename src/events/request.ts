@@ -21,7 +21,7 @@ export interface RequestEventInit<TSource extends HTMLElement> extends RequestSe
   reject: (error: Error) => void;
 }
 
-export class RequestEvent<TSource extends HTMLElement> extends CustomEvent<
+export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends CustomEvent<
   RequestEventPayload<TSource>
 > {
   public static emit<TSource extends HTMLElement>(
