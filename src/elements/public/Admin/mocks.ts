@@ -10,16 +10,13 @@ export function handleRequest(evt: RequestEvent): void {
   evt.detail.handle(async (...fetchArgs) => {
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // normalize URL so that it always has a trailing slash
-    const url = new URL(fetchArgs[0] as string, 'https://api.foxy.test');
-    if (!url.pathname.endsWith('/')) url.pathname = `${url.pathname}/`;
-
     const init = fetchArgs[1];
     const isLoggedInKey = '@foxy.io/elements::storybook.is_admin_signed_in';
 
     // handle special sign in URL
-    if (url.toString() === 'foxy://sign-in') {
+    if (fetchArgs[0].toString() === 'foxy://sign-in') {
       const { email, password, newPassword } = JSON.parse(init!.body!.toString());
+
       if (email === 'hello@foxy.io' && password === '1234567890') {
         sessionStorage.setItem(isLoggedInKey, '1');
         return new Response(null, { status: 200 });
@@ -32,13 +29,13 @@ export function handleRequest(evt: RequestEvent): void {
     }
 
     // handle special sign out URL
-    if (url.toString() === 'foxy://sign-out') {
+    if (fetchArgs[0].toString() === 'foxy://sign-out') {
       sessionStorage.removeItem(isLoggedInKey);
       return new Response(null, { status: 200 });
     }
 
     // handle special password reset URL
-    if (url.toString() === 'foxy://reset-password') {
+    if (fetchArgs[0].toString() === 'foxy://reset-password') {
       return new Response(null, { status: 200 });
     }
 
@@ -46,6 +43,10 @@ export function handleRequest(evt: RequestEvent): void {
     if (!sessionStorage.getItem(isLoggedInKey)) {
       return new Response(null, { status: 401 });
     }
+
+    // normalize URL so that it always has a trailing slash
+    const url = new URL(fetchArgs[0] as string, 'https://api.foxy.test');
+    if (!url.pathname.endsWith('/')) url.pathname = `${url.pathname}/`;
 
     // respond with subscriptions stub
     if (url.pathname === '/stores/8/subscriptions/') {
