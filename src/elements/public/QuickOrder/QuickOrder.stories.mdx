@@ -8,7 +8,6 @@ export const getTemplate = (args, children = '') => html`
     <foxy-quick-form
         .frequencies=${args.frequencies ?? null}
         .currency=${args.currency ?? null}
-        .total=${args.total ?? null}
         .store=${args.store ?? null}
         .sub_frequency=${args.sub_frequency ?? null}
         .sub_startdate=${args.sub_startdate ?? null}
@@ -861,3 +860,13 @@ myForm.removeProducts([productToRemove.pid]);
     `}
   </Story>
 </Canvas>
+
+## API Reference
+
+<ArgsTable of="foxy-quick-form" />
+
+<ArgsTable of="foxy-item" />
+
+## Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).

@@ -2,7 +2,7 @@ import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import '@vaadin/vaadin-icons/vaadin-icons';
 import { parseDuration } from '../../../utils/parse-duration';
-import { html, css, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { ProductItem } from './private/ProductItem';
 import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
@@ -12,14 +12,21 @@ import { Product } from './types';
 
 export { ProductItem };
 /**
- * This Quick Order Form accepts products either as a JS array or as child elements of type ProductItem
+ * A custom element providing a customizable donation form.
  *
- * Product Elements are found by retrieving both product-item elements within and without shadow root.
+ * @fires QuickOrder#change - changed form data.
  *
- * Product Items are validated before being submited.
- * Code and Id fields are added automatically if not provided.
+ * @fires QuickOrder#submit - submitted form data
+ *
+ * @fires QuickOrder#load -  ProgressEvent instance with server response
+ *
+ * @slot products - products to be added to the form.
+ *
+ * @element foxy-quick-order
+ *
  */
 export class QuickOrder extends Translatable {
+  /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
@@ -37,11 +44,11 @@ export class QuickOrder extends Translatable {
     };
   }
 
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       currency: { type: String },
-      total: { type: Number, attribute: 'total', reflect: true },
       store: { type: String, attribute: 'store' },
       sub_frequency: { type: String },
       sub_startdate: {
@@ -100,21 +107,78 @@ export class QuickOrder extends Translatable {
     };
   }
 
+  /**
+   * **Required** store subdomain, It is similar to mystore.foxycart.com,
+   * unless you use a custom subdomain.
+   *
+   * **Examples:** `"mystore.foxycart.com"` `"custom.mycoolstore.com"`
+   */
   public store?: string;
 
-  public total = 0;
-
+  /**
+   * **Required** 3-letter lowercase currency code.
+   *
+   * **Example:** `"usd"`
+   */
   public currency?: string;
 
-  /** Frequency related attributes */
+  /**
+   * Optional frequency string encoded as count (integer) + units (one of: `d`
+   * for days, `w` for weeks, `m` for months, `y` for years). A special value
+   * for twice a month is also supported: `.5m`. If set, the form will create a
+   * subscription with the specified frequency in the cart.
+   *
+   * **Example:** `"1m"`
+   */
   public sub_frequency?: string;
 
+  /**
+   * Optional subscription start date encoded as four integer for the year, two
+   * for the month and two for the day. If only two or one digits are provided,
+   * it is assumed to be next occurence of that day of the month, from the
+   * current date.
+   *
+   * For more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
+   *
+   * ** Example:** `"10"`
+   */
   public sub_startdate?: string;
 
+  /**
+   * Optional subscription end date encoded as four integer for the year, two
+   * for the month and two for the day.
+   *
+   * The absence of a sub_enddate, together with a sub_frequency, means a
+   * subscription with indefinite and date.
+   *
+   * For more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
+   *
+   * ** Example:** `"20221010"`
+   */
   public sub_enddate?: string;
 
+  /**
+   * Optional frequency variants in the same format as `frequency`. If this property is set,
+   * the form will render the frequency selection interface. If this array includes
+   * the value of the `frequency` property, it will be pre-selected in the form.
+   *
+   * **Example:** `["7d", ".5m", "1y"]`
+   */
   public frequencies: string[] = [];
 
+  /**
+   * Optional an array of Product objects with at least the following properties:
+   * - name: the name of the product
+   * - price: the price of each of this product
+   * The following optional properties will be used:
+   * - quantity: (defaults to 1) how many of each product are added to the form
+   * - image: an image url to be displayed in the form for this product
+   * - products: an array of other products that are to be treated as bundled with this product
+   * - signatures: an object containing a key value list of previously generated HMAC validation codes
+   *
+   * Other product properties are accepted and sent to foxy cart.
+   * https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
+   */
   public products: Product[] = [];
 
   /**
@@ -142,6 +206,8 @@ export class QuickOrder extends Translatable {
   private __childProductsObserver?: MutationObserver;
 
   private __hasValidProducts = false;
+
+  private __total = 0;
 
   /**
    * Handles the user input for frequenty field
@@ -177,6 +243,13 @@ export class QuickOrder extends Translatable {
       this.__acknowledgeProductElements();
       this.__computeTotalPrice();
     });
+  }
+
+  /**
+   * The total value of the items to be submitted.
+   */
+  public get total(): number {
+    return this.__total;
   }
 
   public render(): TemplateResult {
@@ -311,10 +384,10 @@ export class QuickOrder extends Translatable {
    *
    * This method does not compute the signature. It must be provided.
    *
-   * @argument name The name of the field
-   * @argument signature The computed signature to add to the field
-   * @argument open Whether the field value is customized by the user
-   * @return signedName the name of the field with the signature
+   * @argument string name The name of the field
+   * @argument string signature The computed signature to add to the field
+   * @argument string open Whether the field value is customized by the user
+   * @return string signedName the name of the field with the signature
    */
   private __addSignature(name: string, signature: string, open?: string | boolean): string {
     return `${name}||${signature}${open ? '||open' : ''}`;
@@ -326,8 +399,8 @@ export class QuickOrder extends Translatable {
    * - Iterate of products in productElements
    * - Add valid products to Form Data
    *
-   * @argument fd the FormData instance to fill
-   * @return added  the number of products added
+   * @argument FormData fd the FormData instance to fill
+   * @return number the number of products added
    **/
   private __formDataFill(fd: FormData): number {
     let added = 0;
@@ -390,10 +463,9 @@ export class QuickOrder extends Translatable {
   /**
    * Validates a string for subscription start date or end date according to
    *
+   * @argument string strDate the date as a string to be used as start or end date.
    *
-   * @argument strDate the date as a string to be used as start or end date.
-   *
-   * @see https://wiki.foxycart.com/v/2.0/products#subscription_product_options
+   * https://wiki.foxycart.com/v/2.0/products#subscription_product_options
    */
   private static __validDate(strDate: string | null | undefined): boolean {
     if (strDate === null || strDate === undefined) {
@@ -414,7 +486,10 @@ export class QuickOrder extends Translatable {
   }
 
   /**
-   * Checks if a string date is in the future
+   * Checks if a string date is in the future.
+   *
+   * @argument string strdate the date, as a string, to be checked.
+   * @returns boolean the date is a valid future date.
    */
   private static __validDateFuture(strDate: string | null | undefined): boolean {
     let valid = false;
@@ -431,6 +506,9 @@ export class QuickOrder extends Translatable {
 
   /**
    * Checks if a frequency complies with possible values
+   *
+   * @argument string strFrequency the frequency string to be validated.
+   * @returns boolean the string is a foxy cart frequency string.
    */
   private static __validFrequency(strFrequency: string | null | undefined): boolean {
     if (!strFrequency) {
@@ -440,20 +518,10 @@ export class QuickOrder extends Translatable {
     }
   }
 
-  /**
-   * TODO: This same method is available in Donation Form
-   */
-  private __translateFrequency(frequency: string) {
-    if (frequency.startsWith('0')) return this._t('frequency_once');
-    if (frequency === '.5m') return this._t('frequency_0_5m');
-    const { count, units } = parseDuration(frequency);
-    return this._t('frequency', {
-      units: this._t(units, { count }),
-      count,
-    });
-  }
-
-  /** Subscribe to late inserted products. */
+  /** Subscribe to late inserted products.
+   *
+   * @argument MutationRecord[] the list of changes occurred.
+   **/
   private __observeChildren(mutationList: MutationRecord[]): void {
     mutationList.forEach(m => {
       if (m.type == 'childList') {
@@ -472,6 +540,7 @@ export class QuickOrder extends Translatable {
     this.__computeTotalPrice();
   }
 
+  /** Compute the total price of all products in the form */
   private __computeTotalPrice(): void {
     let total = 0;
     this.__productElements.forEach(e => {
@@ -480,9 +549,10 @@ export class QuickOrder extends Translatable {
         total += Number(prod.total);
       }
     });
-    this.total = Number(total.toFixed(2));
+    this.__total = Number(total.toFixed(2));
   }
 
+  /** Go through all pcroduct elements and executes acknoledges each one */
   private __acknowledgeProductElements(): void {
     this.__productElements.forEach((e: Element) => {
       const p = e as ProductItem;
@@ -490,6 +560,12 @@ export class QuickOrder extends Translatable {
     });
   }
 
+  /**
+   * Treat this product item element as part of the form:
+   *
+   * - listen to its change events
+   * - set its currency to be the forms currency
+   */
   private __acknowledgeProductElement(p: ProductItem) {
     p.addEventListener('change', this.__productChange.bind(this));
     if (!p.currency) {
@@ -497,7 +573,12 @@ export class QuickOrder extends Translatable {
     }
   }
 
-  /** Checks if product has quantity and price */
+  /**
+   * Checks if product has quantity and price
+   *
+   * @argument  Product the product to be validated
+   * @returns boolean the product is valid
+   **/
   private __validProduct(p: Product): boolean {
     return !!(
       p &&
@@ -509,6 +590,28 @@ export class QuickOrder extends Translatable {
     );
   }
 
+  /**
+   * Translates a frequency string
+   *
+   * @argument string the frequency string to be translated
+   * @returns string the translated string
+   */
+  private __translateFrequency(frequency: string) {
+    if (frequency.startsWith('0')) return this._t('frequency_once');
+    if (frequency === '.5m') return this._t('frequency_0_5m');
+    const { count, units } = parseDuration(frequency);
+    return this._t('frequency', {
+      units: this._t(units, { count }),
+      count,
+    });
+  }
+
+  /**
+   * Translate a given amount
+   *
+   * @argument number the amount to be translated
+   * @returns string the translated amount
+   */
   private __translateAmount(amount: number) {
     return amount.toLocaleString(this.lang, {
       minimumFractionDigits: 2,

@@ -13,9 +13,7 @@ import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../../private/in
 export class ProductItem extends Translatable {
   // A list of product properties as defined in Foxy Cart Documentation
 
-  // eslint breakes due to the line bellow
-  //[k: string]: any; // eslint-disable-line no-use-before-define
-
+  /** @readonly */
   static get styles(): CSSResultArray {
     return [
       super.styles,
@@ -73,9 +71,7 @@ export class ProductItem extends Translatable {
     ];
   }
 
-  /**
-   * Custom elements used in the component
-   */
+  /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
       'x-checkbox': Checkbox,
@@ -90,6 +86,7 @@ export class ProductItem extends Translatable {
     };
   }
 
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -142,57 +139,176 @@ export class ProductItem extends Translatable {
 
   public readonly rel = 'product_item';
 
-  public currency?: string;
-
-  public total?: number = this.__computeTotalPrice();
-
+  /**
+   * **Required** the name of the product.
+   *
+   * **Example:** `"Dog food"`
+   */
   public name?: string;
 
+  /**
+   * **Required** the price of a unit of this item
+   *
+   * **Example:** `10`
+   */
   public price?: number;
 
+  /**
+   * 3-letter lowercase currency code.
+   * It is provided by the form if not set.
+   *
+   * **Example:** `"usd"`
+   */
+  public currency?: string;
+
+  /**
+   * Optional an image url to be displayed in the form.
+   */
   public image?: string;
 
-  public url?: string;
-
-  public code?: string | number;
-
-  public parent_code?: string | number;
-
-  public quantity = 1;
-
-  public quantity_max?: number;
-
-  public quantity_min?: number;
-
-  public category?: string;
-
-  public expires?: string;
-
-  public weight?: number;
-
-  public length?: number;
-
-  public width?: number;
-
-  public height?: number;
-
-  public shipto?: string;
-
+  /**
+   * Optional the alt text for the image
+   */
   public alt?: string;
 
-  public isProduct = true;
+  /**
+   * Optional an image url to be displayed in the foxy cart once the custumer reaches the cart.
+   */
+  public url?: string;
 
-  public isChildProduct = false;
+  /**
+   * Optional product code. This property affects cart UI only.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"ISBN 978-0-12-345678-9"`
+   */
+  public code?: string | number;
 
+  /**
+   * Optional parent code. This property affects cart UI only.
+   * It causes Foxy Cart to recognize the parent-child relationship between two products.
+   *
+   * Nested products set this property automatically.
+   *
+   * **Example:** `"ISBN 978-0-12-345678-9"`
+   */
+  public parent_code?: string | number;
+
+  /**
+   * **Required** The quantity of this product in the cart.
+   */
+  public quantity = 1;
+
+  /**
+   * Optional quantity max. The maximum number of items of these to be added.
+   */
+  public quantity_max?: number;
+
+  /**
+   * Optional quantity min. The minimum number of items of these to be added.
+   */
+  public quantity_min?: number;
+
+  /**
+   * Optional category. Sets the category this product is in.
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `"heavy"`
+   */
+  public category?: string;
+
+  /**
+   * Optional expires. Sets the expiration time of this product.
+   *
+   * Advanced usage only: This property affects cart UI only.
+   * This web component will not react to this property.
+   *
+   * The product cannot be purchased after expiration, but if it is part of a
+   * subscription, it remains in the subscription as long as it stands.
+   *
+   * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
+   *
+   * **Example:** `15`
+   */
+  public expires?: string;
+
+  /**
+   * Optional per product weight. This property affects cart UI only.
+   */
+  public weight?: number;
+
+  /**
+   * Optional. Specify a ship-to address for a specific product.
+   *
+   * Advanced usage only: This property affects cart UI only.
+   * This element does not provide any means for the user to specify this property.
+   */
+  public shipto?: string;
+
+  /**
+   * Optional. An array of child products.
+   *
+   * Each child product is an object that can have any of the public properties of this element.
+   * Child elements will be created accordingly.
+   */
   public products: Product[] = [];
 
+  /**
+   * Optional. The description for a product.
+   */
   public description = '';
 
+  /**
+   * Optional open: An Object with key, value pairs where the key is a product
+   * attribute and the value is a previously computed HMAC validation code.
+   *
+   * **Important security information:** this web component does not generate or validates the HMAC validation code.
+   * Please, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.
+   */
   public signatures?: Record<string, string>;
 
+  /**
+   * Optional open: An Object with key, value pairs where the key is a product
+   * attribute and the value is a boolean indicating that the property is editable by the user.
+   *
+   * **Advanced use only**: this web component does not provide means for the user to alter product attributes.
+   *
+   * See [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.
+   */
   public open?: Record<string, boolean>;
 
-  public pid: number = ProductItem.__newId();
+  /**
+   * Optional length.  This property affects cart UI only.
+   */
+  public length?: number;
+
+  /**
+   * Optional width.  This property affects cart UI only.
+   */
+  public width?: number;
+
+  /**
+   * Optional height.  This property affects cart UI only.
+   */
+  public height?: number;
+
+  /**
+   * The total price of this product.
+   *
+   * It takes into account child products and the quantity.
+   */
+  protected total?: number = this.__computeTotalPrice();
+
+  /** A boolean indicating that this element is a product **/
+  protected isProduct = true;
+
+  /** Boolean indicating that this product is a child product */
+  protected isChildProduct = false;
+
+  /**
+   * A unique id set to the product. Advanced usage only.
+   */
+  public readonly pid: number = ProductItem.__newId();
 
   // A list of all existing ids to guarantee unicity
   private static __existingIds: number[] = [];
