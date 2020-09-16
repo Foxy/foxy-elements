@@ -4,7 +4,7 @@ import '@vaadin/vaadin-lumo-styles/icons';
 import { css, CSSResultArray } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../../mixins/translatable';
-import { I18N } from '../../../private';
+import { I18N } from '../../../private/index';
 import { SignIn } from '../../../private/SignIn/SignIn';
 
 export class AdminSignIn extends Translatable {

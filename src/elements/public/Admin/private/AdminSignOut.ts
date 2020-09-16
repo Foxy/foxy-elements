@@ -3,7 +3,7 @@ import { css, CSSResultArray } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { RequestEvent } from '../../../../events/request';
 import { Themeable } from '../../../../mixins/themeable';
-import { FriendlyError } from '../../../private';
+import { FriendlyError } from '../../../private/index';
 import { LoadingScreen } from '../../../private/LoadingScreen/LoadingScreen';
 
 export class AdminSignOut extends Themeable {
