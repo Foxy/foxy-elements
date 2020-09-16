@@ -75,7 +75,9 @@ export class Checkbox extends Themeable {
 
     return html`
       <label class="flex group cursor-pointer">
-        <div class="check rounded-s ${box} text-primary-contrast focus-within:shadow-outline">
+        <div
+          class="flex-shrink-0 check rounded-s ${box} text-primary-contrast focus-within:shadow-outline"
+        >
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
           <input
             type="checkbox"
