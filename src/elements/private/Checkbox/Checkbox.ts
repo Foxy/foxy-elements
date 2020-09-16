@@ -93,7 +93,7 @@ export class Checkbox extends Themeable {
         </div>
       </label>
 
-      <div class="font-lumo text-body ml-xxl">
+      <div class="font-lumo ${this.disabled ? 'text-tertiary' : 'text-body'} ml-xxl">
         <slot name="content"></slot>
       </div>
     `;
