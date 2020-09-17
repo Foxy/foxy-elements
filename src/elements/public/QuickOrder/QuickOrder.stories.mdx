@@ -17,7 +17,7 @@ export const getTemplate = (args, children = '') => html`
         @submit=${evt => (evt.preventDefault(), action('submit')(evt))}
     >
         ${children}
-    </foxỹ-quick-form>
+    </foxy-quick-form>
 `;
 
 <Meta
@@ -737,9 +737,8 @@ Consider this example code:
 
 Also, note that only the products, not additional markup, will be removed.
 
-<Canvas>
-  <Story name="Change products list">
-    {html`
+<Canvas
+    mdxSource={dedent`
       <div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
         <foxy-quick-form id="to-change-product-list"
           store="jamstackecommerceexample"
@@ -774,6 +773,43 @@ Also, note that only the products, not additional markup, will be removed.
     	Replace the products
     </button>
     </div>
+    `}>
+  <Story name="Change products list" args={{
+          store:"jamstackecommerceexample",
+          currency:"usd",
+          products:[
+          {
+            "name":"Artists Drawing Set",
+              "price":"75.95",
+              "image": "http://placedog.net/200",
+              "products":[
+              {
+                "name":"Nanking Pencil",
+                "image": "http://placedog.net/200",
+                "price":"0"
+              },
+              {
+                "name":"Blank Canvas",
+                "image": "http://placedog.net/200",
+                "price":"0"
+              },
+              {
+                "name":"Water based paint",
+                "image": "http://placedog.net/200",
+                "price":"0"
+              }
+              ]}
+            ]
+    }}>
+    {args => html`
+      <div id="tochange" style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+        ${getTemplate(args)}
+        <button type="button"
+                style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+                onclick="this.parentElement.children[0].products = [{name:'Changed', price: 5}];">
+            Replace the products
+        </button>
+      </div>
     `}
   </Story>
 </Canvas>
@@ -786,10 +822,9 @@ You can add one or more products to the form using the `addProducts` method of t
   myForm.addProducts([{name: "Office chair", price: 200}, {name: "Office table", price: 100}]);
 ```
 
-<Canvas>
-  <Story name="Add an array of products" >
-    {html`
-		<div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+<Canvas
+    mdxSource={dedent`
+    <div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
     <foxy-quick-form frequencies='["1d", "1w", ".5m", "1m"]'
                      store="jamstackecommerceexample"
                      currency="usd"
@@ -810,6 +845,34 @@ You can add one or more products to the form using the `addProducts` method of t
            <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
       </foxy-item>
     </foxy-quick-form>
+    </div>
+    `}
+>
+  <Story name="Add an array of products" args={{
+              frequencies:["1d", "1w", ".5m", "1m"],
+              store:"jamstackecommerceexample",
+              currency:"usd",
+              sub_startdate:"20200505",
+              sub_enddate:"20210505"
+    }}>
+    {args => html`
+      <div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+        ${getTemplate(args, html`
+            <button type="button"
+                    style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+                    onclick="this.parentElement.addProducts([{name: 'new item', price: 4.2}])">
+              Add a new product
+            </button>
+            <foxy-item
+              name="Pup Dog Food"
+              price="69.99"
+              description="High quality nutritious food for you pet "
+              sub_frequency="1m"
+              >
+                 <div>Lorem <i>ipsum</i> dolor sit amet, consectetur adipiscing elit.</div>
+            </foxy-item>
+        `
+        )}
     </div>
     `}
   </Story>
@@ -838,9 +901,7 @@ var productToRemove = myForm.querySelector('SomePropertyUniqueToProductToRemove'
 myForm.removeProducts([productToRemove.pid]);
 ```
 
-<Canvas>
-  <Story name="Removing a product by Product Id">
-    {html`
+<Canvas mdxSource={dedent`
     <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
         <foxy-item name="pup dog food"
                    price="59.99"
@@ -857,6 +918,30 @@ myForm.removeProducts([productToRemove.pid]);
               style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
               onclick="this.parentElement.removeProducts([this.parentElement.children[0].pid]);">Remove first product</button>
     </foxy-quick-form>
+    `}
+>
+  <Story name="Removing a product by Product Id" args={{
+        name:"pup dog food",
+        price:"59.99",
+        image:"http://placedog.net/200",
+        description:"High quality nutritious food for you pet."
+    }}>
+    {args => html`${getTemplate(args, html`
+        <foxy-item name="pup dog food"
+                   price="59.99"
+                   image="http://placedog.net/200"
+                   description="High quality nutritious food for you pet." >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
+        </foxy-item>
+        <foxy-item name="pup dog rich food" price="69.99"
+                   image="http://placedog.net/200"
+                   description="Delicious food! Perfect nutrition in a easy to transport and easy to save package" >
+           <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Satis est ad hoc responsum. Beatus autem esse in maximarum rerum timore nemo potest.</div>
+        </foxy-item>
+        <button type="button" 
+              style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+              onclick="this.parentElement.removeProducts([this.parentElement.children[0].pid]);">Remove first product</button>
+        `)}
     `}
   </Story>
 </Canvas>
