@@ -8,7 +8,7 @@ import { DropdownChangeEvent } from '../../../private/events';
 
 const samples = {
   frequency: '.5m',
-  frequencies: ['0d', '.5m', '6m', '12y'],
+  frequencies: [' ', '.5m', '6m', '12y'],
 };
 
 async function expectNoErrorScreen(element: Donation) {

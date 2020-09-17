@@ -47,6 +47,7 @@ export class Donation extends Translatable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      target: { type: String },
       currency: { type: String },
       custom: { type: Array },
       amount: { type: Number },
@@ -216,6 +217,12 @@ export class Donation extends Translatable {
    */
   public url: null | string = null;
 
+  /**
+   * Optional the target to display the response.
+   * Defaults to _top
+   */
+  public target = '_top';
+
   public constructor() {
     super('donation');
   }
@@ -235,6 +242,7 @@ export class Donation extends Translatable {
 
     return html`
       <form
+        target="${this.target}"
         class="sr-only"
         method="POST"
         action="https://${this.store}.foxycart.com/cart"
@@ -392,7 +400,8 @@ export class Donation extends Translatable {
       data.set('price', `${this.amount.toFixed(2)}${this.currency}`);
     }
 
-    if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
+    if (!this.frequency) data.delete('sub_frequency');
+    else if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
     if (typeof this.comment === 'string') data.set('comment', this.comment);
     if (typeof this.image === 'string') data.set('image', this.image);
     if (typeof this.code === 'string') data.set('code', this.code);
@@ -410,7 +419,7 @@ export class Donation extends Translatable {
   }
 
   private __translateFrequency(frequency: string) {
-    if (frequency.startsWith('0')) return this._t('frequency_once');
+    if (!frequency || frequency.match(/^\s*$/)) return this._t('frequency_once');
     if (frequency === '.5m') return this._t('frequency_0_5m');
 
     const { count, units } = parseDuration(frequency);
