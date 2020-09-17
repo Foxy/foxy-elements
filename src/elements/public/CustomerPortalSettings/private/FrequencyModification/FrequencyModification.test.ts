@@ -1,7 +1,7 @@
 import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
-import { Checkbox } from '../../../../private';
+import { Checkbox } from '../../../../private/index';
 import { CheckboxChangeEvent } from '../../../../private/events';
 import { FrequencyList } from '../FrequencyList/FrequencyList';
 import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';

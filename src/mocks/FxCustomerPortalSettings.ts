@@ -10,7 +10,7 @@ export const customerPortalSettings: FxCustomerPortalSettings = {
       },
     ],
     self: {
-      href: 'https://foxy.io/s/admin/stores/8/customer_portal_settings',
+      href: 'https://api.foxy.test/stores/8/customer_portal_settings',
       title: 'Store Customer Portal Settings',
     },
     'fx:store': {
