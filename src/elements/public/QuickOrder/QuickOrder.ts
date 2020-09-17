@@ -104,6 +104,7 @@ export class QuickOrder extends Translatable {
       },
       products: { type: Array },
       __hasValidProducts: {},
+      __total: {},
     };
   }
 
