@@ -47,7 +47,6 @@ export class Donation extends Translatable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      target: { type: String },
       currency: { type: String },
       custom: { type: Array },
       amount: { type: Number },
@@ -64,6 +63,9 @@ export class Donation extends Translatable {
       name: { type: String },
       code: { type: String },
       url: { type: String },
+      cart: { type: String },
+      target: { type: String },
+      empty: { type: String },
     };
   }
 
@@ -216,6 +218,20 @@ export class Donation extends Translatable {
    * **Example:** `"https://example.com/my-product"`
    */
   public url: null | string = null;
+
+  /**
+   * Optional cart
+   * If set to 'add' will add items to the cart and, on submit, user is redirected to the cart.
+   * If set to 'checkout', the default, on submit user is redirected to checkout directly
+   */
+  public cart = 'checkout';
+
+  /**
+   * Optional empty
+   * If set to 'true' clears the contents of the cart prior to adding the donation to the cart
+   * If set to 'reset' clears the contents of the cart and cookies prior to adding the donation to the cart
+   */
+  public empty?: string;
 
   /**
    * Optional target to display the form response.
@@ -406,8 +422,13 @@ export class Donation extends Translatable {
     if (typeof this.code === 'string') data.set('code', this.code);
     if (typeof this.name === 'string') data.set('name', this.name);
     if (typeof this.url === 'string') data.set('url', this.url);
+    if (typeof this.cart === 'string') data.set('cart', this.cart);
 
-    data.set('anonymous', this.anonymous.toString());
+    if (this.empty) data.set('empty', this.empty);
+    else data.delete('empty');
+    if (this.anonymous) data.set('anonymous', this.anonymous.toString());
+    else data.delete('anonymous');
+
     data.set('quantity', '1');
 
     return data;
