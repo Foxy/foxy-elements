@@ -265,10 +265,8 @@ export class QuickOrder extends Translatable {
         <section class="products">
           <slot></slot>
         </section>
-        <x-section class="actions w-full sm:w-auto flex justify-end">
-          <div
-            class="grid grid-flow-row grid-rows-2 grid-cols-1 sm:grid-rows-1 sm:grid-flow-col sm:grid-cols-2 gap-m"
-          >
+        <x-section class="actions w-full flex justify-end">
+          <div class="grid grid-flow-row grid-rows-2 grid-cols-1 gap-m">
             ${this.frequencies && this.frequencies.length
               ? html` <div class="subscription">
                   <x-dropdown
@@ -283,7 +281,7 @@ export class QuickOrder extends Translatable {
                   </x-dropdown>
                 </div>`
               : ''}
-            <div class="sm:col-start-2">
+            <div class="">
               <vaadin-button
                 class="w-full "
                 theme="primary"
@@ -351,10 +349,17 @@ export class QuickOrder extends Translatable {
       return this._t('checkout.buy', { value });
     } else {
       const duration = parseDuration(this.sub_frequency);
-      return this._t('checkout.subscribe', {
-        value,
-        period: this._t(duration.units).toLowerCase(),
-      });
+      if (duration.count === 1) {
+        return this._t('checkout.subscribe_single_unit', {
+          value,
+          period: this._t(duration.units).toLowerCase(),
+        });
+      } else {
+        return this._t('checkout.subscribe_muiltiple_units', {
+          value,
+          period: this.__translateFrequency(this.sub_frequency).toLowerCase(),
+        });
+      }
     }
   }
 
@@ -480,7 +485,7 @@ export class QuickOrder extends Translatable {
       }
       return true;
     }
-    if (!strDate.match(/^.5m/) && QuickOrder.__validFrequency(strDate)) {
+    if (!strDate.match(/^\.5m/) && QuickOrder.__validFrequency(strDate)) {
       return true;
     }
     return false;
