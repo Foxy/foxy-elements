@@ -218,8 +218,7 @@ export class Donation extends Translatable {
   public url: null | string = null;
 
   /**
-   * Optional the target to display the response.
-   * Defaults to _top
+   * Optional target to display the form response.
    */
   public target = '_top';
 
