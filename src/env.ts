@@ -1,1 +1,1 @@
-export const cdn = process.env.FOXY_CDN ?? '';
+export const cdn = globalThis.process?.env?.FOXY_CDN ?? '';
