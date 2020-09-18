@@ -1,8 +1,9 @@
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
-import { Product, ImageDescription } from '../types';
-import { Price, Picture, PictureGrid } from './index';
-import { html, css, PropertyDeclarations, CSSResultArray, TemplateResult } from 'lit-element';
-import { Checkbox, Section, Group, I18N, ErrorScreen } from '../../../private/index';
+import { Checkbox, ErrorScreen, Group, I18N, Section } from '../../../private/index';
+import { ImageDescription, Product } from '../types';
+import { Preview } from './Preview';
+import { Price } from './Price';
 
 /**
  * This component allows a user to configure a product.
@@ -28,6 +29,7 @@ export class ProductItem extends Translatable {
             'price price price' / 88px auto 104px;
           grid-column-gap: 32px;
         }
+
         @media (min-width: 640px) {
           article.product-item {
             grid:
@@ -37,24 +39,31 @@ export class ProductItem extends Translatable {
             grid-column-gap: 32px;
           }
         }
+
         section.quantity {
           grid-area: quantity;
         }
+
         section.description {
           grid-area: description;
         }
+
         section.price {
           grid-area: price;
         }
+
         section.child-products {
           grid-area: children;
         }
+
         .product-summary {
           position: relative;
         }
+
         .product-summary.last {
           margin-bottom: var(--lumo-space-m);
         }
+
         .product-summary:after {
           content: ' ';
           display: block;
@@ -64,8 +73,17 @@ export class ProductItem extends Translatable {
           left: 0;
           bottom: 0;
         }
+
         .product-summary.last:after {
           content: none;
+        }
+
+        .w-preview {
+          width: 5.5rem;
+        }
+
+        .h-preview {
+          height: 5.5rem;
         }
       `,
     ];
@@ -80,8 +98,7 @@ export class ProductItem extends Translatable {
       'x-number-field': customElements.get('vaadin-number-field'),
       'x-i18n': I18N,
       'x-price': Price,
-      'x-picture': Picture,
-      'x-picture-grid': PictureGrid,
+      'x-preview': Preview,
       'x-error-screen': ErrorScreen,
     };
   }
@@ -388,6 +405,7 @@ export class ProductItem extends Translatable {
     if (!this.__isValid()) {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
+
     if (this.isChildProduct) {
       return html`
         <article
@@ -402,11 +420,14 @@ export class ProductItem extends Translatable {
               <slot></slot>
             </section>
           </div>
+
           ${this.quantity < 2
             ? ''
-            : html` <section class="quantity w-xxl font-normal text-secondary whitespace-no-wrap">
-                ${this._t('product.items', { quantity: this.quantity })}
-              </section>`}
+            : html`
+                <section class="quantity w-xxl font-normal text-secondary whitespace-no-wrap">
+                  ${this._t('product.items', { quantity: this.quantity })}
+                </section>
+              `}
         </article>
       `;
     } else {
@@ -417,7 +438,17 @@ export class ProductItem extends Translatable {
             ? 'modified'
             : ''}"
         >
-          <x-picture-grid .images=${this.__images}></x-picture-grid>
+          <x-preview
+            class="w-preview h-preview"
+            .image=${this.image}
+            .quantity=${this.quantity}
+            .items=${[...this.querySelectorAll('[combined]')].map(child => ({
+              quantity: (child as ProductItem).quantity,
+              image: (child as ProductItem).image ?? '',
+            }))}
+          >
+          </x-preview>
+
           <section class="description min-w-xl w-full mt-l sm:w-auto sm:mt-0">
             <h1 class="text-header font-medium text-l leading-none mb-m">${this.name}</h1>
             <div class="product-description text-secondary">
@@ -425,6 +456,7 @@ export class ProductItem extends Translatable {
               <slot></slot>
             </div>
           </section>
+
           <section class="price text-left text-header text-l">
             <x-price
               .price=${this.price}
@@ -434,6 +466,7 @@ export class ProductItem extends Translatable {
             >
             </x-price>
           </section>
+
           <section class="quantity max-w-xxs w-full md:w-auto text-s">
             <x-number-field
               class="w-full p-0"
@@ -442,13 +475,18 @@ export class ProductItem extends Translatable {
               value="${this.quantity}"
               min="0"
               has-controls
-            ></x-number-field>
+            >
+            </x-number-field>
+
             ${this.quantity > 1 && this.price
-              ? html`<div class="price-each text-secondary text-xs text-center">
-                  ${this.__translateAmount(this.price!)} ${this._t('price.each')}
-                </div>`
+              ? html`
+                  <div class="price-each text-secondary text-xs text-center">
+                    ${this.__translateAmount(this.price!)} ${this._t('price.each')}
+                  </div>
+                `
               : ''}
           </section>
+
           <section class="child-products w-full ${this.__childrenCount ? 'mt-m' : ''}">
             <slot name="products"></slot>
           </section>
@@ -502,7 +540,7 @@ export class ProductItem extends Translatable {
     if (this.products && this.products.length) {
       this.products.forEach(p => {
         // Use a reference to the constructor of the instance in order to avoid issues in tests
-        type AConstructorTypeOf<T> = new (...args: any[]) => T;
+        type AConstructorTypeOf<T> = new (...args: unknown[]) => T;
         const productConstructor = this.constructor;
         const product = new (productConstructor as AConstructorTypeOf<ProductItem>)();
         product.value = p;
@@ -605,9 +643,7 @@ export class ProductItem extends Translatable {
     const newProductPrices: number[] = [];
     const newProductImages: ImageDescription[] = [];
     let newChildrenCount = 0;
-    if (this.image) {
-      newProductImages.push(this.getImageDescription());
-    }
+
     // Create collection functions
     const collectPrices = (p: ProductItem) => {
       if (p.total !== undefined) {
@@ -620,7 +656,12 @@ export class ProductItem extends Translatable {
     const countChildren = () => (newChildrenCount += 1);
     // Collect information of every child
     this.__onEachChildProduct([collectPrices, collectImages, countChildren]);
-    // Update atributes reggarding child products
+
+    if (this.image && newProductImages.length === 0) {
+      newProductImages.push(this.getImageDescription());
+    }
+
+    // Update atributes regarding child products
     this.__childPrices = newProductPrices;
     this.__images = newProductImages;
     this.__childrenCount = newChildrenCount;

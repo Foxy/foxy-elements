@@ -1,128 +1,245 @@
+import { spread } from '@open-wc/lit-helpers/src/spread';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import '@polymer/iron-icon';
+import '@polymer/iron-icons';
+import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../../mixins/themeable';
-import { html, css, CSSResultArray, TemplateResult, PropertyDeclarations } from 'lit-element';
-import { ImageDescription } from '../types';
-import { Picture } from './index';
 
-export class PictureGrid extends Themeable {
-  public static get scopedElements(): Record<string, unknown> {
+export class PictureGrid<TData = unknown> extends Themeable {
+  public static get scopedElements(): ScopedElementsMap {
     return {
-      'x-picture': Picture,
+      'iron-icon': customElements.get('iron-icon'),
     };
   }
 
-  static get properties(): PropertyDeclarations {
+  public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      __images: {},
-      __missingImages: {},
-      __eachWidth: {},
-      __eachHeight: {},
-      images: { type: Array },
+      empty: { attribute: false },
+      data: { attribute: false },
     };
   }
 
-  static get styles(): CSSResultArray {
+  public static get styles(): CSSResultArray {
     return [
       super.styles,
       css`
-        .multiple {
-          display: grid;
-          grid: 'first second' ${PictureGrid.__baseWidth / 2}px 'third fourth' ${PictureGrid.__baseWidth /
-            2}px / ${PictureGrid.__baseWidth / 2}px ${PictureGrid.__baseWidth / 2}px;
-          grid-column-gap: ${PictureGrid.__baseGap}px;
-          grid-row-gap: ${PictureGrid.__baseGap}px;
+        .w-preview {
+          width: 5.5rem;
         }
-        .first {
-          grid-area: first;
+
+        .h-preview {
+          height: 5.5rem;
         }
-        .second {
-          grid-area: second;
+
+        .ease-out-back {
+          transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .third {
-          grid-area: third;
+
+        .grayscale {
+          filter: grayscale();
         }
-        .fourth {
-          grid-area: fourth;
+
+        /* 1 */
+
+        .grid-2 > :nth-child(1),
+        .grid-3 > :nth-child(1),
+        .grid-4 > :nth-child(1),
+        .grid-4-plus > :nth-child(1) {
+          --transform-scale-x: calc(2.5 / 5.5);
+          --transform-scale-y: var(--transform-scale-x);
+        }
+
+        /* 2 */
+
+        .grid-1 > :nth-child(2) {
+          opacity: 0;
+          --transform-translate-x: 100%;
+          --transform-translate-y: var(--transform-translate-x);
+        }
+
+        .grid-2 > :nth-child(2),
+        .grid-3 > :nth-child(2),
+        .grid-4 > :nth-child(2),
+        .grid-4-plus > :nth-child(2) {
+          --transform-scale-x: calc(2.5 / 5.5);
+          --transform-scale-y: var(--transform-scale-x);
+        }
+
+        .grid-3 > :nth-child(2),
+        .grid-4 > :nth-child(2),
+        .grid-4-plus > :nth-child(2) {
+          transform-origin: top right;
+        }
+
+        /* 3 */
+
+        .grid-1 > :nth-child(3),
+        .grid-2 > :nth-child(3),
+        .grid-3 > :nth-child(3),
+        .grid-4 > :nth-child(3),
+        .grid-4-plus > :nth-child(3) {
+          --transform-scale-x: calc(2.5 / 5.5);
+          --transform-scale-y: var(--transform-scale-x);
+        }
+
+        .grid-1 > :nth-child(3),
+        .grid-2 > :nth-child(3) {
+          opacity: 0;
+          --transform-translate-y: 100%;
+        }
+
+        .grid-3 > :nth-child(3) {
+          transform-origin: bottom right;
+        }
+
+        .grid-4 > :nth-child(3),
+        .grid-4-plus > :nth-child(3) {
+          transform-origin: bottom left;
+        }
+
+        /* 4 */
+
+        .grid-1 > :nth-child(4),
+        .grid-2 > :nth-child(4),
+        .grid-3 > :nth-child(4),
+        .grid-4 > :nth-child(4),
+        .grid-4-plus > :nth-child(4) {
+          --transform-scale-x: calc(2.5 / 5.5);
+          --transform-scale-y: var(--transform-scale-x);
+        }
+
+        .grid-1 > :nth-child(4),
+        .grid-2 > :nth-child(4),
+        .grid-3 > :nth-child(4) {
+          opacity: 0;
+          transform-origin: bottom left;
+          --transform-translate-x: 100%;
+        }
+
+        .grid-1 > :nth-child(4) > :first-child,
+        .grid-2 > :nth-child(4) > :first-child,
+        .grid-3 > :nth-child(4) > :first-child,
+        .grid-4 > :nth-child(4) > :first-child {
+          transform: perspective(250px) rotateX(-90deg);
+        }
+
+        .grid-4-plus > :nth-child(4) > :first-child,
+        .grid-4 > :nth-child(4) > :last-child {
+          transition-delay: 0.15s;
+          transition-timing-function: ease-out;
+        }
+
+        .grid-4-plus > :nth-child(4) > :last-child,
+        .grid-4 > :nth-child(4) > :first-child {
+          transition-timing-function: ease-in;
+        }
+
+        .grid-4-plus > :nth-child(4) > :last-child {
+          transform: perspective(250px) rotateX(90deg);
+        }
+
+        /* 5 (placeholder) */
+
+        .grid-1 > :nth-child(5),
+        .grid-3 > :nth-child(5),
+        .grid-4 > :nth-child(5),
+        .grid-4-plus > :nth-child(5) {
+          opacity: 0;
+        }
+
+        .grid-1 > :nth-child(5) {
+          --transform-translate-x: 100%;
+        }
+
+        .grid-2 > :nth-child(5),
+        .grid-3 > :nth-child(5),
+        .grid-4 > :nth-child(5),
+        .grid-4-plus > :nth-child(5) {
+          --transform-scale-x: calc(2.5 / 5.5);
+          --transform-scale-y: var(--transform-scale-x);
+        }
+
+        .grid-3 > :nth-child(5),
+        .grid-4 > :nth-child(5),
+        .grid-4-plus > :nth-child(5) {
+          --transform-translate-y: -100%;
+        }
+
+        /* 6 (placeholder) */
+
+        .grid-1 > :nth-child(6),
+        .grid-4 > :nth-child(6),
+        .grid-4-plus > :nth-child(6) {
+          opacity: 0;
+        }
+
+        .grid-1 > :nth-child(6) {
+          --transform-translate-y: 100%;
+        }
+
+        .grid-2 > :nth-child(6),
+        .grid-3 > :nth-child(6),
+        .grid-4 > :nth-child(6),
+        .grid-4-plus > :nth-child(6) {
+          --transform-scale-x: calc(2.5 / 5.5);
+          --transform-scale-y: var(--transform-scale-x);
+        }
+
+        .grid-4 > :nth-child(6),
+        .grid-4-plus > :nth-child(6) {
+          --transform-translate-x: -100%;
         }
       `,
     ];
   }
 
-  private static __baseWidth = 88;
+  public empty = false;
 
-  private static __baseGap = 4;
-
-  private __areas = ['first', 'second', 'third', 'fourth'];
-
-  private __images: ImageDescription[] = [];
-
-  private __missingImages: TemplateResult[] = [];
-
-  private __eachWidth = PictureGrid.__baseWidth;
-
-  private __eachHeight = PictureGrid.__baseWidth;
-
-  constructor() {
-    super();
-    this.__setWidth();
-  }
-
-  public get images(): ImageDescription[] {
-    return this.__images;
-  }
-
-  public set images(value: ImageDescription[]) {
-    this.__images = value.filter(i => {
-      return i.src && i.src !== 'null' && i.src !== 'undefined';
-    });
-    this.__missingImages = [];
-    for (let i = 0; i < 4 - this.__images.length; i++) {
-      this.__missingImages.push(this.__renderShadow());
-    }
-  }
+  public data: TData[] = [];
 
   public render(): TemplateResult {
-    if (!this.__images || !this.__images.length) {
-      return html``;
-    }
-    return html` <div
-      class="image-grid flex flex-wrap max-w-xs min-w-1 block w-full sm:w-auto ${this.__images
-        .length > 1
-        ? 'multiple'
-        : ''}"
-    >
-      ${this.__images.length == 1
-        ? this.__renderPicture(this.__images[0], 0)
-        : this.__images.map(this.__renderPicture.bind(this)).concat(this.__missingImages)}
-    </div>`;
-  }
+    const length = this.data.length;
+    const placeholderStyle = 'rounded bg-contrast-10';
+    const sharedStyle = 'transition-all duration-700 ease-out-back transform absolute inset-0';
+    const emptyStyle = this.empty ? 'grayscale' : '';
+    const gridStyle = length > 4 ? 'grid-4-plus' : `grid-${Math.max(1, length)}`;
 
-  public updated(): void {
-    this.__setWidth();
-  }
+    const itemProps = spread({
+      class: 'w-full h-full',
+      '.empty': this.empty,
+    });
 
-  private __setWidth(): void {
-    if (this.__images.length > 1) {
-      this.__eachHeight = PictureGrid.__baseWidth / 2;
-      this.__eachWidth = PictureGrid.__baseWidth / 2;
-    } else {
-      this.__eachHeight = PictureGrid.__baseWidth;
-      this.__eachWidth = PictureGrid.__baseWidth;
-    }
-  }
+    const [first, second, third, fourth] = this.data;
 
-  private __renderShadow() {
-    return html`<div class="block w-full h-full rounded-s relative bg-shade-20"></div>`;
-  }
+    return html`
+      <div class="${gridStyle} w-preview h-preview relative font-lumo">
+        <div class="${sharedStyle} ${emptyStyle} origin-top-left">
+          ${first ? html`<x-item ...=${itemProps} .data=${first}></x-item>` : ''}
+        </div>
 
-  private __renderPicture(description: ImageDescription, index: number): TemplateResult {
-    return html` <x-picture
-      width="${this.__eachWidth}"
-      height="${this.__eachHeight}"
-      class="${this.__areas[index]}"
-      alt="${description.alt ?? ''}"
-      src="${description.src}"
-      quantity="${description.quantity}"
-    ></x-picture>`;
+        <div class="${sharedStyle} ${emptyStyle} origin-bottom-right">
+          ${second ? html`<x-item ...=${itemProps} .data=${second}></x-item>` : ''}
+        </div>
+
+        <div class="${sharedStyle} ${emptyStyle} origin-top-right">
+          ${third ? html`<x-item ...=${itemProps} .data=${third}></x-item>` : ''}
+        </div>
+
+        <div class="${sharedStyle} ${emptyStyle} origin-bottom-right">
+          <div class="${placeholderStyle} flex text-body transition duration-150 absolute inset-0">
+            ${length > 102
+              ? html`<iron-icon icon="icons:more-horiz" class="m-auto w-xl h-xl"></iron-icon>`
+              : html`<div class="m-auto text-xxxl">+${length - 3}</div>`}
+          </div>
+          <div class="transition duration-150 absolute inset-0">
+            ${fourth ? html`<x-item ...=${itemProps} .data=${fourth}></x-item>` : ''}
+          </div>
+        </div>
+
+        <div class="${sharedStyle} ${placeholderStyle} origin-top-right"></div>
+        <div class="${sharedStyle} ${placeholderStyle} origin-bottom-left"></div>
+      </div>
+    `;
   }
 }

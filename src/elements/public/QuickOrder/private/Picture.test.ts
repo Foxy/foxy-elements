@@ -1,62 +1,95 @@
-import { expect, fixture, html, elementUpdated } from '@open-wc/testing';
+import { elementUpdated, expect, fixture, html } from '@open-wc/testing';
 import { Picture } from './Picture';
-import * as sinon from 'sinon';
 
 customElements.define('x-picture', Picture);
 
-let logSpy: sinon.SinonStub;
+describe('Preview', () => {
+  describe('Picture', () => {
+    it('has 0 for default quantity', () => {
+      const picture = new Picture();
+      expect(picture).to.have.property('quantity', 0);
+    });
 
-describe('Display an image for a product', async function () {
-  before(function () {
-    logSpy = sinon.stub(console, 'error');
-  });
+    it('has empty path for default image', () => {
+      const picture = new Picture();
+      expect(picture).to.have.property('image', '');
+    });
 
-  afterEach(function () {
-    logSpy.reset();
-  });
+    [0, 1, 99, 999].map(quantity => {
+      it(`renders at least one visible image of a product for quantity of ${quantity}`, async () => {
+        const image = 'https://picsum.photos/320';
+        const template = html`<x-picture .image=${image} .quantity=${quantity}></x-picture>`;
+        const picture = await fixture<Picture>(template);
+        const images = [...picture.shadowRoot!.querySelectorAll('img')];
 
-  after(function () {
-    logSpy.restore();
-  });
+        const checks = images.map(el => {
+          try {
+            expect(el).to.have.property('src', image);
+            expect(el).to.be.visible;
+            return true;
+          } catch (err) {
+            return err;
+          }
+        });
 
-  it('Should accept alt, height width and src attributes', async function () {
-    const el = await fixture(html`
-      <x-picture alt="an alternative text" height="50" width="50" src="mysrc"> </x-picture>
-    `);
-    await elementUpdated(el);
-    expect((el as Picture).alt).to.equal('an alternative text');
-    expect((el as Picture).height).to.equal(50);
-    expect((el as Picture).width).to.equal(50);
-    expect((el as Picture).src).to.equal('mysrc');
-  });
+        if (checks.every(v => v !== true)) throw checks[0];
+      });
+    });
 
-  it('Should set "multiple" class if quantity is greater than 1', async function () {
-    const el = await fixture(html` <x-picture src="mysrc" quantity="2"> </x-picture> `);
-    await elementUpdated(el);
-    expect(el.shadowRoot).to.exist;
-    const prod = el.shadowRoot!.querySelector('.product');
-    expect(prod).to.exist;
-    expect(prod!.classList.contains('multiple')).to.be.true;
-  });
+    it('handles changes in quantity without errors', async () => {
+      const image = 'https://picsum.photos/320';
+      const template = html`<x-picture .image=${image}></x-picture>`;
+      const picture = await fixture<Picture>(template);
 
-  it('Should display a underlying rotated image if quantity is greater than 1', async function () {
-    const el = await fixture(html` <x-picture src="mysrc" quantity="2"> </x-picture> `);
-    await elementUpdated(el);
-    expect(el.shadowRoot).to.exist;
-    const images = el.shadowRoot!.querySelectorAll('img');
-    expect(images.length).to.equal(2);
-    expect(images[0].classList.contains('back')).to.be.true;
-    expect(
-      getComputedStyle(images[0])
-        .getPropertyValue('transform')
-        .match(/matrix/)
-    ).to.exist;
-    expect(images[1].classList.contains('front')).to.be.true;
-    expect(
-      getComputedStyle(images[1])
-        .getPropertyValue('transform')
-        .match(/matrix/)
-    ).not.to.exist;
-    expect(images[1].src).to.equal(images[0].src);
+      for (const quantity of [0, 1, 10, 99, 10, 1, 0]) {
+        picture.quantity = quantity;
+        await elementUpdated(picture);
+
+        const images = [...picture.shadowRoot!.querySelectorAll('img')];
+        const checks = images.map(el => {
+          try {
+            expect(el).to.have.property('src', image);
+            expect(el).to.be.visible;
+            return true;
+          } catch (err) {
+            return err;
+          }
+        });
+
+        if (checks.every(v => v !== true)) throw checks[0];
+      }
+    });
+
+    it('renders only one image when .empty is set to true', async () => {
+      const image = 'https://picsum.photos/320';
+      const template = html`<x-picture .quantity=${2} .empty=${true} .image=${image}></x-picture>`;
+      const picture = await fixture<Picture>(template);
+      const images = [...picture.shadowRoot!.querySelectorAll('img')];
+
+      expect(images).to.have.length(1);
+    });
+
+    it('renders 2 images when .empty is changed to false with quantity > 1', async () => {
+      const image = 'https://picsum.photos/320';
+      const template = html`<x-picture .quantity=${2} .empty=${true} .image=${image}></x-picture>`;
+      const picture = await fixture<Picture>(template);
+
+      picture.empty = false;
+      await elementUpdated(picture);
+
+      const images = [...picture.shadowRoot!.querySelectorAll('img')];
+      expect(images).to.have.length(2);
+    });
+
+    it('sets quantity and image via data shorthand', () => {
+      const image = 'https://picsum.photos/320';
+      const quantity = 5;
+
+      const picture = new Picture();
+      picture.data = { quantity, image };
+
+      expect(picture).to.have.property('quantity', quantity);
+      expect(picture).to.have.property('image', image);
+    });
   });
 });
