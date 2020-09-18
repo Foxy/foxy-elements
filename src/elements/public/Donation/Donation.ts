@@ -341,6 +341,23 @@ export class Donation extends Translatable {
           : ''}
 
         <div class="flex -m-s">
+          ${this.frequencies && this.frequencies.length > 0
+            ? html`
+                <div class="flex-1 p-s">
+                  <x-dropdown
+                    .value=${this.frequency}
+                    .items=${this.frequencies}
+                    .getText=${this.__translateFrequency.bind(this)}
+                    data-testid="frequency"
+                    @change=${(evt: DropdownChangeEvent) => {
+                      this.frequency = evt.detail as string;
+                    }}
+                  >
+                  </x-dropdown>
+                </div>
+              `
+            : ''}
+
           <div class="flex-1 p-s">
             <vaadin-button
               class="w-full"
@@ -360,23 +377,6 @@ export class Donation extends Translatable {
               </x-i18n>
             </vaadin-button>
           </div>
-
-          ${this.frequencies && this.frequencies.length > 0
-            ? html`
-                <div class="flex-1 p-s">
-                  <x-dropdown
-                    .value=${this.frequency}
-                    .items=${this.frequencies}
-                    .getText=${this.__translateFrequency.bind(this)}
-                    data-testid="frequency"
-                    @change=${(evt: DropdownChangeEvent) => {
-                      this.frequency = evt.detail as string;
-                    }}
-                  >
-                  </x-dropdown>
-                </div>
-              `
-            : ''}
         </div>
       </section>
     `;
