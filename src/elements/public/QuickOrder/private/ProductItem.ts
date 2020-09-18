@@ -297,7 +297,7 @@ export class ProductItem extends Translatable {
    *
    * It takes into account child products and the quantity.
    */
-  protected total?: number = this.__computeTotalPrice();
+  public total?: number = this.__computeTotalPrice();
 
   /** A boolean indicating that this element is a product **/
   protected isProduct = true;
