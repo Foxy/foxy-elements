@@ -9,11 +9,7 @@ import { MockProduct } from '../../../mocks/ProductItem';
  *
  * not using defineCE because lit-html doesn't support dynamic tags by default.
  */
-class TestQuickOrder extends QuickOrder {
-  createProduct(p: Product) {
-    return new MockProduct(p);
-  }
-}
+class TestQuickOrder extends QuickOrder {}
 class TestRegularQuickOrder extends QuickOrder {
   constructor() {
     super();
@@ -26,6 +22,7 @@ class TestMockProduct extends MockProduct {
   }
 }
 
+customElements.define('x-product', MockProduct);
 customElements.define('quick-order', TestQuickOrder);
 customElements.define('quick-order-item', TestMockProduct);
 customElements.define('quick-order-regular', TestRegularQuickOrder);
