@@ -329,7 +329,8 @@ describe('The form should be aware of its products', async function () {
       </quick-order>
     `);
     await elementUpdated(el);
-    expect(el.getAttribute('total')).to.equal('70');
+    console.log(el, (el as any).total, (el as any).__total);
+    expect((el as QuickOrder).total).to.equal(70);
   });
 
   it('Shows the total price of the products added as arrays ', async function () {
@@ -354,7 +355,7 @@ describe('The form should be aware of its products', async function () {
       </quick-order>
     `);
     await elementUpdated(el);
-    expect(el.getAttribute('total')).to.equal('70');
+    expect((el as QuickOrder).total).to.equal(70);
     const firstProduct = el.querySelector('[product]');
     expect(firstProduct).to.exist;
     const m = firstProduct as MockProduct;
@@ -362,7 +363,7 @@ describe('The form should be aware of its products', async function () {
     m.total = m.price * m.quantity;
     m.dispatchEvent(new Event('change'));
     await elementUpdated(el);
-    expect(el.getAttribute('total')).to.equal('340');
+    expect((el as QuickOrder).total).to.equal(340);
   });
 });
 

@@ -103,8 +103,8 @@ export class QuickOrder extends Translatable {
         },
       },
       products: { type: Array },
-      __hasValidProducts: {},
-      __total: {},
+      __hasValidProducts: { attribute: false },
+      __total: { attribute: false },
     };
   }
 
