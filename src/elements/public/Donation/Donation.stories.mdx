@@ -225,7 +225,7 @@ You can easily allow your website visitors to commit to a recurrent contribution
       amount="25"
       custom='["amount", "designation"]'
       store="jamstackecommerceexample"
-      name="One-Time Donation"
+      name="Monthly Donation"
       frequency="1m"
     >
     </foxy-donation>
@@ -245,14 +245,14 @@ You can easily allow your website visitors to commit to a recurrent contribution
   </Story>
 </Canvas>
 
-If you feel like providing no recurrence options is a bit restrictive, you can use the `frequencies` attribute to give your donners more choice. Let's add twice a month, every month and every year as options in addition to a one-time payment: `frequencies='["0d", ".5m", "1m", "1y"]'`. Note how we've used a JSON array here – just like in `designations` and `amounts`.
+If you feel like providing no recurrence options is a bit restrictive, you can use the `frequencies` attribute to give your donners more choice. Let's add twice a month, every month and every year as options in addition to a one-time payment: `frequencies='[" ", ".5m", "1m", "1y"]'`. Note how we've used a JSON array here – just like in `designations` and `amounts`.
 
 <Canvas
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
       designation='["Daily Meals", "Housing"]'
-      frequencies='["0d", ".5m", "1m", "1y"]'
+      frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
       amounts="[25, 50, 75]"
@@ -269,7 +269,7 @@ If you feel like providing no recurrence options is a bit restrictive, you can u
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
       designation: ['Daily Meals', 'Housing'],
-      frequencies: ['0d', '.5m', '1m', '1y'],
+      frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       amounts: [25, 50, 75],
       custom: ['amount', 'designation'],
@@ -288,7 +288,7 @@ If you'd like your donners to be able to leave a short message (visible only to 
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
       designation='["Daily Meals", "Housing"]'
-      frequencies='["0d", ".5m", "1m", "1y"]'
+      frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
       amounts="[25, 50, 75]"
@@ -306,7 +306,7 @@ If you'd like your donners to be able to leave a short message (visible only to 
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
       designation: ['Daily Meals', 'Housing'],
-      frequencies: ['0d', '.5m', '1m', '1y'],
+      frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       amounts: [25, 50, 75],
       comment: '',
@@ -326,7 +326,7 @@ Giving your donners an option to remain anonymous is often a reasonable idea. Wh
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
       designation='["Daily Meals", "Housing"]'
-      frequencies='["0d", ".5m", "1m", "1y"]'
+      frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
       amounts="[25, 50, 75]"
@@ -345,7 +345,7 @@ Giving your donners an option to remain anonymous is often a reasonable idea. Wh
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
       designation: ['Daily Meals', 'Housing'],
-      frequencies: ['0d', '.5m', '1m', '1y'],
+      frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
       amounts: [25, 50, 75],
@@ -364,7 +364,7 @@ You can also enable anonymous donations by default by setting the `anonymous` at
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
       designation='["Daily Meals", "Housing"]'
-      frequencies='["0d", ".5m", "1m", "1y"]'
+      frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
       amounts="[25, 50, 75]"
@@ -384,7 +384,7 @@ You can also enable anonymous donations by default by setting the `anonymous` at
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
       designation: ['Daily Meals', 'Housing'],
-      frequencies: ['0d', '.5m', '1m', '1y'],
+      frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
       anonymous: true,
@@ -406,7 +406,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
       designation='["Daily Meals", "Housing"]'
-      frequencies='["0d", ".5m", "1m", "1y"]'
+      frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
       amounts="[25, 50, 75]"
@@ -428,7 +428,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
       designation: ['Daily Meals', 'Housing'],
-      frequencies: ['0d', '.5m', '1m', '1y'],
+      frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
       anonymous: true,
@@ -452,7 +452,7 @@ You can insert your own content in a number of pre-defined places called slots. 
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
       designation='["Daily Meals", "Housing"]'
-      frequencies='["0d", ".5m", "1m", "1y"]'
+      frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
       amounts="[25, 50, 75]"
@@ -477,7 +477,7 @@ You can insert your own content in a number of pre-defined places called slots. 
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
       designation: ['Daily Meals', 'Housing'],
-      frequencies: ['0d', '.5m', '1m', '1y'],
+      frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
       anonymous: true,
@@ -500,6 +500,25 @@ You can insert your own content in a number of pre-defined places called slots. 
     }
   </Story>
 </Canvas>
+
+## Additional Cart Parameters
+
+
+
+### Adding the donation to the cart
+
+By default the upon submission user is redirected directly to the checkout.
+This is controlled by the `cart` attribute. Set it to `add` to make the form merely add the donation to the cart.
+
+[Please, refer to the documentation for more details](https://wiki.foxycart.com/v/2.0/cheat_sheet#transaction_non-product_specific_options).
+
+
+### Clearing other items in the cart
+
+The `empty` attribute can be set to 'true' to clear any contents in the cart before adding the donation.
+
+[Please, refer to the documentation for more details](https://wiki.foxycart.com/v/2.0/cheat_sheet#transaction_non-product_specific_options).
+
 
 ## API Reference
 

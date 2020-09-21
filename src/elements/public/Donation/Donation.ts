@@ -63,6 +63,9 @@ export class Donation extends Translatable {
       name: { type: String },
       code: { type: String },
       url: { type: String },
+      cart: { type: String },
+      target: { type: String },
+      empty: { type: String },
     };
   }
 
@@ -216,6 +219,25 @@ export class Donation extends Translatable {
    */
   public url: null | string = null;
 
+  /**
+   * Optional cart
+   * If set to 'add' will add items to the cart and, on submit, user is redirected to the cart.
+   * If set to 'checkout', the default, on submit user is redirected to checkout directly
+   */
+  public cart = 'checkout';
+
+  /**
+   * Optional empty
+   * If set to 'true' clears the contents of the cart prior to adding the donation to the cart
+   * If set to 'reset' clears the contents of the cart and cookies prior to adding the donation to the cart
+   */
+  public empty?: string;
+
+  /**
+   * Optional target to display the form response.
+   */
+  public target = '_top';
+
   public constructor() {
     super('donation');
   }
@@ -235,6 +257,7 @@ export class Donation extends Translatable {
 
     return html`
       <form
+        target="${this.target}"
         class="sr-only"
         method="POST"
         action="https://${this.store}.foxycart.com/cart"
@@ -334,6 +357,23 @@ export class Donation extends Translatable {
           : ''}
 
         <div class="flex -m-s">
+          ${this.frequencies && this.frequencies.length > 0
+            ? html`
+                <div class="flex-1 p-s">
+                  <x-dropdown
+                    .value=${this.frequency}
+                    .items=${this.frequencies}
+                    .getText=${this.__translateFrequency.bind(this)}
+                    data-testid="frequency"
+                    @change=${(evt: DropdownChangeEvent) => {
+                      this.frequency = evt.detail as string;
+                    }}
+                  >
+                  </x-dropdown>
+                </div>
+              `
+            : ''}
+
           <div class="flex-1 p-s">
             <vaadin-button
               class="w-full"
@@ -353,23 +393,6 @@ export class Donation extends Translatable {
               </x-i18n>
             </vaadin-button>
           </div>
-
-          ${this.frequencies && this.frequencies.length > 0
-            ? html`
-                <div class="flex-1 p-s">
-                  <x-dropdown
-                    .value=${this.frequency}
-                    .items=${this.frequencies}
-                    .getText=${this.__translateFrequency.bind(this)}
-                    data-testid="frequency"
-                    @change=${(evt: DropdownChangeEvent) => {
-                      this.frequency = evt.detail as string;
-                    }}
-                  >
-                  </x-dropdown>
-                </div>
-              `
-            : ''}
         </div>
       </section>
     `;
@@ -392,14 +415,20 @@ export class Donation extends Translatable {
       data.set('price', `${this.amount.toFixed(2)}${this.currency}`);
     }
 
-    if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
+    if (!this.frequency) data.delete('sub_frequency');
+    else if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
     if (typeof this.comment === 'string') data.set('comment', this.comment);
     if (typeof this.image === 'string') data.set('image', this.image);
     if (typeof this.code === 'string') data.set('code', this.code);
     if (typeof this.name === 'string') data.set('name', this.name);
     if (typeof this.url === 'string') data.set('url', this.url);
+    if (typeof this.cart === 'string') data.set('cart', this.cart);
 
-    data.set('anonymous', this.anonymous.toString());
+    if (this.empty) data.set('empty', this.empty);
+    else data.delete('empty');
+    if (this.anonymous) data.set('anonymous', this.anonymous.toString());
+    else data.delete('anonymous');
+
     data.set('quantity', '1');
 
     return data;
@@ -410,7 +439,7 @@ export class Donation extends Translatable {
   }
 
   private __translateFrequency(frequency: string) {
-    if (frequency.startsWith('0')) return this._t('frequency_once');
+    if (!frequency || frequency.match(/^\s*$/)) return this._t('frequency_once');
     if (frequency === '.5m') return this._t('frequency_0_5m');
 
     const { count, units } = parseDuration(frequency);
