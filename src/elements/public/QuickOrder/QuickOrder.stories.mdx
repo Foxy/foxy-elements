@@ -5,80 +5,70 @@ import { html } from 'lit-html';
 import './index';
 
 export const getTemplate = (args, children = '') => html`
-    <foxy-quick-form
-        .frequencies=${args.frequencies ?? null}
-        .currency=${args.currency ?? null}
-        .store=${args.store ?? null}
-        .sub_frequency=${args.sub_frequency ?? null}
-        .sub_startdate=${args.sub_startdate ?? null}
-        .sub_enddate=${args.sub_enddate ?? null}
-        .products=${args.products ?? null}
-        @change=${action('change')}
-        @submit=${evt => (evt.preventDefault(), action('submit')(evt))}
-    >
-        ${children}
-    </foxy-quick-form>
+  <foxy-quick-form
+    .frequencies=${args.frequencies ?? null}
+    .currency=${args.currency ?? null}
+    .store=${args.store ?? null}
+    .sub_frequency=${args.sub_frequency ?? null}
+    .sub_startdate=${args.sub_startdate ?? null}
+    .sub_enddate=${args.sub_enddate ?? null}
+    .products=${args.products ?? null}
+    @change=${action('change')}
+    @submit=${evt => (evt.preventDefault(), action('submit')(evt))}
+  >
+    ${children}
+  </foxy-quick-form>
 `;
 
 <Meta
   title="Integrations/Quick Order"
   component="foxy-quick-form"
-  decorators={[Story => html`${Story()}`]}
+  decorators={[
+    Story => html`<div class="border rounded overflow-hidden container-medium">${Story()}</div>`,
+  ]}
   args={{
     currency: 'usd',
     store: 'jamstackecommerceexample',
     products: [],
-    frequencies: []
+    frequencies: [],
   }}
 />
 
 # Quick Order Form
 
-Quick Order Form provides a straighforward way to create an e-commerce form to add products to a cart.
+Quick Order Form provides a straighforward way to create an e-commerce form to add products to a cart. Feed your form with the products and it will take care of the rest for you. Feel free to use your favorite template engine or provide products in a JSON format.
 
-Feed your form with the products and it will take care of the rest for you.
-
-Feel free to use your favorite template engine or provide products in a JSON format.
-
-
-## Unconfigured 
+## Unconfigured
 
 This component needs to be configured before use. You can easily spot a misconfigured component on the page – it will display an error message like the one below:
 
-<Canvas
-    mdxSource={dedent`
-        <div class="container-narrow">
-          <foxy-quick-form></foxy-quick-form>
-        </div>
-      `}
+<Canvas mdxSource="<foxy-quick-form></foxy-quick-form>">
+  <Story
+    name="Default"
+    args={{
+      store: '',
+      currency: '',
+      products: [],
+      frequencies: [],
+    }}
   >
-  <Story name="Quick Order Default" args={{
-        store: "",
-        currency: "",
-        products: [],
-        frequencies:[]
-    }}>
     {args => html`${getTemplate(args)}`}
   </Story>
 </Canvas>
-
 
 ## Minimal setup
 
 You'll need to provide the following info via the respective attributes for the minimal setup:
 
-1. `store` – store name (your subdomain, e.g the `jamstackecommerceexample` part of `https://jamstackecommerceexample.foxycart.com`);
-1. `currency` – 3-letter currency code (e.g. `usd` for US dollars);
-1. One or more products.  You may feed the products to the Form using either:
-1. - **the `slots` approach** using the provided `<product-item></product-item>` Web Component;
-   - **the `attribute` approach** using the `products` parameter;
-
+- `store` – store name (your subdomain, e.g the `jamstackecommerceexample` part of `https://jamstackecommerceexample.foxycart.com`);
+- `currency` – 3-letter currency code (e.g. `usd` for US dollars);
+- One or more products. You may feed the products to the Form using either:
+  - **the `slots` approach** using the provided `<product-item></product-item>` Web Component;
+  - **the `attribute` approach** using the `products` parameter;
 
 ### The `slots` approach
 
-Using the `slots` approach gives you full control over your form's markup.
-
-This approach allow you to create your form writing your HTML in readable way.
+Using the `slots` approach gives you full control over your form's markup. This approach allow you to create your form writing your HTML in readable way.
 
 ```html
 <foxy-quick-form>
@@ -89,88 +79,93 @@ This approach allow you to create your form writing your HTML in readable way.
 ```
 
 <Canvas
-    mdxSource={dedent`<foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
-        <foxy-item name="Cool Product" price="10" image="https://placedog.net/200" description="I do deserve a tasty food">
-          <div>One with <span style="color: #00f">flavour</span> and <span style="color: #ff0000">scent</span>.</div>
-        </foxy-item>
-      </foxy-quick-form>
-    `}
-    >
-  <Story name="Minimal slots approach" args={{ store:'jamstackecommerceexample', currency: 'usd' }}>
-    {args => html`${getTemplate(args, html`
-        <foxy-item name="Cool Product" price="10" image="https://placedog.net/200" description="I do deserve a tasty food">
-          <div>One with <span style="color: #00f">flavour</span> and <span style="color: #ff0000">scent</span>.</div>
-        </foxy-item>
+  mdxSource={dedent`
+    <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
+      <foxy-item name="Cool Product" price="10" image="https://placedog.net/200" description="I do deserve a tasty food">
+        <div>One with <span style="color: #00f">flavour</span> and <span style="color: #ff0000">scent</span>.</div>
+      </foxy-item>
+    </foxy-quick-form>
+  `}
+>
+  <Story
+    name="Minimal slots approach"
+    args={{ store: 'jamstackecommerceexample', currency: 'usd' }}
+  >
+    {args =>
+      html`${getTemplate(
+        args,
+        html`
+          <foxy-item
+            name="Cool Product"
+            price="10"
+            image="https://placedog.net/200"
+            description="I do deserve a tasty food"
+          >
+            <div>
+              One with <span style="color: #00f">flavour</span> and
+              <span style="color: #ff0000">scent</span>.
+            </div>
+          </foxy-item>
         `
-    )}`}
+      )}`
+    }
   </Story>
 </Canvas>
 
 ### The `attribute` approach
 
-Using the `attribute` approach is handy if you are fetching your products from a server as a JSON object.
-
-Please, note that the `products` value must be valid JSON.
-
-This approach allows you to use something as simple as:
+Using the `attribute` approach is handy if you are fetching your products from a server as a JSON object. Please, note that the `products` value must be valid JSON. This approach allows you to use something as simple as:
 
 ```html
-<foxy-quick-form products='[{...},{...},{...}]'>
-</foxy-quick-form>
+<foxy-quick-form products="[{...},{...},{...}]"> </foxy-quick-form>
 ```
 
 The downside of this approach is that you have little control of custom markup you may want to add to your form.
 
 <Canvas
-    mdxSource={dedent`
-      <foxy-quick-form store="jamstackecommerceexample.foxycart.com"
-                       currency="usd"
-                       products='[
-                       {
-                         "name":"Cool Product",
-                         "price": 5,
-                         "image":"https://placedog.net/200",
-                         "quantity": 2,
-                         "description": "I do deserve a tasty food" 
-                         }]',
-                         frequencies: []
-                       >
-      </foxy-quick-form>
-    `}
+  mdxSource={dedent`
+    <foxy-quick-form store="jamstackecommerceexample.foxycart.com"
+      frequencies: []
+      currency="usd"
+      products='[{
+        "name":"Cool Product",
+        "price": 5,
+        "image":"https://placedog.net/200",
+        "quantity": 2,
+        "description": "I do deserve a tasty food" 
+      }]'
     >
-  <Story name="Minimal attributes approach"
+    </foxy-quick-form>
+  `}
+>
+  <Story
+    name="Minimal attributes approach"
     args={{
-       products:[ {
-         name:"Cool Product",
-         price:5,
-         image:"https://placedog.net/200",
-         quantity: 2,
-         description:"I do deserve a tasty food"}
-         ]
-       }}
+      products: [
+        {
+          name: 'Cool Product',
+          price: 5,
+          image: 'https://placedog.net/200',
+          quantity: 2,
+          description: 'I do deserve a tasty food',
+        },
+      ],
+    }}
   >
     {args => html`${getTemplate(args)}`}
   </Story>
 </Canvas>
 
-
 ## Basics of a Product
 
-A product must have a `name`, a `price` and a `currency`.
-The currency will be automatically provided by the `<foxy-quick-form>`.
+A product must have a `name`, a `price` and a `currency`. The currency will be automatically provided by the `<foxy-quick-form>`. The `description` attribute is used to display a description of the product within the order form. Foxy Cart handles both basic and advanced features and many of them are accessible by setting products parameters. Here are some of the attributes you can use:
 
-The `description` attribute is used to display a description of the product within the order form.
-
-Foxy Cart handles both basic and advanced features and many of them are accessible by setting products parameters.
-
-Here are some of the attributes you can use:
-
-|Attribute| Description| Example |
-|---------|---------|---------|
-|image|Shows a thumbnail of this image in the cart.| `<foxy-item image="http://mysite/myimage.png"></foxy-item>`|
-|quantity_max|Maximum quantity that should be allowed per product, per cart.|`<foxy-item quantity_max="5"></foxy-item>`|
-|weight|Product's per-product weight, used for shipping rate requests.|`<foxy-item weight="3"></foxy-item>`|
-|category|Category identifier for the product.|`<foxy-item category="food"></foxy-item>`|
+| Attribute    | Description                                                    | Example                                                     |
+| ------------ | -------------------------------------------------------------- | ----------------------------------------------------------- |
+| image        | Shows a thumbnail of this image in the cart.                   | `<foxy-item image="http://mysite/myimage.png"></foxy-item>` |
+| quantity_max | Maximum quantity that should be allowed per product, per cart. | `<foxy-item quantity_max="5"></foxy-item>`                  |
+| weight       | Product's per-product weight, used for shipping rate requests. | `<foxy-item weight="3"></foxy-item>`                        |
+| category     | Category identifier for the product.                           | `<foxy-item category="food"></foxy-item>`                   |
 
 It pays off to learn more about the product and what you can do with it. Please, vist the [Product's parameters page](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters) to learn more.
 
@@ -178,156 +173,163 @@ It pays off to learn more about the product and what you can do with it. Please,
 
 ### Using custom tag for the product
 
-By adding `<foxy-items>` to your `<foxy-quick-form>` your products will be properly added to the order.
-
-You can use any markup you wish, making the form unique to your store and even easily adding your own functionality to it.  Foxy-order-form will find your products and of course leave your tags alone.  Please, note that `foxy-quick-form` will not find them if they are in a Shadow DOM.
+By adding `<foxy-item>` to your `<foxy-quick-form>` your products will be properly added to the order. You can use any markup you wish, making the form unique to your store and even easily adding your own functionality to it. Foxy-order-form will find your products and of course leave your tags alone. Please, note that `foxy-quick-form` will not find them if they are in a Shadow DOM.
 
 <Canvas
-    mdxSource= {dedent`
+  mdxSource={dedent`
     <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
       <style>
-      .dietary-food {
-        font-weight: 100;
-        border: solid thin silver;
-        border-radius: 6px;
-        padding: 1em;
-        margin-bottom: 1em;
-        background: #fafafa;
-      }
-      .dietary-food img {
-        height: 4em
-      }
-      table {
-        margin: 1em;
-      }
-      table td {
-        border: solid thin silver;
-        border-collapse: collapse;
-        padding: 0.5em;
-      }
-      section.special-items {
-        padding: 1em;
-        border: double #6666ff;
-        background: #ededff;
-        border-radius: 6px;
-      }
-      .special-items h1, .dietary-food h1 {
-        font-size: 1.2em;
-        font-weight: 400;
-        padding: 1em 0;
-      }
+        .dietary-food {
+          font-weight: 100;
+          border: solid thin silver;
+          border-radius: 6px;
+          padding: 1em;
+          margin-bottom: 1em;
+          background: #fafafa;
+        }
+        .dietary-food img {
+          height: 4em
+        }
+        table {
+          margin: 1em;
+        }
+        table td {
+          border: solid thin silver;
+          border-collapse: collapse;
+          padding: 0.5em;
+        }
+        section.special-items {
+          padding: 1em;
+          border: double #6666ff;
+          background: #ededff;
+          border-radius: 6px;
+        }
+        .special-items h1, .dietary-food h1 {
+          font-size: 1.2em;
+          font-weight: 400;
+          padding: 1em 0;
+        }
       </style>
       <h1>Diet food</h1>
       <section class="dietary-food">
-        <foxy-item name="Healthy Bites"
-                   price="59.99"
-                   image="http://placedog.net/200"
-                   description="High quality nutritious food for you pet." >
+        <foxy-item name="Healthy Bites" price="59.99" image="http://placedog.net/200" description="High quality nutritious food for your pet.">
          <div>Healthy pet, happy pet!</div>
         </foxy-item>
-        <foxy-item name="Yummy Bites" price="69.99"
-          image="http://placedog.net/200"
-          description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
-          >
+        <foxy-item name="Yummy Bites" price="69.99" image="http://placedog.net/200" description="Delicious food! Perfect nutrition in a easy to transport and easy to save package">
          <div>Life is much better when eating is a joy.</div>
         </foxy-item>
       </section>
       <h1>Special Item</h1>
       <section class="special-items">
-          <foxy-item
-            name="Sci-fy Bites"
-            price="69.99"
-            image="http://placedog.net/200">
-            <section>
-              <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
-              <table>
-                <tr><td>Easily digested</td><td>✓</td></tr>
-                <tr><td>Perfectly balenced</td><td>✓</td></tr>
-                <tr><td>Environmentaly responsible</td><td>✓</td></tr>
-              </table>
-            </section>
-            <div>Let's do our share to make our pets and our planet healthy.</div>
-          </foxy-item>
+        <foxy-item name="Sci-fy Bites" price="69.99" image="http://placedog.net/200">
+          <section>
+            <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
+            <table>
+              <tr><td>Easily digested</td><td>✓</td></tr>
+              <tr><td>Perfectly balenced</td><td>✓</td></tr>
+              <tr><td>Environmentaly responsible</td><td>✓</td></tr>
+            </table>
+          </section>
+          <div>Let's do our share to make our pets and our planet healthy.</div>
+        </foxy-item>
       </section>
     </foxy-quick-form>
-    `}
+  `}
 >
-  <Story name="Enrich the form using your markup" 
+  <Story
+    name="Enrich the form using your markup"
     args={{
-      store: "jamstackecommerceexample.foxycart.com",
-      currency: "usd",
-      }}
+      store: 'jamstackecommerceexample.foxycart.com',
+      currency: 'usd',
+    }}
   >
-    {args => html`${getTemplate(args, html`
-      <style>
-      .dietary-food {
-        font-weight: 100;
-        border: solid thin silver;
-        border-radius: 6px;
-        padding: 1em;
-        margin-bottom: 1em;
-        background: #fafafa;
-      }
-      .dietary-food img {
-        height: 4em
-      }
-      table {
-        margin: 1em;
-      }
-      table td {
-        border: solid thin silver;
-        border-collapse: collapse;
-        padding: 0.5em;
-      }
-      section.special-items {
-        padding: 1em;
-        border: double #6666ff;
-        background: #ededff;
-        border-radius: 6px;
-      }
-      .special-items h1, .dietary-food h1 {
-        font-size: 1.2em;
-        font-weight: 400;
-        padding: 1em 0;
-      }
-      </style>
-      <h1>Diet food</h1>
-      <section class="dietary-food">
-        <foxy-item name="Healthy Bites"
-                   price="59.99"
-                   image="http://placedog.net/200"
-                   description="High quality nutritious food for you pet." >
-         <div>Healthy pet, happy pet!</div>
-        </foxy-item>
-        <foxy-item name="Yummy Bites" price="69.99"
-          image="http://placedog.net/200"
-          description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
-          >
-         <div>Life is much better when eating is a joy.</div>
-        </foxy-item>
-      </section>
-      <h1>Special Item</h1>
-      <section class="special-items">
-          <foxy-item
-            name="Sci-fy Bites"
-            price="69.99"
-            image="http://placedog.net/200">
-            <section>
-              <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
-              <table>
-                <tr><td>Easily digested</td><td>✓</td></tr>
-                <tr><td>Perfectly balenced</td><td>✓</td></tr>
-                <tr><td>Environmentaly responsible</td><td>✓</td></tr>
-              </table>
-            </section>
-            <div>Let's do our share to make our pets and our planet healthy.</div>
-          </foxy-item>
-      </section>
-      `
-    )}`}
+    {args =>
+      html`${getTemplate(
+        args,
+        html`
+          <style>
+            .dietary-food {
+              font-weight: 100;
+              border: solid thin silver;
+              border-radius: 6px;
+              padding: 1em;
+              margin-bottom: 1em;
+              background: #fafafa;
+            }
+            .dietary-food img {
+              height: 4em;
+            }
+            table {
+              margin: 1em;
+            }
+            table td {
+              border: solid thin silver;
+              border-collapse: collapse;
+              padding: 0.5em;
+            }
+            section.special-items {
+              padding: 1em;
+              border: double #6666ff;
+              background: #ededff;
+              border-radius: 6px;
+            }
+            .special-items h1,
+            .dietary-food h1 {
+              font-size: 1.2em;
+              font-weight: 400;
+              padding: 1em 0;
+            }
+          </style>
+          <h1>Diet food</h1>
+          <section class="dietary-food">
+            <foxy-item
+              name="Healthy Bites"
+              price="59.99"
+              image="http://placedog.net/200"
+              description="High quality nutritious food for your pet."
+            >
+              <div>Healthy pet, happy pet!</div>
+            </foxy-item>
+            <foxy-item
+              name="Yummy Bites"
+              price="69.99"
+              image="http://placedog.net/200"
+              description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
+            >
+              <div>Life is much better when eating is a joy.</div>
+            </foxy-item>
+          </section>
+          <h1>Special Item</h1>
+          <section class="special-items">
+            <foxy-item name="Sci-fy Bites" price="69.99" image="http://placedog.net/200">
+              <section>
+                <p>
+                  This incredible product was developed by dedicated nutrition experts, building
+                  upon the most advanced research
+                </p>
+                <table>
+                  <tr>
+                    <td>Easily digested</td>
+                    <td>✓</td>
+                  </tr>
+                  <tr>
+                    <td>Perfectly balanced</td>
+                    <td>✓</td>
+                  </tr>
+                  <tr>
+                    <td>Environmentaly responsible</td>
+                    <td>✓</td>
+                  </tr>
+                </table>
+              </section>
+              <div>Let's do our share to make our pets and our planet healthy.</div>
+            </foxy-item>
+          </section>
+        `
+      )}`
+    }
   </Story>
 </Canvas>
-
 
 ### Setting up subscriptions
 
@@ -336,64 +338,59 @@ To offer a subscription option to your clients you need to provide the subscript
 You can configure subscriptions using the subscription product options, as outlined at [https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options](Subscription Product Options).
 
 <Canvas
-      mdxSource={dedent`
-      <foxy-quick-form store="jamstackecommerceexample.foxycart.com"
-                       currency="usd"
-                       frequencies='["1d", "1w", ".5m", "1m", "3m"]'>
-          <foxy-item name="Pup Dog Food" description="Daily meal for your friend"
-                   price="69.99"
-                   image="http://placedog.net/200" >
+  mdxSource={dedent`
+    <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd" frequencies='["1d", "1w", ".5m", "1m", "3m"]'>
+      <foxy-item name="Pup Dog Food" description="Daily meal for your friend" price="69.99" image="http://placedog.net/200"></foxy-item>
+    </foxy-quick-form>
+  `}
+>
+  <Story name="Product with subscription" args={{ frequencies: ['1d', '1w', '.5m', '1m', '3m'] }}>
+    {args =>
+      html`${getTemplate(
+        args,
+        html`
+          <foxy-item
+            name="Pup Dog Food"
+            price="69.99"
+            description="Daily meal for your friend"
+            image="http://placedog.net/200"
+          >
           </foxy-item>
-      </foxy-quick-form>`}>
-  <Story name="Product with subscription" args={{frequencies:["1d", "1w", ".5m", "1m", "3m"]}}>
-    {args => html`${getTemplate(args, html`
-        <foxy-item name="Pup Dog Food"
-                   price="69.99"
-                   description="Daily meal for your friend"
-                   image="http://placedog.net/200" >
-        </foxy-item>
-      `
-      )}`}
+        `
+      )}`
+    }
   </Story>
 </Canvas>
 
 ## Adding Child products
 
-Child products allow you to bundle a set of products together.
-You can achieve this by nesting `<foxy-item>` custom tags if you are using the `slots` approach, or using the `products` field of the product object within the JS array in the `attributes` approach:
-
-These two examples are equivalent:
+Child products allow you to bundle a set of products together. You can achieve this by nesting `<foxy-item>` custom tags if you are using the `slots` approach, or using the `products` field of the product object within the JS array in the `attributes` approach: These two examples are equivalent:
 
 ```html
-    <foxy-quick-form>
-        <foxy-item>
-            <foxy-item></foxy-item>
-            <foxy-item></foxy-item>
-        </foxy-item>
-      </foxy-quick-form>
+<foxy-quick-form>
+  <foxy-item>
+    <foxy-item></foxy-item>
+    <foxy-item></foxy-item>
+  </foxy-item>
+</foxy-quick-form>
 ```
 
 ```html
-    <foxy-quick-form products='[{products: [{}, {}]}]'>
-        <foxy-item>
-            <foxy-item></foxy-item>
-            <foxy-item></foxy-item>
-        </foxy-item>
-      </foxy-quick-form>
+<foxy-quick-form products="[{products: [{}, {}]}]">
+  <foxy-item>
+    <foxy-item></foxy-item>
+    <foxy-item></foxy-item>
+  </foxy-item>
+</foxy-quick-form>
 ```
 
 ### A product bundle
 
-Setting the price of the parent product to zero effectively creates a bundled product.
-
-Here we use the `slots` approach.
+Setting the price of the parent product to zero effectively creates a bundled product. Here we use the `slots` approach.
 
 <Canvas
-    mdxSource= {dedent`
-  <foxy-quick-form
-      store="jamstackecommerceexample"
-      currency="usd"
-  >
+  mdxSource={dedent`
+    <foxy-quick-form store="jamstackecommerceexample" currency="usd">
       <foxy-item name="Bundle Package" price="0.00" image="http://placedog.net/200">
         <p>The most avanced dog food bundle you will find out there. Well balanced, delicious and scientifically evaluated.</p>
         <foxy-item slot="products" name="The smart choice" price="50.00" image="http://placedog.net/200" quantity="3">
@@ -404,98 +401,126 @@ Here we use the `slots` approach.
         </foxy-item>
       </foxy-item>
     </foxy-quick-form>
-    `}
+  `}
 >
-  <Story name="Product bundle" args={{
-      store:"jamstackecommerceexample",
-      currency:"usd"
-    }}>
-    {args => html`${getTemplate(args, html`
-      <foxy-item name="Bundle Package" price="0.00" image="http://placedog.net/200">
-        <p>The most avanced dog food bundle you will find out there. Well balanced, delicious and scientifically evaluated.</p>
-        <foxy-item slot="products" name="The smart choice" price="50.00" image="http://placedog.net/200" quantity="3">
-          <div>The smart choice is one your puppy is always trying to do, but need you to lead the way.</div>
-        </foxy-item>
-        <foxy-item slot="products" name="The interesting bit" price="30.00" image="http://placedog.net/200" quantity="2">
-          <div>The world is full of interesting stuff but there is but one <strong>interesting bit</strong>, that's for sure.</div>
-        </foxy-item>
-      </foxy-item>
+  <Story
+    name="Product bundle"
+    args={{
+      store: 'jamstackecommerceexample',
+      currency: 'usd',
+    }}
+  >
+    {args =>
+      html`${getTemplate(
+        args,
+        html`
+          <foxy-item name="Bundle Package" price="0.00" image="http://placedog.net/200">
+            <p>
+              The most avanced dog food bundle you will find out there. Well balanced, delicious and
+              scientifically evaluated.
+            </p>
+            <foxy-item
+              slot="products"
+              name="The smart choice"
+              price="50.00"
+              image="http://placedog.net/200"
+              quantity="3"
+            >
+              <div>
+                The smart choice is one your puppy is always trying to do, but need you to lead the
+                way.
+              </div>
+            </foxy-item>
+            <foxy-item
+              slot="products"
+              name="The interesting bit"
+              price="30.00"
+              image="http://placedog.net/200"
+              quantity="2"
+            >
+              <div>
+                The world is full of interesting stuff but there is but one
+                <strong>interesting bit</strong>, that's for sure.
+              </div>
+            </foxy-item>
+          </foxy-item>
         `
-    )}`}
+      )}`
+    }
   </Story>
 </Canvas>
 
 ### Bonus products
 
-Setting the price of the children to zero you effectivelly create a bonus product, where upon purchasing a product your client gets another for free.
-
-Here we use the `attributes` approach.
+Setting the price of the children to zero you effectivelly create a bonus product, where upon purchasing a product your client gets another for free. Here we use the `attributes` approach.
 
 <Canvas
-    mdxSource= {dedent`
-      <foxy-quick-form
-        store="jamstackecommerceexample"
-        currency="usd"
-        products='[
+  mdxSource={dedent`
+    <foxy-quick-form
+      store="jamstackecommerceexample"
+      currency="usd"
+      products='[{
+        "name":"Artists Drawing Set",
+        "price":"75.95",
+        "image": "http://placedog.net/200",
+        "products":[
           {
-            "name":"Artists Drawing Set",
-            "price":"75.95",
-            "image": "http://placedog.net/200",
-            "products":[
-              {
-                "name":"Nanking Pen",
-                "description": "The pen you'll ever use",
-                "price":"0",
-                "image": "http://placedog.net/200"
-              },
-              {
-                "name":"Blank Canvas",
-                "price":"0",
-                "description": "A placeholder for your imagination",
-                "image": "http://placedog.net/200"
-              },
-              {
-                "name":"Water based paint",
-                "description":"The paint that will bring things to life",
-                "price":"0",
-                "image": "http://placedog.net/200"
-              }
-            ]}
-          ]'>
-      </foxy-quick-form>
-    `}
+            "name":"Nanking Pen",
+            "description": "The pen you'll ever use",
+            "price":"0",
+            "image": "http://placedog.net/200"
+          },
+          {
+            "name":"Blank Canvas",
+            "price":"0",
+            "description": "A placeholder for your imagination",
+            "image": "http://placedog.net/200"
+          },
+          {
+            "name":"Water based paint",
+            "description":"The paint that will bring things to life",
+            "price":"0",
+            "image": "http://placedog.net/200"
+          }
+        ]
+      }]'
+    >
+    </foxy-quick-form>
+  `}
 >
-  <Story name="Bonus product"
+  <Story
+    name="Bonus product"
     args={{
-        store:"jamstackecommerceexample",
-        currency:"usd",
-        products:[
-          {
-            "name":"Artists Drawing Set",
-            "price":"75.95",
-            "image": "http://placedog.net/200",
-            "products":[
-              {
-                "name":"Nanking Pencil",
-                "price":"0",
-                "description": "The pen you'll ever use",
-                "image": "http://placedog.net/200"
-              },
-              {
-                "name":"Blank Canvas",
-                "price":"0",
-                "description": "A placeholder for your imagination",
-                "image": "http://placedog.net/200"
-              },
-              {
-                "name":"Water based paint",
-                "price":"0",
-                "description":"The paint that will bring things to life",
-                "image": "http://placedog.net/200"
-              }
-            ]}
-          ]
-      }}
+      store: 'jamstackecommerceexample',
+      currency: 'usd',
+      products: [
+        {
+          name: 'Artists Drawing Set',
+          price: '75.95',
+          image: 'http://placedog.net/200',
+          products: [
+            {
+              name: 'Nanking Pencil',
+              price: '0',
+              description: "The pen you'll ever use",
+              image: 'http://placedog.net/200',
+            },
+            {
+              name: 'Blank Canvas',
+              price: '0',
+              description: 'A placeholder for your imagination',
+              image: 'http://placedog.net/200',
+            },
+            {
+              name: 'Water based paint',
+              price: '0',
+              description: 'The paint that will bring things to life',
+              image: 'http://placedog.net/200',
+            },
+          ],
+        },
+      ],
+    }}
   >
     {args => html`${getTemplate(args)}`}
   </Story>
@@ -506,62 +531,61 @@ Here we use the `attributes` approach.
 If you set prices to both parent and child products, you can make products that are cheaper if bought together.
 
 <Canvas
-    mdxSource={dedent`
-  <foxy-quick-form
+  mdxSource={dedent`
+    <foxy-quick-form
       store="jamstackecommerceexample"
       currency="usd"
-      products='[
-      {
+      products='[{
         "name":"Purple Jacket",
         "description":"Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!",
         "price":"80.00",
         "image":"http://placedog.net/200",
-        "products": [
-          {
-                "slot":"products",
-                "name":"Purple pants",
-                "price":"40.00",
-                "image":"http://placedog.net/200"
-          },
-          {
-                "slot":"products",
-                "name":"Purple boots",
-                "price":"40.00",
-                "image":"http://placedog.net/200"
-          }
-        ]
-      }
-     ]'
-  >
-  </foxy-quick-form>
-    `}
+        "products": [{
+          "slot":"products",
+          "name":"Purple pants",
+          "price":"40.00",
+          "image":"http://placedog.net/200"
+        }, {
+          "slot":"products",
+          "name":"Purple boots",
+          "price":"40.00",
+          "image":"http://placedog.net/200"
+        }]
+      }]'
+    >
+    </foxy-quick-form>
+  `}
 >
-  <Story name="Package deal" args={{
-      store:"jamstackecommerceexample",
-      currency:"usd",
+  <Story
+    name="Package deal"
+    args={{
+      store: 'jamstackecommerceexample',
+      currency: 'usd',
       products: [
-      {
-        name:"Purple Jacket",
-        description:"Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!",
-        price:"80.00",
-        image:"http://placedog.net/200",
-        products: [
-          {
-                slot:"products",
-                name:"Purple pants",
-                price:"40.00",
-                image:"http://placedog.net/200"
-          },
-          {
-                slot:"products",
-                name:"Purple boots",
-                price:"40.00",
-                image:"http://placedog.net/200"
-          }
-        ]
-      }
-      ]
-    }}>
+        {
+          name: 'Purple Jacket',
+          description:
+            'Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!',
+          price: '80.00',
+          image: 'http://placedog.net/200',
+          products: [
+            {
+              slot: 'products',
+              name: 'Purple pants',
+              price: '40.00',
+              image: 'http://placedog.net/200',
+            },
+            {
+              slot: 'products',
+              name: 'Purple boots',
+              price: '40.00',
+              image: 'http://placedog.net/200',
+            },
+          ],
+        },
+      ],
+    }}
+  >
     {args => html`${getTemplate(args)}`}
   </Story>
 </Canvas>
@@ -572,143 +596,147 @@ To add or remove products to the form you can edit the products attribute or dir
 
 ### Replacing the products list
 
-You can set a new list of products by changing the `products` attribute of the `foxy-quick-form`.
-Please, note that this is a destructive operation: all products will be removed an new products will be added.
-
-Consider this example code:
+You can set a new list of products by changing the `products` attribute of the `foxy-quick-form`. Please, note that this is a destructive operation: all products will be removed an new products will be added. Consider this example code:
 
 ```javascript
-  // Get the form
-  var myform = document.querySelector('#to-change-product-list');
-  // Set a new value for the products array
-  myform.products = [
-    {
-      name: "Nice Pants",
-      price: 30
-    },
-    {
-      name: "Yellow T-Shirt",
-      price: 12
-    }
-  ];
+// Get the form
+var myform = document.querySelector('#to-change-product-list');
+// Set a new value for the products array
+myform.products = [
+  {
+    name: 'Nice Pants',
+    price: 30,
+  },
+  {
+    name: 'Yellow T-Shirt',
+    price: 12,
+  },
+];
 ```
 
 Also, note that only the products, not additional markup, will be removed.
-
 
 ### Add an array of products
 
 You can add one or more products to the form using the `addProducts` method of the form.
 
 ```javascript
-  myForm.addProducts([{name: "Office chair", price: 200}, {name: "Office table", price: 100}]);
+myForm.addProducts([
+  { name: 'Office chair', price: 200 },
+  { name: 'Office table', price: 100 },
+]);
 ```
 
 ### By removing an array of products
 
-Custumers may remove products from the form using the quantity button or the remove checkbox.
-
-There may be circumstances, however, where the application itself must remove a product from the form.
-
-You may simply remove the product directly:
+Custumers may remove products from the form using the quantity button or the remove checkbox. There may be circumstances, however, where the application itself must remove a product from the form. You may simply remove the product directly:
 
 ```javascript
 myForm.querySelector('[name="pup dog food"]').remove();
 ```
 
-You can also this by providing a new products array or you may choose to remove a product.
-
-You will need to use the product id called `pid`, like so:
-
-Consider the following code:
+You can also this by providing a new products array or you may choose to remove a product. You will need to use the product id called `pid`, like so: Consider the following code:
 
 ```javascript
 var productToRemove = myForm.querySelector('SomePropertyUniqueToProductToRemove');
 myForm.removeProducts([productToRemove.pid]);
 ```
+
 ### Interacting with the form example
 
 <Canvas
-    mdxSource={dedent`
-      <div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
-        <foxy-quick-form id="to-change-product-list"
-          store="jamstackecommerceexample"
-          currency="usd"
-          products='[
-          {
-            "name":"Artists Drawing Set",
-              "price":"75.95",
-              "image": "http://placedog.net/200",
-              "products":[
-              {
-                "name":"Nanking Pencil",
-                "image": "http://placedog.net/200",
-                "price":"0"
-              },
-              {
-                "name":"Blank Canvas",
-                "image": "http://placedog.net/200",
-                "price":"0"
-              },
-              {
-                "name":"Water based paint",
-                "image": "http://placedog.net/200",
-                "price":"0"
-              }
-              ]}
-            ]'>
-        </foxy-quick-form>
-    <button type="button"
-            style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
-            onclick="document.querySelector('#to-change-product-list').products = [{name:'Changed', price: 5}];">
-    	Replace the products
-    </button>
+  mdxSource={dedent`
+    <div style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+      <foxy-quick-form id="to-change-product-list"
+        store="jamstackecommerceexample"
+        currency="usd"
+        products='[{
+          "name":"Artists Drawing Set",
+          "price":"75.95",
+          "image": "http://placedog.net/200",
+          "products":[{
+            "name":"Nanking Pencil",
+            "image": "http://placedog.net/200",
+            "price":"0"
+          }, {
+            "name":"Blank Canvas",
+            "image": "http://placedog.net/200",
+            "price":"0"
+          }, {
+            "name":"Water based paint",
+            "image": "http://placedog.net/200",
+            "price":"0"
+          }]
+        }]'
+      >
+      </foxy-quick-form>
+      <button type="button"
+        style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+        onclick="document.querySelector('#to-change-product-list').products = [{name:'Changed', price: 5}];"
+      >
+        Replace the products
+      </button>
     </div>
-    `}>
-  <Story name="Change products list" args={{
-          store:"jamstackecommerceexample",
-          currency:"usd",
-          products:[
-          {
-            "name":"Artists Drawing Set",
-              "price":"75.95",
-              "image": "http://placedog.net/200",
-              "products":[
-              {
-                "name":"Nanking Pencil",
-                "image": "http://placedog.net/200",
-                "price":"0"
-              },
-              {
-                "name":"Blank Canvas",
-                "image": "http://placedog.net/200",
-                "price":"0"
-              },
-              {
-                "name":"Water based paint",
-                "image": "http://placedog.net/200",
-                "price":"0"
-              }
-              ]}
-            ],
-          productsToAdd: [{name: "My new product", price: 4.2, image: "http://placedog.net/200"}]
-    }}>
+  `}
+>
+  <Story
+    name="Change products list"
+    args={{
+      store: 'jamstackecommerceexample',
+      currency: 'usd',
+      products: [
+        {
+          name: 'Artists Drawing Set',
+          price: '75.95',
+          image: 'http://placedog.net/200',
+          products: [
+            {
+              name: 'Nanking Pencil',
+              image: 'http://placedog.net/200',
+              price: '0',
+            },
+            {
+              name: 'Blank Canvas',
+              image: 'http://placedog.net/200',
+              price: '0',
+            },
+            {
+              name: 'Water based paint',
+              image: 'http://placedog.net/200',
+              price: '0',
+            },
+          ],
+        },
+      ],
+      productsToAdd: [{ name: 'My new product', price: 4.2, image: 'http://placedog.net/200' }],
+    }}
+  >
     {args => html`
-      <div id="tochange" style="max-width: 800px; border: solid thin silver; padding: 1em; margin: 0 auto">
+      <div id="tochange">
         ${getTemplate(args)}
-        <button type="button"
-                style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
-                onclick="this.parentElement.children[0].products = ${JSON.stringify(args.productsToAdd)};">
-            Replace the products
+        <button
+          type="button"
+          style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+          onclick="this.parentElement.children[0].products = ${JSON.stringify(args.productsToAdd)};"
+        >
+          Replace the products
         </button>
-        <button type="button"
-                style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
-                onclick="this.parentElement.children[0].addProducts(${JSON.stringify(args.productsToAdd)})">
+        <button
+          type="button"
+          style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+          onclick="this.parentElement.children[0].addProducts(${JSON.stringify(
+            args.productsToAdd
+          )})"
+        >
           Add a new product
         </button>
-        <button type="button" 
-              style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
-              onclick="this.parentElement.children[0].removeProducts([this.parentElement.children[0].children[0].pid]);">Remove first product</button>
+        <button
+          type="button"
+          style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
+          onclick="this.parentElement.children[0].removeProducts([this.parentElement.children[0].children[0].pid]);"
+        >
+          Remove first product
+        </button>
       </div>
     `}
   </Story>
