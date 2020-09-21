@@ -1,5 +1,5 @@
-import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
-import { Page } from '../page/Page';
+import { html, css, CSSResultArray, TemplateResult } from 'lit-element';
+import { Page } from '../Page/Page';
 
 export class Section extends Page {
   public static get styles(): CSSResultArray {

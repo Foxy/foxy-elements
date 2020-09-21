@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { Checkbox, Group, I18N, Section } from '../../../../private/index';
 import { FrequencyList } from '../FrequencyList/FrequencyList';
@@ -21,29 +21,20 @@ export class FrequencyModification extends Translatable {
     };
   }
 
-  @property({ type: Object })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      value: { type: Object },
+      disabled: { type: Boolean },
+    };
+  }
+
   public value: boolean | FrequencyModificationRule = false;
 
-  @property({ type: Boolean })
   public disabled = false;
 
   public constructor() {
     super('customer-portal-settings');
-  }
-
-  private get __normalizedValue() {
-    return {
-      jsonataQuery: this.__normalizedQuery,
-      values: this.__normalizedValues,
-    };
-  }
-
-  private get __normalizedQuery() {
-    return typeof this.value === 'boolean' ? '*' : this.value.jsonataQuery;
-  }
-
-  private get __normalizedValues() {
-    return typeof this.value === 'boolean' ? [] : this.value.values;
   }
 
   public render(): TemplateResult {
@@ -77,12 +68,8 @@ export class FrequencyModification extends Translatable {
                 </x-group>
 
                 <x-group frame>
-                  <x-i18n
-                    slot="header"
-                    .ns=${this.ns}
-                    .lang=${this.lang}
-                    key="fmod.options"
-                  ></x-i18n>
+                  <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.options">
+                  </x-i18n>
                   <x-frequency-list
                     data-testid="frequency"
                     .lang=${this.lang}
@@ -99,8 +86,23 @@ export class FrequencyModification extends Translatable {
     `;
   }
 
+  private get __normalizedValue() {
+    return {
+      jsonataQuery: this.__normalizedQuery,
+      values: this.__normalizedValues,
+    };
+  }
+
+  private get __normalizedQuery() {
+    return typeof this.value === 'boolean' ? '*' : this.value.jsonataQuery;
+  }
+
+  private get __normalizedValues() {
+    return typeof this.value === 'boolean' ? [] : this.value.values;
+  }
+
   private __handleQueryChange(evt: JSONataInputChangeEvent) {
-    this.value = { ...this.__normalizedValue, jsonataQuery: evt.detail };
+    this.value = { ...this.__normalizedValue, jsonataQuery: evt.detail as string };
     this.__sendChange();
   }
 

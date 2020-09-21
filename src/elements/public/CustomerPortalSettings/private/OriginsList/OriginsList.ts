@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property, query, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { ListChangeEvent } from '../../../../private/events';
@@ -21,13 +21,16 @@ export class OriginsList extends Translatable {
     };
   }
 
-  @query('[name=new-value]')
-  private __newValueInput!: HTMLInputElement;
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      value: { type: Array },
+      disabled: { type: Boolean },
+    };
+  }
 
-  @property({ type: Array })
   public value: string[] = [];
 
-  @property({ type: Boolean })
   public disabled = false;
 
   public constructor() {
@@ -75,6 +78,10 @@ export class OriginsList extends Translatable {
         </x-list>
       </x-group>
     `;
+  }
+
+  private get __newValueInput(): HTMLInputElement {
+    return this.shadowRoot!.querySelector('[name=new-value]') as HTMLInputElement;
   }
 
   private __sendChange() {

@@ -6,6 +6,6 @@ export interface Duration {
 export function parseDuration(value: string): Duration {
   return {
     count: parseInt(value.replace(/(y|m|w|d)/, '')),
-    units: value.replace(/\d+(\.\d*)?/, ''),
+    units: value.replace(/\.?\d+/, ''),
   };
 }

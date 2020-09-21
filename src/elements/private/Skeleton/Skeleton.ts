@@ -1,4 +1,4 @@
-import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
+import { css, CSSResultArray, html, TemplateResult, PropertyDeclarations } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Skeleton extends Themeable {
@@ -28,11 +28,23 @@ export class Skeleton extends Themeable {
     ];
   }
 
+  public static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      variant: { type: String },
+    };
+  }
+
+  public variant: 'static' | 'error' | null = null;
+
   public render(): TemplateResult {
+    const bg = this.variant === 'error' ? 'bg-error-10' : 'bg-contrast-10';
+    const animated = this.variant === null ? 'animated' : '';
+
     return html`
       <div class="relative">
         <span class="opacity-0"><slot></slot></span>
-        <div class="bg-contrast-10 rounded my-xs absolute inset-0 animated"></div>
+        <div class="${bg} ${animated} rounded my-xs absolute inset-0"></div>
       </div>
     `;
   }

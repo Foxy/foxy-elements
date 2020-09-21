@@ -1,5 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { ListChangeEvent } from '../../../../private/events';
 import { I18N, List, Skeleton } from '../../../../private/index';
@@ -19,13 +19,19 @@ export class FrequencyList extends Translatable {
     };
   }
 
-  private __newValue = FrequencyInput.defaultValue;
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      value: { type: Array },
+      disabled: { type: Boolean },
+    };
+  }
 
-  @property({ type: Array })
   public value: string[] = [];
 
-  @property({ type: Boolean })
   public disabled = false;
+
+  private __newValue = FrequencyInput.defaultValue;
 
   public constructor() {
     super('customer-portal-settings');
@@ -70,7 +76,7 @@ export class FrequencyList extends Translatable {
   }
 
   private __handleNewValueChange(evt: FrequencyInputChangeEvent) {
-    this.__newValue = evt.detail;
+    this.__newValue = evt.detail as string;
   }
 
   private __handleListChange(evt: ListChangeEvent) {

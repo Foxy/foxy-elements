@@ -1,12 +1,15 @@
-import { Router } from '@vaadin/router';
+import { Route } from '@vaadin/router';
 
 const TODO = 'x-not-implemented';
 
-export const routes: Parameters<Router['setRoutes']>[0] = [
+/** Values as such are overwritten in admin contructor with a scoped element name. */
+const SCOPED_IN_ADMIN = 'x-not-implemented';
+
+export const routes: Route[] = [
   {
     path: '/',
     name: 'dashboard',
-    component: TODO,
+    component: SCOPED_IN_ADMIN,
   },
   {
     path: '/management/transactions',
@@ -105,9 +108,14 @@ export const routes: Parameters<Router['setRoutes']>[0] = [
     component: TODO,
   },
   {
-    path: '/signout',
-    name: 'signout',
-    component: TODO,
+    path: '/sign-out',
+    name: 'sign-out',
+    component: SCOPED_IN_ADMIN,
+  },
+  {
+    path: '/sign-in',
+    name: 'sign-in',
+    component: SCOPED_IN_ADMIN,
   },
   {
     path: '(.*)',

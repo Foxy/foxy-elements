@@ -124,7 +124,7 @@ function handleRequestWithInfiniteLoading(evt: Event) {
 
 function handleRequestWithUnauthorizedError(evt: Event) {
   const { detail } = evt as RequestEvent<CustomerPortalSettings>;
-  detail.handle(() => Promise.resolve(new Response(null, { status: 403 })));
+  detail.handle(() => Promise.resolve(new Response(null, { status: 401 })));
 }
 
 // #endregion handlers

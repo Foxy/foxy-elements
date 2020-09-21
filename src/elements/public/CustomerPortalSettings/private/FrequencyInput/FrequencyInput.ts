@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { DropdownChangeEvent } from '../../../../private/events';
@@ -19,21 +19,19 @@ export class FrequencyInput extends Translatable {
     };
   }
 
-  private readonly __items = ['y', 'm', 'w', 'd'] as const;
-
-  private get __numericValue() {
-    return parseDuration(this.value ?? '').count;
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: String },
+    };
   }
 
-  private get __unitsValue() {
-    return parseDuration(this.value ?? '').units;
-  }
-
-  @property({ type: Boolean })
   public disabled = false;
 
-  @property({ type: String })
   public value = FrequencyInput.defaultValue;
+
+  private readonly __items = ['y', 'm', 'w', 'd'] as const;
 
   public constructor() {
     super('customer-portal-settings');
@@ -66,6 +64,14 @@ export class FrequencyInput extends Translatable {
     `;
   }
 
+  private get __numericValue() {
+    return parseDuration(this.value ?? '').count;
+  }
+
+  private get __unitsValue() {
+    return parseDuration(this.value ?? '').units;
+  }
+
   private __handleNumberChange(evt: Event) {
     evt.stopPropagation();
     const value = (evt.target as HTMLInputElement).value;
@@ -74,7 +80,7 @@ export class FrequencyInput extends Translatable {
   }
 
   private __handleUnitsChange(evt: DropdownChangeEvent) {
-    this.value = this.value.replace(String(this.__unitsValue), evt.detail);
+    this.value = this.value.replace(String(this.__unitsValue), evt.detail as string);
     this.__sendChange();
   }
 

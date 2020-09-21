@@ -91,6 +91,6 @@ export const navigation: Navigation = [
     hide: 'mobile',
     icon: 'foxy:signout',
     label: 'nav.signout',
-    name: 'signout',
+    name: 'sign-out',
   },
 ];

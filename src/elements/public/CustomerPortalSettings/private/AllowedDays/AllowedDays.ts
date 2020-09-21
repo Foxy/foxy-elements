@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 
 import {
@@ -27,17 +27,19 @@ export class AllowedDays extends Translatable {
     };
   }
 
-  private readonly __items = ['all', 'month', 'day'] as const;
-
-  private get __choice() {
-    return this.__items[this.value === undefined ? 0 : this.value.type === 'month' ? 1 : 2];
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: Object },
+    };
   }
 
-  @property({ type: Boolean })
   public disabled = false;
 
-  @property({ type: Object })
   public value?: Rule;
+
+  private readonly __items = ['all', 'month', 'day'] as const;
 
   public constructor() {
     super('customer-portal-settings');
@@ -47,7 +49,7 @@ export class AllowedDays extends Translatable {
     return html`
       <x-choice
         data-testid="choice"
-        .value=${this.__choice}
+        .value=${this.value?.type ?? 'all'}
         .items=${this.__items}
         .disabled=${this.disabled}
         @change=${this.__handleChoiceChange}
@@ -60,6 +62,7 @@ export class AllowedDays extends Translatable {
           ? html`
               <x-monthday-picker
                 slot="month"
+                class="mb-m"
                 data-testid="monthday-picker"
                 .lang=${this.lang}
                 .disabled=${this.disabled}
@@ -72,6 +75,7 @@ export class AllowedDays extends Translatable {
           ? html`
               <x-weekday-picker
                 slot="day"
+                class="mb-m"
                 data-testid="weekday-picker"
                 .lang=${this.lang}
                 .disabled=${this.disabled}

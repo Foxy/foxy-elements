@@ -1,6 +1,5 @@
 import { html } from 'lit-html';
-import { Story, Preview, Meta, Props } from '@open-wc/demoing-storybook';
-import { withKnobs, withWebComponentsKnobs } from '@open-wc/demoing-storybook';
+import { Story, Canvas, Meta, Props } from '@storybook/addon-docs/blocks';
 import { store } from '../../../mocks/FxStore';
 import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
 import './index';
@@ -18,14 +17,7 @@ export const handleRequest = evt => {
   });
 };
 
-<Meta
-  title="relations | <foxy-customer-portal-settings>"
-  decorators={[withKnobs, withWebComponentsKnobs]}
-  parameters={{
-    component: 'foxy-customer-portal-settings',
-    options: { selectedPanel: 'storybookjs/knobs/panel' },
-  }}
-/>
+<Meta title="Relations/CustomerPortalSettings" component="foxy-customer-portal-settings" />
 
 # Customer Portal Settings
 
@@ -41,11 +33,11 @@ request handler to connect to the backend. You can check if your component is co
 running your project and looking for the error message like below – if it isn't there, then you're
 good to go.
 
-<Preview>
+<Canvas>
   <Story name="Default" height="320px">
-    {html`<foxy-customer-portal-settings></foxy-customer-portal-settings>`}
+    {() => html`<foxy-customer-portal-settings></foxy-customer-portal-settings>`}
   </Story>
-</Preview>
+</Canvas>
 
 You can learn more about how request handlers work in `<foxy-admin>` docs. The href attribute is a full path to the customer portal settings
 resource to load into the component. If you're working with our hAPI, setting up this element is as easy as wrapping it into `<foxy-api>`
@@ -62,9 +54,9 @@ and setting the `href` attribute on the node:
 
 A properly configured element should look like this:
 
-<Preview>
+<Canvas>
   <Story name="Configured" height="320px">
-    {html`
+    {() => html`
       <foxy-customer-portal-settings
         href="https://foxy-demo.foxycart.com/s/admin/stores/8/customer_portal_settings"
         @request=${handleRequest}
@@ -72,7 +64,7 @@ A properly configured element should look like this:
       </foxy-customer-portal-settings>
     `}
   </Story>
-</Preview>
+</Canvas>
 
 ## Customize
 

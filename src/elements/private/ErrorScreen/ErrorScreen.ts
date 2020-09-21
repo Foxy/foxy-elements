@@ -1,14 +1,16 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { css, CSSResultArray, property } from 'lit-element';
+import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 import { I18N } from '../I18N/I18N';
 
 export type ErrorType = 'unknown' | 'setup_needed' | 'unauthorized';
 
-export class FriendlyError extends Error {
-  constructor(public type: ErrorType = 'unknown') {
-    super();
+export class FriendlyError {
+  public type: ErrorType;
+
+  constructor(type: ErrorType = 'unknown') {
+    this.type = type;
   }
 }
 
@@ -39,7 +41,13 @@ export class ErrorScreen extends Translatable {
     ];
   }
 
-  @property({ type: String })
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      type: { type: String },
+    };
+  }
+
   public type: ErrorType = 'unknown';
 
   public render(): TemplateResult {

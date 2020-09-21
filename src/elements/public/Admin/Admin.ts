@@ -1,4 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { ScopedElementsHost } from '@open-wc/scoped-elements/src/types';
 import { Router } from '@vaadin/router';
 import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
@@ -8,7 +9,10 @@ import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScree
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
 import { AdminLoadSuccessEvent, machine } from './machine';
 import { navigation } from './navigation';
+import { AdminDashboard } from './private/AdminDashboard/AdminDashboard';
 import { AdminNavigation, Navigation } from './private/AdminNavigation/AdminNavigation';
+import { AdminSignIn } from './private/AdminSignIn';
+import { AdminSignOut } from './private/AdminSignOut';
 import { routes } from './routes';
 import { FxBookmark, FxStore } from './types';
 
@@ -27,7 +31,10 @@ export class Admin extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'x-admin-navigation': AdminNavigation,
+      'x-admin-dashboard': AdminDashboard,
       'x-loading-screen': LoadingScreen,
+      'x-admin-sign-out': AdminSignOut,
+      'x-admin-sign-in': AdminSignIn,
       'x-error-screen': ErrorScreen,
     };
   }
@@ -68,6 +75,7 @@ export class Admin extends Translatable {
   }
 
   private __routerListener = () => this.requestUpdate();
+
   private __outletObserver = new MutationObserver(mutations => {
     for (const { type, addedNodes } of mutations) {
       if (type !== 'childList') continue;
@@ -89,24 +97,22 @@ export class Admin extends Translatable {
   });
 
   private __navigation = navigation;
+
   private __service = interpret(this.__machine);
+
   private __router = new Router();
+
   private __routes = routes;
 
   public constructor() {
     super('admin');
+    this.__linkInternalPages();
   }
 
   public connectedCallback(): void {
     super.connectedCallback();
     addEventListener('vaadin-router-location-changed', this.__routerListener);
-
-    if (!this.__service.initialized) {
-      this.__service
-        .onChange(() => this.requestUpdate())
-        .onTransition(({ changed }) => changed && this.requestUpdate())
-        .start();
-    }
+    if (!this.__service.initialized) this.__initService();
   }
 
   public disconnectedCallback(): void {
@@ -136,19 +142,28 @@ export class Admin extends Translatable {
       });
     });
 
+    const showsNavigation = !this.__router.location.route?.name?.includes('sign-');
+
     return html`
       <div class="bg-base w-full h-full relative overflow-hidden">
-        <div id="outlet" class="absolute overflow-auto inset-nav scroll-touch"></div>
+        <div
+          id="outlet"
+          class="absolute overflow-auto ${showsNavigation ? 'inset-nav' : 'inset-0'} scroll-touch"
+          @request=${this.__handleRequest}
+        ></div>
 
-        <x-admin-navigation
-          .navigation=${navigation}
-          class="relative h-full pointer-events-none"
-          route=${this.__router.location.route?.name ?? ''}
-          lang=${this.lang}
-          ns=${this.ns}
-        >
-        </x-admin-navigation>
-
+        ${showsNavigation
+          ? html`
+              <x-admin-navigation
+                .navigation=${navigation}
+                class="relative h-full pointer-events-none"
+                route=${this.__router.location.route?.name ?? ''}
+                lang=${this.lang}
+                ns=${this.ns}
+              >
+              </x-admin-navigation>
+            `
+          : ''}
         ${state.matches('loading')
           ? html`<x-loading-screen></x-loading-screen>`
           : state.matches('error')
@@ -159,6 +174,83 @@ export class Admin extends Translatable {
   }
 
   public firstUpdated(): void {
+    this.__initRouter();
+  }
+
+  /** Processes all API requests from the admin pages. */
+  private __handleRequest(evt: RequestEvent) {
+    evt.detail.handle(async (...init) => {
+      const url = init[0] ?? '/';
+      const ctx = this.__service.state.context;
+
+      // respond with cached data if possible
+      if (init[1]?.method?.toUpperCase() === 'GET') {
+        switch (url) {
+          case ctx.bookmark?._links.self.href:
+            return new Response(JSON.stringify(ctx.bookmark), { status: 200 });
+          case ctx.store?._links.self.href:
+            return new Response(JSON.stringify(ctx.store), { status: 200 });
+          case ctx.user?._links.self.href:
+            return new Response(JSON.stringify(ctx.user), { status: 200 });
+        }
+      }
+
+      // pass this request along otherwise
+      const response = await RequestEvent.emit({ source: this, init });
+
+      // react to special requests
+      if (response.status === 200) {
+        if (url === 'foxy://sign-out') this.__service.send('SIGN_OUT');
+        if (url === 'foxy://sign-in') this.__service.send('SIGN_IN');
+      }
+
+      // sign out on 401 Unauthorized
+      if (response.status === 401) this.__service.send('SIGN_OUT');
+
+      return response;
+    });
+  }
+
+  /** Redirects users from the page they're on to the sign-in page. */
+  private __handleUnauthorizedState() {
+    if (this.__router.location.route?.name !== 'sign-in') {
+      this.__router.render(this.__router.urlForName('sign-in'), true);
+    }
+  }
+
+  /** Redirects users from the auth pages on successful sign-in. */
+  private __handleIdleState() {
+    if (this.__router.location.route?.name?.includes('sign-')) {
+      const redirect = new URLSearchParams(location.search).get('redirect');
+      this.__router.render(redirect ?? this.__router.urlForName('dashboard'), true);
+    }
+  }
+
+  /** Injects scoped internal page names into the routes config. */
+  private __linkInternalPages() {
+    const host = this.constructor as typeof ScopedElementsHost;
+    const signInRoute = this.__routes.find(v => v.name === 'sign-in');
+    const signOutRoute = this.__routes.find(v => v.name === 'sign-out');
+    const dashboardRoute = this.__routes.find(v => v.name === 'dashboard');
+
+    if (signInRoute) signInRoute.component = host.getScopedTagName('x-admin-sign-in');
+    if (signOutRoute) signOutRoute.component = host.getScopedTagName('x-admin-sign-out');
+    if (dashboardRoute) dashboardRoute.component = host.getScopedTagName('x-admin-dashboard');
+  }
+
+  private __initService() {
+    this.__service
+      .onTransition(({ changed, value }) => {
+        if (!changed) return;
+        if (value === 'idle') this.__handleIdleState();
+        if (value === 'unauthorized') this.__handleUnauthorizedState();
+        this.requestUpdate();
+      })
+      .onChange(() => this.requestUpdate())
+      .start();
+  }
+
+  private __initRouter() {
     const outlet = this.shadowRoot!.getElementById('outlet')!;
 
     this.__router.setOutlet(outlet);
@@ -166,6 +258,7 @@ export class Admin extends Translatable {
     this.__outletObserver.observe(outlet, { childList: true });
   }
 
+  /** Fetches initial state from the API. */
   private async __load(): Promise<AdminLoadSuccessEvent['data']> {
     try {
       const bookmarkResponse = await RequestEvent.emit({
@@ -174,7 +267,7 @@ export class Admin extends Translatable {
       });
 
       if (!bookmarkResponse.ok) {
-        const type = bookmarkResponse.status === 403 ? 'unauthorized' : 'unknown';
+        const type = bookmarkResponse.status === 401 ? 'unauthorized' : 'unknown';
         throw new FriendlyError(type);
       }
 
@@ -184,7 +277,7 @@ export class Admin extends Translatable {
         RequestEvent.emit({ source: this, init: [bookmark._links['fx:user'].href] }),
       ]);
 
-      if (contentResponses.some(r => r.status === 403)) throw new FriendlyError('unauthorized');
+      if (contentResponses.some(r => r.status === 401)) throw new FriendlyError('unauthorized');
       if (contentResponses.some(r => !r.ok)) throw new FriendlyError('unknown');
 
       return {

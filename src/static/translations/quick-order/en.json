@@ -1,0 +1,28 @@
+{
+  "checkout": {
+    "buy": "Buy for {{value}}",
+    "subscribe_single_unit": "Subscribe for {{value}}/{{period}}",
+    "subscribe_muiltiple_units": "Subscribe for {{value}} {{period}}"
+  },
+  "freq": {
+    "just_this_once": "Just this once",
+    "day": "day",
+    "week": "week",
+    "month": "month",
+    "year": "year"
+  },
+  "error": {
+    "invalid_start_date": "Invalid start date.",
+    "invalid_frequency": "Invalid frequency.",
+    "invalid_end_date": "Invalid end date",
+    "frequency_options_must_be_array": "Frequency options must be an array.",
+    "no_currency": "No currency available."
+  },
+  "product": {
+    "remove": "Remove",
+    "items": "{{quantity}} items"
+  },
+  "price": {
+    "each": "Each"
+  }
+}

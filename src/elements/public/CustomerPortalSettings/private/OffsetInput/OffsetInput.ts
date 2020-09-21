@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, property, TemplateResult } from 'lit-element';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { ChoiceChangeEvent } from '../../../../private/events';
@@ -20,32 +20,22 @@ export class OffsetInput extends Translatable {
     };
   }
 
-  private readonly __items = ['none', 'custom'] as const;
-
-  private get __choice() {
-    return this.__items[this.value === undefined ? 0 : 1];
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      disabled: { type: Boolean },
+      value: { type: String },
+      type: { type: String },
+    };
   }
 
-  @property({ type: Boolean })
   public disabled = false;
 
-  @property({ type: String })
   public value?: string;
 
-  @property({ type: String })
   public type: 'min' | 'max' = 'min';
 
-  private get __hint() {
-    if (!this._isI18nReady) return '';
-    const { count, units } = parseDuration(this.value ?? '');
-
-    return this._t(`ndmod.${this.type}Hint`, {
-      duration: this._t('duration', {
-        count,
-        units: this._t(units ?? '', { count }),
-      }),
-    });
-  }
+  private readonly __items = ['none', 'custom'] as const;
 
   public constructor() {
     super('customer-portal-settings');
@@ -87,8 +77,24 @@ export class OffsetInput extends Translatable {
     `;
   }
 
+  private get __choice() {
+    return this.__items[!this.value ? 0 : 1];
+  }
+
+  private get __hint() {
+    if (!this._isI18nReady) return '';
+    const { count, units } = parseDuration(this.value ?? '');
+
+    return this._t(`ndmod.${this.type}Hint`, {
+      duration: this._t('duration', {
+        count,
+        units: this._t(units ?? '', { count }),
+      }),
+    });
+  }
+
   private __handleNewValueChange(evt: FrequencyInputChangeEvent) {
-    this.value = evt.detail;
+    this.value = evt.detail as string;
     this.__sendChange();
   }
 
