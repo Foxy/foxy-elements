@@ -1,6 +1,7 @@
+import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
-import { Checkbox, ErrorScreen, Group, I18N, Section } from '../../../private/index';
+import { ErrorScreen, I18N } from '../../../private/index';
 import { ImageDescription, Product } from '../types';
 import { Preview } from './Preview';
 import { Price } from './Price';
@@ -26,8 +27,8 @@ export class ProductItem extends Translatable {
             'picture picture quantity'
             'description description description'
             'children children children'
-            'price price price' / 88px auto 104px;
-          grid-column-gap: 32px;
+            'price price price' / 5.5rem auto 6.5rem;
+          grid-column-gap: 1.5rem;
         }
 
         @media (min-width: 640px) {
@@ -35,8 +36,8 @@ export class ProductItem extends Translatable {
             grid:
               'picture description description  quantity'
               'picture children children  children'
-              'picture price price price' / 88px auto 100px 104px;
-            grid-column-gap: 32px;
+              'picture price price price' / 5.5rem auto 6.5rem 6.5rem;
+            grid-column-gap: 1.5rem;
           }
         }
 
@@ -60,21 +61,17 @@ export class ProductItem extends Translatable {
           position: relative;
         }
 
-        .product-summary.last {
-          margin-bottom: var(--lumo-space-m);
-        }
-
-        .product-summary:after {
+        .product-summary::after {
           content: ' ';
           display: block;
           position: absolute;
           width: 100vw;
-          border-bottom: solid thin var(--lumo-shade-5pct);
+          border-bottom: solid thin var(--lumo-shade-10pct);
           left: 0;
           bottom: 0;
         }
 
-        .product-summary.last:after {
+        :host([combined]:last-of-type) .product-summary::after {
           content: none;
         }
 
@@ -92,14 +89,11 @@ export class ProductItem extends Translatable {
   /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
-      'x-checkbox': Checkbox,
-      'x-section': Section,
-      'x-group': Group,
-      'x-number-field': customElements.get('vaadin-number-field'),
-      'x-i18n': I18N,
-      'x-price': Price,
-      'x-preview': Preview,
+      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'x-error-screen': ErrorScreen,
+      'x-preview': Preview,
+      'x-price': Price,
+      'x-i18n': I18N,
     };
   }
 
@@ -407,14 +401,13 @@ export class ProductItem extends Translatable {
     }
 
     if (this.isChildProduct) {
+      const removedStyle = this.quantity ? '' : 'removed opacity-50';
       return html`
         <article
-          class="product-summary duration-100 flex justify-between py-m ${this.__last
-            ? ' last '
-            : ''} ${this.quantity ? '' : 'removed opacity-50'}"
+          class="py-s font-lumo text-s leading-m product-summary duration-100 flex justify-between ${removedStyle}"
         >
-          <div class="description">
-            <h1 class="text-header font-medium text-m mb-s leading-none">${this.name}</h1>
+          <div class="description text-s">
+            <h1 class="text-header font-medium">${this.name}</h1>
             <section class="description text-secondary">
               ${this.description ? html`<p>${this.description}</p>` : ''}
               <slot></slot>
@@ -424,7 +417,7 @@ export class ProductItem extends Translatable {
           ${this.quantity < 2
             ? ''
             : html`
-                <section class="quantity w-xxl font-normal text-secondary whitespace-no-wrap">
+                <section class="quantity font-medium text-tertiary whitespace-no-wrap">
                   ${this._t('product.items', { quantity: this.quantity })}
                 </section>
               `}
@@ -433,10 +426,9 @@ export class ProductItem extends Translatable {
     } else {
       return html`
         <article
-          class="product-item duration-100 py-m ${this.quantity ? '' : 'removed opacity-50'} ${this
-            .__modified
-            ? 'modified'
-            : ''}"
+          class="font-lumo leading-m product-item duration-100 ${this.quantity
+            ? ''
+            : 'removed opacity-50'} ${this.__modified ? 'modified' : ''}"
         >
           <x-preview
             class="w-preview h-preview"
@@ -451,7 +443,7 @@ export class ProductItem extends Translatable {
 
           <section class="description min-w-xl w-full mt-l sm:w-auto sm:mt-0">
             <h1 class="text-header font-medium text-l leading-none mb-m">${this.name}</h1>
-            <div class="product-description text-secondary">
+            <div class="product-description text-secondary text-s">
               ${this.description}
               <slot></slot>
             </div>
@@ -468,7 +460,7 @@ export class ProductItem extends Translatable {
           </section>
 
           <section class="quantity max-w-xxs w-full md:w-auto text-s">
-            <x-number-field
+            <vaadin-integer-field
               class="w-full p-0"
               name="quantity"
               @change=${this.__handleQuantity}
@@ -476,18 +468,18 @@ export class ProductItem extends Translatable {
               min="0"
               has-controls
             >
-            </x-number-field>
+            </vaadin-integer-field>
 
             ${this.quantity > 1 && this.price
               ? html`
-                  <div class="price-each text-secondary text-xs text-center">
+                  <div class="price-each text-secondary text-xs text-center mt-xs">
                     ${this.__translateAmount(this.price!)} ${this._t('price.each')}
                   </div>
                 `
               : ''}
           </section>
 
-          <section class="child-products w-full ${this.__childrenCount ? 'mt-m' : ''}">
+          <section class="child-products w-full ${this.__childrenCount ? 'mt-s' : ''}">
             <slot name="products"></slot>
           </section>
         </article>
@@ -518,10 +510,6 @@ export class ProductItem extends Translatable {
       ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
     ProductItem.__existingIds.push(newId);
     return newId;
-  }
-
-  private get __last() {
-    return this.parentElement!.querySelector('[combined]:last-of-type') == this;
   }
 
   /**

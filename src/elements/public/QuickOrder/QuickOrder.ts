@@ -1,16 +1,14 @@
-import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import '@vaadin/vaadin-text-field/vaadin-password-field';
-import '@vaadin/vaadin-icons/vaadin-icons';
-import { parseDuration } from '../../../utils/parse-duration';
+import '@vaadin/vaadin-button';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
-import { ProductItem } from './private/ProductItem';
-import { Dropdown, Section, Page, Code, I18N, Skeleton, ErrorScreen } from '../../private/index';
-
+import { parseDuration } from '../../../utils/parse-duration';
+import { Dropdown, ErrorScreen } from '../../private/index';
 import { QuickOrderChangeEvent, QuickOrderResponseEvent, QuickOrderSubmitEvent } from './events';
+import { ProductItem } from './private/ProductItem';
 import { Product } from './types';
 
 export { ProductItem };
+
 /**
  * A custom element providing a customizable donation form.
  *
@@ -29,18 +27,10 @@ export class QuickOrder extends Translatable {
   /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
-      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
-      'vaadin-password-field': customElements.get('vaadin-password-field'),
-      'vaadin-button': customElements.get('vaadin-button'),
-      'iron-icon': customElements.get('iron-icon'),
-      'x-product': ProductItem,
-      'x-skeleton': Skeleton,
-      'x-section': Section,
       'x-error-screen': ErrorScreen,
-      'x-i18n': I18N,
-      'x-page': Page,
-      'x-code': Code,
+      'vaadin-button': customElements.get('vaadin-button'),
       'x-dropdown': Dropdown,
+      'x-product': ProductItem,
     };
   }
 
@@ -255,47 +245,42 @@ export class QuickOrder extends Translatable {
 
   public render(): TemplateResult {
     if (!this.store || !this.currency) {
-      return html`<x-error-screen
-        type="setup_needed"
-        class="relative overflow-hidden"
-      ></x-error-screen>`;
+      return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
+
     return html`
-      <form class="max-w-xl rounded-l mx-auto sm:my-m p-s sm:p-l overflow-hidden">
+      <form class="p-l overflow-hidden">
         <section class="products">
           <slot></slot>
         </section>
-        <x-section class="actions w-full flex justify-end">
-          <div class="grid grid-flow-row grid-rows-2 grid-cols-1 gap-m">
-            ${this.frequencies && this.frequencies.length
-              ? html` <div class="subscription">
-                  <x-dropdown
-                    type="text"
-                    name="frequency"
-                    lang=${this.lang}
-                    .value=${'0'}
-                    .items=${this.frequencies.concat(['0'])}
-                    .getText=${this.__translateFrequency.bind(this)}
-                    @change=${this.__handleFrequency}
-                  >
-                  </x-dropdown>
-                </div>`
-              : ''}
-            <div class="">
-              <vaadin-button
-                class="w-full "
-                theme="primary"
-                role="submit"
-                ?disabled=${!this.__hasValidProducts}
-                @click=${this.handleSubmit}
-              >
-                <span class="total font-normal"
-                  >${this.__submitBtnText(this.__translateAmount(this.total))}</span
+
+        <section class="actions flex flex-wrap justify-end -m-s mt-s">
+          ${this.frequencies && this.frequencies.length
+            ? html`
+                <x-dropdown
+                  type="text"
+                  name="frequency"
+                  class="subscription m-s w-full sm:w-auto"
+                  lang=${this.lang}
+                  .value=${'0'}
+                  .items=${this.frequencies.concat(['0'])}
+                  .getText=${this.__translateFrequency.bind(this)}
+                  @change=${this.__handleFrequency}
                 >
-              </vaadin-button>
-            </div>
-          </div>
-        </x-section>
+                </x-dropdown>
+              `
+            : ''}
+
+          <vaadin-button
+            class="m-s w-full sm:w-auto"
+            theme="primary"
+            data-testid="submit"
+            ?disabled=${!this.__hasValidProducts}
+            @click=${this.handleSubmit}
+          >
+            <span class="total">${this.__submitBtnText(this.__translateAmount(this.total))}</span>
+          </vaadin-button>
+        </section>
       </form>
     `;
   }
