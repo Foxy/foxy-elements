@@ -174,7 +174,7 @@ describe('The form should remain valid', async function () {
       </quick-order>
     `);
     await elementUpdated(el);
-    const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
+    const submitBtn = el.shadowRoot?.querySelector('[data-testid=submit]');
     expect(submitBtn).to.exist;
     if (submitBtn) {
       (submitBtn as HTMLInputElement).click();
@@ -191,7 +191,7 @@ describe('The form should remain valid', async function () {
       </quick-order>
     `);
     await elementUpdated(el);
-    const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
+    const submitBtn = el.shadowRoot?.querySelector('[data-testid=submit]');
     expect(submitBtn).to.exist;
     if (submitBtn) {
       logSpy.reset();
@@ -536,7 +536,7 @@ describe('The form reveals its state to the user', async function () {
       </quick-order>
     `);
     await elementUpdated(el);
-    expect(el.shadowRoot?.querySelector('[role=submit][disabled]')).to.exist;
+    expect(el.shadowRoot?.querySelector('[data-testid=submit][disabled]')).to.exist;
   });
 
   it('Dispataches event upon server response', async function () {
@@ -588,10 +588,10 @@ function getSubmissionSpy(
   el: TestQuickOrder,
   requests: sinon.SinonFakeXMLHttpRequest[]
 ): sinon.SinonSpy {
-  const submitBtn = el.shadowRoot?.querySelector('[role=submit]');
-  expect(submitBtn).to.exist;
+  const submitBtn = el.shadowRoot?.querySelector('[data-testid=submit]');
+  expect(submitBtn, '1').to.exist;
   (submitBtn! as HTMLInputElement).click();
-  expect(requests[0]).to.exist;
+  expect(requests[0], '2').to.exist;
   const r = requests[0];
   expect(r.method).to.equal('POST');
   const s: sinon.SinonSpy = (r as any).send;
