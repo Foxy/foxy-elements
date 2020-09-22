@@ -1,6 +1,5 @@
 import { Translatable } from '../../../../mixins/translatable';
 import { html, TemplateResult, PropertyDeclarations } from 'lit-element';
-import { I18N } from '../../../private/index';
 
 /**
  * Displays a price
@@ -9,15 +8,6 @@ import { I18N } from '../../../private/index';
  * quantity.
  */
 export class Price extends Translatable {
-  /**
-   * Custom elements used in the component
-   */
-  public static get scopedElements(): Record<string, unknown> {
-    return {
-      'x-i18n': I18N,
-    };
-  }
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

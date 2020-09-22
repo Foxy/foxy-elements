@@ -13,9 +13,7 @@ export { ProductItem };
  * A custom element providing a customizable donation form.
  *
  * @fires QuickOrder#change - changed form data.
- *
  * @fires QuickOrder#submit - submitted form data
- *
  * @fires QuickOrder#load -  ProgressEvent instance with server response
  *
  * @slot products - products to be added to the form.
