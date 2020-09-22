@@ -167,6 +167,23 @@
           "type": "string"
         },
         {
+          "name": "cart",
+          "description": "Optional cart\nIf set to 'add' will add items to the cart and, on submit, user is redirected to the cart.\nIf set to 'checkout', the default, on submit user is redirected to checkout directly",
+          "type": "string",
+          "default": "\"checkout\""
+        },
+        {
+          "name": "empty",
+          "description": "Optional empty\nIf set to 'true' clears the contents of the cart prior to adding the donation to the cart\nIf set to 'reset' clears the contents of the cart and cookies prior to adding the donation to the cart",
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "description": "Optional target to display the form response.",
+          "type": "string",
+          "default": "\"_top\""
+        },
+        {
           "name": "lang",
           "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
           "type": "string"
@@ -278,6 +295,26 @@
           "type": "string"
         },
         {
+          "name": "cart",
+          "attribute": "cart",
+          "description": "Optional cart\nIf set to 'add' will add items to the cart and, on submit, user is redirected to the cart.\nIf set to 'checkout', the default, on submit user is redirected to checkout directly",
+          "type": "string",
+          "default": "\"checkout\""
+        },
+        {
+          "name": "empty",
+          "attribute": "empty",
+          "description": "Optional empty\nIf set to 'true' clears the contents of the cart prior to adding the donation to the cart\nIf set to 'reset' clears the contents of the cart and cookies prior to adding the donation to the cart",
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "attribute": "target",
+          "description": "Optional target to display the form response.",
+          "type": "string",
+          "default": "\"_top\""
+        },
+        {
           "name": "lang",
           "attribute": "lang",
           "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
@@ -313,6 +350,469 @@
         {
           "name": "comment",
           "description": "Space below the comment field, if it's visible."
+        }
+      ]
+    },
+    {
+      "name": "foxy-quick-form",
+      "path": "./src/elements/public/QuickOrder/index.ts",
+      "description": "A custom element providing a customizable donation form.",
+      "attributes": [
+        {
+          "name": "store",
+          "description": "**Required** store subdomain, It is similar to mystore.foxycart.com,\nunless you use a custom subdomain.\n\n**Examples:** `\"mystore.foxycart.com\"` `\"custom.mycoolstore.com\"`",
+          "type": "string"
+        },
+        {
+          "name": "currency",
+          "description": "**Required** 3-letter lowercase currency code.\n\n**Example:** `\"usd\"`",
+          "type": "string"
+        },
+        {
+          "name": "sub_frequency",
+          "description": "Optional frequency string encoded as count (integer) + units (one of: `d`\nfor days, `w` for weeks, `m` for months, `y` for years). A special value\nfor twice a month is also supported: `.5m`. If set, the form will create a\nsubscription with the specified frequency in the cart.\n\n**Example:** `\"1m\"`",
+          "type": "string"
+        },
+        {
+          "name": "sub_startdate",
+          "description": "Optional subscription start date encoded as four integer for the year, two\nfor the month and two for the day. If only two or one digits are provided,\nit is assumed to be next occurence of that day of the month, from the\ncurrent date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"10\"`",
+          "type": "string"
+        },
+        {
+          "name": "sub_enddate",
+          "description": "Optional subscription end date encoded as four integer for the year, two\nfor the month and two for the day.\n\nThe absence of a sub_enddate, together with a sub_frequency, means a\nsubscription with indefinite and date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"20221010\"`",
+          "type": "string"
+        },
+        {
+          "name": "frequencies",
+          "description": "Optional frequency variants in the same format as `frequency`. If this property is set,\nthe form will render the frequency selection interface. If this array includes\nthe value of the `frequency` property, it will be pre-selected in the form.\n\n**Example:** `[\"7d\", \".5m\", \"1y\"]`",
+          "default": "[]"
+        },
+        {
+          "name": "products",
+          "description": "Optional an array of Product objects with at least the following properties:\n- name: the name of the product\n- price: the price of each of this product\nThe following optional properties will be used:\n- quantity: (defaults to 1) how many of each product are added to the form\n- image: an image url to be displayed in the form for this product\n- products: an array of other products that are to be treated as bundled with this product\n- signatures: an object containing a key value list of previously generated HMAC validation codes\n\nOther product properties are accepted and sent to foxy cart.\nhttps://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "description": "The namespace to look for the translations in. We use this property to\nsync namespace settings with the parent element and it's highly unlikely\nthat you'll ever need to set or read it in your code.\n\n**Example:** `\"admin\"`",
+          "type": "string",
+          "default": "\"defaultNS\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "store",
+          "attribute": "store",
+          "description": "**Required** store subdomain, It is similar to mystore.foxycart.com,\nunless you use a custom subdomain.\n\n**Examples:** `\"mystore.foxycart.com\"` `\"custom.mycoolstore.com\"`",
+          "type": "string"
+        },
+        {
+          "name": "currency",
+          "attribute": "currency",
+          "description": "**Required** 3-letter lowercase currency code.\n\n**Example:** `\"usd\"`",
+          "type": "string"
+        },
+        {
+          "name": "sub_frequency",
+          "attribute": "sub_frequency",
+          "description": "Optional frequency string encoded as count (integer) + units (one of: `d`\nfor days, `w` for weeks, `m` for months, `y` for years). A special value\nfor twice a month is also supported: `.5m`. If set, the form will create a\nsubscription with the specified frequency in the cart.\n\n**Example:** `\"1m\"`",
+          "type": "string"
+        },
+        {
+          "name": "sub_startdate",
+          "attribute": "sub_startdate",
+          "description": "Optional subscription start date encoded as four integer for the year, two\nfor the month and two for the day. If only two or one digits are provided,\nit is assumed to be next occurence of that day of the month, from the\ncurrent date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"10\"`",
+          "type": "string"
+        },
+        {
+          "name": "sub_enddate",
+          "attribute": "sub_enddate",
+          "description": "Optional subscription end date encoded as four integer for the year, two\nfor the month and two for the day.\n\nThe absence of a sub_enddate, together with a sub_frequency, means a\nsubscription with indefinite and date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"20221010\"`",
+          "type": "string"
+        },
+        {
+          "name": "frequencies",
+          "attribute": "frequencies",
+          "description": "Optional frequency variants in the same format as `frequency`. If this property is set,\nthe form will render the frequency selection interface. If this array includes\nthe value of the `frequency` property, it will be pre-selected in the form.\n\n**Example:** `[\"7d\", \".5m\", \"1y\"]`",
+          "default": "[]"
+        },
+        {
+          "name": "products",
+          "attribute": "products",
+          "description": "Optional an array of Product objects with at least the following properties:\n- name: the name of the product\n- price: the price of each of this product\nThe following optional properties will be used:\n- quantity: (defaults to 1) how many of each product are added to the form\n- image: an image url to be displayed in the form for this product\n- products: an array of other products that are to be treated as bundled with this product\n- signatures: an object containing a key value list of previously generated HMAC validation codes\n\nOther product properties are accepted and sent to foxy cart.\nhttps://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "total",
+          "description": "The total value of the items to be submitted.",
+          "type": "number"
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "description": "The namespace to look for the translations in. We use this property to\nsync namespace settings with the parent element and it's highly unlikely\nthat you'll ever need to set or read it in your code.\n\n**Example:** `\"admin\"`",
+          "type": "string",
+          "default": "\"defaultNS\""
+        }
+      ],
+      "events": [
+        {
+          "name": "change",
+          "description": "changed form data."
+        },
+        {
+          "name": "submit",
+          "description": "submitted form data"
+        },
+        {
+          "name": "load",
+          "description": "ProgressEvent instance with server response"
+        }
+      ],
+      "slots": [
+        {
+          "name": "products",
+          "description": "products to be added to the form."
+        }
+      ]
+    },
+    {
+      "name": "foxy-item",
+      "path": "./src/elements/public/QuickOrder/index.ts",
+      "description": "This component allows a user to configure a product.\n\nThe product may be configured using HTML properties or a JS object.",
+      "attributes": [
+        {
+          "name": "name",
+          "description": "**Required** the name of the product.\n\n**Example:** `\"Dog food\"`",
+          "type": "string"
+        },
+        {
+          "name": "price",
+          "description": "**Required** the price of a unit of this item\n\n**Example:** `10`",
+          "type": "number"
+        },
+        {
+          "name": "currency",
+          "description": "3-letter lowercase currency code.\nIt is provided by the form if not set.\n\n**Example:** `\"usd\"`",
+          "type": "string"
+        },
+        {
+          "name": "image",
+          "description": "Optional an image url to be displayed in the form.",
+          "type": "string"
+        },
+        {
+          "name": "alt",
+          "description": "Optional the alt text for the image",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "description": "Optional an image url to be displayed in the foxy cart once the custumer reaches the cart.",
+          "type": "string"
+        },
+        {
+          "name": "code",
+          "description": "Optional product code. This property affects cart UI only.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "type": "string"
+        },
+        {
+          "name": "parent_code",
+          "description": "Optional parent code. This property affects cart UI only.\nIt causes Foxy Cart to recognize the parent-child relationship between two products.\n\nNested products set this property automatically.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "type": "string"
+        },
+        {
+          "name": "quantity",
+          "description": "**Required** The quantity of this product in the cart.",
+          "type": "number",
+          "default": "1"
+        },
+        {
+          "name": "quantity_max",
+          "description": "Optional quantity max. The maximum number of items of these to be added.",
+          "type": "number"
+        },
+        {
+          "name": "quantity_min",
+          "description": "Optional quantity min. The minimum number of items of these to be added.",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "description": "Optional category. Sets the category this product is in.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"heavy\"`",
+          "type": "string"
+        },
+        {
+          "name": "expires",
+          "description": "Optional expires. Sets the expiration time of this product.\n\nAdvanced usage only: This property affects cart UI only.\nThis web component will not react to this property.\n\nThe product cannot be purchased after expiration, but if it is part of a\nsubscription, it remains in the subscription as long as it stands.\n\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `15`",
+          "type": "string"
+        },
+        {
+          "name": "weight",
+          "description": "Optional per product weight. This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "shipto",
+          "description": "Optional. Specify a ship-to address for a specific product.\n\nAdvanced usage only: This property affects cart UI only.\nThis element does not provide any means for the user to specify this property.",
+          "type": "string"
+        },
+        {
+          "name": "products",
+          "description": "Optional. An array of child products.\n\nEach child product is an object that can have any of the public properties of this element.\nChild elements will be created accordingly.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "description",
+          "description": "Optional. The description for a product.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "signatures",
+          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a previously computed HMAC validation code.\n\n**Important security information:** this web component does not generate or validates the HMAC validation code.\nPlease, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.",
+          "type": "object"
+        },
+        {
+          "name": "open",
+          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a boolean indicating that the property is editable by the user.\n\n**Advanced use only**: this web component does not provide means for the user to alter product attributes.\n\nSee [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.",
+          "type": "object"
+        },
+        {
+          "name": "length",
+          "description": "Optional length.  This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "width",
+          "description": "Optional width.  This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "height",
+          "description": "Optional height.  This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "total",
+          "description": "The total price of this product.\n\nIt takes into account child products and the quantity.",
+          "type": "number",
+          "default": "\"this.__computeTotalPrice()\""
+        },
+        {
+          "name": "pid",
+          "description": "A unique id set to the product. Advanced usage only.",
+          "type": "number",
+          "default": "\"ProductItem.__newId()\""
+        },
+        {
+          "name": "value",
+          "type": "object"
+        },
+        {
+          "name": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "description": "The namespace to look for the translations in. We use this property to\nsync namespace settings with the parent element and it's highly unlikely\nthat you'll ever need to set or read it in your code.\n\n**Example:** `\"admin\"`",
+          "type": "string",
+          "default": "\"defaultNS\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "rel",
+          "type": "\"product_item\"",
+          "default": "\"product_item\""
+        },
+        {
+          "name": "name",
+          "attribute": "name",
+          "description": "**Required** the name of the product.\n\n**Example:** `\"Dog food\"`",
+          "type": "string"
+        },
+        {
+          "name": "price",
+          "attribute": "price",
+          "description": "**Required** the price of a unit of this item\n\n**Example:** `10`",
+          "type": "number"
+        },
+        {
+          "name": "currency",
+          "attribute": "currency",
+          "description": "3-letter lowercase currency code.\nIt is provided by the form if not set.\n\n**Example:** `\"usd\"`",
+          "type": "string"
+        },
+        {
+          "name": "image",
+          "attribute": "image",
+          "description": "Optional an image url to be displayed in the form.",
+          "type": "string"
+        },
+        {
+          "name": "alt",
+          "attribute": "alt",
+          "description": "Optional the alt text for the image",
+          "type": "string"
+        },
+        {
+          "name": "url",
+          "attribute": "url",
+          "description": "Optional an image url to be displayed in the foxy cart once the custumer reaches the cart.",
+          "type": "string"
+        },
+        {
+          "name": "code",
+          "attribute": "code",
+          "description": "Optional product code. This property affects cart UI only.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "type": "string"
+        },
+        {
+          "name": "parent_code",
+          "attribute": "parent_code",
+          "description": "Optional parent code. This property affects cart UI only.\nIt causes Foxy Cart to recognize the parent-child relationship between two products.\n\nNested products set this property automatically.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "type": "string"
+        },
+        {
+          "name": "quantity",
+          "attribute": "quantity",
+          "description": "**Required** The quantity of this product in the cart.",
+          "type": "number",
+          "default": "1"
+        },
+        {
+          "name": "quantity_max",
+          "attribute": "quantity_max",
+          "description": "Optional quantity max. The maximum number of items of these to be added.",
+          "type": "number"
+        },
+        {
+          "name": "quantity_min",
+          "attribute": "quantity_min",
+          "description": "Optional quantity min. The minimum number of items of these to be added.",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "attribute": "category",
+          "description": "Optional category. Sets the category this product is in.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"heavy\"`",
+          "type": "string"
+        },
+        {
+          "name": "expires",
+          "attribute": "expires",
+          "description": "Optional expires. Sets the expiration time of this product.\n\nAdvanced usage only: This property affects cart UI only.\nThis web component will not react to this property.\n\nThe product cannot be purchased after expiration, but if it is part of a\nsubscription, it remains in the subscription as long as it stands.\n\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `15`",
+          "type": "string"
+        },
+        {
+          "name": "weight",
+          "attribute": "weight",
+          "description": "Optional per product weight. This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "shipto",
+          "attribute": "shipto",
+          "description": "Optional. Specify a ship-to address for a specific product.\n\nAdvanced usage only: This property affects cart UI only.\nThis element does not provide any means for the user to specify this property.",
+          "type": "string"
+        },
+        {
+          "name": "products",
+          "attribute": "products",
+          "description": "Optional. An array of child products.\n\nEach child product is an object that can have any of the public properties of this element.\nChild elements will be created accordingly.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "description",
+          "attribute": "description",
+          "description": "Optional. The description for a product.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "signatures",
+          "attribute": "signatures",
+          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a previously computed HMAC validation code.\n\n**Important security information:** this web component does not generate or validates the HMAC validation code.\nPlease, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.",
+          "type": "object"
+        },
+        {
+          "name": "open",
+          "attribute": "open",
+          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a boolean indicating that the property is editable by the user.\n\n**Advanced use only**: this web component does not provide means for the user to alter product attributes.\n\nSee [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.",
+          "type": "object"
+        },
+        {
+          "name": "length",
+          "attribute": "length",
+          "description": "Optional length.  This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "width",
+          "attribute": "width",
+          "description": "Optional width.  This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "height",
+          "attribute": "height",
+          "description": "Optional height.  This property affects cart UI only.",
+          "type": "number"
+        },
+        {
+          "name": "total",
+          "attribute": "total",
+          "description": "The total price of this product.\n\nIt takes into account child products and the quantity.",
+          "type": "number",
+          "default": "\"this.__computeTotalPrice()\""
+        },
+        {
+          "name": "pid",
+          "attribute": "pid",
+          "description": "A unique id set to the product. Advanced usage only.",
+          "type": "number",
+          "default": "\"ProductItem.__newId()\""
+        },
+        {
+          "name": "value",
+          "attribute": "value",
+          "type": "object"
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
+          "type": "string"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "description": "The namespace to look for the translations in. We use this property to\nsync namespace settings with the parent element and it's highly unlikely\nthat you'll ever need to set or read it in your code.\n\n**Example:** `\"admin\"`",
+          "type": "string",
+          "default": "\"defaultNS\""
+        }
+      ],
+      "events": [
+        {
+          "name": "change"
         }
       ]
     }
