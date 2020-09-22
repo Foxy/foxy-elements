@@ -247,12 +247,12 @@ export class QuickOrder extends Translatable {
     }
 
     return html`
-      <form class="p-l overflow-hidden">
+      <form class="overflow-hidden">
         <section class="products">
           <slot></slot>
         </section>
 
-        <section class="actions flex flex-wrap justify-end -m-s mt-s">
+        <section class="actions flex flex-wrap justify-end m-m">
           ${this.frequencies && this.frequencies.length
             ? html`
                 <x-dropdown
