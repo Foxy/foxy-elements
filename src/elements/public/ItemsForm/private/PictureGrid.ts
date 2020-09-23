@@ -215,15 +215,15 @@ export class PictureGrid<TData = unknown> extends Themeable {
     return html`
       <div class="${gridStyle} w-preview h-preview relative font-lumo">
         <div class="${sharedStyle} ${emptyStyle} origin-top-left">
-          ${first ? html`<x-item ...=${itemProps} .data=${first}></x-item>` : ''}
+          ${first ? html`<x-pic ...=${itemProps} .data=${first}></x-pic>` : ''}
         </div>
 
         <div class="${sharedStyle} ${emptyStyle} origin-bottom-right">
-          ${second ? html`<x-item ...=${itemProps} .data=${second}></x-item>` : ''}
+          ${second ? html`<x-pic ...=${itemProps} .data=${second}></x-pic>` : ''}
         </div>
 
         <div class="${sharedStyle} ${emptyStyle} origin-top-right">
-          ${third ? html`<x-item ...=${itemProps} .data=${third}></x-item>` : ''}
+          ${third ? html`<x-pic ...=${itemProps} .data=${third}></x-pic>` : ''}
         </div>
 
         <div class="${sharedStyle} ${emptyStyle} origin-bottom-right">
@@ -233,7 +233,7 @@ export class PictureGrid<TData = unknown> extends Themeable {
               : html`<div class="m-auto text-xxxl">+${length - 3}</div>`}
           </div>
           <div class="transition duration-150 absolute inset-0">
-            ${fourth ? html`<x-item ...=${itemProps} .data=${fourth}></x-item>` : ''}
+            ${fourth ? html`<x-pic ...=${itemProps} .data=${fourth}></x-pic>` : ''}
           </div>
         </div>
 

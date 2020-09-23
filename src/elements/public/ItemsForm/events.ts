@@ -1,16 +1,16 @@
-export class QuickOrderChangeEvent extends CustomEvent<FormData> {
+export class ItemsFormChangeEvent extends CustomEvent<FormData> {
   constructor(detail: FormData) {
     super('change', { detail });
   }
 }
 
-export class QuickOrderSubmitEvent extends CustomEvent<FormData> {
+export class ItemsFormSubmitEvent extends CustomEvent<FormData> {
   constructor(detail: FormData) {
     super('submit', { detail });
   }
 }
 
-export class QuickOrderResponseEvent extends CustomEvent<ProgressEvent<EventTarget>> {
+export class ItemsFormResponseEvent extends CustomEvent<ProgressEvent<EventTarget>> {
   constructor(detail: ProgressEvent<EventTarget>) {
     super('load', { detail });
   }

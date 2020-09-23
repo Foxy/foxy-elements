@@ -3,32 +3,32 @@ import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { parseDuration } from '../../../utils/parse-duration';
 import { Dropdown, ErrorScreen } from '../../private/index';
-import { QuickOrderChangeEvent, QuickOrderResponseEvent, QuickOrderSubmitEvent } from './events';
-import { ProductItem } from './private/ProductItem';
-import { Product } from './types';
+import { ItemsFormChangeEvent, ItemsFormResponseEvent, ItemsFormSubmitEvent } from './events';
+import { Item } from './private/Item';
+import { ItemInterface } from './types';
 
-export { ProductItem };
+export { Item };
 
 /**
  * A custom element providing a customizable donation form.
  *
- * @fires QuickOrder#change - changed form data.
- * @fires QuickOrder#submit - submitted form data
- * @fires QuickOrder#load -  ProgressEvent instance with server response
+ * @fires ItemsForm#change - changed form data.
+ * @fires ItemsForm#submit - submitted form data
+ * @fires ItemsForm#load -  ProgressEvent instance with server response
  *
- * @slot products - products to be added to the form.
+ * @slot items - items to be added to the form.
  *
- * @element foxy-quick-order
+ * @element foxy-items-form
  *
  */
-export class QuickOrder extends Translatable {
+export class ItemsForm extends Translatable {
   /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
       'x-error-screen': ErrorScreen,
       'vaadin-button': customElements.get('vaadin-button'),
       'x-dropdown': Dropdown,
-      'x-product': ProductItem,
+      'x-item': Item,
     };
   }
 
@@ -42,7 +42,7 @@ export class QuickOrder extends Translatable {
       sub_startdate: {
         type: String,
         converter: value => {
-          if (!QuickOrder.__validDate(value)) {
+          if (!ItemsForm.__validDate(value)) {
             console.error('Invalid start date', value);
             return '';
           }
@@ -52,7 +52,7 @@ export class QuickOrder extends Translatable {
       sub_enddate: {
         type: String,
         converter: value => {
-          if (!QuickOrder.__validDateFuture(value)) {
+          if (!ItemsForm.__validDateFuture(value)) {
             console.error('Invalid end date', value);
             return '';
           }
@@ -70,7 +70,7 @@ export class QuickOrder extends Translatable {
             return [];
           }
           for (const f of freqArray) {
-            if (!QuickOrder.__validFrequency(f)) {
+            if (!ItemsForm.__validFrequency(f)) {
               console.error(
                 'Invalid frequency',
                 `Invalid frequency option.
@@ -87,11 +87,11 @@ export class QuickOrder extends Translatable {
               return [];
             }
           }
-          return freqArray.filter(QuickOrder.__validFrequency);
+          return freqArray.filter(ItemsForm.__validFrequency);
         },
       },
-      products: { type: Array },
-      __hasValidProducts: { attribute: false },
+      items: { type: Array },
+      __hasValidItems: { attribute: false },
       __total: { attribute: false },
     };
   }
@@ -156,45 +156,45 @@ export class QuickOrder extends Translatable {
   public frequencies: string[] = [];
 
   /**
-   * Optional an array of Product objects with at least the following properties:
-   * - name: the name of the product
-   * - price: the price of each of this product
+   * Optional an array of ItemInterface objects with at least the following properties:
+   * - name: the name of the item
+   * - price: the price of each of this item
    * The following optional properties will be used:
-   * - quantity: (defaults to 1) how many of each product are added to the form
-   * - image: an image url to be displayed in the form for this product
-   * - products: an array of other products that are to be treated as bundled with this product
+   * - quantity: (defaults to 1) how many of each item are added to the form
+   * - image: an image url to be displayed in the form for this item
+   * - items: an array of other items that are to be treated as bundled with this item
    * - signatures: an object containing a key value list of previously generated HMAC validation codes
    *
-   * Other product properties are accepted and sent to foxy cart.
+   * Other item properties are accepted and sent to foxy cart.
    * https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
    */
-  public products: Product[] = [];
+  public items: ItemInterface[] = [];
 
   /**
    * Handles the submission of the form
    *
    * - creates a FormData
-   * - fill the FormData with product values
+   * - fill the FormData with item values
    * - add order wide fields to the FormData
    * - submits the form
    */
   private handleSubmit = {
     handleEvent: () => {
-      this.dispatchEvent(new QuickOrderSubmitEvent(this.__data!));
+      this.dispatchEvent(new ItemsFormSubmitEvent(this.__data!));
       if (this.__data !== null) {
         const request = new XMLHttpRequest();
         request.open('POST', `https://${this.store}/cart`, true);
         request.onload = (e: ProgressEvent<EventTarget>) => {
-          this.dispatchEvent(new QuickOrderResponseEvent(e));
+          this.dispatchEvent(new ItemsFormResponseEvent(e));
         };
         request.send(this.__data);
       }
     },
   };
 
-  private __childProductsObserver?: MutationObserver;
+  private __childItemsObserver?: MutationObserver;
 
-  private __hasValidProducts = false;
+  private __hasValidItems = false;
 
   private __total = 0;
 
@@ -211,7 +211,7 @@ export class QuickOrder extends Translatable {
         .replace(/([wydm])\w*/, '$1')
         .replace(/ /g, '')
         .replace(/^0/, '');
-      if (QuickOrder.__validFrequency(newfrequency)) {
+      if (ItemsForm.__validFrequency(newfrequency)) {
         this.sub_frequency = newfrequency;
       } else {
         this.sub_frequency = '';
@@ -220,16 +220,16 @@ export class QuickOrder extends Translatable {
   };
 
   constructor() {
-    super('quick-order');
-    this.__childProductsObserver = new MutationObserver(this.__observeChildren.bind(this));
-    this.__childProductsObserver.observe(this, {
+    super('items-form');
+    this.__childItemsObserver = new MutationObserver(this.__observeChildren.bind(this));
+    this.__childItemsObserver.observe(this, {
       childList: true,
       attributes: false,
       subtree: true,
     });
     this.updateComplete.then(() => {
-      this.__createProductsFromProductArray();
-      this.__acknowledgeProductElements();
+      this.__createItemsFromItemArray();
+      this.__acknowledgeItemElements();
       this.__computeTotalPrice();
     });
   }
@@ -248,7 +248,7 @@ export class QuickOrder extends Translatable {
 
     return html`
       <form class="overflow-hidden">
-        <section class="products">
+        <section class="items">
           <slot></slot>
         </section>
 
@@ -273,7 +273,7 @@ export class QuickOrder extends Translatable {
             class="m-s w-full sm:w-auto"
             theme="primary"
             data-testid="submit"
-            ?disabled=${!this.__hasValidProducts}
+            ?disabled=${!this.__hasValidItems}
             @click=${this.handleSubmit}
           >
             <span class="total">${this.__submitBtnText(this.__translateAmount(this.total))}</span>
@@ -283,47 +283,47 @@ export class QuickOrder extends Translatable {
     `;
   }
 
-  /** Add new products */
-  public addProducts(newProducts: Product[]): void {
-    for (const p of newProducts) {
-      const newProduct = this.createProduct(p);
-      this.appendChild(newProduct);
-      this.__acknowledgeProductElement(newProduct as ProductItem);
+  /** Add new items */
+  public addItems(newItems: ItemInterface[]): void {
+    for (const p of newItems) {
+      const newItem = this.createItem(p);
+      this.appendChild(newItem);
+      this.__acknowledgeItemElement(newItem as Item);
     }
-    if (this.products != newProducts) {
-      this.products.concat(newProducts);
+    if (this.items != newItems) {
+      this.items.concat(newItems);
     }
   }
 
-  /** Remove products */
-  public removeProducts(productIds: number[]): void {
-    this.__removeProductsFromProductArray((p: ProductItem) => productIds.includes(p.pid));
+  /** Remove items */
+  public removeItems(itemIds: number[]): void {
+    this.__removeItemsFromItemArray((p: Item) => itemIds.includes(p.pid));
   }
 
   public updated(changedProperties: Map<string, any>): void {
-    if (changedProperties.get('products') != undefined) {
-      this.__removeProductsFromProductArray();
-      this.__createProductsFromProductArray();
+    if (changedProperties.get('items') != undefined) {
+      this.__removeItemsFromItemArray();
+      this.__createItemsFromItemArray();
     }
-    const newHasValidProducts = !!this.__data;
-    if (newHasValidProducts != this.__hasValidProducts) {
-      this.__hasValidProducts = newHasValidProducts;
+    const newHasValidItems = !!this.__data;
+    if (newHasValidItems != this.__hasValidItems) {
+      this.__hasValidItems = newHasValidItems;
     }
-    this.dispatchEvent(new QuickOrderChangeEvent(this.__data!));
+    this.dispatchEvent(new ItemsFormChangeEvent(this.__data!));
   }
 
-  public createProduct(p: Product): Element {
-    const scopedProduct = (this.constructor as any).getScopedTagName('x-product');
-    const newProduct = document.createElement(scopedProduct);
-    newProduct.value = p;
-    newProduct.currency = this.currency;
-    return newProduct;
+  public createItem(p: ItemInterface): Element {
+    const scopedItem = (this.constructor as any).getScopedTagName('x-item');
+    const newItem = document.createElement(scopedItem);
+    newItem.value = p;
+    newItem.currency = this.currency;
+    return newItem;
   }
 
   private get __data(): FormData | null {
     const data = new FormData();
-    const productsAdded = this.__formDataFill(data);
-    if (productsAdded == 0) return null;
+    const itemsAdded = this.__formDataFill(data);
+    if (itemsAdded == 0) return null;
     this.__formDataAddSubscriptionFields(data);
     return data;
   }
@@ -348,21 +348,21 @@ export class QuickOrder extends Translatable {
   }
 
   /**
-   * An array with both products created as elements and created parameter
+   * An array with both items created as elements and created parameter
    */
-  private get __productElements(): NodeListOf<ProductItem> {
-    return this.querySelectorAll('[product]');
+  private get __itemElements(): NodeListOf<Item> {
+    return this.querySelectorAll('[data-item]');
   }
 
-  /** Create child ProductItems from products array
+  /** Create child Items from items array
    */
-  private __createProductsFromProductArray() {
-    this.addProducts(this.products);
+  private __createItemsFromItemArray() {
+    this.addItems(this.items);
   }
 
-  /** Removes product items from the form based on a condition */
-  private __removeProductsFromProductArray(condition = (e: ProductItem) => true) {
-    this.__productElements.forEach(p => {
+  /** Removes item from the form based on a condition */
+  private __removeItemsFromItemArray(condition = (e: Item) => true) {
+    this.__itemElements.forEach(p => {
       if (condition(p)) {
         p.remove();
       }
@@ -384,38 +384,38 @@ export class QuickOrder extends Translatable {
   }
 
   /**
-   * Add all products from this.__productElements to a FormData
+   * Add all items from this.__itemElements to a FormData
    *
-   * - Iterate of products in productElements
-   * - Add valid products to Form Data
+   * - Iterate of items in itemElements
+   * - Add valid items to Form Data
    *
    * @argument FormData fd the FormData instance to fill
-   * @return number the number of products added
+   * @return number the number of items added
    **/
   private __formDataFill(fd: FormData): number {
     let added = 0;
-    this.__productElements.forEach(e => {
-      if (this.__validProduct(e.value as Product)) {
-        this.__formDataAddProduct(fd, e.value);
+    this.__itemElements.forEach(e => {
+      if (this.__validItem(e.value as ItemInterface)) {
+        this.__formDataAddItem(fd, e.value);
         added++;
       } else {
-        console.error('Invalid product', e.value);
+        console.error('Invalid item', e.value);
       }
     });
     return added;
   }
 
   /**
-   * Adds a product to a form data
+   * Adds a item to a form data
    *
-   * @argument {FormData} fd the FormData to which the product will be added
-   * @argument {Product} the product to add
+   * @argument {FormData} fd the FormData to which the item will be added
+   * @argument {Item} the item to add
    **/
-  private __formDataAddProduct(fd: FormData, p: Product): void {
+  private __formDataAddItem(fd: FormData, p: ItemInterface): void {
     const idKey = 'pid';
     const reservedAttributes = [idKey, 'signatures', 'currency'];
     if (!p[idKey]) {
-      throw new Error('Attempt to convert a product without a propper ID');
+      throw new Error('Attempt to convert a item without a propper ID');
     }
     const rec = p as Record<string, unknown>;
     for (let key of Object.keys(rec)) {
@@ -469,7 +469,7 @@ export class QuickOrder extends Translatable {
       }
       return true;
     }
-    if (!strDate.match(/^\.5m/) && QuickOrder.__validFrequency(strDate)) {
+    if (!strDate.match(/^\.5m/) && ItemsForm.__validFrequency(strDate)) {
       return true;
     }
     return false;
@@ -483,7 +483,7 @@ export class QuickOrder extends Translatable {
    */
   private static __validDateFuture(strDate: string | null | undefined): boolean {
     let valid = false;
-    if (QuickOrder.__validDate(strDate)) {
+    if (ItemsForm.__validDate(strDate)) {
       if (strDate!.match(/^\d{8}/)) {
         const now = new Date();
         valid = now.toISOString().replace(/(-|T.*)/g, '') <= strDate!;
@@ -508,7 +508,7 @@ export class QuickOrder extends Translatable {
     }
   }
 
-  /** Subscribe to late inserted products.
+  /** Subscribe to late inserted items.
    *
    * @argument MutationRecord[] the list of changes occurred.
    **/
@@ -517,62 +517,62 @@ export class QuickOrder extends Translatable {
       if (m.type == 'childList') {
         m.addedNodes.forEach(n => {
           const e = n as HTMLElement;
-          e.addEventListener('change', this.__productChange.bind(this));
+          e.addEventListener('change', this.__itemChange.bind(this));
         });
       }
     });
-    this.__acknowledgeProductElements();
+    this.__acknowledgeItemElements();
     this.__computeTotalPrice();
   }
 
-  /** Updates the form on product change */
-  private __productChange(): void {
+  /** Updates the form on item change */
+  private __itemChange(): void {
     this.__computeTotalPrice();
   }
 
-  /** Compute the total price of all products in the form */
+  /** Compute the total price of all items in the form */
   private __computeTotalPrice(): void {
     let total = 0;
-    this.__productElements.forEach(e => {
-      const prod = e as ProductItem;
-      if (prod.total) {
-        total += Number(prod.total);
+    this.__itemElements.forEach(e => {
+      const item = e as Item;
+      if (item.total) {
+        total += Number(item.total);
       }
     });
     this.__total = Number(total.toFixed(2));
   }
 
   /** Go through all pcroduct elements and executes acknoledges each one */
-  private __acknowledgeProductElements(): void {
-    this.__productElements.forEach((e: Element) => {
-      const p = e as ProductItem;
-      this.__acknowledgeProductElement(p);
+  private __acknowledgeItemElements(): void {
+    this.__itemElements.forEach((e: Element) => {
+      const p = e as Item;
+      this.__acknowledgeItemElement(p);
     });
   }
 
   /**
-   * Treat this product item element as part of the form:
+   * Treat this item item element as part of the form:
    *
    * - listen to its change events
    * - set its currency to be the forms currency
    */
-  private __acknowledgeProductElement(p: ProductItem) {
-    p.addEventListener('change', this.__productChange.bind(this));
-    p.currency = this.currency!;
+  private __acknowledgeItemElement(item: Item) {
+    item.addEventListener('change', this.__itemChange.bind(this));
+    item.currency = this.currency!;
   }
 
   /**
-   * Checks if product has quantity and price
+   * Checks if item has quantity and price
    *
-   * @argument  Product the product to be validated
-   * @returns boolean the product is valid
+   * @argument  Item the item to be validated
+   * @returns boolean the item is valid
    **/
-  private __validProduct(p: Product): boolean {
+  private __validItem(p: ItemInterface): boolean {
     return !!(
       p &&
       p.pid &&
       p.quantity &&
-      p.quantity > 0 &&
+      +p.quantity > 0 &&
       (p.price || p.price === 0) &&
       p.price >= 0
     );

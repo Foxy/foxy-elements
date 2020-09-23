@@ -30,7 +30,7 @@ export class Price extends Translatable {
   public quantity: number | null = null;
 
   public constructor() {
-    super('quick-order');
+    super('items-form');
   }
 
   public render(): TemplateResult {

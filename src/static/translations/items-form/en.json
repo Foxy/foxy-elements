@@ -18,7 +18,7 @@
     "frequency_options_must_be_array": "Frequency options must be an array.",
     "no_currency": "No currency available."
   },
-  "product": {
+  "item": {
     "remove": "Remove",
     "items": "{{quantity}} items"
   },

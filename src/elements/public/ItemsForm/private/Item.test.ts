@@ -1,6 +1,6 @@
 import { expect, fixture, html, elementUpdated } from '@open-wc/testing';
-import { Product } from '../types';
-import { ProductItem } from './ProductItem';
+import { ItemInterface } from '../types';
+import { Item } from './Item';
 import * as sinon from 'sinon';
 
 /**
@@ -8,13 +8,13 @@ import * as sinon from 'sinon';
  *
  * not using defineCE because lit-html doesn't support dynamic tags by default.
  */
-class TestProductItem extends ProductItem {}
+class TestItem extends Item {}
 
-customElements.define('x-productitem', TestProductItem);
+customElements.define('test-item', TestItem);
 
 let logSpy: sinon.SinonStub;
 
-describe('The product Item remain always valid', async function () {
+describe('The item remain always valid', async function () {
   before(function () {
     logSpy = sinon.stub(console, 'error');
   });
@@ -28,34 +28,32 @@ describe('The product Item remain always valid', async function () {
   });
 
   it('Should require name and price', async function () {
-    let el: TestProductItem = await fixture(
-      html` <x-productitem name="p1" price="10"></x-productitem> `
-    );
+    let el: TestItem = await fixture(html` <test-item name="p1" price="10"></test-item> `);
     await elementUpdated(el);
-    expect(logSpy.calledWith('The name attribute of a product is required.')).to.be.false;
-    expect(logSpy.calledWith('The price attribute of a product is required.')).to.be.false;
+    expect(logSpy.calledWith('The name attribute of an item is required.')).to.be.false;
+    expect(logSpy.calledWith('The price attribute of an item is required.')).to.be.false;
     logSpy.reset();
-    el = await fixture(html` <x-productitem name="p2"></x-productitem> `);
+    el = await fixture(html` <test-item name="p2"></test-item> `);
     await elementUpdated(el);
-    expect(logSpy.calledWith('The price attribute of a product is required.')).to.be.true;
+    expect(logSpy.calledWith('The price attribute of an item is required.')).to.be.true;
     logSpy.reset();
-    el = await fixture(html` <x-productitem price="10"></x-productitem> `);
+    el = await fixture(html` <test-item price="10"></test-item> `);
     await elementUpdated(el);
-    expect(logSpy.calledWith('The name attribute of a product is required.')).to.be.true;
+    expect(logSpy.calledWith('The name attribute of an item is required.')).to.be.true;
   });
 
   it('Prices should be zero or positive', async function () {
-    let el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
+    let el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
     await elementUpdated(el);
-    expect(logSpy.calledWith('Product added with negative price.')).to.be.false;
-    el = await fixture(html` <x-productitem name="p1" price="-10"></x-productitem> `);
+    expect(logSpy.calledWith('Item added with negative price.')).to.be.false;
+    el = await fixture(html` <test-item name="p1" price="-10"></test-item> `);
     await elementUpdated(el);
-    expect(logSpy.calledWith('Product added with negative price.')).to.be.true;
+    expect(logSpy.calledWith('Item added with negative price.')).to.be.true;
   });
 
   it('Should validate minimum quantity in attribute', async function () {
     const el = await fixture(html`
-      <x-productitem name="p1" price="10" quantity="1" quantity_min="2"></x-productitem>
+      <test-item name="p1" price="10" quantity="1" quantity_min="2"></test-item>
     `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Quantity amount is less than minimum quantity.')).to.be.true;
@@ -63,7 +61,7 @@ describe('The product Item remain always valid', async function () {
 
   it('Should validate maximum quantity in attribute', async function () {
     const el = await fixture(html`
-      <x-productitem name="p1" price="10" quantity="3" quantity_max="2"></x-productitem>
+      <test-item name="p1" price="10" quantity="3" quantity_max="2"></test-item>
     `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Quantity amount is more than maximum quantity.')).to.be.true;
@@ -72,22 +70,22 @@ describe('The product Item remain always valid', async function () {
   it('Should validate number of chars in a signature', async function () {
     const sig = '0123456789012345678901234567890123456789012345678901234567890123';
     const wrongsig = 'aa';
-    await fixture(html`<x-productitem
+    await fixture(html`<test-item
       name="p1"
       price="10"
       signatures='{ "name":"${sig}", "price":"${sig}", "quantity":"${sig}"}'
-    ></x-productitem> `);
+    ></test-item> `);
     expect(
       logSpy.calledWith(
         'There is something wrong with the signature. It should have 64 characters.'
       )
     ).to.equal(false);
     logSpy.reset();
-    await fixture(html`<x-productitem
+    await fixture(html`<test-item
       name="p1"
       price="10"
       signatures='{ "name":"${wrongsig}", "price":"${sig}", "quantity":"${sig}"}'
-    ></x-productitem> `);
+    ></test-item> `);
     expect(
       logSpy.calledWith(
         'There is something wrong with the signature. It should have 64 characters.'
@@ -96,7 +94,7 @@ describe('The product Item remain always valid', async function () {
   });
 });
 
-describe('The product item reveals its state to the user', async function () {
+describe('The item reveals its state to the user', async function () {
   before(function () {
     logSpy = sinon.stub(console, 'error');
   });
@@ -110,7 +108,7 @@ describe('The product item reveals its state to the user', async function () {
   });
 
   it('Should look like removed when quantity is zero', async function () {
-    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
+    const el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
     await elementUpdated(el);
     expect(el.shadowRoot?.querySelectorAll('.removed')).to.be.empty;
     const xNumber = qtyField(el);
@@ -121,7 +119,7 @@ describe('The product item reveals its state to the user', async function () {
   });
 
   it('Should look like modified when modified by the user', async function () {
-    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
+    const el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
     const modified = (e: Element) => e.shadowRoot!.querySelectorAll('.modified');
     expect(modified(el).length).to.equal(0);
     const xNumber = qtyField(el);
@@ -134,43 +132,43 @@ describe('The product item reveals its state to the user', async function () {
   it('Should look like removed when it is child and has zero quantity', async function () {
     const removed = await fixture(
       html`
-        <x-productitem name="p1" price="10">
-          <x-productitem name="p2" price="10" quantity="0"></x-productitem>
-        </x-productitem>
+        <test-item name="p1" price="10">
+          <test-item name="p2" price="10" quantity="0"></test-item>
+        </test-item>
       `
     );
     const notremoved = await fixture(
       html`
-        <x-productitem name="p1" price="10">
-          <x-productitem name="p2" price="10"></x-productitem>
-        </x-productitem>
+        <test-item name="p1" price="10">
+          <test-item name="p2" price="10"></test-item>
+        </test-item>
       `
     );
     await elementUpdated(removed);
     await elementUpdated(notremoved);
-    const childRemoved = removed.querySelector('[combined]');
-    const childNotRemoved = notremoved.querySelector('[combined]');
+    const childRemoved = removed.querySelector('[data-bundled]');
+    const childNotRemoved = notremoved.querySelector('[data-bundled]');
     await expectSelectorToExist(childRemoved!, childNotRemoved!, 'article.removed');
   });
 
   it('Should show the description when it is child and a description is provided', async function () {
     const withDescription = await fixture(
       html`
-        <x-productitem name="p1" price="10">
-          <x-productitem name="p2" price="10" description="Lorem Ipsum"></x-productitem>
-        </x-productitem>
+        <test-item name="p1" price="10">
+          <test-item name="p2" price="10" description="Lorem Ipsum"></test-item>
+        </test-item>
       `
     );
     const withOutDescription = await fixture(
       html`
-        <x-productitem name="p1" price="10">
-          <x-productitem name="p2" price="10"></x-productitem>
-        </x-productitem>
+        <test-item name="p1" price="10">
+          <test-item name="p2" price="10"></test-item>
+        </test-item>
       `
     );
     await expectSelectorToExist(
-      withDescription.querySelector('[combined]')!,
-      withOutDescription.querySelector('[combined]')!,
+      withDescription.querySelector('[data-bundled]')!,
+      withOutDescription.querySelector('[data-bundled]')!,
       '.description p'
     );
   });
@@ -178,27 +176,27 @@ describe('The product item reveals its state to the user', async function () {
   it('Should show the quantity when it is child quantity is 2 or more', async function () {
     const withMoreThan1 = await fixture(
       html`
-        <x-productitem name="p1" price="10">
-          <x-productitem name="p2" price="10" quantity="2"></x-productitem>
-        </x-productitem>
+        <test-item name="p1" price="10">
+          <test-item name="p2" price="10" quantity="2"></test-item>
+        </test-item>
       `
     );
     const withOutMoreThan1 = await fixture(
       html`
-        <x-productitem name="p1" price="10">
-          <x-productitem name="p2" price="10"></x-productitem>
-        </x-productitem>
+        <test-item name="p1" price="10">
+          <test-item name="p2" price="10"></test-item>
+        </test-item>
       `
     );
     await expectSelectorToExist(
-      withMoreThan1.querySelector('[combined]')!,
-      withOutMoreThan1.querySelector('[combined]')!,
+      withMoreThan1.querySelector('[data-bundled]')!,
+      withOutMoreThan1.querySelector('[data-bundled]')!,
       'article .quantity'
     );
   });
 });
 
-describe('Product item provides an interface to set values', async function () {
+describe('Item provides an interface to set values', async function () {
   before(function () {
     logSpy = sinon.stub(console, 'error');
   });
@@ -213,34 +211,34 @@ describe('Product item provides an interface to set values', async function () {
 
   it('Should accept custom parameters', async function () {
     const el = await fixture(
-      html`<x-productitem name="p1" price="10" material="rubber" size="10"></x-productitem> `
+      html`<test-item name="p1" price="10" material="rubber" size="10"></test-item> `
     );
     await elementUpdated(el);
-    const product: Product & { material?: string; size?: string } = (el as TestProductItem).value;
-    expect(product.price).to.equal('10');
-    expect(product.name).to.equal('p1');
-    expect(product.material).to.equal('rubber');
-    expect(product.size).to.equal('10');
+    const item: ItemInterface & { material?: string; size?: string } = (el as TestItem).value;
+    expect(item.price).to.equal('10');
+    expect(item.name).to.equal('p1');
+    expect(item.material).to.equal('rubber');
+    expect(item.size).to.equal('10');
   });
 
   it('Should create parameters from value object', async function () {
     const el = await fixture(
-      html`<x-productitem name="p1" price="10" material="rubber" size="10"></x-productitem> `
+      html`<test-item name="p1" price="10" material="rubber" size="10"></test-item> `
     );
     await elementUpdated(el);
-    const product = el as TestProductItem;
+    const item = el as TestItem;
 
-    product.value = {
-      ...product.value,
+    item.value = {
+      ...item.value,
       color: 'blue',
       strength: 50,
     };
-    expect(product.getAttribute('color')).to.equal('blue');
-    expect(product.getAttribute('strength')).to.equal('50');
+    expect(item.getAttribute('color')).to.equal('blue');
+    expect(item.getAttribute('strength')).to.equal('50');
   });
 });
 
-describe('Product item recognizes its children', async function () {
+describe('Item recognizes its children', async function () {
   before(function () {
     logSpy = sinon.stub(console, 'error');
   });
@@ -256,37 +254,37 @@ describe('Product item recognizes its children', async function () {
   it('Should recognize children created with slots', async function () {
     const el = await fixture(
       html`
-        <x-productitem name="p1" price="10">
-          <div slot="product" class="bundled">
-            <x-productitem name="p2" price="3"></x-productitem>
-            <x-productitem name="p3" price="4"></x-productitem>
+        <test-item name="p1" price="10">
+          <div slot="items" class="bundled">
+            <test-item name="p2" price="3"></test-item>
+            <test-item name="p3" price="4"></test-item>
           </div>
-        </x-productitem>
+        </test-item>
       `
     );
     await elementUpdated(el);
-    expect((el as TestProductItem).total).to.equal(17);
+    expect((el as TestItem).total).to.equal(17);
   });
 
-  it('Should recognize children created products array', async function () {
+  it('Should recognize children created items array', async function () {
     const el = await fixture(
       html`
-        <x-productitem
+        <test-item
           name="p1"
           price="10"
-          products='[{"name":"p2","price":3}, {"name":"p3","price":4}]'
-        ></x-productitem>
+          items='[{"name":"p2","price":3}, {"name":"p3","price":4}]'
+        ></test-item>
       `
     );
     await elementUpdated(el);
-    expect((el as TestProductItem).total).to.equal(17);
+    expect((el as TestItem).total).to.equal(17);
   });
 
   it('Should recognize children added by setting "value" attribute', async function () {
-    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
-    (el as TestProductItem).value = { products: [{ name: 'p2', price: 8 }] };
+    const el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
+    (el as TestItem).value = { items: [{ name: 'p2', price: 8 }] };
     await elementUpdated(el);
-    expect((el as TestProductItem).total).to.equal(18);
+    expect((el as TestItem).total).to.equal(18);
   });
 });
 

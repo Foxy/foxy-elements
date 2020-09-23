@@ -2,18 +2,18 @@ import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../mixins/translatable';
 import { ErrorScreen, I18N } from '../../../private/index';
-import { ImageDescription, Product } from '../types';
+import { ImageDescription, ItemInterface } from '../types';
 import { Preview } from './Preview';
 import { Price } from './Price';
 
 /**
- * This component allows a user to configure a product.
+ * This component allows a user to configure an item.
  *
- * The product may be configured using HTML properties or a JS object.
+ * The item may be configured using HTML properties or a JS object.
  *
  */
-export class ProductItem extends Translatable {
-  // A list of product properties as defined in Foxy Cart Documentation
+export class Item extends Translatable {
+  // A list of item properties as defined in Foxy Cart Documentation
 
   /** @readonly */
   static get styles(): CSSResultArray {
@@ -49,7 +49,7 @@ export class ProductItem extends Translatable {
           margin-right: var(--final-margin-right);
         }
 
-        :host([combined]:not(:last-of-type)) .separator::after {
+        :host([data-bundled]:not(:last-of-type)) .separator::after {
           content: ' ';
           display: block;
           position: absolute;
@@ -113,11 +113,11 @@ export class ProductItem extends Translatable {
       __images: {},
       alt: { type: String },
       description: { type: String },
-      isChildProduct: { type: Boolean, reflect: true, attribute: 'combined' },
-      isProduct: { type: Boolean, reflect: true, attribute: 'product' },
+      isChildItem: { type: Boolean, reflect: true, attribute: 'data-bundled' },
+      isItem: { type: Boolean, reflect: true, attribute: 'data-item' },
       open: { type: Object },
       pid: { type: Number, reflect: true },
-      products: { type: Array, attribute: 'products' },
+      items: { type: Array, attribute: 'items' },
       signatures: {
         type: Object,
         converter: value => {
@@ -138,7 +138,7 @@ export class ProductItem extends Translatable {
   public readonly rel = 'product_item';
 
   /**
-   * **Required** the name of the product.
+   * **Required** the name of the item.
    *
    * **Example:** `"Dog food"`
    */
@@ -167,7 +167,7 @@ export class ProductItem extends Translatable {
   public url?: string;
 
   /**
-   * Optional product code. This property affects cart UI only.
+   * Optional item code. This property affects cart UI only.
    * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
    *
    * **Example:** `"ISBN 978-0-12-345678-9"`
@@ -176,16 +176,16 @@ export class ProductItem extends Translatable {
 
   /**
    * Optional parent code. This property affects cart UI only.
-   * It causes Foxy Cart to recognize the parent-child relationship between two products.
+   * It causes Foxy Cart to recognize the parent-child relationship between two items.
    *
-   * Nested products set this property automatically.
+   * Nested items set this property automatically.
    *
    * **Example:** `"ISBN 978-0-12-345678-9"`
    */
   public parent_code?: string | number;
 
   /**
-   * **Required** The quantity of this product in the cart.
+   * **Required** The quantity of this item in the cart.
    */
   public quantity = 1;
 
@@ -200,7 +200,7 @@ export class ProductItem extends Translatable {
   public quantity_min?: number;
 
   /**
-   * Optional category. Sets the category this product is in.
+   * Optional category. Sets the category this item is in.
    * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
    *
    * **Example:** `"heavy"`
@@ -208,12 +208,12 @@ export class ProductItem extends Translatable {
   public category?: string;
 
   /**
-   * Optional expires. Sets the expiration time of this product.
+   * Optional expires. Sets the expiration time of this item.
    *
    * Advanced usage only: This property affects cart UI only.
    * This web component will not react to this property.
    *
-   * The product cannot be purchased after expiration, but if it is part of a
+   * The item cannot be purchased after expiration, but if it is part of a
    * subscription, it remains in the subscription as long as it stands.
    *
    * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
@@ -223,12 +223,12 @@ export class ProductItem extends Translatable {
   public expires?: string;
 
   /**
-   * Optional per product weight. This property affects cart UI only.
+   * Optional per item weight. This property affects cart UI only.
    */
   public weight?: number;
 
   /**
-   * Optional. Specify a ship-to address for a specific product.
+   * Optional. Specify a ship-to address for a specific item.
    *
    * Advanced usage only: This property affects cart UI only.
    * This element does not provide any means for the user to specify this property.
@@ -236,20 +236,20 @@ export class ProductItem extends Translatable {
   public shipto?: string;
 
   /**
-   * Optional. An array of child products.
+   * Optional. An array of child items.
    *
-   * Each child product is an object that can have any of the public properties of this element.
+   * Each child item is an object that can have any of the public properties of this element.
    * Child elements will be created accordingly.
    */
-  public products: Product[] = [];
+  public items: ItemInterface[] = [];
 
   /**
-   * Optional. The description for a product.
+   * Optional. The description for a item.
    */
   public description = '';
 
   /**
-   * Optional open: An Object with key, value pairs where the key is a product
+   * Optional open: An Object with key, value pairs where the key is a item
    * attribute and the value is a previously computed HMAC validation code.
    *
    * **Important security information:** this web component does not generate or validates the HMAC validation code.
@@ -258,10 +258,10 @@ export class ProductItem extends Translatable {
   public signatures?: Record<string, string>;
 
   /**
-   * Optional open: An Object with key, value pairs where the key is a product
+   * Optional open: An Object with key, value pairs where the key is a item
    * attribute and the value is a boolean indicating that the property is editable by the user.
    *
-   * **Advanced use only**: this web component does not provide means for the user to alter product attributes.
+   * **Advanced use only**: this web component does not provide means for the user to alter item attributes.
    *
    * See [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.
    */
@@ -283,9 +283,9 @@ export class ProductItem extends Translatable {
   public height?: number;
 
   /**
-   * The total price of this product.
+   * The total price of this item.
    *
-   * It takes into account child products and the quantity.
+   * It takes into account child items and the quantity.
    */
   public total?: number = this.__computeTotalPrice();
 
@@ -297,21 +297,21 @@ export class ProductItem extends Translatable {
    */
   public currency = '';
 
-  /** A boolean indicating that this element is a product **/
-  protected isProduct = true;
+  /** A boolean indicating that this element is a item **/
+  protected isItem = true;
 
-  /** Boolean indicating that this product is a child product */
-  protected isChildProduct = false;
+  /** Boolean indicating that this item is a child item */
+  protected isChildItem = false;
 
   /**
-   * A unique id set to the product. Advanced usage only.
+   * A unique id set to the item. Advanced usage only.
    */
-  public readonly pid: number = ProductItem.__newId();
+  public readonly pid: number = Item.__newId();
 
   // A list of all existing ids to guarantee unicity
   private static __existingIds: number[] = [];
 
-  private __childProductsObserver?: MutationObserver;
+  private __childItemsObserver?: MutationObserver;
 
   private __modified = false;
 
@@ -333,50 +333,50 @@ export class ProductItem extends Translatable {
   };
 
   public constructor() {
-    super('quick-order');
-    this.__childProductsObserver = new MutationObserver(this.__observeProducts.bind(this));
-    this.__childProductsObserver.observe(this, {
+    super('items-form');
+    this.__childItemsObserver = new MutationObserver(this.__observeItems.bind(this));
+    this.__childItemsObserver.observe(this, {
       childList: true,
       attributes: false,
       subtree: true,
     });
     this.updateComplete.then(() => {
       this.__setCode();
-      this.__createProducts();
-      this.__acknowledgeChildProducts();
-      this.__changedChildProduct();
+      this.__createItems();
+      this.__acknowledgeChildItems();
+      this.__changedChildItem();
       if (!this.__isValid()) {
-        console.error('Invalid product', 'in product', this.value);
+        console.error('Invalid item', this.value);
       }
     });
   }
 
-  public get value(): Product {
-    const r: Partial<Record<keyof Product, unknown>> = {};
+  public get value(): ItemInterface {
+    const r: Partial<Record<keyof ItemInterface, unknown>> = {};
     for (let i = 0; i < this.attributes.length; i++) {
       r[this.attributes[i].name] = this.attributes[i].value;
     }
-    return r as Product;
+    return r as ItemInterface;
   }
 
-  public set value(v: Product) {
+  public set value(v: ItemInterface) {
     for (const k in v) {
       let attrValue = '';
-      if (typeof v[k as keyof Product] == 'object') {
-        attrValue = JSON.stringify(v[k as keyof Product]);
+      if (typeof v[k as keyof ItemInterface] == 'object') {
+        attrValue = JSON.stringify(v[k as keyof ItemInterface]);
       } else {
-        const key = k as keyof Product;
+        const key = k as keyof ItemInterface;
         if ((v[key] && v[key] !== 'undefined') || v[key] === 0) {
-          attrValue = v[k as keyof Product]!.toString();
+          attrValue = v[k as keyof ItemInterface]!.toString();
         }
       }
-      this.setAttribute(k, v[k as keyof Product] ? attrValue : '');
+      this.setAttribute(k, v[k as keyof ItemInterface] ? attrValue : '');
     }
   }
 
   public updated(changed: Map<string, unknown>): void {
-    if (changed.get('products') != undefined) {
-      this.__createProducts();
+    if (changed.get('items') != undefined) {
+      this.__createItems();
     }
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
@@ -390,10 +390,10 @@ export class ProductItem extends Translatable {
     const removedStyle = this.quantity ? '' : 'removed opacity-50';
     const sharedStyle = `font-lumo text-s leading-m transition duration-100 ${removedStyle}`;
 
-    if (this.isChildProduct) {
+    if (this.isChildItem) {
       return html`
         <article
-          class="py-s w-full relative separator product-summary flex justify-between ${sharedStyle}"
+          class="py-s w-full relative separator item-summary flex justify-between ${sharedStyle}"
         >
           <div class="description flex-1">
             <h1 class="text-header font-medium">${this.name}</h1>
@@ -407,23 +407,21 @@ export class ProductItem extends Translatable {
             ? ''
             : html`
                 <section class="quantity font-medium text-tertiary whitespace-no-wrap">
-                  ${this._t('product.items', { quantity: this.quantity })}
+                  ${this._t('item.items', { quantity: this.quantity })}
                 </section>
               `}
         </article>
       `;
     } else {
       return html`
-        <article
-          class="p-l relative product-item ${sharedStyle} ${this.__modified ? 'modified' : ''}"
-        >
+        <article class="p-l relative item ${sharedStyle} ${this.__modified ? 'modified' : ''}">
           <x-preview
             class="preview float-left w-preview h-preview mr-l mb-l"
             .image=${this.image}
             .quantity=${this.quantity}
-            .items=${[...this.querySelectorAll('[combined]')].map(child => ({
-              quantity: (child as ProductItem).quantity,
-              image: (child as ProductItem).image ?? '',
+            .items=${[...this.querySelectorAll('[data-bundled]')].map(child => ({
+              quantity: (child as Item).quantity,
+              image: (child as Item).image ?? '',
             }))}
           >
           </x-preview>
@@ -433,13 +431,13 @@ export class ProductItem extends Translatable {
               ${this.name}
             </h1>
 
-            <div class="product-description text-secondary mr-quantity mb-s">
+            <div class="item-description text-secondary mr-quantity mb-s">
               ${this.description}
               <slot></slot>
             </div>
 
-            <div class="child-products mb-s">
-              <slot name="products"></slot>
+            <div class="child-items mb-s">
+              <slot name="items"></slot>
             </div>
 
             ${this.currency
@@ -489,17 +487,16 @@ export class ProductItem extends Translatable {
   /**
    * Creates a new unique id to be used in the form
    *
-   * Ids are used to distinguish different products in a single form.
+   * Ids are used to distinguish different items in a single form.
    * Ids are prepended to fields names to allow Foxy Cart to know to what
-   * product a particular field relates.
+   * item a particular field relates.
    *
    * @return number the newly created id
    */
   private static __newId(): number {
     // Get the maximum value
-    const newId =
-      ProductItem.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
-    ProductItem.__existingIds.push(newId);
+    const newId = Item.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
+    Item.__existingIds.push(newId);
     return newId;
   }
 
@@ -513,20 +510,18 @@ export class ProductItem extends Translatable {
   }
 
   /**
-   * Create child product items from products field.
+   * Create child items from items field.
    */
-  private __createProducts(): void {
-    if (this.products && this.products.length) {
-      this.products.forEach(p => {
+  private __createItems(): void {
+    if (this.items && this.items.length) {
+      this.items.forEach(p => {
         // Use a reference to the constructor of the instance in order to avoid issues in tests
-        type AConstructorTypeOf<T> = new (...args: unknown[]) => T;
-        const productConstructor = this.constructor;
-        const product = new (productConstructor as AConstructorTypeOf<ProductItem>)();
-        product.value = p;
-        product.currency = this.currency;
-        product.__computeTotalPrice();
-        this.__acknowledgeProduct(product);
-        this.appendChild(product);
+        const item = document.createElement(this.tagName) as Item;
+        item.value = p;
+        item.currency = this.currency;
+        item.__computeTotalPrice();
+        this.__acknowledgeItem(item);
+        this.appendChild(item);
       });
     }
   }
@@ -536,7 +531,7 @@ export class ProductItem extends Translatable {
   }
 
   /**
-   * The price of the total qty of each of the child products
+   * The price of the total qty of each of the child items
    */
   private __computeTotalPrice(): number {
     if (!this.__childPrices) {
@@ -553,18 +548,18 @@ export class ProductItem extends Translatable {
   }
 
   /**
-   * Constraints Products must eventually adhere to.
+   * Constraints Items must eventually adhere to.
    **/
   private __isValid(): boolean {
     const error = [];
     if (!this.name || !this.name.length) {
-      error.push('The name attribute of a product is required.');
+      error.push('The name attribute of an item is required.');
     }
     if (!this.price && this.price !== 0) {
-      error.push('The price attribute of a product is required.');
+      error.push('The price attribute of an item is required.');
     }
     if (this.price && this.price! < 0) {
-      error.push('Product added with negative price.');
+      error.push('Item added with negative price.');
     }
     if (this.quantity_min && this.quantity && this.quantity < this.quantity_min) {
       error.push('Quantity amount is less than minimum quantity.');
@@ -587,12 +582,12 @@ export class ProductItem extends Translatable {
     });
   }
 
-  private __observeProducts(mutationList: MutationRecord[]): void {
+  private __observeItems(mutationList: MutationRecord[]): void {
     mutationList.forEach(m => {
       if (m.type == 'childList') {
         m.addedNodes.forEach(n => {
           if (n.nodeType === Node.DOCUMENT_NODE) {
-            this.__acknowledgeProduct(n as ProductItem);
+            this.__acknowledgeItem(n as Item);
           }
         });
       }
@@ -600,60 +595,60 @@ export class ProductItem extends Translatable {
     this.__setTotalPrice();
   }
 
-  private __acknowledgeChildProducts() {
+  private __acknowledgeChildItems() {
     this.shadowRoot
-      ?.querySelectorAll('[product]')
-      .forEach(e => this.__acknowledgeProduct(e as ProductItem));
-    this.querySelectorAll('[product]').forEach(e => this.__acknowledgeProduct(e as ProductItem));
+      ?.querySelectorAll('[data-item]')
+      .forEach(e => this.__acknowledgeItem(e as Item));
+    this.querySelectorAll('[data-item]').forEach(e => this.__acknowledgeItem(e as Item));
   }
 
-  private __acknowledgeProduct(e: ProductItem): void {
-    e.addEventListener('change', this.__changedChildProduct.bind(this));
+  private __acknowledgeItem(e: Item): void {
+    e.addEventListener('change', this.__changedChildItem.bind(this));
     e.currency = this.currency;
-    e.isProduct = false;
-    e.isChildProduct = true;
+    e.isItem = false;
+    e.isChildItem = true;
     if (this.code) {
       e.parent_code = this.code;
     }
   }
 
-  /** React to changes in child products */
-  private __changedChildProduct() {
+  /** React to changes in child items */
+  private __changedChildItem() {
     // Reset child attributes lists
-    const newProductPrices: number[] = [];
-    const newProductImages: ImageDescription[] = [];
+    const newItemPrices: number[] = [];
+    const newItemImages: ImageDescription[] = [];
     let newChildrenCount = 0;
 
     // Create collection functions
-    const collectPrices = (p: ProductItem) => {
+    const collectPrices = (p: Item) => {
       if (p.total !== undefined) {
-        newProductPrices.push(p.total);
+        newItemPrices.push(p.total);
       }
     };
-    const collectImages = (p: ProductItem) => {
-      newProductImages.push(p.getImageDescription());
+    const collectImages = (p: Item) => {
+      newItemImages.push(p.getImageDescription());
     };
     const countChildren = () => (newChildrenCount += 1);
     // Collect information of every child
-    this.__onEachChildProduct([collectPrices, collectImages, countChildren]);
+    this.__onEachChildItem([collectPrices, collectImages, countChildren]);
 
-    if (this.image && newProductImages.length === 0) {
-      newProductImages.push(this.getImageDescription());
+    if (this.image && newItemImages.length === 0) {
+      newItemImages.push(this.getImageDescription());
     }
 
-    // Update atributes regarding child products
-    this.__childPrices = newProductPrices;
-    this.__images = newProductImages;
+    // Update atributes regarding child items
+    this.__childPrices = newItemPrices;
+    this.__images = newItemImages;
     this.__childrenCount = newChildrenCount;
     this.__setTotalPrice();
   }
 
-  /** Execute a list of actions against all child products */
-  private __onEachChildProduct(actions: ((c: ProductItem) => void)[]) {
-    const myChildProducts = this.querySelectorAll('[combined]');
-    for (const c of myChildProducts) {
+  /** Execute a list of actions against all child items */
+  private __onEachChildItem(actions: ((c: Item) => void)[]) {
+    const myChildItems = this.querySelectorAll('[data-bundled]');
+    for (const c of myChildItems) {
       for (const actOn of actions) {
-        actOn(c as ProductItem);
+        actOn(c as Item);
       }
     }
   }

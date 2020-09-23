@@ -1,4 +1,4 @@
-export interface Product {
+export interface ItemInterface {
   name?: string;
   price?: number;
   image?: string;
@@ -21,12 +21,12 @@ export interface Product {
   alt?: string;
   open?: Record<string, boolean>;
   signatures?: Record<string, string>;
-  products?: Product[];
+  products?: ItemInterface[];
   [key: string]:
     | string
     | number
     | undefined
-    | Product[]
+    | ItemInterface[]
     | Record<string, string>
     | Record<string, boolean>
     | null;
