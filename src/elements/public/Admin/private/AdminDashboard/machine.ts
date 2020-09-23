@@ -82,7 +82,7 @@ export const machine = createMachine<AdminDashboardContext>({
             bookmark: (_, evt) => (evt as AdminDashboardLoadSuccessEvent).data.bookmark,
             widgets: (_, evt) => {
               const store = (evt as AdminDashboardLoadSuccessEvent).data.store;
-              const attributes = store._embedded['fx:attributes'];
+              const attributes = store._embedded?.['fx:attributes'] ?? [];
               const total = attributes.find(({ name }) => name === WIDGETS_TOTAL_ATTRIBUTE);
 
               if (total === undefined) {
