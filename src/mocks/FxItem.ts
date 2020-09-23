@@ -44,6 +44,7 @@ export class MockItem extends HTMLElement {
 
   get value(): ItemInterface {
     const result = {
+      name: this.name,
       pid: this.pid,
       price: this.price,
       quantity: this.quantity,
