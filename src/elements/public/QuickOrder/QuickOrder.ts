@@ -315,7 +315,8 @@ export class QuickOrder extends Translatable {
   public createProduct(p: Product): Element {
     const scopedProduct = (this.constructor as any).getScopedTagName('x-product');
     const newProduct = document.createElement(scopedProduct);
-    newProduct.value = { ...p, currency: this.currency };
+    newProduct.value = p;
+    newProduct.currency = this.currency;
     return newProduct;
   }
 
@@ -557,9 +558,7 @@ export class QuickOrder extends Translatable {
    */
   private __acknowledgeProductElement(p: ProductItem) {
     p.addEventListener('change', this.__productChange.bind(this));
-    if (!p.currency) {
-      p.currency = this.currency;
-    }
+    p.currency = this.currency!;
   }
 
   /**

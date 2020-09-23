@@ -1,15 +1,25 @@
 import { fixture, expect, html, elementUpdated, oneEvent, aTimeout } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { ProductItem, QuickOrder } from './QuickOrder';
-import { Product } from './types';
 import { MockProduct } from '../../../mocks/ProductItem';
+import { Dropdown, ErrorScreen } from '../../private/index';
 
 /**
  * Avoid CustomElementsRegistry collisions
  *
  * not using defineCE because lit-html doesn't support dynamic tags by default.
  */
-class TestQuickOrder extends QuickOrder {}
+class TestQuickOrder extends QuickOrder {
+  public static get scopedElements(): Record<string, unknown> {
+    return {
+      'x-error-screen': ErrorScreen,
+      'vaadin-button': customElements.get('vaadin-button'),
+      'x-dropdown': Dropdown,
+      'x-product': ProductItem,
+    };
+  }
+}
+
 class TestRegularQuickOrder extends QuickOrder {
   constructor() {
     super();
@@ -87,7 +97,7 @@ describe('The form should allow new products to be added and removed', async fun
     const el = await formWith2products(10, 10);
     expect((el as QuickOrder).total).to.equal(20);
     const lateProduct = new MockProduct();
-    lateProduct.total = 20;
+    lateProduct.price = 20;
     el.appendChild(lateProduct);
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(40);
@@ -329,7 +339,6 @@ describe('The form should be aware of its products', async function () {
       </quick-order>
     `);
     await elementUpdated(el);
-    console.log(el, (el as any).total, (el as any).__total);
     expect((el as QuickOrder).total).to.equal(70);
   });
 
@@ -360,7 +369,6 @@ describe('The form should be aware of its products', async function () {
     expect(firstProduct).to.exist;
     const m = firstProduct as MockProduct;
     m.quantity = 30;
-    m.total = m.price * m.quantity;
     m.dispatchEvent(new Event('change'));
     await elementUpdated(el);
     expect((el as QuickOrder).total).to.equal(340);

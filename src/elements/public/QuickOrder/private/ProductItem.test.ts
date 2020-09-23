@@ -29,43 +29,33 @@ describe('The product Item remain always valid', async function () {
 
   it('Should require name and price', async function () {
     let el: TestProductItem = await fixture(
-      html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
+      html` <x-productitem name="p1" price="10"></x-productitem> `
     );
     await elementUpdated(el);
     expect(logSpy.calledWith('The name attribute of a product is required.')).to.be.false;
     expect(logSpy.calledWith('The price attribute of a product is required.')).to.be.false;
     logSpy.reset();
-    el = await fixture(html` <x-productitem name="p2" currency="usd"></x-productitem> `);
+    el = await fixture(html` <x-productitem name="p2"></x-productitem> `);
     await elementUpdated(el);
     expect(logSpy.calledWith('The price attribute of a product is required.')).to.be.true;
     logSpy.reset();
-    el = await fixture(html` <x-productitem price="10" currency="usd"></x-productitem> `);
+    el = await fixture(html` <x-productitem price="10"></x-productitem> `);
     await elementUpdated(el);
     expect(logSpy.calledWith('The name attribute of a product is required.')).to.be.true;
   });
 
   it('Prices should be zero or positive', async function () {
-    let el = await fixture(
-      html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
-    );
+    let el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Product added with negative price.')).to.be.false;
-    el = await fixture(
-      html` <x-productitem name="p1" price="-10" currency="usd"></x-productitem> `
-    );
+    el = await fixture(html` <x-productitem name="p1" price="-10"></x-productitem> `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Product added with negative price.')).to.be.true;
   });
 
   it('Should validate minimum quantity in attribute', async function () {
     const el = await fixture(html`
-      <x-productitem
-        name="p1"
-        price="10"
-        quantity="1"
-        quantity_min="2"
-        currency="usd"
-      ></x-productitem>
+      <x-productitem name="p1" price="10" quantity="1" quantity_min="2"></x-productitem>
     `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Quantity amount is less than minimum quantity.')).to.be.true;
@@ -73,13 +63,7 @@ describe('The product Item remain always valid', async function () {
 
   it('Should validate maximum quantity in attribute', async function () {
     const el = await fixture(html`
-      <x-productitem
-        name="p1"
-        price="10"
-        quantity="3"
-        quantity_max="2"
-        currency="usd"
-      ></x-productitem>
+      <x-productitem name="p1" price="10" quantity="3" quantity_max="2"></x-productitem>
     `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Quantity amount is more than maximum quantity.')).to.be.true;
@@ -91,7 +75,6 @@ describe('The product Item remain always valid', async function () {
     await fixture(html`<x-productitem
       name="p1"
       price="10"
-      currency="usd"
       signatures='{ "name":"${sig}", "price":"${sig}", "quantity":"${sig}"}'
     ></x-productitem> `);
     expect(
@@ -103,7 +86,6 @@ describe('The product Item remain always valid', async function () {
     await fixture(html`<x-productitem
       name="p1"
       price="10"
-      currency="usd"
       signatures='{ "name":"${wrongsig}", "price":"${sig}", "quantity":"${sig}"}'
     ></x-productitem> `);
     expect(
@@ -128,9 +110,7 @@ describe('The product item reveals its state to the user', async function () {
   });
 
   it('Should look like removed when quantity is zero', async function () {
-    const el = await fixture(
-      html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
-    );
+    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
     await elementUpdated(el);
     expect(el.shadowRoot?.querySelectorAll('.removed')).to.be.empty;
     const xNumber = qtyField(el);
@@ -141,9 +121,7 @@ describe('The product item reveals its state to the user', async function () {
   });
 
   it('Should look like modified when modified by the user', async function () {
-    const el = await fixture(
-      html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
-    );
+    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
     const modified = (e: Element) => e.shadowRoot!.querySelectorAll('.modified');
     expect(modified(el).length).to.equal(0);
     const xNumber = qtyField(el);
@@ -156,15 +134,15 @@ describe('The product item reveals its state to the user', async function () {
   it('Should look like removed when it is child and has zero quantity', async function () {
     const removed = await fixture(
       html`
-        <x-productitem name="p1" price="10" currency="usd">
-          <x-productitem name="p2" price="10" currency="usd" quantity="0"></x-productitem>
+        <x-productitem name="p1" price="10">
+          <x-productitem name="p2" price="10" quantity="0"></x-productitem>
         </x-productitem>
       `
     );
     const notremoved = await fixture(
       html`
-        <x-productitem name="p1" price="10" currency="usd">
-          <x-productitem name="p2" price="10" currency="usd"></x-productitem>
+        <x-productitem name="p1" price="10">
+          <x-productitem name="p2" price="10"></x-productitem>
         </x-productitem>
       `
     );
@@ -178,20 +156,15 @@ describe('The product item reveals its state to the user', async function () {
   it('Should show the description when it is child and a description is provided', async function () {
     const withDescription = await fixture(
       html`
-        <x-productitem name="p1" price="10" currency="usd">
-          <x-productitem
-            name="p2"
-            price="10"
-            currency="usd"
-            description="Lorem Ipsum"
-          ></x-productitem>
+        <x-productitem name="p1" price="10">
+          <x-productitem name="p2" price="10" description="Lorem Ipsum"></x-productitem>
         </x-productitem>
       `
     );
     const withOutDescription = await fixture(
       html`
-        <x-productitem name="p1" price="10" currency="usd">
-          <x-productitem name="p2" price="10" currency="usd"></x-productitem>
+        <x-productitem name="p1" price="10">
+          <x-productitem name="p2" price="10"></x-productitem>
         </x-productitem>
       `
     );
@@ -205,15 +178,15 @@ describe('The product item reveals its state to the user', async function () {
   it('Should show the quantity when it is child quantity is 2 or more', async function () {
     const withMoreThan1 = await fixture(
       html`
-        <x-productitem name="p1" price="10" currency="usd">
-          <x-productitem name="p2" price="10" quantity="2" currency="usd"></x-productitem>
+        <x-productitem name="p1" price="10">
+          <x-productitem name="p2" price="10" quantity="2"></x-productitem>
         </x-productitem>
       `
     );
     const withOutMoreThan1 = await fixture(
       html`
-        <x-productitem name="p1" price="10" currency="usd">
-          <x-productitem name="p2" price="10" currency="usd"></x-productitem>
+        <x-productitem name="p1" price="10">
+          <x-productitem name="p2" price="10"></x-productitem>
         </x-productitem>
       `
     );
@@ -240,13 +213,7 @@ describe('Product item provides an interface to set values', async function () {
 
   it('Should accept custom parameters', async function () {
     const el = await fixture(
-      html`<x-productitem
-        name="p1"
-        price="10"
-        material="rubber"
-        size="10"
-        currency="usd"
-      ></x-productitem> `
+      html`<x-productitem name="p1" price="10" material="rubber" size="10"></x-productitem> `
     );
     await elementUpdated(el);
     const product: Product & { material?: string; size?: string } = (el as TestProductItem).value;
@@ -258,13 +225,7 @@ describe('Product item provides an interface to set values', async function () {
 
   it('Should create parameters from value object', async function () {
     const el = await fixture(
-      html`<x-productitem
-        name="p1"
-        price="10"
-        material="rubber"
-        size="10"
-        currency="usd"
-      ></x-productitem> `
+      html`<x-productitem name="p1" price="10" material="rubber" size="10"></x-productitem> `
     );
     await elementUpdated(el);
     const product = el as TestProductItem;
@@ -295,7 +256,7 @@ describe('Product item recognizes its children', async function () {
   it('Should recognize children created with slots', async function () {
     const el = await fixture(
       html`
-        <x-productitem name="p1" price="10" currency="usd">
+        <x-productitem name="p1" price="10">
           <div slot="product" class="bundled">
             <x-productitem name="p2" price="3"></x-productitem>
             <x-productitem name="p3" price="4"></x-productitem>
@@ -313,7 +274,6 @@ describe('Product item recognizes its children', async function () {
         <x-productitem
           name="p1"
           price="10"
-          currency="usd"
           products='[{"name":"p2","price":3}, {"name":"p3","price":4}]'
         ></x-productitem>
       `
@@ -323,9 +283,7 @@ describe('Product item recognizes its children', async function () {
   });
 
   it('Should recognize children added by setting "value" attribute', async function () {
-    const el = await fixture(
-      html` <x-productitem name="p1" price="10" currency="usd"></x-productitem> `
-    );
+    const el = await fixture(html` <x-productitem name="p1" price="10"></x-productitem> `);
     (el as TestProductItem).value = { products: [{ name: 'p2', price: 8 }] };
     await elementUpdated(el);
     expect((el as TestProductItem).total).to.equal(18);

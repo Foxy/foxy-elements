@@ -104,7 +104,6 @@ export class ProductItem extends Translatable {
       __modified: {},
       category: { type: String },
       code: { type: String, reflect: true },
-      currency: { type: String, reflect: true },
       expires: { type: String },
       height: { type: Number },
       image: { type: String },
@@ -163,14 +162,6 @@ export class ProductItem extends Translatable {
    * **Example:** `10`
    */
   public price?: number;
-
-  /**
-   * 3-letter lowercase currency code.
-   * It is provided by the form if not set.
-   *
-   * **Example:** `"usd"`
-   */
-  public currency?: string;
 
   /**
    * Optional an image url to be displayed in the form.
@@ -309,6 +300,14 @@ export class ProductItem extends Translatable {
    * It takes into account child products and the quantity.
    */
   public total?: number = this.__computeTotalPrice();
+
+  /**
+   * 3-letter lowercase currency code.
+   * It is provided by the form if not set.
+   *
+   * **Example:** `"usd"`
+   */
+  public currency = '';
 
   /** A boolean indicating that this element is a product **/
   protected isProduct = true;
@@ -450,13 +449,15 @@ export class ProductItem extends Translatable {
           </section>
 
           <section class="price text-left text-header text-l">
-            <x-price
-              .price=${this.price}
-              .prices=${this.__childPrices}
-              .currency=${this.currency}
-              .quantity=${this.quantity}
-            >
-            </x-price>
+            ${this.currency
+              ? html` <x-price
+                  .price=${this.price}
+                  .prices=${this.__childPrices}
+                  .currency=${this.currency}
+                  .quantity=${this.quantity}
+                >
+                </x-price>`
+              : ''}
           </section>
 
           <section class="quantity max-w-xxs w-full md:w-auto text-s">
@@ -581,17 +582,17 @@ export class ProductItem extends Translatable {
     if (this.quantity_max && this.quantity && this.quantity > this.quantity_max) {
       error.push('Quantity amount is more than maximum quantity.');
     }
-    if (!this.currency) {
-      error.push('The product has no currency');
-    }
     console.error(...error);
     return !error.length;
   }
 
   private __translateAmount(amount: number) {
+    if (!this.currency) {
+      return '';
+    }
     return amount.toLocaleString(this.lang, {
       minimumFractionDigits: 2,
-      currency: this.currency ? this.currency : '',
+      currency: this.currency,
       style: 'currency',
     });
   }
@@ -618,6 +619,7 @@ export class ProductItem extends Translatable {
 
   private __acknowledgeProduct(e: ProductItem): void {
     e.addEventListener('change', this.__changedChildProduct.bind(this));
+    e.currency = this.currency;
     e.isProduct = false;
     e.isChildProduct = true;
     if (this.code) {
