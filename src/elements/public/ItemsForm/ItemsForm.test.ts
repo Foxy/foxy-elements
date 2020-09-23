@@ -204,12 +204,9 @@ describe('The form should remain valid', async function () {
       </test-items-form>
     `);
     await elementUpdated(el);
-    const submitBtn = el.shadowRoot?.querySelector('[data-testid=submit]');
-    expect(submitBtn).to.exist;
-    if (submitBtn) {
-      (submitBtn as HTMLInputElement).click();
-      expect(requests).to.be.empty;
-    }
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(form).to.exist;
+    expect(new FormData(form)).to.be.empty;
   });
 
   it('Should not allow negative prices or quantities', async function () {
@@ -221,22 +218,10 @@ describe('The form should remain valid', async function () {
       </test-items-form>
     `);
     await elementUpdated(el);
-    const submitBtn = el.shadowRoot?.querySelector('[data-testid=submit]');
-    expect(submitBtn).to.exist;
-    if (submitBtn) {
-      logSpy.reset();
-      (submitBtn as HTMLInputElement).click();
-      interface withSend {
-        send?: { args: any[] };
-      }
-      interface FakeRequest extends sinon.SinonFakeXMLHttpRequest, withSend {}
-      const r: FakeRequest = requests[0];
-      const fd: FormData = r.send!.args[0][0];
-      expect(fd).to.exist;
-      if (fd) {
-        expect(valuesFromField(fd, 'price').every(v => Number(v) >= 0)).to.be.true;
-      }
-    }
+    expect(el.shadowRoot).to.exist;
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(form).to.exist;
+    expect(valuesFromField(new FormData(form), 'price').every(v => Number(v) >= 0)).to.be.true;
   });
 
   interface FrequencyFormatTest {
@@ -432,11 +417,11 @@ describe('The form submits a valid POST to forxycart', async function () {
 
   it('Prepends ids to the items', async function () {
     const el = await formWith2items(10, 10);
-    const s = getSubmissionSpy(el as ItemsForm, requests);
-    expect(s.called).to.equal(true);
-    expect(s.callCount).to.equal(1);
-    for (const k of s.firstCall.args[0].keys()) {
-      expect(k.match(/^\d+:.*$/).index).to.equal(0);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(form).to.exist;
+    const fd = new FormData(form);
+    for (const k of fd.keys()) {
+      expect(k.match(/^\d+:.*$/)!.index).to.equal(0);
     }
   });
 
@@ -450,13 +435,19 @@ describe('The form submits a valid POST to forxycart', async function () {
     await elementUpdated(el);
     const items = el.querySelectorAll('[data-item]');
     expect(items).to.exist;
-    items!.forEach(p => {
+    let last: MockItem | null = null;
+    for (const p of items) {
       (p as MockItem).signatures = signatures;
-    });
-    const s = getSubmissionSpy(el as ItemsForm, requests);
-    expect(s.called).to.equal(true);
-    expect(s.callCount).to.equal(1);
-    for (const k of s.firstCall.args[0].keys()) {
+      last = p as MockItem;
+    }
+    if (last) {
+      last.dispatchEvent(new CustomEvent('change'));
+    }
+    await elementUpdated(el);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(form).to.exist;
+    const fd = new FormData(form);
+    for (const k of fd.keys()) {
       expect(k).to.match(/.*\|\|a{64}$/);
     }
   });
@@ -472,17 +463,24 @@ describe('The form submits a valid POST to forxycart', async function () {
     const items = el.querySelectorAll('[data-item]');
     expect(items).to.exist;
     (signatures as any).color = signatures.name;
-    items!.forEach(p => {
+    let last: MockItem | null = null;
+    for (const p of items) {
       (p as MockItem).signatures = signatures;
       (p as MockItem).open = open;
       (p as MockItem).color = 'blue';
-    });
-    const s = getSubmissionSpy(el as ItemsForm, requests);
-    expect(s.callCount).to.equal(1);
+      last = p as MockItem;
+    }
+    if (last) {
+      last.dispatchEvent(new CustomEvent('change'));
+    }
+    await elementUpdated(el);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    const fd = new FormData(form);
     let found = false;
-    for (const k of s.firstCall.args[0].keys()) {
+    for (const k of fd.keys()) {
       if (k.match(/\d+:color\|\|a{64}\|\|open$/)) {
         found = true;
+        break;
       }
     }
     expect(found).to.equal(true);
@@ -516,9 +514,8 @@ describe('The form submits a valid POST to forxycart', async function () {
     expect(frequencyField).to.exist;
     frequencyField?.dispatchEvent(new CustomEvent('change', { detail: '1d' }));
     await elementUpdated(el);
-    const s = getSubmissionSpy(el as ItemsForm, requests);
-    expect(s.callCount).to.equal(1);
-    const fd: FormData = s.firstCall.args[0];
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    const fd = new FormData(form);
     expect(fd.get('sub_frequency')).to.exist.and.to.equal('1d');
   });
 
@@ -529,9 +526,8 @@ describe('The form submits a valid POST to forxycart', async function () {
       </test-items-form>
     `);
     await elementUpdated(el);
-    const s = getSubmissionSpy(el as ItemsForm, requests);
-    expect(s.callCount).to.equal(1);
-    const fd: FormData = s.firstCall.args[0];
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    const fd = new FormData(form);
     expect(fd.get('sub_startdate')).not.to.exist;
     expect(fd.get('sub_enddate')).not.to.exist;
   });
@@ -566,22 +562,6 @@ describe('The form reveals its state to the user', async function () {
     await elementUpdated(el);
     expect(el.shadowRoot?.querySelector('[data-testid=submit][disabled]')).to.exist;
   });
-
-  it('Dispatches event upon server response', async function () {
-    const el = await fixture(html`
-      <test-items-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
-        <x-testitem name="p1" price="10.00"></x-testitem>
-      </test-items-form>
-    `);
-    await elementUpdated(el);
-    const callback = sinon.spy();
-    el.addEventListener('load', callback);
-    const listener = oneEvent(el, 'load');
-    getSubmissionSpy(el as ItemsForm, requests);
-    requests[0].respond(200, { 'Content-Type': 'application/json' }, '[1,2]');
-    await listener;
-    expect(callback.called).to.be.true;
-  });
 });
 
 /** Helper functions **/
@@ -610,18 +590,4 @@ function valuesFromField(formData: FormData, name: string): FormDataEntryValue[]
     }
   });
   return values;
-}
-
-function getSubmissionSpy(
-  el: ItemsForm,
-  requests: sinon.SinonFakeXMLHttpRequest[]
-): sinon.SinonSpy {
-  const submitBtn = el.shadowRoot?.querySelector('[data-testid=submit]');
-  expect(submitBtn, '1').to.exist;
-  (submitBtn! as HTMLInputElement).click();
-  expect(requests[0], '2').to.exist;
-  const r = requests[0];
-  expect(r.method).to.equal('POST');
-  const s: sinon.SinonSpy = (r as any).send;
-  return s;
 }
