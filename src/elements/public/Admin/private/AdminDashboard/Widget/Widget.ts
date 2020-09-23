@@ -93,8 +93,7 @@ export class Widget extends Translatable {
   }
 
   public updated(changedProperties: Map<keyof Widget, unknown>): void {
-    if (changedProperties.has('query')) this.__service.send('RESET');
-    if (changedProperties.has('href')) this.__service.send('RESET');
+    if (changedProperties.get('href')) this.__service.send('RESET');
   }
 
   private get __display() {
