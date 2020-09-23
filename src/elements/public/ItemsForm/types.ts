@@ -21,7 +21,7 @@ export interface ItemInterface {
   alt?: string;
   open?: Record<string, boolean>;
   signatures?: Record<string, string>;
-  products?: ItemInterface[];
+  items?: ItemInterface[];
   [key: string]:
     | string
     | number
