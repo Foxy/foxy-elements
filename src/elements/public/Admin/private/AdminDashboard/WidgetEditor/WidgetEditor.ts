@@ -91,11 +91,11 @@ export class WidgetEditor extends Translatable {
   );
 
   public get store(): string {
-    return this.__service.state.context.store;
+    return this.__service.state?.context.store ?? '';
   }
 
   public set store(value: string) {
-    this.__service.send({ type: 'SET_STORE', data: value });
+    if (value !== this.store) this.__service.send({ type: 'SET_STORE', data: value });
   }
 
   public async open(params?: WidgetEditorInit): Promise<void> {
