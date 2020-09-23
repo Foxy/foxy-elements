@@ -150,6 +150,7 @@ export class Picture extends Themeable {
   private __insertImage(state: ImageState, refChild: Node | null = null) {
     const image = new Image();
     image.src = this.image;
+    image.setAttribute('part', 'picture');
     this.__setImageState(image, state);
     this.__container.insertBefore(image, refChild);
     return image;

@@ -206,6 +206,7 @@ export class PictureGrid<TData = unknown> extends Themeable {
     const gridStyle = length > 4 ? 'grid-4-plus' : `grid-${Math.max(1, length)}`;
 
     const itemProps = spread({
+      exportparts: 'picture',
       class: 'w-full h-full',
       '.empty': this.empty,
     });

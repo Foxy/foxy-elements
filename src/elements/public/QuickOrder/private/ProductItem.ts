@@ -11,6 +11,7 @@ import { Price } from './Price';
  *
  * The product may be configured using HTML properties or a JS object.
  *
+ * @csspart picture - Image of the product in preview stack (for single products) or grid (for bundles).
  */
 export class ProductItem extends Translatable {
   // A list of product properties as defined in Foxy Cart Documentation
@@ -419,6 +420,7 @@ export class ProductItem extends Translatable {
         >
           <x-preview
             class="preview float-left w-preview h-preview mr-l mb-l"
+            exportparts="picture"
             .image=${this.image}
             .quantity=${this.quantity}
             .items=${[...this.querySelectorAll('[combined]')].map(child => ({
