@@ -814,6 +814,12 @@
         {
           "name": "change"
         }
+      ],
+      "cssParts": [
+        {
+          "name": "picture",
+          "description": "Image of the product in preview stack (for single products) or grid (for bundles)."
+        }
       ]
     }
   ]
