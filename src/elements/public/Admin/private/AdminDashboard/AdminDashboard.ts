@@ -197,9 +197,8 @@ export class AdminDashboard extends Translatable {
       const configNames = [WIDGETS_ATTRIBUTE, WIDGETS_TOTAL_ATTRIBUTE];
       const { store, widgets } = this.__service.state.context;
 
-      const otherAttributes = store!._embedded['fx:attributes'].filter(
-        ({ name }) => !configNames.includes(name)
-      );
+      const otherAttributes =
+        store?._embedded?.['fx:attributes'].filter(({ name }) => !configNames.includes(name)) ?? [];
 
       const newWidgets = widgets.map(preset => ({
         name: WIDGETS_ATTRIBUTE,

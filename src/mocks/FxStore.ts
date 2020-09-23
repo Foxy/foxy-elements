@@ -152,9 +152,6 @@ export const store: FxStore = {
       type: 'text/html',
     },
   },
-  _embedded: {
-    'fx:attributes': [],
-  },
   store_version_uri: 'https://api.foxy.test/property_helpers/store_versions/21',
   store_name: 'Acme Corporation',
   store_domain: 'acme',

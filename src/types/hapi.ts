@@ -12,6 +12,18 @@ type Curies = [
   }
 ];
 
+export interface FxAttribute {
+  _links: { [key: string]: Link } & {
+    curies: Curies;
+    self: Link;
+  };
+  name: string;
+  value: string;
+  visibility: 'public' | 'private' | 'restricted';
+  date_created: string;
+  date_modified: string;
+}
+
 export interface FxCustomerPortalSettings {
   _links: {
     curies: Curies;
@@ -127,19 +139,8 @@ export interface FxStore {
     'fx:activate_store_yearly_url': Link;
   };
 
-  _embedded: Record<string, unknown> & {
-    'fx:attributes': {
-      _links: {
-        curies: Curies;
-        self: Link;
-        'fx:store': Link;
-      };
-      name: string;
-      value: string;
-      visibility: 'public' | 'private' | 'restricted';
-      date_created: string;
-      date_modified: string;
-    }[];
+  _embedded?: Record<string, unknown> & {
+    'fx:attributes': FxAttribute[];
   };
 
   /** This is the store version for this store. For more details about this version, see the {@link https://api-sandbox.foxycart.com/hal-browser/browser.html#https://api-sandbox.foxycart.com/property_helpers/store_versions store_versions} property helpers which include changelog information. */
