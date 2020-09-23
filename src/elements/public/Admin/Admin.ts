@@ -182,17 +182,16 @@ export class Admin extends Translatable {
     evt.detail.handle(async (...init) => {
       const url = init[0] ?? '/';
       const ctx = this.__service.state.context;
+      const method = init[1]?.method?.toUpperCase() ?? 'GET';
+      const isBookmark = (ctx.bookmark && url === '/') || url === ctx.bookmark?._links.self.href;
+      const isStore = url === ctx.store?._links.self.href;
+      const isUser = url === ctx.user?._links.self.href;
 
       // respond with cached data if possible
-      if (init[1]?.method?.toUpperCase() === 'GET') {
-        switch (url) {
-          case ctx.bookmark?._links.self.href:
-            return new Response(JSON.stringify(ctx.bookmark), { status: 200 });
-          case ctx.store?._links.self.href:
-            return new Response(JSON.stringify(ctx.store), { status: 200 });
-          case ctx.user?._links.self.href:
-            return new Response(JSON.stringify(ctx.user), { status: 200 });
-        }
+      if (method === 'GET') {
+        if (isBookmark) return new Response(JSON.stringify(ctx.bookmark), { status: 200 });
+        if (isStore) return new Response(JSON.stringify(ctx.store), { status: 200 });
+        if (isUser) return new Response(JSON.stringify(ctx.user), { status: 200 });
       }
 
       // pass this request along otherwise
@@ -206,6 +205,17 @@ export class Admin extends Translatable {
 
       // sign out on 401 Unauthorized
       if (response.status === 401) this.__service.send('SIGN_OUT');
+
+      // update cached data if possible
+      if (['PATCH', 'POST', 'PUT'].includes(method) && response.ok) {
+        const data = await response.json();
+
+        if (isBookmark) this.__service.state.context.bookmark = data;
+        if (isStore) this.__service.state.context.store = data;
+        if (isUser) this.__service.state.context.user = data;
+
+        this.requestUpdate();
+      }
 
       return response;
     });
