@@ -20,48 +20,36 @@ export class ProductItem extends Translatable {
     return [
       super.styles,
       css`
-        article.product-item {
-          margin: 0 auto;
-          display: grid;
-          grid:
-            'picture picture quantity'
-            'description description description'
-            'children children children'
-            'price price price' / 5.5rem auto 6.5rem;
-          grid-column-gap: 1.5rem;
+        :host {
+          --quantity-width: 6.5rem;
+          --preview-size: 5.5rem;
+          --threshold: 20rem;
         }
 
-        @media (min-width: 640px) {
-          article.product-item {
-            grid:
-              'picture description description  quantity'
-              'picture children children  children'
-              'picture price price price' / 5.5rem auto 6.5rem 6.5rem;
-            grid-column-gap: 1.5rem;
-          }
+        .min-w-description::before {
+          content: '';
+          width: var(--threshold);
+          display: block;
+          overflow: hidden;
         }
 
-        section.quantity {
-          grid-area: quantity;
+        .ml-description {
+          --min-width: calc(var(--threshold) + var(--preview-size) + var(--lumo-space-l));
+          --free-space: calc(100% - var(--min-width));
+          --max-margin-left: calc(var(--preview-size) + var(--lumo-space-l));
+          --final-margin-left: clamp(0rem, var(--free-space) * 999999999, var(--max-margin-left));
+          margin-left: var(--final-margin-left);
         }
 
-        section.description {
-          grid-area: description;
+        .mr-quantity {
+          --min-width: var(--threshold);
+          --free-space: calc(100% - var(--min-width));
+          --max-margin-right: calc(var(--quantity-width) + var(--lumo-space-l));
+          --final-margin-right: clamp(0rem, var(--free-space) * 999999999, var(--max-margin-right));
+          margin-right: var(--final-margin-right);
         }
 
-        section.price {
-          grid-area: price;
-        }
-
-        section.child-products {
-          grid-area: children;
-        }
-
-        .product-summary {
-          position: relative;
-        }
-
-        .product-summary::after {
+        :host([combined]:not(:last-of-type)) .separator::after {
           content: ' ';
           display: block;
           position: absolute;
@@ -71,16 +59,16 @@ export class ProductItem extends Translatable {
           bottom: 0;
         }
 
-        :host([combined]:last-of-type) .product-summary::after {
-          content: none;
+        .w-quantity {
+          width: var(--quantity-width);
         }
 
         .w-preview {
-          width: 5.5rem;
+          width: var(--preview-size);
         }
 
         .h-preview {
-          height: 5.5rem;
+          height: var(--preview-size);
         }
       `,
     ];
@@ -399,13 +387,15 @@ export class ProductItem extends Translatable {
       return html`<x-error-screen type="setup_needed" class="relative"></x-error-screen>`;
     }
 
+    const removedStyle = this.quantity ? '' : 'removed opacity-50';
+    const sharedStyle = `font-lumo text-s leading-m transition duration-100 ${removedStyle}`;
+
     if (this.isChildProduct) {
-      const removedStyle = this.quantity ? '' : 'removed opacity-50';
       return html`
         <article
-          class="py-s font-lumo text-s leading-m product-summary duration-100 flex justify-between ${removedStyle}"
+          class="py-s w-full relative separator product-summary flex justify-between ${sharedStyle}"
         >
-          <div class="description text-s">
+          <div class="description flex-1">
             <h1 class="text-header font-medium">${this.name}</h1>
             <section class="description text-secondary">
               ${this.description ? html`<p>${this.description}</p>` : ''}
@@ -425,12 +415,10 @@ export class ProductItem extends Translatable {
     } else {
       return html`
         <article
-          class="font-lumo leading-m product-item duration-100 ${this.quantity
-            ? ''
-            : 'removed opacity-50'} ${this.__modified ? 'modified' : ''}"
+          class="p-l relative product-item ${sharedStyle} ${this.__modified ? 'modified' : ''}"
         >
           <x-preview
-            class="w-preview h-preview"
+            class="preview float-left w-preview h-preview mr-l mb-l"
             .image=${this.image}
             .quantity=${this.quantity}
             .items=${[...this.querySelectorAll('[combined]')].map(child => ({
@@ -440,17 +428,23 @@ export class ProductItem extends Translatable {
           >
           </x-preview>
 
-          <section class="description min-w-xl w-full mt-l sm:w-auto sm:mt-0">
-            <h1 class="text-header font-medium text-l leading-none mb-m">${this.name}</h1>
-            <div class="product-description text-secondary text-s">
+          <section class="description min-w-description ml-description">
+            <h1 class="text-header font-medium text-l leading-none mr-quantity mb-s">
+              ${this.name}
+            </h1>
+
+            <div class="product-description text-secondary mr-quantity mb-s">
               ${this.description}
               <slot></slot>
             </div>
-          </section>
 
-          <section class="price text-left text-header text-l">
+            <div class="child-products mb-s">
+              <slot name="products"></slot>
+            </div>
+
             ${this.currency
-              ? html` <x-price
+              ? html`<x-price
+                  class="price text-header text-l leading-none"
                   .price=${this.price}
                   .prices=${this.__childPrices}
                   .currency=${this.currency}
@@ -460,7 +454,7 @@ export class ProductItem extends Translatable {
               : ''}
           </section>
 
-          <section class="quantity max-w-xxs w-full md:w-auto text-s">
+          <section class="quantity w-quantity absolute top-0 right-0 m-l">
             <vaadin-integer-field
               class="w-full p-0"
               name="quantity"
@@ -478,10 +472,6 @@ export class ProductItem extends Translatable {
                   </div>
                 `
               : ''}
-          </section>
-
-          <section class="child-products w-full ${this.__childrenCount ? 'mt-s' : ''}">
-            <slot name="products"></slot>
           </section>
         </article>
       `;

@@ -24,7 +24,7 @@ export const getTemplate = (args, children = '') => html`
   title="Integrations/Quick Order"
   component="foxy-quick-form"
   decorators={[
-    Story => html`<div class="border rounded overflow-hidden container-medium">${Story()}</div>`,
+    Story => html`<div class="border rounded-lg overflow-hidden container-medium">${Story()}</div>`,
   ]}
   args={{
     currency: 'usd',
@@ -178,58 +178,50 @@ By adding `<foxy-item>` to your `<foxy-quick-form>` your products will be proper
 <Canvas
   mdxSource={dedent`
     <foxy-quick-form store="jamstackecommerceexample.foxycart.com" currency="usd">
-      <style>
-        .dietary-food {
-          font-weight: 100;
-          border: solid thin silver;
-          border-radius: 6px;
-          padding: 1em;
-          margin-bottom: 1em;
-          background: #fafafa;
-        }
-        .dietary-food img {
-          height: 4em
-        }
-        table {
-          margin: 1em;
-        }
-        table td {
-          border: solid thin silver;
-          border-collapse: collapse;
-          padding: 0.5em;
-        }
-        section.special-items {
-          padding: 1em;
-          border: double #6666ff;
-          background: #ededff;
-          border-radius: 6px;
-        }
-        .special-items h1, .dietary-food h1 {
-          font-size: 1.2em;
-          font-weight: 400;
-          padding: 1em 0;
-        }
-      </style>
-      <h1>Diet food</h1>
-      <section class="dietary-food">
-        <foxy-item name="Healthy Bites" price="59.99" image="http://placedog.net/200" description="High quality nutritious food for your pet.">
-         <div>Healthy pet, happy pet!</div>
+      <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet" />
+      <h1 class="m-6 uppercase tracking-wider leading-none text-xl font-bold text-yellow-600">
+        Diet food
+      </h1>
+      <section class="bg-yellow-100 border border-yellow-500 rounded-lg m-6">
+        <foxy-item
+          name="Healthy Bites"
+          price="59.99"
+          image="http://placedog.net/200"
+          description="High quality nutritious food for your pet."
+        >
+          Healthy pet, happy pet!
         </foxy-item>
-        <foxy-item name="Yummy Bites" price="69.99" image="http://placedog.net/200" description="Delicious food! Perfect nutrition in a easy to transport and easy to save package">
-         <div>Life is much better when eating is a joy.</div>
+        <hr class="border-yellow-500" />
+        <foxy-item
+          name="Yummy Bites"
+          price="69.99"
+          image="http://placedog.net/200"
+          description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
+        >
+          Life is much better when eating is a joy.
         </foxy-item>
       </section>
-      <h1>Special Item</h1>
-      <section class="special-items">
+      <h1 class="m-6 uppercase tracking-wider leading-none text-xl font-bold text-green-600">
+        Special item
+      </h1>
+      <section class="bg-green-100 border border-green-500 rounded-lg m-6">
         <foxy-item name="Sci-fy Bites" price="69.99" image="http://placedog.net/200">
-          <section>
-            <p>This incredible product was developed by dedicated nutrition experts, building upon the most advanced research</p>
-            <table>
-              <tr><td>Easily digested</td><td>✓</td></tr>
-              <tr><td>Perfectly balenced</td><td>✓</td></tr>
-              <tr><td>Environmentaly responsible</td><td>✓</td></tr>
-            </table>
-          </section>
+          This incredible product was developed by dedicated nutrition experts, building upon
+          the most advanced research.
+          <table class="my-3">
+            <tr>
+              <td class="pr-3 text-green-500 font-bold">✓</td>
+              <td>Easily digested</td>
+            </tr>
+            <tr>
+              <td class="pr-3 text-green-500 font-bold">✓</td>
+              <td>Perfectly balanced</td>
+            </tr>
+            <tr>
+              <td class="pr-3 text-green-500 font-bold">✓</td>
+              <td>Environmentaly responsible</td>
+            </tr>
+          </table>
           <div>Let's do our share to make our pets and our planet healthy.</div>
         </foxy-item>
       </section>
@@ -238,6 +230,7 @@ By adding `<foxy-item>` to your `<foxy-quick-form>` your products will be proper
 >
   <Story
     name="Enrich the form using your markup"
+    decorators={[Story => html`<div class="container-medium">${Story()}</div>`]}
     args={{
       store: 'jamstackecommerceexample.foxycart.com',
       currency: 'usd',
@@ -247,81 +240,49 @@ By adding `<foxy-item>` to your `<foxy-quick-form>` your products will be proper
       html`${getTemplate(
         args,
         html`
-          <style>
-            .dietary-food {
-              font-weight: 100;
-              border: solid thin silver;
-              border-radius: 6px;
-              padding: 1em;
-              margin-bottom: 1em;
-              background: #fafafa;
-            }
-            .dietary-food img {
-              height: 4em;
-            }
-            table {
-              margin: 1em;
-            }
-            table td {
-              border: solid thin silver;
-              border-collapse: collapse;
-              padding: 0.5em;
-            }
-            section.special-items {
-              padding: 1em;
-              border: double #6666ff;
-              background: #ededff;
-              border-radius: 6px;
-            }
-            .special-items h1,
-            .dietary-food h1 {
-              font-size: 1.2em;
-              font-weight: 400;
-              padding: 1em 0;
-            }
-          </style>
-          <h1>Diet food</h1>
-          <section class="dietary-food">
+          <h1 class="m-6 uppercase tracking-wider leading-none text-xl font-bold text-yellow-600">
+            Diet food
+          </h1>
+          <section class="bg-yellow-100 border border-yellow-500 rounded-lg m-6">
             <foxy-item
               name="Healthy Bites"
               price="59.99"
               image="http://placedog.net/200"
               description="High quality nutritious food for your pet."
             >
-              <div>Healthy pet, happy pet!</div>
+              Healthy pet, happy pet!
             </foxy-item>
+            <hr class="border-yellow-500" />
             <foxy-item
               name="Yummy Bites"
               price="69.99"
               image="http://placedog.net/200"
               description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
             >
-              <div>Life is much better when eating is a joy.</div>
+              Life is much better when eating is a joy.
             </foxy-item>
           </section>
-          <h1>Special Item</h1>
-          <section class="special-items">
+          <h1 class="m-6 uppercase tracking-wider leading-none text-xl font-bold text-green-600">
+            Special item
+          </h1>
+          <section class="bg-green-100 border border-green-500 rounded-lg m-6">
             <foxy-item name="Sci-fy Bites" price="69.99" image="http://placedog.net/200">
-              <section>
-                <p>
-                  This incredible product was developed by dedicated nutrition experts, building
-                  upon the most advanced research
-                </p>
-                <table>
-                  <tr>
-                    <td>Easily digested</td>
-                    <td>✓</td>
-                  </tr>
-                  <tr>
-                    <td>Perfectly balanced</td>
-                    <td>✓</td>
-                  </tr>
-                  <tr>
-                    <td>Environmentaly responsible</td>
-                    <td>✓</td>
-                  </tr>
-                </table>
-              </section>
+              This incredible product was developed by dedicated nutrition experts, building upon
+              the most advanced research.
+              <table class="my-3">
+                <tr>
+                  <td class="pr-3 text-green-500 font-bold">✓</td>
+                  <td>Easily digested</td>
+                </tr>
+                <tr>
+                  <td class="pr-3 text-green-500 font-bold">✓</td>
+                  <td>Perfectly balanced</td>
+                </tr>
+                <tr>
+                  <td class="pr-3 text-green-500 font-bold">✓</td>
+                  <td>Environmentaly responsible</td>
+                </tr>
+              </table>
               <div>Let's do our share to make our pets and our planet healthy.</div>
             </foxy-item>
           </section>
@@ -333,9 +294,7 @@ By adding `<foxy-item>` to your `<foxy-quick-form>` your products will be proper
 
 ### Setting up subscriptions
 
-To offer a subscription option to your clients you need to provide the subscription options to your clients.
-
-You can configure subscriptions using the subscription product options, as outlined at [https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options](Subscription Product Options).
+To offer a subscription option to your clients you need to provide the subscription options to your clients. You can configure subscriptions using the subscription product options, as outlined at [https://wiki.foxycart.com/v/2.0/cheat_sheet#subscription_product_options](Subscription Product Options).
 
 <Canvas
   mdxSource={dedent`
@@ -744,7 +703,11 @@ myForm.removeProducts([productToRemove.pid]);
 
 ## API Reference
 
+### QuickOrder
+
 <ArgsTable of="foxy-quick-form" />
+
+### ProductItem
 
 <ArgsTable of="foxy-item" />
 
