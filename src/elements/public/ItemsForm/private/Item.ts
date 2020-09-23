@@ -118,7 +118,7 @@ export class Item extends Translatable {
       isItem: { type: Boolean, reflect: true, attribute: 'data-item' },
       open: { type: Object },
       pid: { type: Number, reflect: true },
-      items: { type: Array, attribute: 'items' },
+      items: { type: Array },
       signatures: {
         type: Object,
         converter: value => {
@@ -237,14 +237,6 @@ export class Item extends Translatable {
   public shipto?: string;
 
   /**
-   * Optional. An array of child items.
-   *
-   * Each child item is an object that can have any of the public properties of this element.
-   * Child elements will be created accordingly.
-   */
-  public items: ItemInterface[] = [];
-
-  /**
    * Optional. The description for a item.
    */
   public description = '';
@@ -343,7 +335,6 @@ export class Item extends Translatable {
     });
     this.updateComplete.then(() => {
       this.__setCode();
-      this.__createItems();
       this.__acknowledgeChildItems();
       this.__changedChildItem();
       if (!this.__isValid()) {
@@ -352,11 +343,29 @@ export class Item extends Translatable {
     });
   }
 
+  /**
+   * Each child item is an object that can have any of the public properties of this element.
+   * Child elements will be created accordingly.
+   */
+  public get items(): ItemInterface[] {
+    const items: ItemInterface[] = [];
+    this.__onEachChildItem([i => items.push(i.value)]);
+    return items;
+  }
+
+  /**
+   * Creates child elements from ItemInterface[]
+   */
+  public set items(value: ItemInterface[]) {
+    this.__createItems(value);
+  }
+
   public get value(): ItemInterface {
     const r: Partial<Record<keyof ItemInterface, unknown>> = {};
     for (let i = 0; i < this.attributes.length; i++) {
       r[this.attributes[i].name] = this.attributes[i].value;
     }
+    r.items = this.items;
     return r as ItemInterface;
   }
 
@@ -376,9 +385,6 @@ export class Item extends Translatable {
   }
 
   public updated(changed: Map<string, unknown>): void {
-    if (changed.get('items') != undefined) {
-      this.__createItems();
-    }
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
   }
@@ -514,18 +520,16 @@ export class Item extends Translatable {
   /**
    * Create child items from items field.
    */
-  private __createItems(): void {
-    if (this.items && this.items.length) {
-      this.items.forEach(p => {
-        // Use a reference to the constructor of the instance in order to avoid issues in tests
-        const item = document.createElement(this.tagName) as Item;
-        item.value = p;
-        item.currency = this.currency;
-        item.__computeTotalPrice();
-        this.__acknowledgeItem(item);
-        this.appendChild(item);
-      });
-    }
+  private __createItems(valuesArray: ItemInterface[]): void {
+    valuesArray.forEach(p => {
+      // Use a reference to the constructor of the instance in order to avoid issues in tests
+      const item = document.createElement(this.tagName) as Item;
+      item.value = p;
+      item.currency = this.currency;
+      item.__computeTotalPrice();
+      this.__acknowledgeItem(item);
+      this.appendChild(item);
+    });
   }
 
   private __setTotalPrice(): void {

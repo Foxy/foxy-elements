@@ -157,6 +157,25 @@ describe('The form should allow new items to be added and removed', async functi
   });
 });
 
+describe('The form should allow items to be retrieved', async function () {
+  it('should allow items to be retrieved', async function () {
+    const el = await formWith2items(10, 10);
+    await elementUpdated(el);
+    expect(el.items.length).to.equal(2);
+    expect(el.items[0].price).to.equal(10);
+    expect(el.items[1].price).to.equal(10);
+  });
+
+  it('Should update the items property', async function () {
+    const el = await formWith2items(10, 10);
+    await elementUpdated(el);
+    el.items = [{ name: 'Foo', price: 30 }];
+    await elementUpdated(el);
+    expect(el.items[0].price).to.equal(30);
+    expect(el.items[0].name).to.equal('Foo');
+  });
+});
+
 describe('The form should remain valid', async function () {
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
@@ -548,7 +567,7 @@ describe('The form reveals its state to the user', async function () {
     expect(el.shadowRoot?.querySelector('[data-testid=submit][disabled]')).to.exist;
   });
 
-  it('Dispataches event upon server response', async function () {
+  it('Dispatches event upon server response', async function () {
     const el = await fixture(html`
       <test-items-form currency="usd" store="test.foxycart.com" frequencies='["1d", "2d", "10d"]'>
         <x-testitem name="p1" price="10.00"></x-testitem>

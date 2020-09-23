@@ -194,6 +194,24 @@ describe('The item reveals its state to the user', async function () {
       'article .quantity'
     );
   });
+
+  it('Should allow value to be retrieved', async function () {
+    const el = await fixture(
+      html`
+        <test-item name="parent" price="10">
+          <test-item name="child1" price="10" quantity="2"></test-item>
+          <test-item name="child2" price="10" quantity="2"></test-item>
+        </test-item>
+      `
+    );
+    await elementUpdated(el);
+    const i = el as Item;
+    const v = i.value as ItemInterface;
+    expect(v.name).to.equal('parent');
+    expect(v.items).to.exist;
+    expect(v.items![0].name).to.equal('child1');
+    expect(v.items![0].name).to.equal('child1');
+  });
 });
 
 describe('Item provides an interface to set values', async function () {

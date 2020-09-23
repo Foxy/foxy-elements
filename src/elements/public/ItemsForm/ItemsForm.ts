@@ -156,21 +156,6 @@ export class ItemsForm extends Translatable {
   public frequencies: string[] = [];
 
   /**
-   * Optional an array of ItemInterface objects with at least the following properties:
-   * - name: the name of the item
-   * - price: the price of each of this item
-   * The following optional properties will be used:
-   * - quantity: (defaults to 1) how many of each item are added to the form
-   * - image: an image url to be displayed in the form for this item
-   * - items: an array of other items that are to be treated as bundled with this item
-   * - signatures: an object containing a key value list of previously generated HMAC validation codes
-   *
-   * Other item properties are accepted and sent to foxy cart.
-   * https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
-   */
-  public items: ItemInterface[] = [];
-
-  /**
    * Handles the submission of the form
    *
    * - creates a FormData
@@ -228,10 +213,33 @@ export class ItemsForm extends Translatable {
       subtree: true,
     });
     this.updateComplete.then(() => {
-      this.__createItemsFromItemArray();
       this.__acknowledgeItemElements();
       this.__computeTotalPrice();
     });
+  }
+
+  public get items(): ItemInterface[] {
+    const temp: ItemInterface[] = [];
+    this.__itemElements.forEach(e => temp.push(e.value));
+    return temp;
+  }
+
+  /**
+   * Optional an array of ItemInterface objects with at least the following properties:
+   * - name: the name of the item
+   * - price: the price of each of this item
+   * The following optional properties will be used:
+   * - quantity: (defaults to 1) how many of each item are added to the form
+   * - image: an image url to be displayed in the form for this item
+   * - items: an array of other items that are to be treated as bundled with this item
+   * - signatures: an object containing a key value list of previously generated HMAC validation codes
+   *
+   * Other item properties are accepted and sent to foxy cart.
+   * https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
+   */
+  public set items(value: ItemInterface[]) {
+    this.__removeItems();
+    this.__createItemsFromItemArray(value);
   }
 
   /**
@@ -290,21 +298,14 @@ export class ItemsForm extends Translatable {
       this.appendChild(newItem);
       this.__acknowledgeItemElement(newItem as Item);
     }
-    if (this.items != newItems) {
-      this.items.concat(newItems);
-    }
   }
 
   /** Remove items */
   public removeItems(itemIds: number[]): void {
-    this.__removeItemsFromItemArray((p: Item) => itemIds.includes(p.pid));
+    this.__removeItems((p: Item) => itemIds.includes(p.pid));
   }
 
-  public updated(changedProperties: Map<string, any>): void {
-    if (changedProperties.get('items') != undefined) {
-      this.__removeItemsFromItemArray();
-      this.__createItemsFromItemArray();
-    }
+  public updated(): void {
     const newHasValidItems = !!this.__data;
     if (newHasValidItems != this.__hasValidItems) {
       this.__hasValidItems = newHasValidItems;
@@ -356,12 +357,12 @@ export class ItemsForm extends Translatable {
 
   /** Create child Items from items array
    */
-  private __createItemsFromItemArray() {
-    this.addItems(this.items);
+  private __createItemsFromItemArray(itemsArray: ItemInterface[]) {
+    this.addItems(itemsArray);
   }
 
   /** Removes item from the form based on a condition */
-  private __removeItemsFromItemArray(condition = (e: Item) => true) {
+  private __removeItems(condition = (e: Item) => true) {
     this.__itemElements.forEach(p => {
       if (condition(p)) {
         p.remove();
@@ -545,8 +546,8 @@ export class ItemsForm extends Translatable {
   /** Go through all pcroduct elements and executes acknoledges each one */
   private __acknowledgeItemElements(): void {
     this.__itemElements.forEach((e: Element) => {
-      const p = e as Item;
-      this.__acknowledgeItemElement(p);
+      const i = e as Item;
+      this.__acknowledgeItemElement(i);
     });
   }
 
