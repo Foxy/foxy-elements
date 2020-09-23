@@ -3,7 +3,7 @@ import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { parseDuration } from '../../../utils/parse-duration';
 import { Dropdown, ErrorScreen } from '../../private/index';
-import { ItemsFormChangeEvent, ItemsFormResponseEvent, ItemsFormSubmitEvent } from './events';
+import { ItemsFormChangeEvent, ItemsFormSubmitEvent } from './events';
 import { Item } from './private/Item';
 import { ItemInterface } from './types';
 
@@ -93,6 +93,7 @@ export class ItemsForm extends Translatable {
       items: { type: Array },
       __hasValidItems: { attribute: false },
       __total: { attribute: false },
+      __data: { attribute: false },
     };
   }
 
@@ -165,14 +166,9 @@ export class ItemsForm extends Translatable {
    */
   private handleSubmit = {
     handleEvent: () => {
-      this.dispatchEvent(new ItemsFormSubmitEvent(this.__data!));
       if (this.__data !== null) {
-        const request = new XMLHttpRequest();
-        request.open('POST', `https://${this.store}/cart`, true);
-        request.onload = (e: ProgressEvent<EventTarget>) => {
-          this.dispatchEvent(new ItemsFormResponseEvent(e));
-        };
-        request.send(this.__data);
+        if (this.dispatchEvent(new ItemsFormSubmitEvent(this.__data!)))
+          this.shadowRoot!.querySelector('form')!.submit();
       }
     },
   };
@@ -204,6 +200,8 @@ export class ItemsForm extends Translatable {
     },
   };
 
+  private __data: FormData = new FormData();
+
   constructor() {
     super('items-form');
     this.__childItemsObserver = new MutationObserver(this.__observeChildren.bind(this));
@@ -215,6 +213,7 @@ export class ItemsForm extends Translatable {
     this.updateComplete.then(() => {
       this.__acknowledgeItemElements();
       this.__computeTotalPrice();
+      this.__updateData();
     });
   }
 
@@ -255,7 +254,18 @@ export class ItemsForm extends Translatable {
     }
 
     return html`
-      <form class="overflow-hidden">
+      <form
+        class="overflow-hidden"
+        method="POST"
+        action="https:://${this.store}/cart"
+        data-testid="form"
+      >
+        <div class="hidden">
+          ${[...this.__data.entries()].map(
+            ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
+          )}
+        </div>
+
         <section class="items">
           <slot></slot>
         </section>
@@ -319,14 +329,6 @@ export class ItemsForm extends Translatable {
     newItem.value = p;
     newItem.currency = this.currency;
     return newItem;
-  }
-
-  private get __data(): FormData | null {
-    const data = new FormData();
-    const itemsAdded = this.__formDataFill(data);
-    if (itemsAdded == 0) return null;
-    this.__formDataAddSubscriptionFields(data);
-    return data;
   }
 
   private __submitBtnText(value: string): string {
@@ -524,11 +526,13 @@ export class ItemsForm extends Translatable {
     });
     this.__acknowledgeItemElements();
     this.__computeTotalPrice();
+    this.__updateData();
   }
 
   /** Updates the form on item change */
   private __itemChange(): void {
     this.__computeTotalPrice();
+    this.__updateData();
   }
 
   /** Compute the total price of all items in the form */
@@ -607,5 +611,13 @@ export class ItemsForm extends Translatable {
       currency: this.currency!,
       style: 'currency',
     });
+  }
+
+  private __updateData() {
+    const data = new FormData();
+    const itemsAdded = this.__formDataFill(data);
+    if (itemsAdded == 0) return null;
+    this.__formDataAddSubscriptionFields(data);
+    this.__data = data;
   }
 }
