@@ -50,36 +50,38 @@ export class NextDateModification extends Translatable {
 
         ${this.value
           ? html`
-              <div class="space-y-m pt-m" slot="content">
-                ${this.__normalizedValue.map(
-                  (rule, index, array) => html`
-                    <x-next-date-modification-rule
-                      data-testid="rule"
-                      .disabled=${this.disabled || !this._isI18nReady}
-                      .value=${rule}
-                      .lang=${this.lang}
-                      @remove=${() => {
-                        this.value = array.filter((_, i) => i !== index);
-                        this.__sendChange();
-                      }}
-                      @change=${(evt: NextDateModificationRuleChangeEvent) => {
-                        this.value = array.map((v, i) => (i === index ? evt.detail : v));
-                        this.__sendChange();
-                      }}
-                    >
-                    </x-next-date-modification-rule>
-                  `
-                )}
+              ${this.__normalizedValue.map(
+                (rule, index, array) => html`
+                  <x-next-date-modification-rule
+                    slot="content"
+                    class="mt-m"
+                    data-testid="rule"
+                    .disabled=${this.disabled || !this._isI18nReady}
+                    .value=${rule}
+                    .lang=${this.lang}
+                    @remove=${() => {
+                      this.value = array.filter((_, i) => i !== index);
+                      this.__sendChange();
+                    }}
+                    @change=${(evt: NextDateModificationRuleChangeEvent) => {
+                      this.value = array.map((v, i) => (i === index ? evt.detail : v));
+                      this.__sendChange();
+                    }}
+                  >
+                  </x-next-date-modification-rule>
+                `
+              )}
 
-                <vaadin-button
-                  data-testid="add"
-                  .disabled=${this.disabled || !this._isI18nReady}
-                  @click=${this.__addRule}
-                >
-                  <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
-                  <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-                </vaadin-button>
-              </div>
+              <vaadin-button
+                slot="content"
+                class="mt-m"
+                data-testid="add"
+                .disabled=${this.disabled || !this._isI18nReady}
+                @click=${this.__addRule}
+              >
+                <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
+                <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+              </vaadin-button>
             `
           : ''}
       </x-checkbox>
