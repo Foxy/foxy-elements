@@ -167,8 +167,9 @@ export class ItemsForm extends Translatable {
   private handleSubmit = {
     handleEvent: () => {
       if (this.__data !== null) {
-        if (this.dispatchEvent(new ItemsFormSubmitEvent(this.__data!)))
+        if (this.dispatchEvent(new ItemsFormSubmitEvent(this.__data!))) {
           this.shadowRoot!.querySelector('form')!.submit();
+        }
       }
     },
   };
@@ -197,6 +198,7 @@ export class ItemsForm extends Translatable {
       } else {
         this.sub_frequency = '';
       }
+      this.__updateData();
     },
   };
 
@@ -316,10 +318,6 @@ export class ItemsForm extends Translatable {
   }
 
   public updated(): void {
-    const newHasValidItems = !!this.__data;
-    if (newHasValidItems != this.__hasValidItems) {
-      this.__hasValidItems = newHasValidItems;
-    }
     this.dispatchEvent(new ItemsFormChangeEvent(this.__data!));
   }
 
@@ -619,5 +617,6 @@ export class ItemsForm extends Translatable {
     if (itemsAdded == 0) return null;
     this.__formDataAddSubscriptionFields(data);
     this.__data = data;
+    this.__hasValidItems = !!itemsAdded;
   }
 }
