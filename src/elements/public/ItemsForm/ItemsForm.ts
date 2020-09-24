@@ -423,15 +423,31 @@ export class ItemsForm extends Translatable {
       if (!reservedAttributes.includes(key)) {
         const fieldValue: unknown = rec[key];
         // Adds a signature if possible
-        if (p.code && p.signatures && p.signatures[key]) {
-          key = this.__addSignature(key, p.signatures[key], p.open && p.open[key]);
-        }
-        // Prepend the id
-        if (!Array.isArray(fieldValue)) {
-          fd.append(`${rec[idKey]}:${key}`, `${fieldValue}`);
+        if (p.code && !Array.isArray(fieldValue)) {
+          key = this.__buildKeyFromItem(key, p);
+          fd.set(key, fieldValue as string);
         }
       }
+      this.__formDataAddSubscriptionFields(fd, p);
     }
+  }
+
+  // builtd a key with prepended id and appended signature and |open given an item
+  private __buildKeyFromItem(key: string, item: ItemInterface) {
+    return this.__buildKey(
+      item.pid!.toString(),
+      key,
+      item.signatures ? (item.signatures[key] as string) : '',
+      !!item.open && item.open[key]
+    );
+  }
+
+  // builds a id prepended signature and |open appended key
+  private __buildKey(id: string, key: string, signature: string, open: boolean) {
+    if (signature) {
+      key = this.__addSignature(key, signature, open);
+    }
+    return `${id}:${key}`;
   }
 
   /**
@@ -439,14 +455,17 @@ export class ItemsForm extends Translatable {
    *
    * @argument {FormData} fd the FormData to which subscription fields will be added
    **/
-  private __formDataAddSubscriptionFields(fd: FormData): void {
+  private __formDataAddSubscriptionFields(fd: FormData, item: ItemInterface): void {
     if (this.sub_frequency) {
-      fd.append('sub_frequency', this.sub_frequency!);
+      const subKey = this.__buildKeyFromItem('sub_frequency', item);
+      fd.set(subKey, this.sub_frequency!);
       if (this.sub_startdate) {
-        fd.append('sub_startdate', this.sub_startdate!);
+        const subStart = this.__buildKeyFromItem('sub_startdate', item);
+        fd.set(subStart, this.sub_startdate!);
       }
       if (this.sub_enddate) {
-        fd.append('sub_enddate', this.sub_enddate!);
+        const subEnd = this.__buildKeyFromItem('sub_enddate', item);
+        fd.set(subEnd, this.sub_enddate!);
       }
     }
   }

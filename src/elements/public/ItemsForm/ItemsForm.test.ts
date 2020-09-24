@@ -515,8 +515,14 @@ describe('The form submits a valid POST to forxycart', async function () {
     frequencyField?.dispatchEvent(new CustomEvent('change', { detail: '1d' }));
     await elementUpdated(el);
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
-    const fd = new FormData(form);
-    expect(fd.get('sub_frequency')).to.exist.and.to.equal('1d');
+    let freqFound = false;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/^[0-9]+:sub_frequency$/)) {
+        freqFound = true;
+        break;
+      }
+    }
+    expect(freqFound).to.be.true;
   });
 
   it('Avoids sending empty subscription fields', async function () {
@@ -527,9 +533,48 @@ describe('The form submits a valid POST to forxycart', async function () {
     `);
     await elementUpdated(el);
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
-    const fd = new FormData(form);
-    expect(fd.get('sub_startdate')).not.to.exist;
-    expect(fd.get('sub_enddate')).not.to.exist;
+    for (const e of new FormData(form).entries()) {
+      expect(e[0].match(/.*sub_startdate$/)).not.to.exist;
+      expect(e[0].match(/.*sub_subenddate/)).not.to.exist;
+    }
+  });
+
+  it('Adds the same frequency information to all products', async function () {
+    const el = await fixture(html`
+      <test-items-form
+        currency="usd"
+        store="test.foxycart.com"
+        sub_startdate="30"
+        sub_enddate="22220101"
+        sub_frequency="3m"
+      >
+        <x-testitem name="I have freq" code="MyCode" price="10.00" quantity="3"></x-testitem>
+        <x-testitem name="Me too" code="MyCode" price="10.00" quantity="3"></x-testitem>
+        <x-testitem name="So do I" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    await elementUpdated(el);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    const freqStartEnd = [0, 0, 0];
+    const allentries: any = [];
+    for (const e of new FormData(form).entries()) {
+      allentries.push(e);
+    }
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_frequency/)) {
+        freqStartEnd[0] += 1;
+        expect(e[1]).to.equal('3m');
+      }
+      if (e[0].match(/.*sub_startdate$/)) {
+        freqStartEnd[1] += 1;
+        expect(e[1]).to.equal('30');
+      }
+      if (e[0].match(/.*sub_enddate$/)) {
+        freqStartEnd[2] += 1;
+        expect(e[1]).to.equal('22220101');
+      }
+    }
+    expect(freqStartEnd).to.deep.equal([3, 3, 3]);
   });
 });
 
