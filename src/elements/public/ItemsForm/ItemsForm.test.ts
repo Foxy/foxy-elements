@@ -421,7 +421,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     expect(form).to.exist;
     const fd = new FormData(form);
     for (const k of fd.keys()) {
-      expect(k.match(/^\d+:.*$/)!.index).to.equal(0);
+      if (k != 'cart') expect(k.match(/^\d+:.*$/)!.index).to.equal(0);
     }
   });
 
@@ -448,7 +448,9 @@ describe('The form submits a valid POST to forxycart', async function () {
     expect(form).to.exist;
     const fd = new FormData(form);
     for (const k of fd.keys()) {
-      expect(k).to.match(/.*\|\|a{64}$/);
+      if (k != 'cart') {
+        expect(k).to.match(/.*\|\|a{64}$/);
+      }
     }
   });
 
@@ -575,6 +577,39 @@ describe('The form submits a valid POST to forxycart', async function () {
       }
     }
     expect(freqStartEnd).to.deep.equal([3, 3, 3]);
+  });
+});
+describe('The form directs the user to the propper destination', async function () {
+  it('Uses the _top window', async function () {
+    const el = await formWith2items(10, 10);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(form.target).to.equal('_top');
+  });
+
+  it('Allows user to change the window used', async function () {
+    const el = await fixture(html`
+      <test-items-form target="_parent" currency="usd" store="test.foxycart.com" sub_frequency="1m">
+        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(form.target).to.equal('_parent');
+  });
+
+  it('Goes directly to the checkout', async function () {
+    const el = await formWith2items(10, 10);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(new FormData(form).get('cart')).to.equal('checkout');
+  });
+
+  it('Allows user to configure it to add products to cart', async function () {
+    const el = await fixture(html`
+      <test-items-form cart="add" currency="usd" store="test.foxycart.com" sub_frequency="1m">
+        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(new FormData(form).get('cart')).to.equal('add');
   });
 });
 

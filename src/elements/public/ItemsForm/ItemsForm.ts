@@ -37,6 +37,16 @@ export class ItemsForm extends Translatable {
     return {
       ...super.properties,
       currency: { type: String },
+      cart: {
+        type: String, // only accepts checkout or add
+        converter: value => {
+          if (value && !['checkout', 'add'].includes(value)) {
+            return null;
+          }
+          return value;
+        },
+      },
+      target: { type: String },
       store: { type: String, attribute: 'store' },
       sub_frequency: { type: String },
       sub_startdate: {
@@ -111,6 +121,25 @@ export class ItemsForm extends Translatable {
    * **Example:** `"usd"`
    */
   public currency?: string;
+
+  /**
+   * Defines target of the form
+   *
+   * This attribute controls the destination window of the form submission.
+   */
+  public target = '_top';
+
+  /**
+   * Defines the next cart step
+   *
+   * It can only be either add or checkout.
+   * If "add" is chosen, this form will add items to the cart and the user will
+   * be directed to the cart with these products added upon submission.
+   *
+   * If set to "checkout" (this is the default) the user will be directed to
+   * checkout.
+   */
+  public cart = 'checkout';
 
   /**
    * Optional frequency string encoded as count (integer) + units (one of: `d`
@@ -259,6 +288,7 @@ export class ItemsForm extends Translatable {
       <form
         class="overflow-hidden"
         method="POST"
+        target="${this.target}"
         action="https:://${this.store}/cart"
         data-testid="form"
       >
@@ -471,6 +501,17 @@ export class ItemsForm extends Translatable {
   }
 
   /**
+   * Adds cat related fields to a FormData
+   *
+   * @argument {FormData} fd the FormData to which the cart fields will be added.
+   */
+  private __formDataAddCartFields(fd: FormData): void {
+    if (this.cart) {
+      fd.set('cart', this.cart!);
+    }
+  }
+
+  /**
    * Validates a string for subscription start date or end date according to
    *
    * @argument string strDate the date as a string to be used as start or end date.
@@ -634,7 +675,7 @@ export class ItemsForm extends Translatable {
     const data = new FormData();
     const itemsAdded = this.__formDataFill(data);
     if (itemsAdded == 0) return null;
-    this.__formDataAddSubscriptionFields(data);
+    this.__formDataAddCartFields(data);
     this.__data = data;
     this.__hasValidItems = !!itemsAdded;
   }
