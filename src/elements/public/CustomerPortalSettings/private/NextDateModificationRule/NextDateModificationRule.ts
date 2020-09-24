@@ -104,7 +104,7 @@ export class NextDateModificationRule extends Translatable {
             </button>
           </summary>
 
-          <article class="space-y-m">
+          <article class="space-y-l">
             <x-group>
               <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.match"> </x-i18n>
 
@@ -121,7 +121,7 @@ export class NextDateModificationRule extends Translatable {
               </x-jsonata-input>
             </x-group>
 
-            <div class="flex space-y-m md:space-y-0 flex-col md:flex-row">
+            <div class="flex space-y-l md:space-y-0 flex-col md:flex-row">
               <div class="md:w-1/2 md:border-r md:border-contrast-10">
                 <x-offset-input
                   data-testid="min"

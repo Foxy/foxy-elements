@@ -93,7 +93,7 @@ export class FrequencyModificationRule extends Translatable {
             </button>
           </summary>
 
-          <div class="space-y-m pt-m" slot="content">
+          <div class="space-y-l pt-m" slot="content">
             <x-group>
               <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.match"></x-i18n>
               <x-jsonata-input
