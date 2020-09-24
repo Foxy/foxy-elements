@@ -28,7 +28,9 @@ describe('The item remain always valid', async function () {
   });
 
   it('Should require name and price', async function () {
-    let el: TestItem = await fixture(html` <test-item name="p1" price="10"></test-item> `);
+    let el: TestItem = await fixture(
+      html` <test-item name="p1" quantity="1" price="10"></test-item> `
+    );
     await elementUpdated(el);
     expect(logSpy.calledWith('The name attribute of an item is required.')).to.be.false;
     expect(logSpy.calledWith('The price attribute of an item is required.')).to.be.false;
@@ -37,16 +39,22 @@ describe('The item remain always valid', async function () {
     await elementUpdated(el);
     expect(logSpy.calledWith('The price attribute of an item is required.')).to.be.true;
     logSpy.reset();
-    el = await fixture(html` <test-item price="10"></test-item> `);
+    el = await fixture(html` <test-item quantity="1" price="10"></test-item> `);
     await elementUpdated(el);
     expect(logSpy.calledWith('The name attribute of an item is required.')).to.be.true;
   });
 
+  it('Should default quantity to zero', async function () {
+    const el: TestItem = await fixture(html` <test-item name="p1" price="10"></test-item> `);
+    await elementUpdated(el);
+    expect(el.quantity).to.equal(0);
+  });
+
   it('Prices should be zero or positive', async function () {
-    let el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
+    let el = await fixture(html` <test-item name="p1" quantity="1" price="10"></test-item> `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Item added with negative price.')).to.be.false;
-    el = await fixture(html` <test-item name="p1" price="-10"></test-item> `);
+    el = await fixture(html` <test-item name="p1" quantity="1" price="-10"></test-item> `);
     await elementUpdated(el);
     expect(logSpy.calledWith('Item added with negative price.')).to.be.true;
   });
@@ -72,6 +80,7 @@ describe('The item remain always valid', async function () {
     const wrongsig = 'aa';
     await fixture(html`<test-item
       name="p1"
+      quantity="1"
       price="10"
       signatures='{ "name":"${sig}", "price":"${sig}", "quantity":"${sig}"}'
     ></test-item> `);
@@ -83,6 +92,7 @@ describe('The item remain always valid', async function () {
     logSpy.reset();
     await fixture(html`<test-item
       name="p1"
+      quantity="1"
       price="10"
       signatures='{ "name":"${wrongsig}", "price":"${sig}", "quantity":"${sig}"}'
     ></test-item> `);
@@ -108,7 +118,7 @@ describe('The item reveals its state to the user', async function () {
   });
 
   it('Should look like removed when quantity is zero', async function () {
-    const el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
+    const el = await fixture(html` <test-item name="p1" quantity="1" price="10"></test-item> `);
     await elementUpdated(el);
     expect(el.shadowRoot?.querySelectorAll('.removed')).to.be.empty;
     const xNumber = qtyField(el);
@@ -119,7 +129,7 @@ describe('The item reveals its state to the user', async function () {
   });
 
   it('Should look like modified when modified by the user', async function () {
-    const el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
+    const el = await fixture(html` <test-item name="p1" quantity="1" price="10"></test-item> `);
     const modified = (e: Element) => e.shadowRoot!.querySelectorAll('.modified');
     expect(modified(el).length).to.equal(0);
     const xNumber = qtyField(el);
@@ -132,15 +142,15 @@ describe('The item reveals its state to the user', async function () {
   it('Should look like removed when it is child and has zero quantity', async function () {
     const removed = await fixture(
       html`
-        <test-item name="p1" price="10">
+        <test-item name="p1" quantity="1" price="10">
           <test-item name="p2" price="10" quantity="0"></test-item>
         </test-item>
       `
     );
     const notremoved = await fixture(
       html`
-        <test-item name="p1" price="10">
-          <test-item name="p2" price="10"></test-item>
+        <test-item name="p1" quantity="1" price="10">
+          <test-item name="p2" quantity="1" price="10"></test-item>
         </test-item>
       `
     );
@@ -154,15 +164,15 @@ describe('The item reveals its state to the user', async function () {
   it('Should show the description when it is child and a description is provided', async function () {
     const withDescription = await fixture(
       html`
-        <test-item name="p1" price="10">
-          <test-item name="p2" price="10" description="Lorem Ipsum"></test-item>
+        <test-item name="p1" quantity="1" price="10">
+          <test-item name="p2" quantity="1" price="10" description="Lorem Ipsum"></test-item>
         </test-item>
       `
     );
     const withOutDescription = await fixture(
       html`
-        <test-item name="p1" price="10">
-          <test-item name="p2" price="10"></test-item>
+        <test-item name="p1" quantity="1" price="10">
+          <test-item name="p2" quantity="1" price="10"></test-item>
         </test-item>
       `
     );
@@ -176,15 +186,15 @@ describe('The item reveals its state to the user', async function () {
   it('Should show the quantity when it is child quantity is 2 or more', async function () {
     const withMoreThan1 = await fixture(
       html`
-        <test-item name="p1" price="10">
+        <test-item name="p1" quantity="1" price="10">
           <test-item name="p2" price="10" quantity="2"></test-item>
         </test-item>
       `
     );
     const withOutMoreThan1 = await fixture(
       html`
-        <test-item name="p1" price="10">
-          <test-item name="p2" price="10"></test-item>
+        <test-item name="p1" quantity="1" price="10">
+          <test-item name="p2" quantity="1" price="10"></test-item>
         </test-item>
       `
     );
@@ -198,7 +208,7 @@ describe('The item reveals its state to the user', async function () {
   it('Should allow value to be retrieved', async function () {
     const el = await fixture(
       html`
-        <test-item name="parent" price="10">
+        <test-item name="parent" quantity="1" price="10">
           <test-item name="child1" price="10" quantity="2"></test-item>
           <test-item name="child2" price="10" quantity="2"></test-item>
         </test-item>
@@ -229,7 +239,7 @@ describe('Item provides an interface to set values', async function () {
 
   it('Should accept custom parameters', async function () {
     const el = await fixture(
-      html`<test-item name="p1" price="10" material="rubber" size="10"></test-item> `
+      html`<test-item name="p1" quantity="1" price="10" material="rubber" size="10"></test-item> `
     );
     await elementUpdated(el);
     const item: ItemInterface & { material?: string; size?: string } = (el as TestItem).value;
@@ -241,7 +251,7 @@ describe('Item provides an interface to set values', async function () {
 
   it('Should create parameters from value object', async function () {
     const el = await fixture(
-      html`<test-item name="p1" price="10" material="rubber" size="10"></test-item> `
+      html`<test-item name="p1" quantity="1" price="10" material="rubber" size="10"></test-item> `
     );
     await elementUpdated(el);
     const item = el as TestItem;
@@ -272,10 +282,10 @@ describe('Item recognizes its children', async function () {
   it('Should recognize children created with slots', async function () {
     const el = await fixture(
       html`
-        <test-item name="p1" price="10">
+        <test-item name="p1" quantity="1" price="10">
           <div slot="items" class="bundled">
-            <test-item name="p2" price="3"></test-item>
-            <test-item name="p3" price="4"></test-item>
+            <test-item name="p2" quantity="1" price="3"></test-item>
+            <test-item name="p3" quantity="1" price="4"></test-item>
           </div>
         </test-item>
       `
@@ -289,8 +299,9 @@ describe('Item recognizes its children', async function () {
       html`
         <test-item
           name="p1"
+          quantity="1"
           price="10"
-          items='[{"name":"p2","price":3}, {"name":"p3","price":4}]'
+          items='[{"name":"p2","quantity":1, "price":3}, {"name":"p3","price":4,"quantity":1}]'
         ></test-item>
       `
     );
@@ -299,8 +310,8 @@ describe('Item recognizes its children', async function () {
   });
 
   it('Should recognize children added by setting "value" attribute', async function () {
-    const el = await fixture(html` <test-item name="p1" price="10"></test-item> `);
-    (el as TestItem).value = { items: [{ name: 'p2', price: 8 }] };
+    const el = await fixture(html` <test-item name="p1" quantity="1" price="10"></test-item> `);
+    (el as TestItem).value = { items: [{ name: 'p2', price: 8, quantity: 1 }] };
     await elementUpdated(el);
     expect((el as TestItem).total).to.equal(18);
   });

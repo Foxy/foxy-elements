@@ -634,7 +634,7 @@ export class ItemsForm extends Translatable {
     return !!(
       p &&
       p.pid &&
-      p.quantity &&
+      (p.quantity || p.quantity === 0) &&
       +p.quantity > 0 &&
       (p.price || p.price === 0) &&
       p.price >= 0

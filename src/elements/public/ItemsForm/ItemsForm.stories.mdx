@@ -85,7 +85,7 @@ Using the `slots` approach gives you full control over your form's markup. This 
 <Canvas
   mdxSource={dedent`
     <foxy-items-form store="jamstackecommerceexample.foxycart.com" currency="usd">
-      <foxy-item name="Cool Item" price="10" image="https://placedog.net/200" description="I do deserve a tasty food">
+      <foxy-item name="Cool Item" quantity="1" price="10" image="https://placedog.net/200" description="I do deserve a tasty food">
         <div>One with <span style="color: #00f">flavour</span> and <span style="color: #ff0000">scent</span>.</div>
       </foxy-item>
     </foxy-items-form>
@@ -101,6 +101,7 @@ Using the `slots` approach gives you full control over your form's markup. This 
         html`
           <foxy-item
             name="Cool Item"
+            quantity="1"
             price="10"
             image="https://placedog.net/200"
             description="I do deserve a tasty food"
@@ -190,6 +191,7 @@ By adding `<foxy-item>` to your `<foxy-items-form>` your items will be properly 
       <section class="bg-yellow-100 border border-yellow-500 rounded-lg m-6">
         <foxy-item
           name="Healthy Bites"
+          quantity="1"
           price="59.99"
           image="http://placedog.net/200"
           description="High quality nutritious food for your pet."
@@ -199,6 +201,7 @@ By adding `<foxy-item>` to your `<foxy-items-form>` your items will be properly 
         <hr class="border-yellow-500" />
         <foxy-item
           name="Yummy Bites"
+          quantity="1"
           price="69.99"
           image="http://placedog.net/200"
           description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
@@ -210,7 +213,7 @@ By adding `<foxy-item>` to your `<foxy-items-form>` your items will be properly 
         Special item
       </h1>
       <section class="bg-green-100 border border-green-500 rounded-lg m-6">
-        <foxy-item name="Sci-fy Bites" price="69.99" image="http://placedog.net/200">
+        <foxy-item name="Sci-fy Bites" quantity="1" price="69.99" image="http://placedog.net/200">
           This incredible product was developed by dedicated nutrition experts, building upon
           the most advanced research.
           <table class="my-3">
@@ -251,6 +254,7 @@ By adding `<foxy-item>` to your `<foxy-items-form>` your items will be properly 
           <section class="bg-yellow-100 border border-yellow-500 rounded-lg m-6">
             <foxy-item
               name="Healthy Bites"
+              quantity="1"
               price="59.99"
               image="http://placedog.net/200"
               description="High quality nutritious food for your pet."
@@ -260,6 +264,7 @@ By adding `<foxy-item>` to your `<foxy-items-form>` your items will be properly 
             <hr class="border-yellow-500" />
             <foxy-item
               name="Yummy Bites"
+              quantity="1"
               price="69.99"
               image="http://placedog.net/200"
               description="Delicious food! Perfect nutrition in a easy to transport and easy to save package"
@@ -271,7 +276,7 @@ By adding `<foxy-item>` to your `<foxy-items-form>` your items will be properly 
             Special item
           </h1>
           <section class="bg-green-100 border border-green-500 rounded-lg m-6">
-            <foxy-item name="Sci-fy Bites" price="69.99" image="http://placedog.net/200">
+            <foxy-item name="Sci-fy Bites" quantity="1" price="69.99" image="http://placedog.net/200">
               This incredible product was developed by dedicated nutrition experts, building upon
               the most advanced research.
               <table class="my-3">
@@ -304,7 +309,7 @@ To offer a subscription option to your clients you need to provide the subscript
 <Canvas
   mdxSource={dedent`
     <foxy-items-form store="jamstackecommerceexample.foxycart.com" currency="usd" frequencies='["1d", "1w", ".5m", "1m", "3m"]'>
-      <foxy-item name="Pup Dog Food" description="Daily meal for your friend" price="69.99" image="http://placedog.net/200"></foxy-item>
+      <foxy-item name="Pup Dog Food" description="Daily meal for your friend" quantity="1" price="69.99" image="http://placedog.net/200"></foxy-item>
     </foxy-items-form>
   `}
 >
@@ -315,6 +320,7 @@ To offer a subscription option to your clients you need to provide the subscript
         html`
           <foxy-item
             name="Pup Dog Food"
+            quantity="1"
             price="69.99"
             description="Daily meal for your friend"
             image="http://placedog.net/200"
@@ -355,12 +361,12 @@ Setting the price of the parent item to zero effectively creates a bundled item.
 <Canvas
   mdxSource={dedent`
     <foxy-items-form store="jamstackecommerceexample" currency="usd">
-      <foxy-item name="Bundle Package" price="0.00" image="http://placedog.net/200">
+      <foxy-item name="Bundle Package" quantity="1" price="0.00" image="http://placedog.net/200">
         <p>The most avanced dog food bundle you will find out there. Well balanced, delicious and scientifically evaluated.</p>
-        <foxy-item slot="items" name="The smart choice" price="50.00" image="http://placedog.net/200" quantity="3">
+        <foxy-item slot="items" name="The smart choice" quantity="1" price="50.00" image="http://placedog.net/200" quantity="3">
           <div>The smart choice is one your puppy is always trying to do, but need you to lead the way.</div>
         </foxy-item>
-        <foxy-item slot="items" name="The interesting bit" price="30.00" image="http://placedog.net/200" quantity="2">
+        <foxy-item slot="items" name="The interesting bit" quantity="1" price="30.00" image="http://placedog.net/200" quantity="2">
           <div>The world is full of interesting stuff but there is but one <strong>interesting bit</strong>, that's for sure.</div>
         </foxy-item>
       </foxy-item>
@@ -378,7 +384,7 @@ Setting the price of the parent item to zero effectively creates a bundled item.
       html`${getTemplate(
         args,
         html`
-          <foxy-item name="Bundle Package" price="0.00" image="http://placedog.net/200">
+          <foxy-item name="Bundle Package" quantity="1" price="0.00" image="http://placedog.net/200">
             <p>
               The most avanced dog food bundle you will find out there. Well balanced, delicious and
               scientifically evaluated.
@@ -425,17 +431,20 @@ Setting the price of the children to zero you effectivelly create a bonus item, 
       currency="usd"
       items='[{
         "name":"Artists Drawing Set",
+        "quantity":"1",
         "price":"75.95",
         "image": "http://placedog.net/200",
         "items":[
           {
             "name":"Nanking Pen",
             "description": "The pen you'll ever use",
+            "quantity":"1",
             "price":"0",
             "image": "http://placedog.net/200"
           },
           {
             "name":"Blank Canvas",
+            "quantity":"1",
             "price":"0",
             "description": "A placeholder for your imagination",
             "image": "http://placedog.net/200"
@@ -443,6 +452,7 @@ Setting the price of the children to zero you effectivelly create a bonus item, 
           {
             "name":"Water based paint",
             "description":"The paint that will bring things to life",
+            "quantity":"1",
             "price":"0",
             "image": "http://placedog.net/200"
           }
@@ -460,23 +470,27 @@ Setting the price of the children to zero you effectivelly create a bonus item, 
       items: [
         {
           name: 'Artists Drawing Set',
+          "quantity":"1",
           price: '75.95',
           image: 'http://placedog.net/200',
           items: [
             {
               name: 'Nanking Pencil',
+              "quantity":"1",
               price: '0',
               description: "The pen you'll ever use",
               image: 'http://placedog.net/200',
             },
             {
               name: 'Blank Canvas',
+              "quantity":"1",
               price: '0',
               description: 'A placeholder for your imagination',
               image: 'http://placedog.net/200',
             },
             {
               name: 'Water based paint',
+              "quantity":"1",
               price: '0',
               description: 'The paint that will bring things to life',
               image: 'http://placedog.net/200',
@@ -502,16 +516,19 @@ If you set prices to both parent and child items, you can make items that are ch
       items='[{
         "name":"Purple Jacket",
         "description":"Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!",
+        "quantity":"1",
         "price":"80.00",
         "image":"http://placedog.net/200",
         "items": [{
           "slot":"items",
           "name":"Purple pants",
+          "quantity":"1",
           "price":"40.00",
           "image":"http://placedog.net/200"
         }, {
           "slot":"items",
           "name":"Purple boots",
+          "quantity":"1",
           "price":"40.00",
           "image":"http://placedog.net/200"
         }]
@@ -530,18 +547,21 @@ If you set prices to both parent and child items, you can make items that are ch
           name: 'Purple Jacket',
           description:
             'Just this month!! Buy a Purple Jacket and get Purple Pants and Purple boots for $40 each!',
+          quantity:1,
           price: '80.00',
           image: 'http://placedog.net/200',
           items: [
             {
               slot: 'items',
               name: 'Purple pants',
+              quantity:1,
               price: '40.00',
               image: 'http://placedog.net/200',
             },
             {
               slot: 'items',
               name: 'Purple boots',
+              quantity:1,
               price: '40.00',
               image: 'http://placedog.net/200',
             },
@@ -570,10 +590,12 @@ myform.items = [
   {
     name: 'Nice Pants',
     price: 30,
+    quantity: 1
   },
   {
     name: 'Yellow T-Shirt',
     price: 12,
+    quantity: 1
   },
 ];
 ```
@@ -586,8 +608,8 @@ You can add one or more items to the form using the `addItems` method of the for
 
 ```javascript
 myForm.addItems([
-  { name: 'Office chair', price: 200 },
-  { name: 'Office table', price: 100 },
+  { name: 'Office chair', quantity: 1, price: 200 },
+  { name: 'Office table', quantity: 1, price: 100 },
 ]);
 ```
 
@@ -617,18 +639,22 @@ myForm.removeItems([itemToRemove.pid]);
         items='[{
           "name":"Artists Drawing Set",
           "price":"75.95",
+          "quantity": "1",
           "image": "http://placedog.net/200",
           "items":[{
             "name":"Nanking Pencil",
             "image": "http://placedog.net/200",
+            "quantity": "1",
             "price":"0"
           }, {
             "name":"Blank Canvas",
             "image": "http://placedog.net/200",
+            "quantity": "1",
             "price":"0"
           }, {
             "name":"Water based paint",
             "image": "http://placedog.net/200",
+            "quantity": "1",
             "price":"0"
           }]
         }]'
@@ -636,7 +662,7 @@ myForm.removeItems([itemToRemove.pid]);
       </foxy-items-form>
       <button type="button"
         style="background: #ededed; box-shadow: 1px 1px 2px #ddd; border-radius: 6px; padding: 0.3em 1em"
-        onclick="document.querySelector('#to-change-item-list').items = [{name:'Changed', price: 5}];"
+        onclick="document.querySelector('#to-change-item-list').items = [{name:'Changed', quantity: 1, price: 5}];"
       >
         Replace the items
       </button>
@@ -651,28 +677,32 @@ myForm.removeItems([itemToRemove.pid]);
       items: [
         {
           name: 'Artists Drawing Set',
+          quantity: '1',
           price: '75.95',
           image: 'http://placedog.net/200',
           items: [
             {
               name: 'Nanking Pencil',
               image: 'http://placedog.net/200',
+              quantity: '1',
               price: '0',
             },
             {
               name: 'Blank Canvas',
               image: 'http://placedog.net/200',
+              quantity: '1',
               price: '0',
             },
             {
               name: 'Water based paint',
               image: 'http://placedog.net/200',
+              quantity: '1',
               price: '0',
             },
           ],
         },
       ],
-      itemsToAdd: [{ name: 'My new item', price: 4.2, image: 'http://placedog.net/200' }],
+      itemsToAdd: [{ name: 'My new item', quantity: 1, price: 4.2, image: 'http://placedog.net/200' }],
     }}
   >
     {args => html`

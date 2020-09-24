@@ -188,7 +188,7 @@ export class Item extends Translatable {
   /**
    * **Required** The quantity of this item in the cart.
    */
-  public quantity = 1;
+  public quantity = 0;
 
   /**
    * Optional quantity max. The maximum number of items of these to be added.
@@ -384,7 +384,7 @@ export class Item extends Translatable {
     }
   }
 
-  public updated(changed: Map<string, unknown>): void {
+  public updated(): void {
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
   }
