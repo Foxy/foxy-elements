@@ -1,7 +1,8 @@
-import { createMachine, actions } from 'xstate';
-import { FxStore, FxBookmark } from '../../../../../types/hapi';
+import { unescape } from 'lodash-es';
+import { actions, createMachine } from 'xstate';
+import { FxBookmark, FxStore } from '../../../../../types/hapi';
 import { ErrorScreen, FriendlyError } from '../../../../private/ErrorScreen/ErrorScreen';
-import { Preset, createPresets } from './WidgetEditor/defaults';
+import { createPresets, Preset } from './WidgetEditor/defaults';
 
 export const WIDGETS_ATTRIBUTE = '@foxy.io/elements/admin::widgets';
 export const WIDGETS_TOTAL_ATTRIBUTE = '@foxy.io/elements/admin::widgets_total';
@@ -90,7 +91,7 @@ export const machine = createMachine<AdminDashboardContext>({
               } else {
                 return attributes
                   .filter(({ name }) => name === WIDGETS_ATTRIBUTE)
-                  .map(({ value }) => JSON.parse(value) as Preset);
+                  .map(({ value }) => JSON.parse(unescape(value)) as Preset);
               }
             },
           }),
