@@ -7,7 +7,7 @@ export class Section extends Page {
       super.styles,
       css`
         ::slotted(:not([slot])) {
-          margin-top: var(--lumo-space-l);
+          margin-top: var(--lumo-space-m);
         }
       `,
     ];
