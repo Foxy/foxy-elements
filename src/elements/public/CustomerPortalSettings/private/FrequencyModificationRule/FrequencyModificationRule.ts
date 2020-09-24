@@ -43,6 +43,7 @@ export class FrequencyModificationRule extends Translatable {
 
   public render(): TemplateResult {
     const { jsonataQuery, values } = this.value;
+    const openStyle = this.open ? '' : 'rounded-b-l';
 
     return html`
       <x-group frame>
@@ -52,7 +53,9 @@ export class FrequencyModificationRule extends Translatable {
           ?open=${this.open}
           @toggle=${() => (this.open = !this.open)}
         >
-          <summary class="relative leading-s">
+          <summary
+            class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus:outline-none focus:shadow-outline"
+          >
             <div class="p-m space-y-xs">
               <x-i18n
                 .ns=${this.ns}
@@ -83,7 +86,7 @@ export class FrequencyModificationRule extends Translatable {
             <button
               data-testid="remove"
               .disabled=${this.disabled}
-              class="flex items-center justify-center absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default"
+              class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
               style="width: 54px; height: 54px"
               @click=${prevent(() => {
                 this.dispatchEvent(new FrequencyModificationRuleRemoveEvent());
