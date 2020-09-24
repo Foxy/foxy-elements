@@ -36,7 +36,7 @@ export abstract class Translatable extends Themeable {
     return (value as string[])
       .map((v, i, a) => {
         if (i === 0) return v;
-        const part = i === a.length - 1 ? ` {{and}}` : ',';
+        const part = i === a.length - 1 ? ` $t(and) ` : ',';
         return `${part} ${v}`;
       })
       .join('');
@@ -47,16 +47,19 @@ export abstract class Translatable extends Themeable {
    * @see https://www.i18next.com/translation-function/formatting
    */
   private static __f: FormatFunction = (...args): string => {
-    const [value, format] = args;
+    const value = args[0];
+    const formats = args[1]?.split(' ') ?? [];
 
-    switch (format) {
-      case 'lowercase':
-        return Translatable.__fLowercase(...args);
-      case 'list':
-        return Translatable.__fList(...args);
-      default:
-        return value;
-    }
+    return formats.reduce((result, format) => {
+      switch (format) {
+        case 'lowercase':
+          return Translatable.__fLowercase(result);
+        case 'list':
+          return Translatable.__fList(result);
+        default:
+          return result;
+      }
+    }, value);
   };
 
   private static __whenI18NReady: Promise<TFunction>;

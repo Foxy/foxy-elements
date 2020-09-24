@@ -19,9 +19,15 @@
   "fmod": {
     "title": "Frequency modification",
     "subtitle": "If enabled, your customers will be able to switch to a different payment schedule.",
+    "allTitle": "All subscriptions",
+    "someTitle": "Subscriptions matching",
+    "valuesLabel": "Values: ",
+    "valuesList": "{{values, list lowercase}}",
+    "valuesListEmpty": "none",
+    "add_option": "Add option",
+    "add_rule": "Add rule",
     "options": "Options",
-    "match": "Match",
-    "add": "Add option"
+    "match": "Match"
   },
   "ndmod": {
     "title": "Next payment date modification",

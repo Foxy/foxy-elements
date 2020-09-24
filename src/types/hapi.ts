@@ -53,7 +53,7 @@ export interface FxCustomerPortalSettings {
           jsonataQuery: string;
           /** These strings should match the sub_frequency regex sanitization. Max array length 20, max length per string 4 characters. */
           values: string[];
-        };
+        }[];
     /** We can forbid modify subscription next date. False disables modification, true lifts all constraints, array of objects defines custom rules. */
     allowNextDateModification:
       | boolean

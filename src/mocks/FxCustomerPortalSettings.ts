@@ -25,10 +25,12 @@ export const customerPortalSettings: FxCustomerPortalSettings = {
   sessionLifespanInMinutes: 10080,
   allowedOrigins: ['http://localhost:8000', 'https://foxy.io'],
   subscriptions: {
-    allowFrequencyModification: {
-      jsonataQuery: '$contains(frequency, "w")',
-      values: ['2w', '4w', '6w'],
-    },
+    allowFrequencyModification: [
+      {
+        jsonataQuery: '$contains(frequency, "w")',
+        values: ['2w', '4w', '6w'],
+      },
+    ],
     allowNextDateModification: [
       {
         min: '2w',
