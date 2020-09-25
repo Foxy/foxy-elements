@@ -395,7 +395,14 @@ describe('The form should add frequency fields', async function () {
 
 describe('The form submits a valid POST to forxycart', async function () {
   const sig64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
-  const signatures = { name: sig64, code: sig64, price: sig64, quantity: sig64 };
+  const signatures = {
+    name: sig64,
+    code: sig64,
+    price: sig64,
+    quantity: sig64,
+    sub_modify: sig64,
+    sub_restart: sig64,
+  };
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
   let logSpy: sinon.SinonStub;
@@ -577,6 +584,97 @@ describe('The form submits a valid POST to forxycart', async function () {
       }
     }
     expect(freqStartEnd).to.deep.equal([3, 3, 3]);
+  });
+
+  it('Defaults sub_modify to replace', async function () {
+    const el = await formWith2items(10, 10);
+    await elementUpdated(el);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_modify/)) {
+        expect(e[1]).to.equal('replace');
+      }
+    }
+  });
+
+  it('Allow user to set sub_modify to append mode', async function () {
+    let el = await fixture(html`
+      <test-items-form currency="usd" store="test.foxycart.com" sub_modify="">
+        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    await elementUpdated(el);
+    let form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_modify/)) {
+        expect(e[1]).to.equal('');
+      }
+    }
+    el = await fixture(html`
+      <test-items-form currency="usd" store="test.foxycart.com" sub_modify="append">
+        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    await elementUpdated(el);
+    form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_modify/)) {
+        expect(e[1]).to.equal('');
+      }
+    }
+  });
+
+  it('Defults sub_restart to auto', async function () {
+    const el = await formWith2items(10, 10);
+    await elementUpdated(el);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_restart/)) {
+        expect(e[1]).to.equal('auto');
+      }
+    }
+  });
+
+  it('Allows user to set sub_restart to true', async function () {
+    let el = await fixture(html`
+      <test-items-form currency="usd" store="test.foxycart.com" sub_restart="true">
+        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    await elementUpdated(el);
+    let form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_restart/)) {
+        expect(e[1]).to.equal('true');
+      }
+    }
+    el = await fixture(html`
+      <test-items-form currency="usd" store="test.foxycart.com" sub_restart="anythingelse">
+        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    await elementUpdated(el);
+    form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_restart/)) {
+        expect(e[1]).to.equal('auto');
+      }
+    }
+  });
+
+  it('Allow user to set sub_token', async function () {
+    const el = await fixture(html`
+      <test-items-form currency="usd" store="test.foxycart.com" sub_token="retrievedurl">
+        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+      </test-items-form>
+    `);
+    await elementUpdated(el);
+    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    for (const e of new FormData(form).entries()) {
+      if (e[0].match(/.*sub_token/)) {
+        expect(e[1]).to.equal('retrievedurl');
+      }
+    }
   });
 });
 describe('The form directs the user to the propper destination', async function () {

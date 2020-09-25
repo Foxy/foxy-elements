@@ -69,6 +69,27 @@ export class ItemsForm extends Translatable {
           return value;
         },
       },
+      sub_token: { type: String },
+      sub_modify: {
+        type: String,
+        converter: value => {
+          if (value === '' || value === 'append') {
+            return '';
+          } else {
+            return 'replace';
+          }
+        },
+      },
+      sub_restart: {
+        type: String,
+        converter: value => {
+          if (value === 'true') {
+            return value;
+          } else {
+            return 'auto';
+          }
+        },
+      },
       frequencies: {
         converter: (value, type) => {
           if (!value) {
@@ -157,11 +178,42 @@ export class ItemsForm extends Translatable {
    * it is assumed to be next occurence of that day of the month, from the
    * current date.
    *
-   * For more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
+   * See [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)
    *
    * ** Example:** `"10"`
    */
   public sub_startdate?: string;
+
+  /**
+   * Optional subscription token, unique URL of a subscription, retrieved from
+   * the API, XML datafeeds or Admin interface.
+   */
+  public sub_token?: string;
+
+  /**
+   * Optional. Allows the “add to cart” link or form to completely replace the
+   * existing subscription loaded
+   *
+   * Can be either "replace", "append" or "" (a blank string).
+   * Using "append" or "" will result in adding these items to an existing
+   * subscription in addition to the existing ones.
+   *
+   * The "append" value is set for convenience, as it describes the behaviour.
+   * The submitted value, in this case, will be "". The submitted value, in
+   * this case, will be "".
+   *
+   * Using "replace" results in replacing the existing subscription with the
+   * current itmes.
+   * See [Products subscription options](https://wiki.foxycart.com/v/2.0/products/subscriptions#subscription-related_product_options)
+   */
+  public sub_modify = 'replace';
+
+  /**
+   *  Set to "true" to indicate that payment is collectable right now.
+   *  Set to "auto" to indicate that payment is collectable right now if the
+   *  subscription's past-due amount is greater than 0
+   */
+  public sub_restart = 'auto';
 
   /**
    * Optional subscription end date encoded as four integer for the year, two
@@ -170,7 +222,7 @@ export class ItemsForm extends Translatable {
    * The absence of a sub_enddate, together with a sub_frequency, means a
    * subscription with indefinite and date.
    *
-   * For more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
+   * See [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)
    *
    * ** Example:** `"20221010"`
    */
@@ -264,8 +316,8 @@ export class ItemsForm extends Translatable {
    * - items: an array of other items that are to be treated as bundled with this item
    * - signatures: an object containing a key value list of previously generated HMAC validation codes
    *
-   * Other item properties are accepted and sent to foxy cart.
-   * https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters
+   * Other item properties are accepted and sent to foxy cart
+   * See [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)
    */
   public set items(value: ItemInterface[]) {
     this.__removeItems();
@@ -462,7 +514,7 @@ export class ItemsForm extends Translatable {
     }
   }
 
-  // builtd a key with prepended id and appended signature and |open given an item
+  // build a key with prepended id and appended signature and |open given an item
   private __buildKeyFromItem(key: string, item: ItemInterface) {
     return this.__buildKey(
       item.pid!.toString(),
@@ -486,17 +538,26 @@ export class ItemsForm extends Translatable {
    * @argument {FormData} fd the FormData to which subscription fields will be added
    **/
   private __formDataAddSubscriptionFields(fd: FormData, item: ItemInterface): void {
+    // added if sub_frequency is set
     if (this.sub_frequency) {
-      const subKey = this.__buildKeyFromItem('sub_frequency', item);
-      fd.set(subKey, this.sub_frequency!);
-      if (this.sub_startdate) {
-        const subStart = this.__buildKeyFromItem('sub_startdate', item);
-        fd.set(subStart, this.sub_startdate!);
+      for (const s of ['sub_frequency', 'sub_startdate', 'sub_enddate']) {
+        if ((this as any)[s]) {
+          const subKey = this.__buildKeyFromItem(s, item);
+          fd.set(subKey, (this as any)[s]);
+        }
       }
-      if (this.sub_enddate) {
-        const subEnd = this.__buildKeyFromItem('sub_enddate', item);
-        fd.set(subEnd, this.sub_enddate!);
+    }
+    // added if themselves are set
+    for (const s of ['sub_token']) {
+      if ((this as any)[s]) {
+        const subKey = this.__buildKeyFromItem(s, item);
+        fd.set(subKey, (this as any)[s]);
       }
+    }
+    // added regardless
+    for (const s of ['sub_modify', 'sub_restart']) {
+      const subKey = this.__buildKeyFromItem(s, item);
+      fd.set(subKey, (this as any)[s]);
     }
   }
 
@@ -517,6 +578,7 @@ export class ItemsForm extends Translatable {
    * @argument string strDate the date as a string to be used as start or end date.
    *
    * https://wiki.foxycart.com/v/2.0/products#subscription_product_options
+   * See [Products subscription options for more details](https://wiki.foxycart.com/v/2.0/products#subscription_product_options)
    */
   private static __validDate(strDate: string | null | undefined): boolean {
     if (strDate === null || strDate === undefined) {
