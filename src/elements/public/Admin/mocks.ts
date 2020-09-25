@@ -4,6 +4,7 @@ import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings'
 import { store } from '../../../mocks/FxStore';
 import { subscriptions } from '../../../mocks/FxSubscriptions';
 import { transactions } from '../../../mocks/FxTransactions';
+import { attributes } from '../../../mocks/FxAttributes';
 import { user } from '../../../mocks/FxUser';
 
 export function handleRequest(evt: RequestEvent): void {
@@ -47,6 +48,11 @@ export function handleRequest(evt: RequestEvent): void {
     // normalize URL so that it always has a trailing slash
     const url = new URL(fetchArgs[0] as string, 'https://api.foxy.test');
     if (!url.pathname.endsWith('/')) url.pathname = `${url.pathname}/`;
+
+    // respond with attributes stub
+    if (url.pathname === '/stores/8/attributes/') {
+      return new Response(JSON.stringify(attributes));
+    }
 
     // respond with subscriptions stub
     if (url.pathname === '/stores/8/subscriptions/') {

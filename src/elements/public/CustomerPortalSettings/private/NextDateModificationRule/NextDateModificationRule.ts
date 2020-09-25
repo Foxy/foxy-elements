@@ -57,6 +57,7 @@ export class NextDateModificationRule extends Translatable {
     const hasOffset = min || max;
     const hasAllowed = allowedDays && allowedDays.days.length > 0;
     const hasDisallowed = disallowedDates && disallowedDates.length > 0;
+    const openStyle = this.open ? '' : 'rounded-b-l';
 
     return html`
       <x-group frame>
@@ -66,7 +67,9 @@ export class NextDateModificationRule extends Translatable {
           ?open=${this.open}
           @toggle=${() => (this.open = !this.open)}
         >
-          <summary class="relative leading-s">
+          <summary
+            class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus:outline-none focus:shadow-outline"
+          >
             <div class="p-m text-m text-header font-medium space-y-s">
               <div>
                 <x-i18n
@@ -96,7 +99,7 @@ export class NextDateModificationRule extends Translatable {
             <button
               data-testid="remove"
               .disabled=${this.disabled}
-              class="flex items-center justify-center absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default"
+              class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
               style="width: 54px; height: 54px"
               @click=${prevent(() => this.dispatchEvent(new NextDateModificationRuleRemoveEvent()))}
             >
@@ -104,7 +107,7 @@ export class NextDateModificationRule extends Translatable {
             </button>
           </summary>
 
-          <article class="space-y-m">
+          <article class="space-y-l">
             <x-group>
               <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="ndmod.match"> </x-i18n>
 
@@ -121,7 +124,7 @@ export class NextDateModificationRule extends Translatable {
               </x-jsonata-input>
             </x-group>
 
-            <div class="flex space-y-m md:space-y-0 flex-col md:flex-row">
+            <div class="flex space-y-l md:space-y-0 flex-col md:flex-row">
               <div class="md:w-1/2 md:border-r md:border-contrast-10">
                 <x-offset-input
                   data-testid="min"

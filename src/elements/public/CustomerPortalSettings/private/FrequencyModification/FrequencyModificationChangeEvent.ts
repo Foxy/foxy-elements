@@ -1,9 +1,7 @@
-import { FrequencyModificationRule } from './FrequencyModificationRule';
+import { Ruleset } from './types';
 
-export class FrequencyModificationChangeEvent extends CustomEvent<
-  FrequencyModificationRule | boolean
-> {
-  constructor(value: FrequencyModificationRule | boolean) {
-    super('change', { detail: value });
+export class FrequencyModificationChangeEvent extends CustomEvent<Ruleset> {
+  constructor(detail: Ruleset) {
+    super('change', { detail });
   }
 }

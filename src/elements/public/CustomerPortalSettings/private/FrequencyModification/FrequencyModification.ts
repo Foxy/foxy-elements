@@ -1,21 +1,24 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import '@polymer/iron-icon';
+import '@vaadin/vaadin-button';
+import '@vaadin/vaadin-lumo-styles/icons';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { Checkbox, Group, I18N, Section } from '../../../../private/index';
-import { FrequencyList } from '../FrequencyList/FrequencyList';
-import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';
-import { JSONataInput } from '../JSONataInput/JSONataInput';
-import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
+import { FrequencyModificationRule } from '../FrequencyModificationRule/FrequencyModificationRule';
+import { FrequencyModificationRuleChangeEvent } from '../FrequencyModificationRule/FrequencyModificationRuleChangeEvent';
+import { Rule } from '../FrequencyModificationRule/types';
 import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
-import { FrequencyModificationRule } from './FrequencyModificationRule';
+import { Ruleset } from './types';
 
 export class FrequencyModification extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'x-frequency-list': FrequencyList,
-      'x-jsonata-input': JSONataInput,
+      'x-frequency-modification-rule': FrequencyModificationRule,
+      'vaadin-button': customElements.get('vaadin-button'),
       'x-checkbox': Checkbox,
       'x-section': Section,
+      'iron-icon': customElements.get('iron-icon'),
       'x-group': Group,
       'x-i18n': I18N,
     };
@@ -24,27 +27,21 @@ export class FrequencyModification extends Translatable {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      value: { type: Object },
+      value: { type: Array },
       disabled: { type: Boolean },
     };
   }
 
-  public value: boolean | FrequencyModificationRule = false;
+  public value: Ruleset = false;
 
   public disabled = false;
 
-  public constructor() {
-    super('customer-portal-settings');
-  }
-
   public render(): TemplateResult {
-    const disabled = this.disabled || this.value === false;
-
     return html`
       <x-checkbox
         data-testid="toggle"
         .checked=${Boolean(this.value)}
-        .disabled=${this.disabled || !this._isI18nReady}
+        .disabled=${this.disabled}
         @change=${this.__toggleValue}
       >
         <x-section>
@@ -54,60 +51,52 @@ export class FrequencyModification extends Translatable {
 
         ${this.value
           ? html`
-              <div class="space-y-m pt-m" slot="content">
-                <x-group frame>
-                  <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.match"></x-i18n>
-                  <x-jsonata-input
-                    data-testid="jsonata"
+              ${this.__normalizedValue.map(
+                (rule, index, array) => html`
+                  <x-frequency-modification-rule
+                    slot="content"
+                    class="mt-m"
+                    data-testid="rule"
+                    .disabled=${this.disabled}
+                    .value=${rule}
                     .lang=${this.lang}
-                    .value=${this.__normalizedQuery}
-                    .disabled=${disabled || !this._isI18nReady}
-                    @change=${this.__handleQueryChange}
+                    .ns=${this.ns}
+                    @remove=${() => {
+                      const newValue = array.filter((_, i) => i !== index);
+                      this.value = newValue.length ? newValue : true;
+                      this.__sendChange();
+                    }}
+                    @change=${(evt: FrequencyModificationRuleChangeEvent) => {
+                      this.value = array.map((v, i) => (i === index ? evt.detail : v));
+                      this.__sendChange();
+                    }}
                   >
-                  </x-jsonata-input>
-                </x-group>
+                  </x-frequency-modification-rule>
+                `
+              )}
 
-                <x-group frame>
-                  <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.options">
-                  </x-i18n>
-                  <x-frequency-list
-                    data-testid="frequency"
-                    .lang=${this.lang}
-                    .value=${this.__normalizedValues}
-                    .disabled=${disabled || !this._isI18nReady}
-                    @change=${this.__handleValuesChange}
-                  >
-                  </x-frequency-list>
-                </x-group>
-              </div>
+              <vaadin-button
+                slot="content"
+                class="mt-m"
+                data-testid="add"
+                .disabled=${this.disabled}
+                @click=${this.__addRule}
+              >
+                <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_rule"></x-i18n>
+                <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+              </vaadin-button>
             `
           : ''}
       </x-checkbox>
     `;
   }
 
-  private get __normalizedValue() {
-    return {
-      jsonataQuery: this.__normalizedQuery,
-      values: this.__normalizedValues,
-    };
+  private get __normalizedValue(): Rule[] {
+    return Array.isArray(this.value) ? this.value : [];
   }
 
-  private get __normalizedQuery() {
-    return typeof this.value === 'boolean' ? '*' : this.value.jsonataQuery;
-  }
-
-  private get __normalizedValues() {
-    return typeof this.value === 'boolean' ? [] : this.value.values;
-  }
-
-  private __handleQueryChange(evt: JSONataInputChangeEvent) {
-    this.value = { ...this.__normalizedValue, jsonataQuery: evt.detail as string };
-    this.__sendChange();
-  }
-
-  private __handleValuesChange(evt: FrequencyListChangeEvent) {
-    this.value = { ...this.__normalizedValue, values: evt.detail };
+  private __addRule() {
+    this.value = [...this.__normalizedValue, { jsonataQuery: '*', values: [] }];
     this.__sendChange();
   }
 

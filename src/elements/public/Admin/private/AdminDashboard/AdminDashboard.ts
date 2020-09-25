@@ -2,6 +2,7 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-button';
 import { html, TemplateResult } from 'lit-html';
+import { escape } from 'lodash-es';
 import SortableJS from 'sortablejs/modular/sortable.core.esm.js';
 import { interpret } from 'xstate';
 import { RequestEvent, UnhandledRequestError } from '../../../../../events/request';
@@ -197,13 +198,12 @@ export class AdminDashboard extends Translatable {
       const configNames = [WIDGETS_ATTRIBUTE, WIDGETS_TOTAL_ATTRIBUTE];
       const { store, widgets } = this.__service.state.context;
 
-      const otherAttributes = store!._embedded['fx:attributes'].filter(
-        ({ name }) => !configNames.includes(name)
-      );
+      const otherAttributes =
+        store?._embedded?.['fx:attributes'].filter(({ name }) => !configNames.includes(name)) ?? [];
 
       const newWidgets = widgets.map(preset => ({
         name: WIDGETS_ATTRIBUTE,
-        value: JSON.stringify(preset),
+        value: escape(JSON.stringify(preset)),
         visibility: 'restricted',
       }));
 

@@ -67,7 +67,7 @@ export class FrequencyList extends Translatable {
             .disabled=${this.disabled || !this._isI18nReady}
             @click=${this.__handleSubmit}
           >
-            <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add"></x-i18n>
+            <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_option"></x-i18n>
             <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
           </vaadin-button>
         </div>
