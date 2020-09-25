@@ -7,7 +7,7 @@ import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { interpret } from 'xstate';
 import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import { Translatable } from '../../../mixins/translatable';
-import { FxCustomerPortalSettings } from '../../../types/hapi';
+import { FxBookmark, FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
 import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
 import { I18N, Page, Section, Skeleton } from '../../private/index';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
@@ -247,15 +247,28 @@ export class CustomerPortalSettings extends Translatable {
     if (this.href === null) throw new FriendlyError('setup_needed');
 
     try {
-      const resourceResponse = await RequestEvent.emit({ source: this, init: [this.href] });
-      throwIfNotOk(resourceResponse);
+      const bookmarkResponse = await RequestEvent.emit({ source: this, init: ['/'] });
+      throwIfNotOk(bookmarkResponse);
 
-      const resource = (await resourceResponse.json()) as FxCustomerPortalSettings;
-      const storeHref = resource._links['fx:store'].href;
+      const bookmark = (await bookmarkResponse.json()) as FxBookmark;
+      const storeHref = bookmark._links['fx:store'].href;
       const storeResponse = await RequestEvent.emit({ source: this, init: [storeHref] });
       throwIfNotOk(storeResponse);
 
-      return { store: await storeResponse.json(), resource };
+      const store = (await storeResponse.json()) as FxStore;
+      const resourceHref = store._links['fx:customer_portal_settings'].href;
+      const resourceResponse = await RequestEvent.emit({ source: this, init: [resourceHref] });
+
+      let resource: FxCustomerPortalSettings | null;
+
+      if (resourceResponse.status.toString().startsWith('4')) {
+        resource = null;
+      } else {
+        throwIfNotOk(resourceResponse);
+        resource = (await resourceResponse.json()) as FxCustomerPortalSettings;
+      }
+
+      return { store, resource };
     } catch (err) {
       if (err instanceof FriendlyError) throw err;
       if (err instanceof UnhandledRequestError) throw new FriendlyError('setup_needed');

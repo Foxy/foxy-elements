@@ -1,6 +1,7 @@
 import { html } from 'lit-html';
 import { Story, Canvas, Meta, Props } from '@storybook/addon-docs/blocks';
 import { store } from '../../../mocks/FxStore';
+import { bookmark } from '../../../mocks/FxBookmark';
 import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
 import './index';
 
@@ -8,6 +9,7 @@ export const handleRequest = evt => {
   evt.detail.handle(async url => {
     await new Promise(resolve => setTimeout(resolve, 500));
     //
+    if (url === '/') return new Response(JSON.stringify(bookmark));
     if (url.endsWith('/stores/8')) return new Response(JSON.stringify(store));
     if (url.endsWith('/stores/8/customer_portal_settings')) {
       return new Response(JSON.stringify(customerPortalSettings));
