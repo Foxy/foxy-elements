@@ -147,10 +147,11 @@ export class Admin extends Translatable {
     return html`
       <div class="bg-base w-full h-full relative overflow-hidden">
         <div
-          id="outlet"
           class="absolute overflow-auto ${showsNavigation ? 'inset-nav' : 'inset-0'} scroll-touch"
           @request=${this.__handleRequest}
-        ></div>
+        >
+          <div id="outlet" class="container mx-auto p-m md:p-l lg:p-xl"></div>
+        </div>
 
         ${showsNavigation
           ? html`

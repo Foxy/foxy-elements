@@ -17,6 +17,7 @@
   "frequency_once": "Just this once",
   "frequency_plural": "Every {{count}} {{units, lowercase}}",
   "and": "and",
+  "beta": "Beta",
   "edit": "Edit",
   "save": "Save changes",
   "undo_all": "Undo all",

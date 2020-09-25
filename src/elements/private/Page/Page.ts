@@ -16,12 +16,12 @@ export class Page extends Themeable {
 
   public render(): TemplateResult {
     return html`
-      <article class="relative p-m md:p-l lg:p-xl">
-        <header class="space-y-xs leading-s font-lumo">
-          <h1 class="font-semibold text-header text-xxl">
+      <article class="relative antialiased font-lumo">
+        <header class="space-y-xs leading-s">
+          <h1 class="font-bold text-header text-xl border-b border-contrast-10 pb-s mb-s">
             <slot name="title"></slot>
           </h1>
-          <p class="text-l text-tertiary">
+          <p class="text-l text-secondary">
             <slot name="subtitle"></slot>
           </p>
         </header>

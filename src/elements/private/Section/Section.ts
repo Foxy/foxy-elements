@@ -15,12 +15,12 @@ export class Section extends Page {
 
   public render(): TemplateResult {
     return html`
-      <section class="leading-s">
+      <section class="leading-s antialiased font-lumo">
         <header>
-          <h2 class="text-header font-semibold text-l font-lumo">
+          <h2 class="text-header font-semibold text-l">
             <slot name="title"></slot>
           </h2>
-          <p class="text-tertiary text-m font-lumo">
+          <p class="text-secondary text-m">
             <slot name="subtitle"></slot>
           </p>
         </header>
