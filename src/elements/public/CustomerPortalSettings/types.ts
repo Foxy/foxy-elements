@@ -12,7 +12,7 @@ export interface CustomerPortalSettingsContext {
 export interface CustomerPortalSettingsLoadSuccessEvent {
   type: 'done.invoke.load';
   data: {
-    resource: FxCustomerPortalSettings;
+    resource: FxCustomerPortalSettings | null;
     store: FxStore;
   };
 }

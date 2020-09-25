@@ -2,7 +2,8 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { Checkbox, I18N, Section } from '../../../../private/index';
+import { I18N, Section } from '../../../../private/index';
+import { Switch } from '../../../../private/Switch/Switch';
 import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
 import { NextDateModificationRuleChangeEvent } from '../NextDateModificationRule/NextDateModificationRuleChangeEvent';
 import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
@@ -13,9 +14,9 @@ export class NextDateModification extends Translatable {
     return {
       'x-next-date-modification-rule': NextDateModificationRule,
       'vaadin-button': customElements.get('vaadin-button'),
-      'x-checkbox': Checkbox,
       'x-section': Section,
       'iron-icon': customElements.get('iron-icon'),
+      'x-switch': Switch,
       'x-i18n': I18N,
     };
   }
@@ -37,24 +38,28 @@ export class NextDateModification extends Translatable {
   }
 
   public render(): TemplateResult {
+    const { ns, lang } = this;
+
     return html`
-      <x-checkbox
-        .checked=${Boolean(this.value)}
-        .disabled=${this.disabled || !this._isI18nReady}
-        @change=${this.__toggleValue}
-      >
-        <x-section>
-          <x-i18n slot="title" .ns=${this.ns} .lang=${this.lang} key="ndmod.title"></x-i18n>
-          <x-i18n slot="subtitle" .ns=${this.ns} .lang=${this.lang} key="ndmod.subtitle"></x-i18n>
-        </x-section>
+      <x-section>
+        <x-switch
+          slot="title"
+          class="-my-xs"
+          data-testid="toggle"
+          .checked=${Boolean(this.value)}
+          .disabled=${this.disabled}
+          @change=${this.__toggleValue}
+        >
+          <x-i18n .ns=${ns} .lang=${lang} key="ndmod.title" class="text-l"></x-i18n>
+        </x-switch>
+
+        <x-i18n .ns=${ns} .lang=${lang} key="ndmod.subtitle" slot="subtitle" class="mr-xl"></x-i18n>
 
         ${this.value
           ? html`
               ${this.__normalizedValue.map(
                 (rule, index, array) => html`
                   <x-next-date-modification-rule
-                    slot="content"
-                    class="mt-m"
                     data-testid="rule"
                     .disabled=${this.disabled || !this._isI18nReady}
                     .value=${rule}
@@ -71,20 +76,20 @@ export class NextDateModification extends Translatable {
                   </x-next-date-modification-rule>
                 `
               )}
-
-              <vaadin-button
-                slot="content"
-                class="mt-m"
-                data-testid="add"
-                .disabled=${this.disabled || !this._isI18nReady}
-                @click=${this.__addRule}
-              >
-                <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
-                <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-              </vaadin-button>
             `
           : ''}
-      </x-checkbox>
+
+        <vaadin-button
+          class="mt-m w-full sm:w-auto"
+          theme="primary"
+          data-testid="add"
+          .disabled=${this.disabled || !this.value}
+          @click=${this.__addRule}
+        >
+          <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
+          <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+        </vaadin-button>
+      </x-section>
     `;
   }
 

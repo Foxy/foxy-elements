@@ -1,4 +1,7 @@
 {
+  "save_create": "Save and enable",
+  "save_delete": "Disable portal",
+  "save_update": "Save changes",
   "jsonata": {
     "all": "All",
     "some": "Some",
