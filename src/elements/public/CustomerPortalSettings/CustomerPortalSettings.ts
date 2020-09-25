@@ -4,6 +4,7 @@ import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { cloneDeep } from 'lodash-es';
 import { interpret } from 'xstate';
 import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import { Translatable } from '../../../mixins/translatable';
@@ -280,8 +281,16 @@ export class CustomerPortalSettings extends Translatable {
     if (this.href === null) throw new FriendlyError('setup_needed');
 
     try {
-      const payload = this.__service.state.context.newResource;
+      const context = this.__service.state.context;
+      const payload = cloneDeep(context.newResource) as Record<string, unknown> | null;
       const method = payload ? 'PUT' : 'DELETE';
+
+      if (payload) {
+        delete payload._links;
+        delete payload.date_created;
+        delete payload.date_modified;
+      }
+
       const options: RequestInit = { method, body: payload ? JSON.stringify(payload) : undefined };
       const response = await RequestEvent.emit({ source: this, init: [this.href, options] });
 
