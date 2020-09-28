@@ -5,7 +5,7 @@
   "jsonata": {
     "all": "All",
     "some": "Some",
-    "hint": "Enter a valid JSONata query selecting the subscriptions these rules will apply to. Please limit your expression to 200 characters."
+    "hint": "Enter a valid JSONata query selecting the subscriptions these rules will apply to. Please limit your expression to 200 characters. Docs:"
   },
   "title": "Customer Portal",
   "subtitle": "A dedicated place for your customers to view and manage their subscriptions, payment methods and recent transactions.",

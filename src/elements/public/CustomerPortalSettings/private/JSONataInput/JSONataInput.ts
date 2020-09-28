@@ -1,15 +1,22 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import '@polymer/iron-icon';
+import '@polymer/iron-icons';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
+import jsonata from 'jsonata';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { debounce } from 'lodash-es';
 import { Translatable } from '../../../../../mixins/translatable';
 import { ChoiceChangeEvent } from '../../../../private/events';
 import { Choice, I18N } from '../../../../private/index';
 import { JSONataInputChangeEvent } from './JSONataInputChangeEvent';
 
+const DEBOUNCE_WAIT = 275;
+
 export class JSONataInput extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'iron-icon': customElements.get('iron-icon'),
       'x-choice': Choice,
       'x-i18n': I18N,
     };
@@ -27,17 +34,31 @@ export class JSONataInput extends Translatable {
 
   public value = '*';
 
+  private __errorMessage = '';
+
   private readonly __items = ['all', 'some'] as const;
 
-  public constructor() {
-    super('customer-portal-settings');
-  }
+  private readonly __handleNewValueChange: (value: string) => void = debounce(value => {
+    try {
+      jsonata(value).evaluate({});
+      this.value = value;
+      this.__errorMessage = '';
+      this.__sendChange();
+    } catch (err) {
+      this.__errorMessage = err.message;
+    }
+
+    this.requestUpdate();
+  }, DEBOUNCE_WAIT);
 
   public render(): TemplateResult {
+    const linkStyle =
+      'pl-xs text-primary rounded font-medium cursor-pointer transition duration-200 focus:outline-none focus:shadow-outline hover:underline';
+
     return html`
       <x-choice
         data-testid="choice"
-        .disabled=${this.disabled || !this._isI18nReady}
+        .disabled=${this.disabled}
         .value=${this.__choice}
         .items=${this.__items}
         @change=${this.__handleChoiceChange}
@@ -48,18 +69,42 @@ export class JSONataInput extends Translatable {
         ${this.__choice === this.__items[1]
           ? html`
               <div slot=${this.__items[1]} class="space-y-s pb-m">
-                <p class="text-s text-tertiary leading-s">
-                  <x-i18n .ns=${this.ns} .lang=${this.lang} key="jsonata.hint"></x-i18n>
-                </p>
+                <x-i18n
+                  .ns=${this.ns}
+                  .lang=${this.lang}
+                  key="jsonata.hint"
+                  class="block font-lumo text-s text-tertiary leading-s"
+                >
+                  <a
+                    target="_blank"
+                    class=${linkStyle}
+                    href="https://docs.jsonata.org"
+                    rel="noopener noreferrer"
+                  >
+                    JSONata <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                  </a>
+                  <a
+                    target="_blank"
+                    class=${linkStyle}
+                    href="https://api.foxycart.com/rels/subscription"
+                    rel="noopener noreferrer"
+                  >
+                    hAPI subscription
+                    <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                  </a>
+                </x-i18n>
 
                 <vaadin-text-field
                   class="w-full"
                   data-testid="input"
-                  .disabled=${this.disabled || !this._isI18nReady}
-                  .value=${this._isI18nReady ? this.value : ''}
+                  .errorMessage=${this.__errorMessage}
+                  .disabled=${this.disabled}
+                  .invalid=${this.__errorMessage.length > 0}
+                  .value=${this.value}
                   @keydown=${this.__stopNavigation}
                   @change=${(evt: Event) => evt.stopPropagation()}
-                  @input=${this.__handleNewValueChange}
+                  @input=${(evt: InputEvent) =>
+                    this.__handleNewValueChange((evt.target as HTMLInputElement).value)}
                 >
                 </vaadin-text-field>
               </div>
@@ -71,11 +116,6 @@ export class JSONataInput extends Translatable {
 
   private get __choice() {
     return this.__items[this.value === '*' ? 0 : 1];
-  }
-
-  private __handleNewValueChange(evt: InputEvent) {
-    this.value = (evt.target as HTMLInputElement).value;
-    this.__sendChange();
   }
 
   private __handleChoiceChange(evt: ChoiceChangeEvent) {
