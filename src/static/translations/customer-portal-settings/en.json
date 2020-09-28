@@ -16,8 +16,10 @@
   "origins": {
     "title": "Allowed origins",
     "subtitle": "Please list below the websites you’re planning to use customer portal on.",
-    "invalid": "Invalid origin",
-    "add": "Add origin"
+    "invalid": "URL is invalid",
+    "https_only": "Origin is insecure",
+    "add": "Add origin",
+    "add_hint": "You can add up to 10 origins"
   },
   "fmod": {
     "title": "Frequency modification",
