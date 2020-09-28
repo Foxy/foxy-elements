@@ -29,6 +29,7 @@
     "valuesListEmpty": "none",
     "add_option": "Add option",
     "add_rule": "Add rule",
+    "add_rule_hint": "You can add up to 10 rules",
     "options": "Options",
     "match": "Match"
   },
@@ -40,6 +41,7 @@
     "range": "Range",
     "any": "Any",
     "add": "Add rule",
+    "add_hint": "You can add up to 10 rules",
     "match": "Match",
     "allowed": "Allowed dates",
     "excluded": "Excluded dates",
