@@ -150,7 +150,7 @@ export class CustomerPortalSettings extends Translatable {
           data-testid="fmod"
           .lang=${this.lang}
           .ns=${this.ns}
-          .value=${newResource?.subscriptions.allowFrequencyModification ?? false}
+          .value=${newResource?.subscriptions.allowFrequencyModification ?? []}
           ?disabled=${!newResource}
           @change=${(evt: FrequencyModificationChangeEvent) => {
             this.__service.send({ type: 'SET_FREQUENCY_MODIFICATION', value: evt.detail });
