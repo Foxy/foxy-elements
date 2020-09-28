@@ -14,7 +14,7 @@ describe('Preview', () => {
       it(`renders ${count} items`, async () => {
         const data = new Array(count).fill(0).map((_, i) => ({ i }));
         const grid = await fixture(html`<x-grid .data=${data}></x-grid>`);
-        const items = [...grid.shadowRoot!.querySelectorAll<ItemElement>('[data-tag-name=x-item]')];
+        const items = [...grid.shadowRoot!.querySelectorAll<ItemElement>('[data-tag-name=x-pic]')];
 
         expect(items).to.have.length(Math.min(count, 4));
 
@@ -28,7 +28,7 @@ describe('Preview', () => {
     it('propagates .empty value to child items', async () => {
       const data = new Array(99).fill(0).map((_, i) => ({ i }));
       const grid = await fixture(html`<x-grid .data=${data} .empty=${true}></x-grid>`);
-      const items = [...grid.shadowRoot!.querySelectorAll<ItemElement>('[data-tag-name=x-item]')];
+      const items = [...grid.shadowRoot!.querySelectorAll<ItemElement>('[data-tag-name=x-pic]')];
 
       items.forEach(item => expect(item).to.have.property('empty', true));
     });

@@ -7,13 +7,13 @@ import { PictureGrid } from './PictureGrid';
 
 class Bundle extends PictureGrid<PreviewItem[]> {
   public static get scopedElements(): ScopedElementsMap {
-    return { ...super.scopedElements, 'x-item': Picture };
+    return { ...super.scopedElements, 'x-pic': Picture };
   }
 }
 
 class BundleGrid extends PictureGrid<PreviewItem[][]> {
   public static get scopedElements(): ScopedElementsMap {
-    return { ...super.scopedElements, 'x-item': Bundle };
+    return { ...super.scopedElements, 'x-pic': Bundle };
   }
 }
 

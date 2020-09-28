@@ -1,9 +1,9 @@
-import { Product } from '../elements/public/QuickOrder/types';
+import { ItemInterface } from '../elements/public/ItemsForm/types';
 
-export class MockProduct extends HTMLElement {
+export class MockItem extends HTMLElement {
   static pidSource = 1;
 
-  public name = 'Mock Product';
+  public name = 'Mock Item';
 
   public price = 10;
 
@@ -23,9 +23,9 @@ export class MockProduct extends HTMLElement {
 
   public color?: unknown;
 
-  constructor(p?: Product) {
+  constructor(p?: ItemInterface) {
     super();
-    this.pid = MockProduct.pidSource++;
+    this.pid = MockItem.pidSource++;
     if (p) {
       if (p.name) this.name = p.name;
       if (p.price) this.price = p.price;
@@ -39,11 +39,12 @@ export class MockProduct extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this.setAttribute('product', 'true');
+    this.setAttribute('data-item', 'true');
   }
 
-  get value(): Product {
+  get value(): ItemInterface {
     const result = {
+      name: this.name,
       pid: this.pid,
       price: this.price,
       quantity: this.quantity,
@@ -55,10 +56,10 @@ export class MockProduct extends HTMLElement {
     return result;
   }
 
-  set value(p: Product) {
+  set value(p: ItemInterface) {
     this.name = p.name!;
     this.price = +p.price!;
-    this.quantity = +p.quantity!;
+    this.quantity = p.quantity! > 0 || p.quantity === 0 ? +p.quantity! : 1;
     this.signatures = p.signatures;
     this.code = p.code!;
     this.parent_code = p.parent_code!;
