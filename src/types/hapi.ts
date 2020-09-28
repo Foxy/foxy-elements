@@ -46,14 +46,12 @@ export interface FxCustomerPortalSettings {
   /** Object which contains "allowFrequencyModification" and "allowNextDateModification" fields. Subscription modification data. */
   subscriptions: {
     /** An array that contains objects with jsonataQuery and values. Max length 10 (items). */
-    allowFrequencyModification:
-      | boolean
-      | {
-          /** A string that should be a valid [JSONata](https://jsonata.org/) query. Max length 200 chars. */
-          jsonataQuery: string;
-          /** These strings should match the sub_frequency regex sanitization. Max array length 20, max length per string 4 characters. */
-          values: string[];
-        }[];
+    allowFrequencyModification: {
+      /** A string that should be a valid [JSONata](https://jsonata.org/) query. Max length 200 chars. */
+      jsonataQuery: string;
+      /** These strings should match the sub_frequency regex sanitization. Max array length 20, max length per string 4 characters. */
+      values: string[];
+    }[];
     /** We can forbid modify subscription next date. False disables modification, true lifts all constraints, array of objects defines custom rules. */
     allowNextDateModification:
       | boolean

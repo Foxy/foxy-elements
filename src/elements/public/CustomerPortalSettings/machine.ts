@@ -64,7 +64,7 @@ const reset = actions.assign<CustomerPortalSettingsContext>({
 const create = actions.assign<CustomerPortalSettingsContext>({
   newResource: ctx => ({
     allowedOrigins: [],
-    subscriptions: { allowFrequencyModification: false, allowNextDateModification: false },
+    subscriptions: { allowFrequencyModification: [], allowNextDateModification: false },
     jwtSharedSecret: times(72, () => random(35).toString(36)).join(''),
     sessionLifespanInMinutes: 40320,
     sso: false,
