@@ -64,7 +64,7 @@ export class OriginsList extends Translatable {
               `
           )}
 
-          <div class="flex flex-col space-y-s sm:space-y-0 sm:flex-row sm:space-x-s">
+          <div class="flex flex-col space-y-s sm:space-y-0 sm:flex-row sm:space-x-s sm:items-start">
             <vaadin-text-field
               data-testid="input"
               .placeholder=${this._isI18nReady ? 'https://foxy.io' : ''}
