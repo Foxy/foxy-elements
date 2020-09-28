@@ -5,12 +5,10 @@ import '@vaadin/vaadin-lumo-styles/icons';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { Group, I18N, Section } from '../../../../private/index';
-import { Switch } from '../../../../private/Switch/Switch';
 import { FrequencyModificationRule } from '../FrequencyModificationRule/FrequencyModificationRule';
 import { FrequencyModificationRuleChangeEvent } from '../FrequencyModificationRule/FrequencyModificationRuleChangeEvent';
 import { Rule } from '../FrequencyModificationRule/types';
 import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
-import { Ruleset } from './types';
 
 export class FrequencyModification extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
@@ -19,7 +17,6 @@ export class FrequencyModification extends Translatable {
       'vaadin-button': customElements.get('vaadin-button'),
       'x-section': Section,
       'iron-icon': customElements.get('iron-icon'),
-      'x-switch': Switch,
       'x-group': Group,
       'x-i18n': I18N,
     };
@@ -33,7 +30,7 @@ export class FrequencyModification extends Translatable {
     };
   }
 
-  public value: Ruleset = false;
+  public value: Rule[] = [];
 
   public disabled = false;
 
@@ -42,17 +39,7 @@ export class FrequencyModification extends Translatable {
 
     return html`
       <x-section>
-        <x-switch
-          slot="title"
-          class="-my-xs"
-          data-testid="toggle"
-          .checked=${Boolean(this.value)}
-          .disabled=${this.disabled}
-          @change=${this.__toggleValue}
-        >
-          <x-i18n .ns=${ns} .lang=${lang} key="fmod.title" class="text-l"></x-i18n>
-        </x-switch>
-
+        <x-i18n .ns=${ns} .lang=${lang} key="fmod.title" slot="title" class="text-l"></x-i18n>
         <x-i18n .ns=${ns} .lang=${lang} key="fmod.subtitle" slot="subtitle" class="mr-xl"></x-i18n>
 
         ${this.value
@@ -66,8 +53,7 @@ export class FrequencyModification extends Translatable {
                     .lang=${this.lang}
                     .ns=${this.ns}
                     @remove=${() => {
-                      const newValue = array.filter((_, i) => i !== index);
-                      this.value = newValue.length ? newValue : true;
+                      this.value = array.filter((_, i) => i !== index);
                       this.__sendChange();
                     }}
                     @change=${(evt: FrequencyModificationRuleChangeEvent) => {
@@ -101,11 +87,6 @@ export class FrequencyModification extends Translatable {
 
   private __addRule() {
     this.value = [...this.__normalizedValue, { jsonataQuery: '*', values: [] }];
-    this.__sendChange();
-  }
-
-  private __toggleValue() {
-    this.value = !this.value;
     this.__sendChange();
   }
 

@@ -21,7 +21,7 @@
   },
   "fmod": {
     "title": "Frequency modification",
-    "subtitle": "If enabled, your customers will be able to switch to a different payment schedule.",
+    "subtitle": "Customize how your customers can switch to a different payment schedule.",
     "allTitle": "All subscriptions",
     "someTitle": "Subscriptions matching",
     "valuesLabel": "Values: ",
