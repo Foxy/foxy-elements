@@ -113,6 +113,7 @@ export class NextDateModificationRule extends Translatable {
 
               <x-jsonata-input
                 data-testid="jsonata"
+                .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${jsonataQuery}
                 .disabled=${this.disabled}

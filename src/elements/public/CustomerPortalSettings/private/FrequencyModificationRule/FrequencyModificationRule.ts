@@ -101,6 +101,7 @@ export class FrequencyModificationRule extends Translatable {
               <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.match"></x-i18n>
               <x-jsonata-input
                 data-testid="jsonata"
+                .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${this.value.jsonataQuery}
                 .disabled=${this.disabled}
