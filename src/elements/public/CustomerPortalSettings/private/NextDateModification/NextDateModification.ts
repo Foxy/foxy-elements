@@ -2,6 +2,7 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 import { I18N, Section } from '../../../../private/index';
 import { Switch } from '../../../../private/Switch/Switch';
 import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
@@ -38,7 +39,8 @@ export class NextDateModification extends Translatable {
   }
 
   public render(): TemplateResult {
-    const { ns, lang } = this;
+    const isAddButtonDisabled =
+      this.disabled || !this.value || (Array.isArray(this.value) && this.value.length >= 10);
 
     return html`
       <x-section>
@@ -50,10 +52,17 @@ export class NextDateModification extends Translatable {
           .disabled=${this.disabled}
           @change=${this.__toggleValue}
         >
-          <x-i18n .ns=${ns} .lang=${lang} key="ndmod.title" class="text-l"></x-i18n>
+          <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.title" class="text-l"></x-i18n>
         </x-switch>
 
-        <x-i18n .ns=${ns} .lang=${lang} key="ndmod.subtitle" slot="subtitle" class="mr-xl"></x-i18n>
+        <x-i18n
+          .ns=${this.ns}
+          .lang=${this.lang}
+          key="ndmod.subtitle"
+          slot="subtitle"
+          class="mr-xl"
+        >
+        </x-i18n>
 
         ${this.value
           ? html`
@@ -61,7 +70,7 @@ export class NextDateModification extends Translatable {
                 (rule, index, array) => html`
                   <x-next-date-modification-rule
                     data-testid="rule"
-                    .disabled=${this.disabled || !this._isI18nReady}
+                    .disabled=${this.disabled}
                     .value=${rule}
                     .lang=${this.lang}
                     @remove=${() => {
@@ -79,16 +88,31 @@ export class NextDateModification extends Translatable {
             `
           : ''}
 
-        <vaadin-button
-          class="mt-m w-full sm:w-auto"
-          theme="primary"
-          data-testid="add"
-          .disabled=${this.disabled || !this.value}
-          @click=${this.__addRule}
-        >
-          <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
-          <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-        </vaadin-button>
+        <div class="mt-m sm:flex sm:items-center">
+          <vaadin-button
+            class="w-full sm:w-auto"
+            data-testid="add"
+            theme="primary"
+            .disabled=${isAddButtonDisabled}
+            @click=${this.__addRule}
+          >
+            <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.add"></x-i18n>
+            <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+          </vaadin-button>
+
+          <x-i18n
+            .lang=${this.lang}
+            .ns=${this.ns}
+            key="ndmod.add_hint"
+            class=${classMap({
+              'text-s text-center block font-lumo mt-xs transition duration-200 sm:mt-0 sm:ml-m': true,
+              'text-tertiary': Array.isArray(this.value) && this.value.length < 10,
+              'text-primary': Array.isArray(this.value) && this.value.length >= 10,
+              'opacity-0': !Array.isArray(this.value) || this.value.length === 0,
+            })}
+          >
+          </x-i18n>
+        </div>
       </x-section>
     `;
   }

@@ -4,6 +4,7 @@ import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-lumo-styles/icons';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 import { Group, I18N, Section } from '../../../../private/index';
 import { FrequencyModificationRule } from '../FrequencyModificationRule/FrequencyModificationRule';
 import { FrequencyModificationRuleChangeEvent } from '../FrequencyModificationRule/FrequencyModificationRuleChangeEvent';
@@ -67,16 +68,31 @@ export class FrequencyModification extends Translatable {
             `
           : ''}
 
-        <vaadin-button
-          class="mt-m w-full sm:w-auto"
-          data-testid="add"
-          theme="primary"
-          .disabled=${this.disabled || !this.value}
-          @click=${this.__addRule}
-        >
-          <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_rule"></x-i18n>
-          <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-        </vaadin-button>
+        <div class="mt-m sm:flex sm:items-center">
+          <vaadin-button
+            class="w-full sm:w-auto"
+            data-testid="add"
+            theme="primary"
+            .disabled=${this.disabled || this.value.length >= 10}
+            @click=${this.__addRule}
+          >
+            <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_rule"></x-i18n>
+            <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+          </vaadin-button>
+
+          <x-i18n
+            .lang=${this.lang}
+            .ns=${this.ns}
+            key="fmod.add_rule_hint"
+            class=${classMap({
+              'text-s text-center block font-lumo mt-xs transition duration-200 sm:mt-0 sm:ml-m': true,
+              'text-tertiary': this.value.length < 10,
+              'text-primary': this.value.length >= 10,
+              'opacity-0': this.value.length === 0,
+            })}
+          >
+          </x-i18n>
+        </div>
       </x-section>
     `;
   }

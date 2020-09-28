@@ -1,13 +1,7 @@
 import { PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Themeable } from '../../../mixins/themeable';
-
-function classMap(map: Record<string, boolean>) {
-  return Array.from(Object.entries(map))
-    .filter(([, condition]) => condition)
-    .map(([value]) => value)
-    .join(' ');
-}
+import { classMap } from '../../../utils/class-map';
 
 export class SwitchChangeEvent extends CustomEvent<boolean> {
   constructor(detail: boolean) {
