@@ -76,13 +76,21 @@ export class MonthdayPicker extends Translatable {
   }
 
   protected _getLabelClass(day: number): string {
-    let base = 'flex items-center justify-center m-xs p-s rounded text-m font-medium ';
+    let base =
+      'flex items-center justify-center m-xs p-s rounded text-m font-medium transition duration-200 cursor-pointer ';
 
     base += 'sm:p-0 sm:h-m sm:w-l ';
-    base += this.value.includes(day) ? 'text-base ' : 'bg-contrast-5 ';
+    base += this.value.includes(day) ? 'text-base ' : 'bg-contrast-5 hover:bg-primary-10 ';
 
-    if (day < 29) base += this.value.includes(day) ? 'bg-primary' : 'text-primary';
-    if (day > 28) base += this.value.includes(day) ? 'bg-error' : 'text-error';
+    if (day < 29) {
+      base += 'focus-within:shadow-outline ';
+      base += this.value.includes(day) ? 'bg-primary' : 'text-body';
+    }
+
+    if (day > 28) {
+      base += 'focus-within:shadow-outline-error ';
+      base += this.value.includes(day) ? 'bg-error' : 'text-error';
+    }
 
     return base;
   }
