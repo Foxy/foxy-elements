@@ -1,6 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { cache } from 'lit-html/directives/cache';
 import { Translatable } from '../../../../../mixins/translatable';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../../utils/parse-duration';
@@ -81,19 +80,17 @@ export class NextDateModificationRule extends Translatable {
                 </x-i18n>
               </div>
 
-              ${cache(
-                !this.open && (hasOffset || hasAllowed || hasDisallowed)
-                  ? html`
-                      <div>
-                        ${concatTruthy(
-                          hasOffset && this.__renderMinMaxSummary(min, max),
-                          hasAllowed && this.__renderAllowedSummary(allowedDays!),
-                          hasDisallowed && this.__renderDisallowedSummary(disallowedDates!)
-                        )}
-                      </div>
-                    `
-                  : ''
-              )}
+              ${hasOffset || hasAllowed || hasDisallowed
+                ? html`
+                    <div>
+                      ${concatTruthy(
+                        hasOffset && this.__renderMinMaxSummary(min, max),
+                        hasAllowed && this.__renderAllowedSummary(allowedDays!),
+                        hasDisallowed && this.__renderDisallowedSummary(disallowedDates!)
+                      )}
+                    </div>
+                  `
+                : ''}
             </div>
 
             <button
@@ -187,6 +184,7 @@ export class NextDateModificationRule extends Translatable {
 
               <x-disallowed-dates
                 data-testid="disallowed"
+                .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${disallowedDates ?? []}
                 .disabled=${this.disabled}
