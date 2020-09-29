@@ -41,6 +41,8 @@ export class Dropdown extends Themeable {
 
   private __unexistentValue = getUnexistentValue();
 
+  private __renderer = this.__renderItems.bind(this);
+
   public render(): TemplateResult {
     return html`
       <vaadin-select
@@ -48,7 +50,7 @@ export class Dropdown extends Themeable {
         data-testid="select"
         .value=${this.value === null ? this.__unexistentValue : this.value}
         .disabled=${this.disabled}
-        .renderer=${this.__renderItems.bind(this)}
+        .renderer=${this.__renderer}
         @change=${this.__handleChange}
       >
       </vaadin-select>
