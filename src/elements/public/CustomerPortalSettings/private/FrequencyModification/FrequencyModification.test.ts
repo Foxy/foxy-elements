@@ -9,7 +9,6 @@ import { FrequencyModificationRuleRemoveEvent } from '../FrequencyModificationRu
 import { Rule } from '../FrequencyModificationRule/types';
 import { FrequencyModification } from './FrequencyModification';
 import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
-import { Ruleset } from './types';
 
 customElements.define('x-ruleset', FrequencyModification);
 
@@ -41,7 +40,7 @@ function testInteractivity(disabled: boolean) {
   };
 }
 
-function testContent(value: Ruleset) {
+function testContent(value: Rule[]) {
   return async (element: FrequencyModification) => {
     await element.updateComplete;
     const rules = getRefs(element).rules;
@@ -98,13 +97,13 @@ const machine = createMachine({
       states: {
         disallowed: {
           on: { ALLOW: 'allowed' },
-          meta: { test: testContent(false) },
+          meta: { test: testContent([]) },
         },
         allowed: {
           on: { DISALLOW: 'disallowed' },
           initial: 'basic',
           states: {
-            basic: { meta: { test: testContent(true) }, on: { CUSTOMIZE: 'custom' } },
+            basic: { meta: { test: testContent(samples.custom) }, on: { CUSTOMIZE: 'custom' } },
             custom: { meta: { test: testContent(samples.custom) } },
           },
         },
@@ -134,8 +133,8 @@ describe('FrequencyModification', () => {
 
   describe('Actor: APP', () => {
     const model = createModel<FrequencyModification>(machine).withEvents({
-      DISALLOW: { exec: e => void (e.value = false) },
-      ALLOW: { exec: e => void (e.value = true) },
+      DISALLOW: { exec: e => void (e.value = []) },
+      ALLOW: { exec: e => void (e.value = samples.custom) },
       ENABLE: { exec: e => void (e.disabled = false) },
       DISABLE: { exec: e => void (e.disabled = true) },
       CUSTOMIZE: { exec: e => void (e.value = samples.custom) },
