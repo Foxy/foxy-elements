@@ -8,14 +8,14 @@
     "hint": "Enter a valid JSONata query selecting the subscriptions these rules will apply to. Please limit your expression to 200 characters. Docs:"
   },
   "title": "Customer Portal",
-  "subtitle": "A dedicated place for your customers to view and manage their subscriptions, payment methods and recent transactions.",
+  "subtitle": "A dedicated place for your customers to view and manage their subscriptions, payment methods and recent transactions",
   "quickstart": {
     "title": "Quick start",
     "subtitle": "Embed customer portal into your website by copying the code snippet below:"
   },
   "origins": {
     "title": "Allowed origins",
-    "subtitle": "Please list below the websites you’re planning to use customer portal on.",
+    "subtitle": "Please list below the websites you’re planning to use customer portal on",
     "invalid": "URL is invalid",
     "https_only": "Origin is insecure",
     "add": "Add origin",
@@ -23,13 +23,14 @@
   },
   "fmod": {
     "title": "Frequency modification",
-    "subtitle": "Customize how your customers can switch to a different payment schedule.",
+    "subtitle": "Customize how your customers can switch to a different payment schedule",
     "allTitle": "All subscriptions",
     "someTitle": "Subscriptions matching",
     "valuesLabel": "Values: ",
     "valuesList": "{{values, list lowercase}}",
     "valuesListEmpty": "none",
     "add_option": "Add option",
+    "add_option_hint": "You can add up to 20 value options for this rule",
     "add_rule": "Add rule",
     "add_rule_hint": "You can add up to 10 rules",
     "options": "Options",
@@ -37,13 +38,18 @@
   },
   "ndmod": {
     "title": "Next payment date modification",
-    "subtitle": "If enabled, your customers will be able to delay or advance the next payment.",
+    "subtitle": "If enabled, your customers will be able to delay or advance the next payment",
     "allTitle": "All subscriptions",
     "someTitle": "Subscriptions matching",
     "range": "Range",
+    "range_start": "Start",
+    "range_end": "End (optional)",
     "any": "Any",
     "add": "Add rule",
     "add_hint": "You can add up to 10 rules",
+    "add_range": "Add range",
+    "add_range_hint": "You can add up to 20 exceptions",
+    "add_single": "Add one date",
     "match": "Match",
     "allowed": "Allowed dates",
     "excluded": "Excluded dates",
@@ -61,11 +67,22 @@
     "maxHint": "Requires the new date to be at most {{duration}} into the future."
   },
   "jwt": {
-    "title": "JWT secret",
-    "subtitle": "A random alphanumeric string of 40-100 characters unique to your store used to authorize your customers."
+    "title": "Session secret",
+    "subtitle": "Reset this key to drop all active sessions",
+    "invalid": "Only letters (a-z) and numbers (0-9) are allowed in this field",
+    "required": "Please fill in this field",
+    "too_short": "Session secret must be at least 40 characters long",
+    "too_long": "Session secret must be at most 100 characters long",
+    "refresh": "Reset"
   },
   "session": {
     "title": "Session duration",
-    "subtitle": "Once a customer is logged in, we won’t ask for their email and password again for this period of time (up to 4 weeks)."
+    "subtitle": "This is how long we'll keep your customers logged in",
+    "too_short": "Session must be at least 1 minute long",
+    "too_long": "Sessions can't last for more than 4 weeks"
+  },
+  "advanced": {
+    "title": "Advanced settings",
+    "subtitle": "Authentication settings for fine-tuning your integration"
   }
 }
