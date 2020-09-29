@@ -1,6 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 import { ListChangeEvent } from '../../../../private/events';
 import { I18N, List, Skeleton } from '../../../../private/index';
 import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
@@ -38,6 +39,8 @@ export class FrequencyList extends Translatable {
   }
 
   public render(): TemplateResult {
+    const isInputDisabled = this.disabled || !this._isI18nReady || this.value.length >= 20;
+
     return html`
       <x-list
         data-testid="list"
@@ -56,7 +59,7 @@ export class FrequencyList extends Translatable {
             data-testid="input"
             .lang=${this.lang}
             .value=${this.__newValue}
-            .disabled=${this.disabled || !this._isI18nReady}
+            .disabled=${isInputDisabled}
             @change=${this.__handleNewValueChange}
           >
           </x-frequency-input>
@@ -64,13 +67,29 @@ export class FrequencyList extends Translatable {
           <vaadin-button
             data-testid="button"
             class="w-full md:w-auto"
-            .disabled=${this.disabled || !this._isI18nReady}
+            .disabled=${isInputDisabled}
             @click=${this.__handleSubmit}
           >
             <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_option"></x-i18n>
             <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
           </vaadin-button>
         </div>
+
+        ${this.value.length > 0
+          ? html`
+              <x-i18n
+                .ns=${this.ns}
+                .lang=${this.lang}
+                key="fmod.add_option_hint"
+                class=${classMap({
+                  'block text-xs mt-xs': true,
+                  'text-tertiary': this.value.length < 20,
+                  'text-primary': this.value.length >= 20,
+                })}
+              >
+              </x-i18n>
+            `
+          : ''}
       </x-list>
     `;
   }
