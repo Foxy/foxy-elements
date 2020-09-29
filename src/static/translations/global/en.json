@@ -33,6 +33,7 @@
   "remember_me": "Remember me",
   "reset_password": "Reset password",
   "required": "Please fill in this field",
+  "reload": "Reload",
   "choice": {
     "other": "Other",
     "other_placeholder": "Enter your choice"
