@@ -4,6 +4,7 @@ import { ErrorType, FriendlyError } from '../../private/ErrorScreen/ErrorScreen'
 export interface CustomerPortalSettingsContext {
   oldResource: FxCustomerPortalSettings | null;
   newResource: FxCustomerPortalSettings | null;
+  invalid: ('sessionLifespanInMinutes' | 'jwtSharedSecret')[];
   store: FxStore | null;
   error: ErrorType | null;
   href: string | null;
@@ -53,9 +54,11 @@ export interface CustomerPortalSettingsSetNextDateModificationEvent {
 export interface CustomerPortalSettingsSetSecretEvent {
   type: 'SET_SECRET';
   value: string;
+  invalid: boolean;
 }
 
 export interface CustomerPortalSettingsSetSessionEvent {
   type: 'SET_SESSION';
   value: number;
+  invalid: boolean;
 }

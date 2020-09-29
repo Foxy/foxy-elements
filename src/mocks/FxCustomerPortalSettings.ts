@@ -21,7 +21,7 @@ export const customerPortalSettings: FxCustomerPortalSettings = {
   sso: true,
   date_created: new Date().toISOString(),
   date_modified: new Date().toISOString(),
-  jwtSharedSecret: 'JWT-SHARED-SECRET-VALUE',
+  jwtSharedSecret: 'JWTSHAREDSECRETVALUETHATIS40ORMORECHARACTERSLONG',
   sessionLifespanInMinutes: 10080,
   allowedOrigins: ['http://localhost:8000', 'https://foxy.io'],
   subscriptions: {
@@ -66,12 +66,12 @@ export const customerPortalSettingsMinimal: FxCustomerPortalSettings = {
   },
 
   sso: true,
-  jwtSharedSecret: 'JWT-SHARED-SECRET-VALUE',
+  jwtSharedSecret: 'JWTSHAREDSECRETVALUETHATIS40ORMORECHARACTERSLONG',
   sessionLifespanInMinutes: 10080,
   allowedOrigins: [],
 
   subscriptions: {
-    allowFrequencyModification: false,
+    allowFrequencyModification: [],
     allowNextDateModification: false,
   },
 

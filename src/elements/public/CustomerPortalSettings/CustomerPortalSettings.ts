@@ -1,8 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-button';
-import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import '@vaadin/vaadin-text-field/vaadin-password-field';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { cloneDeep } from 'lodash-es';
 import { interpret } from 'xstate';
@@ -20,6 +18,13 @@ import { NextDateModification } from './private/NextDateModification/NextDateMod
 import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
+
+import {
+  SessionDuration,
+  SessionDurationChangeEvent,
+} from './private/SessionDuration/SessionDuration';
+
+import { SessionSecret, SessionSecretChangeEvent } from './private/SessionSecret/SessionSecret';
 import { CustomerPortalSettingsLoadSuccessEvent } from './types';
 
 function throwIfNotOk(response: Response) {
@@ -32,10 +37,10 @@ export class CustomerPortalSettings extends Translatable {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': customElements.get('vaadin-button'),
-      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
-      'vaadin-password-field': customElements.get('vaadin-password-field'),
       'x-frequency-modification': FrequencyModification,
       'x-next-date-modification': NextDateModification,
+      'x-session-duration': SessionDuration,
+      'x-session-secret': SessionSecret,
       'x-loading-screen': LoadingScreen,
       'x-error-screen': ErrorScreen,
       'x-origins-list': OriginsList,
@@ -91,6 +96,8 @@ export class CustomerPortalSettings extends Translatable {
           data-testid="error"
           lang=${this.lang}
           type=${this.__service.state.context.error!}
+          reload
+          @reload=${this.__reload}
         >
         </x-error-screen>
       `;
@@ -102,6 +109,9 @@ export class CustomerPortalSettings extends Translatable {
     const matchesDeleted = this.__service.state.matches('idle.dirty.deleted');
     const matchesUpdated = this.__service.state.matches('idle.dirty.updated');
     const matchesEnabled = this.__service.state.matches('idle.clean.enabled');
+    const matchesInvalid =
+      this.__service.state.matches('idle.dirty.updated.invalid') ||
+      this.__service.state.matches('idle.dirty.created.invalid');
 
     return html`
       <x-page class="relative">
@@ -171,40 +181,33 @@ export class CustomerPortalSettings extends Translatable {
         </x-next-date-modification>
 
         <x-section>
-          <x-i18n slot="title" key="jwt.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-          <x-i18n slot="subtitle" key="jwt.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          <x-i18n slot="title" key="advanced.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
+          <x-i18n slot="subtitle" key="advanced.subtitle" .ns=${this.ns} .lang=${this.lang}>
+          </x-i18n>
 
-          <vaadin-password-field
-            class="w-full"
-            data-testid="jwt"
-            .value=${this._isI18nReady && newResource ? newResource.jwtSharedSecret : ''}
-            .disabled=${!newResource}
-            @change=${(evt: InputEvent) => {
-              const value = (evt.target as HTMLInputElement).value;
-              this.__service.send({ type: 'SET_SECRET', value });
-            }}
-          >
-          </vaadin-password-field>
-        </x-section>
-
-        <x-section>
-          <x-i18n slot="title" key="session.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-          <x-i18n slot="subtitle" key="session.subtitle" .ns=${this.ns} .lang=${this.lang}></x-i18n>
-
-          <vaadin-integer-field
-            min="1"
-            max="40320"
-            style="min-width: 16rem"
-            has-controls
+          <x-session-duration
             data-testid="session"
-            .value=${newResource ? newResource.sessionLifespanInMinutes : ''}
             .disabled=${!newResource}
-            @change=${(evt: InputEvent) => {
-              const value = parseInt((evt.target as HTMLInputElement).value);
-              this.__service.send({ type: 'SET_SESSION', value });
+            .value=${newResource?.sessionLifespanInMinutes ?? 1}
+            .lang=${this.lang}
+            .ns=${this.ns}
+            @change=${({ detail }: SessionDurationChangeEvent) => {
+              this.__service.send({ type: 'SET_SESSION', ...detail });
             }}
           >
-          </vaadin-integer-field>
+          </x-session-duration>
+
+          <x-session-secret
+            data-testid="jwt"
+            .disabled=${!newResource}
+            .value=${newResource?.jwtSharedSecret ?? ''}
+            .lang=${this.lang}
+            .ns=${this.ns}
+            @change=${({ detail }: SessionSecretChangeEvent) => {
+              this.__service.send({ type: 'SET_SECRET', ...detail });
+            }}
+          >
+          </x-session-secret>
         </x-section>
 
         ${this.__service.state.matches('idle.dirty')
@@ -216,6 +219,7 @@ export class CustomerPortalSettings extends Translatable {
                 <vaadin-button
                   data-testid="save"
                   theme="primary ${matchesDeleted ? 'error' : 'success'}"
+                  .disabled=${matchesInvalid}
                   @click=${() => this.__service.send('SAVE')}
                 >
                   <x-i18n
@@ -242,6 +246,14 @@ export class CustomerPortalSettings extends Translatable {
           : ''}
       </x-page>
     `;
+  }
+
+  private async __reload() {
+    this.__service.stop();
+    this.__service
+      .onTransition(({ changed }) => changed && this.requestUpdate())
+      .onChange(() => this.requestUpdate())
+      .start();
   }
 
   private async __load(): Promise<CustomerPortalSettingsLoadSuccessEvent['data']> {

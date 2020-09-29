@@ -23,6 +23,10 @@ const isLoaded = (ctx: CustomerPortalSettingsContext): boolean => {
   return ctx.store !== null;
 };
 
+const isInvalid = (ctx: CustomerPortalSettingsContext): boolean => {
+  return ctx.invalid.length > 0;
+};
+
 const isEnabled = (ctx: CustomerPortalSettingsContext): boolean => {
   return ctx.oldResource !== null;
 };
@@ -58,10 +62,12 @@ const handleSavingSuccess = actions.assign<CustomerPortalSettingsContext>({
 });
 
 const reset = actions.assign<CustomerPortalSettingsContext>({
+  invalid: [],
   newResource: ({ oldResource }) => oldResource,
 });
 
 const create = actions.assign<CustomerPortalSettingsContext>({
+  invalid: [],
   newResource: ctx => ({
     allowedOrigins: [],
     subscriptions: { allowFrequencyModification: [], allowNextDateModification: false },
@@ -116,6 +122,11 @@ const setNextDateModification = actions.assign<CustomerPortalSettingsContext>({
 });
 
 const setSession = actions.assign<CustomerPortalSettingsContext>({
+  invalid: (ctx, evt) => {
+    const key = 'sessionLifespanInMinutes';
+    const invalid = (evt as CustomerPortalSettingsSetSecretEvent).invalid;
+    return ctx.invalid.filter(v => v !== key).concat(...(invalid ? ([key] as const) : []));
+  },
   newResource: ({ newResource }, evt) => {
     const sessionLifespanInMinutes = (evt as CustomerPortalSettingsSetSessionEvent).value;
     return { ...newResource!, sessionLifespanInMinutes };
@@ -123,6 +134,11 @@ const setSession = actions.assign<CustomerPortalSettingsContext>({
 });
 
 const setSecret = actions.assign<CustomerPortalSettingsContext>({
+  invalid: (ctx, evt) => {
+    const key = 'jwtSharedSecret';
+    const invalid = (evt as CustomerPortalSettingsSetSecretEvent).invalid;
+    return ctx.invalid.filter(v => v !== key).concat(...(invalid ? ([key] as const) : []));
+  },
   newResource: ({ newResource }, evt) => {
     const jwtSharedSecret = (evt as CustomerPortalSettingsSetSecretEvent).value;
     return { ...newResource!, jwtSharedSecret };
@@ -160,6 +176,17 @@ const setters = {
   },
 };
 
+const validity = {
+  initial: 'unknown',
+  states: {
+    unknown: {
+      always: [{ target: 'invalid', cond: 'isInvalid' }, { target: 'valid' }],
+    },
+    invalid: {},
+    valid: {},
+  },
+};
+
 export const machine = Machine<CustomerPortalSettingsContext>(
   {
     id: 'cps',
@@ -167,6 +194,7 @@ export const machine = Machine<CustomerPortalSettingsContext>(
     context: {
       oldResource: null,
       newResource: null,
+      invalid: [],
       store: null,
       error: null,
       href: null,
@@ -179,7 +207,7 @@ export const machine = Machine<CustomerPortalSettingsContext>(
           { target: 'busy' },
         ],
       },
-      error: { on: { RESET: { target: 'busy.loading' } } },
+      error: { on: { RELOAD: { target: 'busy.loading' } } },
       busy: {
         initial: 'loading',
         states: {
@@ -243,8 +271,8 @@ export const machine = Machine<CustomerPortalSettingsContext>(
                   { target: 'updated' },
                 ],
               },
-              created: { on: setters },
-              updated: { on: setters },
+              created: { on: setters, ...validity },
+              updated: { on: setters, ...validity },
               deleted: {},
             },
           },
@@ -256,7 +284,7 @@ export const machine = Machine<CustomerPortalSettingsContext>(
     },
   },
   {
-    guards: { isClean, isLoaded, isEnabled, isCreated, isDeleted, isSetupNeeded },
+    guards: { isClean, isLoaded, isInvalid, isEnabled, isCreated, isDeleted, isSetupNeeded },
     services: { load, save },
     actions: {
       setFrequencyModification,
