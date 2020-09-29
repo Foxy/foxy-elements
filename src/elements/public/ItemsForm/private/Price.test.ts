@@ -11,7 +11,7 @@ class TestPrice extends Price {}
 
 customElements.define('x-price', TestPrice);
 
-describe('Price shows the combined price of bundled products', async () => {
+describe('Price shows the combined price of bundled items', async () => {
   let logSpy: sinon.SinonStub;
 
   beforeEach(function () {
