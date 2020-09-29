@@ -41,8 +41,13 @@ export class WeekdayPicker extends MonthdayPicker {
   }
 
   protected _getLabelClass(day: number): string {
-    let base = 'flex items-center justify-center m-xs h-m w-xl rounded font-medium ';
-    base += this.value.includes(day) ? 'text-base bg-primary' : 'bg-contrast-5 text-primary';
+    let base =
+      'flex items-center justify-center m-xs h-m w-xl rounded font-medium transition duration-200 cursor-pointer focus-within:shadow-outline ';
+
+    base += this.value.includes(day)
+      ? 'text-base bg-primary'
+      : 'bg-contrast-5 hover:bg-contrast-10 text-body';
+
     return base;
   }
 
