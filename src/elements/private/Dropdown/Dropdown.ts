@@ -35,11 +35,23 @@ export class Dropdown extends Themeable {
 
   public value: null | string = null;
 
-  public items: null | string[] = null;
+  public items: null | (string | [string, string[]])[] = null;
 
   public getText: (value: string) => string = v => v;
 
   private __unexistentValue = getUnexistentValue();
+
+  private __renderedItems: Record<string, Element> = {};
+
+  private __list: HTMLElement;
+
+  constructor() {
+    super();
+    this.__list = document.createElement('vaadin-list-box');
+    const style = document.createElement('style');
+    style.innerText = Dropdown.styles.toString();
+    this.__list.appendChild(style);
+  }
 
   public render(): TemplateResult {
     return html`
@@ -56,33 +68,66 @@ export class Dropdown extends Themeable {
   }
 
   private __renderItems(root: HTMLElement) {
+    // Create vaadin-list-box element
     let list = root.querySelector('vaadin-list-box');
-
     if (list === null) {
-      list = document.createElement('vaadin-list-box');
-      root.appendChild(list);
+      root.appendChild(this.__list);
+      list = this.__list;
+    }
+    // Clean up keep indicator
+    for (const v of Object.values(this.__renderedItems)) {
+      // add previously created element to the list
+      // removed elements will be dropped at propper time
+      (v as HTMLElement).dataset.keep = '';
     }
 
     const items = this.items ?? [];
-    const renderedItems = list.querySelectorAll('vaadin-item');
-
-    for (let i = 0; i < Math.max(items.length, renderedItems.length); ++i) {
-      if (items[i]) {
-        let item: Element;
-
-        if (renderedItems[i]) {
-          item = renderedItems[i];
-        } else {
-          item = document.createElement('vaadin-item');
-          list.appendChild(item);
+    for (let i = 0; i < items.length; ++i) {
+      if (typeof items[i] === 'string') {
+        this.__addOrKeepItem(items[i] as string, items[i] as string, list).classList.add('item');
+      } else if (Array.isArray(items[i])) {
+        this.__addOrKeepItem(items[i][0], items[i][0], list as Element).classList.add(
+          'item',
+          'divisor'
+        );
+        for (const sub of items[i][1]) {
+          this.__addOrKeepItem(items[i][0] + ': ' + sub, sub, list as Element).classList.add(
+            'sub-item',
+            'ml-l'
+          );
         }
-
-        (item as HTMLInputElement).value = items[i];
-        item.textContent = this.getText(items[i]);
-      } else {
-        renderedItems[i].remove();
       }
     }
+
+    // Remove items not set to keep
+    if (Object.keys(this.__renderedItems).length != list.childElementCount) {
+      for (const v of Object.values(this.__renderedItems)) {
+        const tracked = v as HTMLElement;
+        if (!tracked.dataset.keep) {
+          v.remove();
+          delete this.__renderedItems[tracked.dataset.trackId!];
+        }
+      }
+    }
+  }
+
+  // Adds an element to the dom, creating it if not already created, reusing it
+  // if possible, in any case marking it with a keep signal sot it is not
+  // reumoved.
+  private __addOrKeepItem(key: string, text: string, list: Element): Element {
+    let item: HTMLElement;
+    if (this.__renderedItems[key]) {
+      item = this.__renderedItems[key] as HTMLElement;
+    } else {
+      item = document.createElement('vaadin-item');
+      this.__renderedItems[key] = item;
+      (item as HTMLInputElement).value = key;
+      item.textContent = this.getText(text);
+      list.appendChild(item);
+    }
+    item.dataset.keep = 'true';
+    item.dataset.trackId = key;
+    return item;
   }
 
   private __handleChange(evt: CustomEvent) {
