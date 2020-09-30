@@ -1,8 +1,23 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-select';
+import { registerStyles, css } from '@vaadin/vaadin-themable-mixin/register-styles';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
+
+registerStyles(
+  'vaadin-list-box',
+  css`
+    [part='items'] ::slotted(vaadin-item.designation-divisor) {
+      color: var(--lumo-contrast-40pct);
+      box-shadow: 0 1px var(--lumo-contrast-10pct);
+      border-radius: 0;
+    }
+    [part='items'] ::slotted(vaadin-item.designation-sub-item) {
+      margin-left: var(--lumo-space-l);
+    }
+  `
+);
 
 /**
  * According to Vaadin docs: if you do not want to select any item by default, you can set
@@ -48,9 +63,6 @@ export class Dropdown extends Themeable {
   constructor() {
     super();
     this.__list = document.createElement('vaadin-list-box');
-    const style = document.createElement('style');
-    style.innerText = Dropdown.styles.toString();
-    this.__list.appendChild(style);
   }
 
   public render(): TemplateResult {
@@ -84,16 +96,17 @@ export class Dropdown extends Themeable {
     const items = this.items ?? [];
     for (let i = 0; i < items.length; ++i) {
       if (typeof items[i] === 'string') {
-        this.__addOrKeepItem(items[i] as string, items[i] as string, list).classList.add('item');
+        this.__addOrKeepItem(items[i] as string, items[i] as string, list).classList.add(
+          'designation-item'
+        );
       } else if (Array.isArray(items[i])) {
         this.__addOrKeepItem(items[i][0], items[i][0], list as Element).classList.add(
-          'item',
-          'divisor'
+          'designation-item',
+          'designation-divisor'
         );
         for (const sub of items[i][1]) {
           this.__addOrKeepItem(items[i][0] + ': ' + sub, sub, list as Element).classList.add(
-            'sub-item',
-            'ml-l'
+            'designation-sub-item'
           );
         }
       }
