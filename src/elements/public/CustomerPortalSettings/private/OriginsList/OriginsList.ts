@@ -49,19 +49,20 @@ export class OriginsList extends Translatable {
           .value=${this.value}
           @change=${this.__handleChange}
         >
-          ${this.value.map(
-            (item, index) =>
-              html`
-                <div class="flex items-center" slot=${index}>
-                  <img
-                    height="16"
-                    width="16"
-                    class="mr-m"
-                    src="https://www.google.com/s2/favicons?domain=${item}"
-                  />
-                  ${item}
-                </div>
-              `
+          ${this.value.map((item, index) =>
+            this._isI18nReady
+              ? html`
+                  <div class="flex items-center" slot=${index}>
+                    <img
+                      height="16"
+                      width="16"
+                      class="mr-m"
+                      src="https://www.google.com/s2/favicons?domain=${item}"
+                    />
+                    ${item}
+                  </div>
+                `
+              : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
           )}
 
           <div class="flex flex-col space-y-s sm:space-y-0 sm:flex-row sm:space-x-s sm:items-start">
@@ -82,7 +83,10 @@ export class OriginsList extends Translatable {
               <vaadin-button
                 class="w-full sm:w-auto"
                 data-testid="button"
-                .disabled=${this.disabled || this.__invalid || this.value.length >= 10}
+                .disabled=${!this._isI18nReady ||
+                this.disabled ||
+                this.__invalid ||
+                this.value.length >= 10}
                 @click=${this.__submit}
               >
                 <x-i18n .ns=${this.ns} .lang=${this.lang} key="origins.add"></x-i18n>

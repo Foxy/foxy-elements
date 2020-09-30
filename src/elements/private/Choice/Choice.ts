@@ -14,16 +14,24 @@ import { machine } from './machine';
 
 const VALUE_OTHER = `@foxy.io/elements::other[${(Math.pow(10, 10) * Math.random()).toFixed(0)}]`;
 
-function radio(checked: boolean, attrs: (part: AttributePart) => void, label: TemplateResult) {
+function radio(
+  disabled: boolean,
+  checked: boolean,
+  attrs: (part: AttributePart) => void,
+  label: TemplateResult
+) {
+  const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
+  const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
+  const scale = checked ? 'scale-100' : 'scale-0';
   const ease = 'transition ease-in-out duration-200';
-  const box = `${ease} ${checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30'}`;
-  const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
+  const dot = `${ease} ${disabled ? '' : 'shadow-xs'} transform ${scale}`;
+  const bg = disabled ? disabledBg : enabledBg;
 
   return html`
-    <label class="group flex items-center cursor-pointer">
+    <label class="group flex items-center ${disabled ? '' : 'cursor-pointer'}">
       <div class="item flex items-center justify-center">
-        <div class="flex radio rounded-full ${box} focus-within:shadow-outline">
-          <div class="dot m-auto rounded-full bg-tint shadow-xs ${dot}"></div>
+        <div class="flex radio rounded-full ${ease} ${bg} focus-within:shadow-outline">
+          <div class="dot m-auto rounded-full bg-tint ${dot}"></div>
           <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
@@ -32,15 +40,22 @@ function radio(checked: boolean, attrs: (part: AttributePart) => void, label: Te
   `;
 }
 
-function check(checked: boolean, attrs: (part: AttributePart) => void, label: TemplateResult) {
+function check(
+  disabled: boolean,
+  checked: boolean,
+  attrs: (part: AttributePart) => void,
+  label: TemplateResult
+) {
+  const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
+  const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
   const ease = 'transition ease-in-out duration-200';
-  const box = `${ease} ${checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30'}`;
   const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
+  const bg = disabled ? disabledBg : enabledBg;
 
   return html`
-    <label class="group flex items-center cursor-pointer">
+    <label class="group flex items-center ${disabled ? '' : 'cursor-pointer'}">
       <div class="item flex items-center justify-center text-primary-contrast">
-        <div class="check rounded-s ${box} focus-within:shadow-outline">
+        <div class="check rounded-s ${ease} ${bg} focus-within:shadow-outline">
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
           <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
@@ -187,6 +202,8 @@ export class Choice extends Translatable {
           ? !!this.value?.includes(item)
           : item === String(this.value);
 
+        const disabled = this.disabled || !this._isI18nReady;
+
         const attributes = spread({
           value: other ? VALUE_OTHER : item,
           name: multiple ? item : 'choice',
@@ -222,7 +239,9 @@ export class Choice extends Translatable {
         return html`
           <div class="ml-xxl border-t border-contrast-10 ${index ? '' : 'hidden'}"></div>
 
-          ${multiple ? check(checked, attributes, label) : radio(checked, attributes, label)}
+          ${multiple
+            ? check(disabled, checked, attributes, label)
+            : radio(disabled, checked, attributes, label)}
 
           <div class="mr-m ml-xxl">
             ${item === VALUE_OTHER && otherChecked ? this.__field : ''}

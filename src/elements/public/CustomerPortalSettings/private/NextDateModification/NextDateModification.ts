@@ -40,7 +40,10 @@ export class NextDateModification extends Translatable {
 
   public render(): TemplateResult {
     const isAddButtonDisabled =
-      this.disabled || !this.value || (Array.isArray(this.value) && this.value.length >= 10);
+      !this._isI18nReady ||
+      this.disabled ||
+      !this.value ||
+      (Array.isArray(this.value) && this.value.length >= 10);
 
     return html`
       <x-section>
@@ -49,7 +52,7 @@ export class NextDateModification extends Translatable {
           class="-my-xs"
           data-testid="toggle"
           .checked=${Boolean(this.value)}
-          .disabled=${this.disabled}
+          .disabled=${this.disabled || !this._isI18nReady}
           @change=${this.__toggleValue}
         >
           <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.title" class="text-l"></x-i18n>
@@ -70,7 +73,7 @@ export class NextDateModification extends Translatable {
                 (rule, index, array) => html`
                   <x-next-date-modification-rule
                     data-testid="rule"
-                    .disabled=${this.disabled}
+                    .disabled=${this.disabled || !this._isI18nReady}
                     .value=${rule}
                     .lang=${this.lang}
                     @remove=${() => {

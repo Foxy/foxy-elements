@@ -73,7 +73,7 @@ export class FrequencyModification extends Translatable {
             class="w-full sm:w-auto"
             data-testid="add"
             theme="primary"
-            .disabled=${this.disabled || this.value.length >= 10}
+            .disabled=${this.disabled || this.value.length >= 10 || !this._isI18nReady}
             @click=${this.__addRule}
           >
             <x-i18n .ns=${this.ns} .lang=${this.lang} key="fmod.add_rule"></x-i18n>

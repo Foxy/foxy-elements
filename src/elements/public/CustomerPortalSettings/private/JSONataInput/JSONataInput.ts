@@ -58,7 +58,7 @@ export class JSONataInput extends Translatable {
     return html`
       <x-choice
         data-testid="choice"
-        .disabled=${this.disabled}
+        .disabled=${this.disabled || !this._isI18nReady}
         .value=${this.__choice}
         .items=${this.__items}
         @change=${this.__handleChoiceChange}
@@ -98,9 +98,9 @@ export class JSONataInput extends Translatable {
                   class="w-full"
                   data-testid="input"
                   .errorMessage=${this.__errorMessage}
-                  .disabled=${this.disabled}
+                  .disabled=${this.disabled || !this._isI18nReady}
                   .invalid=${this.__errorMessage.length > 0}
-                  .value=${this.value}
+                  .value=${this._isI18nReady ? this.value : ''}
                   @keydown=${this.__stopNavigation}
                   @change=${(evt: Event) => evt.stopPropagation()}
                   @input=${(evt: InputEvent) =>
