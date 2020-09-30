@@ -117,23 +117,33 @@ const machine = Machine({
       },
     },
     content: {
+      initial: 'any',
       meta: {
         test: async (el: Dropdown) => {
           await testContentLength(el);
           await testContent(el);
         },
       },
-      initial: 'any',
       states: {
         any: {
           on: { INIT: 'initialized', RERENDER: 'rerendered' },
           meta: { test: () => true },
         },
         rerendered: {
-          meta: { test: () => true },
+          meta: {
+            test: async (el: Dropdown) => {
+              await testContentLength(el);
+              await testContent(el);
+            },
+          },
         },
         initialized: {
-          meta: { test: () => true },
+          meta: {
+            test: async (el: Dropdown) => {
+              await testContentLength(el);
+              await testContent(el);
+            },
+          },
         },
       },
     },

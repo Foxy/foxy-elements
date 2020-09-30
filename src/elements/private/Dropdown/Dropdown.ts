@@ -92,8 +92,6 @@ export class Dropdown extends Themeable {
     }
     // Clean up keep indicator
     for (const v of Object.values(this.__renderedItems)) {
-      // add previously created element to the list
-      // removed elements will be dropped at propper time
       (v as HTMLElement).dataset.keep = '';
     }
 
@@ -116,13 +114,11 @@ export class Dropdown extends Themeable {
     }
 
     // Remove items not set to keep
-    if (Object.keys(this.__renderedItems).length != list.childElementCount) {
-      for (const v of Object.values(this.__renderedItems)) {
-        const tracked = v as HTMLElement;
-        if (!tracked.dataset.keep) {
-          v.remove();
-          delete this.__renderedItems[tracked.dataset.trackId!];
-        }
+    for (const v of Object.values(this.__renderedItems)) {
+      const tracked = v as HTMLElement;
+      if (!tracked.dataset.keep) {
+        v.remove();
+        delete this.__renderedItems[tracked.dataset.trackId!];
       }
     }
   }
