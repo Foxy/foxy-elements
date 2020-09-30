@@ -299,24 +299,22 @@ export class Donation extends Translatable {
       <section>
         ${this.designations && this.designations.length > 0
           ? html`
-              <x-group frame>
-                <x-i18n ns=${this.ns} lang=${this.lang} key="designation" slot="header"></x-i18n>
-                <x-dropdown
-                  ?custom=${!!this.custom?.includes('designation')}
-                  .items=${this.designations}
-                  .value=${Array.isArray(this.designation)
-                    ? '${this.designation[0]}: ${this.designation[1]}'
-                    : this.designation}
-                  type="textarea"
-                  lang=${this.lang}
-                  ns=${this.ns}
-                  data-testid="designation"
-                  @change=${(evt: DropdownChangeEvent) => {
-                    this.designation = evt.detail as string;
-                  }}
-                >
-                </x-dropdown>
-              </x-group>
+              <x-dropdown
+                ?custom=${!!this.custom?.includes('designation')}
+                .label=${this._t('designation').toString()}
+                .items=${this.designations}
+                .value=${Array.isArray(this.designation)
+                  ? '${this.designation[0]}: ${this.designation[1]}'
+                  : this.designation}
+                type="textarea"
+                lang=${this.lang}
+                ns=${this.ns}
+                data-testid="designation"
+                @change=${(evt: DropdownChangeEvent) => {
+                  this.designation = evt.detail as string;
+                }}
+              >
+              </x-dropdown>
 
               <slot name="designation" class="block my-m"></slot>
             `
