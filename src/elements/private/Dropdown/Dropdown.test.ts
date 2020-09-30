@@ -202,30 +202,11 @@ const model = createModel<Dropdown>(machine).withEvents({
 });
 
 describe('Dropdown', () => {
-  let dropDownElement: Dropdown;
-
-  before(async function () {
-    try {
-      dropDownElement = await fixture('<x-dropdown></x-dropdown>');
-    } catch (e) {
-      throw new Error('could not create element');
-    }
-  });
-
-  beforeEach(async function () {
-    // reset the element
-    dropDownElement.removeAttribute('disable');
-    const drop = dropDownElement as Dropdown;
-    drop.disabled = false;
-    drop.items = [];
-    drop.value = '';
-  });
-
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
         it(path.description, async () => {
-          await path.test(dropDownElement);
+          await path.test(await fixture('<x-dropdown></x-dropdown>'));
         });
       });
     });
