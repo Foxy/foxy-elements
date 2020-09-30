@@ -1,6 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
@@ -62,14 +63,14 @@ export class NextDateModificationRule extends Translatable {
       <x-group frame>
         <details
           data-testid="details"
-          class="font-lumo"
+          class=${classMap({ 'font-lumo': true, 'pointer-events-none': !this._isI18nReady })}
           ?open=${this.open}
           @toggle=${() => (this.open = !this.open)}
         >
           <summary
             class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus:outline-none focus:shadow-outline"
           >
-            <div class="p-m text-m text-header font-medium space-y-s">
+            <div class="p-m mr-xl text-m text-header font-medium space-y-s">
               <div>
                 <x-i18n
                   .ns=${this.ns}
@@ -95,7 +96,7 @@ export class NextDateModificationRule extends Translatable {
 
             <button
               data-testid="remove"
-              .disabled=${this.disabled}
+              .disabled=${this.disabled || !this._isI18nReady}
               class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
               style="width: 54px; height: 54px"
               @click=${prevent(() => this.dispatchEvent(new NextDateModificationRuleRemoveEvent()))}
@@ -113,7 +114,7 @@ export class NextDateModificationRule extends Translatable {
                 .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${jsonataQuery}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${(evt: JSONataInputChangeEvent) => {
                   this.value = { ...this.value, jsonataQuery: evt.detail as string };
                   this.__sendUpdate();
@@ -129,7 +130,7 @@ export class NextDateModificationRule extends Translatable {
                   type="min"
                   .lang=${this.lang}
                   .value=${min}
-                  .disabled=${this.disabled}
+                  .disabled=${this.disabled || !this._isI18nReady}
                   @change=${(evt: OffsetInputChangeEvent) => {
                     this.value = { ...this.value, min: evt.detail };
                     this.__sendUpdate();
@@ -144,7 +145,7 @@ export class NextDateModificationRule extends Translatable {
                   type="max"
                   .lang=${this.lang}
                   .value=${max}
-                  .disabled=${this.disabled}
+                  .disabled=${this.disabled || !this._isI18nReady}
                   @change=${(evt: OffsetInputChangeEvent) => {
                     this.value = { ...this.value, max: evt.detail };
                     this.__sendUpdate();
@@ -169,7 +170,7 @@ export class NextDateModificationRule extends Translatable {
                 data-testid="allowed"
                 .lang=${this.lang}
                 .value=${allowedDays}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${(evt: AllowedDaysChangeEvent) => {
                   this.value = { ...this.value, allowedDays: evt.detail };
                   this.__sendUpdate();
@@ -187,7 +188,7 @@ export class NextDateModificationRule extends Translatable {
                 .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${disallowedDates ?? []}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${(evt: DisallowedDatesChangeEvent) => {
                   this.value = { ...this.value, disallowedDates: evt.detail };
                   this.__sendUpdate();

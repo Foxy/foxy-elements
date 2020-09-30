@@ -73,30 +73,33 @@ export class SessionDuration extends Translatable {
     return html`
       <div class="text-xs text-tertiary font-lumo">
         <vaadin-custom-field
-          ?disabled=${this.disabled}
-          .label=${this._t('session.title').toString()}
-          .value=${this.value.toString()}
+          ?disabled=${this.disabled || !this._isI18nReady}
+          .label=${this._isI18nReady ? this._t('session.title').toString() : '---'}
+          .value=${this._isI18nReady ? this.value.toString() : ''}
           .i18n=${this.__customFieldI18n}
           @change=${this.__handleChange}
         >
-          <vaadin-integer-field .disabled=${this.disabled} min="1" has-controls>
+          <vaadin-integer-field
+            .disabled=${this.disabled || !this._isI18nReady}
+            .min=${1}
+            has-controls
+          >
           </vaadin-integer-field>
 
           <vaadin-select
-            .disabled=${this.disabled}
+            .disabled=${this.disabled || !this._isI18nReady}
             .renderer=${this._isI18nReady ? this.__renderer : null}
           >
           </vaadin-select>
         </vaadin-custom-field>
 
+        <br />
+
         <x-i18n
           .lang=${this.lang}
           .ns=${this.ns}
           .key=${this._t(`session.${this.__errorMessage ?? 'subtitle'}`).toString()}
-          class=${classMap({
-            'text-error': this.__errorMessage !== null && !this.disabled,
-            block: true,
-          })}
+          class=${classMap({ 'text-error': this.__errorMessage !== null && !this.disabled })}
         >
         </x-i18n>
       </div>

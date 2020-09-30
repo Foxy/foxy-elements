@@ -77,19 +77,24 @@ export class MonthdayPicker extends Translatable {
 
   protected _getLabelClass(day: number): string {
     let base =
-      'flex items-center justify-center m-xs p-s rounded text-m font-medium transition duration-200 cursor-pointer ';
+      'flex items-center justify-center m-xs p-s rounded text-m font-medium transition duration-200 sm:p-0 sm:h-m sm:w-l ';
 
-    base += 'sm:p-0 sm:h-m sm:w-l ';
-    base += this.value.includes(day) ? 'text-base ' : 'bg-contrast-5 hover:bg-primary-10 ';
+    if (!this.value.includes(day)) base += 'bg-contrast-5 ';
 
-    if (day < 29) {
-      base += 'focus-within:shadow-outline ';
-      base += this.value.includes(day) ? 'bg-primary' : 'text-body';
-    }
+    if (this._isI18nReady && !this.disabled) {
+      base += 'cursor-pointer ';
+      base += this.value.includes(day) ? 'text-base ' : 'hover:bg-primary-10 ';
 
-    if (day > 28) {
-      base += 'focus-within:shadow-outline-error ';
-      base += this.value.includes(day) ? 'bg-error' : 'text-error';
+      if (day < 29) {
+        base += 'focus-within:shadow-outline ';
+        base += this.value.includes(day) ? 'bg-primary' : 'text-body';
+      } else {
+        base += 'focus-within:shadow-outline-error ';
+        base += this.value.includes(day) ? 'bg-error' : 'text-error';
+      }
+    } else {
+      base += 'text-transparent ';
+      if (this.value.includes(day)) base += day < 29 ? 'bg-primary-50' : 'bg-error-10';
     }
 
     return base;

@@ -65,7 +65,7 @@ export class AllowedDays extends Translatable {
                 class="mb-m"
                 data-testid="monthday-picker"
                 .lang=${this.lang}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 .value=${this.value.days}
                 @change=${this.__handleNewValueChange}
               >
@@ -78,7 +78,7 @@ export class AllowedDays extends Translatable {
                 class="mb-m"
                 data-testid="weekday-picker"
                 .lang=${this.lang}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 .value=${this.value.days}
                 @change=${this.__handleNewValueChange}
               >
