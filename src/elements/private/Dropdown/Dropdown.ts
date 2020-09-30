@@ -8,12 +8,12 @@ import { DropdownChangeEvent } from './DropdownChangeEvent';
 registerStyles(
   'vaadin-list-box',
   css`
-    [part='items'] ::slotted(vaadin-item.designation-divisor) {
+    [part='items'] ::slotted(vaadin-item.dropdown-divisor) {
       color: var(--lumo-contrast-40pct);
       box-shadow: 0 1px var(--lumo-contrast-10pct);
       border-radius: 0;
     }
-    [part='items'] ::slotted(vaadin-item.designation-sub-item) {
+    [part='items'] ::slotted(vaadin-item.dropdown-sub-item) {
       margin-left: var(--lumo-space-l);
     }
   `
@@ -101,16 +101,15 @@ export class Dropdown extends Themeable {
     for (let i = 0; i < items.length; ++i) {
       if (typeof items[i] === 'string') {
         this.__addOrKeepItem(items[i] as string, items[i] as string, list).classList.add(
-          'designation-item'
+          'dropdown-item'
         );
       } else if (Array.isArray(items[i])) {
-        this.__addOrKeepItem(items[i][0], items[i][0], list as Element).classList.add(
-          'designation-item',
-          'designation-divisor'
-        );
+        const divisor = this.__addOrKeepItem(items[i][0], items[i][0], list as Element);
+        divisor.classList.add('dropdown-item', 'dropdown-divisor');
+        (divisor as HTMLInputElement).disabled = true;
         for (const sub of items[i][1]) {
           this.__addOrKeepItem(items[i][0] + ': ' + sub, sub, list as Element).classList.add(
-            'designation-sub-item'
+            'dropdown-sub-item'
           );
         }
       }
