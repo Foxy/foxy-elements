@@ -42,11 +42,14 @@ export class Dropdown extends Themeable {
       disabled: { type: Boolean },
       getText: { type: Object, attribute: false },
       items: { type: Array },
+      label: { type: String },
       value: { type: String },
     };
   }
 
   public disabled = false;
+
+  public label = '';
 
   public value: null | string = null;
 
@@ -68,8 +71,9 @@ export class Dropdown extends Themeable {
   public render(): TemplateResult {
     return html`
       <vaadin-select
-        class="w-full"
+        class="w-full -mt-m"
         data-testid="select"
+        .label=${this.label}
         .value=${this.value === null ? this.__unexistentValue : this.value}
         .disabled=${this.disabled}
         .renderer=${this.__renderItems.bind(this)}

@@ -41,6 +41,8 @@ async function testContentLength(elm: Dropdown) {
 }
 
 function testContent(elm: Dropdown) {
+  expect(getSelect(elm)).to.have.property('label', elm.label);
+
   if (elm.items) {
     let subItemCount = 0;
     let pendingSubitems = 0;
