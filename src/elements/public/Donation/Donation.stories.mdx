@@ -121,13 +121,18 @@ Quite often it's suitable to ask users for a donation amount outside of the list
 
 ## Adding designations
 
-Sometimes you might want to ask your donners to pick a cause to contribute to, which can be particularly useful if your organization has multiple donation-sponsored programs. To display a designation picker, provide the list of choices in the `designations` attribute value in form of a JSON array like this: `designations=["Medical Care", "Daily Meals", "Housing"]`. You can also pre-select a specific designation by setting the `designation` attribute: `designation='"Daily Meals"'`. Please note that `designation` accepts only JSON values.
+Sometimes you might want to ask your donners to pick a cause to contribute to, which can be particularly useful if your organization has multiple donation-sponsored programs. To display a designation picker, provide the list of choices in the `designations` attribute value in form of a JSON array like this: `designations=["Medical Care", "Daily Meals", "Housing"]`. You can also pre-select a specific designation by setting the `designation` attribute: `designation="Daily Meals"`.
+
+You can aggregate multiple designation under categories, for example: `designations='["Medical Care", ["Nutrition", ["Daily Meals", "Infant Nutrition Aid", "Elderly Nutrition Suplement"]], "Housing"]'`.
+
+If an aggregated designation is to be the default choice, set the `designation` attribute as `ParentDesignation: ChildDesignation`. Here is an example to set `Daily Meals` as the default in the list used above example: `designation: "Nutrition: Daily Meals"`.
+
 
 <Canvas
   mdxSource={dedent`
     <foxy-donation
-      designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='"Daily Meals"'
+      designations='["Medical Care", ["Nutrition", ["Daily Meals", "Infant Nutrition Aid", "Elderly Nutrition Suplement"]], "Housing"]'
+      designation="Nutrition: Daily Meals"
       currency="usd"
       amounts="[25, 50, 75]"
       amount="25"
@@ -141,8 +146,8 @@ Sometimes you might want to ask your donners to pick a cause to contribute to, w
   <Story
     name="Designation options"
     args={{
-      designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: 'Daily Meals',
+      designations: ['Medical Care', ['Nutrition', ['Daily Meals', 'Infant Nutrition Aid', 'Elderly Nutrition Suplement']], 'Housing'],
+      designation: 'Nutrition: Daily Meals',
       amounts: [25, 50, 75],
       custom: ['amount'],
     }}
@@ -151,35 +156,6 @@ Sometimes you might want to ask your donners to pick a cause to contribute to, w
   </Story>
 </Canvas>
 
-Multiple selection is also possible. To turn it on, simply assign a JSON array instead of a string to the `designation` attribute like so: `designation='["Daily Meals", "Housing"]'`.
-
-<Canvas
-  mdxSource={dedent`
-    <foxy-donation
-      designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
-      currency="usd"
-      amounts="[25, 50, 75]"
-      amount="25"
-      custom='["amount"]'
-      store="jamstackecommerceexample"
-      name="One-Time Donation"
-    >
-    </foxy-donation>
-  `}
->
-  <Story
-    name="Multiple designations"
-    args={{
-      designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
-      amounts: [25, 50, 75],
-      custom: ['amount'],
-    }}
-  >
-    {args => html`${getTemplate(args)}`}
-  </Story>
-</Canvas>
 
 Just like with the amount, you can enable custom designations by adding "designation" to the `custom` attribute array: `custom='["amount", "designation"]'`. This works both in single and multiple selection modes.
 
@@ -187,7 +163,7 @@ Just like with the amount, you can enable custom designations by adding "designa
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation='Housing'
       currency="usd"
       amounts="[25, 50, 75]"
       amount="25"
@@ -202,7 +178,7 @@ Just like with the amount, you can enable custom designations by adding "designa
     name="Custom designation"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: 'Housing',
       amounts: [25, 50, 75],
       custom: ['amount', 'designation'],
     }}
@@ -219,7 +195,7 @@ You can easily allow your website visitors to commit to a recurrent contribution
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation="Housing",
       currency="usd"
       amounts="[25, 50, 75]"
       amount="25"
@@ -235,7 +211,7 @@ You can easily allow your website visitors to commit to a recurrent contribution
     name="Recurrent donation"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: "Housing",
       frequency: '1m',
       amounts: [25, 50, 75],
       custom: ['amount', 'designation'],
@@ -245,13 +221,13 @@ You can easily allow your website visitors to commit to a recurrent contribution
   </Story>
 </Canvas>
 
-If you feel like providing no recurrence options is a bit restrictive, you can use the `frequencies` attribute to give your donners more choice. Let's add twice a month, every month and every year as options in addition to a one-time payment: `frequencies='[" ", ".5m", "1m", "1y"]'`. Note how we've used a JSON array here – just like in `designations` and `amounts`.
+If you feel like providing no recurrence options is a bit restrictive, you can use the `frequencies` attribute to give your donners more choice. Let's add twice a month, every month and every year as options in addition to a one-time payment: `frequencies='[" ", ".5m", "1m", "1y"]'`. Note how we've used a JSON array here – just like in `amounts`.
 
 <Canvas
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation='Housing'
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -268,7 +244,7 @@ If you feel like providing no recurrence options is a bit restrictive, you can u
     name="Recurrence options"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: 'Housing',
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       amounts: [25, 50, 75],
@@ -287,7 +263,7 @@ If you'd like your donners to be able to leave a short message (visible only to 
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation="Daily Meals"
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -305,7 +281,7 @@ If you'd like your donners to be able to leave a short message (visible only to 
     name="Comment"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: 'Daily Meals',
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       amounts: [25, 50, 75],
@@ -325,7 +301,7 @@ Giving your donners an option to remain anonymous is often a reasonable idea. Wh
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation="Housing"
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -344,7 +320,7 @@ Giving your donners an option to remain anonymous is often a reasonable idea. Wh
     name="Anonymity"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: "Housing",
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
@@ -363,7 +339,7 @@ You can also enable anonymous donations by default by setting the `anonymous` at
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation="Housing"
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -383,7 +359,7 @@ You can also enable anonymous donations by default by setting the `anonymous` at
     name="Anonymous by default"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: "Housing",
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
@@ -405,7 +381,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation="Housing"
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -427,7 +403,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
     name="Cart display"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: "Housing",
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
@@ -445,13 +421,13 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
 
 ## Add your own markup
 
-You can insert your own content in a number of pre-defined places called slots. This element has 3 of them: `amount`, `designation` and `comment`, and you can assign any element node to any of them by setting an attribute on it like so: `slot="comment"`. Please note that your content will be displayed only if the relevant group is present on the screen. You can see the position of each one of them below:
+You can insert your own content in a number of pre-defined places called slots.  This element has 3 of them: `amount`, `designation` and `comment`, and you can assign any element node to any of them by setting an attribute on it like so: `slot="comment"`. Please note that your content will be displayed only if the relevant group is present on the screen. You can see the position of each one of them below:
 
 <Canvas
   mdxSource={dedent`
     <foxy-donation
       designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='["Daily Meals", "Housing"]'
+      designation="Housing"
       frequencies='[" ", ".5m", "1m", "1y"]'
       frequency="1m"
       currency="usd"
@@ -476,7 +452,7 @@ You can insert your own content in a number of pre-defined places called slots. 
     name="Slots"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: ['Daily Meals', 'Housing'],
+      designation: "Housing",
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,

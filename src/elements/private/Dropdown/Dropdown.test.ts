@@ -1,6 +1,6 @@
 import { Machine } from 'xstate';
 import { Dropdown } from './Dropdown';
-import { expect, fixture } from '@open-wc/testing';
+import { elementUpdated, expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
 
@@ -17,33 +17,81 @@ function getItems(elm: Dropdown) {
   return vaadinShadow.querySelectorAll(selector) as NodeListOf<HTMLOptionElement>;
 }
 
-function testDisabled(elm: Dropdown) {
+async function testDisabled(elm: Dropdown) {
   expect(getSelect(elm).disabled).to.be.true;
 }
 
-function testEnabled(elm: Dropdown) {
+async function testEnabled(elm: Dropdown) {
+  await elementUpdated(elm);
   expect(getSelect(elm).disabled).to.be.false;
 }
 
+async function testContentLength(elm: Dropdown) {
+  let total = 0;
+  if (elm.items) {
+    elm.items!.forEach(i => {
+      if (Array.isArray(i)) {
+        total += i[1].length + 1;
+      } else {
+        total += 1;
+      }
+    });
+    expect(total).to.equal(getItems(elm)?.length ?? 0);
+  }
+}
+
 function testContent(elm: Dropdown) {
-  const items = Array.from(getItems(elm));
+  expect(getSelect(elm)).to.have.property('label', elm.label);
 
-  expect(items.length).to.equal(elm.items?.length ?? 0);
-
-  items.forEach((item, index) => {
-    expect(item.value).to.equal(elm.items![index]);
-    expect(item.textContent).to.equal(elm.getText(elm.items![index]));
-  });
+  if (elm.items) {
+    let subItemCount = 0;
+    let pendingSubitems = 0;
+    // Avoid creating an array from the node list to try to avoid timeout issues
+    getItems(elm).forEach((e, i) => {
+      // Item is array
+      if (Array.isArray(elm.items![i - subItemCount])) {
+        // Head item
+        if (pendingSubitems == 0) {
+          expect(e.value).to.equal(elm.items![i - subItemCount][0]);
+          expect(e.textContent).to.equal(elm.getText(elm.items![i][0] as string));
+          pendingSubitems += elm.items![i - subItemCount][1].length;
+        } else {
+          // Other items in item array
+          const parentItem = elm.items![i - subItemCount][0];
+          const subitem = elm.items![i - subItemCount][1][
+            elm.items![i - subItemCount].length - pendingSubitems
+          ];
+          expect(e.value).to.equal(`${parentItem}: ${subitem}`);
+          expect(e.textContent).to.equal(elm.getText(subitem));
+          pendingSubitems -= 1;
+        }
+        // Add a subitem count
+        subItemCount += pendingSubitems ? 1 : 0;
+      } else {
+        expect(e.value).to.equal(elm.items![i - subItemCount]);
+        expect(e.textContent).to.equal(elm.getText(elm.items![i - subItemCount] as string));
+      }
+    });
+  }
 }
 
 async function testSelection(elm: Dropdown) {
   const whenFired = new Promise(resolve => elm.addEventListener('change', resolve));
   const select = getSelect(elm);
 
-  select.value = elm.items![0];
+  select.value = elm.items![0] as string;
   select.dispatchEvent(new CustomEvent('change'));
-
-  expect(await whenFired).to.be.instanceOf(DropdownChangeEvent);
+  let fired;
+  try {
+    fired = await whenFired;
+  } catch (e) {
+    throw new Error('Change event did not fire');
+  }
+  try {
+    expect(fired).to.be.instanceOf(DropdownChangeEvent);
+  } catch (e) {
+    throw new Error('Fired event is not an instance of DropdownChangeEvent');
+  }
 }
 
 const machine = Machine({
@@ -60,27 +108,42 @@ const machine = Machine({
         enabled: {
           on: { DISABLE: 'disabled', SELECT: '.selected' },
           meta: { test: testEnabled },
-          initial: 'any',
           states: {
-            any: { meta: { test: () => true } },
-            selected: { meta: { test: testSelection } },
+            selected: {
+              meta: { test: async (el: Dropdown) => testSelection(el) },
+            },
           },
         },
       },
     },
     content: {
-      meta: { test: testContent },
       initial: 'any',
+      meta: {
+        test: async (el: Dropdown) => {
+          await testContentLength(el);
+          await testContent(el);
+        },
+      },
       states: {
         any: {
           on: { INIT: 'initialized', RERENDER: 'rerendered' },
           meta: { test: () => true },
         },
         rerendered: {
-          meta: { test: () => true },
+          meta: {
+            test: async (el: Dropdown) => {
+              await testContentLength(el);
+              await testContent(el);
+            },
+          },
         },
         initialized: {
-          meta: { test: () => true },
+          meta: {
+            test: async (el: Dropdown) => {
+              await testContentLength(el);
+              await testContent(el);
+            },
+          },
         },
       },
     },
@@ -134,6 +197,16 @@ const model = createModel<Dropdown>(machine).withEvents({
       { value: 'foo', getText: (v: string) => v.toUpperCase() },
       { items: ['foo', 'bar'], getText: (v: string) => v.toUpperCase() },
       { value: 'foo', items: ['foo', 'bar'], getText: (v: string) => v.toUpperCase() },
+      {
+        value: 'foo',
+        items: ['foo', ['bar', ['baz', 'qux']]],
+        getText: (v: string) => v.toUpperCase(),
+      },
+      {
+        value: 'bar: qux',
+        items: ['foo', ['bar', ['baz', 'qux']]],
+        getText: (v: string) => v.toUpperCase(),
+      },
     ],
   },
 });
@@ -142,7 +215,9 @@ describe('Dropdown', () => {
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
-        it(path.description, async () => path.test(await fixture('<x-dropdown></x-dropdown>')));
+        it(path.description, async () => {
+          await path.test(await fixture('<x-dropdown></x-dropdown>'));
+        });
       });
     });
   });

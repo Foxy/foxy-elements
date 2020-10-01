@@ -155,7 +155,7 @@ export class Donation extends Translatable {
    * **Example:** `"Medical Care"`
    * **Example:** `["Medical Care", "Daily Meals"]`
    */
-  public designation: null | string | string[] = null;
+  public designation: null | string = null;
 
   /**
    * Optional donation designation(s) variants. If this property is set,
@@ -299,22 +299,22 @@ export class Donation extends Translatable {
       <section>
         ${this.designations && this.designations.length > 0
           ? html`
-              <x-group frame>
-                <x-i18n ns=${this.ns} lang=${this.lang} key="designation" slot="header"></x-i18n>
-                <x-choice
-                  ?custom=${!!this.custom?.includes('designation')}
-                  .items=${this.designations}
-                  .value=${this.designation}
-                  type="textarea"
-                  lang=${this.lang}
-                  ns=${this.ns}
-                  data-testid="designation"
-                  @change=${(evt: ChoiceChangeEvent) => {
-                    this.designation = evt.detail as string[];
-                  }}
-                >
-                </x-choice>
-              </x-group>
+              <x-dropdown
+                ?custom=${!!this.custom?.includes('designation')}
+                .label=${this._t('designation').toString()}
+                .items=${this.designations}
+                .value=${Array.isArray(this.designation)
+                  ? '${this.designation[0]}: ${this.designation[1]}'
+                  : this.designation}
+                type="textarea"
+                lang=${this.lang}
+                ns=${this.ns}
+                data-testid="designation"
+                @change=${(evt: DropdownChangeEvent) => {
+                  this.designation = evt.detail as string;
+                }}
+              >
+              </x-dropdown>
 
               <slot name="designation" class="block my-m"></slot>
             `
@@ -406,9 +406,7 @@ export class Donation extends Translatable {
     const data = new FormData();
 
     if (typeof this.designation === 'string') {
-      data.set('designation', this.designation);
-    } else if (Array.isArray(this.designation)) {
-      data.set('designation', JSON.stringify(this.designation));
+      data.set('designation', this.__capitalize(this.designation));
     }
 
     if (typeof this.amount === 'number' && typeof this.currency === 'string') {
@@ -420,13 +418,13 @@ export class Donation extends Translatable {
     if (typeof this.comment === 'string') data.set('comment', this.comment);
     if (typeof this.image === 'string') data.set('image', this.image);
     if (typeof this.code === 'string') data.set('code', this.code);
-    if (typeof this.name === 'string') data.set('name', this.name);
+    if (typeof this.name === 'string') data.set('name', this.__capitalize(this.name));
     if (typeof this.url === 'string') data.set('url', this.url);
     if (typeof this.cart === 'string') data.set('cart', this.cart);
 
     if (this.empty) data.set('empty', this.empty);
     else data.delete('empty');
-    if (this.anonymous) data.set('anonymous', this.anonymous.toString());
+    if (this.anonymous) data.set('anonymous', this.__capitalize(this.anonymous.toString()));
     else data.delete('anonymous');
 
     data.set('quantity', '1');
@@ -455,5 +453,11 @@ export class Donation extends Translatable {
       currency: this.currency!,
       style: 'currency',
     });
+  }
+
+  // helper function to capitalize first letter
+  private __capitalize(str: string) {
+    const trimmed = str.trim();
+    return trimmed.charAt(0) + trimmed.slice(1);
   }
 }

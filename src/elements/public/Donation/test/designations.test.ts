@@ -9,7 +9,6 @@ import { ChoiceChangeEvent } from '../../../private/events';
 const samples = {
   designations: ['Designation one', 'Designation two', 'Designation three'],
   designation: {
-    array: ['Designation one', 'Designation two'],
     string: 'Designation one',
     custom: 'Custom designation',
   },
@@ -42,18 +41,6 @@ async function expectStringDesignation(element: Donation) {
   const sample = samples.designation.string;
 
   expect(field.value, 'designation must be in the form').to.equal(sample);
-  expect(element.designation, 'designation must equal sample').to.equal(sample);
-}
-
-async function expectArrayDesignation(element: Donation) {
-  await element.updateComplete;
-
-  const form = getRefs<Refs>(element).form;
-  const field = form?.elements.namedItem('designation') as HTMLInputElement;
-  const sample = samples.designation.array;
-  const encodedSample = JSON.stringify(sample);
-
-  expect(field.value, 'designation must be in the form').to.equal(encodedSample);
   expect(element.designation, 'designation must equal sample').to.equal(sample);
 }
 
@@ -109,7 +96,6 @@ const machine = createMachine({
               meta: { test: expectCustomDesignationToBeDisallowed },
               on: {
                 SET_DESIGNATIONS: '#designations.on.null.predefined',
-                SET_DESIGNATION_ARRAY: '#designations.off.array.predefined',
                 SET_DESIGNATION_STRING: '#designations.off.string.predefined',
                 ENABLE_CUSTOM_DESIGNATIONS: 'custom',
               },
@@ -118,7 +104,6 @@ const machine = createMachine({
               meta: { test: expectCustomDesignationToBeAllowed },
               on: {
                 SET_DESIGNATIONS: '#designations.on.null.custom',
-                SET_DESIGNATION_ARRAY: '#designations.off.array.custom',
                 SET_DESIGNATION_STRING: '#designations.off.string.custom',
                 DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
               },
@@ -134,7 +119,6 @@ const machine = createMachine({
               on: {
                 SET_DESIGNATIONS: '#designations.on.string.predefined',
                 SET_DESIGNATION_NULL: '#designations.off.null.predefined',
-                SET_DESIGNATION_ARRAY: '#designations.off.array.predefined',
                 ENABLE_CUSTOM_DESIGNATIONS: 'custom',
               },
             },
@@ -143,31 +127,6 @@ const machine = createMachine({
               on: {
                 SET_DESIGNATIONS: '#designations.on.string.custom',
                 SET_DESIGNATION_NULL: '#designations.off.null.custom',
-                SET_DESIGNATION_ARRAY: '#designations.off.array.custom',
-                DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
-              },
-            },
-          },
-        },
-        array: {
-          meta: { test: expectArrayDesignation },
-          initial: 'predefined',
-          states: {
-            predefined: {
-              meta: { test: expectCustomDesignationToBeDisallowed },
-              on: {
-                SET_DESIGNATIONS: '#designations.on.array.predefined',
-                SET_DESIGNATION_NULL: '#designations.off.null.predefined',
-                SET_DESIGNATION_STRING: '#designations.off.string.predefined',
-                ENABLE_CUSTOM_DESIGNATIONS: 'custom',
-              },
-            },
-            custom: {
-              meta: { test: expectCustomDesignationToBeAllowed },
-              on: {
-                SET_DESIGNATIONS: '#designations.on.array.custom',
-                SET_DESIGNATION_NULL: '#designations.off.null.custom',
-                SET_DESIGNATION_STRING: '#designations.off.string.custom',
                 DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
               },
             },
@@ -187,7 +146,6 @@ const machine = createMachine({
               meta: { test: expectDesignationPickerNotToBeCustomizable },
               on: {
                 UNSET_DESIGNATIONS: '#designations.off.null.predefined',
-                SET_DESIGNATION_ARRAY: '#designations.on.array.predefined',
                 SET_DESIGNATION_STRING: '#designations.on.string.predefined.set',
                 CHECK_DESIGNATION: '#designations.on.string.predefined.checked',
                 ENABLE_CUSTOM_DESIGNATIONS: 'custom',
@@ -197,7 +155,6 @@ const machine = createMachine({
               meta: { test: expectDesignationPickerToBeCustomizable },
               on: {
                 UNSET_DESIGNATIONS: '#designations.off.null.custom',
-                SET_DESIGNATION_ARRAY: '#designations.on.array.custom',
                 SET_DESIGNATION_STRING: '#designations.on.string.custom',
                 CHECK_DESIGNATION: '#designations.on.string.custom.checked',
                 DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
@@ -219,7 +176,6 @@ const machine = createMachine({
               on: {
                 UNSET_DESIGNATIONS: '#designations.off.string.predefined',
                 SET_DESIGNATION_NULL: '#designations.on.null.predefined',
-                SET_DESIGNATION_ARRAY: '#designations.on.array.predefined',
                 ENABLE_CUSTOM_DESIGNATIONS: 'custom',
               },
             },
@@ -233,32 +189,6 @@ const machine = createMachine({
               on: {
                 UNSET_DESIGNATIONS: '#designations.off.string.custom',
                 SET_DESIGNATION_NULL: '#designations.on.null.custom',
-                SET_DESIGNATION_ARRAY: '#designations.on.array.custom',
-                DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
-              },
-            },
-          },
-        },
-
-        array: {
-          meta: { test: expectArrayDesignation },
-          initial: 'predefined',
-          states: {
-            predefined: {
-              meta: { test: expectDesignationPickerNotToBeCustomizable },
-              on: {
-                UNSET_DESIGNATIONS: '#designations.off.array.predefined',
-                SET_DESIGNATION_NULL: '#designations.on.null.predefined',
-                SET_DESIGNATION_STRING: '#designations.on.string.predefined',
-                ENABLE_CUSTOM_DESIGNATIONS: 'custom',
-              },
-            },
-            custom: {
-              meta: { test: expectDesignationPickerToBeCustomizable },
-              on: {
-                UNSET_DESIGNATIONS: '#designations.off.array.custom',
-                SET_DESIGNATION_NULL: '#designations.on.null.custom',
-                SET_DESIGNATION_STRING: '#designations.on.string.custom',
                 DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
               },
             },
@@ -288,9 +218,6 @@ export const model = createModel<Donation>(machine).withEvents({
   },
   SET_DESIGNATION_STRING: {
     exec: exec<Refs, Donation>(({ element }) => (element.designation = samples.designation.string)),
-  },
-  SET_DESIGNATION_ARRAY: {
-    exec: exec<Refs, Donation>(({ element }) => (element.designation = samples.designation.array)),
   },
   SET_DESIGNATION_NULL: {
     exec: exec<Refs, Donation>(({ element }) => (element.designation = null)),
