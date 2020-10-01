@@ -126,8 +126,13 @@ const machine = Machine({
       },
       states: {
         any: {
-          on: { INIT: 'initialized', RERENDER: 'rerendered' },
-          meta: { test: () => true },
+          on: { INIT: 'initialized', RERENDER: 'rerendered', TRANSLATE: 'translated' },
+          meta: {
+            test: async (el: Dropdown) => {
+              await testContentLength(el);
+              await testContent(el);
+            },
+          },
         },
         rerendered: {
           meta: {
@@ -138,6 +143,14 @@ const machine = Machine({
           },
         },
         initialized: {
+          meta: {
+            test: async (el: Dropdown) => {
+              await testContentLength(el);
+              await testContent(el);
+            },
+          },
+        },
+        translated: {
           meta: {
             test: async (el: Dropdown) => {
               await testContentLength(el);
@@ -163,6 +176,11 @@ const model = createModel<Dropdown>(machine).withEvents({
       element.items = ['foo', 'bar'];
     },
   },
+  TRANSLATE: {
+    exec: element => {
+      element.getText = (v: string) => `foo-${v}-bar`;
+    },
+  },
   RERENDER: {
     exec: async element => {
       const select = getSelect(element);
@@ -186,37 +204,31 @@ const model = createModel<Dropdown>(machine).withEvents({
 
       if (evt.value) element.value = evt.value;
       if (evt.items) element.items = evt.items;
-      if (evt.getText) element.getText = evt.getText;
     },
     cases: [
       {},
       { value: 'foo' },
       { items: ['foo', 'bar'] },
-      { getText: (v: string) => v.toUpperCase() },
       { value: 'foo', items: ['foo', 'bar'] },
-      { value: 'foo', getText: (v: string) => v.toUpperCase() },
-      { items: ['foo', 'bar'], getText: (v: string) => v.toUpperCase() },
-      { value: 'foo', items: ['foo', 'bar'], getText: (v: string) => v.toUpperCase() },
-      {
-        value: 'foo',
-        items: ['foo', ['bar', ['baz', 'qux']]],
-        getText: (v: string) => v.toUpperCase(),
-      },
-      {
-        value: 'bar: qux',
-        items: ['foo', ['bar', ['baz', 'qux']]],
-        getText: (v: string) => v.toUpperCase(),
-      },
+      { value: 'foo' },
+      { value: 'foo', items: ['foo', 'bar'] },
+      { value: 'foo', items: ['foo', ['bar', ['baz', 'qux']]] },
+      { value: 'bar: qux', items: ['foo', ['bar', ['baz', 'qux']]] },
     ],
   },
 });
 
 describe('Dropdown', () => {
+  let dropdown: Dropdown;
+  beforeEach(async function () {
+    dropdown = await fixture('<x-dropdown></x-dropdown>');
+    dropdown.getText = (v: string) => v.toUpperCase();
+  });
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
         it(path.description, async () => {
-          await path.test(await fixture('<x-dropdown></x-dropdown>'));
+          await path.test(dropdown);
         });
       });
     });
