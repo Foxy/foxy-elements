@@ -85,8 +85,10 @@ Using the `slots` approach gives you full control over your form's markup. This 
 <Canvas
   mdxSource={dedent`
     <foxy-items-form store="jamstackecommerceexample.foxycart.com" currency="usd">
-      <foxy-item name="Cool Item" quantity="1" price="10" image="https://placedog.net/200" description="I do deserve a tasty food">
-        <div>One with <span style="color: #00f">flavour</span> and <span style="color: #ff0000">scent</span>.</div>
+      <foxy-item name="Cool Product" price="10" image="https://placekitten.com/200/300" description="The products description goes here.">
+      </foxy-item>
+      <foxy-item name="Enhanced Gear" price="10" image="https://placekitten.com/300/300" description="Like normal gear, but enhanced.">
+        <div>Additional content can be placed in the element. It's just HTML so you can do <span style="color: #00f">this</span> and <span style="color: #ff0000">that</span>.</div>
       </foxy-item>
     </foxy-items-form>
   `}
@@ -103,12 +105,19 @@ Using the `slots` approach gives you full control over your form's markup. This 
             name="Cool Item"
             quantity="1"
             price="10"
-            image="https://placedog.net/200"
-            description="I do deserve a tasty food"
+            image="https://placekitten.com/200/300"
+            description="The products description goes here."
+          >
+          </foxy-item>
+          <foxy-item name="Enhanced Gear"
+            price="10"
+            image="https://placekitten.com/300/300" description="Like normal gear, but enhanced."
           >
             <div>
-              One with <span style="color: #00f">flavour</span> and
-              <span style="color: #ff0000">scent</span>.
+              Additional content can be placed in the element.
+              It's just HTML so you can do
+              <span style="color: #00f">this</span>
+              and <span style="color: #ff0000">that</span>.
             </div>
           </foxy-item>
         `
@@ -133,11 +142,23 @@ The downside of this approach is that you have little control of custom markup y
       frequencies: []
       currency="usd"
       items='[{
-        "name":"Cool Item",
+        "name":"Sponsor a Dog",
         "price": 5,
         "image":"https://placedog.net/200",
+        "quantity": 1,
+        "description": "I do deserve a tasty food!"
+      },{
+        "name":"Sponsor a Cat",
+        "price": 15,
+        "image":"https://placekitten.com/200/301",
         "quantity": 2,
-        "description": "I do deserve a tasty food" 
+        "description": "Cats are better. This is not up for debate."
+      },{
+        "name":"Sponsor a Fox",
+        "price": 50,
+        "image":"https://source.unsplash.com/300x300/?fox",
+        "quantity": 3,
+        "description": "Foxes are foxy, but are wild animals."
       }]'
     >
     </foxy-items-form>
@@ -148,12 +169,24 @@ The downside of this approach is that you have little control of custom markup y
     args={{
       items: [
         {
-          name: 'Cool Item',
-          price: 5,
-          image: 'https://placedog.net/200',
-          quantity: 2,
-          description: 'I do deserve a tasty food',
-        },
+          "name":"Sponsor a Dog",
+          "price": 5,
+          "image":"https://global-uploads.webflow.com/5ca2c23040d228c594f99c14/5cb8abee70d87a69f20549e0_bird-bag.png",
+          "quantity": 1,
+          "description": "I do deserve a tasty food!"
+        },{
+          "name":"Sponsor a Cat",
+          "price": 15,
+          "image":"https://placekitten.com/200/301",
+          "quantity": 2,
+          "description": "Cats are better. This is not up for debate."
+        },{
+          "name":"Sponsor a Fox",
+          "price": 50,
+          "image":"https://source.unsplash.com/300x300/?fox",
+          "quantity": 3,
+          "description": "Foxes are foxy, but are wild animals."
+        }
       ],
     }}
   >
