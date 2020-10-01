@@ -128,17 +128,20 @@ export class Dropdown extends Themeable {
   // removed.
   private __addOrKeepItem(key: string, text: string, list: Element): Element {
     let item: HTMLElement;
+
     if (this.__renderedItems[key]) {
       item = this.__renderedItems[key] as HTMLElement;
     } else {
       item = document.createElement('vaadin-item');
       this.__renderedItems[key] = item;
       (item as HTMLInputElement).value = key;
-      item.textContent = this.getText(text);
       list.appendChild(item);
     }
+
     item.dataset.keep = 'true';
     item.dataset.trackId = key;
+    item.textContent = this.getText(text);
+
     return item;
   }
 
