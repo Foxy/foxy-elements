@@ -125,7 +125,7 @@ export class Dropdown extends Themeable {
 
   // Adds an element to the dom, creating it if not already created, reusing it
   // if possible, in any case marking it with a keep signal sot it is not
-  // reumoved.
+  // removed.
   private __addOrKeepItem(key: string, text: string, list: Element): Element {
     let item: HTMLElement;
     if (this.__renderedItems[key]) {

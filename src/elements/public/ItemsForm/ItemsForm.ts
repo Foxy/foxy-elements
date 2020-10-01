@@ -341,7 +341,7 @@ export class ItemsForm extends Translatable {
         class="overflow-hidden"
         method="POST"
         target="${this.target}"
-        action="https:://${this.store}/cart"
+        action="https://${this.store}/cart"
         data-testid="form"
       >
         <div class="hidden">
