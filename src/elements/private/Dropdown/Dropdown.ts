@@ -71,7 +71,7 @@ export class Dropdown extends Themeable {
   public render(): TemplateResult {
     return html`
       <vaadin-select
-        class="w-full -mt-m"
+        class="w-full ${this.label ? '-mt-m' : ''}"
         data-testid="select"
         .label=${this.label}
         .value=${this.value === null ? this.__unexistentValue : this.value}
