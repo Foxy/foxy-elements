@@ -63,6 +63,8 @@ export class Dropdown extends Themeable {
 
   private __list: HTMLElement;
 
+  private __renderer = this.__renderItems.bind(this);
+
   constructor() {
     super();
     this.__list = document.createElement('vaadin-list-box');
@@ -76,7 +78,7 @@ export class Dropdown extends Themeable {
         .label=${this.label}
         .value=${this.value === null ? this.__unexistentValue : this.value}
         .disabled=${this.disabled}
-        .renderer=${this.__renderItems.bind(this)}
+        .renderer=${this.__renderer}
         @change=${this.__handleChange}
       >
       </vaadin-select>
