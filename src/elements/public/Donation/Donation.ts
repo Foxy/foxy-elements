@@ -356,7 +356,7 @@ export class Donation extends Translatable {
             `
           : ''}
 
-        <div class="flex -m-s">
+        <div class="flex flex-wrap -m-s">
           ${this.frequencies && this.frequencies.length > 0
             ? html`
                 <div class="flex-1 p-s">
