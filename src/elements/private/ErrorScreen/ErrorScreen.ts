@@ -90,6 +90,7 @@ export class ErrorScreen extends Translatable {
           ${this.reload
             ? html`
                 <vaadin-button
+                  data-testid="reload"
                   theme="primary"
                   @click=${() => this.dispatchEvent(new ErrorScreenReloadEvent())}
                 >
