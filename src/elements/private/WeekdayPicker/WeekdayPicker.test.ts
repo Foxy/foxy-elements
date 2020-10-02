@@ -5,13 +5,19 @@ import { WeekdayPicker } from './WeekdayPicker';
 import { WeekdayPickerChangeEvent } from './WeekdayPickerChangeEvent';
 import { translateWeekday } from '../../../utils/translate-weekday';
 
-customElements.define('x-weekday-picker', WeekdayPicker);
+class TestWeekdayPicker extends WeekdayPicker {
+  public get whenReady() {
+    return this._whenI18nReady.then(() => this.updateComplete);
+  }
+}
+
+customElements.define('x-weekday-picker', TestWeekdayPicker);
 
 const samples = {
   value: [1, 4, 6],
 };
 
-function testItems(element: WeekdayPicker) {
+function testItems(element: TestWeekdayPicker) {
   const items = new Array(7).fill(0).map((_, i) => i);
   const labels = element.shadowRoot!.querySelectorAll('label');
 
@@ -26,19 +32,19 @@ function testItems(element: WeekdayPicker) {
   });
 }
 
-function testEnabled(element: WeekdayPicker) {
-  expect(element.disabled).to.be.false;
+function testEnabled(element: TestWeekdayPicker) {
+  expect(element).to.have.property('disabled', false);
   const inputs = element.shadowRoot!.querySelectorAll('input');
-  Array.from(inputs).every(input => expect(input.disabled).to.be.false);
+  Array.from(inputs).every(input => expect(input).to.have.property('disabled', false));
 }
 
-function testDisabled(element: WeekdayPicker) {
-  expect(element.disabled).to.be.true;
+function testDisabled(element: TestWeekdayPicker) {
+  expect(element).to.have.property('disabled', true);
   const inputs = element.shadowRoot!.querySelectorAll('input');
-  Array.from(inputs).every(input => expect(input.disabled).to.be.true);
+  Array.from(inputs).every(input => expect(input).to.have.property('disabled', true));
 }
 
-async function testToggling(element: WeekdayPicker) {
+async function testToggling(element: TestWeekdayPicker) {
   const input = element.shadowRoot!.querySelector('input');
 
   if (element.disabled) {
@@ -82,7 +88,7 @@ const machine = createMachine({
   },
 });
 
-const model = createModel<WeekdayPicker>(machine).withEvents({
+const model = createModel<TestWeekdayPicker>(machine).withEvents({
   ENABLE: { exec: element => void (element.disabled = false) },
   DISABLE: { exec: element => void (element.disabled = true) },
   SET_ITEMS: { exec: element => void (element.value = samples.value) },
@@ -93,9 +99,11 @@ describe('WeekdayPicker', () => {
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
-        it(path.description, async () =>
-          path.test(await fixture('<x-weekday-picker></x-weekday-picker>'))
-        );
+        it(path.description, async () => {
+          const element = await fixture<TestWeekdayPicker>('<x-weekday-picker></x-weekday-picker>');
+          await element.whenReady;
+          return path.test(element);
+        });
       });
     });
   });
