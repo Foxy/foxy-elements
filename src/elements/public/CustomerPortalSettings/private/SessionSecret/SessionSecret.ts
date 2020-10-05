@@ -102,7 +102,7 @@ export class SessionSecret extends Translatable {
   }
 
   private __reportValidity() {
-    const isAlphaNumeric = (v: string) => /^[a-z0-9]+$/i.test(v);
+    const isAlphaNumeric = (v: string) => /^[a-z0-9-]+$/i.test(v);
     const minLength = 40;
     const maxLength = 100;
 
