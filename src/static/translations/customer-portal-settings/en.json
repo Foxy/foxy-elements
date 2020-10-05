@@ -67,12 +67,12 @@
     "maxHint": "Requires the new date to be at most {{duration}} into the future."
   },
   "jwt": {
-    "title": "Session secret",
+    "title": "JWT shared secret",
     "subtitle": "Reset this key to drop all active sessions",
-    "invalid": "Only letters (a-z) and numbers (0-9) are allowed in this field",
+    "invalid": "Only letters (a-z), numbers (0-9) and dashes (-) are allowed in this field",
     "required": "Please fill in this field",
-    "too_short": "Session secret must be at least 40 characters long",
-    "too_long": "Session secret must be at most 100 characters long",
+    "too_short": "This key must be at least 40 characters long",
+    "too_long": "This key must be at most 100 characters long",
     "refresh": "Reset"
   },
   "session": {
