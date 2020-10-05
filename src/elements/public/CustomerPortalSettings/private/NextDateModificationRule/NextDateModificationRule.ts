@@ -5,6 +5,7 @@ import { classMap } from '../../../../../utils/class-map';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
+import { translateDate } from '../../../../../utils/translate-date';
 import { translateWeekday } from '../../../../../utils/translate-weekday';
 import { Group, I18N, Warning } from '../../../../private/index';
 import { AllowedDays } from '../AllowedDays/AllowedDays';
@@ -279,15 +280,7 @@ export class NextDateModificationRule extends Translatable {
         <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.excluded">
           <span>:</span>
           <span class="text-secondary">
-            ${dates
-              .map(date =>
-                new Date(date).toLocaleDateString(this.lang, {
-                  year: '2-digit',
-                  month: 'short',
-                  day: 'numeric',
-                })
-              )
-              .join('; ')}
+            ${dates.map(date => translateDate(date, this.lang)).join('; ')}
           </span>
         </x-i18n>
       </div>

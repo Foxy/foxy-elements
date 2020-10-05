@@ -7,6 +7,8 @@ import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
+import { parseDate } from '../../../../../utils/parse-date';
+import { translateDate } from '../../../../../utils/translate-date';
 import { ListChangeEvent } from '../../../../private/events';
 import { I18N, List, Skeleton } from '../../../../private/index';
 import { DisallowedDatesChangeEvent } from './DisallowedDatesChangeEvent';
@@ -51,7 +53,7 @@ export class DisallowedDates extends Translatable {
       >
         ${this.value.map((item, index) =>
           this._isI18nReady
-            ? html`<span slot=${index} class="truncate">${this.__getText(item)}</span>`
+            ? html`<span slot=${index} class="truncate">${translateDate(item, this.lang)}</span>`
             : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
         )}
 
@@ -122,26 +124,12 @@ export class DisallowedDates extends Translatable {
     Array.from(pickers).forEach(picker => (picker as DatePickerElement).validate());
   }
 
-  private __getText(value: string) {
-    const thisYear = new Date().getFullYear();
-    const opts = { month: 'long', day: 'numeric' };
-
-    return value
-      .split('..')
-      .map(strDate => {
-        const date = this.__parseDate(strDate);
-        const year = date?.getFullYear() === thisYear ? undefined : 'numeric';
-        return date?.toLocaleDateString(this.lang, { year, ...opts });
-      })
-      .join(' – ');
-  }
-
   private __handleStartValueChange(evt: InputEvent) {
     evt.stopPropagation();
     this.__startValue = (evt.target as DatePickerElement).value;
 
-    const end = this.__parseDate(this.__endValue);
-    const start = this.__parseDate(this.__startValue);
+    const end = parseDate(this.__endValue);
+    const start = parseDate(this.__startValue);
     if (end && start && end.getTime() < start.getTime()) this.__endValue = '';
 
     this.requestUpdate();
@@ -151,12 +139,6 @@ export class DisallowedDates extends Translatable {
     evt.stopPropagation();
     this.__endValue = (evt.target as DatePickerElement).value;
     this.requestUpdate();
-  }
-
-  private __parseDate(strDate: string) {
-    const [year, month, day] = strDate.split('-').map(v => parseInt(v, 10));
-    if ([year, month, day].some(v => typeof v !== 'number' || isNaN(v))) return null;
-    return new Date(year, month - 1, day);
   }
 
   private __submit() {
