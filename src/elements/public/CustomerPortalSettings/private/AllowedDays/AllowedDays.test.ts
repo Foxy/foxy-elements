@@ -6,7 +6,13 @@ import { Choice, WeekdayPicker, MonthdayPicker } from '../../../../private/index
 import { WeekdayPickerChangeEvent, MonthdayPickerChangeEvent } from '../../../../private/events';
 import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 
-customElements.define('x-allowed-days', AllowedDays);
+class TestAllowedDays extends AllowedDays {
+  get whenReady() {
+    return this._whenI18nReady;
+  }
+}
+
+customElements.define('x-allowed-days', TestAllowedDays);
 
 const samples = {
   value: {
@@ -16,7 +22,7 @@ const samples = {
   },
 };
 
-function getRefs(element: AllowedDays) {
+function getRefs(element: TestAllowedDays) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
   return {
@@ -26,7 +32,7 @@ function getRefs(element: AllowedDays) {
   };
 }
 
-function testEnabled(element: AllowedDays) {
+function testEnabled(element: TestAllowedDays) {
   const refs = getRefs(element);
 
   expect(refs.choice.disabled).to.be.false;
@@ -34,7 +40,7 @@ function testEnabled(element: AllowedDays) {
   expect(refs.monthdayPicker?.disabled).to.be.oneOf([false, undefined]);
 }
 
-function testDisabled(element: AllowedDays) {
+function testDisabled(element: TestAllowedDays) {
   const refs = getRefs(element);
 
   expect(refs.choice.disabled).to.be.true;
@@ -42,7 +48,7 @@ function testDisabled(element: AllowedDays) {
   expect(refs.monthdayPicker?.disabled).to.be.oneOf([true, undefined]);
 }
 
-function testAll(element: AllowedDays) {
+function testAll(element: TestAllowedDays) {
   const refs = getRefs(element);
 
   expect(element.value).to.be.undefined;
@@ -50,7 +56,7 @@ function testAll(element: AllowedDays) {
   expect(refs.monthdayPicker).to.be.null;
 }
 
-async function testDay(element: AllowedDays) {
+async function testDay(element: TestAllowedDays) {
   const refs = getRefs(element);
 
   expect(element.value).to.deep.equal(samples.value.day);
@@ -69,7 +75,7 @@ async function testDay(element: AllowedDays) {
   }
 }
 
-async function testMonth(element: AllowedDays) {
+async function testMonth(element: TestAllowedDays) {
   const refs = getRefs(element);
 
   expect(element.value).to.deep.equal(samples.value.month);
@@ -111,7 +117,7 @@ const machine = createMachine({
   },
 });
 
-const model = createModel<AllowedDays>(machine).withEvents({
+const model = createModel<TestAllowedDays>(machine).withEvents({
   ENABLE: { exec: element => void (element.disabled = false) },
   DISABLE: { exec: element => void (element.disabled = true) },
   SET_ALL: { exec: element => void (element.value = samples.value.all) },
@@ -123,9 +129,11 @@ describe('CustomerPortalSettings >>> AllowedDays', () => {
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
-        it(path.description, async () =>
-          path.test(await fixture('<x-allowed-days></x-allowed-days>'))
-        );
+        it(path.description, async () => {
+          const element = await fixture<TestAllowedDays>('<x-allowed-days></x-allowed-days>');
+          await element.whenReady;
+          return path.test(element);
+        });
       });
     });
   });
