@@ -6,7 +6,13 @@ import { List } from '../../../../private/index';
 import { ListChangeEvent } from '../../../../private/events';
 import { DisallowedDatesChangeEvent } from './DisallowedDatesChangeEvent';
 
-customElements.define('x-disallowed-dates', DisallowedDates);
+class TestDisallowedDates extends DisallowedDates {
+  get whenReady() {
+    return this._whenI18nReady;
+  }
+}
+
+customElements.define('x-disallowed-dates', TestDisallowedDates);
 
 const samples = {
   value: [
@@ -16,7 +22,7 @@ const samples = {
   ],
 };
 
-function getRefs(element: DisallowedDates) {
+function getRefs(element: TestDisallowedDates) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
   return {
@@ -25,23 +31,23 @@ function getRefs(element: DisallowedDates) {
   };
 }
 
-function testEnabled(element: DisallowedDates) {
+function testEnabled(element: TestDisallowedDates) {
   const refs = getRefs(element);
   expect(refs.list.disabled).to.be.false;
   expect(refs.input.disabled).to.be.false;
 }
 
-function testDisabled(element: DisallowedDates) {
+function testDisabled(element: TestDisallowedDates) {
   const refs = getRefs(element);
   expect(refs.list.disabled).to.be.true;
   expect(refs.input.disabled).to.be.true;
 }
 
-function testEmpty(element: DisallowedDates) {
+function testEmpty(element: TestDisallowedDates) {
   expect(getRefs(element).list.value).to.be.empty;
 }
 
-async function testItems(element: DisallowedDates) {
+async function testItems(element: TestDisallowedDates) {
   const { list, input } = getRefs(element);
 
   expect(list.value).to.deep.equal(element.value);
@@ -105,7 +111,7 @@ const machine = createMachine({
   },
 });
 
-const model = createModel<DisallowedDates>(machine).withEvents({
+const model = createModel<TestDisallowedDates>(machine).withEvents({
   ENABLE: { exec: element => void (element.disabled = false) },
   DISABLE: { exec: element => void (element.disabled = true) },
   TEST_ITEMS: { exec: element => void (element.value = samples.value) },
@@ -115,9 +121,12 @@ describe('CustomerPortalSettings >>> DisallowedDates', () => {
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
-        it(path.description, async () =>
-          path.test(await fixture('<x-disallowed-dates></x-disallowed-dates>'))
-        );
+        it(path.description, async () => {
+          const layout = '<x-disallowed-dates></x-disallowed-dates>';
+          const element = await fixture<TestDisallowedDates>(layout);
+          await element.whenReady;
+          return path.test(element);
+        });
       });
     });
   });
