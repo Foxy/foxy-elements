@@ -84,6 +84,7 @@ export class DisallowedDates extends Translatable {
 
           <vaadin-button
             .disabled=${isInputDisabled || !this.__startValue}
+            data-testid="submit"
             class="w-full mt-s sm:mt-0 sm:w-auto sm:ml-s"
             @click=${this.__submit}
           >
@@ -119,7 +120,7 @@ export class DisallowedDates extends Translatable {
   public updated(): void {
     const globalName = 'vaadin-date-picker';
     const scopedName = (this.constructor as typeof ScopedElementsHost).getScopedTagName(globalName);
-    const pickers = this.shadowRoot?.querySelectorAll(scopedName) ?? [];
+    const pickers = this.shadowRoot!.querySelectorAll(scopedName);
 
     Array.from(pickers).forEach(picker => (picker as DatePickerElement).validate());
   }
@@ -129,8 +130,8 @@ export class DisallowedDates extends Translatable {
     this.__startValue = (evt.target as DatePickerElement).value;
 
     const end = parseDate(this.__endValue);
-    const start = parseDate(this.__startValue);
-    if (end && start && end.getTime() < start.getTime()) this.__endValue = '';
+    const start = parseDate(this.__startValue)!;
+    if (end && end.getTime() < start.getTime()) this.__endValue = '';
 
     this.requestUpdate();
   }
@@ -144,7 +145,7 @@ export class DisallowedDates extends Translatable {
   private __submit() {
     if (this.__startValue && this.__endValue) {
       this.value = [...this.value, [this.__startValue, this.__endValue].join('..')];
-    } else if (this.__startValue) {
+    } else {
       this.value = [...this.value, this.__startValue];
     }
 
