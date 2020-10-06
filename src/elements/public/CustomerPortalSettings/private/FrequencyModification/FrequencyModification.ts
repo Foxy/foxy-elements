@@ -43,30 +43,26 @@ export class FrequencyModification extends Translatable {
         <x-i18n .ns=${ns} .lang=${lang} key="fmod.title" slot="title" class="text-l"></x-i18n>
         <x-i18n .ns=${ns} .lang=${lang} key="fmod.subtitle" slot="subtitle" class="mr-xl"></x-i18n>
 
-        ${this.value
-          ? html`
-              ${this.__normalizedValue.map(
-                (rule, index, array) => html`
-                  <x-frequency-modification-rule
-                    data-testid="rule"
-                    .disabled=${this.disabled}
-                    .value=${rule}
-                    .lang=${this.lang}
-                    .ns=${this.ns}
-                    @remove=${() => {
-                      this.value = array.filter((_, i) => i !== index);
-                      this.__sendChange();
-                    }}
-                    @change=${(evt: FrequencyModificationRuleChangeEvent) => {
-                      this.value = array.map((v, i) => (i === index ? evt.detail : v));
-                      this.__sendChange();
-                    }}
-                  >
-                  </x-frequency-modification-rule>
-                `
-              )}
-            `
-          : ''}
+        ${this.value.map(
+          (rule, index, array) => html`
+            <x-frequency-modification-rule
+              data-testid="rule"
+              .disabled=${this.disabled}
+              .value=${rule}
+              .lang=${this.lang}
+              .ns=${this.ns}
+              @remove=${() => {
+                this.value = array.filter((_, i) => i !== index);
+                this.__sendChange();
+              }}
+              @change=${(evt: FrequencyModificationRuleChangeEvent) => {
+                this.value = array.map((v, i) => (i === index ? evt.detail : v));
+                this.__sendChange();
+              }}
+            >
+            </x-frequency-modification-rule>
+          `
+        )}
 
         <div class="mt-m sm:flex sm:items-center">
           <vaadin-button
@@ -97,12 +93,8 @@ export class FrequencyModification extends Translatable {
     `;
   }
 
-  private get __normalizedValue(): Rule[] {
-    return Array.isArray(this.value) ? this.value : [];
-  }
-
   private __addRule() {
-    this.value = [...this.__normalizedValue, { jsonataQuery: '*', values: [] }];
+    this.value = [...this.value, { jsonataQuery: '*', values: [] }];
     this.__sendChange();
   }
 
