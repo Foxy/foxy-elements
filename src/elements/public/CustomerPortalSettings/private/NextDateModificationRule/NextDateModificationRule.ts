@@ -209,12 +209,9 @@ export class NextDateModificationRule extends Translatable {
 
   private __getEstimatedDaysFrom(duration: string) {
     const { count, units } = parseDuration(duration);
+    const multipliers = { y: 365, m: 31, w: 7, d: 1 };
 
-    if (units === 'y') return count * 365;
-    if (units === 'm') return count * 31;
-    if (units === 'w') return count * 7;
-
-    return count;
+    return count * multipliers[units as 'y' | 'm' | 'w' | 'd'];
   }
 
   private __compareDurations(a: string | undefined, b: string | undefined) {
