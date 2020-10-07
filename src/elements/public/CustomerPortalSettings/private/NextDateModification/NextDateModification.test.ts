@@ -1,31 +1,41 @@
-import { expect, fixture } from '@open-wc/testing';
+import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
+import { Switch, SwitchChangeEvent } from '../../../../private/Switch/Switch';
+import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
+import { NextDateModificationRuleChangeEvent } from '../NextDateModificationRule/NextDateModificationRuleChangeEvent';
+import { NextDateModificationRuleRemoveEvent } from '../NextDateModificationRule/NextDateModificationRuleRemoveEvent';
 import { NextDateModification } from './NextDateModification';
 import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
-import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
-import { NextDateModificationRuleRemoveEvent } from '../NextDateModificationRule/NextDateModificationRuleRemoveEvent';
 import { Rule } from './Rule';
 
-customElements.define('x-next-date-modification', NextDateModification);
+class TestNextDateModification extends NextDateModification {
+  get whenReady() {
+    return this._whenI18nReady;
+  }
+}
+
+customElements.define('x-next-date-modification', TestNextDateModification);
 
 const samples = {
   value: [{ jsonataQuery: '*' }, { jsonataQuery: '*', min: '2m' }],
   basicValue: [{ jsonataQuery: '*' }],
+  modifiedRule: { jsonataQuery: '$contains(frequency, "w")', max: '1y' },
 };
 
-function getRefs(element: NextDateModification) {
+function getRefs(element: TestNextDateModification) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector) as unknown;
   const $$ = (selector: string) => element.shadowRoot!.querySelectorAll(selector) as unknown;
 
   return {
+    toggle: $('[data-testid=toggle]') as Switch,
     rules: Array.from($$('[data-testid=rule]') as NextDateModificationRule[]),
     add: $('[data-testid=add') as HTMLButtonElement,
   };
 }
 
 function testInteractivity(disabled: boolean) {
-  return async (element: NextDateModification) => {
+  return async (element: TestNextDateModification) => {
     await element.updateComplete;
 
     expect(element.disabled).to.equal(disabled);
@@ -37,7 +47,7 @@ function testInteractivity(disabled: boolean) {
 }
 
 function testContent(value: Rule[] | boolean) {
-  return async (element: NextDateModification) => {
+  return async (element: TestNextDateModification) => {
     await element.updateComplete;
     const rules = getRefs(element).rules;
 
@@ -53,14 +63,19 @@ function testContent(value: Rule[] | boolean) {
 
     if (!element.disabled && typeof value !== 'boolean' && value.length > 0) {
       const originalValue = element.value;
-      const whenGotChange = new Promise<Event>(resolve => {
-        element.addEventListener('change', resolve);
-      });
 
-      rules[0].dispatchEvent(new NextDateModificationRuleRemoveEvent());
-
+      // test updating rule
+      let whenGotChange = oneEvent(element, 'change');
+      rules[0].dispatchEvent(new NextDateModificationRuleChangeEvent(samples.modifiedRule));
       expect(await whenGotChange).to.be.instanceOf(NextDateModificationChangeEvent);
-      expect(element.value).to.deep.equal(value.slice(1));
+      expect(element).to.have.deep.property('value', [samples.modifiedRule, ...value.slice(1)]);
+
+      // test deleting rule
+      whenGotChange = oneEvent(element, 'change');
+      rules[0].dispatchEvent(new NextDateModificationRuleRemoveEvent());
+      expect(await whenGotChange).to.be.instanceOf(NextDateModificationChangeEvent);
+      expect(element).to.have.deep.property('value', value.slice(1));
+
       element.value = originalValue;
     }
   };
@@ -88,23 +103,34 @@ const machine = createMachine({
       initial: 'disallowed',
       states: {
         disallowed: {
-          on: { ALLOW: 'allowed' },
+          on: { ALLOW: 'allowed.setInCode', CHECK: 'allowed.setByUser' },
           meta: { test: testContent(false) },
+          initial: 'setInCode',
+          states: {
+            setInCode: {},
+            setByUser: {},
+          },
         },
         allowed: {
+          meta: { test: testContent(true) },
+          initial: 'setInCode',
+          states: {
+            setInCode: {},
+            setByUser: {},
+          },
           on: {
             ADD_RULES: 'allowedWithBasicRules',
             SET_RULES: 'allowedWithCustomRules',
-            DISALLOW: 'disallowed',
+            DISALLOW: 'disallowed.setInCode',
+            UNCHECK: 'disallowed.setByUser',
           },
-          meta: { test: testContent(true) },
         },
         allowedWithBasicRules: {
-          on: { DISALLOW: 'disallowed' },
+          on: { DISALLOW: 'disallowed.setInCode', UNCHECK: 'disallowed.setByUser' },
           meta: { test: testContent(samples.basicValue) },
         },
         allowedWithCustomRules: {
-          on: { DISALLOW: 'disallowed' },
+          on: { DISALLOW: 'disallowed.setInCode', UNCHECK: 'disallowed.setByUser' },
           meta: { test: testContent(samples.value) },
         },
       },
@@ -112,7 +138,7 @@ const machine = createMachine({
   },
 });
 
-const model = createModel<NextDateModification>(machine).withEvents({
+const model = createModel<TestNextDateModification>(machine).withEvents({
   ALLOW: { exec: element => void (element.value = true) },
   DISALLOW: { exec: element => void (element.value = false) },
   ENABLE: { exec: element => void (element.disabled = false) },
@@ -134,20 +160,35 @@ const model = createModel<NextDateModification>(machine).withEvents({
       }
     },
   },
+  UNCHECK: {
+    exec: async element => {
+      await element.updateComplete;
+      const toggle = getRefs(element).toggle;
+      toggle.checked = false;
+      toggle.dispatchEvent(new SwitchChangeEvent(false));
+    },
+  },
+  CHECK: {
+    exec: async element => {
+      await element.updateComplete;
+      const toggle = getRefs(element).toggle;
+      toggle.checked = true;
+      toggle.dispatchEvent(new SwitchChangeEvent(true));
+    },
+  },
 });
 
-describe('NextDateModification', () => {
+describe('CustomerPortalSettings >>> NextDateModification', () => {
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
-        it(path.description, async () =>
-          path.test(await fixture('<x-next-date-modification></x-next-date-modification>'))
-        );
+        it(path.description, async () => {
+          const layout = '<x-next-date-modification></x-next-date-modification>';
+          const element = await fixture<TestNextDateModification>(layout);
+          await element.whenReady;
+          return path.test(element);
+        });
       });
     });
-  });
-
-  describe('has full coverage', () => {
-    it('yes', () => model.testCoverage());
   });
 });
