@@ -9,14 +9,20 @@ import { FrequencyModificationRule } from './FrequencyModificationRule';
 import { FrequencyModificationRuleRemoveEvent } from './FrequencyModificationRuleRemoveEvent';
 import { Rule } from './types';
 
-customElements.define('x-rule', FrequencyModificationRule);
+class TestFrequencyModificationRule extends FrequencyModificationRule {
+  get whenReady() {
+    return this._whenI18nReady;
+  }
+}
+
+customElements.define('x-rule', TestFrequencyModificationRule);
 
 const samples = {
   default: { jsonataQuery: '*', values: [] },
   custom: { jsonataQuery: '$contains(frequency, "w")', values: ['.5m', '1y'] },
 };
 
-function getRefs(element: FrequencyModificationRule) {
+function getRefs(element: TestFrequencyModificationRule) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
   return {
@@ -28,7 +34,7 @@ function getRefs(element: FrequencyModificationRule) {
 }
 
 function testDisabled(value: boolean) {
-  return async (element: FrequencyModificationRule) => {
+  return async (element: TestFrequencyModificationRule) => {
     await element.updateComplete;
     const { remove, jsonata, frequency } = getRefs(element);
 
@@ -46,7 +52,7 @@ function testDisabled(value: boolean) {
 }
 
 function testOpen(value: boolean) {
-  return async (element: FrequencyModificationRule) => {
+  return async (element: TestFrequencyModificationRule) => {
     await element.updateComplete;
     const { details } = getRefs(element);
 
@@ -56,7 +62,7 @@ function testOpen(value: boolean) {
 }
 
 function testContent(value: Rule) {
-  return async (element: FrequencyModificationRule) => {
+  return async (element: TestFrequencyModificationRule) => {
     await element.updateComplete;
     const { jsonata, frequency } = getRefs(element);
 
@@ -95,7 +101,7 @@ const machine = createMachine({
 
 describe('CustomerPortalSettings >>> FrequencyModificationRule', () => {
   describe('Actor: USER', () => {
-    const model = createModel<FrequencyModificationRule>(machine).withEvents({
+    const model = createModel<TestFrequencyModificationRule>(machine).withEvents({
       CUSTOMIZE: {
         exec: async element => {
           const { jsonata, frequency } = getRefs(element);
@@ -116,14 +122,18 @@ describe('CustomerPortalSettings >>> FrequencyModificationRule', () => {
     model.getShortestPathPlans().forEach(plan => {
       describe(plan.description, () => {
         plan.paths.forEach(path => {
-          it(path.description, async () => path.test(await fixture('<x-rule></x-rule>')));
+          it(path.description, async () => {
+            const element = await fixture<TestFrequencyModificationRule>('<x-rule></x-rule>');
+            await element.whenReady;
+            return path.test(element);
+          });
         });
       });
     });
   });
 
   describe('Actor: APP', () => {
-    const model = createModel<FrequencyModificationRule>(machine).withEvents({
+    const model = createModel<TestFrequencyModificationRule>(machine).withEvents({
       CUSTOMIZE: { exec: async element => (element.value = samples.custom) },
       DISABLE: { exec: async element => (element.disabled = true) },
       ENABLE: { exec: async element => (element.disabled = false) },
@@ -134,7 +144,11 @@ describe('CustomerPortalSettings >>> FrequencyModificationRule', () => {
     model.getShortestPathPlans().forEach(plan => {
       describe(plan.description, () => {
         plan.paths.forEach(path => {
-          it(path.description, async () => path.test(await fixture('<x-rule></x-rule>')));
+          it(path.description, async () => {
+            const element = await fixture<TestFrequencyModificationRule>('<x-rule></x-rule>');
+            await element.whenReady;
+            return path.test(element);
+          });
         });
       });
     });
