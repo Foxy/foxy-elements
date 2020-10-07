@@ -1,4 +1,4 @@
-import { expect, fixture } from '@open-wc/testing';
+import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
 import { Warning } from '../../../../private/index';
@@ -21,28 +21,6 @@ class TestNextDateModificationRule extends NextDateModificationRule {
 }
 
 customElements.define('x-next-date-modification-rule', TestNextDateModificationRule);
-
-const samples = {
-  value: {
-    minimal: {
-      jsonataQuery: '*',
-    },
-    complete: {
-      min: '1m',
-      max: '4y',
-      jsonataQuery: '$contains(frequency, "w")',
-      disallowedDates: [
-        new Date(2020, 2, 14).toISOString(),
-        new Date(2019, 4, 24).toISOString(),
-        new Date(2018, 5, 28).toISOString(),
-      ],
-      allowedDays: {
-        type: 'month' as const,
-        days: [23, 16, 31],
-      },
-    },
-  },
-};
 
 function getRefs(element: TestNextDateModificationRule) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
@@ -86,29 +64,17 @@ function testDisplay(open: boolean) {
   };
 }
 
-function testContent(rule: Rule) {
-  return async (element: TestNextDateModificationRule) => {
-    await element.updateComplete;
-
-    if (!element.open) return;
-    const refs = getRefs(element);
-
-    expect(refs.allowed?.value).to.deep.equal(rule.allowedDays);
-    expect(refs.disallowed?.value).to.deep.equal(rule.disallowedDates ?? []);
-    expect(refs.jsonata?.value).to.deep.equal(rule.jsonataQuery);
-    expect(refs.max?.value).to.deep.equal(rule.max);
-    expect(refs.min?.value).to.deep.equal(rule.min);
-  };
-}
-
-async function testRemoval(element: TestNextDateModificationRule) {
+async function testContent(element: TestNextDateModificationRule) {
   await element.updateComplete;
-  const whenRemoved = new Promise(resolve =>
-    element.addEventListener('remove', resolve, { once: true })
-  );
 
-  getRefs(element).remove.click();
-  expect(await whenRemoved).to.be.instanceOf(NextDateModificationRuleRemoveEvent);
+  const refs = getRefs(element);
+  const rule = element.value;
+
+  expect(refs.allowed?.value).to.deep.equal(rule.allowedDays);
+  expect(refs.disallowed?.value).to.deep.equal(rule.disallowedDates ?? []);
+  expect(refs.jsonata?.value).to.deep.equal(rule.jsonataQuery);
+  expect(refs.max?.value).to.deep.equal(rule.max);
+  expect(refs.min?.value).to.deep.equal(rule.min);
 }
 
 const machine = createMachine({
@@ -116,11 +82,9 @@ const machine = createMachine({
   states: {
     existing: {
       on: { REMOVE: 'removed' },
-      meta: { test: () => true },
       type: 'parallel',
       states: {
         interactivity: {
-          meta: { test: () => true },
           initial: 'enabled',
           states: {
             disabled: {
@@ -134,7 +98,6 @@ const machine = createMachine({
           },
         },
         display: {
-          meta: { test: () => true },
           initial: 'closed',
           states: {
             closed: {
@@ -148,23 +111,25 @@ const machine = createMachine({
           },
         },
         content: {
-          meta: { test: () => true },
           initial: 'default',
           states: {
             default: {
-              on: { SET_CUSTOM: 'custom', ENTER_CUSTOM: 'custom' },
-              meta: { test: testContent(samples.value.minimal) },
+              on: { SET_CUSTOM: 'custom.setInCode', ENTER_CUSTOM: 'custom.setByUser' },
+              meta: { test: testContent },
             },
             custom: {
-              meta: { test: testContent(samples.value.complete) },
+              initial: 'setInCode',
+              meta: { test: testContent },
+              states: {
+                setInCode: {},
+                setByUser: {},
+              },
             },
           },
         },
       },
     },
-    removed: {
-      meta: { test: testRemoval },
-    },
+    removed: {},
   },
 });
 
@@ -173,34 +138,65 @@ const model = createModel<TestNextDateModificationRule>(machine).withEvents({
   CLOSE: { exec: element => void (element.open = false) },
   ENABLE: { exec: element => void (element.disabled = false) },
   DISABLE: { exec: element => void (element.disabled = true) },
-  SET_CUSTOM: { exec: element => void (element.value = samples.value.complete) },
+  SET_CUSTOM: {
+    exec: element => {
+      const newValue: Rule = {
+        min: '1d',
+        max: '1w',
+        jsonataQuery: '$contains(frequency, "y")',
+        disallowedDates: [],
+        allowedDays: { type: 'month' as const, days: [14, 16] },
+      };
+
+      element.value = newValue;
+      expect(element).to.have.property('value', newValue);
+    },
+  },
   ENTER_CUSTOM: {
     exec: async element => {
-      if (!element.open) return;
-
       const refs = getRefs(element);
-      const rule = samples.value.complete;
+      const rule = {
+        min: '4m',
+        max: '2d',
+        jsonataQuery: '$contains(frequency, "m")',
+        disallowedDates: ['2020-03-14', '2019-05-24..2018-06-28'],
+        allowedDays: { type: 'day' as const, days: [1, 2, 3] },
+      };
 
       refs.allowed!.value = rule.allowedDays;
       refs.allowed!.dispatchEvent(new AllowedDaysChangeEvent(rule.allowedDays));
+      await element.updateComplete;
 
       refs.disallowed!.value = rule.disallowedDates;
       refs.disallowed!.dispatchEvent(new DisallowedDatesChangeEvent(rule.disallowedDates));
+      await element.updateComplete;
 
       refs.jsonata!.value = rule.jsonataQuery;
       refs.jsonata!.dispatchEvent(new JSONataInputChangeEvent(rule.jsonataQuery));
+      await element.updateComplete;
 
       refs.max!.value = rule.max;
       refs.max!.dispatchEvent(new OffsetInputChangeEvent(rule.max));
+      await element.updateComplete;
 
-      const whenChanged = new Promise(resolve =>
-        element.addEventListener('change', resolve, { once: true })
-      );
+      const whenChanged = oneEvent(element, 'change');
 
       refs.min!.value = rule.min;
       refs.min!.dispatchEvent(new OffsetInputChangeEvent(rule.min));
 
+      await element.updateComplete;
       await whenChanged;
+    },
+  },
+  REMOVE: {
+    exec: async element => {
+      await element.updateComplete;
+      const whenRemoved = new Promise(resolve =>
+        element.addEventListener('remove', resolve, { once: true })
+      );
+
+      getRefs(element).remove.click();
+      expect(await whenRemoved).to.be.instanceOf(NextDateModificationRuleRemoveEvent);
     },
   },
 });
@@ -217,9 +213,5 @@ describe('CustomerPortalSettings >>> NextDateModificationRule', () => {
         });
       });
     });
-  });
-
-  describe('has full coverage', () => {
-    it('yes', () => model.testCoverage());
   });
 });
