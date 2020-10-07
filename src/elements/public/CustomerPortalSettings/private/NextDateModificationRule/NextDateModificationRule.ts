@@ -247,7 +247,7 @@ export class NextDateModificationRule extends Translatable {
   private __renderMinMaxSummary(min?: string, max?: string) {
     return html`
       <div class="text-s text-tertiary font-normal">
-        <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.any">
+        <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.range">
           <span>:</span>
           <span class="text-secondary">
             ${this.__renderMinMaxContent(min ? parseDuration(min) : undefined)} &mdash;
