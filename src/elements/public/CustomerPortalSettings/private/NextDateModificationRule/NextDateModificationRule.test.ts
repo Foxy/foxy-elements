@@ -14,7 +14,13 @@ import { NextDateModificationRule } from './NextDateModificationRule';
 import { NextDateModificationRuleRemoveEvent } from './NextDateModificationRuleRemoveEvent';
 import { Rule } from './Rule';
 
-customElements.define('x-next-date-modification-rule', NextDateModificationRule);
+class TestNextDateModificationRule extends NextDateModificationRule {
+  get whenReady() {
+    return this._whenI18nReady.then(() => this.updateComplete);
+  }
+}
+
+customElements.define('x-next-date-modification-rule', TestNextDateModificationRule);
 
 const samples = {
   value: {
@@ -38,7 +44,7 @@ const samples = {
   },
 };
 
-function getRefs(element: NextDateModificationRule) {
+function getRefs(element: TestNextDateModificationRule) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
   return {
@@ -54,7 +60,7 @@ function getRefs(element: NextDateModificationRule) {
 }
 
 function testInteractivity(disabled: boolean) {
-  return async (element: NextDateModificationRule) => {
+  return async (element: TestNextDateModificationRule) => {
     await element.updateComplete;
     expect(element.disabled).to.equal(disabled);
     Object.values(getRefs(element)).forEach(ref => {
@@ -64,7 +70,7 @@ function testInteractivity(disabled: boolean) {
 }
 
 function testDisplay(open: boolean) {
-  return async (element: NextDateModificationRule) => {
+  return async (element: TestNextDateModificationRule) => {
     await element.updateComplete;
 
     expect(element.open).to.equal(open);
@@ -81,7 +87,7 @@ function testDisplay(open: boolean) {
 }
 
 function testContent(rule: Rule) {
-  return async (element: NextDateModificationRule) => {
+  return async (element: TestNextDateModificationRule) => {
     await element.updateComplete;
 
     if (!element.open) return;
@@ -95,7 +101,7 @@ function testContent(rule: Rule) {
   };
 }
 
-async function testRemoval(element: NextDateModificationRule) {
+async function testRemoval(element: TestNextDateModificationRule) {
   await element.updateComplete;
   const whenRemoved = new Promise(resolve =>
     element.addEventListener('remove', resolve, { once: true })
@@ -162,7 +168,7 @@ const machine = createMachine({
   },
 });
 
-const model = createModel<NextDateModificationRule>(machine).withEvents({
+const model = createModel<TestNextDateModificationRule>(machine).withEvents({
   OPEN: { exec: element => void (element.open = true) },
   CLOSE: { exec: element => void (element.open = false) },
   ENABLE: { exec: element => void (element.disabled = false) },
@@ -203,11 +209,12 @@ describe('CustomerPortalSettings >>> NextDateModificationRule', () => {
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
-        it(path.description, async () =>
-          path.test(
-            await fixture('<x-next-date-modification-rule></x-next-date-modification-rule>')
-          )
-        );
+        it(path.description, async () => {
+          const layout = '<x-next-date-modification-rule></x-next-date-modification-rule>';
+          const element = await fixture<TestNextDateModificationRule>(layout);
+          await element.whenReady;
+          return path.test(element);
+        });
       });
     });
   });
