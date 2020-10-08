@@ -77,11 +77,14 @@ export class SessionDuration extends Translatable {
           .label=${this._isI18nReady ? this._t('session.title').toString() : '---'}
           .value=${this._isI18nReady ? this.value.toString() : ''}
           .i18n=${this.__customFieldI18n}
+          data-testid="field"
+          id="field"
           @change=${this.__handleChange}
         >
           <vaadin-integer-field
             .disabled=${this.disabled || !this._isI18nReady}
             .min=${1}
+            data-testid="count"
             has-controls
           >
           </vaadin-integer-field>
@@ -89,6 +92,7 @@ export class SessionDuration extends Translatable {
           <vaadin-select
             .disabled=${this.disabled || !this._isI18nReady}
             .renderer=${this._isI18nReady ? this.__renderer : null}
+            data-testid="units"
           >
           </vaadin-select>
         </vaadin-custom-field>
@@ -99,11 +103,17 @@ export class SessionDuration extends Translatable {
           .lang=${this.lang}
           .ns=${this.ns}
           .key=${this._t(`session.${this.__errorMessage ?? 'subtitle'}`).toString()}
+          data-testid="error"
           class=${classMap({ 'text-error': this.__errorMessage !== null && !this.disabled })}
         >
         </x-i18n>
       </div>
     `;
+  }
+
+  public firstUpdated(): void {
+    // for some weird reason setting the value once during the initial render is not enough
+    (this.shadowRoot!.getElementById('field') as CustomFieldElement).value = this.value.toString();
   }
 
   public updated(changedProperties: Map<keyof SessionDuration, unknown>): void {
@@ -113,6 +123,7 @@ export class SessionDuration extends Translatable {
   private __renderItems(root: HTMLElement) {
     let list = root.querySelector('vaadin-list-box');
 
+    /* istanbul ignore else (depends on vaadin-select implementation) */
     if (list === null) {
       list = document.createElement('vaadin-list-box');
       root.appendChild(list);
@@ -123,9 +134,11 @@ export class SessionDuration extends Translatable {
     const renderedItems = list.querySelectorAll('vaadin-item');
 
     for (let i = 0; i < Math.max(items.length, renderedItems.length); ++i) {
+      /* istanbul ignore else (depends on vaadin-select implementation) */
       if (items[i]) {
         let item: Element;
 
+        /* istanbul ignore if (depends on vaadin-select implementation) */
         if (renderedItems[i]) {
           item = renderedItems[i];
         } else {
@@ -142,6 +155,7 @@ export class SessionDuration extends Translatable {
   }
 
   private __handleChange(evt: CustomEvent<void>) {
+    evt.stopPropagation();
     this.value = parseInt((evt.target as CustomFieldElement).value as string);
     this.dispatchEvent(
       new SessionDurationChangeEvent({
