@@ -52,6 +52,7 @@ export class SessionSecret extends Translatable {
             .invalid=${invalid}
             .value=${this._isI18nReady ? this.value : ''}
             .label=${this._isI18nReady ? this._t('jwt.title').toString() : '---'}
+            data-testid="input"
             class="w-full"
             @change=${(evt: InputEvent) => evt.stopPropagation()}
             @input=${this.__handleInput}
@@ -62,6 +63,7 @@ export class SessionSecret extends Translatable {
             class="flex-shrink-0 ml-s"
             style="margin-top: calc(var(--lumo-font-size-s) * 1.5)"
             theme="error"
+            data-testid="button"
             .disabled=${this.disabled || !this._isI18nReady}
             @click=${this.__regenerateValue}
           >
