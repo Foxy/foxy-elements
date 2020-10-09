@@ -117,6 +117,7 @@ export class CustomerPortalSettings extends Translatable {
       <x-page class="relative">
         <x-switch
           slot="title"
+          data-testid="switch"
           .disabled=${!this.__service.state.matches('idle') || !this._isI18nReady}
           .checked=${matchesEnabled || matchesCreated || matchesUpdated}
           @change=${(evt: SwitchChangeEvent) => {
@@ -198,7 +199,7 @@ export class CustomerPortalSettings extends Translatable {
           </x-session-duration>
 
           <x-session-secret
-            data-testid="jwt"
+            data-testid="secret"
             .disabled=${!newResource || !this._isI18nReady}
             .value=${newResource?.jwtSharedSecret ?? ''}
             .lang=${this.lang}

@@ -1,7 +1,9 @@
 import { expect, fixture } from '@open-wc/testing';
+import { ButtonElement } from '@vaadin/vaadin-button';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
 import { RequestEvent } from '../../../events/request';
+import { bookmark } from '../../../mocks/FxBookmark';
 
 import {
   customerPortalSettings,
@@ -10,6 +12,7 @@ import {
 
 import { store } from '../../../mocks/FxStore';
 import { FxCustomerPortalSettings } from '../../../types/hapi';
+import { getRefs, retry } from '../../../utils/test-utils';
 import { ErrorScreen, ErrorType } from '../../private/ErrorScreen/ErrorScreen';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
 import { CustomerPortalSettings } from './CustomerPortalSettings';
@@ -20,7 +23,20 @@ import { NextDateModificationChangeEvent } from './private/NextDateModification/
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
 
-customElements.define('foxy-customer-portal-settings', CustomerPortalSettings);
+import {
+  SessionDuration,
+  SessionDurationChangeEvent,
+} from './private/SessionDuration/SessionDuration';
+
+import { SessionSecret, SessionSecretChangeEvent } from './private/SessionSecret/SessionSecret';
+
+class TestCustomerPortalSettings extends CustomerPortalSettings {
+  get whenReady() {
+    return this._whenI18nReady.then(() => this.updateComplete);
+  }
+}
+
+customElements.define('foxy-customer-portal-settings', TestCustomerPortalSettings);
 
 /**
  * Since `setTimeout(cb, Infinite)` doesn't work, we need something else to
@@ -35,24 +51,24 @@ const samples: Record<string, FxCustomerPortalSettings> = {
 
 // #region utils
 
-function getRefs(element: CustomerPortalSettings) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
-
-  return {
-    origins: $('[data-testid=origins]') as OriginsList | null,
-    session: $('[data-testid=session]') as HTMLInputElement | null,
-    loading: $('[data-testid=loading]') as LoadingScreen | null,
-    error: $('[data-testid=error]') as ErrorScreen | null,
-    ndmod: $('[data-testid=ndmod]') as NextDateModification | null,
-    reset: $('[data-testid=reset]') as HTMLButtonElement | null,
-    fmod: $('[data-testid=fmod]') as FrequencyModification | null,
-    save: $('[data-testid=save]') as HTMLButtonElement | null,
-    jwt: $('[data-testid=jwt]') as HTMLInputElement | null,
-  };
+interface Refs {
+  origins: OriginsList;
+  session: SessionDuration;
+  loading: LoadingScreen;
+  secret: SessionSecret;
+  error: ErrorScreen;
+  ndmod: NextDateModification;
+  reset: ButtonElement;
+  fmod: FrequencyModification;
+  save: ButtonElement;
 }
 
 async function waitForRef(getRef: () => HTMLElement | null) {
   while (getRef() === null) await new Promise(resolve => setTimeout(resolve));
+}
+
+async function waitForValue<T>(value: T, getValue: () => T) {
+  while (getValue() !== value) await new Promise(resolve => setTimeout(resolve));
 }
 
 function clearListeners(target: EventTarget) {
@@ -68,31 +84,30 @@ function clearListeners(target: EventTarget) {
 
 function testError(type: ErrorType) {
   return async (element: CustomerPortalSettings) => {
-    await waitForRef(() => getRefs(element).error);
+    await waitForRef(() => getRefs<Refs>(element).error);
     await element.updateComplete;
-    expect(getRefs(element).error?.type).to.equal(type);
+    expect(getRefs<Refs>(element).error?.type).to.equal(type);
   };
 }
 
 function testContent(value: FxCustomerPortalSettings) {
   return async (element: CustomerPortalSettings) => {
-    await waitForRef(() => getRefs(element).jwt);
-    await element.updateComplete;
+    await retry(3, async () => {
+      const refs = getRefs<Refs>(element);
 
-    const refs = getRefs(element);
-
-    expect(refs.jwt!.value).to.deep.equal(value.jwtSharedSecret);
-    expect(refs.fmod!.value).to.deep.equal(value.subscriptions.allowFrequencyModification);
-    expect(refs.ndmod!.value).to.deep.equal(value.subscriptions.allowNextDateModification);
-    expect(refs.origins!.value).to.deep.equal(value.allowedOrigins);
-    expect(refs.session!.value).to.deep.equal(String(value.sessionLifespanInMinutes));
+      expect(refs.fmod!.value).to.deep.equal(value.subscriptions.allowFrequencyModification);
+      expect(refs.ndmod!.value).to.deep.equal(value.subscriptions.allowNextDateModification);
+      expect(refs.secret!.value).to.equal(value.jwtSharedSecret);
+      expect(refs.origins!.value).to.deep.equal(value.allowedOrigins);
+      expect(refs.session!.value).to.equal(value.sessionLifespanInMinutes);
+    });
   };
 }
 
 async function testLoading(element: CustomerPortalSettings) {
-  await waitForRef(() => getRefs(element).loading);
+  await waitForRef(() => getRefs<Refs>(element).loading);
   await element.updateComplete;
-  expect(getRefs(element).loading).to.be.visible;
+  expect(getRefs<Refs>(element).loading).to.be.visible;
 }
 
 // #endregion assertions
@@ -108,6 +123,7 @@ function handleRequestWithSuccess(evt: Event) {
   const { detail } = evt as RequestEvent<CustomerPortalSettings>;
 
   detail.handle(async url => {
+    if (url === '/') return new Response(JSON.stringify(bookmark));
     if (url.toString().endsWith('/stores/8')) return new Response(JSON.stringify(store));
     if (url.toString().endsWith('/stores/8/customer_portal_settings')) {
       return new Response(JSON.stringify(samples.minimal));
@@ -207,54 +223,64 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
     exec: element => {
       clearListeners(element);
       element.addEventListener('request', handleRequestWithUnauthorizedError);
-      getRefs(element).save!.click();
+      getRefs<Refs>(element).save!.click();
     },
   },
   SAVE_INFINITE: {
     exec: element => {
       clearListeners(element);
       element.addEventListener('request', handleRequestWithInfiniteLoading);
-      getRefs(element).save!.click();
+      getRefs<Refs>(element).save!.click();
     },
   },
   SAVE_SUCCESS: {
     exec: element => {
       clearListeners(element);
       element.addEventListener('request', handleRequestWithSuccess);
-      getRefs(element).save!.click();
+      getRefs<Refs>(element).save!.click();
     },
   },
   SAVE_ERROR: {
     exec: element => {
       clearListeners(element);
       element.addEventListener('request', handleRequestWithError);
-      getRefs(element).save!.click();
+      getRefs<Refs>(element).save!.click();
     },
   },
   EMULATE_INPUT: {
     exec: async element => {
-      const refs = getRefs(element);
+      const refs = getRefs<Refs>(element);
 
       refs.fmod!.value = samples.complete.subscriptions.allowFrequencyModification;
       refs.fmod!.dispatchEvent(new FrequencyModificationChangeEvent(refs.fmod!.value));
+      await element.updateComplete;
 
-      refs.jwt!.value = samples.complete.jwtSharedSecret;
-      refs.jwt!.dispatchEvent(new Event('change'));
+      refs.secret!.value = samples.complete.jwtSharedSecret;
+      refs.secret!.dispatchEvent(
+        new SessionSecretChangeEvent({
+          value: refs.secret.value,
+          invalid: false,
+        })
+      );
+      await element.updateComplete;
 
       refs.ndmod!.value = samples.complete.subscriptions.allowNextDateModification;
       refs.ndmod!.dispatchEvent(new NextDateModificationChangeEvent(refs.ndmod!.value));
+      await element.updateComplete;
 
       refs.origins!.value = samples.complete.allowedOrigins;
       refs.origins!.dispatchEvent(new OriginsListChangeEvent(refs.origins!.value));
+      await element.updateComplete;
 
-      refs.session!.value = samples.complete.sessionLifespanInMinutes.toString();
-      refs.session!.dispatchEvent(new Event('change'));
-
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      refs.session!.value = samples.complete.sessionLifespanInMinutes;
+      refs.session!.dispatchEvent(
+        new SessionDurationChangeEvent({ value: refs.session.value, invalid: false })
+      );
+      await element.updateComplete;
     },
   },
   RESET: {
-    exec: element => getRefs(element).reset!.click(),
+    exec: element => getRefs<Refs>(element).reset!.click(),
   },
 });
 
@@ -264,15 +290,11 @@ describe('CustomerPortalSettings', () => {
       plan.paths.forEach(path => {
         it(path.description, async () => {
           const layout = '<foxy-customer-portal-settings></foxy-customer-portal-settings>';
-          const element = await fixture<CustomerPortalSettings>(layout);
-
-          await path.test(element);
+          const element = await fixture<TestCustomerPortalSettings>(layout);
+          await element.whenReady;
+          return path.test(element);
         });
       });
     });
-  });
-
-  describe('has full coverage', () => {
-    it('yes', () => model.testCoverage());
   });
 });

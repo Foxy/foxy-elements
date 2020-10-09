@@ -22,3 +22,22 @@ export function setChecked(
   element.checked = value;
   element?.dispatchEvent(new CustomEvent('change'));
 }
+
+export async function retry(times: number, test: () => Promise<void>): Promise<void> {
+  let error: Error | null = null;
+  let elapsed = 0;
+
+  do {
+    try {
+      await new Promise(r => setTimeout(r));
+      await test();
+      error = null;
+    } catch (err) {
+      error = err;
+    } finally {
+      elapsed++;
+    }
+  } while (elapsed < times);
+
+  if (error) throw error;
+}
