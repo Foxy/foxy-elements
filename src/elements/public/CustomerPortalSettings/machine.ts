@@ -155,13 +155,6 @@ const setHref = actions.assign<CustomerPortalSettingsContext>({
 
 // #endregion actions
 
-// #region services
-
-const load = (): Promise<void> => Promise.reject(new Error('not implemented'));
-const save = (): Promise<void> => Promise.reject(new Error('not implemented'));
-
-// #endregion services
-
 const setters = {
   SET_SECRET: { target: '#cps.idle', actions: 'setSecret' },
   SET_ORIGINS: { target: '#cps.idle', actions: 'setOrigins' },
@@ -285,7 +278,6 @@ export const machine = Machine<CustomerPortalSettingsContext>(
   },
   {
     guards: { isClean, isLoaded, isInvalid, isEnabled, isCreated, isDeleted, isSetupNeeded },
-    services: { load, save },
     actions: {
       setFrequencyModification,
       setNextDateModification,
