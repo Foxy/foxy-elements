@@ -261,6 +261,15 @@ export class CustomerPortalSettings extends Translatable {
     if (this.href === null) throw new FriendlyError('setup_needed');
 
     try {
+      await this.updateComplete;
+
+      const resourceResponse = await RequestEvent.emit({ source: this, init: [this.href] });
+      let resource: FxCustomerPortalSettings | null;
+      let store: FxStore;
+
+      if (resourceResponse.status.toString().startsWith('4')) {
+        resource = null;
+
       const bookmarkResponse = await RequestEvent.emit({ source: this, init: ['/'] });
       throwIfNotOk(bookmarkResponse);
 
@@ -269,17 +278,16 @@ export class CustomerPortalSettings extends Translatable {
       const storeResponse = await RequestEvent.emit({ source: this, init: [storeHref] });
       throwIfNotOk(storeResponse);
 
-      const store = (await storeResponse.json()) as FxStore;
-      const resourceHref = store._links['fx:customer_portal_settings'].href;
-      const resourceResponse = await RequestEvent.emit({ source: this, init: [resourceHref] });
-
-      let resource: FxCustomerPortalSettings | null;
-
-      if (resourceResponse.status.toString().startsWith('4')) {
-        resource = null;
+        store = (await storeResponse.json()) as FxStore;
       } else {
         throwIfNotOk(resourceResponse);
         resource = (await resourceResponse.json()) as FxCustomerPortalSettings;
+
+        const storeHref = resource._links['fx:store'].href;
+        const storeResponse = await RequestEvent.emit({ source: this, init: [storeHref] });
+        throwIfNotOk(storeResponse);
+
+        store = (await storeResponse.json()) as FxStore;
       }
 
       return { store, resource };
