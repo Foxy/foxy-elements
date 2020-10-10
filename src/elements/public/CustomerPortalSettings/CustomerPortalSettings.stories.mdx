@@ -1,7 +1,6 @@
 import { html } from 'lit-html';
 import { Story, Canvas, Meta, Props } from '@storybook/addon-docs/blocks';
 import { store } from '../../../mocks/FxStore';
-import { bookmark } from '../../../mocks/FxBookmark';
 import { customerPortalSettings } from '../../../mocks/FxCustomerPortalSettings';
 import './index';
 
@@ -9,9 +8,8 @@ export const handleRequest = evt => {
   evt.detail.handle(async url => {
     await new Promise(resolve => setTimeout(resolve, 500));
     //
-    if (url === '/') return new Response(JSON.stringify(bookmark));
-    if (url.endsWith('/stores/8')) return new Response(JSON.stringify(store));
-    if (url.endsWith('/stores/8/customer_portal_settings')) {
+    if (url === 'https://api.foxy.test/stores/8') return new Response(JSON.stringify(store));
+    if (url === 'https://api.foxy.test/stores/8/customer_portal_settings') {
       return new Response(JSON.stringify(customerPortalSettings));
     }
     //
@@ -61,7 +59,7 @@ A properly configured element should look like this:
     {() => html`
       <div class="container mx-auto p-2 sm:p-4 md:p-6 lg:p-8">
         <foxy-customer-portal-settings
-          href="https://foxy-demo.foxycart.com/s/admin/stores/8/customer_portal_settings"
+          href="https://api.foxy.test/stores/8/customer_portal_settings"
           @request=${handleRequest}
         >
         </foxy-customer-portal-settings>
