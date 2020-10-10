@@ -32,6 +32,18 @@ function throwIfNotOk(response: Response) {
   throw new FriendlyError(response.status === 401 ? 'unauthorized' : 'unknown');
 }
 
+export class CustomerPortalSettingsReadyEvent extends CustomEvent<void> {
+  constructor() {
+    super('ready');
+  }
+}
+
+export class CustomerPortalSettingsUpdateEvent extends CustomEvent<void> {
+  constructor() {
+    super('update');
+  }
+}
+
 export class CustomerPortalSettings extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
@@ -266,13 +278,13 @@ export class CustomerPortalSettings extends Translatable {
       if (resourceResponse.status.toString().startsWith('4')) {
         resource = null;
 
-      const bookmarkResponse = await RequestEvent.emit({ source: this, init: ['/'] });
-      throwIfNotOk(bookmarkResponse);
+        const bookmarkResponse = await RequestEvent.emit({ source: this, init: ['/'] });
+        throwIfNotOk(bookmarkResponse);
 
-      const bookmark = (await bookmarkResponse.json()) as FxBookmark;
-      const storeHref = bookmark._links['fx:store'].href;
-      const storeResponse = await RequestEvent.emit({ source: this, init: [storeHref] });
-      throwIfNotOk(storeResponse);
+        const bookmark = (await bookmarkResponse.json()) as FxBookmark;
+        const storeHref = bookmark._links['fx:store'].href;
+        const storeResponse = await RequestEvent.emit({ source: this, init: [storeHref] });
+        throwIfNotOk(storeResponse);
 
         store = (await storeResponse.json()) as FxStore;
       } else {
@@ -291,6 +303,9 @@ export class CustomerPortalSettings extends Translatable {
       if (err instanceof FriendlyError) throw err;
       if (err instanceof UnhandledRequestError) throw new FriendlyError('setup_needed');
       throw new FriendlyError('unknown');
+    } finally {
+      await this.updateComplete;
+      this.dispatchEvent(new CustomerPortalSettingsReadyEvent());
     }
   }
 
@@ -307,13 +322,16 @@ export class CustomerPortalSettings extends Translatable {
       }
 
       const options: RequestInit = { method, body: payload ? JSON.stringify(payload) : undefined };
-      const response = await RequestEvent.emit({ source: this, init: [this.href, options] });
+      const response = await RequestEvent.emit({ source: this, init: [this.href!, options] });
 
       throwIfNotOk(response);
     } catch (err) {
       if (err instanceof FriendlyError) throw err;
       if (err instanceof UnhandledRequestError) throw new FriendlyError('setup_needed');
       throw new FriendlyError('unknown');
+    } finally {
+      await this.updateComplete;
+      this.dispatchEvent(new CustomerPortalSettingsUpdateEvent());
     }
   }
 }
