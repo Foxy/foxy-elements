@@ -70,7 +70,8 @@ export class CustomerPortalSettings extends Translatable {
 
   private __service = interpret(this.__machine)
     .onTransition(({ changed }) => changed && this.requestUpdate())
-    .onChange(() => this.requestUpdate());
+    .onChange(() => this.requestUpdate())
+    .start();
 
   public constructor() {
     super('customer-portal-settings');
@@ -82,11 +83,6 @@ export class CustomerPortalSettings extends Translatable {
 
   public set href(data: string | null) {
     this.__service.send({ type: 'SET_HREF', data });
-  }
-
-  public connectedCallback(): void {
-    super.connectedCallback();
-    if (!this.__service.initialized) this.__service.start();
   }
 
   public render(): TemplateResult {
