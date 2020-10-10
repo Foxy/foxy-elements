@@ -299,8 +299,6 @@ export class CustomerPortalSettings extends Translatable {
   }
 
   private async __save(): Promise<void> {
-    if (this.href === null) throw new FriendlyError('setup_needed');
-
     try {
       const context = this.__service.state.context;
       const payload = cloneDeep(context.newResource) as Record<string, unknown> | null;
