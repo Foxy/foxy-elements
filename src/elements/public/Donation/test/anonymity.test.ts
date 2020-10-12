@@ -28,14 +28,14 @@ async function expectAnonymityCheckbox(element: Donation) {
 
 async function expectPublicDonation(element: Donation) {
   await element.updateComplete;
-  const field = getRefs<Refs>(element).form?.elements.namedItem('anonymous') as HTMLInputElement;
+  const field = getRefs<Refs>(element).form?.elements.namedItem('Anonymous') as HTMLInputElement;
   expect(field).not.to.exist;
   expect(element.anonymous, 'anonymous must be set to false').to.be.false;
 }
 
 async function expectAnonymousDonation(element: Donation) {
   await element.updateComplete;
-  const field = getRefs<Refs>(element).form?.elements.namedItem('anonymous') as HTMLInputElement;
+  const field = getRefs<Refs>(element).form?.elements.namedItem('Anonymous') as HTMLInputElement;
   expect(field.value, 'form data must have anonymous=true').to.equal('true');
   expect(element.anonymous, 'anonymous must be set to true').to.be.true;
 }

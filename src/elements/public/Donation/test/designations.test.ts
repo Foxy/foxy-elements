@@ -25,7 +25,7 @@ async function expectNoDesignationPicker(element: Donation) {
 
 async function expectNullDesignation(element: Donation) {
   await element.updateComplete;
-  const field = getRefs<Refs>(element).form?.elements.namedItem('designation');
+  const field = getRefs<Refs>(element).form?.elements.namedItem('Designation');
   expect(field, 'designation must not be included in the form').to.be.null;
   expect(element.designation, 'designation must be null').to.be.null;
 }
@@ -34,7 +34,7 @@ async function expectStringDesignation(element: Donation) {
   await element.updateComplete;
 
   const form = getRefs<Refs>(element).form;
-  const field = form?.elements.namedItem('designation') as HTMLInputElement;
+  const field = form?.elements.namedItem('Designation') as HTMLInputElement;
   const sample = samples.designation;
 
   expect(field.value, 'designation must be in the form').to.equal(sample);

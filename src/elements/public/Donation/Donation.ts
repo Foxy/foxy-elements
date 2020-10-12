@@ -401,26 +401,22 @@ export class Donation extends Translatable {
     const data = new FormData();
 
     if (typeof this.designation === 'string') {
-      data.set('designation', this.__capitalize(this.designation));
+      data.set('Designation', this.designation.trim());
     }
 
     if (typeof this.amount === 'number' && typeof this.currency === 'string') {
       data.set('price', `${this.amount.toFixed(2)}${this.currency}`);
     }
 
-    if (!this.frequency) data.delete('sub_frequency');
-    else if (typeof this.frequency === 'string') data.set('sub_frequency', this.frequency);
-    if (typeof this.comment === 'string') data.set('comment', this.comment);
+    if (this.frequency) data.set('sub_frequency', this.frequency);
+    if (typeof this.comment === 'string') data.set('Comment', this.comment.trim());
     if (typeof this.image === 'string') data.set('image', this.image);
     if (typeof this.code === 'string') data.set('code', this.code);
-    if (typeof this.name === 'string') data.set('name', this.__capitalize(this.name));
+    if (typeof this.name === 'string') data.set('name', this.name.trim());
     if (typeof this.url === 'string') data.set('url', this.url);
     if (typeof this.cart === 'string') data.set('cart', this.cart);
-
     if (this.empty) data.set('empty', this.empty);
-    else data.delete('empty');
-    if (this.anonymous) data.set('anonymous', this.__capitalize(this.anonymous.toString()));
-    else data.delete('anonymous');
+    if (this.anonymous) data.set('Anonymous', 'true');
 
     data.set('quantity', '1');
 
@@ -448,11 +444,5 @@ export class Donation extends Translatable {
       currency: this.currency!,
       style: 'currency',
     });
-  }
-
-  // helper function to capitalize first letter
-  private __capitalize(str: string) {
-    const trimmed = str.trim();
-    return trimmed.charAt(0) + trimmed.slice(1);
   }
 }

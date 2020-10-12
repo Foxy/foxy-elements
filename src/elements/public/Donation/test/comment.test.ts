@@ -20,7 +20,7 @@ async function expectNoComment(element: Donation) {
   await element.updateComplete;
 
   const { comment, form } = getRefs<Refs>(element);
-  const field = form?.elements.namedItem('comment');
+  const field = form?.elements.namedItem('Comment');
 
   expect(element.comment, 'comment property must be null').to.be.null;
   expect(comment, 'comment input must not be rendered').to.be.undefined;
@@ -31,7 +31,7 @@ async function expectEmptyComment(element: Donation) {
   await element.updateComplete;
 
   const { comment, form } = getRefs<Refs>(element);
-  const field = form?.elements.namedItem('comment') as HTMLTextAreaElement;
+  const field = form?.elements.namedItem('Comment') as HTMLTextAreaElement;
 
   expect(element.comment, 'comment property must be empty').to.equal('');
   expect(comment?.value, 'comment input must be empty').to.equal('');
@@ -42,7 +42,7 @@ async function expectEnteredComment(element: Donation) {
   await element.updateComplete;
 
   const { comment, form } = getRefs<Refs>(element);
-  const field = form?.elements.namedItem('comment') as HTMLTextAreaElement;
+  const field = form?.elements.namedItem('Comment') as HTMLTextAreaElement;
   const sample = samples.enteredComment;
 
   expect(element.comment, 'comment property must equal sample').to.equal(sample);
@@ -54,7 +54,7 @@ async function expectPrefilledComment(element: Donation) {
   await element.updateComplete;
 
   const { comment, form } = getRefs<Refs>(element);
-  const field = form?.elements.namedItem('comment') as HTMLTextAreaElement;
+  const field = form?.elements.namedItem('Comment') as HTMLTextAreaElement;
   const sample = samples.comment;
 
   expect(element.comment, 'comment property must equal sample').to.equal(sample);
