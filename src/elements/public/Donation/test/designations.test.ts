@@ -8,10 +8,7 @@ import { ChoiceChangeEvent } from '../../../private/events';
 
 const samples = {
   designations: ['Designation one', 'Designation two', 'Designation three'],
-  designation: {
-    string: 'Designation one',
-    custom: 'Custom designation',
-  },
+  designation: 'Designation one',
 };
 
 async function expectNoErrorScreen(element: Donation) {
@@ -38,7 +35,7 @@ async function expectStringDesignation(element: Donation) {
 
   const form = getRefs<Refs>(element).form;
   const field = form?.elements.namedItem('designation') as HTMLInputElement;
-  const sample = samples.designation.string;
+  const sample = samples.designation;
 
   expect(field.value, 'designation must be in the form').to.equal(sample);
   expect(element.designation, 'designation must equal sample').to.equal(sample);
@@ -55,30 +52,6 @@ async function expectDesignationPicker(element: Donation) {
   expect(choice?.value, 'designation must be passed down to choice').to.deep.equal(value);
 }
 
-async function expectCustomDesignationToBeDisallowed(element: Donation) {
-  await element.updateComplete;
-  const message = 'designation must not be customizable';
-  expect(element.custom ?? [], message).not.to.include('designation');
-}
-
-async function expectCustomDesignationToBeAllowed(element: Donation) {
-  await element.updateComplete;
-  const message = 'designation must be customizable';
-  expect(element.custom, message).to.include('designation');
-}
-
-async function expectDesignationPickerNotToBeCustomizable(element: Donation) {
-  await expectCustomDesignationToBeDisallowed(element);
-  const designation = getRefs<Refs>(element).designation;
-  expect(designation?.custom, 'designation must not be customizable').to.be.false;
-}
-
-async function expectDesignationPickerToBeCustomizable(element: Donation) {
-  await expectCustomDesignationToBeAllowed(element);
-  const designation = getRefs<Refs>(element).designation;
-  expect(designation?.custom, 'designation must be customizable').to.be.true;
-}
-
 const machine = createMachine({
   id: 'designations',
   initial: 'off',
@@ -90,46 +63,16 @@ const machine = createMachine({
       states: {
         null: {
           meta: { test: expectNullDesignation },
-          initial: 'predefined',
-          states: {
-            predefined: {
-              meta: { test: expectCustomDesignationToBeDisallowed },
-              on: {
-                SET_DESIGNATIONS: '#designations.on.null.predefined',
-                SET_DESIGNATION_STRING: '#designations.off.string.predefined',
-                ENABLE_CUSTOM_DESIGNATIONS: 'custom',
-              },
-            },
-            custom: {
-              meta: { test: expectCustomDesignationToBeAllowed },
-              on: {
-                SET_DESIGNATIONS: '#designations.on.null.custom',
-                SET_DESIGNATION_STRING: '#designations.off.string.custom',
-                DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
-              },
-            },
+          on: {
+            SET_DESIGNATIONS: '#designations.on.null',
+            SET_DESIGNATION_STRING: '#designations.off.string',
           },
         },
         string: {
           meta: { test: expectStringDesignation },
-          initial: 'predefined',
-          states: {
-            predefined: {
-              meta: { test: expectCustomDesignationToBeDisallowed },
-              on: {
-                SET_DESIGNATIONS: '#designations.on.string.predefined',
-                SET_DESIGNATION_NULL: '#designations.off.null.predefined',
-                ENABLE_CUSTOM_DESIGNATIONS: 'custom',
-              },
-            },
-            custom: {
-              meta: { test: expectCustomDesignationToBeAllowed },
-              on: {
-                SET_DESIGNATIONS: '#designations.on.string.custom',
-                SET_DESIGNATION_NULL: '#designations.off.null.custom',
-                DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
-              },
-            },
+          on: {
+            SET_DESIGNATIONS: '#designations.on.string',
+            SET_DESIGNATION_NULL: '#designations.off.null',
           },
         },
       },
@@ -140,58 +83,22 @@ const machine = createMachine({
       states: {
         null: {
           meta: { test: expectNullDesignation },
-          initial: 'predefined',
-          states: {
-            predefined: {
-              meta: { test: expectDesignationPickerNotToBeCustomizable },
-              on: {
-                UNSET_DESIGNATIONS: '#designations.off.null.predefined',
-                SET_DESIGNATION_STRING: '#designations.on.string.predefined.set',
-                CHECK_DESIGNATION: '#designations.on.string.predefined.checked',
-                ENABLE_CUSTOM_DESIGNATIONS: 'custom',
-              },
-            },
-            custom: {
-              meta: { test: expectDesignationPickerToBeCustomizable },
-              on: {
-                UNSET_DESIGNATIONS: '#designations.off.null.custom',
-                SET_DESIGNATION_STRING: '#designations.on.string.custom',
-                CHECK_DESIGNATION: '#designations.on.string.custom.checked',
-                DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
-              },
-            },
+          on: {
+            UNSET_DESIGNATIONS: '#designations.off.null',
+            SET_DESIGNATION_STRING: '#designations.on.string.set',
+            CHECK_DESIGNATION: '#designations.on.string.checked',
           },
         },
         string: {
           meta: { test: expectStringDesignation },
-          initial: 'predefined',
+          initial: 'set',
           states: {
-            predefined: {
-              meta: { test: expectDesignationPickerNotToBeCustomizable },
-              initial: 'set',
-              states: {
-                checked: { meta: { test: () => true } },
-                set: { meta: { test: () => true } },
-              },
-              on: {
-                UNSET_DESIGNATIONS: '#designations.off.string.predefined',
-                SET_DESIGNATION_NULL: '#designations.on.null.predefined',
-                ENABLE_CUSTOM_DESIGNATIONS: 'custom',
-              },
-            },
-            custom: {
-              meta: { test: expectDesignationPickerToBeCustomizable },
-              initial: 'set',
-              states: {
-                checked: { meta: { test: () => true } },
-                set: { meta: { test: () => true } },
-              },
-              on: {
-                UNSET_DESIGNATIONS: '#designations.off.string.custom',
-                SET_DESIGNATION_NULL: '#designations.on.null.custom',
-                DISABLE_CUSTOM_DESIGNATIONS: 'predefined',
-              },
-            },
+            checked: { meta: { test: () => true } },
+            set: { meta: { test: () => true } },
+          },
+          on: {
+            UNSET_DESIGNATIONS: '#designations.off.string',
+            SET_DESIGNATION_NULL: '#designations.on.null',
           },
         },
       },
@@ -206,25 +113,15 @@ export const model = createModel<Donation>(machine).withEvents({
   UNSET_DESIGNATIONS: {
     exec: exec<Refs, Donation>(({ element }) => (element.designations = null)),
   },
-  ENABLE_CUSTOM_DESIGNATIONS: {
-    exec: exec<Refs, Donation>(({ element }) => {
-      element.custom = Array.from(new Set([...(element.custom ?? []), 'designation']));
-    }),
-  },
-  DISABLE_CUSTOM_DESIGNATIONS: {
-    exec: exec<Refs, Donation>(({ element }) => {
-      element.custom = element.custom?.filter(v => v !== 'designation') ?? null;
-    }),
-  },
   SET_DESIGNATION_STRING: {
-    exec: exec<Refs, Donation>(({ element }) => (element.designation = samples.designation.string)),
+    exec: exec<Refs, Donation>(({ element }) => (element.designation = samples.designation)),
   },
   SET_DESIGNATION_NULL: {
     exec: exec<Refs, Donation>(({ element }) => (element.designation = null)),
   },
   CHECK_DESIGNATION: {
     exec: exec<Refs, Donation>(({ designation }) => {
-      designation!.value = samples.designation.string;
+      designation!.value = samples.designation;
       designation!.dispatchEvent(new ChoiceChangeEvent(designation!.value));
     }),
   },

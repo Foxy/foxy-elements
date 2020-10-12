@@ -111,12 +111,11 @@ export class Donation extends Translatable {
 
   /**
    * Optional parts of the form including a custom ("other") option.
-   * Adding `amount` to this array will enable custom amount and adding `designation`
-   * will render a custom designation field.
+   * Adding `amount` to this array will enable custom amount.
    *
-   * **Example:** `["amount", "designation"]`
+   * **Example:** `["amount"]`
    */
-  public custom: null | ('amount' | 'designation')[] = null;
+  public custom: null | 'amount'[] = null;
 
   /**
    * Optional donation amount variants. If this property is set, the form will render
@@ -300,15 +299,11 @@ export class Donation extends Translatable {
         ${this.designations && this.designations.length > 0
           ? html`
               <x-dropdown
-                ?custom=${!!this.custom?.includes('designation')}
                 .label=${this._t('designation').toString()}
                 .items=${this.designations}
                 .value=${Array.isArray(this.designation)
                   ? '${this.designation[0]}: ${this.designation[1]}'
                   : this.designation}
-                type="textarea"
-                lang=${this.lang}
-                ns=${this.ns}
                 data-testid="designation"
                 @change=${(evt: DropdownChangeEvent) => {
                   this.designation = evt.detail as string;
