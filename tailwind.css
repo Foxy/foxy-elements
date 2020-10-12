@@ -24,15 +24,16 @@ vaadin-text-field,
 vaadin-date-picker,
 vaadin-email-field,
 vaadin-number-field,
+vaadin-custom-field,
 vaadin-integer-field,
 vaadin-password-field {
   padding-top: 0;
   padding-bottom: 0;
 }
 
-vaadin-date-picker {
-  margin-top: calc(var(--lumo-space-xs, 0.25rem) * -1);
-  margin-bottom: calc(var(--lumo-space-xs, 0.25rem) * -1);
+vaadin-date-picker::part(text-field) {
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 vaadin-button {

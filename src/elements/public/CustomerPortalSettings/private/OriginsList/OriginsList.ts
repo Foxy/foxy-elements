@@ -3,7 +3,7 @@ import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
-import { concatTruthy } from '../../../../../utils/concat-truthy';
+import { classMap } from '../../../../../utils/class-map';
 import { ListChangeEvent } from '../../../../private/events';
 import { Group, I18N, List, Skeleton } from '../../../../private/index';
 import { OriginsListChangeEvent } from './OriginsListChangeEvent';
@@ -21,10 +21,11 @@ export class OriginsList extends Translatable {
     };
   }
 
-  static get properties(): PropertyDeclarations {
+  public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       value: { type: Array },
+      invalid: { type: Boolean },
       disabled: { type: Boolean },
     };
   }
@@ -33,9 +34,11 @@ export class OriginsList extends Translatable {
 
   public disabled = false;
 
-  public constructor() {
-    super('customer-portal-settings');
-  }
+  private __errorCode: 'invalid' | 'https_only' = 'invalid';
+
+  private __invalid = false;
+
+  private __newValue = '';
 
   public render(): TemplateResult {
     return html`
@@ -46,59 +49,100 @@ export class OriginsList extends Translatable {
           .value=${this.value}
           @change=${this.__handleChange}
         >
-          ${concatTruthy(
-            !this._isI18nReady &&
-              this.value.map((item, index) => html`<x-skeleton slot=${index}>${item}</x-skeleton>`)
+          ${this.value.map((item, index) =>
+            this._isI18nReady
+              ? html`
+                  <div class="flex items-center" slot=${index}>
+                    <img
+                      height="16"
+                      width="16"
+                      class="mr-m"
+                      src="https://www.google.com/s2/favicons?domain=${item}"
+                    />
+                    ${item}
+                  </div>
+                `
+              : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
           )}
 
-          <div
-            class="flex flex-col space-y-s sm:items-center sm:space-y-0 sm:flex-row sm:space-x-s"
-          >
+          <div class="flex flex-col space-y-s sm:space-y-0 sm:flex-row sm:space-x-s sm:items-start">
             <vaadin-text-field
               data-testid="input"
-              name="new-value"
-              pattern="https?://(w*.?)*(:d*)?"
-              placeholder=${this._isI18nReady ? 'https://foxy.io' : ''}
-              error-message=${this._isI18nReady ? this._t('origins.invalid').toString() : ''}
+              .placeholder=${this._isI18nReady ? 'https://foxy.io' : ''}
+              .errorMessage=${this._t(`origins.${this.__errorCode}`).toString()}
               .disabled=${this.disabled || !this._isI18nReady}
+              .invalid=${this.__invalid}
+              .value=${this.__newValue}
               @keypress=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.__submit()}
               @change=${(evt: InputEvent) => evt.stopPropagation()}
+              @input=${this.__handleInput}
             >
             </vaadin-text-field>
 
-            <vaadin-button
-              data-testid="button"
-              .disabled=${this.disabled || !this._isI18nReady}
-              @click=${this.__submit}
-            >
-              <x-i18n .ns=${this.ns} .lang=${this.lang} key="origins.add"></x-i18n>
-              <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
-            </vaadin-button>
+            <div class="sm:flex sm:items-center">
+              <vaadin-button
+                class="w-full sm:w-auto"
+                data-testid="button"
+                .disabled=${!this._isI18nReady ||
+                this.disabled ||
+                this.__invalid ||
+                this.value.length >= 10}
+                @click=${this.__submit}
+              >
+                <x-i18n .ns=${this.ns} .lang=${this.lang} key="origins.add"></x-i18n>
+                <iron-icon icon="lumo:plus" slot="suffix"></iron-icon>
+              </vaadin-button>
+
+              <x-i18n
+                .lang=${this.lang}
+                .ns=${this.ns}
+                key="origins.add_hint"
+                class=${classMap({
+                  'text-xs text-center block font-lumo mt-xs transition duration-200 sm:mt-0 sm:ml-m': true,
+                  'text-tertiary': this.value.length < 10,
+                  'text-primary': this.value.length >= 10,
+                  hidden: this.value.length === 0,
+                })}
+              >
+              </x-i18n>
+            </div>
           </div>
         </x-list>
       </x-group>
     `;
   }
 
-  private get __newValueInput(): HTMLInputElement {
-    return this.shadowRoot!.querySelector('[name=new-value]') as HTMLInputElement;
-  }
-
   private __sendChange() {
     this.dispatchEvent(new OriginsListChangeEvent(this.value));
   }
 
-  private __submit() {
-    if (this.__newValueInput.value.trim().length === 0) return;
-    if (!this.__newValueInput.checkValidity()) return;
+  private __handleInput(evt: InputEvent) {
+    this.__newValue = (evt.target as HTMLInputElement).value;
 
-    this.value = [...this.value, this.__newValueInput.value];
-    this.__sendChange();
-    this.__reset();
+    try {
+      const url = new URL(this.__newValue);
+      const isSecure = url.protocol === 'https:';
+      const isLocalhost = url.hostname === 'localhost';
+
+      this.__invalid = !isLocalhost && !isSecure;
+      this.__errorCode = 'https_only';
+    } catch {
+      this.__invalid = this.__newValue.length > 0;
+      this.__errorCode = 'invalid';
+    }
+
+    this.requestUpdate();
   }
 
-  private __reset() {
-    this.__newValueInput.value = '';
+  private __submit() {
+    if (this.__newValue.length > 0) {
+      this.value = [...this.value, new URL(this.__newValue).origin];
+      this.__newValue = '';
+      this.__invalid = false;
+      this.__sendChange();
+    }
+
+    this.requestUpdate();
   }
 
   private __handleChange(evt: ListChangeEvent) {

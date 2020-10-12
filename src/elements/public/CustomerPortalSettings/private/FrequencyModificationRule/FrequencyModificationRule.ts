@@ -4,6 +4,7 @@ import '@vaadin/vaadin-lumo-styles/icons';
 import { PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
 import { Group, I18N } from '../../../../private/index';
@@ -49,14 +50,14 @@ export class FrequencyModificationRule extends Translatable {
       <x-group frame>
         <details
           data-testid="details"
-          class="font-lumo"
+          class=${classMap({ 'font-lumo': true, 'pointer-events-none': !this._isI18nReady })}
           ?open=${this.open}
           @toggle=${() => (this.open = !this.open)}
         >
           <summary
             class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus:outline-none focus:shadow-outline"
           >
-            <div class="p-m space-y-xs">
+            <div class="p-m space-y-xs mr-xl">
               <x-i18n
                 .ns=${this.ns}
                 .lang=${this.lang}
@@ -85,7 +86,7 @@ export class FrequencyModificationRule extends Translatable {
 
             <button
               data-testid="remove"
-              .disabled=${this.disabled}
+              .disabled=${this.disabled || !this._isI18nReady}
               class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
               style="width: 54px; height: 54px"
               @click=${prevent(() => {
@@ -101,9 +102,10 @@ export class FrequencyModificationRule extends Translatable {
               <x-i18n slot="header" .ns=${this.ns} .lang=${this.lang} key="fmod.match"></x-i18n>
               <x-jsonata-input
                 data-testid="jsonata"
+                .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${this.value.jsonataQuery}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${this.__handleQueryChange}
               >
               </x-jsonata-input>
@@ -115,7 +117,7 @@ export class FrequencyModificationRule extends Translatable {
                 data-testid="frequency"
                 .lang=${this.lang}
                 .value=${this.value.values}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${this.__handleValuesChange}
               >
               </x-frequency-list>

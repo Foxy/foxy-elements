@@ -37,7 +37,7 @@ export const machine = createMachine<Context>(
         initial: 'unknown',
         states: {
           unknown: {
-            on: { '': [{ target: 'multiple', cond: 'isValueArray' }, { target: 'single' }] },
+            always: [{ target: 'multiple', cond: 'isValueArray' }, { target: 'single' }],
           },
           none: {},
           single: {},
@@ -49,29 +49,25 @@ export const machine = createMachine<Context>(
         initial: 'unknown',
         states: {
           unknown: {
-            on: { '': [{ target: 'present', cond: 'hasCustom' }, { target: 'absent' }] },
+            always: [{ target: 'present', cond: 'hasCustom' }, { target: 'absent' }],
           },
           absent: {},
           present: {
             initial: 'unknown',
             states: {
               unknown: {
-                on: {
-                  '': [{ target: 'selected', cond: 'hasCustomValue' }, { target: 'available' }],
-                },
+                always: [{ target: 'selected', cond: 'hasCustomValue' }, { target: 'available' }],
               },
               available: { on: { SET_TYPE: { actions: 'setType' } } },
               selected: {
                 initial: 'unknown',
                 states: {
                   unknown: {
-                    on: {
-                      '': [
-                        { target: 'integer', cond: 'showsIntegerField' },
-                        { target: 'textarea', cond: 'showsTextarea' },
-                        { target: 'text' },
-                      ],
-                    },
+                    always: [
+                      { target: 'integer', cond: 'showsIntegerField' },
+                      { target: 'textarea', cond: 'showsTextarea' },
+                      { target: 'text' },
+                    ],
                   },
                   text: {},
                   textarea: {},
@@ -82,12 +78,10 @@ export const machine = createMachine<Context>(
                         initial: 'unknown',
                         states: {
                           unknown: {
-                            on: {
-                              '': [
-                                { target: 'custom', cond: 'hasMinConstraint' },
-                                { target: 'none' },
-                              ],
-                            },
+                            always: [
+                              { target: 'custom', cond: 'hasMinConstraint' },
+                              { target: 'none' },
+                            ],
                           },
                           none: {},
                           custom: {},
@@ -97,12 +91,10 @@ export const machine = createMachine<Context>(
                         initial: 'unknown',
                         states: {
                           unknown: {
-                            on: {
-                              '': [
-                                { target: 'custom', cond: 'hasMaxConstraint' },
-                                { target: 'none' },
-                              ],
-                            },
+                            always: [
+                              { target: 'custom', cond: 'hasMaxConstraint' },
+                              { target: 'none' },
+                            ],
                           },
                           none: {},
                           custom: {},

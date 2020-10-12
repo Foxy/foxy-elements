@@ -17,6 +17,7 @@
   "frequency_once": "Just this once",
   "frequency_plural": "Every {{count}} {{units, lowercase}}",
   "and": "and",
+  "beta": "Beta",
   "edit": "Edit",
   "save": "Save changes",
   "undo_all": "Undo all",
@@ -32,6 +33,7 @@
   "remember_me": "Remember me",
   "reset_password": "Reset password",
   "required": "Please fill in this field",
+  "reload": "Reload",
   "choice": {
     "other": "Other",
     "other_placeholder": "Enter your choice"

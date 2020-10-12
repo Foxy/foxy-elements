@@ -1,4 +1,5 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { ButtonElement } from '@vaadin/vaadin-button';
 import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
@@ -14,9 +15,16 @@ export class FriendlyError {
   }
 }
 
+export class ErrorScreenReloadEvent extends CustomEvent<void> {
+  constructor() {
+    super('reload');
+  }
+}
+
 export class ErrorScreen extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
+      'vaadin-button': ButtonElement,
       'iron-icon': customElements.get('iron-icon'),
       'x-i18n': I18N,
     };
@@ -44,11 +52,14 @@ export class ErrorScreen extends Translatable {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      reload: { type: Boolean, reflect: true },
       type: { type: String },
     };
   }
 
   public type: ErrorType = 'unknown';
+
+  public reload = false;
 
   public render(): TemplateResult {
     return html`
@@ -65,15 +76,30 @@ export class ErrorScreen extends Translatable {
           <x-i18n ns=${this.ns} lang=${this.lang} key="errors.${this.type}.message"></x-i18n>
         </p>
 
-        <a
-          rel="nofollow noreferrer noopener"
-          href=${this._i18n.t(`errors.${this.type}.href`).toString()}
-          target="_blank"
-          class="px-m py-xs text-primary font-medium tracking-wide border border-contrast-10 rounded transition-colors duration-200 hover:bg-primary-10 hover:border-primary-10 focus:outline-none focus:shadow-outline"
-          router-ignore
-        >
-          <x-i18n ns=${this.ns} lang=${this.lang} key="errors.${this.type}.action"></x-i18n>
-        </a>
+        <div class="flex space-x-s">
+          <a
+            rel="nofollow noreferrer noopener"
+            href=${this._i18n.t(`errors.${this.type}.href`).toString()}
+            target="_blank"
+            class="px-m py-xs text-primary font-medium tracking-wide border border-contrast-10 rounded transition-colors duration-200 hover:bg-primary-10 hover:border-primary-10 focus:outline-none focus:shadow-outline"
+            router-ignore
+          >
+            <x-i18n ns=${this.ns} lang=${this.lang} key="errors.${this.type}.action"></x-i18n>
+          </a>
+
+          ${this.reload
+            ? html`
+                <vaadin-button
+                  data-testid="reload"
+                  theme="primary"
+                  @click=${() => this.dispatchEvent(new ErrorScreenReloadEvent())}
+                >
+                  <x-i18n ns=${this.ns} lang=${this.lang} key="reload"></x-i18n>
+                  <iron-icon icon="icons:refresh" slot="suffix"></iron-icon>
+                </vaadin-button>
+              `
+            : ''}
+        </div>
       </article>
     `;
   }

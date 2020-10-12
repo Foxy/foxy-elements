@@ -18,7 +18,7 @@ export class WeekdayPicker extends MonthdayPicker {
                 <input
                   type="checkbox"
                   class="sr-only"
-                  ?disabled=${this.disabled}
+                  ?disabled=${this.disabled || !this._isI18nReady}
                   ?checked=${this.value.includes(day)}
                   @change=${(evt: Event) => this._handleChange(evt, day)}
                 />
@@ -41,8 +41,19 @@ export class WeekdayPicker extends MonthdayPicker {
   }
 
   protected _getLabelClass(day: number): string {
-    let base = 'flex items-center justify-center m-xs h-m w-xl rounded font-medium ';
-    base += this.value.includes(day) ? 'text-base bg-primary' : 'bg-contrast-5 text-primary';
+    let base =
+      'flex items-center justify-center m-xs h-m w-xl rounded font-medium transition duration-200 ';
+
+    if (this._isI18nReady && !this.disabled) {
+      base += 'cursor-pointer focus-within:shadow-outline ';
+      base += this.value.includes(day)
+        ? 'text-base bg-primary'
+        : 'bg-contrast-5 hover:bg-contrast-10 text-body';
+    } else {
+      base += 'text-transparent ';
+      base += this.value.includes(day) ? 'bg-primary-50' : 'bg-contrast-5';
+    }
+
     return base;
   }
 

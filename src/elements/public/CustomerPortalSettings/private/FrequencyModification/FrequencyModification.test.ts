@@ -1,36 +1,32 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
-import { Checkbox } from '../../../../private';
-import { CheckboxChangeEvent } from '../../../../private/Checkbox/CheckboxChangeEvent';
 import { FrequencyModificationRule } from '../FrequencyModificationRule/FrequencyModificationRule';
 import { FrequencyModificationRuleChangeEvent } from '../FrequencyModificationRule/FrequencyModificationRuleChangeEvent';
 import { FrequencyModificationRuleRemoveEvent } from '../FrequencyModificationRule/FrequencyModificationRuleRemoveEvent';
-import { Rule } from '../FrequencyModificationRule/types';
 import { FrequencyModification } from './FrequencyModification';
 import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
-import { Ruleset } from './types';
 
-customElements.define('x-ruleset', FrequencyModification);
+class TestFrequencyModification extends FrequencyModification {
+  get whenReady() {
+    return this._whenI18nReady;
+  }
+}
 
-const samples = {
-  modified: { jsonataQuery: '$contains(frequency, "m")', values: ['2m', '3y'] },
-  custom: [{ jsonataQuery: '*', values: [] }],
-};
+customElements.define('x-ruleset', TestFrequencyModification);
 
-function getRefs(element: FrequencyModification) {
+function getRefs(element: TestFrequencyModification) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector) as unknown;
   const $$ = (selector: string) => element.shadowRoot!.querySelectorAll(selector) as unknown;
 
   return {
-    toggle: $('[data-testid=toggle]') as Checkbox,
     rules: Array.from($$('[data-testid=rule]') as FrequencyModificationRule[]),
     add: $('[data-testid=add') as HTMLButtonElement,
   };
 }
 
-function testInteractivity(disabled: boolean) {
-  return async (element: FrequencyModification) => {
+function testDisabled(disabled: boolean) {
+  return async (element: TestFrequencyModification) => {
     await element.updateComplete;
 
     expect(element).to.have.property('disabled', disabled);
@@ -41,110 +37,180 @@ function testInteractivity(disabled: boolean) {
   };
 }
 
-function testContent(value: Ruleset) {
-  return async (element: FrequencyModification) => {
-    await element.updateComplete;
-    const rules = getRefs(element).rules;
-
-    if (typeof value === 'boolean') {
-      expect(rules).to.be.empty;
-    } else {
-      expect(rules.length).to.equal(value.length);
-      Array.from(rules).every((rule, index) => {
-        const item = value[index];
-        expect(rule.value).to.deep.equal(item);
-      });
-    }
-
-    if (!element.disabled && typeof value !== 'boolean' && value.length > 0) {
-      let whenGotEvent = oneEvent(element, 'change');
-      rules[0].dispatchEvent(new FrequencyModificationRuleChangeEvent(samples.modified));
-
-      expect(await whenGotEvent).to.be.instanceOf(FrequencyModificationChangeEvent);
-      expect((element.value as Rule[])[0]).to.deep.equal(samples.modified);
-
-      whenGotEvent = oneEvent(element, 'change');
-      rules[0].dispatchEvent(new FrequencyModificationRuleRemoveEvent());
-
-      const expectedValue = value.length > 1 ? value.slice(1) : true;
-      expect(await whenGotEvent).to.be.instanceOf(FrequencyModificationChangeEvent);
-      expect(element.value).to.deep.equal(expectedValue);
-
-      element.value = value;
-    }
-  };
+async function testValue(element: TestFrequencyModification) {
+  await element.updateComplete;
+  getRefs(element).rules.every((rule, index) => {
+    const item = element.value[index];
+    expect(rule.value).to.deep.equal(item);
+  });
 }
 
 const machine = createMachine({
-  type: 'parallel',
+  id: 'root',
+  initial: 'empty',
+  meta: { test: testValue },
   states: {
-    interactivity: {
-      meta: { test: () => true },
+    empty: {
       initial: 'enabled',
       states: {
         enabled: {
-          on: { DISABLE: 'disabled' },
-          meta: { test: testInteractivity(false) },
+          on: { ADD_RULE: '#root.custom', SET_VALUE: '#root.preset', DISABLE: 'disabled' },
+          meta: { test: testDisabled(false) },
+          initial: 'byDefault',
+          states: {
+            byDefault: {},
+            cleared: {},
+          },
         },
         disabled: {
-          on: { ENABLE: 'enabled' },
-          meta: { test: testInteractivity(true) },
+          on: { SET_VALUE: '#root.preset.disabled', ENABLE: 'enabled' },
+          meta: { test: testDisabled(true) },
         },
       },
     },
-    content: {
-      meta: { test: () => true },
-      initial: 'disallowed',
+    preset: {
+      initial: 'enabled',
       states: {
-        disallowed: {
-          on: { ALLOW: 'allowed' },
-          meta: { test: testContent(false) },
-        },
-        allowed: {
-          on: { DISALLOW: 'disallowed' },
-          initial: 'basic',
-          states: {
-            basic: { meta: { test: testContent(true) }, on: { CUSTOMIZE: 'custom' } },
-            custom: { meta: { test: testContent(samples.custom) } },
+        enabled: {
+          initial: 'clean',
+          meta: { test: testDisabled(false) },
+          on: {
+            UPDATE_RULE: '.dirty',
+            ADD_RULE: '#root.custom',
+            DISABLE: 'disabled',
+            CLEAR: '#root.empty.enabled.cleared',
           },
+          states: {
+            clean: {},
+            dirty: {},
+          },
+        },
+        disabled: {
+          on: { ENABLE: 'enabled' },
+          meta: { test: testDisabled(true) },
+        },
+      },
+    },
+    custom: {
+      initial: 'enabled',
+      states: {
+        enabled: {
+          initial: 'clean',
+          meta: { test: testDisabled(false) },
+          on: {
+            UPDATE_RULE: '.dirty',
+            ADD_RULE: '#root.custom',
+            DISABLE: 'disabled',
+            CLEAR: '#root.empty.enabled.cleared',
+          },
+          states: {
+            clean: {},
+            dirty: {},
+          },
+        },
+        disabled: {
+          on: { ENABLE: 'enabled' },
+          meta: { test: testDisabled(true) },
         },
       },
     },
   },
 });
 
-describe('FrequencyModification', () => {
-  describe('Actor: USER', () => {
-    const model = createModel<FrequencyModification>(machine).withEvents({
-      DISALLOW: { exec: e => void getRefs(e).toggle.dispatchEvent(new CheckboxChangeEvent(false)) },
-      ALLOW: { exec: e => void getRefs(e).toggle.dispatchEvent(new CheckboxChangeEvent(true)) },
-      ENABLE: { exec: e => void (e.disabled = false) },
-      DISABLE: { exec: e => void (e.disabled = true) },
-      CUSTOMIZE: { exec: e => void getRefs(e).add.dispatchEvent(new Event('click')) },
-    });
+const model = createModel<TestFrequencyModification>(machine).withEvents({
+  CLEAR: {
+    exec: async element => {
+      await element.updateComplete;
 
-    model.getShortestPathPlans().forEach(plan => {
-      describe(plan.description, () => {
-        plan.paths.forEach(path => {
-          it(path.description, async () => path.test(await fixture('<x-ruleset></x-ruleset>')));
-        });
+      const rules = getRefs(element).rules.reverse();
+      const events: FrequencyModificationRuleChangeEvent[] = [];
+      const listener = (event: Event) => events.push(event as FrequencyModificationRuleChangeEvent);
+
+      element.addEventListener('change', listener);
+
+      for (const rule of rules) {
+        rule.dispatchEvent(new FrequencyModificationRuleRemoveEvent());
+        await element.updateComplete;
+      }
+
+      element.removeEventListener('change', listener);
+
+      const event = events.pop()!;
+
+      expect(event).to.be.instanceOf(FrequencyModificationChangeEvent);
+      expect(event).to.have.deep.property('detail', element.value);
+      expect(event.detail).to.be.empty;
+    },
+  },
+  ENABLE: {
+    exec: async element => {
+      await element.updateComplete;
+      element.disabled = false;
+    },
+  },
+  DISABLE: {
+    exec: async element => {
+      await element.updateComplete;
+      element.disabled = true;
+    },
+  },
+  ADD_RULE: {
+    exec: async element => {
+      await element.updateComplete;
+
+      const whenGotEvent = oneEvent(element, 'change');
+      getRefs(element).add.dispatchEvent(new Event('click'));
+      const event = (await whenGotEvent) as FrequencyModificationChangeEvent;
+
+      expect(event).to.be.instanceOf(FrequencyModificationChangeEvent);
+      expect(event).to.have.deep.property('detail', element.value);
+      expect(event.detail[event.detail.length - 1]).to.deep.equal({
+        jsonataQuery: '*',
+        values: [],
       });
-    });
-  });
+    },
+  },
+  SET_VALUE: {
+    exec: async element => {
+      const newValue = [
+        { jsonataQuery: '*', values: [] },
+        { jsonataQuery: '$contains(frequency, "y")', values: ['.5m'] },
+      ];
 
-  describe('Actor: APP', () => {
-    const model = createModel<FrequencyModification>(machine).withEvents({
-      DISALLOW: { exec: e => void (e.value = false) },
-      ALLOW: { exec: e => void (e.value = true) },
-      ENABLE: { exec: e => void (e.disabled = false) },
-      DISABLE: { exec: e => void (e.disabled = true) },
-      CUSTOMIZE: { exec: e => void (e.value = samples.custom) },
-    });
+      element.value = newValue;
+      await element.updateComplete;
 
-    model.getShortestPathPlans().forEach(plan => {
-      describe(plan.description, () => {
-        plan.paths.forEach(path => {
-          it(path.description, async () => path.test(await fixture('<x-ruleset></x-ruleset>')));
+      expect(element).to.have.deep.property('value', newValue);
+    },
+  },
+  UPDATE_RULE: {
+    exec: async element => {
+      await element.updateComplete;
+
+      const [rule] = getRefs(element).rules;
+      const newRuleValue = { jsonataQuery: '$contains(frequency, "d")', values: ['1d', '2d'] };
+      const whenGotEvent = oneEvent(element, 'change');
+
+      rule.value = newRuleValue;
+      rule.dispatchEvent(new FrequencyModificationRuleChangeEvent(newRuleValue));
+
+      const event = (await whenGotEvent) as FrequencyModificationChangeEvent;
+
+      expect(event).to.be.instanceOf(FrequencyModificationChangeEvent);
+      expect(event).to.have.deep.property('detail', element.value);
+      expect(event.detail[0]).to.deep.equal(newRuleValue);
+    },
+  },
+});
+
+describe('CustomerPortalSettings >>> FrequencyModification', () => {
+  model.getSimplePathPlans().forEach(plan => {
+    describe(plan.description, () => {
+      plan.paths.forEach(path => {
+        it(path.description, async () => {
+          const element = await fixture<TestFrequencyModification>('<x-ruleset></x-ruleset>');
+          await element.whenReady;
+          return path.test(element);
         });
       });
     });

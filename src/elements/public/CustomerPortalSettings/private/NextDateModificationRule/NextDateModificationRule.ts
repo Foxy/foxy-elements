@@ -1,10 +1,11 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { cache } from 'lit-html/directives/cache';
 import { Translatable } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
+import { translateDate } from '../../../../../utils/translate-date';
 import { translateWeekday } from '../../../../../utils/translate-weekday';
 import { Group, I18N, Warning } from '../../../../private/index';
 import { AllowedDays } from '../AllowedDays/AllowedDays';
@@ -63,14 +64,14 @@ export class NextDateModificationRule extends Translatable {
       <x-group frame>
         <details
           data-testid="details"
-          class="font-lumo"
+          class=${classMap({ 'font-lumo': true, 'pointer-events-none': !this._isI18nReady })}
           ?open=${this.open}
           @toggle=${() => (this.open = !this.open)}
         >
           <summary
             class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus:outline-none focus:shadow-outline"
           >
-            <div class="p-m text-m text-header font-medium space-y-s">
+            <div class="p-m mr-xl text-m text-header font-medium space-y-s">
               <div>
                 <x-i18n
                   .ns=${this.ns}
@@ -81,24 +82,22 @@ export class NextDateModificationRule extends Translatable {
                 </x-i18n>
               </div>
 
-              ${cache(
-                !this.open && (hasOffset || hasAllowed || hasDisallowed)
-                  ? html`
-                      <div>
-                        ${concatTruthy(
-                          hasOffset && this.__renderMinMaxSummary(min, max),
-                          hasAllowed && this.__renderAllowedSummary(allowedDays!),
-                          hasDisallowed && this.__renderDisallowedSummary(disallowedDates!)
-                        )}
-                      </div>
-                    `
-                  : ''
-              )}
+              ${hasOffset || hasAllowed || hasDisallowed
+                ? html`
+                    <div>
+                      ${concatTruthy(
+                        hasOffset && this.__renderMinMaxSummary(min, max),
+                        hasAllowed && this.__renderAllowedSummary(allowedDays!),
+                        hasDisallowed && this.__renderDisallowedSummary(disallowedDates!)
+                      )}
+                    </div>
+                  `
+                : ''}
             </div>
 
             <button
               data-testid="remove"
-              .disabled=${this.disabled}
+              .disabled=${this.disabled || !this._isI18nReady}
               class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
               style="width: 54px; height: 54px"
               @click=${prevent(() => this.dispatchEvent(new NextDateModificationRuleRemoveEvent()))}
@@ -113,9 +112,10 @@ export class NextDateModificationRule extends Translatable {
 
               <x-jsonata-input
                 data-testid="jsonata"
+                .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${jsonataQuery}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${(evt: JSONataInputChangeEvent) => {
                   this.value = { ...this.value, jsonataQuery: evt.detail as string };
                   this.__sendUpdate();
@@ -131,7 +131,7 @@ export class NextDateModificationRule extends Translatable {
                   type="min"
                   .lang=${this.lang}
                   .value=${min}
-                  .disabled=${this.disabled}
+                  .disabled=${this.disabled || !this._isI18nReady}
                   @change=${(evt: OffsetInputChangeEvent) => {
                     this.value = { ...this.value, min: evt.detail };
                     this.__sendUpdate();
@@ -146,7 +146,7 @@ export class NextDateModificationRule extends Translatable {
                   type="max"
                   .lang=${this.lang}
                   .value=${max}
-                  .disabled=${this.disabled}
+                  .disabled=${this.disabled || !this._isI18nReady}
                   @change=${(evt: OffsetInputChangeEvent) => {
                     this.value = { ...this.value, max: evt.detail };
                     this.__sendUpdate();
@@ -171,7 +171,7 @@ export class NextDateModificationRule extends Translatable {
                 data-testid="allowed"
                 .lang=${this.lang}
                 .value=${allowedDays}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${(evt: AllowedDaysChangeEvent) => {
                   this.value = { ...this.value, allowedDays: evt.detail };
                   this.__sendUpdate();
@@ -186,9 +186,10 @@ export class NextDateModificationRule extends Translatable {
 
               <x-disallowed-dates
                 data-testid="disallowed"
+                .ns=${this.ns}
                 .lang=${this.lang}
                 .value=${disallowedDates ?? []}
-                .disabled=${this.disabled}
+                .disabled=${this.disabled || !this._isI18nReady}
                 @change=${(evt: DisallowedDatesChangeEvent) => {
                   this.value = { ...this.value, disallowedDates: evt.detail };
                   this.__sendUpdate();
@@ -208,12 +209,9 @@ export class NextDateModificationRule extends Translatable {
 
   private __getEstimatedDaysFrom(duration: string) {
     const { count, units } = parseDuration(duration);
+    const multipliers = { y: 365, m: 31, w: 7, d: 1 };
 
-    if (units === 'y') return count * 365;
-    if (units === 'm') return count * 31;
-    if (units === 'w') return count * 7;
-
-    return count;
+    return count * multipliers[units as 'y' | 'm' | 'w' | 'd'];
   }
 
   private __compareDurations(a: string | undefined, b: string | undefined) {
@@ -246,7 +244,7 @@ export class NextDateModificationRule extends Translatable {
   private __renderMinMaxSummary(min?: string, max?: string) {
     return html`
       <div class="text-s text-tertiary font-normal">
-        <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.any">
+        <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.range">
           <span>:</span>
           <span class="text-secondary">
             ${this.__renderMinMaxContent(min ? parseDuration(min) : undefined)} &mdash;
@@ -279,15 +277,7 @@ export class NextDateModificationRule extends Translatable {
         <x-i18n .ns=${this.ns} .lang=${this.lang} key="ndmod.excluded">
           <span>:</span>
           <span class="text-secondary">
-            ${dates
-              .map(date =>
-                new Date(date).toLocaleDateString(this.lang, {
-                  year: '2-digit',
-                  month: 'short',
-                  day: 'numeric',
-                })
-              )
-              .join('; ')}
+            ${dates.map(date => translateDate(date, this.lang)).join('; ')}
           </span>
         </x-i18n>
       </div>

@@ -39,7 +39,7 @@ export class List extends Themeable {
 
                 <button
                   ?disabled=${this.disabled}
-                  class="w-l h-l text-tertiary transition duration-150 hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default"
+                  class="w-l h-l rounded text-tertiary transition duration-150 hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
                   @click=${() => this.__remove(index)}
                 >
                   <iron-icon icon="lumo:cross"></iron-icon>

@@ -8,14 +8,20 @@ import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
 import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
 import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
 
-customElements.define('x-frequency-list', FrequencyList);
+class TestFrequencyList extends FrequencyList {
+  get whenReady() {
+    return this._whenI18nReady;
+  }
+}
+
+customElements.define('x-frequency-list', TestFrequencyList);
 
 const samples = {
   value: ['1w', '12m', '5y'],
   newValue: '4d',
 };
 
-function getRefs(element: FrequencyList) {
+function getRefs(element: TestFrequencyList) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
   return {
@@ -25,7 +31,7 @@ function getRefs(element: FrequencyList) {
   };
 }
 
-function testEnabled(element: FrequencyList) {
+function testEnabled(element: TestFrequencyList) {
   const refs = getRefs(element);
 
   expect(refs.list.disabled).to.be.false;
@@ -33,7 +39,7 @@ function testEnabled(element: FrequencyList) {
   expect(refs.button.disabled).to.be.false;
 }
 
-function testDisabled(element: FrequencyList) {
+function testDisabled(element: TestFrequencyList) {
   const refs = getRefs(element);
 
   expect(refs.list.disabled).to.be.true;
@@ -41,11 +47,11 @@ function testDisabled(element: FrequencyList) {
   expect(refs.button.disabled).to.be.true;
 }
 
-function testEmpty(element: FrequencyList) {
+function testEmpty(element: TestFrequencyList) {
   expect(getRefs(element).list.value).to.be.empty;
 }
 
-async function testItems(element: FrequencyList) {
+async function testItems(element: TestFrequencyList) {
   const { list, input, button } = getRefs(element);
 
   expect(list.value).to.deep.equal(element.value);
@@ -99,7 +105,7 @@ const machine = createMachine({
   },
 });
 
-const model = createModel<FrequencyList>(machine).withEvents({
+const model = createModel<TestFrequencyList>(machine).withEvents({
   ENABLE: { exec: element => void (element.disabled = false) },
   DISABLE: { exec: element => void (element.disabled = true) },
   TEST_ITEMS: { exec: element => void (element.value = samples.value) },
@@ -109,9 +115,11 @@ describe('CustomerPortalSettings >>> FrequencyList', () => {
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
-        it(path.description, async () =>
-          path.test(await fixture('<x-frequency-list></x-frequency-list>'))
-        );
+        it(path.description, async () => {
+          const element = await fixture<TestFrequencyList>('<x-frequency-list></x-frequency-list>');
+          await element.whenReady;
+          path.test(element);
+        });
       });
     });
   });
