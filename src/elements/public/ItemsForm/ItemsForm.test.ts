@@ -454,7 +454,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     expect(form).to.exist;
     const fd = new FormData(form);
-    for (const k of fd.keys()) {
+    for (const [k, v] of fd.entries()) {
       if (k != 'cart') {
         expect(k).to.match(/.*\|\|a{64}$/);
       }

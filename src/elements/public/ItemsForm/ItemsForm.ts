@@ -337,18 +337,20 @@ export class ItemsForm extends Translatable {
     }
 
     return html`
-      <form
-        class="overflow-hidden"
-        method="POST"
-        target="${this.target}"
-        action="https://${this.store}/cart"
-        data-testid="form"
-      >
-        <div class="hidden">
-          ${[...this.__data.entries()].map(
-            ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
-          )}
-        </div>
+      <div>
+        <form
+          class="overflow-hidden"
+          method="POST"
+          target="${this.target}"
+          action="https://${this.store}/cart"
+          data-testid="form"
+        >
+          <div class="hidden">
+            ${[...this.__data.entries()].map(
+              ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
+            )}
+          </div>
+        </form>
 
         <section class="items">
           <slot></slot>
@@ -381,7 +383,7 @@ export class ItemsForm extends Translatable {
             <span class="total">${this.__submitBtnText(this.__translateAmount(this.total))}</span>
           </vaadin-button>
         </section>
-      </form>
+      </div>
     `;
   }
 
@@ -486,6 +488,21 @@ export class ItemsForm extends Translatable {
       }
     });
     return added;
+  }
+
+  /**
+   * Add custom user provided fields
+   */
+  private __formDataCustomInputs(fd: FormData) {
+    this.querySelectorAll(`[name]:not([data-item])`).forEach(e => {
+      const el = e as HTMLInputElement;
+      if (el.tagName == 'INPUT' && el.type == 'checkbox') {
+        if (!el.checked) return;
+      }
+      if (el.value) {
+        fd.set(el.name, el.value);
+      }
+    });
   }
 
   /**
@@ -738,6 +755,7 @@ export class ItemsForm extends Translatable {
     const itemsAdded = this.__formDataFill(data);
     if (itemsAdded == 0) return null;
     this.__formDataAddCartFields(data);
+    this.__formDataCustomInputs(data);
     this.__data = data;
     this.__hasValidItems = !!itemsAdded;
   }
