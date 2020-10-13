@@ -607,6 +607,50 @@ If you set prices to both parent and child items, you can make items that are ch
   </Story>
 </Canvas>
 
+## Adding custom inputs
+
+You may add your custom inputs to be submitted with the form by adding child elements directly.
+
+<Canvas
+  mdxSource={dedent`
+    <foxy-items-form store="jamstackecommerceexample" currency="usd">
+      <foxy-item name="Bundle Package" quantity="1" price="0.00" image="http://placedog.net/200"></foxy-item>
+      <label for="feedback">Tell us what you think of our store: </label>
+      <div style="margin: 1em">
+        <label>How was your experience today?</label>
+        <textarea id="feedback" name="feedback" ></textarea>
+        <label>Rate us</label>
+        <input name="rate-us" type="number" min="1" max="5" placeholder="1 - 5">
+      </div>
+    </foxy-items-form>
+  `}
+>
+  <Story
+    name="Custom input fields"
+    args={{
+      store: 'jamstackecommerceexample',
+      currency: 'usd',
+    }}
+  >
+    {args =>
+      html`${getTemplate(
+        args,
+        html`
+          <foxy-item name="Bundle Package" quantity="1" price="0.00" image="http://placedog.net/200"></foxy-item>
+          <div style="margin: 1em">
+            <label style="width: 100%">How was your experience today?</label>
+            <textarea id="feedback" name="feedback" style="width: 100%; border: solid thin silver "></textarea>
+            <label style="width: 100%">Rate us</label>
+            <input name="rate-us" type="number" min="1" max="5" placeholder="1 - 5" style="width: 100%; border: solid thin silver ">
+          </div>
+        `
+      )}`
+    }
+  </Story>
+</Canvas>
+
+
+
 ## Changing items list
 
 To add or remove items to the form you can replace the items attribute or directly add or remove child elements.
