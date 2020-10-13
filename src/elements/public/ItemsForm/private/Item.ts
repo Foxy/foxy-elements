@@ -12,6 +12,7 @@ import { Price } from './Price';
  * The item may be configured using HTML properties or a JS object.
  *
  * @csspart picture - Image of the product in preview stack (for single products) or grid (for bundles).
+ * @csspart item - The root element inside of the shadow dom.
  */
 export class Item extends Translatable {
   // A list of item properties as defined in Foxy Cart Documentation
@@ -400,6 +401,7 @@ export class Item extends Translatable {
     if (this.isChildItem) {
       return html`
         <article
+          part="item"
           class="py-s w-full relative separator item-summary flex justify-between ${sharedStyle}"
         >
           <div class="description flex-1">
@@ -421,7 +423,7 @@ export class Item extends Translatable {
       `;
     } else {
       return html`
-        <article class="p-l relative item ${sharedStyle} ${this.__modified ? 'modified' : ''}">
+        <article part="item" class="p-l relative item ${sharedStyle} ${this.__modified ? 'modified' : ''}">
           <x-preview
             class="preview float-left w-preview h-preview mr-l mb-l"
             exportparts="picture"
