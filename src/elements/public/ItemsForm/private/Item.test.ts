@@ -317,6 +317,66 @@ describe('Item recognizes its children', async function () {
   });
 });
 
+describe('Item displays price and total amount', async () => {
+  let logSpy: sinon.SinonStub;
+
+  beforeEach(function () {
+    logSpy = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    logSpy.restore();
+  });
+
+  it('Should display nothing without price and currency', async () => {
+    const layout = html`<test-item name="p1" quantity="1"></test-item>`;
+    const element = await fixture<TestItem>(layout);
+    const totalPrice = element.shadowRoot!.querySelector('.price-total');
+    const singlePrice = element.shadowRoot!.querySelector('.price');
+
+    expect(singlePrice).to.not.exist;
+    expect(totalPrice).to.not.exist;
+  });
+
+  it('Should display only item price with quantity === 1', async () => {
+    const layout = html`<test-item name="p1" quantity="1" currency="usd" price="20"></test-item>`;
+    const element = await fixture<TestItem>(layout);
+    const totalPrice = element.shadowRoot!.querySelector('.price-total');
+    const singlePrice = element.shadowRoot!.querySelector('.price');
+
+    expect(singlePrice).to.contain.text('$20.00');
+    expect(totalPrice).to.not.exist;
+  });
+
+  it('Should display both item and total prices with quantity > 1', async () => {
+    const layout = html`<test-item name="p1" quantity="2" currency="usd" price="20"></test-item>`;
+    const element = await fixture<TestItem>(layout);
+    const totalPrice = element.shadowRoot!.querySelector('.price-total');
+    const singlePrice = element.shadowRoot!.querySelector('.price');
+
+    expect(singlePrice).to.contain.text('$20.00');
+    expect(totalPrice).to.have.property('key', 'price.total');
+    expect(totalPrice).to.have.deep.property('opts', { amount: '$40.00' });
+  });
+
+  it('Should combine child prices into total', async () => {
+    const layout = html`
+      <test-item name="p1" quantity="2" currency="usd" price="0">
+        <test-item name="p2" quantity="2" currency="usd" price="2.5"></test-item>
+        <test-item name="p3" quantity="1" currency="usd" price="15"></test-item>
+      </test-item>
+    `;
+
+    const element = await fixture<TestItem>(layout);
+    const totalPrice = element.shadowRoot!.querySelector('.price-total');
+    const singlePrice = element.shadowRoot!.querySelector('.price');
+
+    expect(singlePrice).to.contain.text('$20.00');
+    expect(totalPrice).to.have.property('key', 'price.total');
+    expect(totalPrice).to.have.deep.property('opts', { amount: '$40.00' });
+  });
+});
+
 /** Helper functions */
 
 function qtyField(el: Element): HTMLInputElement {

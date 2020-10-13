@@ -23,6 +23,6 @@
     "items": "{{quantity}} items"
   },
   "price": {
-    "each": "Each"
+    "total": "{{ amount }} total"
   }
 }
