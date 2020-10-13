@@ -423,7 +423,10 @@ export class Item extends Translatable {
       `;
     } else {
       return html`
-        <article part="item" class="p-l relative item ${sharedStyle} ${this.__modified ? 'modified' : ''}">
+        <article
+          part="item"
+          class="p-l relative item ${sharedStyle} ${this.__modified ? 'modified' : ''}"
+        >
           <x-preview
             class="preview float-left w-preview h-preview mr-l mb-l"
             exportparts="picture"
