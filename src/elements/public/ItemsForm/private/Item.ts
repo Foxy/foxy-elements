@@ -4,7 +4,6 @@ import { Translatable } from '../../../../mixins/translatable';
 import { ErrorScreen, I18N } from '../../../private/index';
 import { ImageDescription, ItemInterface } from '../types';
 import { Preview } from './Preview';
-import { Price } from './Price';
 
 /**
  * This component allows a user to configure an item.
@@ -82,7 +81,6 @@ export class Item extends Translatable {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'x-error-screen': ErrorScreen,
       'x-preview': Preview,
-      'x-price': Price,
       'x-i18n': I18N,
     };
   }
@@ -92,6 +90,7 @@ export class Item extends Translatable {
     return {
       ...super.properties,
       __modified: {},
+      currency: { type: String },
       category: { type: String },
       code: { type: String, reflect: true },
       expires: { type: String },
@@ -396,7 +395,7 @@ export class Item extends Translatable {
     }
 
     const removedStyle = this.quantity ? '' : 'removed opacity-50';
-    const sharedStyle = `font-lumo text-s leading-m transition duration-100 ${removedStyle}`;
+    const sharedStyle = `font-lumo text-body text-s leading-m transition duration-100 ${removedStyle}`;
 
     if (this.isChildItem) {
       return html`
@@ -422,6 +421,10 @@ export class Item extends Translatable {
         </article>
       `;
     } else {
+      const numericItemPrice = (this.price ?? 0) + this.__childPrices.reduce((p, c) => p + c, 0);
+      const totalPrice = this.__translateAmount(numericItemPrice * this.quantity);
+      const itemPrice = this.__translateAmount(numericItemPrice);
+
       return html`
         <article
           part="item"
@@ -453,16 +456,7 @@ export class Item extends Translatable {
               <slot name="items"></slot>
             </div>
 
-            ${this.currency
-              ? html`<x-price
-                  class="price text-header text-l leading-none"
-                  .price=${this.price}
-                  .prices=${this.__childPrices}
-                  .currency=${this.currency}
-                  .quantity=${this.quantity}
-                >
-                </x-price>`
-              : ''}
+            ${itemPrice ? html`<div class="font-medium price text-l">${itemPrice}</div>` : ''}
           </section>
 
           <section class="quantity w-quantity absolute top-0 right-0 m-l">
@@ -476,11 +470,16 @@ export class Item extends Translatable {
             >
             </vaadin-integer-field>
 
-            ${this.quantity > 1 && this.price
+            ${this.quantity > 1
               ? html`
-                  <div class="price-each text-secondary text-xs text-center mt-xs">
-                    ${this.__translateAmount(this.price!)} ${this._t('price.each')}
-                  </div>
+                  <x-i18n
+                    .ns=${this.ns}
+                    .lang=${this.lang}
+                    .opts=${{ amount: totalPrice }}
+                    class="price-total text-secondary text-xs text-center block mt-xs"
+                    key="price.total"
+                  >
+                  </x-i18n>
                 `
               : ''}
           </section>
