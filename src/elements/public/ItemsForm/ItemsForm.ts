@@ -491,12 +491,12 @@ export class ItemsForm extends Translatable {
    * Add custom user provided fields
    */
   private __formDataCustomInputs(fd: FormData) {
-    this.querySelectorAll(`[name]:not([data-item])`).forEach(e => {
+    this.querySelectorAll(`[name]`).forEach(e => {
       const el = e as HTMLInputElement;
       if (el.tagName == 'INPUT' && el.type == 'checkbox') {
         if (!el.checked) return;
       }
-      if (el.value) {
+      if (el.value && ['number', 'string'].includes(typeof el.value)) {
         fd.set(el.name, el.value);
       }
     });
