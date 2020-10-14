@@ -493,8 +493,11 @@ export class ItemsForm extends Translatable {
   private __formDataCustomInputs(fd: FormData) {
     this.querySelectorAll(`[name]`).forEach(e => {
       const el = e as HTMLInputElement;
-      if (el.tagName == 'INPUT' && el.type == 'checkbox') {
+      if (el.tagName == 'INPUT' && ['checkbox', 'radio'].includes(el.type)) {
         if (!el.checked) return;
+      }
+      if (el.tagName == 'OPTION') {
+        return;
       }
       if (el.value && ['number', 'string'].includes(typeof el.value)) {
         fd.set(el.name, el.value);
