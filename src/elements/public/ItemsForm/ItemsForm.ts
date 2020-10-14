@@ -283,7 +283,7 @@ export class ItemsForm extends Translatable {
     },
   };
 
-  private __data: FormData = new FormData();
+  private __data: FormData | null = new FormData();
 
   constructor() {
     super('items-form');
@@ -344,12 +344,14 @@ export class ItemsForm extends Translatable {
           target="${this.target}"
           action="https://${this.store}/cart"
           data-testid="form"
+          class="hidden"
+          hidden
         >
-          <div class="hidden">
-            ${[...this.__data.entries()].map(
-              ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
-            )}
-          </div>
+          ${this.__data
+            ? html` ${[...this.__data.entries()].map(
+                ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
+              )}`
+            : ''}
         </form>
 
         <section class="items">
@@ -508,40 +510,58 @@ export class ItemsForm extends Translatable {
    **/
   private __formDataAddItem(fd: FormData, itemEl: Item, parent: Item | null = null): number {
     const idKey = 'pid';
-    const reservedAttributes = [idKey, 'signatures', 'currency', 'total'];
+    // Reserved attributes are not to be submitted
+    // other attributes, included custom attributes added by the user, will be submitted
+    const reservedAttributes = [
+      idKey,
+      'signatures',
+      'currency',
+      'total',
+      'slot',
+      'alt',
+      'description',
+      'isChildren',
+      'isItem',
+      'open',
+      'items',
+      'signatures',
+    ];
     let added = 0;
-    if (this.__validItem(itemEl.value as ItemInterface)) {
+    if (this.__validItem(itemEl)) {
       if (!itemEl.value[idKey]) {
         throw new Error('Attempt to convert a item without a propper ID');
       }
-      const rec = itemEl.value as Record<string, unknown>;
-      if (parent && parent.value && parent.value.code) {
-        rec.parent_code = parent.value.code;
+      if (parent && parent.getAttribute('code')) {
+        itemEl.setAttribute('parent_code', parent.getAttribute('code')!);
       }
-      for (let key of Object.keys(rec)) {
-        if (!reservedAttributes.includes(key) && !key.startsWith('data-')) {
-          const fieldValue: unknown = rec[key];
+      for (let i = 0; i < itemEl.attributes.length; i++) {
+        const field = itemEl.attributes[i];
+        if (!reservedAttributes.includes(field.name) && !field.name.startsWith('data-')) {
+          let fieldValue: unknown = (itemEl as any)[field.name];
           // Adds a signature if possible
-          if (rec.code && !Array.isArray(fieldValue)) {
-            key = this.__buildKeyFromItem(key, rec as ItemInterface);
-            fd.set(key, fieldValue as string);
+          if (itemEl.code && ['string', 'number'].includes(typeof fieldValue)) {
+            if (parent && field.name == 'quantity') {
+              fieldValue = Number(field.value) * parent.quantity;
+            }
+            const key = this.__buildKeyFromItem(field.name, itemEl);
+            fd.set(key, (fieldValue as string | number).toString());
           }
         }
       }
       added += 1;
+      this.__formDataAddSubscriptionFields(fd, itemEl.value);
     }
     const childItems = itemEl.querySelectorAll('[data-bundled]');
-    if (childItems) {
+    if (childItems && itemEl.quantity > 0) {
       for (const child of childItems) {
         added += this.__formDataAddItem(fd, child as Item, itemEl);
       }
     }
-    this.__formDataAddSubscriptionFields(fd, itemEl.value);
     return added;
   }
 
   // build a key with prepended id and appended signature and |open given an item
-  private __buildKeyFromItem(key: string, item: ItemInterface) {
+  private __buildKeyFromItem(key: string, item: Item) {
     return this.__buildKey(
       item.pid!.toString(),
       key,
@@ -718,15 +738,11 @@ export class ItemsForm extends Translatable {
    * @argument  Item the item to be validated
    * @returns boolean the item is valid
    **/
-  private __validItem(p: ItemInterface): boolean {
-    return !!(
-      p &&
-      p.pid &&
-      (p.quantity || p.quantity === 0) &&
-      +p.quantity > 0 &&
-      (p.price || p.price === 0) &&
-      p.price >= 0
-    );
+  private __validItem(item: Item): boolean {
+    const pid = item.getAttribute('pid');
+    const qty = Number(item.getAttribute('quantity'));
+    const price = Number(item.getAttribute('price'));
+    return !!(pid && qty > 0 && price >= 0);
   }
 
   /**
@@ -760,6 +776,9 @@ export class ItemsForm extends Translatable {
   }
 
   private __updateData() {
+    this.__data = null;
+    const form = this.shadowRoot!.querySelector('form');
+    if (!form) return;
     const data = new FormData();
     const itemsAdded = this.__formDataFill(data);
     if (itemsAdded == 0) return null;
