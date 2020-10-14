@@ -480,12 +480,7 @@ export class ItemsForm extends Translatable {
   private __formDataFill(fd: FormData): number {
     let added = 0;
     this.__itemElements.forEach(e => {
-      if (this.__validItem(e.value as ItemInterface)) {
-        this.__formDataAddItem(fd, e.value);
-        added++;
-      } else {
-        console.error('Invalid item', e.value);
-      }
+      added += this.__formDataAddItem(fd, e);
     });
     return added;
   }
@@ -511,24 +506,38 @@ export class ItemsForm extends Translatable {
    * @argument {FormData} fd the FormData to which the item will be added
    * @argument {Item} the item to add
    **/
-  private __formDataAddItem(fd: FormData, p: ItemInterface): void {
+  private __formDataAddItem(fd: FormData, itemEl: Item, parent: Item | null = null): number {
     const idKey = 'pid';
-    const reservedAttributes = [idKey, 'signatures', 'currency'];
-    if (!p[idKey]) {
-      throw new Error('Attempt to convert a item without a propper ID');
-    }
-    const rec = p as Record<string, unknown>;
-    for (let key of Object.keys(rec)) {
-      if (!reservedAttributes.includes(key)) {
-        const fieldValue: unknown = rec[key];
-        // Adds a signature if possible
-        if (p.code && !Array.isArray(fieldValue)) {
-          key = this.__buildKeyFromItem(key, p);
-          fd.set(key, fieldValue as string);
+    const reservedAttributes = [idKey, 'signatures', 'currency', 'total'];
+    let added = 0;
+    if (this.__validItem(itemEl.value as ItemInterface)) {
+      if (!itemEl.value[idKey]) {
+        throw new Error('Attempt to convert a item without a propper ID');
+      }
+      const rec = itemEl.value as Record<string, unknown>;
+      if (parent && parent.value && parent.value.code) {
+        rec.parent_code = parent.value.code;
+      }
+      for (let key of Object.keys(rec)) {
+        if (!reservedAttributes.includes(key) && !key.startsWith('data-')) {
+          const fieldValue: unknown = rec[key];
+          // Adds a signature if possible
+          if (rec.code && !Array.isArray(fieldValue)) {
+            key = this.__buildKeyFromItem(key, rec as ItemInterface);
+            fd.set(key, fieldValue as string);
+          }
         }
       }
-      this.__formDataAddSubscriptionFields(fd, p);
+      added += 1;
     }
+    const childItems = itemEl.querySelectorAll('[data-bundled]');
+    if (childItems) {
+      for (const child of childItems) {
+        added += this.__formDataAddItem(fd, child as Item, itemEl);
+      }
+    }
+    this.__formDataAddSubscriptionFields(fd, itemEl.value);
+    return added;
   }
 
   // build a key with prepended id and appended signature and |open given an item
