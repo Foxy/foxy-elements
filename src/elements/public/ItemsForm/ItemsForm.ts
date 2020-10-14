@@ -366,7 +366,7 @@ export class ItemsForm extends Translatable {
                   name="frequency"
                   class="subscription m-s w-full sm:w-auto"
                   lang=${this.lang}
-                  .value=${'0'}
+                  .value=${this.sub_frequency ?? '0'}
                   .items=${this.frequencies.concat(['0'])}
                   .getText=${this.__translateFrequency.bind(this)}
                   @change=${this.__handleFrequency}
