@@ -781,10 +781,10 @@ export class ItemsForm extends Translatable {
     if (!form) return;
     const data = new FormData();
     const itemsAdded = this.__formDataFill(data);
+    this.__hasValidItems = !!itemsAdded;
     if (itemsAdded == 0) return null;
     this.__formDataAddCartFields(data);
     this.__formDataCustomInputs(data);
     this.__data = data;
-    this.__hasValidItems = !!itemsAdded;
   }
 }
