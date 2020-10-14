@@ -113,7 +113,6 @@ export class Item extends Translatable {
       __childrenCount: {},
       __images: {},
       alt: { type: String },
-      description: { type: String },
       isChildItem: { type: Boolean, reflect: true, attribute: 'data-bundled' },
       isItem: { type: Boolean, reflect: true, attribute: 'data-item' },
       open: { type: Object },
@@ -237,11 +236,6 @@ export class Item extends Translatable {
   public shipto?: string;
 
   /**
-   * Optional. The description for a item.
-   */
-  public description = '';
-
-  /**
    * Optional open: An Object with key, value pairs where the key is a item
    * attribute and the value is a previously computed HMAC validation code.
    *
@@ -314,6 +308,8 @@ export class Item extends Translatable {
 
   private __childrenCount = 0;
 
+  private __itemDescription = '';
+
   private __handleQuantity = {
     handleEvent: (ev: Event) => {
       const newValue = Number((ev.target as HTMLInputElement).value);
@@ -370,8 +366,13 @@ export class Item extends Translatable {
   }
 
   public set value(v: ItemInterface) {
+    this.__itemDescription = '';
     for (const k in v) {
       let attrValue = '';
+      if (k == 'description') {
+        this.__itemDescription = v[k] as string;
+        continue;
+      }
       if (typeof v[k as keyof ItemInterface] == 'object') {
         attrValue = JSON.stringify(v[k as keyof ItemInterface]);
       } else {
@@ -384,7 +385,12 @@ export class Item extends Translatable {
     }
   }
 
-  public updated(): void {
+  public updated(changedProperties: Map<string, string>): void {
+    changedProperties.forEach((oldValue, prop) => {
+      if (prop == '__itemDescription' || prop == 'isChildItem') {
+        this.__updateDescriptionEl();
+      }
+    });
     this.__setTotalPrice();
     this.dispatchEvent(new Event('change'));
   }
@@ -406,7 +412,6 @@ export class Item extends Translatable {
           <div class="description flex-1">
             <h1 class="text-header font-medium">${this.name}</h1>
             <section class="description text-secondary">
-              ${this.description ? html`<p>${this.description}</p>` : ''}
               <slot></slot>
             </section>
           </div>
@@ -448,7 +453,6 @@ export class Item extends Translatable {
             </h1>
 
             <div class="item-description text-secondary mr-quantity mb-s">
-              ${this.description}
               <slot></slot>
             </div>
 
@@ -510,6 +514,31 @@ export class Item extends Translatable {
     const newId = Item.__existingIds.reduce((accum, curr) => (curr > accum ? curr : accum), 0) + 1;
     Item.__existingIds.push(newId);
     return newId;
+  }
+
+  private __updateDescriptionEl() {
+    if (this.__itemDescription) {
+      let descEl: HTMLElement | null = this.shadowRoot!.querySelector('data-item-description');
+      if (!descEl) {
+        descEl = document.createElement('p') as HTMLElement;
+        descEl.dataset.itemDescription = 'true';
+        this.__addSlottedEl(descEl);
+      }
+      descEl.innerText = this.__itemDescription;
+    } else {
+      const descEl: HTMLElement | null = this.shadowRoot!.querySelector('data-item-description');
+      if (descEl) descEl.remove();
+    }
+  }
+
+  /**
+   * Add an element to the default slot
+   */
+  private __addSlottedEl(el: HTMLElement) {
+    const slot = this.shadowRoot!.querySelector('article');
+    if (slot) {
+      slot!.appendChild(el);
+    }
   }
 
   /**
