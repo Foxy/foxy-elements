@@ -552,7 +552,7 @@ export class ItemsForm extends Translatable {
         }
       }
       added += 1;
-      this.__formDataAddSubscriptionFields(fd, itemEl.value);
+      this.__formDataAddSubscriptionFields(fd, itemEl);
     }
     const childItems = itemEl.querySelectorAll('[data-bundled]');
     if (childItems && itemEl.quantity > 0) {
@@ -586,12 +586,12 @@ export class ItemsForm extends Translatable {
    *
    * @argument {FormData} fd the FormData to which subscription fields will be added
    **/
-  private __formDataAddSubscriptionFields(fd: FormData, item: ItemInterface): void {
+  private __formDataAddSubscriptionFields(fd: FormData, itemEl: Item): void {
     // added if sub_frequency is set
     if (this.sub_frequency) {
       for (const s of ['sub_frequency', 'sub_startdate', 'sub_enddate']) {
         if ((this as any)[s]) {
-          const subKey = this.__buildKeyFromItem(s, item);
+          const subKey = this.__buildKeyFromItem(s, itemEl);
           fd.set(subKey, (this as any)[s]);
         }
       }
@@ -599,13 +599,13 @@ export class ItemsForm extends Translatable {
     // added if themselves are set
     for (const s of ['sub_token']) {
       if ((this as any)[s]) {
-        const subKey = this.__buildKeyFromItem(s, item);
+        const subKey = this.__buildKeyFromItem(s, itemEl);
         fd.set(subKey, (this as any)[s]);
       }
     }
     // added regardless
     for (const s of ['sub_modify', 'sub_restart']) {
-      const subKey = this.__buildKeyFromItem(s, item);
+      const subKey = this.__buildKeyFromItem(s, itemEl);
       fd.set(subKey, (this as any)[s]);
     }
   }

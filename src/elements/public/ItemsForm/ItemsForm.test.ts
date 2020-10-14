@@ -464,7 +464,7 @@ describe('The form submits a valid POST to forxycart', async function () {
   it('Concatenates open to custom fields', async function () {
     const el = await fixture(html`
       <test-items-form currency="usd" store="test.foxycart.com">
-        <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
+        <x-testitem name="p1" data-item code="MyCode" price="10.00" quantity="3"></x-testitem>
       </test-items-form>
     `);
     const open = { color: true };
@@ -477,6 +477,7 @@ describe('The form submits a valid POST to forxycart', async function () {
       (p as MockItem).signatures = signatures;
       (p as MockItem).open = open;
       (p as MockItem).color = 'blue';
+      p.setAttribute('color', 'blue');
       last = p as MockItem;
     }
     if (last) {
