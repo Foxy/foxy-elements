@@ -611,13 +611,15 @@ export class ItemsForm extends Translatable {
   }
 
   /**
-   * Adds cat related fields to a FormData
+   * Adds cart related fields to a FormData
    *
    * @argument {FormData} fd the FormData to which the cart fields will be added.
    */
   private __formDataAddCartFields(fd: FormData): void {
     if (this.cart) {
       fd.set('cart', this.cart!);
+    } else {
+      fd.delete('cart');
     }
   }
 
@@ -785,7 +787,6 @@ export class ItemsForm extends Translatable {
     const data = new FormData();
     const itemsAdded = this.__formDataFill(data);
     this.__hasValidItems = !!itemsAdded;
-    if (itemsAdded == 0) return null;
     this.__formDataAddCartFields(data);
     this.__formDataCustomInputs(data);
     this.__data = data;

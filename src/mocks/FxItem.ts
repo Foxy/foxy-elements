@@ -40,6 +40,7 @@ export class MockItem extends HTMLElement {
 
   connectedCallback(): void {
     this.setAttribute('data-item', 'true');
+    this.setAttribute('pid', this.pid.toString());
   }
 
   get value(): ItemInterface {

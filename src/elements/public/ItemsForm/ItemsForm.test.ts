@@ -464,7 +464,13 @@ describe('The form submits a valid POST to forxycart', async function () {
   it('Concatenates open to custom fields', async function () {
     const el = await fixture(html`
       <test-items-form currency="usd" store="test.foxycart.com">
-        <x-testitem name="p1" data-item code="MyCode" price="10.00" quantity="3"></x-testitem>
+        <x-testitem
+          name="p1"
+          data-item
+          code="ITEMWITHOPENFIELD"
+          price="10.00"
+          quantity="3"
+        ></x-testitem>
       </test-items-form>
     `);
     const open = { color: true };
@@ -697,7 +703,9 @@ describe('The form directs the user to the propper destination', async function 
 
   it('Goes directly to the checkout', async function () {
     const el = await formWith2items(10, 10);
+    await elementUpdated(el);
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
+    expect(form).to.exist;
     expect(new FormData(form).get('cart')).to.equal('checkout');
   });
 
@@ -748,7 +756,7 @@ describe('The form reveals its state to the user', async function () {
 async function formWith2items(price1: number, price2: number) {
   const el = await fixture(html`
     <test-items-form currency="usd" store="test.foxycart.com">
-      <x-testitem id="first" name="p1" price="${price1}"></x-testitem>
+      <x-testitem id="first" data-item name="p1" price="${price1}"></x-testitem>
       <x-testitem id="second" name="p2" price="${price2}"></x-testitem>
     </test-items-form>
   `);
