@@ -161,28 +161,6 @@ describe('The item reveals its state to the user', async function () {
     await expectSelectorToExist(childRemoved!, childNotRemoved!, 'article.removed');
   });
 
-  it('Should show the description when it is child and a description is provided', async function () {
-    const withDescription = await fixture(
-      html`
-        <test-item name="p1" quantity="1" price="10">
-          <test-item name="p2" quantity="1" price="10" description="Lorem Ipsum"></test-item>
-        </test-item>
-      `
-    );
-    const withOutDescription = await fixture(
-      html`
-        <test-item name="p1" quantity="1" price="10">
-          <test-item name="p2" quantity="1" price="10"></test-item>
-        </test-item>
-      `
-    );
-    await expectSelectorToExist(
-      withDescription.querySelector('[data-bundled]')!,
-      withOutDescription.querySelector('[data-bundled]')!,
-      '.description p'
-    );
-  });
-
   it('Should show the quantity when it is child quantity is 2 or more', async function () {
     const withMoreThan1 = await fixture(
       html`
