@@ -117,5 +117,14 @@
     "*.ts": [
       "npm run format"
     ]
+  },
+  "release": {
+    "branches": [
+      "main",
+      {
+        "name": "beta",
+        "prerelease": true
+      }
+    ]
   }
 }
