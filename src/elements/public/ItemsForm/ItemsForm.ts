@@ -283,7 +283,7 @@ export class ItemsForm extends Translatable {
     },
   };
 
-  private __data: FormData = new FormData();
+  private __data: FormData | null = new FormData();
 
   constructor() {
     super('items-form');
@@ -344,12 +344,14 @@ export class ItemsForm extends Translatable {
           target="${this.target}"
           action="https://${this.store}/cart"
           data-testid="form"
+          class="hidden"
+          hidden
         >
-          <div class="hidden">
-            ${[...this.__data.entries()].map(
-              ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
-            )}
-          </div>
+          ${this.__data
+            ? html` ${[...this.__data.entries()].map(
+                ([name, value]) => html`<input type="hidden" name=${name} value=${value} />`
+              )}`
+            : ''}
         </form>
 
         <section class="items">
@@ -364,7 +366,7 @@ export class ItemsForm extends Translatable {
                   name="frequency"
                   class="subscription m-s w-full sm:w-auto"
                   lang=${this.lang}
-                  .value=${'0'}
+                  .value=${this.sub_frequency ?? '0'}
                   .items=${this.frequencies.concat(['0'])}
                   .getText=${this.__translateFrequency.bind(this)}
                   @change=${this.__handleFrequency}
@@ -480,12 +482,7 @@ export class ItemsForm extends Translatable {
   private __formDataFill(fd: FormData): number {
     let added = 0;
     this.__itemElements.forEach(e => {
-      if (this.__validItem(e.value as ItemInterface)) {
-        this.__formDataAddItem(fd, e.value);
-        added++;
-      } else {
-        console.error('Invalid item', e.value);
-      }
+      added += this.__formDataAddItem(fd, e);
     });
     return added;
   }
@@ -494,12 +491,15 @@ export class ItemsForm extends Translatable {
    * Add custom user provided fields
    */
   private __formDataCustomInputs(fd: FormData) {
-    this.querySelectorAll(`[name]:not([data-item])`).forEach(e => {
+    this.querySelectorAll(`[name]`).forEach(e => {
       const el = e as HTMLInputElement;
-      if (el.tagName == 'INPUT' && el.type == 'checkbox') {
+      if (el.tagName == 'INPUT' && ['checkbox', 'radio'].includes(el.type)) {
         if (!el.checked) return;
       }
-      if (el.value) {
+      if (el.tagName == 'OPTION') {
+        return;
+      }
+      if (el.value && ['number', 'string'].includes(typeof el.value)) {
         fd.set(el.name, el.value);
       }
     });
@@ -511,28 +511,60 @@ export class ItemsForm extends Translatable {
    * @argument {FormData} fd the FormData to which the item will be added
    * @argument {Item} the item to add
    **/
-  private __formDataAddItem(fd: FormData, p: ItemInterface): void {
+  private __formDataAddItem(fd: FormData, itemEl: Item, parent: Item | null = null): number {
     const idKey = 'pid';
-    const reservedAttributes = [idKey, 'signatures', 'currency'];
-    if (!p[idKey]) {
-      throw new Error('Attempt to convert a item without a propper ID');
-    }
-    const rec = p as Record<string, unknown>;
-    for (let key of Object.keys(rec)) {
-      if (!reservedAttributes.includes(key)) {
-        const fieldValue: unknown = rec[key];
-        // Adds a signature if possible
-        if (p.code && !Array.isArray(fieldValue)) {
-          key = this.__buildKeyFromItem(key, p);
-          fd.set(key, fieldValue as string);
+    // Reserved attributes are not to be submitted
+    // other attributes, included custom attributes added by the user, will be submitted
+    const reservedAttributes = [
+      idKey,
+      'signatures',
+      'currency',
+      'total',
+      'slot',
+      'alt',
+      'description',
+      'isChildren',
+      'isItem',
+      'open',
+      'items',
+      'signatures',
+    ];
+    let added = 0;
+    if (this.__validItem(itemEl)) {
+      if (!itemEl.value[idKey]) {
+        throw new Error('Attempt to convert a item without a propper ID');
+      }
+      if (parent && parent.getAttribute('code')) {
+        itemEl.setAttribute('parent_code', parent.getAttribute('code')!);
+      }
+      for (let i = 0; i < itemEl.attributes.length; i++) {
+        const field = itemEl.attributes[i];
+        if (!reservedAttributes.includes(field.name) && !field.name.startsWith('data-')) {
+          let fieldValue: unknown = (itemEl as any)[field.name];
+          // Adds a signature if possible
+          if (itemEl.code && ['string', 'number'].includes(typeof fieldValue)) {
+            if (parent && field.name == 'quantity') {
+              fieldValue = Number(field.value) * parent.quantity;
+            }
+            const key = this.__buildKeyFromItem(field.name, itemEl);
+            fd.set(key, (fieldValue as string | number).toString());
+          }
         }
       }
-      this.__formDataAddSubscriptionFields(fd, p);
+      added += 1;
+      this.__formDataAddSubscriptionFields(fd, itemEl);
     }
+    const childItems = itemEl.querySelectorAll('[data-bundled]');
+    if (childItems && itemEl.quantity > 0) {
+      for (const child of childItems) {
+        added += this.__formDataAddItem(fd, child as Item, itemEl);
+      }
+    }
+    return added;
   }
 
   // build a key with prepended id and appended signature and |open given an item
-  private __buildKeyFromItem(key: string, item: ItemInterface) {
+  private __buildKeyFromItem(key: string, item: Item) {
     return this.__buildKey(
       item.pid!.toString(),
       key,
@@ -554,12 +586,12 @@ export class ItemsForm extends Translatable {
    *
    * @argument {FormData} fd the FormData to which subscription fields will be added
    **/
-  private __formDataAddSubscriptionFields(fd: FormData, item: ItemInterface): void {
+  private __formDataAddSubscriptionFields(fd: FormData, itemEl: Item): void {
     // added if sub_frequency is set
     if (this.sub_frequency) {
       for (const s of ['sub_frequency', 'sub_startdate', 'sub_enddate']) {
         if ((this as any)[s]) {
-          const subKey = this.__buildKeyFromItem(s, item);
+          const subKey = this.__buildKeyFromItem(s, itemEl);
           fd.set(subKey, (this as any)[s]);
         }
       }
@@ -567,25 +599,27 @@ export class ItemsForm extends Translatable {
     // added if themselves are set
     for (const s of ['sub_token']) {
       if ((this as any)[s]) {
-        const subKey = this.__buildKeyFromItem(s, item);
+        const subKey = this.__buildKeyFromItem(s, itemEl);
         fd.set(subKey, (this as any)[s]);
       }
     }
     // added regardless
     for (const s of ['sub_modify', 'sub_restart']) {
-      const subKey = this.__buildKeyFromItem(s, item);
+      const subKey = this.__buildKeyFromItem(s, itemEl);
       fd.set(subKey, (this as any)[s]);
     }
   }
 
   /**
-   * Adds cat related fields to a FormData
+   * Adds cart related fields to a FormData
    *
    * @argument {FormData} fd the FormData to which the cart fields will be added.
    */
   private __formDataAddCartFields(fd: FormData): void {
     if (this.cart) {
       fd.set('cart', this.cart!);
+    } else {
+      fd.delete('cart');
     }
   }
 
@@ -709,15 +743,11 @@ export class ItemsForm extends Translatable {
    * @argument  Item the item to be validated
    * @returns boolean the item is valid
    **/
-  private __validItem(p: ItemInterface): boolean {
-    return !!(
-      p &&
-      p.pid &&
-      (p.quantity || p.quantity === 0) &&
-      +p.quantity > 0 &&
-      (p.price || p.price === 0) &&
-      p.price >= 0
-    );
+  private __validItem(item: Item): boolean {
+    const pid = item.getAttribute('pid');
+    const qty = Number(item.getAttribute('quantity'));
+    const price = Number(item.getAttribute('price'));
+    return !!(pid && qty > 0 && price >= 0);
   }
 
   /**
@@ -751,12 +781,14 @@ export class ItemsForm extends Translatable {
   }
 
   private __updateData() {
+    this.__data = null;
+    const form = this.shadowRoot!.querySelector('form');
+    if (!form) return;
     const data = new FormData();
     const itemsAdded = this.__formDataFill(data);
-    if (itemsAdded == 0) return null;
+    this.__hasValidItems = !!itemsAdded;
     this.__formDataAddCartFields(data);
     this.__formDataCustomInputs(data);
     this.__data = data;
-    this.__hasValidItems = !!itemsAdded;
   }
 }
