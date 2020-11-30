@@ -1,6 +1,6 @@
 # Foxy Elements 🦊🏗
 
-Collection of [web components](https://developer.mozilla.org/docs/Web/Web_Components) powering the Customer Portal, Checkout, Admin and Cart at Foxy with built-in i18n and theming. Works with React, Vue, Svelte and more – or just on it own. Built with [LitElement](https://github.com/polymer/lit-element), [Tailwind](https://github.com/tailwindlabs/tailwindcss) and [Vaadin](https://github.com/vaadin/vaadin).
+Collection of [web components](https://developer.mozilla.org/docs/Web/Web_Components) powering the new front-end functionality at Foxy with built-in i18n and theming. Works with React, Vue, Svelte and more – or just on it own. Built with [LitElement](https://github.com/polymer/lit-element), [Tailwind](https://github.com/tailwindlabs/tailwindcss) and [Vaadin](https://github.com/vaadin/vaadin).
 
 ## Getting started
 
@@ -10,30 +10,30 @@ If you're targeting [browsers that support ES6](https://caniuse.com/#feat=es6), 
 <!-- 1. Load polyfills (optional); -->
 <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-bundle.js"></script>
 
-<!-- 2. Load element (replace "foxy-customer-portal" with the one you need or add more script tags); -->
-<script type="module" src="https://unpkg.com/foxy.io@elements/cdn/foxy-customer-portal.js"></script>
+<!-- 2. Load element (replace "foxy-donation" with the one you need or add more script tags); -->
+<script type="module" src="https://unpkg.com/foxy.io@elements/dist/cdn/foxy-donation.js"></script>
 
 <!-- 3. Use the element anywhere on your page. -->
-<foxy-customer-portal></foxy-customer-portal>
+<foxy-donation></foxy-donation>
 ```
 
 When using a bundler, you have an option of registering elements with a custom name whenever it works for you in your use case. All public elements are available as named exports (PascalCase, no "Foxy" prefix).
 
 ```js
-import { CustomerPortal } from '@foxy.io/elements';
-customElements.define('my-customer-portal', CustomerPortal);
+import { Donation } from '@foxy.io/elements';
+customElements.define('my-donation', Donation);
 ```
 
 This also works great with the [`ScopedElementsMixin`](https://open-wc.org/scoped-elements/) by open-wc.org:
 
 ```js
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { CustomerPortal } from '@foxy.io/elements';
+import { Donation } from '@foxy.io/elements';
 
 class MyElement extends ScopedElementsMixin(LitElement) {
   static get scopedElements() {
     return {
-      'my-customer-portal': CustomerPortal,
+      'my-donation': Donation,
     };
   }
 }
