@@ -121,7 +121,7 @@ Quite often it's suitable to ask users for a donation amount outside of the list
 
 ## Adding designations
 
-Sometimes you might want to ask your donners to pick a cause to contribute to, which can be particularly useful if your organization has multiple donation-sponsored programs. To display a designation picker, provide the list of choices in the `designations` attribute value in form of a JSON array like this: `designations=["Medical Care", "Daily Meals", "Housing"]`. You can also pre-select a specific designation by setting the `designation` attribute: `designation="Daily Meals"`.
+Sometimes you might want to ask your donors to pick a cause to contribute to, which can be particularly useful if your organization has multiple donation-sponsored programs. To display a designation picker, provide the list of choices in the `designations` attribute value in form of a JSON array like this: `designations=["Medical Care", "Daily Meals", "Housing"]`. You can also pre-select a specific designation by setting the `designation` attribute: `designation="Daily Meals"`.
 
 You can aggregate multiple designation under categories, for example: `designations='["Medical Care", ["Nutrition", ["Daily Meals", "Infant Nutrition Aid", "Elderly Nutrition Suplement"]], "Housing"]'`.
 
@@ -221,7 +221,7 @@ You can easily allow your website visitors to commit to a recurrent contribution
   </Story>
 </Canvas>
 
-If you feel like providing no recurrence options is a bit restrictive, you can use the `frequencies` attribute to give your donners more choice. Let's add twice a month, every month and every year as options in addition to a one-time payment: `frequencies='[" ", ".5m", "1m", "1y"]'`. Note how we've used a JSON array here – just like in `amounts`.
+If you feel like providing no recurrence options is a bit restrictive, you can use the `frequencies` attribute to give your donors more choice. Let's add twice a month, every month and every year as options in addition to a one-time payment: `frequencies='[" ", ".5m", "1m", "1y"]'`. Note how we've used a JSON array here – just like in `amounts`.
 
 <Canvas
   mdxSource={dedent`
@@ -257,7 +257,7 @@ If you feel like providing no recurrence options is a bit restrictive, you can u
 
 ## Comment
 
-If you'd like your donners to be able to leave a short message (visible only to you), you can set the `comment` attribute on the element to display a text field at the bottom. You can also pre-populate it with a custom text by assigning a value to the same attribute.
+If you'd like your donors to be able to leave a short message (visible only to you), you can set the `comment` attribute on the element to display a text field at the bottom. You can also pre-populate it with a custom text by assigning a value to the same attribute.
 
 <Canvas
   mdxSource={dedent`
@@ -295,7 +295,7 @@ If you'd like your donners to be able to leave a short message (visible only to 
 
 ## Anonymity
 
-Giving your donners an option to remain anonymous is often a reasonable idea. While we can't hide the customer info from the transactions, we can let you know that they've requested to keep their identity off the records. To enable this option, set the `anonymity` attribute on an element (no value required – it's a boolean attribute).
+Giving your donors an option to remain anonymous is often a reasonable idea. While we can't hide the customer info from the transactions, we can let you know that they've requested to keep their identity off the records. To enable this option, set the `anonymity` attribute on an element (no value required – it's a boolean attribute).
 
 <Canvas
   mdxSource={dedent`
