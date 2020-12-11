@@ -205,7 +205,15 @@ module.exports = {
   future: {
     removeDeprecatedGapUtilities: true,
   },
-  variants: ['responsive', 'group-hover', 'focus-within', 'hover', 'focus', 'disabled'],
+  variants: [
+    'responsive',
+    'group-hover',
+    'group-focus',
+    'focus-within',
+    'hover',
+    'focus',
+    'disabled',
+  ],
   theme: {
     colors: colorsMap,
     spacing: spacingMap,

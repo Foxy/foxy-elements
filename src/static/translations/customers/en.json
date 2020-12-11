@@ -1,0 +1,16 @@
+{
+  "title": "Customers",
+  "subtitle": "When someone orders items from your store, their info will show up in the list below. Click or tap a customer for more details about their recent activity.",
+  "export": "Export",
+  "name": "Name",
+  "id": "ID",
+  "email": "Email",
+  "actions": "Actions",
+  "open_preview": "Open preview",
+  "open_page": "Open page",
+  "loading": "Loading...",
+  "summary": "Showing results 1-{{returned_items}} of {{total_items}}",
+  "error": "Failed to load data",
+  "search": "Search",
+  "search_example": "Example: first_name=Sarah"
+}

@@ -28,6 +28,7 @@
     "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx"
   },
   "dependencies": {
+    "@foxy.io/sdk": "^1.0.0-beta.9",
     "@open-wc/lit-helpers": "^0.3.11",
     "@open-wc/scoped-elements": "1.2.1",
     "@polymer/iron-icons": "^3.0.1",
