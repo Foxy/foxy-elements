@@ -1,8 +1,9 @@
-import i18next, { FormatFunction, i18n, TFunction } from 'i18next';
+import i18next, { FormatFunction, TFunction, i18n } from 'i18next';
+
 import HttpApi from 'i18next-http-backend';
-import { cdn } from '../env';
-import { Themeable } from './themeable';
 import { PropertyDeclarations } from 'lit-element';
+import { Themeable } from './themeable';
+import { cdn } from '../env';
 
 /**
  * One of the base classes for each rel-specific element in the collection,

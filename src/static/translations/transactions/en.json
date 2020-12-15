@@ -1,0 +1,13 @@
+{
+  "summary": "{{most_expensive_item.name}}",
+  "summary_plural": "{{most_expensive_item.name}} + {{count}} more",
+  "status_approved": "Approved",
+  "status_authorized": "Authorized",
+  "status_declined": "Declined",
+  "status_pending": "Pending",
+  "status_rejected": "Rejected",
+  "status_completed": "Completed",
+  "receipt": "See receipt",
+  "search": "Search",
+  "search_example": "Example: total_order:greaterthan=20"
+}

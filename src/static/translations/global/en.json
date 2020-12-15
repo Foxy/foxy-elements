@@ -34,6 +34,8 @@
   "reset_password": "Reset password",
   "required": "Please fill in this field",
   "reload": "Reload",
+  "property": "Property",
+  "value": "Value",
   "choice": {
     "other": "Other",
     "other_placeholder": "Enter your choice"

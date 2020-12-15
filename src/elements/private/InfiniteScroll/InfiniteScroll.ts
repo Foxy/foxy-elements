@@ -22,7 +22,6 @@ export class InfiniteScroll extends LitElement {
     return {
       ...super.properties,
       __state: {},
-      key: { type: String },
     };
   }
 
