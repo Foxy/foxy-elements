@@ -1,0 +1,13 @@
+{
+  "summary": "{{most_expensive_item.name}}",
+  "summary_plural": "{{most_expensive_item.name}} + {{count}} more",
+  "search": "Search",
+  "search_example": "Example: is_active=false",
+  "status_active": "Next payment on {{date}}",
+  "status_failed": "Failed on {{date}}",
+  "status_cancelled": "Ended on {{date}}",
+  "status_will_be_cancelled": "Ends on {{date}}",
+  "th_status": "Status",
+  "th_summary": "Summary",
+  "th_amount": "Amount"
+}

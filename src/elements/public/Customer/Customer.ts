@@ -4,7 +4,7 @@ import '@polymer/iron-icons/editor-icons';
 
 import * as FoxySDK from '@foxy.io/sdk';
 
-import { CSSResultArray, TemplateResult, css, html } from 'lit-element';
+import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 import {
   ErrorScreen,
   HypermediaResource,
@@ -17,6 +17,8 @@ import {
 import { CustomerAddresses } from './CustomerAddresses';
 import { DefaultPaymentMethod } from '../DefaultPaymentMethod/DefaultPaymentMethod';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
+import { Subscriptions } from '../Subscriptions/Subscriptions';
+import { Tabs } from '../../private/Tabs/Tabs';
 import { Transactions } from '../Transactions/Transactions';
 import { classMap } from '../../../utils/class-map';
 
@@ -29,12 +31,18 @@ export class Customer extends HypermediaResource<Resource> {
       'x-customer-addresses': CustomerAddresses,
       'x-loading-screen': LoadingScreen,
       'x-property-table': PropertyTable,
+      'x-subscriptions': Subscriptions,
       'x-transactions': Transactions,
       'x-error-screen': ErrorScreen,
       'iron-icon': customElements.get('iron-icon'),
+      'x-tabs': Tabs,
       'x-page': Page,
       'x-i18n': I18N,
     };
+  }
+
+  static get properties(): PropertyDeclarations {
+    return { __activeTab: { attribute: false } };
   }
 
   static get styles(): CSSResultArray {
@@ -49,6 +57,8 @@ export class Customer extends HypermediaResource<Resource> {
   }
 
   readonly rel = 'customer';
+
+  private __activeTab = 0;
 
   constructor() {
     super('customer');
@@ -122,11 +132,16 @@ export class Customer extends HypermediaResource<Resource> {
         </section>
 
         <section class="space-y-m">
-          <h2 class="text-xl font-medium">
-            <x-i18n .ns=${this.ns} .lang=${this.lang} key="transactions"></x-i18n>
-          </h2>
+          <x-tabs size="2">
+            <x-i18n ns=${this.ns} key="transactions" lang=${this.lang} slot="tab-0"></x-i18n>
+            <x-i18n ns=${this.ns} key="subscriptions" lang=${this.lang} slot="tab-1"></x-i18n>
 
-          <x-transactions .first=${_links['fx:transactions'].href}></x-transactions>
+            <x-transactions slot="panel-0" first=${_links['fx:transactions'].href}>
+            </x-transactions>
+
+            <x-subscriptions slot="panel-1" first=${_links['fx:subscriptions'].href}>
+            </x-subscriptions>
+          </x-tabs>
         </section>
       </article>
     `;

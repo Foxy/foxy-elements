@@ -6,5 +6,6 @@
   "add_address": "Add address",
   "addresses": "Addresses",
   "payment_methods": "Payment methods",
-  "transactions": "Transactions"
+  "transactions": "Transactions",
+  "subscriptions": "Subscriptions"
 }
