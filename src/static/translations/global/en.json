@@ -40,6 +40,7 @@
     "other": "Other",
     "other_placeholder": "Enter your choice"
   },
+  "failed_to_load": "Failed to load",
   "close": "Close",
   "weekday-picker": {
     "hint": "Allow selecting only {{days, list}} of the month."

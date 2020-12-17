@@ -34,10 +34,14 @@ export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
     const isReady = this._is('ready');
 
     const icon = this.resource?.is_default_billing ? 'payment' : 'local-shipping';
-    const variant = isError ? 'error' : '';
+    const variant = isError ? 'error' : 'busy';
 
     return html`
-      <div class="flex leading-m font-lumo space-x-m" aria-live="polite" aria-busy=${isLoading}>
+      <div
+        class="flex items-start leading-m font-lumo space-x-m"
+        aria-live="polite"
+        aria-busy=${isLoading}
+      >
         <p class="relative flex-1 leading-m">
           ${[1, 2, 3].map(lineIndex => {
             const lineClass = classMap({ 'block text-m text-body': true, 'opacity-0': isError });
@@ -68,7 +72,7 @@ export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
 
         ${isReady
           ? html`<iron-icon icon="icons:${icon}"></iron-icon>`
-          : html`<x-skeleton class="w-m min-w-0" variant=${variant}></x-skeleton>`}
+          : html`<x-skeleton class="w-s min-w-0" variant=${variant}></x-skeleton>`}
       </div>
     `;
   }

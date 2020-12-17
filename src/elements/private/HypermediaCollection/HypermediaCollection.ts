@@ -50,5 +50,9 @@ export abstract class HypermediaCollection<T extends Collection> extends Transla
     if (this._trigger) this.__observer.observe(this._trigger);
   }
 
+  protected _is(state: string): boolean {
+    return this.__service.state.matches(state);
+  }
+
   protected abstract get _trigger(): HTMLElement | null;
 }

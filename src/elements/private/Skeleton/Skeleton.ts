@@ -25,6 +25,11 @@ export class Skeleton extends Themeable {
           display: inline-block;
           min-width: 4rem;
         }
+
+        :host([size='box']) {
+          display: block;
+          min-width: auto;
+        }
       `,
     ];
   }
@@ -33,19 +38,24 @@ export class Skeleton extends Themeable {
     return {
       ...super.properties,
       variant: { type: String },
+      size: { type: String },
     };
   }
 
-  public variant: 'static' | 'error' | null = null;
+  public variant: 'static' | 'error' | 'busy' = 'busy';
+
+  public size: 'box' | 'line' = 'line';
 
   public render(): TemplateResult {
     const bg = this.variant === 'error' ? 'bg-error-10' : 'bg-contrast-10';
-    const animated = this.variant === null ? 'animated' : '';
+    const padded = this.size === 'line' ? 'my-xs' : '';
+    const rounded = this.size === 'line' ? 'rounded' : 'rounded-t-l rounded-b-l';
+    const animated = this.variant === 'busy' ? 'animated' : '';
 
     return html`
-      <div class="relative">
+      <div class="relative h-full">
         <span class="opacity-0"><slot>&nbsp;</slot></span>
-        <div class="${bg} ${animated} rounded my-xs absolute inset-0"></div>
+        <div class="${bg} ${animated} ${rounded} ${padded} absolute inset-0"></div>
       </div>
     `;
   }

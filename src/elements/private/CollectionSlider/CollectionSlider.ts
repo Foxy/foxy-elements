@@ -6,13 +6,17 @@ import { TemplateResult, html } from 'lit-html';
 
 import { Collection } from '../HypermediaCollection/machine';
 import { HypermediaCollection } from '../../private/HypermediaCollection/HypermediaCollection';
+import { I18N } from '../I18N/I18N';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Skeleton } from '../Skeleton/Skeleton';
 import { classMap } from '../../../utils/class-map';
 
 export abstract class CollectionSlider<T extends Collection> extends HypermediaCollection<T> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
+      'x-i18n': I18N,
     };
   }
 
@@ -40,9 +44,11 @@ export abstract class CollectionSlider<T extends Collection> extends HypermediaC
   }
 
   render(renderResource?: (resource: T) => TemplateResult): TemplateResult {
+    const skeletonCount = this._is('error') ? 1 : this.pages[0]?.limit ?? 20;
+
     const arrowWrapperClass = classMap({
-      'shadow-base-s bg-base z-10 hidden absolute inset-y-0 items-center': true,
-      'md:flex': true,
+      'shadow-base-s bg-base z-10 flex absolute inset-y-0 items-center': true,
+      'opacity-0': this._is('error') && this.pages.length === 0,
     });
 
     const arrowClass = classMap({
@@ -62,14 +68,56 @@ export abstract class CollectionSlider<T extends Collection> extends HypermediaC
           ${this.pages.map(page => {
             return Object.values(page._embedded as Record<string, unknown[]>).map(embed => {
               return embed.map(resource => {
-                return html`<div class="flex-shrink-0 snap-start p-s" data-item>
-                  ${renderResource?.(resource as T)}
-                </div>`;
+                return html`
+                  <div
+                    class="flex-shrink-0 snap-start p-s"
+                    aria-live="polite"
+                    aria-busy="false"
+                    data-item
+                  >
+                    <div class="w-child h-child">${renderResource?.(resource as T)}</div>
+                  </div>
+                `;
               });
             });
           })}
 
           <div id="trigger"></div>
+
+          ${this._is('loading') || this._is('error')
+            ? new Array(skeletonCount).fill(0).map(
+                () => html`
+                  <div
+                    class="relative flex-shrink-0 snap-start p-s"
+                    aria-live="polite"
+                    aria-busy=${this._is('loading')}
+                    data-item
+                  >
+                    <x-skeleton
+                      size="box"
+                      class="w-child h-child"
+                      variant=${this._is('error') ? 'error' : 'busy'}
+                    >
+                    </x-skeleton>
+
+                    ${this._is('error')
+                      ? html`
+                          <div class="text-error flex flex-col justify-center absolute inset-0">
+                            <iron-icon icon="icons:error-outline" class="mb-xs mx-auto"></iron-icon>
+                            <x-i18n
+                              .ns=${this.ns}
+                              .lang=${this.lang}
+                              key="failed_to_load"
+                              class="text-s mx-auto"
+                            >
+                            </x-i18n>
+                          </div>
+                        `
+                      : ''}
+                  </div>
+                `
+              )
+            : ''}
         </div>
 
         <div class="${arrowWrapperClass} right-0 -mr-xl">

@@ -26,8 +26,14 @@ export class FoxyCustomerAddressesElement extends CollectionSlider<Resource> {
     return [
       super.styles,
       css`
-        .w-18rem {
+        .w-child {
           width: 18rem;
+        }
+
+        .h-child {
+          --text-height: calc(3 * var(--lumo-font-size-m) * var(--lumo-line-height-m));
+          --padding: calc(2 * var(--lumo-space-m));
+          height: calc(var(--text-height) + var(--padding));
         }
       `,
     ];
@@ -39,7 +45,7 @@ export class FoxyCustomerAddressesElement extends CollectionSlider<Resource> {
         <foxy-customer-address
           .href=${resource._links.self.href}
           .resource=${resource}
-          class="w-18rem shadow-xs rounded-t-l rounded-b-l p-m"
+          class="shadow-xs rounded-t-l rounded-b-l p-m"
         >
         </foxy-customer-address>
       `;

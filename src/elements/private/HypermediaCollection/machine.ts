@@ -8,6 +8,7 @@ export type Collection = {
   readonly total_items: number;
   readonly returned_items: number;
   readonly offset: number;
+  readonly limit: number;
 };
 
 export type SliderContext<T extends Collection = any> = {
