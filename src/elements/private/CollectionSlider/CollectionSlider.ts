@@ -82,7 +82,7 @@ export abstract class CollectionSlider<T extends Collection> extends HypermediaC
             });
           })}
 
-          <div id="trigger"></div>
+          <div id="trigger" class="h-child py-s box-content"></div>
 
           ${this._is('loading') || this._is('error')
             ? new Array(skeletonCount).fill(0).map(
