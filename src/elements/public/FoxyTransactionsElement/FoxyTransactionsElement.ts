@@ -30,8 +30,10 @@ function getSummaryOpts(items: Items) {
   };
 }
 
-export class Transactions extends HypermediaCollection<Collection> {
-  public static get scopedElements(): ScopedElementsMap {
+export class FoxyTransactionsElement extends HypermediaCollection<Collection> {
+  static readonly defaultNodeName = 'foxy-transactions';
+
+  static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': TextFieldElement,
       'x-i18n': I18N,

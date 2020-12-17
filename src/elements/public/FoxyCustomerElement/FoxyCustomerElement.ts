@@ -14,25 +14,30 @@ import {
   PropertyTable,
 } from '../../private';
 
-import { CustomerAddresses } from './CustomerAddresses';
-import { DefaultPaymentMethod } from '../DefaultPaymentMethod/DefaultPaymentMethod';
+import { FoxyCustomerAddressesElement } from '../FoxyCustomerAddressesElement';
+import { FoxyDefaultPaymentMethodElement } from '../FoxyDefaultPaymentMethodElement';
+import { FoxySubscriptionsElement } from '../FoxySubscriptionsElement';
+import { FoxyTransactionsElement } from '../FoxyTransactionsElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { Subscriptions } from '../Subscriptions/Subscriptions';
 import { Tabs } from '../../private/Tabs/Tabs';
-import { Transactions } from '../Transactions/Transactions';
 import { classMap } from '../../../utils/class-map';
 
 type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customer, undefined>;
 
-export class Customer extends HypermediaResource<Resource> {
+export class FoxyCustomerElement extends HypermediaResource<Resource> {
+  static readonly defaultNodeName = 'foxy-customer';
+
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-default-payment-method': DefaultPaymentMethod,
-      'x-customer-addresses': CustomerAddresses,
+      'foxy-default-payment-method': customElements.get(
+        FoxyDefaultPaymentMethodElement.defaultNodeName
+      ),
+
+      'foxy-customer-addresses': customElements.get(FoxyCustomerAddressesElement.defaultNodeName),
+      'foxy-subscriptions': customElements.get(FoxySubscriptionsElement.defaultNodeName),
+      'foxy-transactions': customElements.get(FoxyTransactionsElement.defaultNodeName),
       'x-loading-screen': LoadingScreen,
       'x-property-table': PropertyTable,
-      'x-subscriptions': Subscriptions,
-      'x-transactions': Transactions,
       'x-error-screen': ErrorScreen,
       'iron-icon': customElements.get('iron-icon'),
       'x-tabs': Tabs,
@@ -115,8 +120,8 @@ export class Customer extends HypermediaResource<Resource> {
             </button>
           </header>
 
-          <x-customer-addresses first=${_links['fx:customer_addresses'].href}>
-          </x-customer-addresses>
+          <foxy-customer-addresses first=${_links['fx:customer_addresses'].href}>
+          </foxy-customer-addresses>
         </section>
 
         <section class="space-y-m">
@@ -124,11 +129,11 @@ export class Customer extends HypermediaResource<Resource> {
             <x-i18n .ns=${this.ns} .lang=${this.lang} key="payment_methods"></x-i18n>
           </h2>
 
-          <x-default-payment-method
+          <foxy-default-payment-method
             class="w-18rem shadow-xs rounded-t-l rounded-b-l overflow-hidden"
             .href=${_links['fx:default_payment_method'].href}
           >
-          </x-default-payment-method>
+          </foxy-default-payment-method>
         </section>
 
         <section class="space-y-m">
@@ -136,11 +141,11 @@ export class Customer extends HypermediaResource<Resource> {
             <x-i18n ns=${this.ns} key="transactions" lang=${this.lang} slot="tab-0"></x-i18n>
             <x-i18n ns=${this.ns} key="subscriptions" lang=${this.lang} slot="tab-1"></x-i18n>
 
-            <x-transactions slot="panel-0" first=${_links['fx:transactions'].href}>
-            </x-transactions>
+            <foxy-transactions slot="panel-0" first=${_links['fx:transactions'].href}>
+            </foxy-transactions>
 
-            <x-subscriptions slot="panel-1" first=${_links['fx:subscriptions'].href}>
-            </x-subscriptions>
+            <foxy-subscriptions slot="panel-1" first=${_links['fx:subscriptions'].href}>
+            </foxy-subscriptions>
           </x-tabs>
         </section>
       </article>

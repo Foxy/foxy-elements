@@ -73,7 +73,9 @@ function getIconClass(subscription: Resource) {
   return 'text-success bg-success-10';
 }
 
-export class Subscriptions extends HypermediaCollection<Collection> {
+export class FoxySubscriptionsElement extends HypermediaCollection<Collection> {
+  static readonly defaultNodeName = 'foxy-subscriptions';
+
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': TextFieldElement,

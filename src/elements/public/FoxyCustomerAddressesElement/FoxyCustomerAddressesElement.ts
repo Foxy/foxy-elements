@@ -7,16 +7,18 @@ import { CSSResultArray, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
 import { CollectionSlider } from '../../private/CollectionSlider/CollectionSlider';
-import { CustomerAddress } from '../CustomerAddress/CustomerAddress';
+import { FoxyCustomerAddressElement } from '../FoxyCustomerAddressElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
 type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.CustomerAddresses, undefined>;
 
-export class CustomerAddresses extends CollectionSlider<Resource> {
+export class FoxyCustomerAddressesElement extends CollectionSlider<Resource> {
+  static readonly defaultNodeName = 'foxy-customer-addresses';
+
   static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
-      'x-customer-address': CustomerAddress,
+      'foxy-customer-address': customElements.get(FoxyCustomerAddressElement.defaultNodeName),
     };
   }
 
@@ -34,12 +36,12 @@ export class CustomerAddresses extends CollectionSlider<Resource> {
   render(): TemplateResult {
     return super.render(resource => {
       return html`
-        <x-customer-address
+        <foxy-customer-address
           .href=${resource._links.self.href}
           .resource=${resource}
           class="w-18rem shadow-xs rounded-t-l rounded-b-l p-m"
         >
-        </x-customer-address>
+        </foxy-customer-address>
       `;
     });
   }

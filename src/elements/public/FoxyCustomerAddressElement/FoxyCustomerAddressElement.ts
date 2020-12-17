@@ -10,7 +10,9 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
 type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.CustomerAddress, undefined>;
 
-export class CustomerAddress extends HypermediaResource<Resource> {
+export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
+  static readonly defaultNodeName = 'foxy-customer-address';
+
   static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),

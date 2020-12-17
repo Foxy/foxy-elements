@@ -22,7 +22,9 @@ type CustomersResource = Writeable<
   FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customers, undefined>
 >;
 
-export class Customers extends Translatable {
+export class FoxyCustomersElement extends Translatable {
+  public static readonly defaultNodeName = 'foxy-customers';
+
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': TextFieldElement,

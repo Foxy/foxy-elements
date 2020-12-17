@@ -13,7 +13,9 @@ import { cdn } from '../../../env';
 
 type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.DefaultPaymentMethod, undefined>;
 
-export class DefaultPaymentMethod extends HypermediaResource<Resource> {
+export class FoxyDefaultPaymentMethodElement extends HypermediaResource<Resource> {
+  static readonly defaultNodeName = 'foxy-default-payment-method';
+
   static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),
