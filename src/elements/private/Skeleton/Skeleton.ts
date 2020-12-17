@@ -1,4 +1,5 @@
-import { css, CSSResultArray, html, TemplateResult, PropertyDeclarations } from 'lit-element';
+import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
+
 import { Themeable } from '../../../mixins/themeable';
 
 export class Skeleton extends Themeable {
@@ -43,7 +44,7 @@ export class Skeleton extends Themeable {
 
     return html`
       <div class="relative">
-        <span class="opacity-0"><slot></slot></span>
+        <span class="opacity-0"><slot>&nbsp;</slot></span>
         <div class="${bg} ${animated} rounded my-xs absolute inset-0"></div>
       </div>
     `;

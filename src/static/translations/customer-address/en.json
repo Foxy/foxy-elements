@@ -1,3 +1,6 @@
 {
-  "address": "{{first_name}} {{last_name}}\n{{address1}} {{address2}}\n{{city}} {{region}} {{postal_code}}"
+  "line_1": "{{first_name}} {{last_name}}",
+  "line_2": "{{address1}} {{address2}}",
+  "line_3": "{{city}} {{region}} {{postal_code}}",
+  "error": "Failed to load"
 }

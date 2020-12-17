@@ -3,10 +3,11 @@ import '@polymer/iron-icon';
 
 import * as FoxySDK from '@foxy.io/sdk';
 
+import { HypermediaResource, I18N, Skeleton } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
-import { HypermediaResource } from '../../private';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { classMap } from '../../../utils/class-map';
 
 type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.CustomerAddress, undefined>;
 
@@ -15,7 +16,9 @@ export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
 
   static get scopedElements(): ScopedElementsMap {
     return {
+      'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
+      'x-i18n': I18N,
     };
   }
 
@@ -26,17 +29,46 @@ export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
   }
 
   render(): TemplateResult {
-    if (!this.resource) return html`Loading...`;
+    const isLoading = this._is('loading');
+    const isError = this._is('error');
+    const isReady = this._is('ready');
+
+    const icon = this.resource?.is_default_billing ? 'payment' : 'local-shipping';
+    const variant = isError ? 'error' : '';
 
     return html`
-      <div class="flex text-body text-m leading-m font-lumo whitespace-pre-line">
-        <p class="flex-1">${this._t('address', this.resource)}</p>
+      <div class="flex leading-m font-lumo space-x-m" aria-live="polite" aria-busy=${isLoading}>
+        <p class="relative flex-1 leading-m">
+          ${[1, 2, 3].map(lineIndex => {
+            const lineClass = classMap({ 'block text-m text-body': true, 'opacity-0': isError });
+            if (!isReady) return html`<x-skeleton class=${lineClass}>&nbsp;</x-skeleton>`;
 
-        ${this.resource.is_default_billing
-          ? html`<iron-icon icon="icons:payment"></iron-icon>`
-          : this.resource.is_default_shipping
-          ? html`<iron-icon icon="icons:local-shipping"></iron-icon>`
-          : ''}
+            return html`
+              <x-i18n
+                .ns=${this.ns}
+                .key=${`line_${lineIndex}`}
+                .lang=${this.lang}
+                .opts=${this.resource!}
+                .className=${lineClass}
+              >
+              </x-i18n>
+            `;
+          })}
+          ${isError
+            ? html`
+                <div class="my-xs absolute text-error bg-error-10 rounded inset-0 flex">
+                  <div class="flex m-auto items-center justify-center space-x-s">
+                    <iron-icon icon="icons:error-outline"></iron-icon>
+                    <x-i18n .ns=${this.ns} .lang=${this.lang} key="error" class="text-s"></x-i18n>
+                  </div>
+                </div>
+              `
+            : ''}
+        </p>
+
+        ${isReady
+          ? html`<iron-icon icon="icons:${icon}"></iron-icon>`
+          : html`<x-skeleton class="w-m min-w-0" variant=${variant}></x-skeleton>`}
       </div>
     `;
   }
