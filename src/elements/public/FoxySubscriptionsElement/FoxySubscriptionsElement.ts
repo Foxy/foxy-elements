@@ -120,7 +120,7 @@ export class FoxySubscriptionsElement extends HypermediaCollection<Collection> {
       <table class="block">
         <thead class="sr-only">
           <tr>
-            <th>${this._t('th_status')}</th>
+            <th class="hidden md:table-cell">${this._t('th_status')}</th>
             <th>${this._t('th_summary')}</th>
             <th>${this._t('th_amount')}</th>
           </tr>
@@ -135,13 +135,13 @@ export class FoxySubscriptionsElement extends HypermediaCollection<Collection> {
 
               return html`
                 <tr class="p-s flex items-center rounded-t-l rounded-b-l border border-contrast-10">
-                  <td class="p-0 flex-shrink-0">
-                    <div class="${iconClass} h-l w-l flex items-center justify-center rounded-full">
+                  <td class="p-0 px-xs flex-shrink-0 hidden md:table-cell">
+                    <div class="${iconClass} h-m w-m flex items-center justify-center rounded-full">
                       <iron-icon icon=${getIcon(subscription)}></iron-icon>
                     </div>
                   </td>
 
-                  <td class="py-0 px-m min-w-0 mr-auto leading-s">
+                  <td class="py-0 pr-m pl-s min-w-0 mr-auto leading-s">
                     <x-i18n
                       .ns=${this.ns}
                       .lang=${this.lang}
@@ -161,7 +161,7 @@ export class FoxySubscriptionsElement extends HypermediaCollection<Collection> {
                     </x-i18n>
                   </td>
 
-                  <td class="p-0 mr-s flex-shrink-0 font-tnum leading-s text-right">
+                  <td class="p-0 mr-xs flex-shrink-0 font-tnum leading-s text-right">
                     <span class="block text-m font-medium text-body">
                       ${this.__formatPrice(subscription)}
                     </span>
