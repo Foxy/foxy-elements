@@ -52,12 +52,12 @@ export abstract class CollectionSlider<T extends Collection> extends HypermediaC
     });
 
     const arrowClass = classMap({
-      'w-xs h-xs rounded-full bg-contrast-5 text-secondary flex items-center justify-center': true,
-      'hover:bg-contrast hover:text-base focus:outline-none focus:shadow-outline': true,
+      'opacity-0 transition duration-200 w-xs h-xs rounded-full bg-contrast-5 text-secondary flex items-center justify-center': true,
+      'group-hover:opacity-100 hover:bg-contrast hover:text-base focus:opacity-100 focus:outline-none focus:shadow-outline': true,
     });
 
     return html`
-      <div class="relative">
+      <div class="relative group">
         <div class="${arrowWrapperClass} left-0 -ml-xl">
           <button aria-label="Previous" class=${arrowClass} @click=${this.__scrollLeft}>
             <iron-icon icon="icons:chevron-left"></iron-icon>
