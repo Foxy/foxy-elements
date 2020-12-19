@@ -1,5 +1,6 @@
-import { css, CSSResultArray } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { CSSResultArray, css } from 'lit-element';
+import { TemplateResult, html } from 'lit-html';
+
 import { Themeable } from '../../../mixins/themeable';
 
 export class LoadingScreen extends Themeable {
@@ -8,6 +9,8 @@ export class LoadingScreen extends Themeable {
       super.styles,
       css`
         :host {
+          color: var(--lumo-primary-color);
+          background: var(--lumo-base-color);
           position: absolute;
           top: 0;
           right: 0;
@@ -60,7 +63,7 @@ export class LoadingScreen extends Themeable {
 
   public render(): TemplateResult {
     return html`
-      <div class="h-full bg-base text-primary">
+      <div class="h-full">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           class="fill-current w-xl h-xl mx-auto sticky top-center"
