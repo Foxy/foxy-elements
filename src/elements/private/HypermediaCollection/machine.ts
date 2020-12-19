@@ -118,7 +118,10 @@ export const machine = createMachine<SliderContext, SliderEvent, SliderState>({
   on: {
     SET_FIRST: {
       target: 'unknown',
-      actions: assign({ first: (_, evt) => (evt as any).data }),
+      actions: assign<SliderContext>({
+        first: (_, evt) => (evt as any).data,
+        pages: [],
+      }),
     },
 
     SET_PAGES: {
