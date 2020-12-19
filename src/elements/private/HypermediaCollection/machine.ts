@@ -2,9 +2,9 @@ import { EventObject, StateMachine, assign, createMachine } from 'xstate';
 
 import { RequestEvent } from '../../../events/request';
 
-export type Collection = {
+export type Collection<TCurie extends string = any, TResource = any> = {
   readonly _links: Record<'next' | 'last', { href: string }>;
-  readonly _embedded: unknown;
+  readonly _embedded: Record<TCurie, readonly TResource[]>;
   readonly total_items: number;
   readonly returned_items: number;
   readonly offset: number;

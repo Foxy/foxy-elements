@@ -9,5 +9,7 @@
   "status_will_be_cancelled": "Ends on {{date}}",
   "th_status": "Status",
   "th_summary": "Summary",
-  "th_amount": "Amount"
+  "th_frequency": "Frequency",
+  "frequency": "{{amount}}/{{units, lowercase}}",
+  "edit": "Settings"
 }

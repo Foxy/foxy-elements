@@ -14,6 +14,6 @@
   "th_summary": "Summary",
   "th_status": "Status",
   "th_id": "ID",
-  "th_timestamp": "Date & Time",
+  "th_date": "Date & Time",
   "th_actions": "Actions"
 }

@@ -11,7 +11,9 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Skeleton } from '../Skeleton/Skeleton';
 import { classMap } from '../../../utils/class-map';
 
-export abstract class CollectionSlider<T extends Collection> extends HypermediaCollection<T> {
+export abstract class CollectionSlider<
+  T extends Collection<never, unknown>
+> extends HypermediaCollection<T> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'x-skeleton': Skeleton,
