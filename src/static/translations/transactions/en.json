@@ -9,5 +9,11 @@
   "status_completed": "Completed",
   "receipt": "See receipt",
   "search": "Search",
-  "search_example": "Example: total_order:greaterthan=20"
+  "search_example": "Example: total_order:greaterthan=20",
+  "th_total": "Total",
+  "th_summary": "Summary",
+  "th_status": "Status",
+  "th_id": "ID",
+  "th_timestamp": "Date & Time",
+  "th_actions": "Actions"
 }

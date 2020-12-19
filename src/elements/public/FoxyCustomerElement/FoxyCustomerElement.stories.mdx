@@ -16,7 +16,7 @@ export const handleRequest = evt => {
       return new Response(JSON.stringify(customer));
     }
     //
-    if (url === 'https://api.foxy.test/customers/115/addresses') {
+    if (url.startsWith('https://api.foxy.test/customers/115/addresses')) {
       return new Response(JSON.stringify(customerAddresses));
     }
     //
@@ -24,11 +24,11 @@ export const handleRequest = evt => {
       return new Response(JSON.stringify(defaultPaymentMethod));
     }
     //
-    if (url === 'https://api.foxy.test/stores/8/subscriptions?customer_id=115') {
+    if (url.startsWith('https://api.foxy.test/stores/8/subscriptions')) {
       return new Response(JSON.stringify(subscriptions));
     }
     //
-    if (url === 'https://api.foxy.test/stores/8/transactions?customer_id=115') {
+    if (url.startsWith('https://api.foxy.test/stores/8/transactions')) {
       return new Response(JSON.stringify(transactions));
     }
     //
