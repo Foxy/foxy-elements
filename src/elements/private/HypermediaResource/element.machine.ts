@@ -151,12 +151,20 @@ export const element = createMachine<
   on: {
     SET_HREF: {
       target: 'unknown',
-      actions: assign({ href: (_, evt) => (evt as any).data }),
+      actions: assign<ElementContext<unknown>>({
+        resource: null,
+        error: null,
+        href: (_, evt) => (evt as any).data,
+      }),
     },
 
     SET_RESOURCE: {
       target: 'unknown',
-      actions: assign({ resource: (_, evt) => (evt as any).data }),
+      actions: assign<ElementContext<unknown>>({
+        resource: (_: ElementContext<unknown>, evt: any) => evt.data,
+        error: null,
+        href: (_, evt) => (evt as any).data?._links.self.href,
+      }),
     },
   },
 });
