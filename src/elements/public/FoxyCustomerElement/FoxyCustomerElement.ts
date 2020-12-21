@@ -63,8 +63,6 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
 
   readonly rel = 'customer';
 
-  private __activeTab = 0;
-
   constructor() {
     super('customer');
   }

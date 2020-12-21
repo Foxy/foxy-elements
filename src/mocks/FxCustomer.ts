@@ -1,7 +1,7 @@
 export const customer = {
   _links: {
     self: {
-      href: 'https://api.foxy.test/customers/customers/115',
+      href: 'https://api.foxy.test/customers/115',
       title: 'This Customer',
     },
     'fx:attributes': {
