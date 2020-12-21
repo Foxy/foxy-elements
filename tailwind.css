@@ -58,4 +58,8 @@ vaadin-button {
     backdrop-filter: blur(25px);
     background: var(--lumo-tint-80pct);
   }
+
+  .max-w-modal {
+    max-width: 28rem;
+  }
 }
