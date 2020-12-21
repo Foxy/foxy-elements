@@ -57,7 +57,7 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
       </vaadin-text-field>
 
       <div style="min-height: calc(${this.__getLimit()} * var(--lumo-size-l))">
-        <table class="w-full" aria-busy=${this._is('loading')} aria-live="polite">
+        <table class="table-fixed w-full" aria-busy=${this._is('loading')} aria-live="polite">
           <thead class="sr-only">
             <tr>
               ${columns?.map(column => {
@@ -80,7 +80,7 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
                         return html`
                           <td
                             class=${classMap({
-                              'h-l font-lumo text-body text-m': true,
+                              'truncate h-l font-lumo text-body text-m': true,
                               'hidden md:table-cell': !!column.mdAndUp,
                               'text-right': columnIndex === columns.length - 1,
                             })}
