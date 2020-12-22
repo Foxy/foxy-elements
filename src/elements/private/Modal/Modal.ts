@@ -94,7 +94,7 @@ export class Modal extends Themeable {
         >
           <div
             class=${classMap({
-              'flex flex-col bg-base absolute inset-0 rounded-t-l mt-xl sm:rounded-b-l sm:m-xl': true,
+              'overflow-hidden flex flex-col bg-base absolute inset-0 rounded-t-l mt-xl sm:rounded-b-l sm:m-xl': true,
               'shadow-xxl': this.open,
             })}
           >
