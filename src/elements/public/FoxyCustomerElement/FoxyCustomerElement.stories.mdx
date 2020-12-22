@@ -4,6 +4,7 @@ import { customerAddresses } from '../../../mocks/FxCustomerAddresses';
 import { defaultPaymentMethod } from '../../../mocks/FxDefaultPaymentMethod';
 import { subscriptions } from '../../../mocks/FxSubscriptions';
 import { transactions } from '../../../mocks/FxTransactions';
+import { attributes } from '../../../mocks/FxAttributes';
 import { customer } from '../../../mocks/FxCustomer';
 import './index.ts';
 
@@ -14,6 +15,10 @@ export const handleRequest = evt => {
     //
     if (url === 'https://api.foxy.test/customers/115') {
       return new Response(JSON.stringify(customer));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/customers/115/attributes')) {
+      return new Response(JSON.stringify(attributes));
     }
     //
     if (url.startsWith('https://api.foxy.test/customers/115/addresses')) {

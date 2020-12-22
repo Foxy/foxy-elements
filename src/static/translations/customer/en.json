@@ -1,5 +1,5 @@
 {
-  "edit": "Edit profile",
+  "edit": "Edit customer",
   "first_purchase": "First purchase",
   "last_login": "Last login",
   "tax_id": "Tax ID",
@@ -7,5 +7,12 @@
   "addresses": "Addresses",
   "payment_methods": "Payment methods",
   "transactions": "Transactions",
-  "subscriptions": "Subscriptions"
+  "subscriptions": "Subscriptions",
+  "first_name": "First name",
+  "last_name": "Last name",
+  "email": "Email",
+  "delete": "Delete customer",
+  "cancel": "Cancel",
+  "save": "Save",
+  "profile": "Profile"
 }

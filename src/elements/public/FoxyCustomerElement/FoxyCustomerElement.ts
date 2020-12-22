@@ -14,10 +14,12 @@ import {
   PropertyTable,
 } from '../../private';
 
+import { CustomerForm } from './private/CustomerForm';
 import { FoxyCustomerAddressesElement } from '../FoxyCustomerAddressesElement';
 import { FoxyDefaultPaymentMethodElement } from '../FoxyDefaultPaymentMethodElement';
 import { FoxySubscriptionsElement } from '../FoxySubscriptionsElement';
 import { FoxyTransactionsElement } from '../FoxyTransactionsElement';
+import { Modal } from '../../private/Modal/Modal';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Tabs } from '../../private/Tabs/Tabs';
 import { classMap } from '../../../utils/class-map';
@@ -38,8 +40,10 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
       'foxy-transactions': customElements.get(FoxyTransactionsElement.defaultNodeName),
       'x-loading-screen': LoadingScreen,
       'x-property-table': PropertyTable,
+      'x-customer-form': CustomerForm,
       'x-error-screen': ErrorScreen,
       'iron-icon': customElements.get('iron-icon'),
+      'x-modal': Modal,
       'x-tabs': Tabs,
       'x-page': Page,
       'x-i18n': I18N,
@@ -47,7 +51,7 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
   }
 
   static get properties(): PropertyDeclarations {
-    return { __activeTab: { attribute: false } };
+    return { __activeTab: { attribute: false }, __isEditModalOpen: { attribute: false } };
   }
 
   static get styles(): CSSResultArray {
@@ -63,6 +67,8 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
 
   readonly rel = 'customer';
 
+  private __isEditModalOpen = false;
+
   constructor() {
     super('customer');
   }
@@ -74,6 +80,20 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
     const { _links, first_name, last_name, email } = this.resource!;
 
     return html`
+      <x-modal
+        ?open=${this.__isEditModalOpen}
+        closable
+        editable
+        @close=${() => (this.__isEditModalOpen = false)}
+      >
+        <x-i18n ns=${this.ns} lang=${this.lang} key="cancel" slot="close"></x-i18n>
+        <x-i18n ns=${this.ns} lang=${this.lang} key="edit" slot="header"></x-i18n>
+        <x-i18n ns=${this.ns} lang=${this.lang} key="save" slot="save"></x-i18n>
+
+        <x-customer-form .ns=${this.ns} .lang=${this.lang} .resource=${this.resource!}>
+        </x-customer-form>
+      </x-modal>
+
       <article class="font-lumo text-body text-m leading-m space-y-xl">
         <header class="flex items-center justify-between space-x-m">
           <div class="leading-s min-w-0">
@@ -88,6 +108,7 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
               'hover:bg-primary hover:text-primary-contrast': true,
               'focus:outline-none focus:shadow-outline': true,
             })}
+            @click=${() => (this.__isEditModalOpen = true)}
           >
             <iron-icon icon="editor:mode-edit"></iron-icon>
           </button>

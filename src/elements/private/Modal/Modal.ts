@@ -11,6 +11,7 @@ export class Modal extends Themeable {
     return {
       __open: { attribute: false },
       closable: { type: Boolean },
+      editable: { type: Boolean },
       type: { type: String },
       open: { type: Boolean, noAccessor: true },
     };
@@ -29,6 +30,8 @@ export class Modal extends Themeable {
   }
 
   closable = false;
+
+  editable = false;
 
   private __open = false;
 
@@ -107,20 +110,25 @@ export class Modal extends Themeable {
                       class="mr-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
                       @click=${() => (this.open = false)}
                     >
-                      <slot name="action">Close</slot>
+                      <slot name="close">Close</slot>
                     </button>
                   `
-                : ''}
+                : html`<div></div>`}
 
-              <h1
-                id="dialog-title"
-                class=${classMap({
-                  'truncate self-center text-center': true,
-                  'col-span-3': !this.closable,
-                })}
-              >
+              <h1 id="dialog-title" class="truncate self-center text-center">
                 <slot name="header">Header</slot>
               </h1>
+
+              ${this.editable
+                ? html`
+                    <button
+                      class="ml-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
+                      @click=${() => (this.open = false)}
+                    >
+                      <slot name="save">Save</slot>
+                    </button>
+                  `
+                : html`<div></div>`}
             </div>
 
             <div class="relative p-m flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
