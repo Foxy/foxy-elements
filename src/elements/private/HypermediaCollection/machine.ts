@@ -68,8 +68,7 @@ export const machine = createMachine<SliderContext, SliderEvent, SliderState>({
     unknown: {
       always: [
         { target: 'error', cond: ctx => !!ctx.error || !ctx.first || !ctx.element },
-        { target: 'idle', cond: ctx => !!ctx.pages },
-        { target: 'loading' },
+        { target: 'idle' },
       ],
     },
 

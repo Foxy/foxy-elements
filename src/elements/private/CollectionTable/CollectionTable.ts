@@ -119,9 +119,9 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
 
           ${this._is('error') ? html`<x-error-screen></x-error-screen>` : ''}
         </div>
-      </div>
 
-      <div id="trigger"></div>
+        <div id="trigger"></div>
+      </div>
     `;
   }
 
