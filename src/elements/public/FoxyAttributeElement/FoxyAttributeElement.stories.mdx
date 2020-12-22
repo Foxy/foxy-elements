@@ -1,0 +1,80 @@
+import { html } from 'lit-html';
+import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { attribute } from '../../../mocks/FxAttribute';
+import './index.ts';
+
+<Meta title="Relations/Attribute" component="foxy-attribute" />
+
+# Attribute
+
+[![hAPI](https://img.shields.io/badge/hAPI-attribute-green.svg)](https://api.foxycart.com/rels/attribute)
+
+## States
+
+Below are all the states this component can render.
+
+### Loading
+
+Displayed while loading the resource.
+
+export function handleRequestWithLoading(evt) {
+  evt.detail.handle(() => new Promise(() => {}));
+}
+
+<Canvas>
+  <Story name="Loading">
+    {() =>
+      html`
+        <foxy-attribute
+          href="https://api.foxy.test/store_attributes/1002"
+          @request=${handleRequestWithLoading}
+        >
+        </foxy-attribute>
+      `
+    }
+  </Story>
+</Canvas>
+
+### Error
+
+Displayed when resource load fails.
+
+export function handleRequestWithError(evt) {
+  evt.detail.handle(() => Promise.reject());
+}
+
+<Canvas>
+  <Story name="Error">
+    {() =>
+      html`
+        <foxy-attribute
+          href="https://api.foxy.test/store_attributes/1002"
+          @request=${handleRequestWithError}
+        >
+        </foxy-attribute>
+      `
+    }
+  </Story>
+</Canvas>
+
+### Ready
+
+Displayed after the resource is loaded.
+
+export function handleRequestWithSuccess(evt) {
+  evt.detail.handle(async () => new Response(JSON.stringify(attribute)));
+}
+
+<Canvas>
+  <Story name="Ready">
+    {() =>
+      html`
+        <foxy-attribute
+          href="https://api.foxy.test/store_attributes/1002"
+          @request=${handleRequestWithSuccess}
+        >
+        </foxy-attribute>
+      `
+    }
+  </Story>
+</Canvas>

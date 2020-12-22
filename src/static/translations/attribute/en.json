@@ -1,0 +1,9 @@
+{
+  "name": "Name",
+  "error": "Failed to load",
+  "value": "Value",
+  "visibility": "Visibility",
+  "visibility_public": "Everyone",
+  "visibility_private": "Only me",
+  "visibility_restricted": "Store admins"
+}
