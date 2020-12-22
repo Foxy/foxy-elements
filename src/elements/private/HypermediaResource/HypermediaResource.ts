@@ -50,6 +50,10 @@ export abstract class HypermediaResource<T> extends Translatable {
     this.__service.send('RELOAD');
   }
 
+  protected _update(resource: T): void {
+    this.__service.send('UPDATE', { data: resource });
+  }
+
   protected _save(): void {
     this.__service.send('SAVE');
   }

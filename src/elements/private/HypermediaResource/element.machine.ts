@@ -12,6 +12,7 @@ export type ElementContext<T> = {
 
 export type ElementEvent<T> =
   | { type: 'RELOAD' }
+  | { type: 'UPDATE'; data: T }
   | { type: 'SAVE' }
   | {
       type: 'SET_HREF';
@@ -134,6 +135,7 @@ export const element = createMachine<
       },
 
       on: {
+        UPDATE: { actions: send('UPDATE', { to: 'editor' }) },
         SAVE: { actions: send('SAVE', { to: 'editor' }) },
       },
     },

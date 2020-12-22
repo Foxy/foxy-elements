@@ -54,5 +54,17 @@ export abstract class HypermediaCollection<T extends Collection> extends Transla
     return this.__service.state.matches(state);
   }
 
+  protected _getLimit(): number {
+    const defaultLimit = 20;
+
+    try {
+      const strLimit = new URL(this.first ?? '').searchParams.get('limit');
+      const intLimit = strLimit ? parseInt(strLimit) : defaultLimit;
+      return isNaN(intLimit) ? defaultLimit : intLimit;
+    } catch {
+      return defaultLimit;
+    }
+  }
+
   protected abstract get _trigger(): HTMLElement | null;
 }

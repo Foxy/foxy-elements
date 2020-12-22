@@ -1,4 +1,4 @@
-import { FxAttribute } from '../types/hapi';
+import { attribute } from './FxAttribute';
 
 export const attributes = {
   _links: {
@@ -31,10 +31,10 @@ export const attributes = {
     },
   },
   _embedded: {
-    'fx:attributes': [] as FxAttribute[],
+    'fx:attributes': new Array(5).fill(0).map(() => attribute),
   },
-  total_items: 0,
-  returned_items: 0,
-  limit: 20,
+  total_items: 20,
+  returned_items: 5,
+  limit: 5,
   offset: 0,
 };

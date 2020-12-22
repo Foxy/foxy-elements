@@ -56,7 +56,7 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
         <iron-icon icon="icons:search" slot="suffix"></iron-icon>
       </vaadin-text-field>
 
-      <div style="min-height: calc(${this.__getLimit()} * var(--lumo-size-l))">
+      <div style="min-height: calc(${this._getLimit()} * var(--lumo-size-l))">
         <table class="table-fixed w-full" aria-busy=${this._is('loading')} aria-live="polite">
           <thead class="sr-only">
             <tr>
@@ -105,7 +105,7 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
             })}
           >
             ${this._is('loading') || this._is('error')
-              ? new Array(this.__getLimit()).fill(0).map(() => {
+              ? new Array(this._getLimit()).fill(0).map(() => {
                   return html`
                     <div class="h-l flex items-center">
                       <x-skeleton class="w-full" variant=${this._is('error') ? 'error' : 'busy'}>
@@ -127,17 +127,5 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
 
   protected get _trigger(): HTMLElement | null {
     return this.shadowRoot?.getElementById('trigger') ?? null;
-  }
-
-  private __getLimit() {
-    const defaultLimit = 20;
-
-    try {
-      const strLimit = new URL(this.first ?? '').searchParams.get('limit');
-      const intLimit = strLimit ? parseInt(strLimit) : defaultLimit;
-      return isNaN(intLimit) ? defaultLimit : intLimit;
-    } catch {
-      return defaultLimit;
-    }
   }
 }
