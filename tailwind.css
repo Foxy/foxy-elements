@@ -44,7 +44,7 @@ vaadin-button {
 
 @tailwind utilities;
 
-@responsive {
+@variants sm, md, lg, xl {
   .grid-rows-auto {
     grid-auto-rows: 1fr;
   }

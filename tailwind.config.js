@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
+const plugin = require('tailwindcss/plugin');
+
 /**
  * This is a custom TailwindCSS config based on the Vaadin Lumo
  * theme variables. It brings all the benefits of utility CSS for Shadow
@@ -206,7 +210,10 @@ module.exports = {
     removeDeprecatedGapUtilities: true,
   },
   variants: [
-    'responsive',
+    'sm',
+    'md',
+    'lg',
+    'xl',
     'group-hover',
     'group-focus',
     'focus-within',
@@ -228,4 +235,16 @@ module.exports = {
       width: sizeMap,
     },
   },
+  plugins: [
+    plugin(({ addVariant, e }) => {
+      ['sm', 'md', 'lg', 'xl'].forEach(breakpoint => {
+        addVariant(breakpoint, ({ modifySelectors, separator }) => {
+          modifySelectors(({ className }) => {
+            const newClassName = e(`${breakpoint}${separator}${className}`);
+            return `:host([breakpoint~="${breakpoint}"]) .${newClassName}`;
+          });
+        });
+      });
+    }),
+  ],
 };

@@ -25,4 +25,23 @@ export abstract class Themeable extends ScopedElementsMixin(LitElement) {
       `,
     ];
   }
+
+  private static readonly __breakpoints = Object.entries({ sm: 640, md: 768, lg: 1024, xl: 1280 });
+
+  private static readonly __resizeObserverCallback: ResizeObserverCallback = entries => {
+    entries.forEach(({ contentRect, target }) => {
+      const oldValue = target.getAttribute('breakpoint');
+      const newValue = Themeable.__breakpoints
+        .filter(([, minWidth]) => contentRect.width >= minWidth)
+        .map(([breakpoint]) => breakpoint)
+        .join(' ');
+
+      if (oldValue !== newValue) target.setAttribute('breakpoint', newValue);
+    });
+  };
+
+  constructor() {
+    super();
+    new ResizeObserver(Themeable.__resizeObserverCallback).observe(this);
+  }
 }
