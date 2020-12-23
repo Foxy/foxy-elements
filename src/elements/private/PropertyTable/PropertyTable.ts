@@ -30,7 +30,7 @@ export class PropertyTable extends Translatable {
 
   render(): TemplateResult {
     return html`
-      <table class="font-lumo text-body text-m leading-m w-full">
+      <table class="font-lumo text-body text-m leading-m w-full table-fixed">
         <thead class="sr-only">
           <tr>
             <th>${this._t('property')}</th>

@@ -10,6 +10,7 @@ export class Modal extends Themeable {
   static get properties(): PropertyDeclarations {
     return {
       __open: { attribute: false },
+      __visible: { attribute: false },
       closable: { type: Boolean },
       editable: { type: Boolean },
       type: { type: String },
@@ -34,6 +35,8 @@ export class Modal extends Themeable {
   editable = false;
 
   private __open = false;
+
+  private __visible = false;
 
   private __activator: HTMLElement | null = null;
 
@@ -107,6 +110,7 @@ export class Modal extends Themeable {
               ${this.closable
                 ? html`
                     <button
+                      tabindex=${this.open ? 0 : -1}
                       class="mr-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
                       @click=${() => (this.open = false)}
                     >
@@ -122,6 +126,7 @@ export class Modal extends Themeable {
               ${this.editable
                 ? html`
                     <button
+                      tabindex=${this.open ? 0 : -1}
                       class="ml-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
                       @click=${() => (this.open = false)}
                     >

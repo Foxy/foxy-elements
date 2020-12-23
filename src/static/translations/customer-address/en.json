@@ -2,5 +2,21 @@
   "line_1": "{{first_name}} {{last_name}}",
   "line_2": "{{address1}} {{address2}}",
   "line_3": "{{city}} {{region}} {{postal_code}}",
-  "error": "Failed to load"
+  "error": "Failed to load",
+  "first_name": "First name",
+  "last_name": "Last name",
+  "company": "Company",
+  "phone": "Phone",
+  "address1": "Street address",
+  "address2": "Apt., PO Box",
+  "country": "Country",
+  "region": "Region",
+  "city": "City",
+  "postal_code": "Postal code",
+  "is_default_billing": "Use for billing by default",
+  "is_default_shipping": "Use for shipping by default",
+  "date_modified": "Last updated",
+  "date_created": "Created",
+  "delete": "Delete address",
+  "edit": "Edit address"
 }
