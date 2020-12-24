@@ -81,6 +81,7 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
 
     return html`
       <x-modal
+        class="z-50 fixed inset-x-0 top-0"
         ?open=${this.__isEditModalOpen}
         closable
         editable
