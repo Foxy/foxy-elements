@@ -1,13 +1,15 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+
+import { Choice, Group, I18N } from '../../../../private/index';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+
+import { ChoiceChangeEvent } from '../../../../private/events';
+import { FrequencyInput } from '../../../../private/FrequencyInput/FrequencyInput';
+import { FrequencyInputChangeEvent } from '../../../../private/FrequencyInput/FrequencyInputChangeEvent';
+import { OffsetInputChangeEvent } from './OffsetInputChangeEvent';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../../../mixins/translatable';
 import { parseDuration } from '../../../../../utils/parse-duration';
-import { ChoiceChangeEvent } from '../../../../private/events';
-import { Choice, Group, I18N } from '../../../../private/index';
-import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
-import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
-import { OffsetInputChangeEvent } from './OffsetInputChangeEvent';
 
 export class OffsetInput extends Translatable {
   public static get scopedElements(): ScopedElementsMap {

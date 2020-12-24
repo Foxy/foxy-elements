@@ -11,5 +11,11 @@
   "th_summary": "Summary",
   "th_frequency": "Frequency",
   "frequency": "{{amount}}/{{units, lowercase}}",
-  "edit": "Settings"
+  "edit": "Settings",
+  "edit_header": "Edit subscription",
+  "next_transaction_date": "Next payment",
+  "date_modified": "Last updated",
+  "date_created": "Created on",
+  "delete": "End subscription",
+  "items": "Products"
 }

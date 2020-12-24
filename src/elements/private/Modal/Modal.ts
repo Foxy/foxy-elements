@@ -71,7 +71,7 @@ export class Modal extends Themeable {
 
       <div
         class=${classMap({ 'fixed inset-0': true, 'pointer-events-none': !this.open })}
-        style="z-index: ${9999 + stack.length - stack.indexOf(this)}"
+        style="z-index: ${50 + stack.length - stack.indexOf(this)}"
       >
         <div
           tabindex="-1"
@@ -90,8 +90,8 @@ export class Modal extends Themeable {
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'origin-top ease-in-out transition duration-700 transform relative h-full ml-auto sm:origin-center sm:max-w-modal': true,
-            'translate-y-full sm:translate-y-0 sm:translate-x-full': !this.open,
+            'origin-top ease-in-out transition duration-700 relative h-full ml-auto sm:origin-center max-w-modal': true,
+            'transform translate-y-full sm:translate-y-0 sm:translate-x-full': !this.open,
             'translate-y-0 translate-x-0': isFirst && this.open,
             'scale-95 -translate-y-s sm:translate-y-0': isSecond && this.open,
             'scale-90 -translate-y-m sm:translate-y-0': isThird && this.open,

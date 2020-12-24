@@ -1,10 +1,11 @@
 import { expect, fixture } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
-import { Dropdown } from '../../../../private/index';
-import { DropdownChangeEvent } from '../../../../private/events';
+
+import { Dropdown } from '../index';
+import { DropdownChangeEvent } from '../events';
 import { FrequencyInput } from './FrequencyInput';
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
+import { createMachine } from 'xstate';
+import { createModel } from '@xstate/test';
 
 customElements.define('x-frequency-input', FrequencyInput);
 
@@ -104,7 +105,7 @@ const model = createModel<FrequencyInput>(machine).withEvents({
   SET_VALUE: { exec: element => void (element.value = samples.value.composed) },
 });
 
-describe('CustomerPortalSettings >>> FrequencyInput', () => {
+describe('FrequencyInput', () => {
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

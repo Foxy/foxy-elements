@@ -19,6 +19,7 @@ export class ActionsCell extends CollectionTableCell<Subscription> {
     return html`
       <button
         class="text-s font-medium tracking-wide text-primary rounded px-xs -mx-xs hover:underline focus:outline-none focus:shadow-outline"
+        @click=${() => this.dispatchEvent(new CustomEvent('edit'))}
       >
         <x-i18n .ns=${this.ns} .lang=${this.lang} key="edit"></x-i18n>
       </button>

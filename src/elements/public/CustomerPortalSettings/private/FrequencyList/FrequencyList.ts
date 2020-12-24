@@ -1,12 +1,13 @@
+import { I18N, List, Skeleton } from '../../../../private/index';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+
+import { FrequencyInput } from '../../../../private/FrequencyInput/FrequencyInput';
+import { FrequencyInputChangeEvent } from '../../../../private/FrequencyInput/FrequencyInputChangeEvent';
+import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
+import { ListChangeEvent } from '../../../../private/events';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
-import { ListChangeEvent } from '../../../../private/events';
-import { I18N, List, Skeleton } from '../../../../private/index';
-import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
-import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
-import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
 
 export class FrequencyList extends Translatable {
   public static get scopedElements(): ScopedElementsMap {

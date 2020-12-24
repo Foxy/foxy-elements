@@ -1,12 +1,14 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Translatable } from '../../../../../mixins/translatable';
-import { parseDuration } from '../../../../../utils/parse-duration';
-import { DropdownChangeEvent } from '../../../../private/events';
-import { Dropdown } from '../../../../private/index';
+
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+
+import { Dropdown } from '../index';
+import { DropdownChangeEvent } from '../events';
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../mixins/translatable';
+import { parseDuration } from '../../../utils/parse-duration';
 
 export class FrequencyInput extends Translatable {
   public static readonly defaultValue = '1w';

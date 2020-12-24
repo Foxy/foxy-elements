@@ -1,12 +1,13 @@
 import { expect, fixture } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
+
+import { FrequencyInput } from '../../../../private/FrequencyInput/FrequencyInput';
+import { FrequencyInputChangeEvent } from '../../../../private/FrequencyInput/FrequencyInputChangeEvent';
 import { FrequencyList } from './FrequencyList';
+import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
 import { List } from '../../../../private/index';
 import { ListChangeEvent } from '../../../../private/events';
-import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
-import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
-import { FrequencyInputChangeEvent } from '../FrequencyInput/FrequencyInputChangeEvent';
+import { createMachine } from 'xstate';
+import { createModel } from '@xstate/test';
 
 class TestFrequencyList extends FrequencyList {
   get whenReady() {

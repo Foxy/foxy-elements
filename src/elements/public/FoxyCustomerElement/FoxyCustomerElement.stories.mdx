@@ -6,15 +6,19 @@ import { subscriptions } from '../../../mocks/FxSubscriptions';
 import { transactions } from '../../../mocks/FxTransactions';
 import { attributes } from '../../../mocks/FxAttributes';
 import { customer } from '../../../mocks/FxCustomer';
+import { items } from '../../../mocks/FxItems';
 import './index.ts';
 
 export const handleRequest = evt => {
   evt.detail.handle(async url => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    console.log(url);
     //
     if (url === 'https://api.foxy.test/customers/115') {
       return new Response(JSON.stringify(customer));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/transactions/3820290/items')) {
+      return new Response(JSON.stringify(items));
     }
     //
     if (url.startsWith('https://api.foxy.test/customers/115/attributes')) {

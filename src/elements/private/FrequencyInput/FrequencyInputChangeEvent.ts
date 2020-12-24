@@ -1,3 +1,3 @@
-import { DropdownChangeEvent } from '../../../../private/events';
+import { DropdownChangeEvent } from '../events';
 
 export class FrequencyInputChangeEvent extends DropdownChangeEvent {}
