@@ -1,8 +1,15 @@
-import { Collection, Slider, machine } from './machine';
+import { ElementContext, ElementEvent, Resource } from '../HypermediaResource/types';
+import { Interpreter, interpret } from 'xstate';
 
 import { PropertyDeclarations } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
-import { interpret } from 'xstate';
+import { machine } from '../HypermediaResource/machine';
+
+export type Collection = Resource & {
+  _links: {
+    next: { href: string };
+  };
+};
 
 export abstract class HypermediaCollection<T extends Collection> extends Translatable {
   static get properties(): PropertyDeclarations {
@@ -12,37 +19,28 @@ export abstract class HypermediaCollection<T extends Collection> extends Transla
     };
   }
 
+  private __resources: Interpreter<ElementContext<T>, any, ElementEvent<T>>[] = [];
+
+  private __href: string | null = null;
+
   private readonly __observer = new IntersectionObserver(
-    es => es.some(s => s.isIntersecting) && this.__service.send('LOAD_NEXT'),
+    es => es.some(s => s.isIntersecting) && this.__loadNext(),
     { rootMargin: '100%' }
   );
 
-  private readonly __machine = machine.withContext({
-    first: null,
-    error: null,
-    pages: [],
-    element: this,
-  }) as Slider<T>;
-
-  private readonly __service = interpret(this.__machine)
-    .onTransition(({ changed }) => changed && this.requestUpdate())
-    .onChange(() => this.requestUpdate())
-    .start();
-
   get first(): string | null {
-    return this.__service.state.context.first;
+    return this.__href;
   }
 
   set first(value: string | null) {
-    this.__service.send('SET_FIRST', { data: value });
+    this.__href = value;
+    this.__resources = [];
   }
 
   get pages(): T[] {
-    return this.__service.state.context.pages;
-  }
-
-  set pages(value: T[]) {
-    this.__service.send('SET_PAGES', { data: value });
+    return this.__resources
+      .map(resourceMachine => resourceMachine.state.context.resource)
+      .filter(v => v !== null) as T[];
   }
 
   updated(): void {
@@ -51,7 +49,7 @@ export abstract class HypermediaCollection<T extends Collection> extends Transla
   }
 
   protected _is(state: string): boolean {
-    return this.__service.state.matches(state);
+    return this.__resources.some(resourceMachine => resourceMachine.state.matches(state));
   }
 
   protected _getLimit(): number {
@@ -67,4 +65,26 @@ export abstract class HypermediaCollection<T extends Collection> extends Transla
   }
 
   protected abstract get _trigger(): HTMLElement | null;
+
+  private __loadNext() {
+    if (this._is('busy')) return;
+
+    const lastResourceService = this.__resources[this.__resources.length - 1];
+    const lastResource = lastResourceService?.state.context.resource ?? null;
+
+    this.__resources.push(
+      interpret(
+        machine.withContext({
+          resource: null,
+          element: this,
+          backup: null,
+          errors: [],
+          href: lastResource?._links.next.href ?? this.first ?? null,
+        })
+      )
+        .onChange(() => this.requestUpdate())
+        .onTransition(({ changed }) => changed && this.requestUpdate())
+        .start()
+    );
+  }
 }

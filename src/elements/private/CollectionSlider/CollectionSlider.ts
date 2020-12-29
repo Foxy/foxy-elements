@@ -4,16 +4,22 @@ import '@polymer/iron-icon';
 import { CSSResultArray, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
-import { Collection } from '../HypermediaCollection/machine';
-import { HypermediaCollection } from '../../private/HypermediaCollection/HypermediaCollection';
+import { HypermediaCollection } from '../HypermediaCollection/HypermediaCollection';
 import { I18N } from '../I18N/I18N';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Skeleton } from '../Skeleton/Skeleton';
 import { classMap } from '../../../utils/class-map';
 
-export abstract class CollectionSlider<
-  T extends Collection<never, unknown>
-> extends HypermediaCollection<T> {
+export type Collection<TCurie extends string = any, TResource = any> = {
+  readonly _links: Record<'next' | 'self', { href: string }>;
+  readonly _embedded: Record<TCurie, readonly TResource[]>;
+  readonly total_items: number;
+  readonly returned_items: number;
+  readonly offset: number;
+  readonly limit: number;
+};
+
+export abstract class CollectionSlider<T extends Collection> extends HypermediaCollection<T> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'x-skeleton': Skeleton,
@@ -86,13 +92,13 @@ export abstract class CollectionSlider<
 
           <div id="trigger" class="h-child py-s box-content"></div>
 
-          ${this._is('loading') || this._is('error')
+          ${this._is('busy.fetching') || this._is('error')
             ? new Array(skeletonCount).fill(0).map(
                 () => html`
                   <div
                     class="relative flex-shrink-0 snap-start p-s"
                     aria-live="polite"
-                    aria-busy=${this._is('loading')}
+                    aria-busy=${this._is('busy.fetching')}
                     data-item
                   >
                     <x-skeleton
@@ -132,15 +138,15 @@ export abstract class CollectionSlider<
   }
 
   protected get _trigger(): HTMLElement | null {
-    return this.shadowRoot?.getElementById('trigger') ?? null;
+    return this.renderRoot?.getElementById('trigger') ?? null;
   }
 
   private get __root(): HTMLElement | null {
-    return this.shadowRoot?.getElementById('root') ?? null;
+    return this.renderRoot?.getElementById('root') ?? null;
   }
 
   private get __items(): HTMLElement[] {
-    return Array.from(this.shadowRoot!.querySelectorAll('[data-item]'));
+    return Array.from(this.renderRoot!.querySelectorAll('[data-item]'));
   }
 
   private __scrollLeft() {

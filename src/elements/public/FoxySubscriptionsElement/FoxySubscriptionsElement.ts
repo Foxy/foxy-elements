@@ -5,11 +5,10 @@ import { TemplateResult, html } from 'lit-html';
 import { ActionsCell } from './private/ActionsCell';
 import { CollectionTable } from '../../private/CollectionTable/CollectionTable';
 import { FrequencyCell } from './private/FrequencyCell';
-import { Modal } from '../../private/Modal/Modal';
 import { PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { StatusCell } from './private/StatusCell';
-import { SubscriptionForm } from './private/SubscriptionForm';
+import { SubscriptionFormDialog } from './private/SubscriptionFormDialog';
 import { SummaryCell } from './private/SummaryCell';
 import { spread } from '@open-wc/lit-helpers';
 
@@ -33,19 +32,18 @@ export class FoxySubscriptionsElement extends CollectionTable<Subscriptions> {
       'td-summary': SummaryCell,
       'td-status': StatusCell,
       'td-actions': ActionsCell,
-      'x-modal': Modal,
-      'x-subscription-form': SubscriptionForm,
+      'x-subscription-form-dialog': SubscriptionFormDialog,
     };
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      __selectedSubscription: { attribute: false },
+      __selection: { attribute: false },
     };
   }
 
-  private __selectedSubscription: Subscription | null = null;
+  private __selection: Subscription | null = null;
 
   constructor() {
     super('subscriptions');
@@ -58,21 +56,17 @@ export class FoxySubscriptionsElement extends CollectionTable<Subscriptions> {
     });
 
     return html`
-      <x-modal
-        ?open=${!!this.__selectedSubscription}
-        class="fixed top-0 inset-x-0 z-50"
+      <x-subscription-form-dialog
+        .ns=${this.ns}
+        .lang=${this.lang}
+        .open=${this.__selection !== null}
+        .resource=${this.__selection}
+        header="edit_header"
         closable
         editable
-        @close=${() => (this.__selectedSubscription = null)}
+        @hide=${() => (this.__selection = null)}
       >
-        <x-i18n ...=${i18n} key="edit_header" slot="header"></x-i18n>
-        ${this.__selectedSubscription
-          ? html`
-              <x-subscription-form ...=${i18n} .resource=${this.__selectedSubscription}>
-              </x-subscription-form>
-            `
-          : ''}
-      </x-modal>
+      </x-subscription-form-dialog>
 
       ${super.render([
         {
@@ -94,7 +88,7 @@ export class FoxySubscriptionsElement extends CollectionTable<Subscriptions> {
             html`<td-actions
               ...=${i18n}
               .context=${sub}
-              @edit=${() => (this.__selectedSubscription = sub)}
+              @edit=${() => (this.__selection = sub)}
             ></td-actions>`,
         },
       ])}

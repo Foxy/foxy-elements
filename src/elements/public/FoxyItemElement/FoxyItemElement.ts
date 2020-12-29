@@ -43,7 +43,7 @@ export class FoxyItemElement extends HypermediaResource<Item> {
   }
 
   render(): TemplateResult {
-    const isLoading = this._is('loading');
+    const isLoading = this._is('busy.fetching');
     const isError = this._is('error');
     const variant = isError ? 'error' : 'busy';
     const inset = 'absolute inset-0';

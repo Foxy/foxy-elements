@@ -39,7 +39,7 @@ export class FoxyAttributeElement extends HypermediaResource<Attribute> {
     const { ns, lang } = this;
     let form: TemplateResult;
 
-    if (this._is('loading')) {
+    if (this._is('busy.fetching')) {
       form = html`<x-skeleton size="box" class="flex-1" style=${cssHeight}></x-skeleton>`;
     } else if (this._is('error')) {
       form = html`
@@ -79,13 +79,13 @@ export class FoxyAttributeElement extends HypermediaResource<Attribute> {
       <div
         class="flex text-body text-m font-lumo leading-m space-x-m"
         aria-live="polite"
-        aria-busy=${this._is('loading')}
+        aria-busy=${this._is('busy.fetching')}
       >
         ${form}
 
         <div class="flex items-center justify-center">
           <button
-            ?disabled=${!this._is('ready')}
+            ?disabled=${!this._is('idle')}
             class=${classMap({
               'w-m h-m rounded-full flex items-center justify-center bg-error-10 text-error': true,
               'hover:bg-error hover:text-error-contrast focus:outline-none focus:shadow-outline-error': true,

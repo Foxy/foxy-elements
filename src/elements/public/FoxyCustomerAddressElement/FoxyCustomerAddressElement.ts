@@ -1,5 +1,5 @@
-import '@polymer/iron-icons';
 import '@polymer/iron-icon';
+import '@polymer/iron-icons';
 
 import * as FoxySDK from '@foxy.io/sdk';
 
@@ -7,8 +7,7 @@ import { CSSResultArray, PropertyDeclarations, css } from 'lit-element';
 import { HypermediaResource, I18N, Skeleton } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
-import { AddressForm } from './private/AddressForm';
-import { Modal } from '../../private/Modal/Modal';
+import { AddressFormDialog } from './private/AddressFormDialog';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { classMap } from '../../../utils/class-map';
 
@@ -19,10 +18,9 @@ export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
 
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-address-form': AddressForm,
+      'x-address-form-dialog': AddressFormDialog,
       'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
-      'x-modal': Modal,
       'x-i18n': I18N,
     };
   }
@@ -30,7 +28,7 @@ export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      __isFormModalOpen: { attribute: false },
+      __formDialogOpen: { attribute: false },
     };
   }
 
@@ -47,42 +45,39 @@ export class FoxyCustomerAddressElement extends HypermediaResource<Resource> {
 
   readonly rel = 'customer_address';
 
-  private __isFormModalOpen = false;
+  private __formDialogOpen = false;
 
   constructor() {
     super('customer-address');
   }
 
   render(): TemplateResult {
-    const isLoading = this._is('loading');
+    const isLoading = this._is('busy.fetching');
     const isError = this._is('error');
-    const isReady = this._is('ready');
+    const isReady = this._is('idle');
 
     const icon = this.resource?.is_default_billing ? 'payment' : 'local-shipping';
     const variant = isError ? 'error' : 'busy';
 
     return html`
-      <x-modal
-        ?open=${this.__isFormModalOpen}
-        class="z-50 fixed top-0 inset-x-0"
+      <x-address-form-dialog
+        .ns=${this.ns}
+        .lang=${this.lang}
+        .open=${this.__formDialogOpen}
+        .resource=${this.resource}
+        header="edit"
         closable
         editable
-        @close=${() => (this.__isFormModalOpen = false)}
+        @show=${() => (this.__formDialogOpen = true)}
+        @hide=${() => (this.__formDialogOpen = false)}
       >
-        <x-i18n .ns=${this.ns} .lang=${this.lang} key="edit" slot="header"></x-i18n>
-        ${this.__isFormModalOpen
-          ? html`
-              <x-address-form .ns=${this.ns} .lang=${this.lang} .resource=${this.resource}>
-              </x-address-form>
-            `
-          : ''}
-      </x-modal>
+      </x-address-form-dialog>
 
       <button
         class="text-left w-full flex items-start leading-m font-lumo space-x-m text-body focus:outline-none"
         aria-live="polite"
         aria-busy=${isLoading}
-        @click=${() => (this.__isFormModalOpen = true)}
+        @click=${() => (this.__formDialogOpen = true)}
       >
         <div class="relative flex-1 leading-m">
           ${[1, 2, 3].map(lineIndex => {

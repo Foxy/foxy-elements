@@ -1,18 +1,20 @@
 import * as FoxySDK from '@foxy.io/sdk';
 
-import { Checkbox, HypermediaResource, I18N, PropertyTable } from '../../../private';
+import { Checkbox, HypermediaResource, I18N, PropertyTable } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CheckboxChangeEvent } from '../../../private/events';
+import { CheckboxChangeEvent } from '../../private/events';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { classMap } from '../../../../utils/class-map';
+import { classMap } from '../../../utils/class-map';
 import { memoize } from 'lodash-es';
 
 type Address = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.CustomerAddress, undefined>;
 
-export class AddressForm extends HypermediaResource<Address> {
+export class FoxyCustomerAddressFormElement extends HypermediaResource<Address> {
+  static readonly defaultNodeName = 'foxy-customer-address-form';
+
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': TextFieldElement,
@@ -38,14 +40,14 @@ export class AddressForm extends HypermediaResource<Address> {
   private __createInputHandler = memoize((key: keyof Address) => {
     return (evt: CustomEvent) => {
       const target = evt.target as TextFieldElement;
-      this._update({ ...this.resource!, [key]: target.value });
+      this._setProperty({ ...this.resource!, [key]: target.value });
     };
   });
 
   private __createChangeHandler = memoize((key: keyof Address) => {
     return (evt: CheckboxChangeEvent) => {
       const newValue = (evt.detail as unknown) as string; // TODO: fix once @foxy.io/sdk types are corrected
-      this._update({ ...this.resource!, [key]: newValue });
+      this._setProperty({ ...this.resource!, [key]: newValue });
     };
   });
 

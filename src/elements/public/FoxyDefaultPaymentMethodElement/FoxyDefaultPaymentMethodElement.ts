@@ -53,7 +53,7 @@ export class FoxyDefaultPaymentMethodElement extends HypermediaResource<Resource
   }
 
   render(): TemplateResult {
-    const isLoading = this._is('loading');
+    const isLoading = this._is('busy.fetching');
     const isError = this._is('error');
 
     if (isLoading || isError) {

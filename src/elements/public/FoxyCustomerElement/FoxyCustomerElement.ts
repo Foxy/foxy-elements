@@ -14,12 +14,11 @@ import {
   PropertyTable,
 } from '../../private';
 
-import { CustomerForm } from './private/CustomerForm';
+import { CustomerFormDialog } from './private/CustomerFormDialog';
 import { FoxyCustomerAddressesElement } from '../FoxyCustomerAddressesElement';
 import { FoxyDefaultPaymentMethodElement } from '../FoxyDefaultPaymentMethodElement';
 import { FoxySubscriptionsElement } from '../FoxySubscriptionsElement';
 import { FoxyTransactionsElement } from '../FoxyTransactionsElement';
-import { Modal } from '../../private/Modal/Modal';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Tabs } from '../../private/Tabs/Tabs';
 import { classMap } from '../../../utils/class-map';
@@ -36,14 +35,13 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
       ),
 
       'foxy-customer-addresses': customElements.get(FoxyCustomerAddressesElement.defaultNodeName),
+      'x-customer-form-dialog': CustomerFormDialog,
       'foxy-subscriptions': customElements.get(FoxySubscriptionsElement.defaultNodeName),
       'foxy-transactions': customElements.get(FoxyTransactionsElement.defaultNodeName),
       'x-loading-screen': LoadingScreen,
       'x-property-table': PropertyTable,
-      'x-customer-form': CustomerForm,
       'x-error-screen': ErrorScreen,
       'iron-icon': customElements.get('iron-icon'),
-      'x-modal': Modal,
       'x-tabs': Tabs,
       'x-page': Page,
       'x-i18n': I18N,
@@ -51,7 +49,11 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
   }
 
   static get properties(): PropertyDeclarations {
-    return { __activeTab: { attribute: false }, __isEditModalOpen: { attribute: false } };
+    return {
+      ...super.properties,
+      __activeTab: { attribute: false },
+      __formDialogOpen: { attribute: false },
+    };
   }
 
   static get styles(): CSSResultArray {
@@ -67,33 +69,31 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
 
   readonly rel = 'customer';
 
-  private __isEditModalOpen = false;
+  private __formDialogOpen = false;
 
   constructor() {
     super('customer');
   }
 
   render(): TemplateResult {
-    if (this._is('loading')) return html`<x-loading-screen></x-loading-screen>`;
+    if (this._is('busy.fetching')) return html`<x-loading-screen></x-loading-screen>`;
     if (this._is('error')) return html`<x-error-screen></x-error-screen>`;
 
     const { _links, first_name, last_name, email } = this.resource!;
 
     return html`
-      <x-modal
-        class="z-50 fixed inset-x-0 top-0"
-        ?open=${this.__isEditModalOpen}
+      <x-customer-form-dialog
+        .ns=${this.ns}
+        .lang=${this.lang}
+        .open=${this.__formDialogOpen}
+        .resource=${this.resource}
+        header="edit"
         closable
         editable
-        @close=${() => (this.__isEditModalOpen = false)}
+        @show=${() => (this.__formDialogOpen = true)}
+        @hide=${() => (this.__formDialogOpen = false)}
       >
-        <x-i18n ns=${this.ns} lang=${this.lang} key="cancel" slot="close"></x-i18n>
-        <x-i18n ns=${this.ns} lang=${this.lang} key="edit" slot="header"></x-i18n>
-        <x-i18n ns=${this.ns} lang=${this.lang} key="save" slot="save"></x-i18n>
-
-        <x-customer-form .ns=${this.ns} .lang=${this.lang} .resource=${this.resource!}>
-        </x-customer-form>
-      </x-modal>
+      </x-customer-form-dialog>
 
       <article class="font-lumo text-body text-m leading-m space-y-xl">
         <header class="flex items-center justify-between space-x-m">
@@ -109,7 +109,7 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
               'hover:bg-primary hover:text-primary-contrast': true,
               'focus:outline-none focus:shadow-outline': true,
             })}
-            @click=${() => (this.__isEditModalOpen = true)}
+            @click=${() => (this.__formDialogOpen = true)}
           >
             <iron-icon icon="editor:mode-edit"></iron-icon>
           </button>

@@ -4,16 +4,72 @@ import { customerAddresses } from '../../../mocks/FxCustomerAddresses';
 import { defaultPaymentMethod } from '../../../mocks/FxDefaultPaymentMethod';
 import { subscriptions } from '../../../mocks/FxSubscriptions';
 import { transactions } from '../../../mocks/FxTransactions';
-import { customers } from '../../../mocks/FxCustomers';
+import { attributes } from '../../../mocks/FxAttributes';
 import { customer } from '../../../mocks/FxCustomer';
 import { items } from '../../../mocks/FxItems';
 import './index.ts';
 
-export const handleRequest = evt => {
+<Meta title="Forms/CustomerForm" component="foxy-customer" />
+
+# Customer Form
+
+[![hAPI](https://img.shields.io/badge/hAPI-customer-green.svg)](https://api.foxycart.com/rels/customer)
+
+## States
+
+Below are all the states this component can render.
+
+### Loading
+
+Displayed while loading the resource.
+
+export function handleRequestWithLoading(evt) {
+  evt.detail.handle(() => new Promise(() => {}));
+}
+
+<Canvas>
+  <Story name="Loading">
+    {() =>
+      html`
+        <foxy-customer-form
+          href="https://api.foxy.test/customers/115"
+          @request=${handleRequestWithLoading}
+        >
+        </foxy-customer-form>
+      `
+    }
+  </Story>
+</Canvas>
+
+### Error
+
+Displayed when resource load fails.
+
+export function handleRequestWithError(evt) {
+  evt.detail.handle(() => Promise.reject());
+}
+
+<Canvas>
+  <Story name="Error">
+    {() =>
+      html`
+        <foxy-customer-form
+          href="https://api.foxy.test/customers/115"
+          @request=${handleRequestWithError}
+        >
+        </foxy-customer-form>
+      `
+    }
+  </Story>
+</Canvas>
+
+### Ready
+
+Displayed after the resource is loaded.
+
+export const handleRequestWithSuccess = evt => {
   evt.detail.handle(async url => {
     await new Promise(resolve => setTimeout(resolve, 500));
-    console.log(url);
-    if (!url) return new Response(null, { status: 500 });
     //
     if (url === 'https://api.foxy.test/customers/115') {
       return new Response(JSON.stringify(customer));
@@ -21,6 +77,10 @@ export const handleRequest = evt => {
     //
     if (url.startsWith('https://api.foxy.test/transactions/3820290/items')) {
       return new Response(JSON.stringify(items));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/customers/115/attributes')) {
+      return new Response(JSON.stringify(attributes));
     }
     //
     if (url.startsWith('https://api.foxy.test/customers/115/addresses')) {
@@ -39,49 +99,19 @@ export const handleRequest = evt => {
       return new Response(JSON.stringify(transactions));
     }
     //
-    if (url.startsWith('https://api.foxy.test/stores/8/customers')) {
-      return new Response(JSON.stringify(customers));
-    }
-    //
     return new Response(null, { status: 404 });
   });
 };
 
-<Meta title="Relations/Customers" component="foxy-customers" />
-
-# Customers
-
-[![hAPI](https://img.shields.io/badge/hAPI-customers-green.svg)](https://api.foxycart.com/rels/customers)
-
-The `<foxy-customers>` element is a **relation element** that provides a visual interface for interacting with the `customers` hAPI relation.
-
-## Setup
-
-All relation elements need an `href` attribute to know where to load their content from and a request handler to connect to the backend. You can check if your component is configured properly by running your project and looking for the error message like below – if it isn't there, then you're good to go.
-
 <Canvas>
-  <Story name="Default" height="320px">
+  <Story name="Ready">
     {() =>
       html`
-        <div class="container mx-auto p-2 sm:p-4 md:p-6 lg:p-8">
-          <foxy-customers></foxy-customers>
-        </div>
-      `
-    }
-  </Story>
-</Canvas>
-
-<Canvas height="320px">
-  <Story name="Configured">
-    {() =>
-      html`
-        <div class="container mx-auto p-2 sm:p-4 md:p-6 lg:p-8">
-          <foxy-customers
-            first="https://api.foxy.test/stores/8/customers"
-            @request=${handleRequest}
-          >
-          </foxy-customers>
-        </div>
+        <foxy-customer-form
+          href="https://api.foxy.test/customers/115"
+          @request=${handleRequestWithSuccess}
+        >
+        </foxy-customer-form>
       `
     }
   </Story>

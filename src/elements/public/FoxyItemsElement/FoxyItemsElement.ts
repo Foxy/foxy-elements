@@ -44,7 +44,7 @@ export class FoxyItemsElement extends HypermediaCollection<Items> {
             return html`<foxy-item .lang=${this.lang} .resource=${item}></foxy-item>`;
           });
         })}
-        ${this._is('loading') || this._is('error')
+        ${this._is('busy.fetching') || this._is('error')
           ? new Array(this._getLimit()).fill(0).map(() => {
               const variant = this._is('error') ? 'error' : 'busy';
               return html`
@@ -69,6 +69,6 @@ export class FoxyItemsElement extends HypermediaCollection<Items> {
   }
 
   protected get _trigger(): HTMLElement {
-    return this.shadowRoot!.getElementById('trigger')!;
+    return this.renderRoot!.getElementById('trigger')!;
   }
 }

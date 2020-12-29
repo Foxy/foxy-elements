@@ -50,7 +50,7 @@ export class FoxyAttributesElement extends HypermediaCollection<Attributes> {
           </button>
         </header>
 
-        <div class="space-y-m" aria-live="polite" aria-busy=${this._is('loading')}>
+        <div class="space-y-m" aria-live="polite" aria-busy=${this._is('busy.fetching')}>
           ${this.pages.map(page => {
             return page._embedded['fx:attributes'].map(attribute => {
               return html`
@@ -62,7 +62,7 @@ export class FoxyAttributesElement extends HypermediaCollection<Attributes> {
 
         <div class="relative">
           <div class="space-y-m">
-            ${this._is('loading') || this._is('error')
+            ${this._is('busy.fetching') || this._is('error')
               ? new Array(this._getLimit()).fill(0).map(() => {
                   return html`
                     <div class="flex items-center space-x-m">
@@ -94,6 +94,6 @@ export class FoxyAttributesElement extends HypermediaCollection<Attributes> {
   }
 
   protected get _trigger(): HTMLElement {
-    return this.shadowRoot!.getElementById('trigger')!;
+    return this.renderRoot!.getElementById('trigger')!;
   }
 }

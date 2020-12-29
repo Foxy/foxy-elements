@@ -1,0 +1,120 @@
+{
+  "id": "element",
+  "initial": "unknown",
+  "context": {
+    "resource": null,
+    "element": null,
+    "backup": null,
+    "errors": [],
+    "href": null
+  },
+  "states": {
+    "unknown": {
+      "always": [
+        { "target": "error", "cond": "hasFatalErrors" },
+        { "target": "idle", "cond": "hasResource" },
+        { "target": "busy" }
+      ]
+    },
+    "error": {},
+    "busy": {
+      "initial": "fetching",
+      "states": {
+        "fetching": {
+          "invoke": {
+            "onError": { "target": "#element", "actions": "handleFatalError" },
+            "onDone": { "target": "#element", "actions": "setResource" },
+            "src": "fetchResource"
+          }
+        },
+        "creating": {
+          "invoke": {
+            "onError": { "target": "#element", "actions": "handleFatalError" },
+            "onDone": { "target": "#element", "actions": "setResource" },
+            "src": "createResource"
+          }
+        },
+        "updating": {
+          "invoke": {
+            "onError": { "target": "#element", "actions": "handleFatalError" },
+            "onDone": { "target": "#element", "actions": "setResource" },
+            "src": "updateResource"
+          }
+        },
+        "deleting": {
+          "invoke": {
+            "onError": { "target": "#element", "actions": "handleFatalError" },
+            "onDone": { "target": "#element", "actions": "setResource" },
+            "src": "deleteResource"
+          }
+        }
+      }
+    },
+    "idle": {
+      "initial": "template",
+      "states": {
+        "template": {
+          "initial": "unknown",
+          "states": {
+            "unknown": {
+              "always": [{ "target": "invalid", "cond": "hasInputErrors" }, { "target": "valid" }]
+            },
+            "invalid": {},
+            "valid": { "on": { "SUBMIT": "#element.busy.creating" } }
+          },
+          "on": {
+            "SET_PROPERTY": {
+              "target": "#element",
+              "actions": ["setPartialResource", "validateResource"]
+            }
+          }
+        },
+        "snapshot": {
+          "initial": "unknown",
+          "states": {
+            "unknown": {
+              "always": [{ "target": "modified", "cond": "hasBackup" }, { "target": "unmodified" }]
+            },
+            "unmodified": {
+              "on": {
+                "SET_PROPERTY": {
+                  "target": "#element",
+                  "actions": ["backupResource", "setPartialResource", "validateResource"]
+                }
+              }
+            },
+            "modified": {
+              "initial": "unknown",
+              "states": {
+                "unknown": {
+                  "always": [
+                    { "target": "invalid", "cond": "hasInputErrors" },
+                    { "target": "valid" }
+                  ]
+                },
+                "invalid": {},
+                "valid": { "on": { "SUBMIT": "#element.busy.updating" } }
+              },
+              "on": {
+                "SET_PROPERTY": {
+                  "target": "#element",
+                  "actions": ["setPartialResource", "validateResource"]
+                },
+                "RESTORE": {
+                  "target": "#element",
+                  "actions": ["restore"]
+                }
+              }
+            }
+          },
+          "on": { "DELETE": "#element.busy.deleting" }
+        }
+      }
+    }
+  },
+  "on": {
+    "SET_RESOURCE": { "target": "unknown", "actions": ["reset", "setResource"] },
+    "SET_HREF": { "target": "unknown", "actions": ["reset", "setHref"] },
+    "RELOAD": { "target": "unknown", "actions": "reset" }
+  }
+}

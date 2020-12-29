@@ -18,5 +18,6 @@
   "date_modified": "Last updated",
   "date_created": "Created",
   "delete": "Delete address",
-  "edit": "Edit address"
+  "edit": "Edit address",
+  "save": "Save"
 }

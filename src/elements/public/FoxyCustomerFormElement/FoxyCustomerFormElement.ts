@@ -1,16 +1,18 @@
 import * as FoxySDK from '@foxy.io/sdk';
 
-import { HypermediaResource, I18N } from '../../../private';
+import { HypermediaResource, I18N } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { FoxyAttributesElement } from '../../FoxyAttributesElement';
+import { FoxyAttributesElement } from '../FoxyAttributesElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 
-type Customer = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customer, undefined>;
+type CustomerAddress = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customer, undefined>;
 
-export class CustomerForm extends HypermediaResource<Customer> {
+export class FoxyCustomerFormElement extends HypermediaResource<CustomerAddress> {
+  static readonly defaultNodeName = 'foxy-customer-form';
+
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': TextFieldElement,
@@ -38,7 +40,7 @@ export class CustomerForm extends HypermediaResource<Customer> {
               ?disabled=${!this.resource}
               @input=${(evt: CustomEvent<void>) => {
                 const target = evt.target as TextFieldElement;
-                this._update({ ...this.resource!, first_name: target.value });
+                this._setProperty({ ...this.resource!, first_name: target.value });
               }}
             >
             </vaadin-text-field>
@@ -50,7 +52,7 @@ export class CustomerForm extends HypermediaResource<Customer> {
               ?disabled=${!this.resource}
               @input=${(evt: CustomEvent<void>) => {
                 const target = evt.target as TextFieldElement;
-                this._update({ ...this.resource!, last_name: target.value });
+                this._setProperty({ ...this.resource!, last_name: target.value });
               }}
             >
             </vaadin-text-field>
@@ -63,7 +65,7 @@ export class CustomerForm extends HypermediaResource<Customer> {
               ?disabled=${!this.resource}
               @input=${(evt: CustomEvent<void>) => {
                 const target = evt.target as TextFieldElement;
-                this._update({ ...this.resource!, email: target.value });
+                this._setProperty({ ...this.resource!, email: target.value });
               }}
             >
             </vaadin-text-field>
@@ -75,7 +77,7 @@ export class CustomerForm extends HypermediaResource<Customer> {
               ?disabled=${!this.resource}
               @input=${(evt: CustomEvent<void>) => {
                 const target = evt.target as TextFieldElement;
-                this._update({ ...this.resource!, tax_id: target.value });
+                this._setProperty({ ...this.resource!, tax_id: target.value });
               }}
             >
             </vaadin-text-field>

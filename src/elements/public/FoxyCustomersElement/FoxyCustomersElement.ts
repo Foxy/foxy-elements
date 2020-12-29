@@ -7,8 +7,7 @@ import { I18N, LoadingScreen, Page } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
 import { CollectionTable } from '../../private/CollectionTable/CollectionTable';
-import { FoxyCustomerElement } from '../FoxyCustomerElement';
-import { Modal } from '../../private/Modal/Modal';
+import { CustomerDialog } from './private/CustomerDialog';
 import { PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 
@@ -21,9 +20,8 @@ export class FoxyCustomersElement extends CollectionTable<Customers> {
   public static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
-      'foxy-customer': customElements.get(FoxyCustomerElement.defaultNodeName),
+      'x-customer-dialog': CustomerDialog,
       'x-loading-screen': LoadingScreen,
-      'x-modal': Modal,
       'x-page': Page,
       'x-i18n': I18N,
     };
@@ -32,7 +30,6 @@ export class FoxyCustomersElement extends CollectionTable<Customers> {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      __isPreviewOpen: { attribute: false },
       __selection: { attribute: false },
     };
   }
@@ -41,30 +38,22 @@ export class FoxyCustomersElement extends CollectionTable<Customers> {
 
   private __selection: Customer | null = null;
 
-  private __isPreviewOpen = false;
-
   public constructor() {
     super('customers');
   }
 
   public render(): TemplateResult {
     return html`
-      <x-modal
-        ?open=${this.__selection !== null}
+      <x-customer-dialog
+        .ns=${this.ns}
+        .lang=${this.lang}
+        .open=${this.__selection !== null}
+        .resource=${this.__selection}
+        header="customer"
         closable
-        @open=${() => (this.__isPreviewOpen = true)}
-        @close=${() => {
-          this.__selection = null;
-          this.__isPreviewOpen = false;
-        }}
+        @hide=${() => (this.__selection = null)}
       >
-        <x-i18n ns=${this.ns} lang=${this.lang} key="customer" slot="header"></x-i18n>
-        <x-i18n ns=${this.ns} lang=${this.lang} key="close" slot="action"></x-i18n>
-
-        ${this.__isPreviewOpen
-          ? html`<foxy-customer .resource=${this.__selection} .lang=${this.lang}></foxy-customer>`
-          : html`<x-loading-screen class="h-full"></x-loading-screen>`}
-      </x-modal>
+      </x-customer-dialog>
 
       <x-page class="leading-m">
         <x-i18n slot="title" key="title" .ns=${this.ns} .lang=${this.lang}></x-i18n>

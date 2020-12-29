@@ -1,7 +1,6 @@
 import { ErrorScreen, I18N, Skeleton } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
-import { Collection } from '../HypermediaCollection/machine';
 import { HypermediaCollection } from '../../private/HypermediaCollection/HypermediaCollection';
 import { Primitive } from 'lit-html/lib/parts';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
@@ -10,6 +9,15 @@ import { classMap } from '../../../utils/class-map';
 import { debounce } from 'lodash-es';
 
 const DEBOUNCE_WAIT = 250;
+
+export type Collection<TCurie extends string = any, TResource = any> = {
+  readonly _links: Record<'next' | 'self', { href: string }>;
+  readonly _embedded: Record<TCurie, readonly TResource[]>;
+  readonly total_items: number;
+  readonly returned_items: number;
+  readonly offset: number;
+  readonly limit: number;
+};
 
 export interface Column<T extends Collection> {
   mdAndUp?: boolean;
@@ -57,7 +65,7 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
       </vaadin-text-field>
 
       <div style="min-height: calc(${this._getLimit()} * var(--lumo-size-l))">
-        <table class="table-fixed w-full" aria-busy=${this._is('loading')} aria-live="polite">
+        <table class="table-fixed w-full" aria-busy=${this._is('busy.fetching')} aria-live="polite">
           <thead class="sr-only">
             <tr>
               ${columns?.map(column => {
@@ -104,7 +112,7 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
               'border-t border-contrast-10': this.pages.length > 0,
             })}
           >
-            ${this._is('loading') || this._is('error')
+            ${this._is('busy.fetching') || this._is('error')
               ? new Array(this._getLimit()).fill(0).map(() => {
                   return html`
                     <div class="h-l flex items-center">
@@ -126,6 +134,6 @@ export abstract class CollectionTable<T extends Collection> extends HypermediaCo
   }
 
   protected get _trigger(): HTMLElement | null {
-    return this.shadowRoot?.getElementById('trigger') ?? null;
+    return this.renderRoot?.getElementById('trigger') ?? null;
   }
 }

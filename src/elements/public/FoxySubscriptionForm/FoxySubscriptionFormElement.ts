@@ -1,22 +1,24 @@
 import * as FoxySDK from '@foxy.io/sdk';
 
-import { HypermediaResource, I18N, PropertyTable } from '../../../private';
+import { HypermediaResource, I18N, PropertyTable } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { FoxyItemsElement } from '../../FoxyItemsElement';
-import { FrequencyInput } from '../../../private/FrequencyInput/FrequencyInput';
-import { FrequencyInputChangeEvent } from '../../../private/FrequencyInput/FrequencyInputChangeEvent';
+import { FoxyItemsElement } from '../FoxyItemsElement';
+import { FrequencyInput } from '../../private/FrequencyInput/FrequencyInput';
+import { FrequencyInputChangeEvent } from '../../private/FrequencyInput/FrequencyInputChangeEvent';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { parseDuration } from '../../../../utils/parse-duration';
+import { parseDuration } from '../../../utils/parse-duration';
 
 type Subscription = FoxySDK.Core.Resource<
   FoxySDK.Integration.Rels.Subscription,
   { zoom: 'last_transaction' }
 >;
 
-export class SubscriptionForm extends HypermediaResource<Subscription> {
+export class FoxySubscriptionFormElement extends HypermediaResource<Subscription> {
+  static readonly defaultNodeName = 'foxy-subscription-form';
+
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-date-picker': DatePickerElement,
@@ -95,7 +97,7 @@ export class SubscriptionForm extends HypermediaResource<Subscription> {
               lang=${lang}
               value=${this.resource.frequency}
               @change=${(evt: FrequencyInputChangeEvent) => {
-                this._update({ ...this.resource!, frequency: evt.detail! });
+                this._setProperty({ ...this.resource!, frequency: evt.detail! });
               }}
             >
             </x-frequency-input>
@@ -107,7 +109,7 @@ export class SubscriptionForm extends HypermediaResource<Subscription> {
             value=${this.resource.next_transaction_date}
             @change=${(evt: CustomEvent<unknown>) => {
               const target = evt.target as DatePickerElement;
-              this._update({ ...this.resource!, next_transaction_date: target.value });
+              this._setProperty({ ...this.resource!, next_transaction_date: target.value });
             }}
           >
           </vaadin-date-picker>

@@ -17,5 +17,6 @@
   "date_modified": "Last updated",
   "date_created": "Created on",
   "delete": "End subscription",
-  "items": "Products"
+  "items": "Products",
+  "save": "Save"
 }
