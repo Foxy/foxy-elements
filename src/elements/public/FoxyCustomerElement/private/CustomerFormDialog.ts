@@ -29,8 +29,7 @@ export class CustomerFormDialog extends Dialog {
   render(): TemplateResult {
     return super.render(() => {
       return html`
-        <foxy-customer-form .ns=${this.ns} .lang=${this.lang} .resource=${this.resource}>
-        </foxy-customer-form>
+        <foxy-customer-form .lang=${this.lang} .resource=${this.resource}></foxy-customer-form>
       `;
     });
   }
