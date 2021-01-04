@@ -43,7 +43,6 @@ export class FoxyCustomerAddressesElement extends CollectionSlider<Resource> {
     return super.render(resource => {
       return html`
         <foxy-customer-address
-          .href=${resource._links.self.href}
           .resource=${resource}
           class="shadow-xs rounded-t-l rounded-b-l p-m focus-within:shadow-outline"
         >

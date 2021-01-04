@@ -13,6 +13,8 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
     };
   }
 
+  private readonly __deferredEvents: ElementEvent<T>[] = [];
+
   private readonly __machine = machine.withContext({
     resource: null,
     element: this,
@@ -23,8 +25,7 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
 
   private readonly __service = interpret(this.__machine)
     .onTransition(({ changed }) => changed && this.requestUpdate())
-    .onChange(() => this.requestUpdate())
-    .start();
+    .onChange(() => this.requestUpdate());
 
   get errors(): ElementError[] {
     return this.__service.state.context.errors;
@@ -35,7 +36,7 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
   }
 
   set href(value: string | null) {
-    this.__service.send('SET_HREF', { data: value });
+    this.__send({ type: 'SET_HREF', data: value });
   }
 
   get resource(): T | null {
@@ -43,32 +44,41 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
   }
 
   set resource(value: T | null) {
-    this.__service.send('SET_RESOURCE', { data: value });
+    this.__send({ type: 'SET_RESOURCE', data: value });
   }
 
   abstract readonly rel: string;
 
-  firstUpdated(): void {
-    this.updateComplete.then(() => this._reload());
+  connectedCallback(): void {
+    super.connectedCallback();
+    if (!this.__service.initialized) {
+      this.__service.start();
+      this.__deferredEvents.forEach(evt => this.__service.send(evt));
+      this.__deferredEvents.length = 0;
+    }
   }
 
   protected _setProperty(resource: T): void {
-    this.__service.send('SET_PROPERTY', resource);
+    this.__send({ type: 'SET_PROPERTY', data: resource });
   }
 
   protected _restore(): void {
-    this.__service.send('RELOAD');
+    this.__send({ type: 'RELOAD' });
   }
 
   protected _reload(): void {
-    this.__service.send('RELOAD');
+    this.__send({ type: 'RELOAD' });
   }
 
   protected _submit(): void {
-    this.__service.send('SUBMIT');
+    this.__send({ type: 'SUBMIT' });
   }
 
   protected _is(state: string): boolean {
     return this.__service.state.matches(state);
+  }
+
+  private __send(evt: ElementEvent<T>) {
+    this.__service.initialized ? this.__service.send(evt) : this.__deferredEvents.push(evt);
   }
 }

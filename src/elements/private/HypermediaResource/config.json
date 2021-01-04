@@ -113,8 +113,8 @@
     }
   },
   "on": {
-    "SET_RESOURCE": { "target": "unknown", "actions": ["reset", "setResource"] },
-    "SET_HREF": { "target": "unknown", "actions": ["reset", "setHref"] },
-    "RELOAD": { "target": "unknown", "actions": "reset" }
+    "SET_RESOURCE": { "target": ".unknown", "actions": "setResource" },
+    "SET_HREF": { "target": ".unknown", "actions": "setHref" },
+    "RELOAD": { "target": ".unknown", "actions": "reset" }
   }
 }

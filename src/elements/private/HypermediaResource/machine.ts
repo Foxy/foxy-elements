@@ -25,7 +25,10 @@ export const machine = createMachine<ElementContext, ElementEvent>(config, {
       errors: [],
     }),
 
-    setHref: assign({
+    setHref: assign<ElementContext, ElementEvent>({
+      resource: null,
+      backup: null,
+      errors: [],
       href: (_, evt) => (evt as SetHrefEvent).data,
     }),
 
@@ -56,8 +59,10 @@ export const machine = createMachine<ElementContext, ElementEvent>(config, {
       backup: null,
     }),
 
-    setResource: assign({
-      resource: (_, evt) => (evt as SetResourceEvent).data,
+    setResource: assign<ElementContext, ElementEvent>({
+      resource: (_: ElementContext, evt: ElementEvent) => (evt as SetResourceEvent).data,
+      backup: null,
+      errors: [],
       href: (_, evt) => (evt as SetResourceEvent).data?._links.self.href ?? null,
     }),
   },
