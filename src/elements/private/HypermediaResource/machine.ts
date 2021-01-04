@@ -15,6 +15,7 @@ export const machine = createMachine<ElementContext, ElementEvent>(config, {
     hasFatalErrors: ctx => ctx.errors.some(err => err.type === 'fatal'),
     hasInputErrors: ctx => ctx.errors.some(err => err.type === 'input'),
     hasResource: ctx => ctx.resource !== null,
+    hasHrefOnly: ctx => ctx.href !== null && ctx.resource === null,
     hasBackup: ctx => ctx.backup === null,
   },
 

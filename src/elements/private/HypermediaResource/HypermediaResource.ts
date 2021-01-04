@@ -3,6 +3,7 @@ import { StateMachine, interpret } from 'xstate';
 
 import { PropertyDeclarations } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
+import { isEqual } from 'lodash-es';
 import { machine } from './machine';
 
 export abstract class HypermediaResource<T extends Resource> extends Translatable {
@@ -28,23 +29,26 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
     .onChange(() => this.requestUpdate());
 
   get errors(): ElementError[] {
-    return this.__service.state.context.errors;
+    const { initialized, state } = this.__service;
+    return initialized ? state.context.errors : [];
   }
 
   get href(): string | null {
-    return this.__service.state.context.href;
+    const { initialized, state } = this.__service;
+    return initialized ? state.context.href : null;
   }
 
   set href(value: string | null) {
-    this.__send({ type: 'SET_HREF', data: value });
+    if (value !== this.href) this.__send({ type: 'SET_HREF', data: value });
   }
 
   get resource(): T | null {
-    return this.__service.state.context.resource;
+    const { initialized, state } = this.__service;
+    return initialized ? state.context.resource : null;
   }
 
   set resource(value: T | null) {
-    this.__send({ type: 'SET_RESOURCE', data: value });
+    if (!isEqual(value, this.resource)) this.__send({ type: 'SET_RESOURCE', data: value });
   }
 
   abstract readonly rel: string;
@@ -56,6 +60,11 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
       this.__deferredEvents.forEach(evt => this.__service.send(evt));
       this.__deferredEvents.length = 0;
     }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__service.stop();
   }
 
   protected _setProperty(resource: T): void {
@@ -72,6 +81,10 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
 
   protected _submit(): void {
     this.__send({ type: 'SUBMIT' });
+  }
+
+  protected _delete(): void {
+    this.__send({ type: 'DELETE' });
   }
 
   protected _is(state: string): boolean {

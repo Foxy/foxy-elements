@@ -12,8 +12,8 @@
     "unknown": {
       "always": [
         { "target": "error", "cond": "hasFatalErrors" },
-        { "target": "idle", "cond": "hasResource" },
-        { "target": "busy" }
+        { "target": "busy.fetching", "cond": "hasHrefOnly" },
+        { "target": "idle" }
       ]
     },
     "error": {},
@@ -51,8 +51,11 @@
       }
     },
     "idle": {
-      "initial": "template",
+      "initial": "unknown",
       "states": {
+        "unknown": {
+          "always": [{ "target": "snapshot", "cond": "hasResource" }, { "target": "template" }]
+        },
         "template": {
           "initial": "unknown",
           "states": {
