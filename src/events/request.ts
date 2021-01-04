@@ -7,8 +7,10 @@ export class UnhandledRequestError extends Error {
 }
 
 export interface RequestEventPayload<TSource extends HTMLElement> {
+  init: Parameters<Window['fetch']>;
   source: TSource;
   handle: (fetch: Window['fetch']) => Promise<void>;
+  onResponse: (intercept: (response: Response) => void) => void;
 }
 
 export interface RequestSendInit<TSource extends HTMLElement> {
@@ -33,19 +35,39 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
     });
   }
 
+  private __interceptors: ((response: Response) => void)[] = [];
+
+  private __response: Response | null = null;
+
   public constructor({ source, resolve, reject, init }: RequestEventInit<TSource>) {
     super('request', {
       cancelable: true,
       composed: true,
       bubbles: true,
       detail: {
+        init,
         source,
+        onResponse: async intercept => {
+          if (this.__response) {
+            const body = await this.__response.text();
+            this.__response = new Response(body, this.__response);
+            intercept(new Response(body, this.__response));
+          } else {
+            this.__interceptors.push(intercept);
+          }
+        },
         handle: async (fetch: Window['fetch']): Promise<void> => {
           this.stopImmediatePropagation();
           this.preventDefault();
 
           try {
-            resolve(await fetch(...init));
+            const response = await fetch(...init);
+            const body = await response.text();
+
+            this.__response = new Response(body, response);
+            this.__interceptors.forEach(intercept => intercept(new Response(body, response)));
+
+            resolve(new Response(body, response));
           } catch (err) {
             reject(err);
           }
