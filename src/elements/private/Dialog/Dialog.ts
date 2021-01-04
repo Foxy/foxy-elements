@@ -23,6 +23,12 @@ class DialogHideEvent extends CustomEvent<{ cancelled: boolean }> {
   }
 }
 
+class DialogSubmitEvent extends CustomEvent<void> {
+  constructor() {
+    super('submit');
+  }
+}
+
 export abstract class Dialog extends Translatable {
   static readonly dialogWindowsHost = '#foxy-dialog-windows-host, body';
 
@@ -33,6 +39,8 @@ export abstract class Dialog extends Translatable {
   static readonly ShowEvent = DialogShowEvent;
 
   static readonly HideEvent = DialogHideEvent;
+
+  static readonly SubmitEvent = DialogSubmitEvent;
 
   static get scopedElements(): ScopedElementsMap {
     return {
@@ -45,6 +53,7 @@ export abstract class Dialog extends Translatable {
       ...super.properties,
       __connected: { attribute: false },
       __visible: { attribute: false },
+      centered: { type: Boolean },
       closable: { type: Boolean },
       editable: { type: Boolean },
       header: { type: String },
@@ -70,6 +79,8 @@ export abstract class Dialog extends Translatable {
 
   header = 'Header';
 
+  alert = false;
+
   private __connected = false;
 
   private __visible = false;
@@ -79,7 +90,7 @@ export abstract class Dialog extends Translatable {
   }
 
   set open(newValue: boolean) {
-    newValue === this.open ? void 0 : newValue ? this.__show() : this.__hide();
+    newValue === this.open ? void 0 : newValue ? this.show() : this.hide();
   }
 
   disconnectedCallback(): void {
@@ -121,7 +132,7 @@ export abstract class Dialog extends Translatable {
         <div
           id="backdrop"
           class=${classMap({
-            'select-none ease-in-out transition duration-700 absolute inset-0 bg-contrast-50 focus:outline-none': true,
+            'select-none ease-in-out transition duration-500 absolute inset-0 bg-contrast-50 focus:outline-none': true,
             'opacity-100': this.__visible,
             'opacity-0': !this.__visible,
           })}
@@ -133,8 +144,11 @@ export abstract class Dialog extends Translatable {
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'transform origin-top ease-in-out transition duration-700 relative h-full ml-auto sm:origin-center max-w-modal': true,
-            'translate-y-full sm:translate-y-0 sm:translate-x-full': !this.__visible,
+            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm:origin-center sm:max-w-modal': true,
+            'flex justify-center items-end sm:items-center mr-auto': this.alert,
+            'translate-y-full sm:translate-y-0': !this.__visible,
+            'sm:translate-x-full': !this.alert && !this.__visible,
+            'sm:opacity-0 sm:scale-110': this.alert && !this.__visible,
             'translate-y-0 translate-x-0': isFirst && this.__visible,
             'scale-95 -translate-y-s sm:translate-y-0': isSecond && this.__visible,
             'scale-90 -translate-y-m sm:translate-y-0': isThird && this.__visible,
@@ -144,7 +158,8 @@ export abstract class Dialog extends Translatable {
         >
           <div
             class=${classMap({
-              'overflow-hidden flex flex-col bg-base absolute inset-0 rounded-t-l mt-xl sm:rounded-b-l sm:m-xl': true,
+              'overflow-hidden flex flex-col bg-base rounded-t-l sm:rounded-b-l': true,
+              'absolute inset-0 mt-xl sm:m-xl': !this.alert,
               'shadow-xxl': this.__visible,
             })}
           >
@@ -155,7 +170,7 @@ export abstract class Dialog extends Translatable {
                 ? html`
                     <button
                       class="mr-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
-                      @click=${this.__hide}
+                      @click=${this.hide}
                     >
                       <x-i18n
                         .ns=${this.ns}
@@ -175,7 +190,7 @@ export abstract class Dialog extends Translatable {
                 ? html`
                     <button
                       class="ml-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
-                      @click=${this.__hide}
+                      @click=${this.hide}
                     >
                       <x-i18n .ns=${this.ns} .lang=${this.lang} key="save"></x-i18n>
                     </button>
@@ -190,6 +205,18 @@ export abstract class Dialog extends Translatable {
         </div>
       </div>
     `;
+  }
+
+  async hide(cancelled = false): Promise<void> {
+    await this.__setOpenDialogs(Dialog.openDialogs.filter(d => d !== this));
+    await this.__setConnected(false);
+    this.dispatchEvent(new Dialog.HideEvent(cancelled));
+  }
+
+  async show(): Promise<void> {
+    await this.__setConnected(true);
+    await this.__setOpenDialogs([this, ...Dialog.openDialogs]);
+    this.dispatchEvent(new Dialog.ShowEvent());
   }
 
   private async __setOpenDialogs(newValue: Dialog[]) {
@@ -212,17 +239,5 @@ export abstract class Dialog extends Translatable {
   private async __setConnected(newValue: boolean) {
     this.__connected = newValue;
     await this.updateComplete.then(() => this.getBoundingClientRect());
-  }
-
-  private async __hide(cancelled = false): Promise<void> {
-    await this.__setOpenDialogs(Dialog.openDialogs.filter(d => d !== this));
-    await this.__setConnected(false);
-    this.dispatchEvent(new Dialog.HideEvent(cancelled));
-  }
-
-  private async __show(): Promise<void> {
-    await this.__setConnected(true);
-    await this.__setOpenDialogs([this, ...Dialog.openDialogs]);
-    this.dispatchEvent(new Dialog.ShowEvent());
   }
 }
