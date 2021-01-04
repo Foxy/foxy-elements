@@ -5,8 +5,9 @@ import { ButtonElement } from '@vaadin/vaadin-button';
 import { I18N } from '../I18N/I18N';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
 
-export type ErrorType = 'unknown' | 'setup_needed' | 'unauthorized';
+export type ErrorType = 'unknown' | 'not_found' | 'setup_needed' | 'unauthorized';
 
 export class FriendlyError {
   public type: ErrorType;
@@ -53,6 +54,7 @@ export class ErrorScreen extends Translatable {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      elevated: { type: Boolean, reflect: true },
       reload: { type: Boolean, reflect: true },
       type: { type: String },
     };
@@ -62,10 +64,20 @@ export class ErrorScreen extends Translatable {
 
   public reload = false;
 
+  public elevated = false;
+
   public render(): TemplateResult {
+    const actionKey = `errors.${this.type}.href`;
+    const actionHref = this._i18n.t(`errors.${this.type}.href`).toString();
+
     return html`
       <div class="font-lumo leading-m h-full flex items-center justify-center">
-        <article class="bg-base rounded-t-l rounded-b-l text-center p-xl m-m shadow-s">
+        <article
+          class=${classMap({
+            'text-center': true,
+            'bg-base rounded-t-l rounded-b-l p-xl m-m shadow-s': this.elevated,
+          })}
+        >
           <iron-icon icon="lumo:error" class="text-error w-l h-l mx-auto mb-m"></iron-icon>
 
           <header class="text-xl text-header container-narrow font-medium">
@@ -77,16 +89,20 @@ export class ErrorScreen extends Translatable {
           </p>
 
           <div class="flex justify-center space-x-s">
-            <a
-              rel="nofollow noreferrer noopener"
-              href=${this._i18n.t(`errors.${this.type}.href`).toString()}
-              target="_blank"
-              class="px-m py-xs text-primary font-medium tracking-wide border border-contrast-10 rounded transition-colors duration-200 hover:bg-primary-10 hover:border-primary-10 focus:outline-none focus:shadow-outline"
-              router-ignore
-            >
-              <x-i18n ns=${this.ns} lang=${this.lang} key="errors.${this.type}.action"></x-i18n>
-            </a>
-
+            ${actionKey !== actionHref
+              ? html`
+                  <a
+                    rel="nofollow noreferrer noopener"
+                    href=${actionHref}
+                    target="_blank"
+                    class="px-m py-xs text-primary font-medium tracking-wide border border-contrast-10 rounded transition-colors duration-200 hover:bg-primary-10 hover:border-primary-10 focus:outline-none focus:shadow-outline"
+                    router-ignore
+                  >
+                    <x-i18n ns=${this.ns} lang=${this.lang} key="errors.${this.type}.action">
+                    </x-i18n>
+                  </a>
+                `
+              : ''}
             ${this.reload
               ? html`
                   <vaadin-button

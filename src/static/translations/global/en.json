@@ -62,6 +62,14 @@
       "action": "Contact us",
       "href": "mailto:hello@foxy.io"
     },
+    "not_found": {
+      "title": "Not found",
+      "message": "Requested resource does not exist"
+    },
+    "unauthorized": {
+      "title": "Unauthorized",
+      "message": "Please sign in to view this resource"
+    },
     "setup_needed": {
       "title": "Setup needed",
       "message": "This element isn't configured to display any data yet. Please consult our docs for setup instructions.",
