@@ -1,0 +1,10 @@
+{
+  "first_name": "First name",
+  "last_name": "Last name",
+  "tax_id": "Tax ID",
+  "delete": "Delete customer",
+  "delete_message": "All data related to this customer will be permanently removed. Would you like to proceed?",
+  "delete_yes": "Yes, delete now",
+  "delete_no": "No",
+  "profile": "Profile"
+}

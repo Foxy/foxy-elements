@@ -8,11 +8,7 @@
   "payment_methods": "Payment methods",
   "transactions": "Transactions",
   "subscriptions": "Subscriptions",
-  "first_name": "First name",
-  "last_name": "Last name",
   "email": "Email",
-  "delete": "Delete customer",
   "cancel": "Cancel",
-  "save": "Save",
-  "profile": "Profile"
+  "save": "Save"
 }
