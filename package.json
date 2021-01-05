@@ -34,6 +34,7 @@
     "@polymer/iron-icons": "^3.0.1",
     "@vaadin/vaadin": "^15.0.6",
     "dedent": "^0.7.0",
+    "email-validator": "^2.0.4",
     "i18next": "^19.7.0",
     "i18next-http-backend": "^1.0.18",
     "jsonata": "^1.8.3",

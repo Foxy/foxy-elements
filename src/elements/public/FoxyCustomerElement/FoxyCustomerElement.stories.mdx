@@ -10,8 +10,10 @@ import { items } from '../../../mocks/FxItems';
 import './index.ts';
 
 export const handleRequest = evt => {
-  evt.detail.handle(async url => {
+  evt.detail.handle(async (url, init) => {
     await new Promise(resolve => setTimeout(resolve, 500));
+    //
+    if (init?.method === 'PUT') return new Response(init.body);
     //
     if (url === 'https://api.foxy.test/customers/115') {
       return new Response(JSON.stringify(customer));

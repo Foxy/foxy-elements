@@ -88,7 +88,6 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
         header="edit"
         id="form-dialog"
         closable
-        editable
         @request=${this.__handleFormRequest}
       >
       </x-customer-form-dialog>
