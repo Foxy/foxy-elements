@@ -2,6 +2,7 @@
   "id": "element",
   "initial": "unknown",
   "context": {
+    "resourceV8N": {},
     "resource": null,
     "element": null,
     "backup": null,
@@ -76,7 +77,7 @@
           "initial": "unknown",
           "states": {
             "unknown": {
-              "always": [{ "target": "modified", "cond": "hasBackup" }, { "target": "unmodified" }]
+              "always": [{ "target": "modified", "cond": "hasChanges" }, { "target": "unmodified" }]
             },
             "unmodified": {
               "on": {

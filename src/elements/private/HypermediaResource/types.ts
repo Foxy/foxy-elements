@@ -37,7 +37,11 @@ export type SetResourceEvent<T extends Resource = any> = {
   data: T | null;
 };
 
-export type ElementError = { type: string };
+export type ElementError = {
+  type: 'fatal' | 'input';
+  code?: string;
+  target?: string;
+};
 
 export type ElementEvent<T extends Resource = any> =
   | ReloadEvent
@@ -53,4 +57,7 @@ export type ElementContext<T extends Resource = any> = {
   backup: T | null;
   element: HTMLElement | null;
   resource: T | null;
+  resourceV8N: ElementResourceV8N<T>;
 };
+
+export type ElementResourceV8N<T extends Resource> = Record<string, ((r: T) => true | string)[]>;

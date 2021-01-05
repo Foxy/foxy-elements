@@ -9,6 +9,7 @@ import { assign, createMachine } from 'xstate';
 
 import { RequestEvent } from '../../../events/request';
 import config from './config.json';
+import { isEqual } from 'lodash-es';
 
 export const machine = createMachine<ElementContext, ElementEvent>(config, {
   guards: {
@@ -16,7 +17,7 @@ export const machine = createMachine<ElementContext, ElementEvent>(config, {
     hasInputErrors: ctx => ctx.errors.some(err => err.type === 'input'),
     hasResource: ctx => ctx.resource !== null,
     hasHrefOnly: ctx => ctx.href !== null && ctx.resource === null,
-    hasBackup: ctx => ctx.backup === null,
+    hasChanges: ctx => ctx.backup !== null && !isEqual(ctx.resource, ctx.backup),
   },
 
   actions: {
@@ -48,7 +49,24 @@ export const machine = createMachine<ElementContext, ElementEvent>(config, {
     }),
 
     validateResource: assign<ElementContext, ElementEvent>({
-      errors: [], // TODO
+      errors: ctx => {
+        const newErrors = ctx.errors.filter(err => err.type !== 'input');
+
+        if (ctx.resource !== null) {
+          for (const target in ctx.resourceV8N) {
+            for (const validate of ctx.resourceV8N[target]) {
+              const code = validate(ctx.resource);
+
+              if (typeof code === 'string') {
+                newErrors.push({ type: 'input', code, target });
+                break;
+              }
+            }
+          }
+        }
+
+        return newErrors;
+      },
     }),
 
     backupResource: assign({

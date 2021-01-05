@@ -1,4 +1,4 @@
-import { ElementContext, ElementError, ElementEvent, Resource } from './types';
+import { ElementContext, ElementError, ElementEvent, ElementResourceV8N, Resource } from './types';
 import { StateMachine, interpret } from 'xstate';
 
 import { PropertyDeclarations } from 'lit-element';
@@ -7,6 +7,10 @@ import { isEqual } from 'lodash-es';
 import { machine } from './machine';
 
 export abstract class HypermediaResource<T extends Resource> extends Translatable {
+  static get resourceV8N(): ElementResourceV8N<any> {
+    return {};
+  }
+
   static get properties(): PropertyDeclarations {
     return {
       resource: { attribute: false, noAccessor: true },
@@ -17,6 +21,7 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
   private readonly __deferredEvents: ElementEvent<T>[] = [];
 
   private readonly __machine = machine.withContext({
+    resourceV8N: (this.constructor as typeof HypermediaResource).resourceV8N,
     resource: null,
     element: this,
     backup: null,
@@ -29,13 +34,13 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
     .onChange(() => this.requestUpdate());
 
   get errors(): ElementError[] {
-    const { initialized, state } = this.__service;
-    return initialized ? state.context.errors : [];
+    const { initialized } = this.__service;
+    return initialized ? this.__service.state.context.errors : [];
   }
 
   get href(): string | null {
-    const { initialized, state } = this.__service;
-    return initialized ? state.context.href : null;
+    const { initialized } = this.__service;
+    return initialized ? this.__service.state.context.href : null;
   }
 
   set href(value: string | null) {
@@ -43,8 +48,8 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
   }
 
   get resource(): T | null {
-    const { initialized, state } = this.__service;
-    return initialized ? state.context.resource : null;
+    const { initialized } = this.__service;
+    return initialized ? this.__service.state.context.resource : null;
   }
 
   set resource(value: T | null) {
@@ -67,7 +72,13 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
     this.__service.stop();
   }
 
-  protected _setProperty(resource: T): void {
+  protected _getErrorMessages(): Record<string, string> {
+    return this.errors
+      .filter(err => err.type === 'input')
+      .reduce((map, err) => ({ ...map, [err.target!]: this._t(err.code!) }), {});
+  }
+
+  protected _setProperty(resource: Partial<T>): void {
     this.__send({ type: 'SET_PROPERTY', data: resource });
   }
 
