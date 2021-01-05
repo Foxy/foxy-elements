@@ -31,10 +31,20 @@ export const customers = {
     },
   },
   _embedded: {
-    'fx:customers': new Array(19).fill(0).map(() => ({
-      ...customer,
-      id: random(1000000000, 9999999999),
-    })),
+    'fx:customers': new Array(19)
+      .fill(0)
+      .map(() => random(1000000000, 9999999999))
+      .map(id => ({
+        ...customer,
+        id,
+        _links: {
+          ...customer._links,
+          self: {
+            ...customer._links.self,
+            href: `https://api.foxy.test/customers/${id}`,
+          },
+        },
+      })),
   },
   total_items: 19,
   returned_items: 19,
