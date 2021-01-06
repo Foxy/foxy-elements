@@ -1,5 +1,3 @@
-import * as FoxySDK from '@foxy.io/sdk';
-
 import { TemplateResult, html } from 'lit-html';
 
 import { Dialog } from '../../../private/Dialog/Dialog';
@@ -7,13 +5,11 @@ import { FoxyCustomerElement } from '../../FoxyCustomerElement';
 import { PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
-type Customer = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customer, undefined>;
-
 export class CustomerDialog extends Dialog {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      resource: { attribute: false },
+      href: { type: String },
     };
   }
 
@@ -24,12 +20,12 @@ export class CustomerDialog extends Dialog {
     };
   }
 
-  resource: Customer | null = null;
+  href: string | null = null;
 
   render(): TemplateResult {
     return super.render(() => {
-      const { lang, resource } = this;
-      return html`<foxy-customer .lang=${lang} .resource=${resource}></foxy-customer>`;
+      const { lang, href } = this;
+      return html`<foxy-customer .lang=${lang} .href=${href}></foxy-customer>`;
     });
   }
 }

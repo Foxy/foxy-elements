@@ -1,3 +1,7 @@
+import { cloneDeep, memoize } from 'lodash-es';
+
+import traverse from 'traverse';
+
 export class UnhandledRequestError extends Error {
   constructor() {
     super(
@@ -35,6 +39,31 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
     });
   }
 
+  /**
+   * Constructs a Map from the response body where keys are embedded (or top-level) resource URIs
+   * and values are the properties from those resources (excluding `_links` and `_embedded`).
+   */
+  public getPatch = memoize<() => Promise<Map<string, any> | null>>(async () => {
+    const method = this.detail.init[1]?.method?.toUpperCase() ?? 'GET';
+    if (method === 'DELETE' || !this.__response) return null;
+
+    const json = await this.__response.clone().json();
+    const walker = traverse(json);
+
+    return walker.reduce(function (patch, node) {
+      if (!node?._links?.first && node?._links?.self) {
+        const props = Object.entries(node).reduce(
+          (p, [k, v]) => (k[0] === '_' ? p : { ...p, [k]: cloneDeep(v) }),
+          {} as any
+        );
+
+        patch.set(node?._links?.self?.href, props);
+      }
+
+      return patch;
+    }, new Map<string, any>());
+  });
+
   private __interceptors: ((response: Response) => void)[] = [];
 
   private __response: Response | null = null;
@@ -49,9 +78,7 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
         source,
         onResponse: async intercept => {
           if (this.__response) {
-            const body = await this.__response.text();
-            this.__response = new Response(body, this.__response);
-            intercept(new Response(body, this.__response));
+            intercept(this.__response.clone());
           } else {
             this.__interceptors.push(intercept);
           }
@@ -61,13 +88,10 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
           this.preventDefault();
 
           try {
-            const response = await fetch(...init);
-            const body = await response.text();
-
-            this.__response = new Response(body, response);
-            this.__interceptors.forEach(intercept => intercept(new Response(body, response)));
-
-            resolve(new Response(body, response));
+            this.__response = await fetch(...init);
+            this.getPatch.cache.clear?.();
+            this.__interceptors.forEach(intercept => intercept(this.__response!.clone()));
+            resolve(this.__response.clone());
           } catch (err) {
             reject(err);
           }

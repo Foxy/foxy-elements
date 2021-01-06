@@ -75,6 +75,7 @@ export abstract class HypermediaCollection<T extends Collection> extends Transla
     this.__resources.push(
       interpret(
         machine.withContext({
+          resourceV8N: {},
           resource: null,
           element: this,
           backup: null,

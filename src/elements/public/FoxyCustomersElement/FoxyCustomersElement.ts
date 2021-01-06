@@ -8,11 +8,9 @@ import { TemplateResult, html } from 'lit-html';
 
 import { CollectionTable } from '../../private/CollectionTable/CollectionTable';
 import { CustomerDialog } from './private/CustomerDialog';
-import { PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 
 type Customers = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customers, undefined>;
-type Customer = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customer, undefined>;
 
 export class FoxyCustomersElement extends CollectionTable<Customers> {
   public static readonly defaultNodeName = 'foxy-customers';
@@ -27,16 +25,7 @@ export class FoxyCustomersElement extends CollectionTable<Customers> {
     };
   }
 
-  public static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      __selection: { attribute: false },
-    };
-  }
-
   public readonly rel = 'customers';
-
-  private __selection: Customer | null = null;
 
   public constructor() {
     super('customers');
@@ -45,13 +34,11 @@ export class FoxyCustomersElement extends CollectionTable<Customers> {
   public render(): TemplateResult {
     return html`
       <x-customer-dialog
-        .ns=${this.ns}
-        .lang=${this.lang}
-        .open=${this.__selection !== null}
-        .resource=${this.__selection}
+        ns=${this.ns}
+        lang=${this.lang}
         header="customer"
+        id="customer-dialog"
         closable
-        @hide=${() => (this.__selection = null)}
       >
       </x-customer-dialog>
 
@@ -84,7 +71,10 @@ export class FoxyCustomersElement extends CollectionTable<Customers> {
                 html`
                   <button
                     class="rounded text-s font-medium tracking-wide text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
-                    @click=${() => (this.__selection = customer)}
+                    @click=${() => {
+                      this.__customerDialog.href = customer._links.self.href;
+                      this.__customerDialog.show();
+                    }}
                   >
                     <x-i18n ns=${this.ns} lang=${this.lang} key="preview"></x-i18n>
                   </button>
@@ -94,5 +84,9 @@ export class FoxyCustomersElement extends CollectionTable<Customers> {
         </div>
       </x-page>
     `;
+  }
+
+  private get __customerDialog(): CustomerDialog {
+    return this.renderRoot.querySelector('#customer-dialog') as CustomerDialog;
   }
 }

@@ -23,6 +23,7 @@ import { RequestEvent } from '../../../events/request';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Tabs } from '../../private/Tabs/Tabs';
 import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customer, undefined>;
 
@@ -82,13 +83,12 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
 
     return html`
       <x-customer-form-dialog
-        .ns=${this.ns}
-        .lang=${this.lang}
-        .resource=${this.resource}
         header="edit"
+        href=${ifDefined(this.href ?? undefined)}
+        lang=${this.lang}
+        ns=${this.ns}
         id="form-dialog"
         closable
-        @request=${this.__handleFormRequest}
       >
       </x-customer-form-dialog>
 
@@ -210,18 +210,5 @@ export class FoxyCustomerElement extends HypermediaResource<Resource> {
 
   private __handleEditClick() {
     this.__formDialog.show();
-  }
-
-  private __handleFormRequest({ detail }: RequestEvent) {
-    const href = detail.init[0];
-    const method = detail.init[1]?.method;
-
-    if (href === this.resource?._links.self.href) {
-      if (method === 'DELETE') {
-        this.__formDialog.hide().then(() => this._delete());
-      } else {
-        detail.onResponse(async r => (this.resource = await r.json()));
-      }
-    }
   }
 }

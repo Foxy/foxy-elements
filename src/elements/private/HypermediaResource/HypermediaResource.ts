@@ -1,10 +1,19 @@
 import { ElementContext, ElementError, ElementEvent, ElementResourceV8N, Resource } from './types';
 import { StateMachine, interpret } from 'xstate';
+import { isEqual, merge } from 'lodash-es';
 
 import { PropertyDeclarations } from 'lit-element';
+import { RequestEvent } from '../../../events/request';
 import { Translatable } from '../../../mixins/translatable';
-import { isEqual } from 'lodash-es';
 import { machine } from './machine';
+import traverse from 'traverse';
+
+function generalizeURL(value: string) {
+  const url = new URL(value);
+  url.search = '';
+  url.hash = '';
+  return url.toString();
+}
 
 export abstract class HypermediaResource<T extends Resource> extends Translatable {
   static get resourceV8N(): ElementResourceV8N<any> {
@@ -33,6 +42,15 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
     .onTransition(({ changed }) => changed && this.requestUpdate())
     .onChange(() => this.requestUpdate());
 
+  private readonly __captureRequest = (evt: Event) => {
+    if (!(evt instanceof RequestEvent) || evt.detail.source === this) return;
+
+    const method = evt.detail.init[1]?.method?.toUpperCase() ?? 'GET';
+    if (method === 'GET') this.__respondIfPossible(evt);
+
+    this.__interceptUpdates(evt);
+  };
+
   get errors(): ElementError[] {
     const { initialized } = this.__service;
     return initialized ? this.__service.state.context.errors : [];
@@ -60,6 +78,8 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
 
   connectedCallback(): void {
     super.connectedCallback();
+    addEventListener('request', this.__captureRequest, { capture: true });
+
     if (!this.__service.initialized) {
       this.__service.start();
       this.__deferredEvents.forEach(evt => this.__service.send(evt));
@@ -69,6 +89,8 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    removeEventListener('request', this.__captureRequest, { capture: true });
+
     this.__service.stop();
   }
 
@@ -104,5 +126,49 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
 
   private __send(evt: ElementEvent<T>) {
     this.__service.initialized ? this.__service.send(evt) : this.__deferredEvents.push(evt);
+  }
+
+  private __respondIfPossible(evt: RequestEvent) {
+    const url = evt.detail.init[0].toString();
+    let body: unknown | null = null;
+
+    traverse(this.resource).forEach(function () {
+      if (this.node?._links?.self?.href === url) {
+        body = this.node;
+        this.stop();
+      }
+    });
+
+    if (body) evt.detail.handle(async () => new Response(JSON.stringify(body)));
+  }
+
+  private __interceptUpdates(evt: RequestEvent) {
+    const url = evt.detail.init[0].toString();
+    const method = evt.detail.init[1]?.method?.toUpperCase() ?? 'GET';
+
+    evt.detail.onResponse(async () => {
+      const patch = await evt.getPatch();
+      if (this.href === null) return;
+
+      const thisURL = generalizeURL(this.href);
+      const requestURL = generalizeURL(url);
+
+      if (patch === null) {
+        if (requestURL === thisURL) this.resource = null;
+      } else {
+        const generalizedPatch = new Map<string, unknown>();
+        patch.forEach((v, k) => generalizedPatch.set(generalizeURL(k), v));
+
+        this.resource = traverse(this.resource).map(function (node) {
+          if (node?._links?.first || !node?._links?.self) return;
+
+          const embedUrl = generalizeURL(node._links.self.href);
+          if (method === 'DELETE' && embedUrl === requestURL) return this.delete();
+
+          const props = generalizedPatch.get(embedUrl);
+          if (props) this.update(merge(node, props));
+        });
+      }
+    });
   }
 }
