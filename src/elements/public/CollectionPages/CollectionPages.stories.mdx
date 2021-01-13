@@ -1,0 +1,31 @@
+import { html } from 'lit-html';
+import { Props, Meta } from '@storybook/addon-docs/blocks';
+import './index.ts';
+
+<Meta title="Other / Collection Pages" component="foxy-collection-pages" />
+
+# Collection Pages
+
+Custom element adding infinite scroll functionality to another custom element representing a hypermedia collection page. Once added to the document and configured, it will track scroll position and load new pages of the collection when appropriate. Collection pages are rendered as custom elements with the following attributes:
+
+- **lang**: language choice, propagated from `<foxy-collection-pages>`;
+- **href**: collection page URL;
+
+Collection elements are expected to comminicate with the API using `request` events, just like the rest of the Foxy Elements,
+
+## Example: Collection Pages + Transactions Table
+
+The code below will be displaying all transactions in a store in chunks of 20 transactions per page using the `<foxy-transactions-table>` element.
+
+```html
+<foxy-collection-pages
+  element="foxy-transactions-table"
+  first="https://api.foxy.test/stores/8/transactions"
+  lang="en"
+>
+</foxy-collection-pages>
+```
+
+## API
+
+<Props of="foxy-collection-pages" />

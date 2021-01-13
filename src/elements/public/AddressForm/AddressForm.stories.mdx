@@ -1,0 +1,80 @@
+import { html } from 'lit-html';
+import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { customerAddress } from '../../../mocks/FxCustomerAddress';
+import './index.ts';
+
+<Meta title="Forms / Address" component="foxy-address-form" />
+
+# Customer Address Form
+
+[![hAPI](https://img.shields.io/badge/hAPI-customer__address-green.svg)](https://api.foxycart.com/rels/customer_address)
+
+## States
+
+Below are all the states this component can render.
+
+### Loading
+
+Displayed while loading the resource.
+
+export function handleRequestWithLoading(evt) {
+  evt.detail.handle(() => new Promise(() => {}));
+}
+
+<Canvas>
+  <Story name="Loading">
+    {() =>
+      html`
+        <foxy-address-form
+          href="https://api.foxy.test/customer_addresses/201"
+          @request=${handleRequestWithLoading}
+        >
+        </foxy-address-form>
+      `
+    }
+  </Story>
+</Canvas>
+
+### Error
+
+Displayed when resource load fails.
+
+export function handleRequestWithError(evt) {
+  evt.detail.handle(() => Promise.reject());
+}
+
+<Canvas>
+  <Story name="Error">
+    {() =>
+      html`
+        <foxy-address-form
+          href="https://api.foxy.test/customer_addresses/201"
+          @request=${handleRequestWithError}
+        >
+        </foxy-address-form>
+      `
+    }
+  </Story>
+</Canvas>
+
+### Ready
+
+Displayed after the resource is loaded.
+
+export function handleRequestWithSuccess(evt) {
+  evt.detail.handle(async () => new Response(JSON.stringify(customerAddress)));
+}
+
+<Canvas>
+  <Story name="Ready">
+    {() =>
+      html`
+        <foxy-address-form
+          href="https://api.foxy.test/customer_addresses/201"
+          @request=${handleRequestWithSuccess}
+        >
+        </foxy-address-form>
+      `
+    }
+  </Story>
+</Canvas>

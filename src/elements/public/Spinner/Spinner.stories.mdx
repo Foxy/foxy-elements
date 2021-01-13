@@ -1,0 +1,35 @@
+import { html } from 'lit-html';
+import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import './index.ts';
+
+<Meta title="Other / Spinner" component="foxy-spinner" />
+
+# Spinner
+
+## States
+
+Below are all the states this component can render.
+
+### Busy (default)
+
+<Canvas>
+  <Story name="Busy">{() => html`<foxy-spinner></foxy-spinner>`}</Story>
+</Canvas>
+
+### Error
+
+<Canvas>
+  <Story name="Error">{() => html`<foxy-spinner state="error"></foxy-spinner>`}</Story>
+</Canvas>
+
+### Paused
+
+<Canvas>
+  <Story name="Paused">{() => html`<foxy-spinner state="paused"></foxy-spinner>`}</Story>
+</Canvas>
+
+### End
+
+<Canvas>
+  <Story name="End">{() => html`<foxy-spinner state="end"></foxy-spinner>`}</Story>
+</Canvas>

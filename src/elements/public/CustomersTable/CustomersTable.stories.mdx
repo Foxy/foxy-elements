@@ -1,0 +1,115 @@
+import { html } from 'lit-html';
+import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { customerAddresses } from '../../../mocks/FxCustomerAddresses';
+import { defaultPaymentMethod } from '../../../mocks/FxDefaultPaymentMethod';
+import { subscriptions } from '../../../mocks/FxSubscriptions';
+import { transactions } from '../../../mocks/FxTransactions';
+import { attributes } from '../../../mocks/FxAttributes';
+import { customers } from '../../../mocks/FxCustomers';
+import { customer } from '../../../mocks/FxCustomer';
+import { items } from '../../../mocks/FxItems';
+import './index.ts';
+
+<Meta title="Tables / Customers" component="foxy-customers-table" />
+
+# Customers
+
+[![hAPI](https://img.shields.io/badge/hAPI-customers-green.svg)](https://api.foxycart.com/rels/customers)
+
+## Idle (`idle.snapshot.unmodified`)
+
+export const handleRequestWithSuccess = evt => {
+  evt.detail.handle(async (url, init) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    //
+    if (init?.body) return new Response(init.body);
+    //
+    if (url.includes('/items')) {
+      return new Response(JSON.stringify(items));
+    }
+    //
+    if (url.includes('/addresses')) {
+      return new Response(JSON.stringify(customerAddresses));
+    }
+    //
+    if (url.includes('/attributes')) {
+      return new Response(JSON.stringify(attributes));
+    }
+    //
+    if (url.includes('/default_payment_method')) {
+      return new Response(JSON.stringify(defaultPaymentMethod));
+    }
+    //
+    if (url.includes('/subscriptions')) {
+      return new Response(JSON.stringify(subscriptions));
+    }
+    //
+    if (url.includes('/transactions')) {
+      return new Response(JSON.stringify(transactions));
+    }
+    //
+    if (url.includes('/customers/')) {
+      return new Response(JSON.stringify(customer));
+    }
+    //
+    if (url.includes('/customers')) {
+      return new Response(JSON.stringify(customers));
+    }
+    //
+    return new Response(null, { status: 404 });
+  });
+};
+
+<Canvas>
+  <Story name="Idle">
+    {() =>
+      html`
+        <foxy-customers-table
+          href="https://api.foxy.test/stores/8/customers"
+          @request=${handleRequestWithSuccess}
+        >
+        </foxy-customers-table>
+      `
+    }
+  </Story>
+</Canvas>
+
+## Busy (`busy.fetching`)
+
+export function handleRequestWithLoading(evt) {
+  evt.detail.handle(() => new Promise(() => {}));
+}
+
+<Canvas>
+  <Story name="Busy">
+    {() =>
+      html`
+        <foxy-customers-table
+          href="https://api.foxy.test/stores/9/customers"
+          @request=${handleRequestWithLoading}
+        >
+        </foxy-customers-table>
+      `
+    }
+  </Story>
+</Canvas>
+
+## Error (`error`)
+
+export function handleRequestWithError(evt) {
+  evt.detail.handle(() => Promise.reject());
+}
+
+<Canvas>
+  <Story name="Error">
+    {() =>
+      html`
+        <foxy-customers-table
+          href="https://api.foxy.test/stores/10/customers"
+          @request=${handleRequestWithError}
+        >
+        </foxy-customers-table>
+      `
+    }
+  </Story>
+</Canvas>

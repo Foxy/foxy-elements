@@ -57,6 +57,7 @@ export abstract class Dialog extends Translatable {
       closable: { type: Boolean },
       editable: { type: Boolean },
       header: { type: String },
+      alert: { type: Boolean },
       open: { type: Boolean, noAccessor: true },
     };
   }
@@ -105,9 +106,7 @@ export abstract class Dialog extends Translatable {
     const dialogWindowsHost = document.querySelector(Dialog.dialogWindowsHost);
 
     dialogWindow.addEventListener('request', evt => {
-      if (evt instanceof RequestEvent) {
-        evt.detail.handle((...init) => RequestEvent.emit({ source: this, init }));
-      }
+      if (evt instanceof RequestEvent) evt.detail.reemit(this);
     });
 
     dialogWindowsHost?.appendChild(dialogWindow);
@@ -190,7 +189,7 @@ export abstract class Dialog extends Translatable {
                 ? html`
                     <button
                       class="ml-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
-                      @click=${this.hide}
+                      @click=${this.save}
                     >
                       <x-i18n .ns=${this.ns} .lang=${this.lang} key="save"></x-i18n>
                     </button>
@@ -217,6 +216,10 @@ export abstract class Dialog extends Translatable {
     await this.__setConnected(true);
     await this.__setOpenDialogs([this, ...Dialog.openDialogs]);
     this.dispatchEvent(new Dialog.ShowEvent());
+  }
+
+  async save(): Promise<void> {
+    await this.hide(false);
   }
 
   private async __setOpenDialogs(newValue: Dialog[]) {

@@ -15,6 +15,16 @@ function generalizeURL(value: string) {
   return url.toString();
 }
 
+export type UpdateEventDetail = {
+  state: string[];
+};
+
+export class UpdateEvent extends CustomEvent<UpdateEventDetail> {
+  constructor(detail: UpdateEventDetail) {
+    super('update', { detail });
+  }
+}
+
 export abstract class HypermediaResource<T extends Resource> extends Translatable {
   static get resourceV8N(): ElementResourceV8N<any> {
     return {};
@@ -39,16 +49,23 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
   }) as StateMachine<ElementContext<T>, any, ElementEvent<T>>;
 
   private readonly __service = interpret(this.__machine)
-    .onTransition(({ changed }) => changed && this.requestUpdate())
-    .onChange(() => this.requestUpdate());
+    .onChange(() => this.requestUpdate())
+    .onTransition(state => {
+      if (!state.changed) return;
+      this.requestUpdate();
+      this.dispatchEvent(new UpdateEvent({ state: state.toStrings() }));
+    });
 
   private readonly __captureRequest = (evt: Event) => {
     if (!(evt instanceof RequestEvent) || evt.detail.source === this) return;
 
     const method = evt.detail.init[1]?.method?.toUpperCase() ?? 'GET';
-    if (method === 'GET') this.__respondIfPossible(evt);
 
-    this.__interceptUpdates(evt);
+    if (method === 'GET') {
+      this.__respondIfPossible(evt);
+    } else {
+      this.__interceptUpdates(evt);
+    }
   };
 
   get errors(): ElementError[] {
@@ -139,36 +156,38 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
       }
     });
 
-    if (body) evt.detail.handle(async () => new Response(JSON.stringify(body)));
+    if (body) {
+      const method = evt.detail.init[1]?.method ?? 'GET';
+      console.log(method, url, 'RESPONDED BY', this.nodeName);
+      evt.detail.handle(async () => new Response(JSON.stringify(body)));
+    }
   }
 
   private __interceptUpdates(evt: RequestEvent) {
-    const url = evt.detail.init[0].toString();
-    const method = evt.detail.init[1]?.method?.toUpperCase() ?? 'GET';
-
     evt.detail.onResponse(async () => {
+      const method = evt.detail.init[1]?.method?.toUpperCase() ?? 'GET';
+      const url = evt.detail.init[0].toString();
+
+      console.log(method, url, 'RESPONSE CAPTURED BY', this.nodeName);
+
       const patch = await evt.getPatch();
-      if (this.href === null) return;
+      if (patch === null) return;
 
-      const thisURL = generalizeURL(this.href);
-      const requestURL = generalizeURL(url);
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const el = this;
+      const context = { resource: this.resource };
+      const newContext = traverse(context).map(function (node) {
+        if (node?._links?.first || !node?._links?.self) return;
+        const embedUrl = generalizeURL(node._links.self.href);
 
-      if (patch === null) {
-        if (requestURL === thisURL) this.resource = null;
-      } else {
-        const generalizedPatch = new Map<string, unknown>();
-        patch.forEach((v, k) => generalizedPatch.set(generalizeURL(k), v));
+        if (patch.has(embedUrl)) {
+          console.log(embedUrl, 'UPDATED IN', el.nodeName);
+          const props = patch.get(embedUrl);
+          props ? this.update(merge(node, props)) : this.delete();
+        }
+      });
 
-        this.resource = traverse(this.resource).map(function (node) {
-          if (node?._links?.first || !node?._links?.self) return;
-
-          const embedUrl = generalizeURL(node._links.self.href);
-          if (method === 'DELETE' && embedUrl === requestURL) return this.delete();
-
-          const props = generalizedPatch.get(embedUrl);
-          if (props) this.update(merge(node, props));
-        });
-      }
+      this.resource = newContext.resource ?? null;
     });
   }
 }

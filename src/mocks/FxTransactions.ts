@@ -20,11 +20,11 @@ export const transactions = {
       title: 'Previous Page of this Collection',
     },
     next: {
-      href: 'https://api.foxy.test/stores/8/transactions?offset=0',
+      href: 'https://api.foxy.test/stores/8/transactions?offset=20',
       title: 'Next Page of this Collection',
     },
     last: {
-      href: 'https://api.foxy.test/stores/8/transactions?offset=0',
+      href: 'https://api.foxy.test/stores/8/transactions?offset=20',
       title: 'Last Page of this Collection',
     },
   },

@@ -9,5 +9,6 @@
   "search": "Search",
   "search_example": "Example: first_name=Sarah",
   "customer": "Customer",
-  "close": "Close"
+  "close": "Close",
+  "edit": "Edit customer"
 }

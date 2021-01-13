@@ -1,0 +1,85 @@
+import { html } from 'lit-html';
+import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { customerAddresses } from '../../../mocks/FxCustomerAddresses';
+import { defaultPaymentMethod } from '../../../mocks/FxDefaultPaymentMethod';
+import { subscriptions } from '../../../mocks/FxSubscriptions';
+import { transactions } from '../../../mocks/FxTransactions';
+import { attributes } from '../../../mocks/FxAttributes';
+import { customer } from '../../../mocks/FxCustomer';
+import { items } from '../../../mocks/FxItems';
+import './index.ts';
+
+export const handleRequest = evt => {
+  evt.detail.handle(async (url, init) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    //
+    if (init?.method === 'PUT') return new Response(init.body);
+    //
+    if (url === 'https://api.foxy.test/customers/115') {
+      return new Response(JSON.stringify(customer));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/transactions/3820290/items')) {
+      return new Response(JSON.stringify(items));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/customers/115/attributes')) {
+      return new Response(JSON.stringify(attributes));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/customers/115/addresses')) {
+      return new Response(JSON.stringify(customerAddresses));
+    }
+    //
+    if (url === 'https://api.foxy.test/customers/115/default_payment_method') {
+      return new Response(JSON.stringify(defaultPaymentMethod));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/stores/8/subscriptions')) {
+      return new Response(JSON.stringify(subscriptions));
+    }
+    //
+    if (url.startsWith('https://api.foxy.test/stores/8/transactions')) {
+      return new Response(JSON.stringify(transactions));
+    }
+    //
+    return new Response(null, { status: 404 });
+  });
+};
+
+<Meta title="Other / Customer" component="foxy-customer" />
+
+# Customer
+
+[![hAPI](https://img.shields.io/badge/hAPI-customer-green.svg)](https://api.foxycart.com/rels/customer)
+
+The `<foxy-customer>` element is a **relation element** that provides a visual interface for interacting with the `customer` hAPI relation.
+
+## Setup
+
+All relation elements need an `href` attribute to know where to load their content from and a request handler to connect to the backend. You can check if your component is configured properly by running your project and looking for the error message like below – if it isn't there, then you're good to go.
+
+<Canvas>
+  <Story name="Default" height="320px">
+    {() =>
+      html`
+        <div class="container mx-auto p-2 sm:p-4 md:p-6 lg:p-8">
+          <foxy-customer></foxy-customer>
+        </div>
+      `
+    }
+  </Story>
+</Canvas>
+
+<Canvas height="320px">
+  <Story name="Configured">
+    {() =>
+      html`
+        <div class="container mx-auto p-2 sm:p-4 md:p-6 lg:p-8">
+          <foxy-customer href="https://api.foxy.test/customers/115" @request=${handleRequest}>
+          </foxy-customer>
+        </div>
+      `
+    }
+  </Story>
+</Canvas>

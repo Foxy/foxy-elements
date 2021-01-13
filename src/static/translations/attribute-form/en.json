@@ -1,0 +1,17 @@
+{
+  "name": "Name",
+  "value": "Value",
+  "visibility": "Visibility",
+  "visibility_private": "Only me",
+  "visibility_restricted": "Store admins",
+  "visibility_public": "Everyone",
+  "delete": "Delete attribute",
+  "delete_no": "Cancel",
+  "delete_yes": "Yes, delete now",
+  "delete_message": "This attribute will be permanently removed if you proceed. Are you sure?",
+  "error_required": "This field is required",
+  "error_too_long": "Value is too long",
+  "date_created": "Created on",
+  "date_modified": "Last updated",
+  "create": "Create attribute"
+}

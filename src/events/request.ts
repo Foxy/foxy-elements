@@ -10,31 +10,35 @@ export class UnhandledRequestError extends Error {
   }
 }
 
-export interface RequestEventPayload<TSource extends HTMLElement> {
+export interface RequestEventPayload {
   init: Parameters<Window['fetch']>;
-  source: TSource;
+  source: HTMLElement;
+  reemit: (source: HTMLElement) => void;
   handle: (fetch: Window['fetch']) => Promise<void>;
   onResponse: (intercept: (response: Response) => void) => void;
 }
 
-export interface RequestSendInit<TSource extends HTMLElement> {
-  source: TSource;
+export interface RequestSendInit {
+  source: HTMLElement;
   init: Parameters<Window['fetch']>;
 }
 
-export interface RequestEventInit<TSource extends HTMLElement> extends RequestSendInit<TSource> {
+export interface RequestEventInit extends RequestSendInit {
   resolve: (response: Response) => void;
   reject: (error: Error) => void;
 }
 
-export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends CustomEvent<
-  RequestEventPayload<TSource>
-> {
-  public static emit<TSource extends HTMLElement>(
-    params: RequestSendInit<TSource>
-  ): Promise<Response> {
+function generalizeURL(value: string) {
+  const url = new URL(value);
+  url.search = '';
+  url.hash = '';
+  return url.toString();
+}
+
+export class RequestEvent extends CustomEvent<RequestEventPayload> {
+  public static emit(params: RequestSendInit): Promise<Response> {
     return new Promise<Response>((resolve, reject) => {
-      const event = new RequestEvent<HTMLElement>({ resolve, reject, ...params });
+      const event = new RequestEvent({ resolve, reject, ...params });
       if (params.source.dispatchEvent(event)) reject(new UnhandledRequestError());
     });
   }
@@ -44,31 +48,36 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
    * and values are the properties from those resources (excluding `_links` and `_embedded`).
    */
   public getPatch = memoize<() => Promise<Map<string, any> | null>>(async () => {
-    const method = this.detail.init[1]?.method?.toUpperCase() ?? 'GET';
-    if (method === 'DELETE' || !this.__response) return null;
+    if (!this.__response?.ok) return null;
 
     const json = await this.__response.clone().json();
-    const walker = traverse(json);
+    const patch = new Map<string, any>();
+    const method = this.detail.init[1]?.method?.toUpperCase() ?? 'GET';
 
-    return walker.reduce(function (patch, node) {
-      if (!node?._links?.first && node?._links?.self) {
-        const props = Object.entries(node).reduce(
-          (p, [k, v]) => (k[0] === '_' ? p : { ...p, [k]: cloneDeep(v) }),
-          {} as any
-        );
+    traverse(json).forEach(function (node) {
+      if (node?._links?.first || !node?._links?.self) return;
 
-        patch.set(node?._links?.self?.href, props);
-      }
+      const props = Object.entries(node).reduce(
+        (p, [k, v]) => (k[0] === '_' ? p : { ...p, [k]: cloneDeep(v) }),
+        {} as any
+      );
 
-      return patch;
-    }, new Map<string, any>());
+      patch.set(generalizeURL(node?._links?.self?.href), props);
+    });
+
+    if (method === 'DELETE') {
+      const url = generalizeURL(this.detail.init[0].toString());
+      patch.set(url, null);
+    }
+
+    return patch;
   });
 
   private __interceptors: ((response: Response) => void)[] = [];
 
   private __response: Response | null = null;
 
-  public constructor({ source, resolve, reject, init }: RequestEventInit<TSource>) {
+  public constructor({ source, resolve, reject, init }: RequestEventInit) {
     super('request', {
       cancelable: true,
       composed: true,
@@ -83,6 +92,20 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
             this.__interceptors.push(intercept);
           }
         },
+
+        reemit: (source: HTMLElement) => {
+          const method = init[1]?.method ?? 'GET';
+          const url = init[0].toString();
+
+          console.log(method, url, 'REEMITTED BY', source.nodeName);
+
+          this.stopImmediatePropagation();
+          this.preventDefault();
+
+          this.__interceptors.length = 0;
+          RequestEvent.emit({ source, init }).then(resolve).catch(reject);
+        },
+
         handle: async (fetch: Window['fetch']): Promise<void> => {
           this.stopImmediatePropagation();
           this.preventDefault();
@@ -98,5 +121,10 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
         },
       },
     });
+
+    const method = init[1]?.method ?? 'GET';
+    const url = init[0].toString();
+
+    console.log(method, url, 'EMITTED BY', source.nodeName);
   }
 }
