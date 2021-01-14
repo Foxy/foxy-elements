@@ -9,6 +9,7 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Translatable } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 
+export type SpinnerElementLayout = 'vertical' | 'horizontal';
 export type SpinnerElementState = 'end' | 'busy' | 'error' | 'paused';
 
 export class SpinnerElement extends Translatable {
@@ -26,6 +27,7 @@ export class SpinnerElement extends Translatable {
     return {
       ...super.properties,
       state: { type: String },
+      layout: { type: String },
     };
   }
 
@@ -43,6 +45,8 @@ export class SpinnerElement extends Translatable {
     ];
   }
 
+  layout: SpinnerElementLayout = 'horizontal';
+
   state: SpinnerElementState = 'busy';
 
   constructor() {
@@ -50,6 +54,7 @@ export class SpinnerElement extends Translatable {
   }
 
   render(): TemplateResult {
+    let layout: string;
     let icon: TemplateResult;
     let text: string;
     let tint: string;
@@ -72,8 +77,14 @@ export class SpinnerElement extends Translatable {
       tint = 'text-primary';
     }
 
+    if (this.layout === 'horizontal') {
+      layout = 'flex items-center space-x-s h-xxs';
+    } else {
+      layout = 'flex flex-col items-center space-y-s';
+    }
+
     return html`
-      <div class="flex items-center space-x-s font-lumo text-s h-xxs ${tint}">
+      <div class="font-lumo leading-none text-s ${layout} ${tint}">
         <div class="w-xxs h-xss flex items-center justify-center">${icon}</div>
         <x-i18n ns=${this.ns} key=${text} lang=${this.lang}></x-i18n>
       </div>

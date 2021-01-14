@@ -1,5 +1,6 @@
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
+import '@polymer/iron-icons/maps-icons';
 
 import * as FoxySDK from '@foxy.io/sdk';
 
@@ -56,20 +57,16 @@ export class AddressCardElement extends HypermediaResource<Resource> {
     const isError = this._is('error');
     const isReady = this._is('idle');
 
-    const icon = this.resource?.is_default_billing ? 'payment' : 'local-shipping';
+    const icon = this.resource?.is_default_billing ? 'icons:payment' : 'maps:local-shipping';
     const variant = isError ? 'error' : 'busy';
 
     return html`
       <x-address-form-dialog
-        .ns=${this.ns}
-        .lang=${this.lang}
-        .open=${this.__formDialogOpen}
-        .resource=${this.resource}
+        ns=${this.ns}
+        lang=${this.lang}
+        href=${this.href ?? ''}
         header="edit"
-        closable
-        editable
-        @show=${() => (this.__formDialogOpen = true)}
-        @hide=${() => (this.__formDialogOpen = false)}
+        id="form-dialog"
       >
       </x-address-form-dialog>
 
@@ -77,7 +74,7 @@ export class AddressCardElement extends HypermediaResource<Resource> {
         class="text-left w-full flex items-start leading-m font-lumo space-x-m text-body focus:outline-none"
         aria-live="polite"
         aria-busy=${isLoading}
-        @click=${() => (this.__formDialogOpen = true)}
+        @click=${() => this.__getFormDialog().show()}
       >
         <div class="relative flex-1 leading-m">
           ${[1, 2, 3].map(lineIndex => {
@@ -108,9 +105,13 @@ export class AddressCardElement extends HypermediaResource<Resource> {
         </div>
 
         ${isReady
-          ? html`<iron-icon icon="icons:${icon}"></iron-icon>`
+          ? html`<iron-icon icon=${icon}></iron-icon>`
           : html`<x-skeleton class="w-s min-w-0" variant=${variant}></x-skeleton>`}
       </button>
     `;
+  }
+
+  private __getFormDialog() {
+    return this.renderRoot.querySelector('#form-dialog') as AddressFormDialog;
   }
 }

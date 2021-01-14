@@ -33,6 +33,7 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
   static get properties(): PropertyDeclarations {
     return {
       resource: { attribute: false, noAccessor: true },
+      parent: { type: String, noAccessor: true },
       href: { type: String, noAccessor: true },
     };
   }
@@ -45,6 +46,7 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
     element: this,
     backup: null,
     errors: [],
+    parent: null,
     href: null,
   }) as StateMachine<ElementContext<T>, any, ElementEvent<T>>;
 
@@ -63,6 +65,8 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
 
     if (method === 'GET') {
       this.__respondIfPossible(evt);
+    } else if (method === 'POST') {
+      this.__reloadOnCollectionUpdate(evt);
     } else {
       this.__interceptUpdates(evt);
     }
@@ -80,6 +84,15 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
 
   set href(value: string | null) {
     if (value !== this.href) this.__send({ type: 'SET_HREF', data: value });
+  }
+
+  get parent(): string | null {
+    const { initialized } = this.__service;
+    return initialized ? this.__service.state.context.parent : null;
+  }
+
+  set parent(value: string | null) {
+    if (value !== this.parent) this.__send({ type: 'SET_PARENT', data: value });
   }
 
   get resource(): T | null {
@@ -114,7 +127,10 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
   protected _getErrorMessages(): Record<string, string> {
     return this.errors
       .filter(err => err.type === 'input')
-      .reduce((map, err) => ({ ...map, [err.target!]: this._t(err.code!) }), {});
+      .reduce(
+        (map, err) => ({ ...map, [err.target!]: this._isI18nReady ? this._t(err.code!) : '' }),
+        {}
+      );
   }
 
   protected _setProperty(resource: Partial<T>): void {
@@ -160,6 +176,14 @@ export abstract class HypermediaResource<T extends Resource> extends Translatabl
       const method = evt.detail.init[1]?.method ?? 'GET';
       console.log(method, url, 'RESPONDED BY', this.nodeName);
       evt.detail.handle(async () => new Response(JSON.stringify(body)));
+    }
+  }
+
+  private __reloadOnCollectionUpdate(evt: RequestEvent) {
+    if (evt.detail.init[0].toString() === this.href) {
+      evt.detail.onResponse(response => {
+        if (response.ok) this._reload();
+      });
     }
   }
 

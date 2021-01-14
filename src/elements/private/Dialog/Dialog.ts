@@ -106,7 +106,9 @@ export abstract class Dialog extends Translatable {
     const dialogWindowsHost = document.querySelector(Dialog.dialogWindowsHost);
 
     dialogWindow.addEventListener('request', evt => {
-      if (evt instanceof RequestEvent) evt.detail.reemit(this);
+      if (evt instanceof RequestEvent) {
+        evt.detail.handle((...init) => RequestEvent.emit({ source: this, init }));
+      }
     });
 
     dialogWindowsHost?.appendChild(dialogWindow);

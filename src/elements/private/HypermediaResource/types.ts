@@ -27,6 +27,11 @@ export type SetHrefEvent = {
   data: string | null;
 };
 
+export type SetParentEvent = {
+  type: 'SET_PARENT';
+  data: string | null;
+};
+
 export type SetPropertyEvent<T extends Resource = any> = {
   type: 'SET_PROPERTY';
   data: Partial<T>;
@@ -48,11 +53,13 @@ export type ElementEvent<T extends Resource = any> =
   | SubmitEvent
   | DeleteEvent
   | SetHrefEvent
+  | SetParentEvent
   | SetResourceEvent<T>
   | SetPropertyEvent<T>;
 
 export type ElementContext<T extends Resource = any> = {
   href: string | null;
+  parent: string | null; // optional parent collection uri to enable POST requests
   errors: ElementError[];
   backup: T | null;
   element: HTMLElement | null;
@@ -60,4 +67,7 @@ export type ElementContext<T extends Resource = any> = {
   resourceV8N: ElementResourceV8N<T>;
 };
 
-export type ElementResourceV8N<T extends Resource> = Record<string, ((r: T) => true | string)[]>;
+export type ElementResourceV8N<T extends Resource> = Record<
+  string,
+  ((r: Partial<T>) => true | string)[]
+>;

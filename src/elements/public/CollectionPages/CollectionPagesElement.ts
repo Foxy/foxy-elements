@@ -2,52 +2,77 @@ import { LitElement, PropertyDeclarations } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
 import { RequestEvent } from '../../../events/request';
+import { SpinnerElement } from '../Spinner';
+import { SpinnerElementState } from '../Spinner/SpinnerElement';
 
 type HTMLFunction = typeof html;
-type TemplateFunction = (html: HTMLFunction, href: string, lang: string) => TemplateResult;
+type Template = typeof html;
+type SpinnerRenderer = (html: Template, lang: string, state: SpinnerElementState) => TemplateResult;
+type TemplateFunction = (
+  html: HTMLFunction,
+  href: string,
+  item: string,
+  lang: string
+) => TemplateResult;
 
 export class CollectionPagesElement extends LitElement {
-  static readonly defaultNodeName = 'foxy-collection-pages';
+  static defaultNodeName = 'foxy-collection-pages';
 
   static get properties(): PropertyDeclarations {
     return {
-      element: { type: String, noAccessor: true },
+      spinner: { type: String, noAccessor: true },
       first: { type: String, noAccessor: true },
+      item: { type: String, noAccessor: true },
+      page: { type: String, noAccessor: true },
       lang: { type: String },
     };
   }
 
   lang = '';
 
+  item: string | null = null;
+
   private readonly __handleRequest = (evt: Event) => {
     if (!(evt instanceof RequestEvent)) return;
 
-    evt.detail.onResponse(async response => {
-      const normalizeURL = (url: string) => {
-        const urlObj = new URL(url);
-        const offset = parseInt(urlObj.searchParams.get('offset') ?? '0');
-        const limit = parseInt(urlObj.searchParams.get('limit') ?? '0');
+    const normalizeURL = (url: string) => {
+      const urlObj = new URL(url);
+      const offset = parseInt(urlObj.searchParams.get('offset') ?? '0');
+      const limit = parseInt(urlObj.searchParams.get('limit') ?? '0');
 
-        if (offset === 0) urlObj.searchParams.delete('offset');
-        if (limit === 0) urlObj.searchParams.delete('limit');
+      if (offset === 0) urlObj.searchParams.delete('offset');
+      if (limit === 0) urlObj.searchParams.delete('limit');
 
-        return urlObj.toString();
-      };
+      return urlObj.toString();
+    };
 
-      const json = await response.json();
-      const savedPrev = this.__pages.slice(-1).pop();
-      const receivedPrev = json?._links?.prev?.href;
-      const newNext = json?._links?.next?.href;
+    const url = normalizeURL(evt.detail.init[0].toString());
+    const method = evt.detail.init[1]?.method?.toUpperCase() ?? 'GET';
 
-      if (typeof savedPrev !== 'string') return;
-      if (typeof receivedPrev !== 'string') return;
-      if (typeof newNext !== 'string') return;
+    if (method === 'POST' && this.first && url === normalizeURL(this.first)) {
+      evt.detail.onResponse(response => {
+        if (response.ok && this.first) {
+          this._pages = [this.first];
+          this.__next = null;
+        }
+      });
+    } else {
+      evt.detail.onResponse(async response => {
+        const json = await response.json();
+        const savedPrev = this._pages.slice(-1).pop();
+        const receivedPrev = json?._links?.prev?.href;
+        const newNext = json?._links?.next?.href;
 
-      if (this.__next === null && normalizeURL(receivedPrev) === normalizeURL(savedPrev)) {
-        this.__next = newNext;
-        this.requestUpdate();
-      }
-    });
+        if (typeof savedPrev !== 'string') return;
+        if (typeof receivedPrev !== 'string') return;
+        if (typeof newNext !== 'string') return;
+
+        if (this.__next === null && normalizeURL(receivedPrev) === normalizeURL(savedPrev)) {
+          this.__next = newNext;
+          this.requestUpdate();
+        }
+      });
+    }
   };
 
   private readonly __observer = new IntersectionObserver(
@@ -57,35 +82,56 @@ export class CollectionPagesElement extends LitElement {
 
   private __next: string | null = null;
 
-  private __pages: string[] = [];
+  private __spinner: string | null = null;
 
-  private __element: string | null = null;
+  protected _pages: string[] = [];
 
-  private __renderElement: TemplateFunction | null = null;
+  private __page: string | null = null;
+
+  private __renderSpinner: SpinnerRenderer | null = null;
+
+  private __renderPage: TemplateFunction | null = null;
 
   get first(): string | null {
-    return this.__pages[0] ?? null;
+    return this._pages[0] ?? null;
   }
 
   set first(value: string | null) {
-    this.__pages.length = 0;
-    if (typeof value === 'string') this.__pages[0] = value;
+    this._pages.length = 0;
+    if (typeof value === 'string') this._pages[0] = value;
     this.requestUpdate();
   }
 
-  get element(): string | null {
-    return this.__element;
+  get page(): string | null {
+    return this.__page;
   }
 
-  set element(value: string | null) {
-    this.__renderElement = new Function(
+  set page(value: string | null) {
+    this.__renderPage = new Function(
       'html',
       'href',
+      'item',
       'lang',
-      `return html\`<${value} href=\${href} lang=\${lang}></${value}>\``
+      `return html\`<${value} href=\${href} item=\${item} lang=\${lang}></${value}>\``
     ) as TemplateFunction;
 
-    this.__element = value;
+    this.__page = value;
+    this.requestUpdate();
+  }
+
+  get spinner(): string | null {
+    return this.__spinner;
+  }
+
+  set spinner(value: string | null) {
+    this.__renderSpinner = new Function(
+      'html',
+      'lang',
+      'state',
+      `return html\`<${value} lang=\${lang} state=\${state}></${value}>\``
+    ) as SpinnerRenderer;
+
+    this.__spinner = value;
     this.requestUpdate();
   }
 
@@ -100,11 +146,15 @@ export class CollectionPagesElement extends LitElement {
 
   updated(): void {
     this.__observer.disconnect();
-    this.__observer.observe(this.children[this.children.length - 1]);
+    const target = this.children[this.children.length - 1];
+    if (target) this.__observer.observe(target);
   }
 
   render(): TemplateResult {
-    return html`${this.__pages.map(page => this.__renderElement?.(html, page, this.lang))}`;
+    return html`
+      ${this._pages.map(page => this.__renderPage?.(html, page, this.item!, this.lang))}
+      ${this.__renderSpinner?.(html, this.lang, 'busy')}
+    `;
   }
 
   disconnectedCallback(): void {
@@ -114,7 +164,7 @@ export class CollectionPagesElement extends LitElement {
 
   private __loadNext() {
     if (this.__next !== null) {
-      this.__pages.push(this.__next);
+      this._pages.push(this.__next);
       this.__next = null;
       this.requestUpdate();
     }

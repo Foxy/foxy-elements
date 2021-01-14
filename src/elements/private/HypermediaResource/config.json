@@ -7,6 +7,7 @@
     "element": null,
     "backup": null,
     "errors": [],
+    "parent": null,
     "href": null
   },
   "states": {
@@ -55,7 +56,7 @@
       "initial": "unknown",
       "states": {
         "unknown": {
-          "always": [{ "target": "snapshot", "cond": "hasResource" }, { "target": "template" }]
+          "always": [{ "target": "snapshot", "cond": "hasSnapshot" }, { "target": "template" }]
         },
         "template": {
           "initial": "unknown",
@@ -118,6 +119,7 @@
   },
   "on": {
     "SET_RESOURCE": { "target": ".unknown", "actions": "setResource" },
+    "SET_PARENT": { "actions": "setParent" },
     "SET_HREF": { "target": ".unknown", "actions": "setHref" },
     "RELOAD": { "target": ".unknown", "actions": "reset" }
   }

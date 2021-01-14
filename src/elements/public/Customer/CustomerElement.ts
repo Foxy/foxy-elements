@@ -1,29 +1,24 @@
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
 import '@polymer/iron-icons/editor-icons';
+import '../CollectionPage';
+import '../Spinner';
 
 import * as FoxySDK from '@foxy.io/sdk';
 
 import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
-import {
-  ErrorScreen,
-  HypermediaResource,
-  I18N,
-  LoadingScreen,
-  Page,
-  PropertyTable,
-} from '../../private';
+import { ErrorScreen, HypermediaResource, I18N, LoadingScreen, PropertyTable } from '../../private';
 
 import { AddressCardElement } from '../AddressCard';
 import { AttributeCardElement } from '../AttributeCard';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CollectionItemsElement } from '../CollectionItems';
 import { CollectionPagesElement } from '../CollectionPages';
 import { ConfirmDialog } from '../../private/Dialog/ConfirmDialog';
 import { ElementResourceV8N } from '../../private/HypermediaResource/types';
+import { NewAddressFormDialog } from './private/NewAddressFormDialog';
+import { NewAttributeFormDialog } from './private/NewAttributeFormDialog';
 import { PaymentMethodElement } from '../PaymentMethodCard';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { SpinnerElement } from '../Spinner';
 import { SubscriptionsTableElement } from '../SubscriptionsTable';
 import { Tabs } from '../../private/Tabs/Tabs';
 import { TransactionsTableElement } from '../TransactionsTable';
@@ -37,10 +32,11 @@ export class CustomerElement extends HypermediaResource<Resource> {
 
   static get scopedElements(): ScopedElementsMap {
     return {
+      'x-new-attribute-form-dialog': NewAttributeFormDialog,
+      'x-new-address-form-dialog': NewAddressFormDialog,
       'foxy-payment-method-card': customElements.get(PaymentMethodElement.defaultNodeName),
       'foxy-subscriptions-table': customElements.get(SubscriptionsTableElement.defaultNodeName),
       'foxy-transactions-table': customElements.get(TransactionsTableElement.defaultNodeName),
-      'foxy-collection-items': customElements.get(CollectionItemsElement.defaultNodeName),
       'foxy-collection-pages': customElements.get(CollectionPagesElement.defaultNodeName),
       'foxy-attribute-card': customElements.get(AttributeCardElement.defaultNodeName),
       'foxy-address-card': customElements.get(AddressCardElement.defaultNodeName),
@@ -49,23 +45,21 @@ export class CustomerElement extends HypermediaResource<Resource> {
       'x-property-table': PropertyTable,
       'x-error-screen': ErrorScreen,
       'vaadin-button': ButtonElement,
-      'foxy-spinner': customElements.get(SpinnerElement.defaultNodeName),
       'iron-icon': customElements.get('iron-icon'),
       'x-tabs': Tabs,
-      'x-page': Page,
       'x-i18n': I18N,
     };
   }
 
   static get resourceV8N(): ElementResourceV8N<Resource> {
     return {
-      first_name: [({ first_name: v }) => v.length <= 50 || 'error_too_long'],
-      last_name: [({ last_name: v }) => v.length <= 50 || 'error_too_long'],
-      tax_id: [({ tax_id: v }) => v.length <= 50 || 'error_too_long'],
+      first_name: [({ first_name: v }) => !v || v.length <= 50 || 'error_too_long'],
+      last_name: [({ last_name: v }) => !v || v.length <= 50 || 'error_too_long'],
+      tax_id: [({ tax_id: v }) => !v || v.length <= 50 || 'error_too_long'],
       email: [
-        ({ email: v }) => v.length > 0 || 'error_required',
-        ({ email: v }) => v.length <= 100 || 'error_too_long',
-        ({ email: v }) => isEmail(v) || 'error_invalid_email',
+        ({ email: v }) => (v && v.length > 0) || 'error_required',
+        ({ email: v }) => (v && v.length <= 100) || 'error_too_long',
+        ({ email: v }) => (v && isEmail(v)) || 'error_invalid_email',
       ],
     };
   }
@@ -87,8 +81,17 @@ export class CustomerElement extends HypermediaResource<Resource> {
           width: 18rem;
         }
 
-        foxy-collection-items {
+        .h-scroll {
           scroll-snap-type: x mandatory;
+        }
+
+        .h-scroll > * {
+          display: inherit;
+          flex: inherit;
+        }
+
+        .h-scroll * + * {
+          margin-left: var(--lumo-space-m);
         }
 
         foxy-attribute-card,
@@ -178,24 +181,26 @@ export class CustomerElement extends HypermediaResource<Resource> {
             </h2>
 
             <button
-              aria-label=${this._t('add').toString()}
               class=${classMap({
                 'flex-shrink-0 h-m w-m rounded-full flex items-center justify-center bg-primary-10 text-primary': true,
                 'hover:bg-primary hover:text-primary-contrast': true,
                 'focus:outline-none focus:shadow-outline': true,
               })}
+              aria-label=${this._t('add').toString()}
+              @click=${() => this.__newAddressFormDialog.show()}
             >
               <iron-icon icon="icons:add"></iron-icon>
             </button>
           </header>
 
-          <foxy-collection-items
-            first=${_links['fx:customer_addresses'].href}
-            class="flex items-center space-x-m overflow-auto"
+          <foxy-collection-pages
             spinner="foxy-spinner"
-            element="foxy-address-card"
+            first=${_links['fx:customer_addresses'].href}
+            class="h-scroll flex items-center space-x-m overflow-auto"
+            page="foxy-collection-page"
+            item="foxy-address-card"
           >
-          </foxy-collection-items>
+          </foxy-collection-pages>
         </section>
 
         <section class="space-y-m">
@@ -217,24 +222,26 @@ export class CustomerElement extends HypermediaResource<Resource> {
             </h2>
 
             <button
-              aria-label=${this._t('add_attribute').toString()}
               class=${classMap({
                 'flex-shrink-0 h-m w-m rounded-full flex items-center justify-center bg-primary-10 text-primary': true,
                 'hover:bg-primary hover:text-primary-contrast': true,
                 'focus:outline-none focus:shadow-outline': true,
               })}
+              aria-label=${this._t('add_attribute').toString()}
+              @click=${() => this.__newAttributeFormDialog.show()}
             >
               <iron-icon icon="icons:add"></iron-icon>
             </button>
           </header>
 
-          <foxy-collection-items
-            first=${_links['fx:attributes'].href}
-            class="flex items-center space-x-m overflow-auto"
+          <foxy-collection-pages
             spinner="foxy-spinner"
-            element="foxy-attribute-card"
+            first=${_links['fx:attributes'].href}
+            class="h-scroll flex items-center space-x-m overflow-auto"
+            page="foxy-collection-page"
+            item="foxy-attribute-card"
           >
-          </foxy-collection-items>
+          </foxy-collection-pages>
         </section>
 
         <section class="space-y-m">
@@ -243,16 +250,18 @@ export class CustomerElement extends HypermediaResource<Resource> {
             <x-i18n ns=${this.ns} key="subscriptions" lang=${this.lang} slot="tab-1"></x-i18n>
 
             <foxy-collection-pages
-              slot="panel-0"
+              spinner="foxy-spinner"
               first=${_links['fx:transactions'].href}
-              element="foxy-transactions-table"
+              slot="panel-0"
+              page="foxy-transactions-table"
             >
             </foxy-collection-pages>
 
             <foxy-collection-pages
-              slot="panel-1"
+              spinner="foxy-spinner"
               first=${_links['fx:subscriptions'].href}
-              element="foxy-subscriptions-table"
+              slot="panel-1"
+              page="foxy-subscriptions-table"
             >
             </foxy-collection-pages>
           </x-tabs>
@@ -268,8 +277,23 @@ export class CustomerElement extends HypermediaResource<Resource> {
   render(): TemplateResult {
     return html`
       <div>
-        <x-customer-form-dialog header="edit" lang=${this.lang} id="form-dialog" closable>
-        </x-customer-form-dialog>
+        <x-new-attribute-form-dialog
+          header="add_attribute"
+          parent=${this.resource?._links['fx:attributes'].href ?? ''}
+          lang=${this.lang}
+          ns=${this.ns}
+          id="new-attribute-form-dialog"
+        >
+        </x-new-attribute-form-dialog>
+
+        <x-new-address-form-dialog
+          header="add_address"
+          parent=${this.resource?._links['fx:customer_addresses'].href ?? ''}
+          lang=${this.lang}
+          ns=${this.ns}
+          id="new-address-form-dialog"
+        >
+        </x-new-address-form-dialog>
 
         <x-confirm-dialog
           message="delete_message"
@@ -351,7 +375,15 @@ export class CustomerElement extends HypermediaResource<Resource> {
     return [firstName, lastName, email, taxID, lastLogin, firstPurchase];
   }
 
-  private get __confirmDialog(): ConfirmDialog {
+  private get __confirmDialog() {
     return this.renderRoot.querySelector('#confirm') as ConfirmDialog;
+  }
+
+  private get __newAddressFormDialog() {
+    return this.renderRoot.querySelector('#new-address-form-dialog') as NewAddressFormDialog;
+  }
+
+  private get __newAttributeFormDialog() {
+    return this.renderRoot.querySelector('#new-attribute-form-dialog') as NewAttributeFormDialog;
   }
 }

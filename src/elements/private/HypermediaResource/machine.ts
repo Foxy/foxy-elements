@@ -2,6 +2,7 @@ import {
   ElementContext,
   ElementEvent,
   SetHrefEvent,
+  SetParentEvent,
   SetPropertyEvent,
   SetResourceEvent,
 } from './types';
@@ -14,8 +15,8 @@ import { isEqual } from 'lodash-es';
 export const machine = createMachine<ElementContext, ElementEvent>(config, {
   guards: {
     hasFatalErrors: ctx => ctx.errors.some(err => err.type === 'fatal'),
-    hasInputErrors: ctx => ctx.errors.some(err => err.type === 'input'),
-    hasResource: ctx => ctx.resource !== null,
+    hasInputErrors: ctx => ctx.resource === null || ctx.errors.some(err => err.type === 'input'),
+    hasSnapshot: ctx => ctx.resource !== null && ctx.href !== null,
     hasHrefOnly: ctx => ctx.href !== null && ctx.resource === null,
     hasChanges: ctx => ctx.backup !== null && !isEqual(ctx.resource, ctx.backup),
   },
@@ -32,6 +33,10 @@ export const machine = createMachine<ElementContext, ElementEvent>(config, {
       backup: null,
       errors: [],
       href: (_, evt) => (evt as SetHrefEvent).data,
+    }),
+
+    setParent: assign<ElementContext, ElementEvent>({
+      parent: (_, evt) => (evt as SetParentEvent).data,
     }),
 
     handleFatalError: assign({
@@ -100,7 +105,7 @@ export const machine = createMachine<ElementContext, ElementEvent>(config, {
     async createResource(ctx: ElementContext) {
       const response = await RequestEvent.emit({
         source: ctx.element!,
-        init: ['foxy://create', { method: 'POST', body: JSON.stringify(ctx.resource) }],
+        init: [ctx.parent!, { method: 'POST', body: JSON.stringify(ctx.resource) }],
       });
 
       if (!response.ok) throw new Error(response.statusText);

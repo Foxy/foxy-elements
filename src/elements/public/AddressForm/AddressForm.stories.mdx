@@ -27,6 +27,7 @@ export function handleRequestWithLoading(evt) {
       html`
         <foxy-address-form
           href="https://api.foxy.test/customer_addresses/201"
+          class="max-w-xl mx-auto"
           @request=${handleRequestWithLoading}
         >
         </foxy-address-form>
@@ -49,11 +50,22 @@ export function handleRequestWithError(evt) {
       html`
         <foxy-address-form
           href="https://api.foxy.test/customer_addresses/201"
+          class="max-w-xl mx-auto"
           @request=${handleRequestWithError}
         >
         </foxy-address-form>
       `
     }
+  </Story>
+</Canvas>
+
+### Empty
+
+Displayed when no resource is specified.
+
+<Canvas>
+  <Story name="Empty">
+    {() => html`<foxy-address-form class="max-w-xl mx-auto"></foxy-address-form>`}
   </Story>
 </Canvas>
 
@@ -71,6 +83,7 @@ export function handleRequestWithSuccess(evt) {
       html`
         <foxy-address-form
           href="https://api.foxy.test/customer_addresses/201"
+          class="max-w-xl mx-auto"
           @request=${handleRequestWithSuccess}
         >
         </foxy-address-form>

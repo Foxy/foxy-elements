@@ -13,7 +13,6 @@ export class UnhandledRequestError extends Error {
 export interface RequestEventPayload {
   init: Parameters<Window['fetch']>;
   source: HTMLElement;
-  reemit: (source: HTMLElement) => void;
   handle: (fetch: Window['fetch']) => Promise<void>;
   onResponse: (intercept: (response: Response) => void) => void;
 }
@@ -92,20 +91,6 @@ export class RequestEvent extends CustomEvent<RequestEventPayload> {
             this.__interceptors.push(intercept);
           }
         },
-
-        reemit: (source: HTMLElement) => {
-          const method = init[1]?.method ?? 'GET';
-          const url = init[0].toString();
-
-          console.log(method, url, 'REEMITTED BY', source.nodeName);
-
-          this.stopImmediatePropagation();
-          this.preventDefault();
-
-          this.__interceptors.length = 0;
-          RequestEvent.emit({ source, init }).then(resolve).catch(reject);
-        },
-
         handle: async (fetch: Window['fetch']): Promise<void> => {
           this.stopImmediatePropagation();
           this.preventDefault();

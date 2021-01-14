@@ -26,7 +26,8 @@ vaadin-email-field,
 vaadin-number-field,
 vaadin-custom-field,
 vaadin-integer-field,
-vaadin-password-field {
+vaadin-password-field,
+vaadin-combo-box::part(text-field) {
   padding-top: 0;
   padding-bottom: 0;
 }

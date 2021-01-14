@@ -42,12 +42,12 @@ export class AttributeFormElement extends HypermediaResource<Attribute> {
   static get resourceV8N(): ElementResourceV8N<Attribute> {
     return {
       name: [
-        ({ name }) => name.length > 0 || 'error_required',
-        ({ name }) => name.length <= 500 || 'error_too_long',
+        ({ name: v }) => (v && v.length > 0) || 'error_required',
+        ({ name: v }) => (v && v.length <= 500) || 'error_too_long',
       ],
       value: [
-        ({ value }) => value.length > 0 || 'error_required',
-        ({ value }) => value.length <= 1000 || 'error_too_long',
+        ({ value: v }) => (v && v.length > 0) || 'error_required',
+        ({ value: v }) => (v && v.length <= 1000) || 'error_too_long',
       ],
     };
   }

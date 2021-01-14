@@ -4,12 +4,12 @@ import { TemplateResult, html } from 'lit-html';
 
 import { PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
+import { Skeleton } from '../Skeleton/Skeleton';
 import { Translatable } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 
 interface PropertyTableItem {
   name: string;
-  icon?: string;
   value: string;
   invalid?: boolean;
   editable?: boolean;
@@ -20,21 +20,31 @@ export class PropertyTable extends Translatable {
   static get scopedElements(): ScopedElementsMap {
     return {
       'iron-icon': customElements.get('iron-icon'),
+      'x-skeleton': Skeleton,
     };
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      disabled: { type: Boolean },
       items: { attribute: false },
     };
   }
+
+  disabled = false;
 
   items: PropertyTableItem[] | null = null;
 
   render(): TemplateResult {
     return html`
-      <table class="font-lumo text-body text-m leading-m w-full">
+      <table
+        class=${classMap({
+          'font-lumo text-body text-m leading-m w-full': true,
+          'text-disabled': this.disabled,
+          'text-body': !this.disabled,
+        })}
+      >
         <thead class="sr-only">
           <tr>
             <th>${this._t('property')}</th>
@@ -44,14 +54,18 @@ export class PropertyTable extends Translatable {
 
         <tbody class="divide-y divide-contrast-10">
           ${this.items?.map(
-            ({ name, icon, value, invalid, editable, onInput }) => html`
+            ({ name, value, invalid, editable, onInput }) => html`
               <tr>
-                <td class="truncate text-tertiary py-s pr-m">
+                <td
+                  class=${classMap({
+                    'truncate py-s pr-m': true,
+                    'text-tertiary': !this.disabled,
+                  })}
+                >
                   <div class="flex items-center space-x-xs">
-                    <span>${name}</span>
-                    ${icon
-                      ? html`<iron-icon icon=${icon} style="--iron-icon-width: 18px"></iron-icon>`
-                      : ''}
+                    ${this._isI18nReady
+                      ? html`<span>${name}</span>`
+                      : html`<x-skeleton></x-skeleton>`}
                   </div>
                 </td>
 
@@ -60,6 +74,7 @@ export class PropertyTable extends Translatable {
                     ? html`
                         <input
                           value=${value}
+                          ?disabled=${this.disabled}
                           class=${classMap({
                             'w-full px-s rounded focus:outline-none': true,
                             'hover:bg-contrast-10 focus:bg-contrast-10 focus:shadow-outline': !invalid,

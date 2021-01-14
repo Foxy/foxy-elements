@@ -13,21 +13,14 @@ export class FormDialog extends HypermediaResourceDialog {
     };
   }
 
-  closable = true;
-
-  editable = true;
-
   render(): TemplateResult {
     return super.render(() => {
       return html`
         <foxy-attribute-form
-          .lang=${this.lang}
-          .href=${this.href}
+          lang=${this.lang}
+          href=${this.href ?? ''}
           id="form"
-          @update=${(evt: UpdateEvent) => {
-            this.editable = evt.detail.state.includes('idle.snapshot.modified.valid');
-            this.closable = evt.detail.state.includes('idle');
-          }}
+          @update=${this.__handleUpdate}
         >
         </foxy-attribute-form>
       `;
@@ -35,7 +28,15 @@ export class FormDialog extends HypermediaResourceDialog {
   }
 
   async save(): Promise<void> {
-    const form = this.renderRoot.querySelector('#form') as AttributeFormElement;
-    form.submit();
+    this.__getForm().submit();
+  }
+
+  private __handleUpdate(evt: UpdateEvent) {
+    this.editable = evt.detail.state.includes('idle.snapshot.modified.valid');
+    this.closable = evt.detail.state.includes('idle');
+  }
+
+  private __getForm() {
+    return this.renderRoot.querySelector('#form') as AttributeFormElement;
   }
 }
