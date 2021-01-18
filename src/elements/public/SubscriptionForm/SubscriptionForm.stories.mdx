@@ -27,6 +27,7 @@ export function handleRequestWithLoading(evt) {
       html`
         <foxy-subscription-form
           href="https://api.foxy.test/subscriptions/413"
+          class="max-w-xl mx-auto"
           @request=${handleRequestWithLoading}
         >
         </foxy-subscription-form>
@@ -49,6 +50,7 @@ export function handleRequestWithError(evt) {
       html`
         <foxy-subscription-form
           href="https://api.foxy.test/subscriptions/413"
+          class="max-w-xl mx-auto"
           @request=${handleRequestWithError}
         >
         </foxy-subscription-form>
@@ -71,6 +73,7 @@ export function handleRequestWithSuccess(evt) {
       html`
         <foxy-subscription-form
           href="https://api.foxy.test/subscriptions/413"
+          class="max-w-xl mx-auto"
           @request=${handleRequestWithSuccess}
         >
         </foxy-subscription-form>

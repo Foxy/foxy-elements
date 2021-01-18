@@ -1,0 +1,30 @@
+{
+  "summary": "{{most_expensive_item.name}}",
+  "summary_plural": "{{most_expensive_item.name}} + {{count}} more",
+  "search": "Search",
+  "search_example": "Example: is_active=false",
+  "status_active": "Next payment on {{date}}",
+  "status_failed": "Failed on {{date}}",
+  "status_cancelled": "Ended on {{date}}",
+  "status_will_be_cancelled": "Ends on {{date}}",
+  "th_status": "Status",
+  "th_summary": "Summary",
+  "th_frequency": "Frequency",
+  "frequency": "{{amount}}/{{units, lowercase}}",
+  "edit": "Settings",
+  "edit_header": "Edit subscription",
+  "next_transaction_date": "Next payment",
+  "date_modified": "Last updated",
+  "date_created": "Created on",
+  "end": "End subscription",
+  "end_no": "No, keep active",
+  "end_yes": "Yes, cancel now",
+  "end_message": "We will cancel this subscription starting tomorrow. Would you like to proceed?",
+  "items": "Products",
+  "save": "Save",
+  "errors": {
+    "required": "This field is required",
+    "invalid": "Invalid value",
+    "past": "Only future dates are allowed"
+  }
+}

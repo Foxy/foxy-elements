@@ -24,12 +24,18 @@ export class FrequencyInput extends Translatable {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      readonly: { type: Boolean },
       disabled: { type: Boolean },
+      invalid: { type: Boolean },
       value: { type: String },
     };
   }
 
+  public readonly = false;
+
   public disabled = false;
+
+  public invalid = false;
 
   public value = FrequencyInput.defaultValue;
 
@@ -47,15 +53,20 @@ export class FrequencyInput extends Translatable {
           class="w-full"
           min="1"
           has-controls
-          .value=${this._isI18nReady ? this.__numericValue : ''}
-          .disabled=${this.disabled}
+          prevent-invalid-input
+          ?readonly=${this.readonly}
+          ?disabled=${this.disabled}
+          ?invalid=${this.invalid}
+          value=${this._isI18nReady ? this.__numericValue : ''}
           @change=${this.__handleNumberChange}
         >
         </vaadin-integer-field>
 
         <x-dropdown
           data-testid="units"
+          .readonly=${this.readonly}
           .disabled=${this.disabled}
+          .invalid=${this.invalid}
           .getText=${(v: string) => (this._isI18nReady ? this._t(`${v}_plural`) : '')}
           .items=${this.__items}
           .value=${this._isI18nReady ? this.__unitsValue : ''}

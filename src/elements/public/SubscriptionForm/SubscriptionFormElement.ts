@@ -4,7 +4,9 @@ import { HypermediaResource, I18N, PropertyTable } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { ConfirmDialog } from '../../private/Dialog/ConfirmDialog';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
+import { ElementResourceV8N } from '../../private/HypermediaResource/types';
 import { FrequencyInput } from '../../private/FrequencyInput/FrequencyInput';
 import { FrequencyInputChangeEvent } from '../../private/FrequencyInput/FrequencyInputChangeEvent';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
@@ -15,6 +17,9 @@ type Subscription = FoxySDK.Core.Resource<
   { zoom: 'last_transaction' }
 >;
 
+const isFrequency = (v: string) => /^(([0-9]{1,3}[dwmy]{1})|(\.5m))$/.test(v);
+const isFuture = (v: Date) => v.getTime() > Date.now();
+
 export class SubscriptionFormElement extends HypermediaResource<Subscription> {
   static readonly defaultNodeName = 'foxy-subscription-form';
 
@@ -23,12 +28,34 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
       'vaadin-date-picker': DatePickerElement,
       'x-frequency-input': FrequencyInput,
       'x-property-table': PropertyTable,
+      'x-confirm-dialog': ConfirmDialog,
       'vaadin-button': ButtonElement,
       'x-i18n': I18N,
     };
   }
 
+  static get resourceV8N(): ElementResourceV8N<Subscription> {
+    return {
+      next_transaction_date: [
+        ({ next_transaction_date: v }) => typeof v === 'string' || 'errors.required',
+        ({ next_transaction_date: v }) => (v && isFuture(new Date(v))) || 'errors.past',
+      ],
+      frequency: [
+        ({ frequency: v }) => typeof v === 'string' || 'errors.required',
+        ({ frequency: v }) => (v && isFrequency(v)) || 'errors.invalid',
+      ],
+    };
+  }
+
   readonly rel = 'subscription';
+
+  constructor() {
+    super('subscription-form');
+  }
+
+  submit(): void {
+    this._submit();
+  }
 
   render(): TemplateResult {
     if (!this.resource) return html``;
@@ -65,6 +92,19 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
     const statusOpts = { date: this.__formatDate(statusDate) };
 
     return html`
+      <x-confirm-dialog
+        message="end_message"
+        confirm="end_yes"
+        cancel="end_no"
+        header="end"
+        theme="primary error"
+        lang=${this.lang}
+        ns=${this.ns}
+        id="confirm"
+        @submit=${this.__end}
+      >
+      </x-confirm-dialog>
+
       <div class="space-y-l text-body font-lumo text-m leading-m">
         <div class="leading-s">
           <x-i18n
@@ -94,8 +134,13 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
               ns=${ns}
               lang=${lang}
               value=${this.resource.frequency}
+              label=${this._t('th_frequency').toString()}
+              ?invalid=${!!this._getErrorMessages().frequency}
+              ?readonly=${!this.resource.is_active}
+              ?disabled=${!this._is('idle')}
+              error-message=${this._getErrorMessages().frequency ?? ''}
               @change=${(evt: FrequencyInputChangeEvent) => {
-                this._setProperty({ ...this.resource!, frequency: evt.detail! });
+                this._setProperty({ frequency: evt.detail! });
               }}
             >
             </x-frequency-input>
@@ -104,10 +149,14 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
           <vaadin-date-picker
             class="w-full"
             label=${this._t('next_transaction_date').toString()}
-            value=${this.resource.next_transaction_date}
+            value=${this.__toYyyyMmDd(new Date(this.resource.next_transaction_date))}
+            ?invalid=${!!this._getErrorMessages().next_transaction_date}
+            ?readonly=${!this.resource.next_transaction_date}
+            ?disabled=${!this._is('idle')}
+            error-message=${this._getErrorMessages().next_transaction_date ?? ''}
             @change=${(evt: CustomEvent<unknown>) => {
               const target = evt.target as DatePickerElement;
-              this._setProperty({ ...this.resource!, next_transaction_date: target.value });
+              this._setProperty({ next_transaction_date: target.value });
             }}
           >
           </vaadin-date-picker>
@@ -115,9 +164,18 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
 
         <x-property-table .items=${this.__getPropertyTableItems(this.resource)}></x-property-table>
 
-        <vaadin-button theme="error primary" class="w-full">
-          <x-i18n ns=${ns} lang=${lang} key="delete"></x-i18n>
-        </vaadin-button>
+        ${this.resource.is_active
+          ? html`
+              <vaadin-button
+                theme="error primary"
+                class="w-full"
+                ?disabled=${!this._is('idle')}
+                @click=${this.__confirmEnd}
+              >
+                <x-i18n ns=${ns} lang=${lang} key="end"></x-i18n>
+              </vaadin-button>
+            `
+          : ''}
       </div>
     `;
   }
@@ -129,11 +187,32 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
     }));
   }
 
+  private __toYyyyMmDd(date: Date) {
+    return [
+      date.getFullYear().toString().padStart(4, '0'),
+      (date.getMonth() + 1).toString().padStart(2, '0'),
+      date.getDay().toString().padStart(2, '0'),
+    ].join('-');
+  }
+
   private __formatDate(date: Date) {
     return date.toLocaleDateString(this.lang, {
       day: 'numeric',
       month: 'long',
       year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
     });
+  }
+
+  private __confirmEnd() {
+    const confirm = this.renderRoot.querySelector('#confirm') as ConfirmDialog;
+    confirm.show();
+  }
+
+  private __end() {
+    const today = new Date();
+    const tomorrow = new Date(today.setDate(today.getDate() + 1));
+
+    this._setProperty({ end_date: tomorrow.toISOString() });
+    this._submit();
   }
 }

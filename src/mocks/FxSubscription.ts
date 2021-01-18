@@ -318,7 +318,7 @@ export const subscription = {
   error_message: '',
   past_due_amount: 0,
   first_failed_transaction_date: null,
-  is_active: false,
+  is_active: true,
   third_party_id: '',
   date_created: null,
   date_modified: '2013-08-19T10:58:39-0700',
