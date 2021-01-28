@@ -497,7 +497,7 @@
       "attributes": [
         {
           "name": "name",
-          "description": "**Required** the name of the product.\n\n**Example:** `\"Dog food\"`",
+          "description": "**Required** the name of the product.\n\n**Example:** `\"Handmade Scarf\"`",
           "type": "string"
         },
         {
@@ -645,7 +645,7 @@
         {
           "name": "name",
           "attribute": "name",
-          "description": "**Required** the name of the product.\n\n**Example:** `\"Dog food\"`",
+          "description": "**Required** the name of the product.\n\n**Example:** `\"Handmade Scarf\"`",
           "type": "string"
         },
         {
