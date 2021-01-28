@@ -302,7 +302,23 @@ export class ItemsForm extends Translatable {
 
   public get items(): ItemInterface[] {
     const temp: ItemInterface[] = [];
-    this.__itemElements.forEach(e => temp.push(e.value));
+    this.__itemElements.forEach(e => {
+      const proxy = new Proxy(e, {
+        set: function (target: Item, property: string | number | symbol, value) {
+          const allowedAttributes = Object.keys(target.value);
+          if (typeof property === 'string' && allowedAttributes.includes(property)) {
+            ((target as unknown) as ItemInterface)[property] = value;
+            return true;
+          } else {
+            return false;
+          }
+        },
+        get: function (target: Item, property: string | number) {
+          return target.value[property];
+        },
+      });
+      temp.push((proxy as unknown) as ItemInterface);
+    });
     return temp;
   }
 
