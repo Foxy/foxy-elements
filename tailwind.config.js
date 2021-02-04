@@ -241,7 +241,7 @@ module.exports = {
         addVariant(breakpoint, ({ modifySelectors, separator }) => {
           modifySelectors(({ className }) => {
             const newClassName = e(`${breakpoint}${separator}${className}`);
-            return `:host([breakpoint~="${breakpoint}"]) .${newClassName}`;
+            return `:host([${breakpoint}]) .${newClassName}`;
           });
         });
       });

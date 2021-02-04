@@ -1,6 +1,9 @@
-import { AddressFormElement } from './AddressFormElement';
-import { define } from '../../../utils/define';
+import '@vaadin/vaadin-button';
+import '@vaadin/vaadin-combo-box';
+import '../Spinner';
 
-define(AddressFormElement);
+import { AddressFormElement } from './AddressFormElement';
+
+customElements.define('foxy-address-form', AddressFormElement);
 
 export { AddressFormElement };

@@ -6,19 +6,17 @@ import type * as FoxySDK from '@foxy.io/sdk';
 import { I18N, LoadingScreen, Page } from '../../private';
 import { TemplateResult, html } from 'lit-html';
 
-import { CustomerDialog } from './private/CustomerDialog';
-import { HypermediaResourceTable } from '../../private/HypermediaResourceTable/HypermediaResourceTable';
+import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
 type Customers = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customers, undefined>;
 
-export class CustomersTableElement extends HypermediaResourceTable<Customers> {
+export class CustomersTableElement extends NucleonTableElement<Customers> {
   public static readonly defaultNodeName = 'foxy-customers-table';
 
   public static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
-      'x-customer-dialog': CustomerDialog,
       'x-loading-screen': LoadingScreen,
       'x-page': Page,
       'x-i18n': I18N,

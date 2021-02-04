@@ -1,6 +1,9 @@
-import { SubscriptionsTableElement } from './SubscriptionsTableElement';
-import { define } from '../../../utils/define';
+import '../SubscriptionForm';
+import '../FormDialog';
+import '../I18N';
 
-define(SubscriptionsTableElement);
+import { SubscriptionsTableElement } from './SubscriptionsTableElement';
+
+customElements.define('foxy-subscriptions-table', SubscriptionsTableElement);
 
 export { SubscriptionsTableElement };

@@ -1,6 +1,5 @@
 import { CollectionPagesElement } from './CollectionPagesElement';
-import { define } from '../../../utils/define';
 
-define(CollectionPagesElement);
+customElements.define('foxy-collection-pages', CollectionPagesElement);
 
 export { CollectionPagesElement };

@@ -1,6 +1,10 @@
-import { SubscriptionFormElement } from './SubscriptionFormElement';
-import { define } from '../../../utils/define';
+import '@vaadin/vaadin-date-picker';
+import '@vaadin/vaadin-button';
+import '../Spinner';
+import '../I18N';
 
-define(SubscriptionFormElement);
+import { SubscriptionFormElement } from './SubscriptionFormElement';
+
+customElements.define('foxy-subscription-form', SubscriptionFormElement);
 
 export { SubscriptionFormElement };

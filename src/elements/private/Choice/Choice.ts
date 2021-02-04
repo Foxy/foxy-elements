@@ -1,16 +1,18 @@
-import { spread } from '@open-wc/lit-helpers/src/spread';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-lumo-styles/icons';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
+
+import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
+
 import { AttributePart } from 'lit-html';
-import { interpret } from 'xstate';
-import { Translatable } from '../../../mixins/translatable';
 import { ChoiceChangeEvent } from './ChoiceChangeEvent';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../mixins/translatable';
+import { interpret } from 'xstate';
 import { machine } from './machine';
+import { spread } from '@open-wc/lit-helpers/src/spread';
 
 const VALUE_OTHER = `@foxy.io/elements::other[${(Math.pow(10, 10) * Math.random()).toFixed(0)}]`;
 
@@ -23,6 +25,7 @@ function radio(
   const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
   const scale = checked ? 'scale-100' : 'scale-0';
+  const color = disabled ? 'text-disabled' : 'text-body';
   const ease = 'transition ease-in-out duration-200';
   const dot = `${ease} ${disabled ? '' : 'shadow-xs'} transform ${scale}`;
   const bg = disabled ? disabledBg : enabledBg;
@@ -35,7 +38,7 @@ function radio(
           <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">${label}</div>
+      <div class="font-lumo leading-m ${color}">${label}</div>
     </label>
   `;
 }
@@ -48,6 +51,7 @@ function check(
 ) {
   const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
+  const color = disabled ? 'text-disabled' : 'text-body';
   const ease = 'transition ease-in-out duration-200';
   const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
   const bg = disabled ? disabledBg : enabledBg;
@@ -60,7 +64,7 @@ function check(
           <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">${label}</div>
+      <div class="font-lumo leading-m ${color}">${label}</div>
     </label>
   `;
 }

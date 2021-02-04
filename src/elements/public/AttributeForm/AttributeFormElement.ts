@@ -1,68 +1,74 @@
-import * as FoxySDK from '@foxy.io/sdk';
-
-import {
-  Choice,
-  ErrorScreen,
-  Group,
-  HypermediaResource,
-  I18N,
-  LoadingScreen,
-  PropertyTable,
-} from '../../private';
+import { CSSResult, CSSResultArray } from 'lit-element';
+import { Choice, Group, PropertyTable } from '../../private';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
 import { ChoiceChangeEvent } from '../../private/events';
-import { ConfirmDialog } from '../../private/Dialog/ConfirmDialog';
-import { ElementResourceV8N } from '../../private/HypermediaResource/types';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
+import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
+import { Data } from './types';
+import { I18NElement } from '../I18N/I18NElement';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonV8N } from '../NucleonElement/types';
+import { Themeable } from '../../../mixins/themeable';
+import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { memoize } from 'lodash-es';
 
-type Attribute = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Attribute, undefined>;
-
-export class AttributeFormElement extends HypermediaResource<Attribute> {
-  static readonly defaultNodeName = 'foxy-attribute-form';
-
+export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-text-field': TextFieldElement,
-      'vaadin-text-area': TextAreaElement,
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
-      'x-loading-screen': LoadingScreen,
-      'x-error-screen': ErrorScreen,
-      'vaadin-button': ButtonElement,
+      'x-confirm-dialog': ConfirmDialogElement,
+      'vaadin-button': customElements.get('vaadin-button'),
       'x-choice': Choice,
       'x-group': Group,
-      'x-i18n': I18N,
+      'foxy-i18n': customElements.get('foxy-i18n'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
     };
   }
 
-  static get resourceV8N(): ElementResourceV8N<Attribute> {
-    return {
-      name: [
-        ({ name: v }) => (v && v.length > 0) || 'error_required',
-        ({ name: v }) => (v && v.length <= 500) || 'error_too_long',
-      ],
-      value: [
-        ({ value: v }) => (v && v.length > 0) || 'error_required',
-        ({ value: v }) => (v && v.length <= 1000) || 'error_too_long',
-      ],
-    };
+  static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
-  readonly rel = 'attribute';
-
-  constructor() {
-    super('attribute-form');
+  static get v8n(): NucleonV8N<Data> {
+    return [
+      ({ value }) => (value && value.length > 0) || 'value_required',
+      ({ value }) => (value && value.length <= 1000) || 'value_too_long',
+      ({ name }) => (name && name.length > 0) || 'name_required',
+      ({ name }) => (name && name.length <= 500) || 'name_too_long',
+    ];
   }
 
-  submit(): void {
-    this._submit();
+  private static readonly __visibilityOptions = ['private', 'restricted', 'public'] as const;
+
+  private static readonly __ns = 'attribute-form';
+
+  private __untrackTranslations?: () => void;
+
+  private __getValidator = memoize((prefix: string) => () => {
+    return !this.state.context.errors.some(err => err.startsWith(prefix));
+  });
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
+    const { lang, state } = this;
+    const { data, edits } = state.context;
+
+    const form = { ...data, ...edits } as Partial<Data>;
+    const ns = AttributeFormElement.__ns;
+
+    const isTemplateValid = state.matches({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = state.matches({ idle: { snapshot: { dirty: 'valid' } } });
+    const isDisabled = !state.matches('idle');
+    const isValid = isTemplateValid || isSnapshotValid;
+
     return html`
       <x-confirm-dialog
         message="delete_message"
@@ -70,123 +76,169 @@ export class AttributeFormElement extends HypermediaResource<Attribute> {
         cancel="delete_no"
         header="delete"
         theme="primary error"
-        lang=${this.lang}
-        ns=${this.ns}
+        lang=${lang}
+        ns=${ns}
         id="confirm"
-        @submit=${this._delete}
+        @submit=${this.__handleDeleteConfirm}
       >
       </x-confirm-dialog>
 
-      <div class="relative grid grid-cols-1 gap-l">
-        <vaadin-text-field
-          label=${this._t('name').toString()}
-          value=${this.resource?.name ?? ''}
-          ?invalid=${this.errors.some(err => err.target === 'name')}
-          ?disabled=${this._is('busy')}
-          error-message=${this._getErrorMessages().name ?? ''}
-          @keydown=${(evt: KeyboardEvent) => {
-            if (evt.key === 'Enter') this._submit();
-          }}
-          @input=${(evt: InputEvent) => {
-            const name = (evt.target as TextFieldElement).value;
-            this._setProperty({ name });
-          }}
-        >
-        </vaadin-text-field>
-
-        <vaadin-text-area
-          label=${this._t('value').toString()}
-          value=${this.resource?.value ?? ''}
-          ?invalid=${this.errors.some(err => err.target === 'value')}
-          ?disabled=${this._is('busy')}
-          error-message=${this._getErrorMessages().value ?? ''}
-          @keydown=${(evt: KeyboardEvent) => {
-            if (evt.key === 'Enter') this._submit();
-          }}
-          @input=${(evt: InputEvent) => {
-            const value = (evt.target as TextAreaElement).value;
-            this._setProperty({ value });
-          }}
-        >
-        </vaadin-text-area>
-
-        <x-group frame>
-          <x-i18n ns=${this.ns} lang=${this.lang} key="visibility" slot="header"></x-i18n>
-
-          <x-choice
-            .items=${['private', 'restricted', 'public']}
-            .value=${this.resource?.visibility ?? 'private'}
-            .lang=${this.lang}
-            .ns=${this.ns}
-            ?disabled=${this._is('busy')}
-            @change=${(evt: ChoiceChangeEvent) => {
-              const visibility = evt.detail as 'private' | 'restricted' | 'public';
-              this._setProperty({ visibility });
-            }}
+      <div class="relative" aria-busy=${state.matches('busy')} aria-live="polite">
+        <div class="grid grid-cols-1 gap-l">
+          <vaadin-text-field
+            label=${this.__t('name').toString()}
+            value=${ifDefined(form?.name)}
+            .checkValidity=${this.__getValidator('name')}
+            ?disabled=${isDisabled}
+            error-message=${this.__getErrorMessage('name')}
+            @keydown=${this.__handleKeyDown}
+            @input=${this.__handleNameInput}
           >
-            <x-i18n ns=${this.ns} lang=${this.lang} key="visibility_private" slot="private-label">
-            </x-i18n>
+          </vaadin-text-field>
 
-            <x-i18n
-              ns=${this.ns}
-              lang=${this.lang}
-              key="visibility_restricted"
-              slot="restricted-label"
+          <vaadin-text-area
+            label=${this.__t('value').toString()}
+            value=${ifDefined(form?.value)}
+            .checkValidity=${this.__getValidator('value')}
+            ?disabled=${isDisabled}
+            error-message=${this.__getErrorMessage('value')}
+            @input=${this.__handleValueInput}
+          >
+          </vaadin-text-area>
+
+          <x-group frame>
+            <foxy-i18n
+              class=${classMap({ 'text-disabled': isDisabled })}
+              lang=${lang}
+              slot="header"
+              key="visibility"
+              ns=${ns}
             >
-            </x-i18n>
+            </foxy-i18n>
 
-            <x-i18n ns=${this.ns} lang=${this.lang} key="visibility_public" slot="public-label">
-            </x-i18n>
-          </x-choice>
-        </x-group>
+            <x-choice
+              .items=${AttributeFormElement.__visibilityOptions}
+              .value=${(form?.visibility ?? 'private') as any}
+              lang=${lang}
+              ns=${ns}
+              ?disabled=${isDisabled}
+              @change=${this.__handleChoiceChange}
+            >
+              <foxy-i18n ns=${ns} lang=${lang} slot="private-label" key="visibility_private">
+              </foxy-i18n>
 
-        ${this._is('idle.snapshot')
+              <foxy-i18n ns=${ns} lang=${lang} slot="restricted-label" key="visibility_restricted">
+              </foxy-i18n>
+
+              <foxy-i18n ns=${ns} lang=${lang} slot="public-label" key="visibility_public">
+              </foxy-i18n>
+            </x-choice>
+          </x-group>
+
+          ${data
+            ? html`
+                <x-property-table
+                  .items=${(['date_modified', 'date_created'] as const).map(field => ({
+                    name: this.__t(field),
+                    value: this.__formatDate(new Date(data[field])),
+                  }))}
+                >
+                </x-property-table>
+
+                <vaadin-button
+                  theme="error primary"
+                  ?disabled=${isDisabled}
+                  @click=${this.__handleDeleteClick}
+                >
+                  <foxy-i18n ns="attribute-form" lang=${lang} key="delete"></foxy-i18n>
+                </vaadin-button>
+              `
+            : html`
+                <vaadin-button
+                  theme="success primary"
+                  ?disabled=${isDisabled || !isValid}
+                  @click=${this.__handleSubmitClick}
+                >
+                  <foxy-i18n ns="attribute-form" lang=${lang} key="create"></foxy-i18n>
+                </vaadin-button>
+              `}
+        </div>
+
+        ${!state.matches('idle')
           ? html`
-              <x-property-table .items=${this.__getPropertyTableItems(this.resource!)}>
-              </x-property-table>
-
-              <vaadin-button
-                theme="error primary"
-                ?disabled=${this._is('busy')}
-                @click=${() => this.__confirmDialog.show()}
-              >
-                <x-i18n ns=${this.ns} lang=${this.lang} key="delete"></x-i18n>
-              </vaadin-button>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <foxy-spinner
+                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+                  state=${state.matches('fail') ? 'error' : 'busy'}
+                  layout="vertical"
+                >
+                </foxy-spinner>
+              </div>
             `
           : ''}
-        ${this._is('idle.template')
-          ? html`
-              <vaadin-button
-                theme="success primary"
-                ?disabled=${this._is('busy') || this._is('idle.template.invalid')}
-                @click=${this._submit}
-              >
-                <x-i18n ns=${this.ns} lang=${this.lang} key="create"></x-i18n>
-              </vaadin-button>
-            `
-          : ''}
-        ${this._is('busy') ? html`<x-loading-screen class="bg-base"></x-loading-screen>` : ''}
-        ${this._is('error') ? html`<x-error-screen class="bg-base"></x-error-screen>` : ''}
       </div>
     `;
   }
 
-  private get __confirmDialog(): ConfirmDialog {
-    return this.renderRoot.querySelector('#confirm') as ConfirmDialog;
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__untrackTranslations?.();
+    this.__getValidator.cache.clear?.();
   }
 
-  private __getPropertyTableItems(resource: Attribute) {
-    return (['date_modified', 'date_created'] as const).map(field => ({
-      name: this._t(field),
-      value: this.__formatDate(new Date(resource[field])),
-    }));
+  private get __confirmDialog(): ConfirmDialogElement {
+    return this.renderRoot.querySelector('#confirm') as ConfirmDialogElement;
   }
 
-  private __formatDate(date: Date) {
-    return date.toLocaleDateString(this.lang, {
-      day: 'numeric',
-      month: 'long',
-      year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-    });
+  private get __t() {
+    return I18NElement.i18next.getFixedT(this.lang, AttributeFormElement.__ns);
+  }
+
+  private __getErrorMessage(prefix: string) {
+    const error = this.state.context.errors.find(err => err.startsWith(prefix));
+    return error ? this.__t(error).toString() : '';
+  }
+
+  private __formatDate(date: Date, lang = this.lang): string {
+    try {
+      return date.toLocaleDateString(lang, {
+        month: 'long',
+        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+        day: 'numeric',
+      });
+    } catch {
+      return this.__formatDate(date, I18NElement.fallbackLng);
+    }
+  }
+
+  private __handleKeyDown(evt: KeyboardEvent) {
+    if (evt.key === 'Enter') this.send({ type: 'SUBMIT' });
+  }
+
+  private __handleNameInput(evt: InputEvent) {
+    const name = (evt.target as HTMLInputElement).value;
+    this.send({ type: 'EDIT', data: { name } });
+  }
+
+  private __handleValueInput(evt: InputEvent) {
+    const value = (evt.target as HTMLInputElement).value;
+    this.send({ type: 'EDIT', data: { value } });
+  }
+
+  private __handleChoiceChange(evt: ChoiceChangeEvent) {
+    const visibility = evt.detail as 'private' | 'restricted' | 'public';
+    this.send({ type: 'EDIT', data: { visibility } });
+  }
+
+  private __handleDeleteClick() {
+    this.__confirmDialog.show();
+  }
+
+  private __handleDeleteConfirm() {
+    this.send({ type: 'DELETE' });
+  }
+
+  private __handleSubmitClick() {
+    this.send({ type: 'SUBMIT' });
   }
 }

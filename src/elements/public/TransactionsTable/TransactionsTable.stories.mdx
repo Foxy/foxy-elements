@@ -1,6 +1,5 @@
 import { html } from 'lit-html';
 import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
-import { transactions } from '../../../mocks/FxTransactions';
 import './index.ts';
 
 <Meta title="Tables / Transactions" component="foxy-transactions-table" />
@@ -17,18 +16,11 @@ Below are all the states this component can render.
 
 Displayed while loading the resource.
 
-export function handleRequestWithLoading(evt) {
-  evt.detail.handle(() => new Promise(() => {}));
-}
-
 <Canvas>
   <Story name="Loading">
     {() =>
       html`
-        <foxy-transactions-table
-          href="https://api.foxy.test/stores/8/transactions?customer_id=115&limit=10"
-          @request=${handleRequestWithLoading}
-        >
+        <foxy-transactions-table href="https://demo.foxycart.com/s/admin/sleep">
         </foxy-transactions-table>
       `
     }
@@ -39,18 +31,11 @@ export function handleRequestWithLoading(evt) {
 
 Displayed when resource load fails.
 
-export function handleRequestWithError(evt) {
-  evt.detail.handle(() => Promise.reject());
-}
-
 <Canvas>
   <Story name="Error">
     {() =>
       html`
-        <foxy-transactions-table
-          href="https://api.foxy.test/stores/8/transactions?customer_id=115&limit=10"
-          @request=${handleRequestWithError}
-        >
+        <foxy-transactions-table href="https://demo.foxycart.com/s/admin/not-found">
         </foxy-transactions-table>
       `
     }
@@ -61,17 +46,12 @@ export function handleRequestWithError(evt) {
 
 Displayed after the resource is loaded.
 
-export function handleRequestWithSuccess(evt) {
-  evt.detail.handle(async () => new Response(JSON.stringify(transactions)));
-}
-
 <Canvas>
   <Story name="Ready">
     {() =>
       html`
         <foxy-transactions-table
-          href="https://api.foxy.test/stores/8/transactions?customer_id=115&limit=10"
-          @request=${handleRequestWithSuccess}
+          href="https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&limit=10&zoom=items"
         >
         </foxy-transactions-table>
       `

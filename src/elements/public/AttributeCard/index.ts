@@ -1,6 +1,8 @@
-import { AttributeCardElement } from './AttributeCardElement';
-import { define } from '../../../utils/define';
+import '../AttributeForm';
+import '../FormDialog';
 
-define(AttributeCardElement);
+import { AttributeCardElement } from './AttributeCardElement';
+
+customElements.define('foxy-attribute-card', AttributeCardElement);
 
 export { AttributeCardElement };

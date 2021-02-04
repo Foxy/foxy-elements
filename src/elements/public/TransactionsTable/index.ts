@@ -1,6 +1,6 @@
-import { TransactionsTableElement } from './TransactionsTableElement';
-import { define } from '../../../utils/define';
+import '../I18N';
 
-define(TransactionsTableElement);
+import { TransactionsTableElement } from './TransactionsTableElement';
+customElements.define('foxy-transactions-table', TransactionsTableElement);
 
 export { TransactionsTableElement };

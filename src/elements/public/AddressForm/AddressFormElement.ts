@@ -1,78 +1,89 @@
-import { Address, ComboBoxParams, TextFieldParams } from './types';
-import { Checkbox, HypermediaResource, I18N, PropertyTable } from '../../private';
+import { CSSResult, CSSResultArray } from 'lit-element';
+import { Checkbox, PropertyTable } from '../../private';
+import { ComboBoxParams, Data, TextFieldParams } from './types';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
 import { CheckboxChangeEvent } from '../../private/events';
-import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { ConfirmDialog } from '../../private/Dialog/ConfirmDialog';
-import { ElementResourceV8N } from '../../private/HypermediaResource/types';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { SpinnerElement } from '../Spinner';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
+import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
+import { I18NElement } from '../I18N';
+import { NucleonElement } from '../NucleonElement';
+import { NucleonV8N } from '../NucleonElement/types';
+import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { countries } from './countries';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { memoize } from 'lodash-es';
 import { regions } from './regions';
 
-export class AddressFormElement extends HypermediaResource<Address> {
-  static readonly defaultNodeName = 'foxy-address-form';
-
+export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-text-field': TextFieldElement,
-      'vaadin-combo-box': ComboBoxElement,
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
-      'vaadin-button': ButtonElement,
-      'foxy-spinner': customElements.get(SpinnerElement.defaultNodeName),
+      'x-confirm-dialog': ConfirmDialogElement,
+      'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
       'x-checkbox': Checkbox,
-      'x-i18n': I18N,
+      'foxy-i18n': customElements.get('foxy-i18n'),
     };
   }
 
-  static get resourceV8N(): ElementResourceV8N<Address> {
-    return {
-      first_name: [({ first_name: v }) => !v || v.length <= 50 || 'errors.too_long'],
-      last_name: [({ last_name: v }) => !v || v.length <= 50 || 'errors.too_long'],
-      country: [({ country: v }) => !v || countries.includes(v) || 'errors.unsupported'],
-      region: [({ region: v }) => !v || v.length <= 50 || 'errors.too_long'],
-      city: [({ city: v }) => !v || v.length <= 50 || 'errors.too_long'],
-      phone: [({ phone: v }) => !v || v.length <= 50 || 'errors.too_long'],
-      company: [({ company: v }) => !v || v.length <= 50 || 'errors.too_long'],
-      address2: [({ address2: v }) => !v || v.length <= 100 || 'errors.too_long'],
-      address1: [
-        ({ address1: v }) => (v && v.length > 0) || 'errors.required',
-        ({ address1: v }) => (v && v.length <= 100) || 'errors.too_long',
-      ],
-    };
+  static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
-  readonly rel = 'customer_address';
+  static get v8n(): NucleonV8N<Data> {
+    return [
+      ({ first_name: v }) => !v || v.length <= 50 || 'first_name_too_long',
+      ({ last_name: v }) => !v || v.length <= 50 || 'last_name_too_long',
+      ({ region: v }) => !v || v.length <= 50 || 'region_too_long',
+      ({ city: v }) => !v || v.length <= 50 || 'city_too_long',
+      ({ phone: v }) => !v || v.length <= 50 || 'phone_too_long',
+      ({ company: v }) => !v || v.length <= 50 || 'company_too_long',
+      ({ address2: v }) => !v || v.length <= 100 || 'address2_too_long',
+      ({ address1: v }) => (v && v.length > 0) || 'address1_required',
+      ({ address1: v }) => (v && v.length <= 100) || 'address1_too_long',
+    ];
+  }
 
-  private __bindField = memoize((key: keyof Address) => {
-    return (evt: CustomEvent) => {
-      const target = evt.target as TextFieldElement;
-      this._setProperty({ ...this.resource!, [key]: target.value });
-    };
-  });
+  private static __ns = 'address-form';
 
-  private __bindCheckbox = memoize((key: keyof Address) => {
+  private __untrackTranslations?: () => void;
+
+  private __bindCheckbox = memoize((key: keyof Data) => {
     return (evt: CheckboxChangeEvent) => {
       const newValue = (evt.detail as unknown) as string; // TODO: fix once @foxy.io/sdk types are corrected
-      this._setProperty({ ...this.resource!, [key]: newValue });
+      this.send({ type: 'EDIT', data: { [key]: newValue } });
     };
   });
 
-  constructor() {
-    super('address-form');
-  }
+  private __getValidator = memoize((prefix: string) => () => {
+    return !this.state.context.errors.some(err => err.startsWith(prefix));
+  });
 
-  submit(): void {
-    this._submit();
+  private __bindField = memoize((key: keyof Data) => {
+    return (evt: CustomEvent) => {
+      const target = evt.target as HTMLInputElement;
+      this.send({ type: 'EDIT', data: { [key]: target.value } });
+    };
+  });
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
+    const { lang, state } = this;
+    const ns = AddressFormElement.__ns;
+
+    const isTemplateValid = state.matches({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = state.matches({ idle: { snapshot: { dirty: 'valid' } } });
+    const isDisabled = !state.matches('idle');
+    const isValid = isTemplateValid || isSnapshotValid;
+
     return html`
       <x-confirm-dialog
         message="delete_message"
@@ -80,10 +91,10 @@ export class AddressFormElement extends HypermediaResource<Address> {
         cancel="delete_no"
         header="delete"
         theme="primary error"
-        lang=${this.lang}
-        ns=${this.ns}
+        lang=${lang}
+        ns=${ns}
         id="confirm"
-        @submit=${this._delete}
+        @submit=${this.__handleDeleteConfirm}
       >
       </x-confirm-dialog>
 
@@ -110,19 +121,19 @@ export class AddressFormElement extends HypermediaResource<Address> {
 
         <vaadin-button
           class="w-full"
-          theme=${this._is('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-          ?disabled=${!this._isI18nReady || !this._is('idle') || this._is('idle.template.invalid')}
+          theme=${state.matches('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          ?disabled=${(state.matches({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${this.__handleActionClick}
         >
-          <x-i18n ns=${this.ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}> </x-i18n>
+          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${lang}></foxy-i18n>
         </vaadin-button>
 
-        ${this._is('busy') || this._is('error')
+        ${!state.matches('idle')
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${this._is('busy') ? 'busy' : 'error'}
+                  state=${state.matches('busy') ? 'busy' : 'error'}
                   layout="vertical"
                 >
                 </foxy-spinner>
@@ -133,88 +144,119 @@ export class AddressFormElement extends HypermediaResource<Address> {
     `;
   }
 
-  private __submitOnEnter(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this._submit();
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__untrackTranslations?.();
+    this.__getValidator.cache.clear?.();
+  }
+
+  private get __t() {
+    return I18NElement.i18next.getFixedT(this.lang, AddressFormElement.__ns);
+  }
+
+  private __handleDeleteConfirm() {
+    this.send({ type: 'DELETE' });
+  }
+
+  private __handleKeyDown(evt: KeyboardEvent) {
+    if (evt.key === 'Enter') this.send({ type: 'SUBMIT' });
   }
 
   private __renderPropertyTable() {
     return html`
       <x-property-table
-        ?disabled=${!this._isI18nReady || !this.resource}
         .items=${(['date_modified', 'date_created'] as const).map(field => {
-          const name = this._t(field);
-          if (!this.resource) return { name, value: '' };
-
-          const date = new Date(this.resource[field]);
-          const value = date.toLocaleDateString(this.lang, {
-            day: 'numeric',
-            month: 'long',
-            year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-          });
-
-          return { name, value };
+          const name = this.__t(field);
+          const data = this.state.context.data;
+          return { name, value: data ? this.__formatDate(new Date(data[field])) : '' };
         })}
       >
       </x-property-table>
     `;
   }
 
+  private __formatDate(date: Date, lang = this.lang): string {
+    try {
+      return date.toLocaleDateString(lang, {
+        month: 'long',
+        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+        day: 'numeric',
+      });
+    } catch {
+      return this.__formatDate(date, I18NElement.fallbackLng);
+    }
+  }
+
+  private __getErrorMessage(prefix: string) {
+    const error = this.state.context.errors.find(err => err.startsWith(prefix));
+    return error ? this.__t(error).toString() : '';
+  }
+
   private __renderComboBox({ source, field, custom = false }: ComboBoxParams) {
+    const { state } = this;
+    const { data, edits } = state.context;
+    const form = { ...data, ...edits } as Partial<Data>;
+
     return html`
       <vaadin-combo-box
-        label=${this._isI18nReady ? this._t(field).toString() : '...'}
-        value=${this.resource?.[field]?.toString() ?? ''}
-        error-message=${this._getErrorMessages()[field] ?? '...'}
+        label=${this.__t(field).toString()}
+        value=${ifDefined(form?.[field]?.toString())}
+        error-message=${this.__getErrorMessage(field)}
         item-value-path="code"
         item-label-path="text"
-        ?invalid=${this.errors.some(err => err.target === field)}
-        ?disabled=${!this._isI18nReady || !this._is('idle')}
+        .checkValidity=${this.__getValidator(field)}
+        .items=${source.map(code => ({ text: this.__t(`${field}_map.${code}`), code }))}
         ?allow-custom-value=${custom}
-        .items=${source.map(code => {
-          const text = this._isI18nReady ? this._t(`${field}_map.${code}`) : code;
-          return { text, code };
-        })}
+        ?disabled=${!state.matches('idle')}
         @change=${this.__bindField(field)}
       >
       </vaadin-combo-box>
     `;
   }
 
-  private __renderCheckbox(field: keyof Address) {
+  private __renderCheckbox(field: keyof Data) {
+    const { state } = this;
+    const { data, edits } = state.context;
+    const form = { ...data, ...edits } as Partial<Data>;
+
     return html`
       <x-checkbox
-        ?checked=${!!this.resource?.[field]}
-        ?disabled=${!this._isI18nReady || !this._is('idle')}
+        ?checked=${!!form?.[field]}
+        ?disabled=${!state.matches('idle')}
         @change=${this.__bindCheckbox(field)}
       >
-        <x-i18n .ns=${this.ns} .lang=${this.lang} .key=${field}></x-i18n>
+        <foxy-i18n ns=${AddressFormElement.__ns} lang=${this.lang} key=${field}></foxy-i18n>
       </x-checkbox>
     `;
   }
 
   private __renderTextField({ field, wide = false, required = false }: TextFieldParams) {
+    const { state } = this;
+    const { data, edits } = state.context;
+    const form = { ...data, ...edits } as Partial<Data>;
+
     return html`
       <vaadin-text-field
         class=${classMap({ 'col-span-2': wide })}
-        label=${this._isI18nReady ? this._t(field).toString() : '...'}
-        value=${this.resource?.[field]?.toString() ?? ''}
-        error-message=${this._getErrorMessages()[field] ?? ''}
-        ?invalid=${this.errors.some(err => err.target === field)}
-        ?disabled=${!this._isI18nReady || !this._is('idle')}
+        label=${this.__t(field).toString()}
+        value=${ifDefined(form?.[field]?.toString())}
+        error-message=${this.__getErrorMessage(field)}
+        .checkValidity=${this.__getValidator(field)}
+        ?disabled=${!state.matches('idle')}
         ?required=${required}
         @input=${this.__bindField(field)}
-        @keydown=${this.__submitOnEnter}
+        @keydown=${this.__handleKeyDown}
       >
       </vaadin-text-field>
     `;
   }
 
   private __handleActionClick() {
-    if (this._is('idle.snapshot')) {
+    if (this.state.matches({ idle: 'snapshot' })) {
       const confirm = this.renderRoot.querySelector('#confirm');
-      (confirm as ConfirmDialog).show();
+      (confirm as ConfirmDialogElement).show();
     } else {
-      this._submit();
+      this.send({ type: 'SUBMIT' });
     }
   }
 }

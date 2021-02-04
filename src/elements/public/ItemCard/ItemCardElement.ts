@@ -1,33 +1,27 @@
-import '@polymer/iron-icons';
-import '@polymer/iron-icon';
-
-import * as FoxySDK from '@foxy.io/sdk';
-
 import { CSSResultArray, css } from 'lit-element';
-import { HypermediaResource, I18N, Skeleton } from '../../private';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-
-type Item = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Item, undefined>;
+import { Data } from './types';
+import { NucleonElement } from '../NucleonElement';
+import { Skeleton } from '../../private';
+import { Themeable } from '../../../mixins/themeable';
 
 const TRANSPARENT_PIXEL =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
-export class ItemCardElement extends HypermediaResource<Item> {
-  static readonly defaultNodeName = 'foxy-item-card';
-
+export class ItemCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
-      'x-i18n': I18N,
+      'foxy-i18n': customElements.get('foxy-i18n'),
     };
   }
 
   static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         .ratio-1-1 {
           padding-bottom: 100%;
@@ -36,18 +30,18 @@ export class ItemCardElement extends HypermediaResource<Item> {
     ];
   }
 
-  readonly rel = 'item';
-
-  constructor() {
-    super('item');
-  }
+  private static __ns = 'item-card';
 
   render(): TemplateResult {
-    const isLoading = this._is('busy.fetching');
-    const isError = this._is('error');
+    const { lang, state } = this;
+
+    const isLoading = state.matches('busy');
+    const isError = state.matches('fail');
+
     const variant = isError ? 'error' : 'busy';
-    const inset = 'absolute inset-0';
     const center = 'flex items-center justify-center';
+    const inset = 'absolute inset-0';
+    const ns = ItemCardElement.__ns;
 
     return html`
       <figure
@@ -63,12 +57,12 @@ export class ItemCardElement extends HypermediaResource<Item> {
                 <x-skeleton size="box" class=${inset} variant="error"></x-skeleton>
                 <div class="text-error text-s flex-col space-y-xs ${center} ${inset}">
                   <iron-icon icon="icons:error-outline"></iron-icon>
-                  <x-i18n .ns=${this.ns} .lang=${this.lang} key="error"></x-i18n>
+                  <foxy-i18n ns=${ns} lang=${lang} key="error"></foxy-i18n>
                 </div>
               `
             : html`
                 <img
-                  src=${this.resource?.image || TRANSPARENT_PIXEL}
+                  src=${state.context.data?.image || TRANSPARENT_PIXEL}
                   class="${inset} w-full h-full bg-contrast-10 object-cover"
                 />
               `}
@@ -78,13 +72,13 @@ export class ItemCardElement extends HypermediaResource<Item> {
           <div class="truncate font-medium">
             ${isLoading || isError
               ? html`<x-skeleton variant=${variant}></x-skeleton>`
-              : this.resource?.name ?? ''}
+              : state.context.data?.name ?? ''}
           </div>
 
           <div class="text-s truncate text-secondary">
             ${isLoading || isError
               ? html`<x-skeleton variant=${variant}></x-skeleton>`
-              : html`<x-i18n ns=${this.ns} lang=${this.lang} key="summary"></x-i18n>`}
+              : html`<foxy-i18n ns=${ns} lang=${lang} key="summary"></foxy-i18n>`}
           </div>
         </figcaption>
       </figure>

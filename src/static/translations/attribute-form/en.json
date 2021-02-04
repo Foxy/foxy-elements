@@ -9,8 +9,10 @@
   "delete_no": "Cancel",
   "delete_yes": "Yes, delete now",
   "delete_message": "This attribute will be permanently removed if you proceed. Are you sure?",
-  "error_required": "This field is required",
-  "error_too_long": "Value is too long",
+  "name_required": "Name is required",
+  "name_too_long": "Name must be 500 characters or less",
+  "value_required": "Value is required",
+  "value_too_long": "Value must be 1000 characters or less",
   "date_created": "Created on",
   "date_modified": "Last updated",
   "create": "Create attribute"

@@ -1,6 +1,9 @@
-import { PaymentMethodElement } from './PaymentMethodElement';
-import { define } from '../../../utils/define';
+import '@polymer/iron-icon';
+import '@polymer/iron-icons';
+import '../I18N';
 
-define(PaymentMethodElement);
+import { PaymentMethodCardElement } from './PaymentMethodCardElement';
 
-export { PaymentMethodElement };
+customElements.define('foxy-payment-method-card', PaymentMethodCardElement);
+
+export { PaymentMethodCardElement };

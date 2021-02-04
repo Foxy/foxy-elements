@@ -1,41 +1,27 @@
-import '@polymer/iron-icon';
-import '@polymer/iron-icons';
-import '@polymer/iron-icons/maps-icons';
-
-import * as FoxySDK from '@foxy.io/sdk';
-
-import { CSSResultArray, PropertyDeclarations, css } from 'lit-element';
-import { HypermediaResource, I18N, Skeleton } from '../../private';
+import { CSSResultArray, css } from 'lit-element';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { AddressFormDialog } from './private/AddressFormDialog';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Data } from './types';
+import { FormDialogElement } from '../FormDialog';
+import { NucleonElement } from '../NucleonElement';
+import { Skeleton } from '../../private';
+import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
-type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.CustomerAddress, undefined>;
-
-export class AddressCardElement extends HypermediaResource<Resource> {
-  static readonly defaultNodeName = 'foxy-address-card';
-
+export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-address-form-dialog': AddressFormDialog,
+      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
-      'x-i18n': I18N,
-    };
-  }
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      __formDialogOpen: { attribute: false },
+      'foxy-i18n': customElements.get('foxy-i18n'),
     };
   }
 
   static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         :host(:focus-within) {
           box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
@@ -44,74 +30,78 @@ export class AddressCardElement extends HypermediaResource<Resource> {
     ];
   }
 
-  readonly rel = 'customer_address';
-
-  private __formDialogOpen = false;
-
-  constructor() {
-    super('customer-address');
-  }
+  private static __ns = 'address-card';
 
   render(): TemplateResult {
-    const isLoading = this._is('busy.fetching');
-    const isError = this._is('error');
-    const isReady = this._is('idle');
+    const { lang, href, state } = this;
 
-    const icon = this.resource?.is_default_billing ? 'icons:payment' : 'maps:local-shipping';
-    const variant = isError ? 'error' : 'busy';
+    const isFail = state.matches('fail');
+    const isIdle = state.matches('idle');
+
+    const ns = AddressCardElement.__ns;
+    const variant = isFail ? 'error' : 'busy';
+    const icon = this.state.context.data?.is_default_billing
+      ? 'icons:payment'
+      : this.state.context.data?.is_default_shipping
+      ? 'maps:local-shipping'
+      : '';
 
     return html`
-      <x-address-form-dialog
-        ns=${this.ns}
-        lang=${this.lang}
-        href=${this.href ?? ''}
+      <foxy-form-dialog
         header="edit"
+        form="foxy-address-form"
+        lang=${lang}
+        href=${href}
+        ns=${ns}
         id="form-dialog"
       >
-      </x-address-form-dialog>
+      </foxy-form-dialog>
 
       <button
         class="text-left w-full flex items-start leading-m font-lumo space-x-m text-body focus:outline-none"
         aria-live="polite"
-        aria-busy=${isLoading}
-        @click=${() => this.__getFormDialog().show()}
+        aria-busy=${state.matches('busy')}
+        @click=${this.__handleClick}
       >
         <div class="relative flex-1 leading-m">
           ${[1, 2, 3].map(lineIndex => {
-            const lineClass = classMap({ 'block text-m': true, 'opacity-0': isError });
-            if (!isReady) return html`<x-skeleton class=${lineClass}>&nbsp;</x-skeleton>`;
+            const lineClass = classMap({ 'block text-m': true, 'opacity-0': isFail });
+            if (!isIdle) return html`<x-skeleton class=${lineClass}>&nbsp;</x-skeleton>`;
 
             return html`
-              <x-i18n
-                .ns=${this.ns}
-                .key=${`line_${lineIndex}`}
-                .lang=${this.lang}
-                .opts=${this.resource!}
-                .className=${lineClass}
+              <foxy-i18n
+                ns=${ns}
+                key=${`line_${lineIndex}`}
+                lang=${lang}
+                class=${lineClass}
+                .opts=${state.context.data!}
               >
-              </x-i18n>
+              </foxy-i18n>
             `;
           })}
-          ${isError
+          ${isFail
             ? html`
                 <div class="my-xs absolute text-error bg-error-10 rounded inset-0 flex">
                   <div class="flex m-auto items-center justify-center space-x-s">
                     <iron-icon icon="icons:error-outline"></iron-icon>
-                    <x-i18n .ns=${this.ns} .lang=${this.lang} key="error" class="text-s"></x-i18n>
+                    <foxy-i18n ns=${ns} lang=${lang} key="error" class="text-s"></foxy-i18n>
                   </div>
                 </div>
               `
             : ''}
         </div>
 
-        ${isReady
-          ? html`<iron-icon icon=${icon}></iron-icon>`
+        ${isIdle
+          ? icon
+            ? html`<iron-icon icon=${icon}></iron-icon>`
+            : ''
           : html`<x-skeleton class="w-s min-w-0" variant=${variant}></x-skeleton>`}
       </button>
     `;
   }
 
-  private __getFormDialog() {
-    return this.renderRoot.querySelector('#form-dialog') as AddressFormDialog;
+  private __handleClick() {
+    const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
+    dialog.show();
   }
 }

@@ -1,33 +1,24 @@
-import '@polymer/iron-icon';
-import '@polymer/iron-icons';
-
-import * as FoxySDK from '@foxy.io/sdk';
-
-import { HypermediaResource, I18N, Skeleton } from '../../private';
+import { CSSResultArray, css } from 'lit-element';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { CSSResultArray } from 'lit-element';
-import { FormDialog } from './private/FormDialog';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { css } from 'lit-element/lib/css-tag';
+import { Data } from './types';
+import { FormDialogElement } from '../FormDialog';
+import { NucleonElement } from '../NucleonElement';
+import { Skeleton } from '../../private';
+import { Themeable } from '../../../mixins/themeable';
 
-type Attribute = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Attribute, undefined>;
-
-export class AttributeCardElement extends HypermediaResource<Attribute> {
-  static readonly defaultNodeName = 'foxy-attribute-card';
-
+export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-form-dialog': FormDialog,
+      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'x-skeleton': Skeleton,
-      'iron-icon': customElements.get('iron-icon'),
-      'x-i18n': I18N,
     };
   }
 
   static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         :host(:focus-within) {
           box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
@@ -36,50 +27,45 @@ export class AttributeCardElement extends HypermediaResource<Attribute> {
     ];
   }
 
-  readonly rel = 'attribute';
-
-  constructor() {
-    super('attribute-card');
-  }
-
   render(): TemplateResult {
-    const isBusy = this._is('busy');
-    const isIdle = this._is('idle');
-    const variant = isBusy ? 'busy' : 'error';
+    const state = this.state;
+    const variant = state.matches('busy') ? 'busy' : 'error';
 
     return html`
-      <x-form-dialog
-        .href=${this.href}
-        .ns=${this.ns}
-        .lang=${this.lang}
-        id="form-dialog"
+      <foxy-form-dialog
         header="edit"
+        form="foxy-attribute-form"
+        href=${this.href}
+        lang=${this.lang}
+        id="form-dialog"
       >
-      </x-form-dialog>
+      </foxy-form-dialog>
 
       <figure
         role="button"
         tabindex="0"
         class="text-body text-l font-lumo leading-s focus:outline-none"
         aria-live="polite"
-        aria-busy=${isBusy}
-        @click=${() => {
-          if (this._is('idle.snapshot')) {
-            const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialog;
-            dialog.show();
-          }
-        }}
+        aria-busy=${state.matches('busy')}
+        @click=${this.__handleClick}
       >
         <figcaption class="uppercase text-xxs font-medium text-tertiary tracking-wider">
-          ${isIdle
-            ? html`<span class="truncate">${this.resource!.name}</span>`
+          ${state.matches({ idle: 'snapshot' })
+            ? html`<span class="truncate">${state.context.data.name}</span>`
             : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}
         </figcaption>
 
-        ${isIdle
-          ? html`<span class="truncate">${this.resource!.value}</span>`
+        ${state.matches({ idle: 'snapshot' })
+          ? html`<span class="truncate">${state.context.data.value}</span>`
           : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}
       </figure>
     `;
+  }
+
+  private __handleClick() {
+    if (this.state.matches({ idle: 'snapshot' })) {
+      const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
+      dialog.show();
+    }
   }
 }

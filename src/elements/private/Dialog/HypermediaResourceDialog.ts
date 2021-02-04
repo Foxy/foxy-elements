@@ -1,8 +1,8 @@
-import { Dialog } from './Dialog';
+import { DialogElement } from './DialogElement';
 import { PropertyDeclarations } from 'lit-element';
 import { RequestEvent } from '../../../events/request';
 
-export abstract class HypermediaResourceDialog extends Dialog {
+export abstract class HypermediaResourceDialog extends DialogElement {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

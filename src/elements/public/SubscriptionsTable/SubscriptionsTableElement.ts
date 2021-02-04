@@ -1,87 +1,72 @@
-import type * as FoxySDK from '@foxy.io/sdk';
-
 import { TemplateResult, html } from 'lit-html';
 
-import { FormDialogElement } from './private/FormDialog';
-import { HypermediaResourceTable } from '../../private/HypermediaResourceTable/HypermediaResourceTable';
+import { Data } from './types';
+import { FormDialogElement } from '../FormDialog';
 import { I18N } from '../../private';
-import { PropertyDeclarations } from 'lit-element';
+import { I18NElement } from '../I18N';
+import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { parseDuration } from '../../../utils/parse-duration';
 
-type Subscriptions = FoxySDK.Core.Resource<
-  FoxySDK.Integration.Rels.Subscriptions,
-  { zoom: [{ transaction_template: 'items' }, 'last_transaction'] }
->;
-
-export class SubscriptionsTableElement extends HypermediaResourceTable<Subscriptions> {
-  static readonly defaultNodeName = 'foxy-subscriptions-table';
-
+export class SubscriptionsTableElement extends NucleonTableElement<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
-      'x-form-dialog': FormDialogElement,
-      'x-i18n': I18N,
+      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
+      'foxy-i18n': I18N,
     };
   }
 
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      __selection: { attribute: false },
-    };
-  }
+  private static __ns = 'subscriptions-table';
 
-  rel = 'subscriptions';
+  private __untrackTranslations?: () => void;
 
-  constructor() {
-    super('subscriptions');
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
+    const { lang } = this;
+    const ns = SubscriptionsTableElement.__ns;
+
     return html`
-      <x-form-dialog
-        ns=${this.ns}
-        lang=${this.lang}
+      <foxy-form-dialog
+        ns=${ns}
+        lang=${lang}
         header="edit_header"
+        form="foxy-subscription-form"
         id="form-dialog"
-        closable
-        editable
       >
-      </x-form-dialog>
+      </foxy-form-dialog>
 
       ${super.render([
         {
-          header: () => this._t('th-frequency').toString(),
+          header: () => this.__t('th-frequency').toString(),
           cell: sub => {
             const frequency = parseDuration(sub.frequency);
             const transaction = sub._embedded['fx:last_transaction'];
             const opts = {
               count: frequency.count,
-              units: this._t(frequency.units, { count: frequency.count }),
-              amount: transaction.total_order.toLocaleString(this.lang, {
-                maximumFractionDigits: 2,
-                minimumFractionDigits: 2,
-                currency: transaction.currency_code,
-                style: 'currency',
-              }),
+              units: this.__t(frequency.units, { count: frequency.count }),
+              amount: this.__formatPrice(transaction.total_order, transaction.currency_code),
             };
 
             return html`
-              <x-i18n
-                .ns=${this.ns}
-                .lang=${this.lang}
+              <foxy-i18n
+                ns=${ns}
+                lang=${lang}
                 .opts=${opts}
                 class="font-medium tracking-wide font-tnum"
                 key="frequency"
               >
-              </x-i18n>
+              </foxy-i18n>
             `;
           },
         },
 
         {
-          header: () => this._t('th_summary').toString(),
+          header: () => this.__t('th_summary').toString(),
           cell: sub => {
             const items = sub._embedded['fx:transaction_template']._embedded['fx:items'];
             const opts = {
@@ -89,15 +74,13 @@ export class SubscriptionsTableElement extends HypermediaResourceTable<Subscript
               count: items.length,
             };
 
-            return html`
-              <x-i18n .ns=${this.ns} .lang=${this.lang} .opts=${opts} key="summary"></x-i18n>
-            `;
+            return html`<foxy-i18n ns=${ns} lang=${lang} .opts=${opts} key="summary"></foxy-i18n>`;
           },
         },
 
         {
           mdAndUp: true,
-          header: () => this._t('th_status').toString(),
+          header: () => this.__t('th_status').toString(),
           cell: sub => {
             let color = '';
             let date: Date | null = null;
@@ -118,29 +101,21 @@ export class SubscriptionsTableElement extends HypermediaResourceTable<Subscript
               color = 'bg-success-10 text-success';
             }
 
-            const opts = {
-              date: date?.toLocaleDateString(this.lang, {
-                year: date.getFullYear() === new Date().getFullYear() ? 'full' : undefined,
-                month: 'long',
-                day: 'numeric',
-              }),
-            };
-
             return html`
-              <x-i18n
-                .ns=${this.ns}
-                .lang=${this.lang}
-                .key=${key}
-                .opts=${opts}
+              <foxy-i18n
+                ns=${ns}
+                lang=${lang}
+                key=${key}
+                .opts=${{ date: this.__formatDate(date ?? new Date()) }}
                 class="px-s text-s font-medium tracking-wide rounded ${color}"
               >
-              </x-i18n>
+              </foxy-i18n>
             `;
           },
         },
 
         {
-          header: () => this._t('th_actions').toString(),
+          header: () => this.__t('th_actions').toString(),
           cell: sub => {
             return html`
               <button
@@ -151,12 +126,48 @@ export class SubscriptionsTableElement extends HypermediaResourceTable<Subscript
                   dialog.show();
                 }}
               >
-                <x-i18n .ns=${this.ns} .lang=${this.lang} key="edit"></x-i18n>
+                <foxy-i18n ns=${ns} lang=${lang} key="edit"></foxy-i18n>
               </button>
             `;
           },
         },
       ])}
     `;
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__untrackTranslations?.();
+  }
+
+  private get __t() {
+    return I18NElement.i18next.getFixedT(this.lang, SubscriptionsTableElement.__ns);
+  }
+
+  private __formatDate(date: Date, lang = this.lang): string {
+    try {
+      return date.toLocaleString(lang, {
+        year: new Date().getFullYear() === date.getFullYear() ? undefined : 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+      });
+    } catch {
+      return this.__formatDate(date, I18NElement.fallbackLng);
+    }
+  }
+
+  private __formatPrice(value: number, currency: string, lang = this.lang): string {
+    try {
+      return value.toLocaleString(lang, {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+        style: 'currency',
+        currency,
+      });
+    } catch {
+      return this.__formatPrice(value, currency, I18NElement.fallbackLng);
+    }
   }
 }

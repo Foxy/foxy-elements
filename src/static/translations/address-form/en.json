@@ -18,11 +18,15 @@
   "delete_yes": "Yes, delete now",
   "delete_message": "This address will be permanently removed from our records. Are you sure?",
   "create": "Create address",
-  "errors": {
-    "too_long": "Value is too long",
-    "required": "This field is required",
-    "unsupported": "Unsupported value"
-  },
+  "first_name_too_long": "First name must be 50 characters or less",
+  "last_name_too_long": "Last name must be 50 characters or less",
+  "region_too_long": "Region must be 50 characters or less",
+  "city_too_long": "City must be 50 characters or less",
+  "phone_too_long": "Phone must be 50 characters or less",
+  "company_too_long": "Company must be 50 characters or less",
+  "address2_too_long": "Address must be 100 characters or less",
+  "address1_too_long": "Address must be 100 characters or less",
+  "address1_required": "Street address is required",
   "region_map": {
     "AL": "Alabama",
     "AK": "Alaska",

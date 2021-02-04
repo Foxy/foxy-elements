@@ -1,95 +1,96 @@
-import * as FoxySDK from '@foxy.io/sdk';
-
-import { HypermediaResource, I18N, PropertyTable } from '../../private';
+import { CSSResult, CSSResultArray } from 'lit-element';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialog } from '../../private/Dialog/ConfirmDialog';
+import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
+import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { ElementResourceV8N } from '../../private/HypermediaResource/types';
 import { FrequencyInput } from '../../private/FrequencyInput/FrequencyInput';
 import { FrequencyInputChangeEvent } from '../../private/FrequencyInput/FrequencyInputChangeEvent';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { I18NElement } from '../I18N';
+import { NucleonElement } from '../NucleonElement';
+import { NucleonV8N } from '../NucleonElement/types';
+import { PropertyTable } from '../../private';
+import { Themeable } from '../../../mixins/themeable';
+import { classMap } from '../../../utils/class-map';
+import { memoize } from 'lodash-es';
 import { parseDuration } from '../../../utils/parse-duration';
 
-type Subscription = FoxySDK.Core.Resource<
-  FoxySDK.Integration.Rels.Subscription,
-  { zoom: 'last_transaction' }
->;
-
-const isFrequency = (v: string) => /^(([0-9]{1,3}[dwmy]{1})|(\.5m))$/.test(v);
-const isFuture = (v: Date) => v.getTime() > Date.now();
-
-export class SubscriptionFormElement extends HypermediaResource<Subscription> {
-  static readonly defaultNodeName = 'foxy-subscription-form';
-
+export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-date-picker': DatePickerElement,
+      'vaadin-date-picker': customElements.get('vaadin-date-picker'),
       'x-frequency-input': FrequencyInput,
       'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
-      'vaadin-button': ButtonElement,
-      'x-i18n': I18N,
+      'x-confirm-dialog': ConfirmDialogElement,
+      'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
+      'foxy-i18n': customElements.get('foxy-i18n'),
     };
   }
 
-  static get resourceV8N(): ElementResourceV8N<Subscription> {
-    return {
-      next_transaction_date: [
-        ({ next_transaction_date: v }) => typeof v === 'string' || 'errors.required',
-        ({ next_transaction_date: v }) => (v && isFuture(new Date(v))) || 'errors.past',
-      ],
-      frequency: [
-        ({ frequency: v }) => typeof v === 'string' || 'errors.required',
-        ({ frequency: v }) => (v && isFrequency(v)) || 'errors.invalid',
-      ],
-    };
+  static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
-  readonly rel = 'subscription';
-
-  constructor() {
-    super('subscription-form');
+  static get v8n(): NucleonV8N<Data> {
+    return [
+      ({ next_transaction_date: v }) => {
+        return (v && new Date(v).getTime() > Date.now()) || 'next_transaction_date_past';
+      },
+      ({ frequency: v }) => {
+        return (v && /^(([0-9]{1,3}[dwmy]{1})|(\.5m))$/.test(v)) || 'frequency_invalid';
+      },
+    ];
   }
 
-  submit(): void {
-    this._submit();
+  private static __ns = 'subscription-form';
+
+  private __untrackTranslations?: () => void;
+
+  private __getValidator = memoize((prefix: string) => () => {
+    return !this.state.context.errors.some(err => err.startsWith(prefix));
+  });
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
-    if (!this.resource) return html``;
+    const { lang, state } = this;
+    const form = { ...state.context.edits, ...state.context.data };
 
-    const { ns, lang } = this;
-    const frequency = parseDuration(this.resource.frequency);
-    const transaction = this.resource._embedded['fx:last_transaction'];
+    const ns = SubscriptionFormElement.__ns;
+    const frequency = parseDuration(form.frequency ?? '1m');
+    const transaction = state.context.data?._embedded['fx:last_transaction'];
     const frequencyOpts = {
       count: frequency.count,
-      units: this._t(frequency.units, { count: frequency.count }),
-      amount: transaction.total_order.toLocaleString(this.lang, {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-        currency: transaction.currency_code,
-        style: 'currency',
-      }),
+      units: this.__t(frequency.units, { count: frequency.count }),
+      amount: this.__formatPrice(
+        transaction?.total_order ?? 0,
+        transaction?.currency_code ?? 'USD'
+      ),
     };
 
     let statusDate: Date | null = null;
     let statusKey = '';
 
-    if (this.resource.first_failed_transaction_date) {
-      statusDate = new Date(this.resource.first_failed_transaction_date);
+    if (form.first_failed_transaction_date) {
+      statusDate = new Date(form.first_failed_transaction_date);
       statusKey = 'status_failed';
-    } else if (this.resource.end_date) {
-      statusDate = new Date(this.resource.end_date);
+    } else if (form.end_date) {
+      statusDate = new Date(form.end_date);
       const hasEnded = statusDate.getTime() > Date.now();
       statusKey = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
     } else {
-      statusDate = new Date(this.resource.next_transaction_date);
+      statusDate = new Date(form.next_transaction_date ?? Date.now());
       statusKey = 'status_active';
     }
 
     const statusOpts = { date: this.__formatDate(statusDate) };
+    const isSnapshot = state.matches({ idle: 'snapshot' });
+    const isIdle = state.matches('idle');
 
     return html`
       <x-confirm-dialog
@@ -98,92 +99,134 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
         cancel="end_no"
         header="end"
         theme="primary error"
-        lang=${this.lang}
-        ns=${this.ns}
+        lang=${lang}
+        ns=${ns}
         id="confirm"
         @submit=${this.__end}
       >
       </x-confirm-dialog>
 
-      <div class="space-y-l text-body font-lumo text-m leading-m">
+      <div
+        class=${classMap({
+          'relative space-y-l text-body font-lumo text-m leading-m': true,
+          'text-disabled': !isSnapshot,
+          'text-body': isSnapshot,
+        })}
+      >
         <div class="leading-s">
-          <x-i18n
-            ns=${ns}
+          <foxy-i18n
+            class="text-xl font-medium"
             lang=${lang}
             key="frequency"
-            class="text-xl font-medium block"
+            ns=${ns}
             .opts=${frequencyOpts}
           >
-          </x-i18n>
+          </foxy-i18n>
 
-          <x-i18n ns=${ns} lang=${lang} .opts=${statusOpts} key=${statusKey} class="text-secondary">
-          </x-i18n>
+          <br />
+
+          <foxy-i18n
+            class=${classMap({ 'text-secondary': isSnapshot })}
+            lang=${lang}
+            key=${statusKey}
+            ns=${ns}
+            .opts=${statusOpts}
+          >
+          </foxy-i18n>
         </div>
 
         <div class="space-y-m">
           <div class="space-y-xs">
-            <x-i18n
-              ns=${ns}
+            <foxy-i18n
+              class=${classMap({
+                'font-medium antialiased block text-s': true,
+                'text-disabled': !isSnapshot,
+                'text-secondary': isSnapshot,
+              })}
               lang=${lang}
               key="th_frequency"
-              class="font-medium antialiased block text-s text-secondary"
+              ns=${ns}
             >
-            </x-i18n>
+            </foxy-i18n>
 
             <x-frequency-input
               ns=${ns}
               lang=${lang}
-              value=${this.resource.frequency}
-              label=${this._t('th_frequency').toString()}
-              ?invalid=${!!this._getErrorMessages().frequency}
-              ?readonly=${!this.resource.is_active}
-              ?disabled=${!this._is('idle')}
-              error-message=${this._getErrorMessages().frequency ?? ''}
-              @change=${(evt: FrequencyInputChangeEvent) => {
-                this._setProperty({ frequency: evt.detail! });
-              }}
+              value=${form.frequency ?? '1m'}
+              label=${this.__t('th_frequency').toString()}
+              ?invalid=${this.__getValidator('frequency')()}
+              ?disabled=${!isIdle}
+              ?readonly=${isIdle && !form.is_active}
+              error-message=${this.__getErrorMessage('frequency')}
+              @change=${this.__handleFrequencyChange}
             >
             </x-frequency-input>
           </div>
 
           <vaadin-date-picker
             class="w-full"
-            label=${this._t('next_transaction_date').toString()}
-            value=${this.__toYyyyMmDd(new Date(this.resource.next_transaction_date))}
-            ?invalid=${!!this._getErrorMessages().next_transaction_date}
-            ?readonly=${!this.resource.next_transaction_date}
-            ?disabled=${!this._is('idle')}
-            error-message=${this._getErrorMessages().next_transaction_date ?? ''}
-            @change=${(evt: CustomEvent<unknown>) => {
-              const target = evt.target as DatePickerElement;
-              this._setProperty({ next_transaction_date: target.value });
-            }}
+            label=${this.__t('next_transaction_date').toString()}
+            value=${this.__toYyyyMmDd(new Date(form.next_transaction_date ?? Date.now()))}
+            error-message=${this.__getErrorMessage('next_transaction_date')}
+            ?disabled=${!isIdle}
+            ?readonly=${isIdle && !form.next_transaction_date}
+            .checkValidity=${isIdle ? this.__getValidator('next_transaction_date') : () => true}
+            @change=${this.__handleNextTransactionDateChange}
           >
           </vaadin-date-picker>
         </div>
 
-        <x-property-table .items=${this.__getPropertyTableItems(this.resource)}></x-property-table>
+        <x-property-table ?disabled=${!isIdle} .items=${this.__getPropertyTableItems()}>
+        </x-property-table>
 
-        ${this.resource.is_active
+        ${form.is_active
           ? html`
               <vaadin-button
                 theme="error primary"
                 class="w-full"
-                ?disabled=${!this._is('idle')}
+                ?disabled=${!isIdle}
                 @click=${this.__confirmEnd}
               >
-                <x-i18n ns=${ns} lang=${lang} key="end"></x-i18n>
+                <foxy-i18n ns=${ns} lang=${lang} key="end"></foxy-i18n>
               </vaadin-button>
+            `
+          : ''}
+        ${!isIdle
+          ? html`
+              <div class="absolute inset-0 flex items-center justify-center">
+                <foxy-spinner
+                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+                  state=${state.matches('busy') ? 'busy' : 'error'}
+                  layout="vertical"
+                >
+                </foxy-spinner>
+              </div>
             `
           : ''}
       </div>
     `;
   }
 
-  private __getPropertyTableItems(resource: Subscription) {
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__untrackTranslations?.();
+    this.__getValidator.cache.clear?.();
+  }
+
+  private get __t() {
+    return I18NElement.i18next.getFixedT(this.lang, SubscriptionFormElement.__ns);
+  }
+
+  private __getErrorMessage(prefix: string) {
+    const error = this.state.context.errors.find(err => err.startsWith(prefix));
+    return error ? this.__t(error).toString() : '';
+  }
+
+  private __getPropertyTableItems() {
+    const data = this.state.context.data;
     return (['date_modified', 'date_created'] as const).map(field => ({
-      name: this._t(field),
-      value: this.__formatDate(new Date(resource[field])),
+      name: this.__t(field),
+      value: this.__formatDate(new Date(data?.[field] ?? Date.now())),
     }));
   }
 
@@ -195,16 +238,33 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
     ].join('-');
   }
 
-  private __formatDate(date: Date) {
-    return date.toLocaleDateString(this.lang, {
-      day: 'numeric',
-      month: 'long',
-      year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-    });
+  private __formatDate(date: Date, lang = this.lang): string {
+    try {
+      return date.toLocaleDateString(lang, {
+        day: 'numeric',
+        month: 'long',
+        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+      });
+    } catch {
+      return this.__formatDate(date, I18NElement.fallbackLng);
+    }
+  }
+
+  private __formatPrice(value: number, currency: string, lang = this.lang): string {
+    try {
+      return value.toLocaleString(lang, {
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+        style: 'currency',
+        currency,
+      });
+    } catch {
+      return this.__formatPrice(value, currency, I18NElement.fallbackLng);
+    }
   }
 
   private __confirmEnd() {
-    const confirm = this.renderRoot.querySelector('#confirm') as ConfirmDialog;
+    const confirm = this.renderRoot.querySelector('#confirm') as ConfirmDialogElement;
     confirm.show();
   }
 
@@ -212,7 +272,16 @@ export class SubscriptionFormElement extends HypermediaResource<Subscription> {
     const today = new Date();
     const tomorrow = new Date(today.setDate(today.getDate() + 1));
 
-    this._setProperty({ end_date: tomorrow.toISOString() });
-    this._submit();
+    this.send({ type: 'EDIT', data: { end_date: tomorrow.toISOString() } });
+    this.send({ type: 'SUBMIT' });
+  }
+
+  private __handleFrequencyChange(evt: FrequencyInputChangeEvent) {
+    this.send({ type: 'EDIT', data: { frequency: evt.detail! } });
+  }
+
+  private __handleNextTransactionDateChange(evt: CustomEvent<unknown>) {
+    const target = evt.target as DatePickerElement;
+    this.send({ type: 'EDIT', data: { next_transaction_date: target.value } });
   }
 }

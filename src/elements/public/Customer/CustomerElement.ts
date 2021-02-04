@@ -1,137 +1,70 @@
-import '@polymer/iron-icon';
-import '@polymer/iron-icons';
-import '@polymer/iron-icons/editor-icons';
-import '../CollectionPage';
-import '../Spinner';
+import { CSSResultArray, TemplateResult, html } from 'lit-element';
+import { ErrorScreen, LoadingScreen, PropertyTable } from '../../private';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
-import * as FoxySDK from '@foxy.io/sdk';
-
-import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
-import { ErrorScreen, HypermediaResource, I18N, LoadingScreen, PropertyTable } from '../../private';
-
-import { AddressCardElement } from '../AddressCard';
-import { AttributeCardElement } from '../AttributeCard';
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { CollectionPagesElement } from '../CollectionPages';
-import { ConfirmDialog } from '../../private/Dialog/ConfirmDialog';
-import { ElementResourceV8N } from '../../private/HypermediaResource/types';
-import { NewAddressFormDialog } from './private/NewAddressFormDialog';
-import { NewAttributeFormDialog } from './private/NewAttributeFormDialog';
-import { PaymentMethodElement } from '../PaymentMethodCard';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { SubscriptionsTableElement } from '../SubscriptionsTable';
+import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
+import { Data } from './types';
+import { FormDialogElement } from '../FormDialog';
+import { I18NElement } from '../I18N';
+import { NucleonElement } from '../NucleonElement';
+import { NucleonV8N } from '../NucleonElement/types';
 import { Tabs } from '../../private/Tabs/Tabs';
-import { TransactionsTableElement } from '../TransactionsTable';
+import { Themeable } from '../../../mixins/themeable';
+import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
 import { validate as isEmail } from 'email-validator';
+import { styles } from './styles';
 
-type Resource = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customer, undefined>;
-
-export class CustomerElement extends HypermediaResource<Resource> {
-  static readonly defaultNodeName = 'foxy-customer';
-
+export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-new-attribute-form-dialog': NewAttributeFormDialog,
-      'x-new-address-form-dialog': NewAddressFormDialog,
-      'foxy-payment-method-card': customElements.get(PaymentMethodElement.defaultNodeName),
-      'foxy-subscriptions-table': customElements.get(SubscriptionsTableElement.defaultNodeName),
-      'foxy-transactions-table': customElements.get(TransactionsTableElement.defaultNodeName),
-      'foxy-collection-pages': customElements.get(CollectionPagesElement.defaultNodeName),
-      'foxy-attribute-card': customElements.get(AttributeCardElement.defaultNodeName),
-      'foxy-address-card': customElements.get(AddressCardElement.defaultNodeName),
-      'x-confirm-dialog': ConfirmDialog,
+      'foxy-payment-method-card': customElements.get('foxy-payment-method-card'),
+      'foxy-subscriptions-table': customElements.get('foxy-subscriptions-table'),
+      'foxy-transactions-table': customElements.get('foxy-transactions-table'),
+      'foxy-collection-pages': customElements.get('foxy-collection-pages'),
+      'foxy-attribute-card': customElements.get('foxy-attribute-card'),
+      'foxy-address-card': customElements.get('foxy-address-card'),
+      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
+      'x-confirm-dialog': ConfirmDialogElement,
       'x-loading-screen': LoadingScreen,
       'x-property-table': PropertyTable,
       'x-error-screen': ErrorScreen,
-      'vaadin-button': ButtonElement,
+      'vaadin-button': customElements.get('vaadin-button'),
       'iron-icon': customElements.get('iron-icon'),
+      'foxy-i18n': customElements.get('foxy-i18n'),
       'x-tabs': Tabs,
-      'x-i18n': I18N,
-    };
-  }
-
-  static get resourceV8N(): ElementResourceV8N<Resource> {
-    return {
-      first_name: [({ first_name: v }) => !v || v.length <= 50 || 'error_too_long'],
-      last_name: [({ last_name: v }) => !v || v.length <= 50 || 'error_too_long'],
-      tax_id: [({ tax_id: v }) => !v || v.length <= 50 || 'error_too_long'],
-      email: [
-        ({ email: v }) => (v && v.length > 0) || 'error_required',
-        ({ email: v }) => (v && v.length <= 100) || 'error_too_long',
-        ({ email: v }) => (v && isEmail(v)) || 'error_invalid_email',
-      ],
-    };
-  }
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      __activeTab: { attribute: false },
     };
   }
 
   static get styles(): CSSResultArray {
+    return [Themeable.styles, styles];
+  }
+
+  static get v8n(): NucleonV8N<Data> {
     return [
-      super.styles,
-      css`
-        foxy-payment-method-card,
-        foxy-attribute-card,
-        foxy-address-card {
-          width: 18rem;
-        }
-
-        .h-scroll {
-          scroll-snap-type: x mandatory;
-        }
-
-        .h-scroll > * {
-          display: inherit;
-          flex: inherit;
-        }
-
-        .h-scroll * + * {
-          margin-left: var(--lumo-space-m);
-        }
-
-        foxy-attribute-card,
-        foxy-address-card {
-          flex-shrink: 0;
-          border: 1px solid var(--lumo-contrast-10pct);
-          border-radius: var(--lumo-border-radius-l);
-          scroll-snap-align: start;
-        }
-
-        foxy-attribute-card {
-          padding: calc(var(--lumo-space-m) / var(--lumo-line-height-s)) var(--lumo-space-m);
-        }
-
-        foxy-address-card {
-          padding: calc(var(--lumo-space-m) / var(--lumo-line-height-m)) var(--lumo-space-m);
-        }
-
-        foxy-attribute-card:hover,
-        foxy-address-card:hover {
-          border-color: var(--lumo-contrast-30pct);
-        }
-
-        foxy-attribute-card:focus-within,
-        foxy-address-card:focus-within {
-          border-color: var(--lumo-primary-color);
-          box-shadow: none;
-        }
-      `,
+      ({ first_name: v }) => !v || v.length <= 50 || 'first_name_too_long',
+      ({ last_name: v }) => !v || v.length <= 50 || 'last_name_too_long',
+      ({ tax_id: v }) => !v || v.length <= 50 || 'tax_id_too_long',
+      ({ email: v }) => (v && v.length > 0) || 'email_required',
+      ({ email: v }) => (v && v.length <= 100) || 'email_too_long',
+      ({ email: v }) => (v && isEmail(v)) || 'email_invalid',
     ];
   }
 
-  readonly rel = 'customer';
+  private static __ns = 'customer';
 
-  constructor() {
-    super('customer');
+  private __removeBreakpoints?: () => void;
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__removeBreakpoints = addBreakpoints(this);
   }
 
   renderIdle(): TemplateResult {
-    const { _links, first_name, last_name } = this.resource!;
+    const state = this.state;
+    const form = { ...state.context.data, ...state.context.edits };
+    const { _links, first_name, last_name } = form!;
+    const ns = CustomerElement.__ns;
 
     return html`
       <article class="font-lumo text-body text-m leading-m space-y-xl">
@@ -140,17 +73,21 @@ export class CustomerElement extends HypermediaResource<Resource> {
             <h1 class="text-xxl font-semibold truncate">${first_name} ${last_name}</h1>
           </div>
 
-          ${this._is('idle.snapshot.modified')
+          ${state.matches({ idle: { snapshot: 'dirty' } })
             ? html`
-                <vaadin-button class="px-xs rounded-full" theme="icon" @click=${this._restore}>
+                <vaadin-button
+                  class="px-xs rounded-full"
+                  theme="icon"
+                  @click=${() => this.send({ type: 'UNDO' })}
+                >
                   <iron-icon icon="icons:undo"></iron-icon>
                 </vaadin-button>
 
                 <vaadin-button
                   class="px-xs rounded-full"
-                  ?disabled=${this._is('idle.snapshot.modified.invalid')}
+                  ?disabled=${state.matches({ idle: { snapshot: { dirty: 'invalid' } } })}
                   theme="primary success icon"
-                  @click=${this._submit}
+                  @click=${() => this.send({ type: 'SUBMIT' })}
                 >
                   <iron-icon icon="icons:done"></iron-icon>
                 </vaadin-button>
@@ -167,17 +104,17 @@ export class CustomerElement extends HypermediaResource<Resource> {
         </header>
 
         <x-property-table
-          .ns=${this.ns}
+          .ns=${ns}
           .lang=${this.lang}
           .items=${this.__getPropertyTableItems()}
-          @submit=${this._submit}
+          @submit=${() => this.send({ type: 'SUBMIT' })}
         >
         </x-property-table>
 
         <section class="space-y-m">
           <header class="space-x-m flex items-center justify-between md:justify-start">
             <h2 class="text-xl font-medium">
-              <x-i18n .ns=${this.ns} .lang=${this.lang} key="addresses"></x-i18n>
+              <foxy-i18n .ns=${ns} .lang=${this.lang} key="addresses"></foxy-i18n>
             </h2>
 
             <button
@@ -186,7 +123,7 @@ export class CustomerElement extends HypermediaResource<Resource> {
                 'hover:bg-primary hover:text-primary-contrast': true,
                 'focus:outline-none focus:shadow-outline': true,
               })}
-              aria-label=${this._t('add').toString()}
+              aria-label=${this.__t('add').toString()}
               @click=${() => this.__newAddressFormDialog.show()}
             >
               <iron-icon icon="icons:add"></iron-icon>
@@ -205,7 +142,7 @@ export class CustomerElement extends HypermediaResource<Resource> {
 
         <section class="space-y-m">
           <h2 class="text-xl font-medium">
-            <x-i18n .ns=${this.ns} .lang=${this.lang} key="payment_methods"></x-i18n>
+            <foxy-i18n .ns=${ns} .lang=${this.lang} key="payment_methods"></foxy-i18n>
           </h2>
 
           <foxy-payment-method-card
@@ -218,7 +155,7 @@ export class CustomerElement extends HypermediaResource<Resource> {
         <section class="space-y-m">
           <header class="space-x-m flex items-center justify-between md:justify-start">
             <h2 class="text-xl font-medium">
-              <x-i18n .ns=${this.ns} .lang=${this.lang} key="attributes"></x-i18n>
+              <foxy-i18n .ns=${ns} .lang=${this.lang} key="attributes"></foxy-i18n>
             </h2>
 
             <button
@@ -227,7 +164,7 @@ export class CustomerElement extends HypermediaResource<Resource> {
                 'hover:bg-primary hover:text-primary-contrast': true,
                 'focus:outline-none focus:shadow-outline': true,
               })}
-              aria-label=${this._t('add_attribute').toString()}
+              aria-label=${this.__t('add_attribute').toString()}
               @click=${() => this.__newAttributeFormDialog.show()}
             >
               <iron-icon icon="icons:add"></iron-icon>
@@ -246,12 +183,12 @@ export class CustomerElement extends HypermediaResource<Resource> {
 
         <section class="space-y-m">
           <x-tabs size="2">
-            <x-i18n ns=${this.ns} key="transactions" lang=${this.lang} slot="tab-0"></x-i18n>
-            <x-i18n ns=${this.ns} key="subscriptions" lang=${this.lang} slot="tab-1"></x-i18n>
+            <foxy-i18n ns=${ns} key="transactions" lang=${this.lang} slot="tab-0"></foxy-i18n>
+            <foxy-i18n ns=${ns} key="subscriptions" lang=${this.lang} slot="tab-1"></foxy-i18n>
 
             <foxy-collection-pages
               spinner="foxy-spinner"
-              first=${_links['fx:transactions'].href}
+              first="${_links['fx:transactions'].href}&zoom=items"
               slot="panel-0"
               page="foxy-transactions-table"
             >
@@ -259,7 +196,8 @@ export class CustomerElement extends HypermediaResource<Resource> {
 
             <foxy-collection-pages
               spinner="foxy-spinner"
-              first=${_links['fx:subscriptions'].href}
+              first="${_links['fx:subscriptions']
+                .href}&zoom=last_transaction,transaction_template:items"
               slot="panel-1"
               page="foxy-subscriptions-table"
             >
@@ -270,30 +208,31 @@ export class CustomerElement extends HypermediaResource<Resource> {
     `;
   }
 
-  submit(): void {
-    this._submit();
-  }
-
   render(): TemplateResult {
+    const { state, lang } = this;
+    const ns = CustomerElement.__ns;
+
     return html`
       <div>
-        <x-new-attribute-form-dialog
+        <foxy-form-dialog
           header="add_attribute"
-          parent=${this.resource?._links['fx:attributes'].href ?? ''}
-          lang=${this.lang}
-          ns=${this.ns}
+          parent=${state.context.data?._links['fx:attributes'].href ?? ''}
+          form="foxy-attribute-form"
+          lang=${lang}
+          ns=${ns}
           id="new-attribute-form-dialog"
         >
-        </x-new-attribute-form-dialog>
+        </foxy-form-dialog>
 
-        <x-new-address-form-dialog
+        <foxy-form-dialog
           header="add_address"
-          parent=${this.resource?._links['fx:customer_addresses'].href ?? ''}
-          lang=${this.lang}
-          ns=${this.ns}
+          parent=${state.context.data?._links['fx:customer_addresses'].href ?? ''}
+          form="foxy-address-form"
+          lang=${lang}
+          ns=${ns}
           id="new-address-form-dialog"
         >
-        </x-new-address-form-dialog>
+        </foxy-form-dialog>
 
         <x-confirm-dialog
           message="delete_message"
@@ -301,89 +240,105 @@ export class CustomerElement extends HypermediaResource<Resource> {
           cancel="delete_no"
           header="delete"
           theme="primary error"
-          lang=${this.lang}
-          ns=${this.ns}
+          lang=${lang}
+          ns=${ns}
           id="confirm"
-          @submit=${this._delete}
+          @submit=${() => this.send({ type: 'DELETE' })}
         >
         </x-confirm-dialog>
 
-        ${this._is('error')
+        ${state.matches('fail')
           ? html`<x-error-screen></x-error-screen>`
-          : this._is('busy')
+          : state.matches('busy')
           ? html`<x-loading-screen></x-loading-screen>`
-          : this._is('idle.template')
+          : state.matches({ idle: 'template' })
           ? html`<x-error-screen type="not_found"></x-error-screen>`
           : this.renderIdle()}
       </div>
     `;
   }
 
-  private __formatDate(date: Date) {
-    return date.toLocaleDateString(this.lang, {
-      day: 'numeric',
-      month: 'long',
-      year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-    });
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__removeBreakpoints?.();
+  }
+
+  private __formatDate(date: Date, lang = this.lang): string {
+    try {
+      return date.toLocaleDateString(lang, {
+        month: 'long',
+        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+        day: 'numeric',
+      });
+    } catch {
+      return this.__formatDate(date, I18NElement.fallbackLng);
+    }
   }
 
   private __getPropertyTableItems() {
-    if (!this.resource) return [];
+    const errors = this.state.context.errors;
+    const data = this.state.context.data;
+
+    if (!data) return [];
 
     const firstPurchase = {
-      name: this._t('first_purchase'),
-      value: this.__formatDate(new Date(this.resource.date_created)),
+      name: this.__t('first_purchase'),
+      value: this.__formatDate(new Date(data.date_created)),
     };
 
     const lastLogin = {
-      name: this._t('last_login'),
-      value: this.__formatDate(new Date(this.resource.last_login_date)),
+      name: this.__t('last_login'),
+      value: this.__formatDate(new Date(data.last_login_date)),
     };
 
     const email = {
-      name: this._t('email'),
-      value: this.resource.email,
-      invalid: this.errors.some(err => err.target === 'email'),
+      name: this.__t('email'),
+      value: data.email,
+      invalid: errors.some(err => err.startsWith('email')),
       editable: true,
-      onInput: (email: string) => this._setProperty({ email }),
+      onInput: (email: string) => this.send({ type: 'EDIT', data: { email } }),
     };
 
     const firstName = {
-      name: this._t('first_name'),
-      value: this.resource.first_name,
-      invalid: this.errors.some(err => err.target === 'first_name'),
+      name: this.__t('first_name'),
+      value: data.first_name,
+      invalid: errors.some(err => err.startsWith('first_name')),
       editable: true,
-      onInput: (first_name: string) => this._setProperty({ first_name }),
+      onInput: (first_name: string) => this.send({ type: 'EDIT', data: { first_name } }),
     };
 
     const lastName = {
-      name: this._t('last_name'),
-      value: this.resource.last_name,
-      invalid: this.errors.some(err => err.target === 'last_name'),
+      name: this.__t('last_name'),
+      value: data.last_name,
+      invalid: errors.some(err => err.startsWith('last_name')),
       editable: true,
-      onInput: (last_name: string) => this._setProperty({ last_name }),
+      onInput: (last_name: string) => this.send({ type: 'EDIT', data: { last_name } }),
     };
 
     const taxID = {
-      name: this._t('tax_id'),
-      value: this.resource.tax_id,
-      invalid: this.errors.some(err => err.target === 'tax_id'),
+      name: this.__t('tax_id'),
+      value: data.tax_id,
+      invalid: errors.some(err => err.startsWith('tax_id')),
       editable: true,
-      onInput: (tax_id: string) => this._setProperty({ tax_id }),
+      onInput: (tax_id: string) => this.send({ type: 'EDIT', data: { tax_id } }),
     };
 
     return [firstName, lastName, email, taxID, lastLogin, firstPurchase];
   }
 
+  private get __t() {
+    return I18NElement.i18next.getFixedT(this.lang, CustomerElement.__ns);
+  }
+
   private get __confirmDialog() {
-    return this.renderRoot.querySelector('#confirm') as ConfirmDialog;
+    return this.renderRoot.querySelector('#confirm') as ConfirmDialogElement;
   }
 
   private get __newAddressFormDialog() {
-    return this.renderRoot.querySelector('#new-address-form-dialog') as NewAddressFormDialog;
+    return this.renderRoot.querySelector('#new-address-form-dialog') as FormDialogElement;
   }
 
   private get __newAttributeFormDialog() {
-    return this.renderRoot.querySelector('#new-attribute-form-dialog') as NewAttributeFormDialog;
+    return this.renderRoot.querySelector('#new-attribute-form-dialog') as FormDialogElement;
   }
 }

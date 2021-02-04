@@ -1,21 +1,19 @@
+import '../Spinner';
+
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
-import { HypermediaResource } from '../../private';
+import { NucleonElement } from '../NucleonElement';
 
 type Template = typeof html;
 type ElementRenderer = (html: Template, lang: string, item: any) => TemplateResult;
 
-export class CollectionPageElement extends HypermediaResource<any> {
-  static defaultNodeName = 'foxy-collection-page';
-
+export class CollectionPageElement extends NucleonElement<any> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       item: { type: String, noAccessor: true },
     };
   }
-
-  rel = 'any';
 
   private __renderItem: ElementRenderer | null = null;
 
@@ -29,11 +27,9 @@ export class CollectionPageElement extends HypermediaResource<any> {
     this.__renderItem = new Function(
       'html',
       'lang',
-      'resource',
-      `return html\`<${value} .resource=\${resource} lang=\${lang}></${value}>\``
+      'data',
+      `return html\`<${value} .data=\${data} lang=\${lang}></${value}>\``
     ) as ElementRenderer;
-
-    if (value) this.defineScopedElement(value, customElements.get(value));
 
     this.__item = value;
     this.requestUpdate();
@@ -44,11 +40,19 @@ export class CollectionPageElement extends HypermediaResource<any> {
   }
 
   render(): TemplateResult {
-    const items = Array.from(Object.values(this.resource?._embedded ?? {}) as any[]).reduce(
+    const data = this.state.context.data;
+    const items = Array.from(Object.values(data?._embedded ?? {}) as any[]).reduce(
       (p, c) => [...p, ...c],
       [] as any[]
     );
 
-    return html`${items.map((item: any) => this.__renderItem?.(html, this.lang, item))}`;
+    return html`
+      ${items.map((item: any) => this.__renderItem?.(html, this.lang, item))}
+      ${this.state.matches('idle')
+        ? ''
+        : html`
+            <foxy-spinner state=${this.state.matches('fail') ? 'error' : 'busy'}> </foxy-spinner>
+          `}
+    `;
   }
 }

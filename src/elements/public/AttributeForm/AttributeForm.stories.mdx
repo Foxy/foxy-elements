@@ -1,6 +1,6 @@
 import { html } from 'lit-html';
 import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
-import { attribute } from '../../../mocks/FxAttribute';
+
 import './index.ts';
 
 <Meta title="Forms / Attribute" component="foxy-attribute-form" />
@@ -17,19 +17,11 @@ Below are all the states this component can render.
 
 Displayed while loading the resource.
 
-export function handleRequestWithLoading(evt) {
-  evt.detail.handle(() => new Promise(() => {}));
-}
-
 <Canvas>
   <Story name="Loading">
     {() =>
       html`
-        <foxy-attribute-form
-          href="https://api.foxy.test/store_attributes/1002"
-          @request=${handleRequestWithLoading}
-        >
-        </foxy-attribute-form>
+        <foxy-attribute-form href="https://demo.foxycart.com/s/admin/sleep"> </foxy-attribute-form>
       `
     }
   </Story>
@@ -39,19 +31,13 @@ export function handleRequestWithLoading(evt) {
 
 Displayed when resource load fails.
 
-export function handleRequestWithError(evt) {
-  evt.detail.handle(() => Promise.reject());
-}
-
 <Canvas>
   <Story name="Error">
     {() =>
       html`
         <foxy-attribute-form
-          href="https://api.foxy.test/store_attributes/1002"
-          @request=${handleRequestWithError}
-        >
-        </foxy-attribute-form>
+          href="https://demo.foxycart.com/s/admin/customer_attributes/not-found"
+        ></foxy-attribute-form>
       `
     }
   </Story>
@@ -62,27 +48,27 @@ export function handleRequestWithError(evt) {
 Displayed when there's no `href` attribute.
 
 <Canvas>
-  <Story name="Empty">{() => html`<foxy-attribute-form></foxy-attribute-form>`}</Story>
+  <Story name="Empty">
+    {() =>
+      html`
+        <foxy-attribute-form
+          parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        ></foxy-attribute-form>
+      `
+    }
+  </Story>
 </Canvas>
 
 ### Ready
 
 Displayed after the resource is loaded.
 
-export function handleRequestWithSuccess(evt) {
-  evt.detail.handle(async () => new Response(JSON.stringify(attribute)));
-}
-
 <Canvas>
   <Story name="Ready">
     {() =>
-      html`
-        <foxy-attribute-form
-          href="https://api.foxy.test/store_attributes/1002"
-          @request=${handleRequestWithSuccess}
-        >
-        </foxy-attribute-form>
-      `
+      html`<foxy-attribute-form
+        href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+      ></foxy-attribute-form>`
     }
   </Story>
 </Canvas>

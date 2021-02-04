@@ -10,6 +10,8 @@ module.exports = {
       use: [...tsRule.use, path.resolve(__dirname, `tailwind.${configType.toLowerCase()}.js`)],
     });
 
+    config.resolve.alias['@foxy.io/sdk/core'] = '@foxy.io/sdk/dist/esm/core';
+
     return config;
   },
 };
