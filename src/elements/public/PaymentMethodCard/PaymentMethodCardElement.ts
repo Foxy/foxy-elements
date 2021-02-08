@@ -6,7 +6,6 @@ import { ConfirmDialogElement } from '../../private/ConfirmDialog';
 import { Data } from './types';
 import { I18NElement } from '../I18N';
 import { NucleonElement } from '../NucleonElement';
-import { Skeleton } from '../../private';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
 import { cdn } from '../../../env';
@@ -15,7 +14,8 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
   static get scopedElements(): ScopedElementsMap {
     return {
       'x-confirm-dialog': ConfirmDialogElement,
-      'x-skeleton': Skeleton,
+      'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
       'foxy-i18n': customElements.get('foxy-i18n'),
     };
@@ -60,24 +60,18 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
     const t = I18NElement.i18next.getFixedT(lang, ns);
 
     if (state.matches({ idle: 'template' }) || !state.matches('idle')) {
-      return html`
-        <div class="ratio-card bg-base" aria-live="polite" aria-busy=${state.matches('busy')}>
-          <x-skeleton
-            class="h-full"
-            size="box"
-            variant=${state.matches('fail') ? 'error' : state.matches('idle') ? 'static' : 'busy'}
-          >
-          </x-skeleton>
+      const spinnerState = state.matches('fail')
+        ? 'error'
+        : state.matches('busy')
+        ? 'busy'
+        : 'empty';
 
-          ${state.matches('fail')
-            ? html`
-                <div class="text-error flex flex-col justify-center absolute inset-0">
-                  <iron-icon icon="icons:error-outline" class="mb-xs mx-auto"></iron-icon>
-                  <foxy-i18n ns=${ns} lang=${lang} key="failed_to_load" class="text-s mx-auto">
-                  </foxy-i18n>
-                </div>
-              `
-            : ''}
+      return html`
+        <div class="ratio-card" aria-live="polite" aria-busy=${state.matches('busy')}>
+          <div class="h-full bg-contrast-10"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <foxy-spinner state=${spinnerState}></foxy-spinner>
+          </div>
         </div>
       `;
     }
@@ -105,13 +99,15 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
           class="flex flex-col justify-between text-base text-m leading-m font-lumo p-m bg-unknown bg-${type}"
         >
           <div class="flex items-start justify-between">
-            <button
-              class="h-m w-m rounded flex items-center justify-center bg-tint-5 focus:outline-none focus:shadow-outline-base"
+            <vaadin-button
+              class="px-xs rounded"
+              theme="icon"
+              style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
               aria-label=${t('delete').toString()}
               @click=${this.__handleDelete}
             >
               <iron-icon icon="icons:delete"></iron-icon>
-            </button>
+            </vaadin-button>
 
             <img src=${logo} class="block rounded h-m" />
           </div>
@@ -138,9 +134,9 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
     this.__untrackTranslations?.();
   }
 
-  private __handleDelete() {
+  private __handleDelete(evt: Event) {
     const confirm = this.renderRoot.querySelector('#confirm');
-    (confirm as ConfirmDialogElement).show();
+    (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
   }
 
   private __handleDeleteConfirm() {

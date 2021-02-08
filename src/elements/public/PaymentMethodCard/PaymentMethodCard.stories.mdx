@@ -50,6 +50,24 @@ Displayed when resource load fails.
   </Story>
 </Canvas>
 
+### Empty
+
+Displayed when resource isn't present.
+
+<Canvas>
+  <Story name="Empty">
+    {() =>
+      html`
+        <foxy-payment-method-card
+          class="rounded-lg overflow-hidden mx-auto"
+          style="max-width: 320px"
+        >
+        </foxy-payment-method-card>
+      `
+    }
+  </Story>
+</Canvas>
+
 ### Ready
 
 Displayed after the resource is loaded.

@@ -3,6 +3,7 @@ import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { API } from '../NucleonElement/API';
 import { DialogElement } from '../../private/Dialog';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 
 type Template = typeof html;
@@ -10,6 +11,7 @@ type TemplateFunction = (params: {
   html: Template;
   href: string;
   lang: string;
+  parent: string;
   handleFetch: (evt: Event) => void;
   handleUpdate: (evt: Event) => void;
 }) => TemplateResult;
@@ -60,7 +62,6 @@ export class FormDialogElement extends DialogElement {
     this.editable =
       evt.detail.matches({ idle: { template: { clean: 'valid' } } }) ||
       evt.detail.matches({ idle: { template: { dirty: 'valid' } } }) ||
-      evt.detail.matches({ idle: { snapshot: { clean: 'valid' } } }) ||
       evt.detail.matches({ idle: { snapshot: { dirty: 'valid' } } });
   };
 
@@ -71,7 +72,16 @@ export class FormDialogElement extends DialogElement {
   set form(tagName: string | null) {
     this.__renderForm = new Function(
       'opts',
-      `return opts.html\`<${tagName} href=\${opts.href} lang=\${opts.lang} @fetch=\${opts.handleFetch} @update=\${opts.handleUpdate}></${tagName}>\``
+      `return opts.html\`
+        <${tagName}
+          id="form"
+          href=\${opts.href}
+          lang=\${opts.lang}
+          parent=\${opts.parent}
+          @fetch=\${opts.handleFetch}
+          @update=\${opts.handleUpdate}
+        >
+        </${tagName}>\``
     ) as TemplateFunction;
 
     this.__form = tagName;
@@ -83,10 +93,16 @@ export class FormDialogElement extends DialogElement {
       this.__renderForm?.bind(null, {
         handleUpdate: this.__handleUpdate,
         handleFetch: this.__handleFetch,
+        parent: this.parent,
         href: this.href,
         lang: this.lang,
         html,
       })
     );
+  }
+
+  async save(): Promise<void> {
+    const form = this.renderRoot.querySelector('#form') as NucleonElement<never>;
+    form.send({ type: 'SUBMIT' });
   }
 }

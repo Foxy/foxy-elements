@@ -10,7 +10,7 @@ import { FrequencyInputChangeEvent } from '../../private/FrequencyInput/Frequenc
 import { I18NElement } from '../I18N';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private';
+import { PropertyTableElement } from '../../private';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { memoize } from 'lodash-es';
@@ -21,7 +21,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
     return {
       'vaadin-date-picker': customElements.get('vaadin-date-picker'),
       'x-frequency-input': FrequencyInput,
-      'x-property-table': PropertyTable,
+      'x-property-table': PropertyTableElement,
       'x-confirm-dialog': ConfirmDialogElement,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -263,9 +263,9 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
     }
   }
 
-  private __confirmEnd() {
+  private __confirmEnd(evt: Event) {
     const confirm = this.renderRoot.querySelector('#confirm') as ConfirmDialogElement;
-    confirm.show();
+    confirm.show(evt.currentTarget as HTMLElement);
   }
 
   private __end() {

@@ -49,6 +49,7 @@ export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data
     return html`
       <foxy-form-dialog
         header="edit"
+        parent=${this.parent}
         form="foxy-address-form"
         lang=${lang}
         href=${href}
@@ -100,8 +101,8 @@ export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data
     `;
   }
 
-  private __handleClick() {
+  private __handleClick(evt: Event) {
     const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
-    dialog.show();
+    dialog.show(evt.currentTarget as HTMLElement);
   }
 }

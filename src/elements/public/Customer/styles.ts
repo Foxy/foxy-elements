@@ -28,12 +28,9 @@ export const styles = css`
     scroll-snap-align: start;
   }
 
-  foxy-attribute-card {
-    padding: calc(var(--lumo-space-m) / var(--lumo-line-height-s)) var(--lumo-space-m);
-  }
-
+  foxy-attribute-card,
   foxy-address-card {
-    padding: calc(var(--lumo-space-m) / var(--lumo-line-height-m)) var(--lumo-space-m);
+    padding: var(--lumo-space-m);
   }
 
   foxy-attribute-card:hover,
@@ -45,5 +42,32 @@ export const styles = css`
   foxy-address-card:focus-within {
     border-color: var(--lumo-primary-color);
     box-shadow: none;
+  }
+
+  foxy-collection-pages[item='foxy-attribute-card'] foxy-spinner,
+  foxy-collection-pages[item='foxy-address-card'] foxy-spinner {
+    border-radius: var(--lumo-border-radius-l);
+    background: var(--lumo-contrast-10pct);
+    min-width: 18rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  foxy-collection-pages[item='foxy-attribute-card'] foxy-spinner {
+    --padding: calc((var(--lumo-space-m) * 2));
+    --border: 2px;
+    --value: calc(var(--lumo-line-height-m) * var(--lumo-font-size-l));
+    --name: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
+
+    height: calc(var(--border) + var(--padding) + var(--value) + var(--name));
+  }
+
+  foxy-collection-pages[item='foxy-address-card'] foxy-spinner {
+    --padding: calc((var(--lumo-space-m) * 2));
+    --content: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
+    --border: 2px;
+
+    height: calc(var(--border) + var(--padding) + var(--content));
   }
 `;

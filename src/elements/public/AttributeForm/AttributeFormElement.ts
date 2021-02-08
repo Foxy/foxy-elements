@@ -1,5 +1,5 @@
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { Choice, Group, PropertyTable } from '../../private';
+import { Choice, Group, PropertyTableElement } from '../../private';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -19,7 +19,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-text-area': customElements.get('vaadin-text-area'),
-      'x-property-table': PropertyTable,
+      'x-property-table': PropertyTableElement,
       'x-confirm-dialog': ConfirmDialogElement,
       'vaadin-button': customElements.get('vaadin-button'),
       'x-choice': Choice,
@@ -230,8 +230,8 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
     this.send({ type: 'EDIT', data: { visibility } });
   }
 
-  private __handleDeleteClick() {
-    this.__confirmDialog.show();
+  private __handleDeleteClick(evt: Event) {
+    this.__confirmDialog.show(evt.currentTarget as HTMLElement);
   }
 
   private __handleDeleteConfirm() {

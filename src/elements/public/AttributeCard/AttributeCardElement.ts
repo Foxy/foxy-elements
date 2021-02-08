@@ -13,6 +13,7 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
     return {
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'x-skeleton': Skeleton,
+      'iron-icon': customElements.get('iron-icon'),
     };
   }
 
@@ -34,6 +35,7 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
     return html`
       <foxy-form-dialog
         header="edit"
+        parent=${this.parent}
         form="foxy-attribute-form"
         href=${this.href}
         lang=${this.lang}
@@ -44,28 +46,50 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
       <figure
         role="button"
         tabindex="0"
-        class="text-body text-l font-lumo leading-s focus:outline-none"
+        class="text-body text-l font-lumo leading-m focus:outline-none"
         aria-live="polite"
         aria-busy=${state.matches('busy')}
         @click=${this.__handleClick}
+        @keydown=${this.__handleKeyDown}
       >
-        <figcaption class="uppercase text-xxs font-medium text-tertiary tracking-wider">
+        <figcaption
+          class="flex items-center space-x-xs uppercase text-xxs font-medium text-tertiary tracking-wider"
+        >
           ${state.matches({ idle: 'snapshot' })
-            ? html`<span class="truncate">${state.context.data.name}</span>`
+            ? html`
+                <span class="block truncate" title=${state.context.data.name}>
+                  ${state.context.data.name}
+                </span>
+                ${state.context.data.visibility !== 'public'
+                  ? html`
+                      <iron-icon
+                        icon="icons:lock"
+                        style="--iron-icon-width: 1em; --iron-icon-height: 1em"
+                      >
+                      </iron-icon>
+                    `
+                  : ''}
+              `
             : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}
         </figcaption>
 
         ${state.matches({ idle: 'snapshot' })
-          ? html`<span class="truncate">${state.context.data.value}</span>`
+          ? html`
+              <span class="block truncate" title=${state.context.data.value}>
+                ${state.context.data.value}
+              </span>
+            `
           : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}
       </figure>
     `;
   }
 
-  private __handleClick() {
-    if (this.state.matches({ idle: 'snapshot' })) {
-      const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
-      dialog.show();
-    }
+  private __handleClick(evt: Event) {
+    const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
+    dialog.show(evt.currentTarget as HTMLElement);
+  }
+
+  private __handleKeyDown(evt: KeyboardEvent) {
+    if (evt.key === 'Enter') this.__handleClick(evt);
   }
 }

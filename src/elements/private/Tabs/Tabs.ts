@@ -26,7 +26,7 @@ export class Tabs extends Themeable {
           id="tab-${index}"
           role="tab"
           class=${classMap({
-            'text-xl font-medium px-s rounded focus:outline-none focus:shadow-outline': true,
+            'tracking-wide text-xl font-medium px-s rounded focus:outline-none focus:shadow-outline': true,
             'text-tertiary hover:text-body focus:text-body': this.value !== index,
           })}
           aria-controls="panel-${index}"

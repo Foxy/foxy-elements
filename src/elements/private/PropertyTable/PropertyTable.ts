@@ -1,96 +1,47 @@
-import '@polymer/iron-icon';
-
+import { CSSResult, CSSResultArray, LitElement, PropertyDeclarations, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
-import { PropertyDeclarations } from 'lit-element';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { Skeleton } from '../Skeleton/Skeleton';
-import { Translatable } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { Themeable } from '../../../mixins/themeable';
 
-interface PropertyTableItem {
-  name: string;
-  value: string;
-  invalid?: boolean;
-  editable?: boolean;
-  onInput?: (value: string) => void;
-}
-
-export class PropertyTable extends Translatable {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'iron-icon': customElements.get('iron-icon'),
-      'x-skeleton': Skeleton,
-    };
-  }
-
+export class PropertyTableElement extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
-      ...super.properties,
-      disabled: { type: Boolean },
       items: { attribute: false },
+      lang: { type: String },
     };
   }
 
-  disabled = false;
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles,
+      css`
+        .max-w-0 {
+          max-width: 0;
+        }
+      `,
+    ];
+  }
 
-  items: PropertyTableItem[] | null = null;
+  items: { name: string; value: string }[] = [];
 
   render(): TemplateResult {
+    const tdClass = 'max-w-0 truncate py-s';
+
     return html`
-      <table
-        class=${classMap({
-          'font-lumo text-body text-m leading-m w-full': true,
-          'text-disabled': this.disabled,
-          'text-body': !this.disabled,
-        })}
-      >
+      <table class="font-lumo text-body text-m leading-m w-full">
         <thead class="sr-only">
           <tr>
-            <th>${this._t('property')}</th>
-            <th>${this._t('value')}</th>
+            <th><foxy-i18n lang=${this.lang} key="property"></foxy-i18n></th>
+            <th><foxy-i18n lang=${this.lang} key="value"></foxy-i18n></th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-contrast-10">
-          ${this.items?.map(
-            ({ name, value, invalid, editable, onInput }) => html`
+          ${this.items.map(
+            ({ name, value }) => html`
               <tr>
-                <td
-                  class=${classMap({
-                    'truncate py-s pr-m': true,
-                    'text-tertiary': !this.disabled,
-                  })}
-                >
-                  <div class="flex items-center space-x-xs">
-                    ${this._isI18nReady
-                      ? html`<span>${name}</span>`
-                      : html`<x-skeleton></x-skeleton>`}
-                  </div>
-                </td>
-
-                <td class="py-s w-full">
-                  ${editable
-                    ? html`
-                        <input
-                          value=${value}
-                          ?disabled=${this.disabled}
-                          class=${classMap({
-                            'w-full px-s rounded focus:outline-none': true,
-                            'hover:bg-contrast-10 focus:bg-contrast-10 focus:shadow-outline': !invalid,
-                            'text-error hover:bg-error-10 focus:bg-error-10 focus:shadow-outline-error': !!invalid,
-                          })}
-                          @keydown=${(evt: KeyboardEvent) => {
-                            if (evt.key === 'Enter') this.dispatchEvent(new CustomEvent('submit'));
-                          }}
-                          @input=${(evt: InputEvent) => {
-                            const target = evt.target as HTMLInputElement;
-                            onInput?.(target.value);
-                          }}
-                        />
-                      `
-                    : html`<span class="px-s">${value}</span>`}
-                </td>
+                <td class="${tdClass} w-1/3 pr-m text-tertiary" title=${name}>${name}</td>
+                <td class="${tdClass} w-2/3" title=${value}>${value}</td>
               </tr>
             `
           )}

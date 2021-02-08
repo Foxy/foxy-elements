@@ -98,8 +98,18 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   updated(updates: Map<keyof this, unknown>): void {
     super.updated(updates);
 
-    if (updates.has('group')) this.__destroyRumour(), this.__createRumour();
-    if (updates.has('href')) this.send({ type: 'FETCH' });
+    if (updates.has('group')) {
+      this.__destroyRumour();
+      this.__createRumour();
+    }
+
+    if (updates.has('href')) {
+      if (this.href) {
+        this.send({ type: 'FETCH' });
+      } else {
+        this.send({ type: 'SET_DATA', data: null });
+      }
+    }
   }
 
   disconnectedCallback(): void {
@@ -111,9 +121,13 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   }
 
   private __createService() {
-    this.__service.onTransition(({ changed }) => {
-      if (!changed) return;
-      this.dispatchEvent(new UpdateEvent('update', { detail: this.state }));
+    this.__service.onTransition(state => {
+      if (!state.changed) return;
+
+      const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
+      this.setAttribute('state', [...new Set(flags)].join(' '));
+
+      this.dispatchEvent(new UpdateEvent('update', { detail: state }));
       this.requestUpdate();
     });
 
@@ -213,7 +227,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const data = await this.__fetch(this.href, { method: 'DELETE' });
     const rumour = NucleonElement.Rumour(this.group);
 
-    rumour.share({ data: null, source: this.href });
+    rumour.share({ data: null, source: this.href, related: [this.parent] });
     return data;
   }
 }
