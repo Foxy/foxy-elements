@@ -283,6 +283,38 @@ router.get('/s/admin/customers/:id/addresses', async ({ params, request }) => {
   return new Response(JSON.stringify(body));
 });
 
+router.post('/s/admin/customers/:id/addresses', async ({ params, request }) => {
+  await whenDbReady;
+
+  const customer = await db.customers.get(parseInt(params.id));
+  const requestBody = await request.json();
+  const newID = await db.customerAddresses.add({
+    store: customer.store,
+    customer: customer.id,
+    address_name: requestBody.address_name ?? '',
+    first_name: requestBody.first_name ?? '',
+    last_name: requestBody.last_name ?? '',
+    company: requestBody.company ?? '',
+    address1: requestBody.address1,
+    address2: requestBody.address2 ?? '',
+    city: requestBody.city ?? '',
+    region: requestBody.region ?? '',
+    postal_code: requestBody.postal_code ?? '',
+    country: requestBody.country ?? '',
+    phone: requestBody.phone ?? '',
+    is_default_billing: requestBody.is_default_billing ?? false,
+    is_default_shipping: requestBody.is_default_shipping ?? false,
+    ignore_address_restrictions: requestBody.ignore_address_restrictions ?? false,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  });
+
+  const newDoc = await db.customerAddresses.get(newID);
+  const responseBody = composeCustomerAddress(newDoc);
+
+  return new Response(JSON.stringify(responseBody));
+});
+
 router.get('/s/admin/customer_addresses/:id', async ({ params }) => {
   await whenDbReady;
 
@@ -322,6 +354,26 @@ router.get('/s/admin/customers/:id', async ({ params }) => {
     await db.customers.get(id),
     await db.customerAttributes.where('customer').equals(id).limit(20).toArray()
   );
+
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/customers/:id', async ({ params, request }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  await db.customers.update(id, await request.json());
+  const body = composeCustomer(await db.customers.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+router.delete('/s/admin/customers/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeCustomer(await db.customers.get(id));
+  await db.customers.delete(id);
 
   return new Response(JSON.stringify(body));
 });
