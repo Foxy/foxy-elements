@@ -1,5 +1,6 @@
 {
   "paused": "Paused",
+  "empty": "No data",
   "error": "Failed to load",
   "busy": "Loading",
   "end": "No more data"
