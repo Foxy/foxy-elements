@@ -36,6 +36,8 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
 
   static get v8n(): NucleonV8N<Data> {
     return [
+      ({ address_name: v }) => (v && v.length > 0) || 'address_name_required',
+      ({ address_name: v }) => !v || v.length <= 100 || 'address_name_too_long',
       ({ first_name: v }) => !v || v.length <= 50 || 'first_name_too_long',
       ({ last_name: v }) => !v || v.length <= 50 || 'last_name_too_long',
       ({ region: v }) => !v || v.length <= 50 || 'region_too_long',
@@ -100,6 +102,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
 
       <div class="space-y-l font-lumo text-m leading-m text-body relative">
         <div class="grid grid-cols-2 gap-m">
+          ${this.__renderTextField({ field: 'address_name', wide: true, required: true })}
           ${this.__renderTextField({ field: 'first_name' })}
           ${this.__renderTextField({ field: 'last_name' })}
           ${this.__renderTextField({ field: 'company' })}

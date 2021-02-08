@@ -1,4 +1,5 @@
 {
+  "address_name": "Address name",
   "first_name": "First name",
   "last_name": "Last name",
   "company": "Company",
@@ -18,6 +19,8 @@
   "delete_yes": "Yes, delete now",
   "delete_message": "This address will be permanently removed from our records. Are you sure?",
   "create": "Create address",
+  "address_name_too_long": "Address name must be 100 characters or less",
+  "address_name_required": "Address name is required",
   "first_name_too_long": "First name must be 50 characters or less",
   "last_name_too_long": "Last name must be 50 characters or less",
   "region_too_long": "Region must be 50 characters or less",
