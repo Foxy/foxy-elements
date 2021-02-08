@@ -1,16 +1,15 @@
-import '@polymer/paper-spinner/paper-spinner-lite.js';
-import '@polymer/iron-icons';
 import '@polymer/iron-icon';
+import '@polymer/iron-icons';
+import '@polymer/paper-spinner/paper-spinner-lite.js';
 
 import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 
 import { I18N } from '../../private';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { Translatable } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
 
 export type SpinnerElementLayout = 'vertical' | 'horizontal';
-export type SpinnerElementState = 'end' | 'busy' | 'error' | 'paused';
+export type SpinnerElementState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
 export class SpinnerElement extends Translatable {
   static readonly defaultNodeName = 'foxy-spinner';
@@ -70,6 +69,10 @@ export class SpinnerElement extends Translatable {
     } else if (this.state === 'paused') {
       icon = html`<iron-icon icon="icons:more-horiz"></iron-icon>`;
       text = 'paused';
+      tint = 'text-tertiary';
+    } else if (this.state === 'empty') {
+      icon = html`<iron-icon icon="icons:info-outline"></iron-icon>`;
+      text = 'empty';
       tint = 'text-tertiary';
     } else {
       icon = html`<paper-spinner-lite active></paper-spinner-lite>`;
