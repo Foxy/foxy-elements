@@ -77,6 +77,8 @@ export abstract class DialogElement extends LitElement {
 
   ns = '';
 
+  private __returnFocusTo?: HTMLElement;
+
   private __connected = false;
 
   private __visible = false;
@@ -122,10 +124,8 @@ export abstract class DialogElement extends LitElement {
 
     return html`
       <div
-        class=${classMap({ 'fixed inset-0': true, 'pointer-events-none': !this.__visible })}
-        style="z-index: ${50 +
-        DialogElement.openDialogs.length -
-        DialogElement.openDialogs.indexOf(this)}"
+        class=${classMap({ 'z-50 fixed inset-0': true, 'pointer-events-none': !this.__visible })}
+        @keydown=${this.__handleKeyDown}
       >
         <div
           id="backdrop"
@@ -166,17 +166,19 @@ export abstract class DialogElement extends LitElement {
             >
               ${this.closable
                 ? html`
-                    <button
-                      class="mr-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
+                    <vaadin-button
+                      id="close-button"
+                      theme="tertiary-inline"
+                      class="mr-auto m-s px-s"
                       @click=${this.hide}
                     >
                       <foxy-i18n
-                        .ns=${this.ns}
-                        .lang=${this.lang}
-                        .key=${this.editable ? 'cancel' : 'close'}
+                        lang=${this.lang}
+                        key=${this.editable ? 'cancel' : 'close'}
+                        ns=${this.ns}
                       >
                       </foxy-i18n>
-                    </button>
+                    </vaadin-button>
                   `
                 : html`<div></div>`}
 
@@ -186,12 +188,13 @@ export abstract class DialogElement extends LitElement {
 
               ${this.editable
                 ? html`
-                    <button
-                      class="ml-auto m-s px-s rounded-s text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
+                    <vaadin-button
+                      theme="tertiary-inline"
+                      class="ml-auto m-s px-s"
                       @click=${this.save}
                     >
-                      <foxy-i18n .ns=${this.ns} .lang=${this.lang} key="save"></foxy-i18n>
-                    </button>
+                      <foxy-i18n ns=${this.ns} lang=${this.lang} key="save"></foxy-i18n>
+                    </vaadin-button>
                   `
                 : html`<div></div>`}
             </div>
@@ -206,19 +209,32 @@ export abstract class DialogElement extends LitElement {
   }
 
   async hide(cancelled = false): Promise<void> {
+    this.__returnFocusTo?.focus();
+
     await this.__setOpenDialogs(DialogElement.openDialogs.filter(d => d !== this));
     await this.__setConnected(false);
+
     this.dispatchEvent(new DialogElement.HideEvent(cancelled));
   }
 
-  async show(): Promise<void> {
+  async show(returnFocusTo?: HTMLElement): Promise<void> {
+    this.__returnFocusTo = returnFocusTo;
+
     await this.__setConnected(true);
     await this.__setOpenDialogs([this, ...DialogElement.openDialogs]);
+
+    const closeButton = this.renderRoot.querySelector('#close-button') as HTMLButtonElement;
+    closeButton?.focus();
+
     this.dispatchEvent(new DialogElement.ShowEvent());
   }
 
   async save(): Promise<void> {
     await this.hide(false);
+  }
+
+  private __handleKeyDown(evt: KeyboardEvent) {
+    if (evt.key === 'Escape' && DialogElement.openDialogs[0] === this && this.closable) this.hide();
   }
 
   private async __setOpenDialogs(newValue: DialogElement[]) {
