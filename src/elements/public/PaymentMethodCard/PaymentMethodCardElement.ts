@@ -59,7 +59,7 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
     const ns = PaymentMethodCardElement.__ns;
     const t = I18NElement.i18next.getFixedT(lang, ns);
 
-    if (state.matches({ idle: 'template' }) || !state.matches('idle')) {
+    if (state.matches({ idle: 'template' }) || !data?.save_cc || !state.matches('idle')) {
       const spinnerState = state.matches('fail')
         ? 'error'
         : state.matches('busy')
@@ -140,6 +140,7 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
   }
 
   private __handleDeleteConfirm() {
-    this.send({ type: 'DELETE' });
+    this.send({ type: 'EDIT', data: { save_cc: (false as unknown) as string } });
+    this.send({ type: 'SUBMIT' });
   }
 }
