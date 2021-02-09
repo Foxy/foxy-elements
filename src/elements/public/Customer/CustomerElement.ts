@@ -1,18 +1,15 @@
-import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { PropertyTableElement, Skeleton } from '../../private';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-
-import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/FormDialogElement';
-import { I18NElement } from '../I18N';
-import { NucleonElement } from '../NucleonElement';
-import { NucleonV8N } from '../NucleonElement/types';
-import { Tabs } from '../../private/Tabs/Tabs';
+import { CSSResultArray, html, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
-import { validate as isEmail } from 'email-validator';
+import { PropertyTableElement, Skeleton } from '../../private';
+import { Tabs } from '../../private/Tabs/Tabs';
+import { FormDialogElement } from '../FormDialog/FormDialogElement';
+import { I18NElement } from '../I18N';
+import { NucleonElement } from '../NucleonElement';
 import { styles } from './styles';
+import { Data } from './types';
 
 export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -152,6 +149,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
               class="h-scroll flex items-center space-x-m overflow-auto"
               page="foxy-collection-page"
               item="foxy-address-card"
+              lang=${this.lang}
             >
             </foxy-collection-pages>
           </section>
@@ -164,6 +162,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
             <foxy-payment-method-card
               class="rounded-t-l rounded-b-l overflow-hidden"
               href=${state.context.data?._links['fx:default_payment_method'].href ?? ''}
+              lang=${lang}
             >
             </foxy-payment-method-card>
           </section>
@@ -191,6 +190,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
               class="h-scroll flex items-center space-x-m overflow-auto"
               page="foxy-collection-page"
               item="foxy-attribute-card"
+              lang=${lang}
             >
             </foxy-collection-pages>
           </section>
@@ -205,6 +205,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
                 first=${transactionsURL}
                 slot="panel-0"
                 page="foxy-transactions-table"
+                lang=${lang}
               >
               </foxy-collection-pages>
 
@@ -213,6 +214,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
                 first=${subscriptionsURL}
                 slot="panel-1"
                 page="foxy-subscriptions-table"
+                lang=${lang}
               >
               </foxy-collection-pages>
             </x-tabs>
@@ -223,9 +225,10 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
+                  layout="vertical"
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
                   state=${state.matches('busy') ? 'busy' : 'error'}
-                  layout="vertical"
+                  lang=${lang}
                 >
                 </foxy-spinner>
               </div>
@@ -271,22 +274,12 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
       value: data ? data.email : '',
     };
 
-    const firstName = {
-      name: this.__t('first_name'),
-      value: data ? data.first_name : '',
-    };
-
-    const lastName = {
-      name: this.__t('last_name'),
-      value: data ? data.last_name : '',
-    };
-
     const taxID = {
       name: this.__t('tax_id'),
       value: data ? data.tax_id : '',
     };
 
-    return [firstName, lastName, email, taxID, lastLogin, firstPurchase];
+    return [email, taxID, lastLogin, firstPurchase];
   }
 
   private get __t() {
