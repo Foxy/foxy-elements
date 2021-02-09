@@ -1,5 +1,4 @@
 import { CSSResult, CSSResultArray, LitElement, css, unsafeCSS } from 'lit-element';
-
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 /**
