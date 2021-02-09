@@ -1,10 +1,10 @@
-import { CSSResultArray, LitElement, PropertyDeclarations, css } from 'lit-element';
-import { TemplateResult, html } from 'lit-html';
-
-import { DialogWindow } from './DialogWindowElement';
-import { RequestEvent } from '../../../events/request';
+import { css, CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
+import { html, TemplateResult } from 'lit-html';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+import { API } from '../../public/NucleonElement/API';
+import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
+import { DialogWindow } from './DialogWindowElement';
 
 class DialogShowEvent extends CustomEvent<void> {
   constructor() {
@@ -102,9 +102,11 @@ export abstract class DialogElement extends LitElement {
     const dialogWindow = new DialogWindow();
     const dialogWindowsHost = document.querySelector(DialogElement.dialogWindowsHost);
 
-    dialogWindow.addEventListener('request', evt => {
-      if (evt instanceof RequestEvent) {
-        evt.detail.handle((...init) => RequestEvent.emit({ source: this, init }));
+    dialogWindow.addEventListener('fetch', (evt: Event) => {
+      if (evt instanceof FetchEvent) {
+        evt.stopImmediatePropagation();
+        evt.preventDefault();
+        evt.respondWith(new API(this).fetch(evt.request));
       }
     });
 

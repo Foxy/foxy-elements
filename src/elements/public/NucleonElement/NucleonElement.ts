@@ -54,15 +54,15 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
       },
 
       actions: {
-        validate: assign<Nucleon.Context>({
+        validate: assign<Nucleon.Context<TData, string>, Nucleon.Event<TData>>({
           errors: context => {
             const rules = (this.constructor as typeof NucleonElement).v8n;
             const form = { ...context.data, ...context.edits };
 
             return rules
               .map(validate => validate(form))
-              .filter(validationResult => typeof validationResult === 'string')
-              .filter((error, errorIndex, errors) => errors.indexOf(error) === errorIndex);
+              .filter(v8nResult => typeof v8nResult === 'string')
+              .filter((err, errIndex, errs) => errs.indexOf(err) === errIndex) as string[];
           },
         }),
       },
@@ -127,13 +127,17 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
       const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
       this.setAttribute('state', [...new Set(flags)].join(' '));
 
-      this.dispatchEvent(new UpdateEvent('update', { detail: state }));
       this.requestUpdate();
+      this.dispatchEvent(
+        new UpdateEvent<TData>('update', { detail: state })
+      );
     });
 
     this.__service.onChange(() => {
-      this.dispatchEvent(new UpdateEvent('update', { detail: this.state }));
       this.requestUpdate();
+      this.dispatchEvent(
+        new UpdateEvent<TData>('update', { detail: this.state })
+      );
     });
 
     this.__service.start();
