@@ -1,20 +1,18 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
-import { Checkbox, PropertyTableElement } from '../../private';
-import { ComboBoxParams, Data, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
-
-import { CheckboxChangeEvent } from '../../private/events';
+import { CSSResult, CSSResultArray } from 'lit-element';
+import { html, TemplateResult } from 'lit-html';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { memoize } from 'lodash-es';
+import { Themeable } from '../../../mixins/themeable';
+import { classMap } from '../../../utils/class-map';
+import { PropertyTableElement } from '../../private';
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
 import { I18NElement } from '../I18N';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { Themeable } from '../../../mixins/themeable';
-import { classMap } from '../../../utils/class-map';
 import { countries } from './countries';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { memoize } from 'lodash-es';
 import { regions } from './regions';
+import { ComboBoxParams, Data, TextFieldParams } from './types';
 
 export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -25,7 +23,6 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
       'x-confirm-dialog': ConfirmDialogElement,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
-      'x-checkbox': Checkbox,
       'foxy-i18n': customElements.get('foxy-i18n'),
     };
   }
@@ -54,13 +51,6 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
 
   private __untrackTranslations?: () => void;
 
-  private __bindCheckbox = memoize((key: keyof Data) => {
-    return (evt: CheckboxChangeEvent) => {
-      const newValue = (evt.detail as unknown) as string; // TODO: fix once @foxy.io/sdk types are corrected
-      this.send({ type: 'EDIT', data: { [key]: newValue } });
-    };
-  });
-
   private __getValidator = memoize((prefix: string) => () => {
     return !this.state.context.errors.some(err => err.startsWith(prefix));
   });
@@ -84,6 +74,9 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
     const isTemplateValid = state.matches({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = state.matches({ idle: { snapshot: { dirty: 'valid' } } });
     const isDisabled = !state.matches('idle');
+    const isDefaultShipping = !!state.context.data?.is_default_shipping;
+    const isDefaultBilling = !!state.context.data?.is_default_billing;
+    const isDefault = isDefaultShipping || isDefaultBilling;
     const isValid = isTemplateValid || isSnapshotValid;
 
     return html`
@@ -102,7 +95,12 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
 
       <div class="space-y-l font-lumo text-m leading-m text-body relative">
         <div class="grid grid-cols-2 gap-m">
-          ${this.__renderTextField({ field: 'address_name', wide: true, required: true })}
+          ${this.__renderTextField({
+            field: 'address_name',
+            wide: true,
+            readonly: isDefault,
+            required: true,
+          })}
           ${this.__renderTextField({ field: 'first_name' })}
           ${this.__renderTextField({ field: 'last_name' })}
           ${this.__renderTextField({ field: 'company' })}
@@ -115,17 +113,12 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
           ${this.__renderTextField({ field: 'postal_code' })}
         </div>
 
-        <div class="space-y-s">
-          ${this.__renderCheckbox('is_default_billing')}
-          ${this.__renderCheckbox('is_default_shipping')}
-        </div>
-
         ${this.href ? this.__renderPropertyTable() : undefined}
 
         <vaadin-button
           class="w-full"
           theme=${state.matches('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-          ?disabled=${(state.matches({ idle: 'template' }) && !isValid) || isDisabled}
+          ?disabled=${(state.matches({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
           @click=${this.__handleActionClick}
         >
           <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${lang}></foxy-i18n>
@@ -217,23 +210,12 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
     `;
   }
 
-  private __renderCheckbox(field: keyof Data) {
-    const { state } = this;
-    const { data, edits } = state.context;
-    const form = { ...data, ...edits } as Partial<Data>;
-
-    return html`
-      <x-checkbox
-        ?checked=${!!form?.[field]}
-        ?disabled=${!state.matches('idle')}
-        @change=${this.__bindCheckbox(field)}
-      >
-        <foxy-i18n ns=${AddressFormElement.__ns} lang=${this.lang} key=${field}></foxy-i18n>
-      </x-checkbox>
-    `;
-  }
-
-  private __renderTextField({ field, wide = false, required = false }: TextFieldParams) {
+  private __renderTextField({
+    field,
+    wide = false,
+    readonly = false,
+    required = false,
+  }: TextFieldParams) {
     const { state } = this;
     const { data, edits } = state.context;
     const form = { ...data, ...edits } as Partial<Data>;
@@ -247,6 +229,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
         .checkValidity=${this.__getValidator(field)}
         ?disabled=${!state.matches('idle')}
         ?required=${required}
+        ?readonly=${readonly}
         @input=${this.__bindField(field)}
         @keydown=${this.__handleKeyDown}
       >

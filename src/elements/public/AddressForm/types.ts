@@ -13,4 +13,5 @@ export type TextFieldParams = {
   field: Exclude<keyof Data, '_links' | '_embedded'>;
   wide?: boolean;
   required?: boolean;
+  readonly?: boolean;
 };
