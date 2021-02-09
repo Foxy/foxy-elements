@@ -1,75 +1,70 @@
-import '@polymer/iron-icon';
-import '@polymer/iron-icons/iron-icons';
-
-import type * as FoxySDK from '@foxy.io/sdk';
-
-import { I18N, LoadingScreen, Page } from '../../private';
-import { TemplateResult, html } from 'lit-html';
-
-import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { TemplateResult, html } from 'lit-html';
+import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
+import { FormDialogElement } from '../FormDialog';
+import { I18NElement } from '../I18N';
+import { Data } from './types';
 
-type Customers = FoxySDK.Core.Resource<FoxySDK.Integration.Rels.Customers, undefined>;
-
-export class CustomersTableElement extends NucleonTableElement<Customers> {
-  public static readonly defaultNodeName = 'foxy-customers-table';
-
-  public static get scopedElements(): ScopedElementsMap {
+export class CustomersTableElement extends NucleonTableElement<Data> {
+  static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
-      'x-loading-screen': LoadingScreen,
-      'x-page': Page,
-      'x-i18n': I18N,
+      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
     };
   }
 
-  public readonly rel = 'customers';
+  private static __ns = 'customers-table';
 
-  public constructor() {
-    super('customers');
+  private __untrackTranslations?: () => void;
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
   }
 
-  public render(): TemplateResult {
+  render(): TemplateResult {
+    const ns = CustomersTableElement.__ns;
+
     return html`
-      <x-customer-dialog
-        .href=${this.href}
-        .ns=${this.ns}
-        .lang=${this.lang}
-        id="customer-dialog"
+      <foxy-form-dialog
+        parent=${this.href}
         header="edit"
+        lang=${this.lang}
+        form="foxy-customer"
+        id="customer-dialog"
       >
-      </x-customer-dialog>
+      </foxy-form-dialog>
 
       ${super.render([
         {
-          header: () => this._t('name').toString(),
+          header: () => this.__t('name').toString(),
           cell: customer => `${customer.first_name} ${customer.last_name}`,
         },
         {
           mdAndUp: true,
-          header: () => this._t('id').toString(),
+          header: () => this.__t('id').toString(),
           cell: customer => html`
             <span role="presentation" class="text-s text-tertiary">ID&nbsp;</span>
             <span class="text-s text-secondary font-tnum">${customer.id}</span>
           `,
         },
         {
-          header: () => this._t('email').toString(),
+          header: () => this.__t('email').toString(),
           cell: customer => html`<span class="text-s text-secondary">${customer.email}</span>`,
         },
         {
           mdAndUp: true,
-          header: () => this._t('actions').toString(),
+          header: () => this.__t('actions').toString(),
           cell: customer =>
             html`
               <button
                 class="rounded text-s font-medium tracking-wide text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
-                @click=${() => {
+                @click=${(evt: Event) => {
                   this.__customerDialog.href = customer._links.self.href;
-                  this.__customerDialog.show();
+                  this.__customerDialog.show(evt.currentTarget as HTMLElement);
                 }}
               >
-                <x-i18n ns=${this.ns} lang=${this.lang} key="preview"></x-i18n>
+                <foxy-i18n ns=${ns} lang=${this.lang} key="preview"></foxy-i18n>
               </button>
             `,
         },
@@ -77,7 +72,16 @@ export class CustomersTableElement extends NucleonTableElement<Customers> {
     `;
   }
 
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__untrackTranslations?.();
+  }
+
+  private get __t() {
+    return I18NElement.i18next.getFixedT(this.lang, CustomersTableElement.__ns);
+  }
+
   private get __customerDialog(): any {
-    return this.renderRoot.querySelector('#customer-dialog') as any;
+    return this.renderRoot.querySelector('#customer-dialog') as FormDialogElement;
   }
 }

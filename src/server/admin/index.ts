@@ -344,6 +344,26 @@ router.delete('/s/admin/customer_addresses/:id', async ({ params }) => {
   return new Response(JSON.stringify(body));
 });
 
+// customers
+
+router.get('/s/admin/stores/:id/customers', async ({ params, request }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+  const [count, items] = await Promise.all([
+    db.customers.count(),
+    db.customers.where('store').equals(id).limit(limit).offset(offset).toArray(),
+  ]);
+
+  const rel = 'fx:customers';
+  const composeItem = composeCustomer;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
 // customer
 
 router.get('/s/admin/customers/:id', async ({ params }) => {

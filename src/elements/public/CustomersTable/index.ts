@@ -1,6 +1,8 @@
 import { CustomersTableElement } from './CustomersTableElement';
-import { define } from '../../../utils/define';
+import '../FormDialog';
+import '../Customer';
+import '../I18N';
 
-define(CustomersTableElement);
+customElements.define('foxy-customers-table', CustomersTableElement);
 
 export { CustomersTableElement };
