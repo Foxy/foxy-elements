@@ -8,6 +8,10 @@ export class API extends CoreAPI<any> {
       fetch: (info, init) =>
         new Promise((resolve, reject) => {
           const request = new Request(info, init);
+
+          request.headers.set('Content-Type', 'application/json');
+          request.headers.set('FOXY-API-VERSION', '1');
+
           const event = new FetchEvent('fetch', {
             cancelable: true,
             composed: true,
