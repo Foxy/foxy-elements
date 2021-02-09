@@ -199,8 +199,8 @@ export abstract class DialogElement extends LitElement {
                 : html`<div></div>`}
             </div>
 
-            <div class="relative p-m flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
-              ${content?.()}
+            <div class="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+              <div class="p-m relative">${content?.()}</div>
             </div>
           </div>
         </div>
