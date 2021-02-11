@@ -1,8 +1,6 @@
-import '../Spinner';
-
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
-import { NucleonElement } from '../NucleonElement';
+import { NucleonElement } from '../NucleonElement/index';
 
 type Template = typeof html;
 type ElementRenderer = (html: Template, parent: string, lang: string, item: any) => TemplateResult;

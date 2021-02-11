@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-date-picker';
 import '@vaadin/vaadin-button';
-import '../Spinner';
-import '../I18N';
+import '../Spinner/index';
+import '../I18N/index';
 
 import { SubscriptionFormElement } from './SubscriptionFormElement';
 

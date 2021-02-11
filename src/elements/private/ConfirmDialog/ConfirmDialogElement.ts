@@ -1,6 +1,6 @@
 import { TemplateResult, html } from 'lit-html';
 
-import { DialogElement } from '../Dialog';
+import { DialogElement } from '../Dialog/index';
 import { PropertyDeclarations } from 'lit-element';
 
 export class ConfirmDialogElement extends DialogElement {

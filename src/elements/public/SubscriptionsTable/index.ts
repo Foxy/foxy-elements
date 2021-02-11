@@ -1,6 +1,6 @@
-import '../SubscriptionForm';
-import '../FormDialog';
-import '../I18N';
+import '../SubscriptionForm/index';
+import '../FormDialog/index';
+import '../I18N/index';
 
 import { SubscriptionsTableElement } from './SubscriptionsTableElement';
 

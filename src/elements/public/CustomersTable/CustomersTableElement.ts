@@ -1,8 +1,8 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
-import { FormDialogElement } from '../FormDialog';
-import { I18NElement } from '../I18N';
+import { FormDialogElement } from '../FormDialog/index';
+import { I18NElement } from '../I18N/index';
 import { Data } from './types';
 
 export class CustomersTableElement extends NucleonTableElement<Data> {

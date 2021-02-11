@@ -3,7 +3,7 @@ import i18next, { StringMap, TOptions } from 'i18next';
 
 import HTTPBackend from 'i18next-http-backend';
 import { cdn } from '../../../env';
-import { format } from './format';
+import { format } from './format/index';
 
 export class I18NElement extends LitElement {
   static readonly defaultNodeName = 'foxy-i18n';

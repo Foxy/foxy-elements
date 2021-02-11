@@ -4,8 +4,8 @@ import '@polymer/paper-spinner/paper-spinner-lite.js';
 
 import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 
-import { I18N } from '../../private';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
+import { I18N } from '../../private/index';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../mixins/translatable';
 
 export type SpinnerElementLayout = 'vertical' | 'horizontal';

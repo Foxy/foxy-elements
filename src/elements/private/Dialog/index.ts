@@ -1,4 +1,4 @@
-import '../../public/I18N';
+import '../../public/I18N/index';
 
 import { DialogElement } from './DialogElement';
 import { DialogWindow } from './DialogWindowElement';

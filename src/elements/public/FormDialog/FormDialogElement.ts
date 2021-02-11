@@ -1,7 +1,7 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
-import { DialogElement } from '../../private/Dialog';
+import { DialogElement } from '../../private/Dialog/index';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';

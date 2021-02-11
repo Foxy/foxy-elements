@@ -3,11 +3,11 @@ import { CSSResultArray, html, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
-import { PropertyTableElement, Skeleton } from '../../private';
+import { PropertyTableElement, Skeleton } from '../../private/index';
 import { Tabs } from '../../private/Tabs/Tabs';
 import { FormDialogElement } from '../FormDialog/FormDialogElement';
-import { I18NElement } from '../I18N';
-import { NucleonElement } from '../NucleonElement';
+import { I18NElement } from '../I18N/index';
+import { NucleonElement } from '../NucleonElement/index';
 import { styles } from './styles';
 import { Data } from './types';
 

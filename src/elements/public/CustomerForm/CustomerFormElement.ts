@@ -3,11 +3,11 @@ import { Data, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialogElement } from '../../private/ConfirmDialog';
-import { I18NElement } from '../I18N';
-import { NucleonElement } from '../NucleonElement';
+import { ConfirmDialogElement } from '../../private/ConfirmDialog/index';
+import { I18NElement } from '../I18N/index';
+import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTableElement } from '../../private';
+import { PropertyTableElement } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { ifDefined } from 'lit-html/directives/if-defined';

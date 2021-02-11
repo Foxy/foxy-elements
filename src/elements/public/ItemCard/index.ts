@@ -1,6 +1,6 @@
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
-import '../I18N';
+import '../I18N/index';
 
 import { ItemCardElement } from './ItemCardElement';
 

@@ -1,7 +1,7 @@
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
-import '../AttributeForm';
-import '../FormDialog';
+import '../AttributeForm/index';
+import '../FormDialog/index';
 
 import { AttributeCardElement } from './AttributeCardElement';
 

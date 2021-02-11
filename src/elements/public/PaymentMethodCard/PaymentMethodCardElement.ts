@@ -2,10 +2,10 @@ import { CSSResultArray, css } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialogElement } from '../../private/ConfirmDialog';
+import { ConfirmDialogElement } from '../../private/ConfirmDialog/index';
 import { Data } from './types';
-import { I18NElement } from '../I18N';
-import { NucleonElement } from '../NucleonElement';
+import { I18NElement } from '../I18N/index';
+import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
 import { cdn } from '../../../env';

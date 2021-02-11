@@ -1,14 +1,12 @@
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { TemplateResult, html } from 'lit-html';
-
-import { NucleonElement } from '../../public/NucleonElement';
+import { html, TemplateResult } from 'lit-html';
 import { Primitive } from 'lit-html/lib/parts';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Skeleton } from '..';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
+import { NucleonElement } from '../../public/NucleonElement/index';
 
 export type Collection<TCurie extends string = any, TResource = any> = {
   readonly _links: Record<'next' | 'self', { href: string }>;

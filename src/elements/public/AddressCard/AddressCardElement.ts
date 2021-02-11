@@ -3,9 +3,9 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog';
-import { NucleonElement } from '../NucleonElement';
-import { Skeleton } from '../../private';
+import { FormDialogElement } from '../FormDialog/index';
+import { NucleonElement } from '../NucleonElement/index';
+import { Skeleton } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 

@@ -1,5 +1,5 @@
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { Choice, Group, PropertyTableElement } from '../../private';
+import { Choice, Group, PropertyTableElement } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 

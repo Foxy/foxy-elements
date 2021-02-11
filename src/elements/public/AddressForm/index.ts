@@ -1,6 +1,6 @@
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-combo-box';
-import '../Spinner';
+import '../Spinner/index';
 
 import { AddressFormElement } from './AddressFormElement';
 

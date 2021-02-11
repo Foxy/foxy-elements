@@ -1,7 +1,7 @@
 import { LitElement, PropertyDeclarations } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
-import { NucleonElement } from '../NucleonElement';
+import { NucleonElement } from '../NucleonElement/index';
 
 type HTMLFunction = typeof html;
 type TemplateFunction = (
