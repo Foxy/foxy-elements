@@ -58,15 +58,12 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
   }
 
   render(): TemplateResult {
-    const { lang, state } = this;
-    const { data, edits } = state.context;
-
-    const form = { ...data, ...edits } as Partial<Data>;
+    const lang = this.lang;
     const ns = AttributeFormElement.__ns;
 
-    const isTemplateValid = state.matches({ idle: { template: { dirty: 'valid' } } });
-    const isSnapshotValid = state.matches({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !state.matches('idle');
+    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isDisabled = !this.in('idle');
     const isValid = isTemplateValid || isSnapshotValid;
 
     return html`
@@ -83,11 +80,12 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
       >
       </x-confirm-dialog>
 
-      <div class="relative" aria-busy=${state.matches('busy')} aria-live="polite">
+      <div class="relative" aria-busy=${this.in('busy')} aria-live="polite">
         <div class="grid grid-cols-1 gap-l">
           <vaadin-text-field
+            data-testid="name"
             label=${this.__t('name').toString()}
-            value=${ifDefined(form?.name)}
+            value=${ifDefined(this.form?.name)}
             .checkValidity=${this.__getValidator('name')}
             ?disabled=${isDisabled}
             error-message=${this.__getErrorMessage('name')}
@@ -97,8 +95,9 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
           </vaadin-text-field>
 
           <vaadin-text-area
+            data-testid="value"
             label=${this.__t('value').toString()}
-            value=${ifDefined(form?.value)}
+            value=${ifDefined(this.form?.value)}
             .checkValidity=${this.__getValidator('value')}
             ?disabled=${isDisabled}
             error-message=${this.__getErrorMessage('value')}
@@ -118,9 +117,10 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
 
             <x-choice
               .items=${AttributeFormElement.__visibilityOptions}
-              .value=${(form?.visibility ?? 'private') as any}
+              .value=${(this.form?.visibility ?? 'private') as any}
               lang=${lang}
               ns=${ns}
+              data-testid="visibility"
               ?disabled=${isDisabled}
               @change=${this.__handleChoiceChange}
             >
@@ -135,17 +135,18 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
             </x-choice>
           </x-group>
 
-          ${data
+          ${this.data
             ? html`
                 <x-property-table
                   .items=${(['date_modified', 'date_created'] as const).map(field => ({
                     name: this.__t(field),
-                    value: this.__formatDate(new Date(data[field])),
+                    value: this.__formatDate(new Date(this.data![field])),
                   }))}
                 >
                 </x-property-table>
 
                 <vaadin-button
+                  data-testid="delete"
                   theme="error primary"
                   ?disabled=${isDisabled}
                   @click=${this.__handleDeleteClick}
@@ -155,6 +156,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
               `
             : html`
                 <vaadin-button
+                  data-testid="create"
                   theme="success primary"
                   ?disabled=${isDisabled || !isValid}
                   @click=${this.__handleSubmitClick}
@@ -164,12 +166,13 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
               `}
         </div>
 
-        ${!state.matches('idle')
+        ${!this.in('idle')
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
+                  data-testid="spinner"
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${state.matches('fail') ? 'error' : 'busy'}
+                  state=${this.in('fail') ? 'error' : 'busy'}
                   layout="vertical"
                 >
                 </foxy-spinner>
