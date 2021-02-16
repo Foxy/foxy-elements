@@ -2,6 +2,7 @@ import { LitElement, PropertyDeclarations } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
 import { NucleonElement } from '../NucleonElement/index';
+import { get } from 'lodash-es';
 
 type HTMLFunction = typeof html;
 type TemplateFunction = (
@@ -88,7 +89,7 @@ export class CollectionPagesElement extends LitElement {
   }
 
   private __loadNext() {
-    const next = this.__lastPage?.data?._links?.next?.href as string | undefined;
+    const next = get(this.__lastPage?.form, '_links.next.href') as string | undefined;
     if (next) this.pages.push(next);
   }
 }

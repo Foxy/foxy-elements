@@ -26,8 +26,8 @@ export class CollectionPageElement extends NucleonElement<any> {
       'html',
       'parent',
       'lang',
-      'data',
-      `return html\`<${value} parent=\${parent} .data=\${data} lang=\${lang}></${value}>\``
+      'form',
+      `return html\`<${value} parent=\${parent} .form=\${form} lang=\${lang}></${value}>\``
     ) as ElementRenderer;
 
     this.__item = value;
@@ -40,23 +40,18 @@ export class CollectionPageElement extends NucleonElement<any> {
 
   render(): TemplateResult {
     const items = this.__items;
-    const spinnerState = this.state.matches('fail')
-      ? 'error'
-      : this.state.matches('busy')
-      ? 'busy'
-      : 'empty';
+    const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
 
     return html`
       ${items.map((item: any) => this.__renderItem?.(html, this.href, this.lang, item))}
-      ${this.state.matches('idle') && items.length > 0
+      ${this.in('idle') && items.length > 0
         ? ''
         : html`<foxy-spinner state=${spinnerState}></foxy-spinner>`}
     `;
   }
 
   private get __items() {
-    const data = this.state.context.data;
-    return Array.from(Object.values(data?._embedded ?? {}) as any[]).reduce(
+    return Array.from(Object.values(this.form?._embedded ?? {}) as any[]).reduce(
       (p, c) => [...p, ...c],
       [] as any[]
     );
