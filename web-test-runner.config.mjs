@@ -6,6 +6,7 @@ import path from 'path';
 import postcss from 'postcss';
 import rollupBabel from '@rollup/plugin-babel';
 import rollupCommonJS from '@rollup/plugin-commonjs';
+import rollupJSON from '@rollup/plugin-json';
 import rollupReplace from '@rollup/plugin-replace';
 import tailwindconfig from './tailwind.config.js';
 
@@ -13,6 +14,7 @@ const tailwindcss = createTailwindCSS(tailwindconfig);
 const commonjs = fromRollup(rollupCommonJS);
 const replace = fromRollup(rollupReplace);
 const babel = fromRollup(rollupBabel.default);
+const json = fromRollup(rollupJSON);
 
 export default {
   nodeResolve: true,
@@ -21,9 +23,14 @@ export default {
     // serves CJS modules as application/javascript instead of application/node
     // particularly useful for loading node_modules/i18next-http-backend/esm/getFetch.cjs correctly
     '**/*.cjs': 'js',
+
+    // needed for /server/admin/dump.json
+    '**/*.json': 'js',
   },
 
   plugins: [
+    json(),
+
     esbuildPlugin({ ts: true }),
 
     replace({
@@ -127,9 +134,12 @@ export default {
 
     commonjs({
       include: [
+        '**/indexeddb-export-import/**/*',
+        '**/url-pattern/**/*',
         '**/traverse/**/*',
         '**/consola/**/*',
         '**/jsonata/**/*',
+        '**/halson/**/*',
         '**/@babel/**/*',
         '**/chalk/**/*',
       ],

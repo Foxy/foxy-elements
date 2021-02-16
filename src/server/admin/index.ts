@@ -15,7 +15,7 @@ const router = new Router();
 const db = new DemoDatabase();
 const whenDbReady = db.open().then(() => DemoDatabase.fill(db.backendDB()));
 
-export { endpoint, router };
+export { endpoint, router, db, whenDbReady, DemoDatabase };
 
 // subscriptions
 

@@ -26,7 +26,7 @@
     "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx"
   },
   "dependencies": {
-    "@foxy.io/sdk": "^1.0.0-beta.13",
+    "@foxy.io/sdk": "^1.0.0-beta.14",
     "@open-wc/lit-helpers": "^0.3.11",
     "@open-wc/scoped-elements": "1.2.1",
     "@polymer/iron-icons": "^3.0.1",
@@ -53,6 +53,7 @@
     "@open-wc/testing": "2.5.32",
     "@rollup/plugin-babel": "^5.2.3",
     "@rollup/plugin-commonjs": "^17.1.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-replace": "^2.3.4",
     "@storybook/addon-actions": "^6.1.17",
