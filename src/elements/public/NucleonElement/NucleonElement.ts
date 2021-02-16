@@ -1,4 +1,10 @@
-import { HALJSONResource, NucleonMachine, NucleonState, NucleonV8N } from './types';
+import {
+  ComputedElementProperties,
+  HALJSONResource,
+  NucleonMachine,
+  NucleonState,
+  NucleonV8N,
+} from './types';
 import { LitElement, PropertyDeclarations } from 'lit-element';
 import { Nucleon, Rumour } from '@foxy.io/sdk/core';
 import { assign, interpret } from 'xstate';
@@ -22,8 +28,8 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     return {
       ...super.properties,
       parent: { type: String },
-      group: { type: String },
-      href: { type: String },
+      group: { type: String, noAccessor: true },
+      href: { type: String, noAccessor: true },
       lang: { type: String },
     };
   }
@@ -34,11 +40,11 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   lang = '';
 
-  href = '';
-
-  group = '';
-
   parent = '';
+
+  private __href = '';
+
+  private __group = '';
 
   private __unsubscribeFromRumour!: () => void;
 
@@ -69,22 +75,86 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     })
   );
 
+  /** @deprecated */
   get state(): NucleonState<TData> {
     const { context, matches } = this.__service.state;
     return { context, matches };
   }
 
+  /** Validation errors returned from `NucleonElement.v8n` checks. */
+  get errors(): string[] {
+    return this.__service.state.context.errors;
+  }
+
+  /** Resource snapshot with edits applied. */
+  get form(): Partial<TData> {
+    const { data, edits } = this.__service.state.context;
+    return { ...data, ...edits } as Partial<TData>;
+  }
+
+  /** Resource snapshot as-is, no edits applied. */
   get data(): TData | null {
-    return this.state.context.data;
+    return this.__service.state.context.data;
   }
 
   set data(data: TData | null) {
-    this.href = data?._links.self.href ?? '';
-    this.send({ type: 'SET_DATA', data });
+    this.__service.send({ type: 'SET_DATA', data });
   }
 
+  get group(): string {
+    return this.__group;
+  }
+
+  set group(value: string) {
+    this.__group = value;
+    this.__destroyRumour();
+    this.__createRumour();
+  }
+
+  get href(): string {
+    return this.__href;
+  }
+
+  set href(value: string) {
+    this.__href = value;
+
+    if (value) {
+      this.__service.send({ type: 'FETCH' });
+    } else {
+      this.__service.send({ type: 'SET_DATA', data: null });
+    }
+  }
+
+  /** Checks if this element is currently in the given state. */
+  in<TStateValue extends Nucleon.State<TData, string>['value']>(
+    stateValue: TStateValue
+  ): this is this & ComputedElementProperties<TData, TStateValue> {
+    return this.__service.state.matches(stateValue);
+  }
+
+  /** @deprecated */
   send(event: Nucleon.Event<TData>): void {
     this.__service.send(event);
+  }
+
+  /** Clears all edits. */
+  undo(): void {
+    this.__service.send({ type: 'UNDO' });
+  }
+
+  /** Applies an edit to the local resource snapshot or its template. */
+  edit(data: Partial<TData>): void {
+    this.__service.send({ type: 'EDIT', data });
+  }
+
+  /** Submits the form, updating the resource if href isn't empty or creating it otherwise. */
+  submit(): void {
+    this.__service.send({ type: 'SUBMIT' });
+  }
+
+  /** Sends a DELETE request to href and clears local data on success. */
+  delete(): void {
+    this.__service.send({ type: 'DELETE' });
   }
 
   connectedCallback(): void {
@@ -93,23 +163,6 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__createService();
     this.__createRumour();
     this.__createServer();
-  }
-
-  updated(updates: Map<keyof this, unknown>): void {
-    super.updated(updates);
-
-    if (updates.has('group')) {
-      this.__destroyRumour();
-      this.__createRumour();
-    }
-
-    if (updates.has('href')) {
-      if (this.href) {
-        this.send({ type: 'FETCH' });
-      } else {
-        this.send({ type: 'SET_DATA', data: null });
-      }
-    }
   }
 
   disconnectedCallback(): void {
@@ -136,7 +189,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__service.onChange(() => {
       this.requestUpdate();
       this.dispatchEvent(
-        new UpdateEvent<TData>('update', { detail: this.state })
+        new UpdateEvent<TData>('update', { detail: this.__service.state })
       );
     });
 
@@ -186,7 +239,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     if (!(event instanceof FetchEvent)) return;
     if (event.request.method !== 'GET') return;
 
-    traverse(this.state.context.data).forEach(function () {
+    traverse(this.__service.state.context.data).forEach(function () {
       if (this.node?._links?.self?.href === event.request.url) {
         const body = JSON.stringify(this.node);
         event.respondWith(Promise.resolve(new Response(body)));
