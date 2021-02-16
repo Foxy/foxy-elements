@@ -26,8 +26,8 @@ export class CollectionPageElement extends NucleonElement<any> {
       'html',
       'parent',
       'lang',
-      'form',
-      `return html\`<${value} parent=\${parent} .form=\${form} lang=\${lang}></${value}>\``
+      'data',
+      `return html\`<${value} parent=\${parent} .data=\${data} lang=\${lang}></${value}>\``
     ) as ElementRenderer;
 
     this.__item = value;
