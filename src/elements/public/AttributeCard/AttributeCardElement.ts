@@ -57,7 +57,7 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
         >
           ${state.matches({ idle: 'snapshot' })
             ? html`
-                <span class="block truncate" title=${state.context.data.name}>
+                <span class="block truncate" title=${state.context.data.name} data-testid="name">
                   ${state.context.data.name}
                 </span>
                 ${state.context.data.visibility !== 'public'
@@ -75,7 +75,7 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
 
         ${state.matches({ idle: 'snapshot' })
           ? html`
-              <span class="block truncate" title=${state.context.data.value}>
+              <span class="block truncate" title=${state.context.data.value} data-testid="value">
                 ${state.context.data.value}
               </span>
             `
