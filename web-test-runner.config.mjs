@@ -134,6 +134,7 @@ export default {
     commonjs({
       include: [
         '**/indexeddb-export-import/**/*',
+        '**/email-validator/**/*',
         '**/url-pattern/**/*',
         '**/traverse/**/*',
         '**/consola/**/*',
