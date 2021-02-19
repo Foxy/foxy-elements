@@ -81,11 +81,12 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
         lang=${this.lang}
         ns=${ns}
         id="confirm"
+        data-testid="confirm"
         @submit=${this.delete}
       >
       </x-confirm-dialog>
 
-      <div class="space-y-l">
+      <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-m">
           ${this.__renderTextField({ field: 'first_name' })}
           ${this.__renderTextField({ field: 'last_name' })}
@@ -98,6 +99,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
         <vaadin-button
           class="w-full"
           theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          data-testid="action"
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${this.__handleActionClick}
         >
@@ -111,6 +113,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
                   state=${this.in('busy') ? 'busy' : 'error'}
                   layout="vertical"
+                  data-testid="spinner"
                 >
                 </foxy-spinner>
               </div>
@@ -166,6 +169,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
         label=${this.__t(field).toString()}
         value=${ifDefined(this.form?.[field]?.toString())}
         error-message=${this.__getErrorMessage(field)}
+        data-testid=${field}
         .checkValidity=${this.__getValidator(field)}
         ?disabled=${!this.in('idle')}
         ?required=${required}
