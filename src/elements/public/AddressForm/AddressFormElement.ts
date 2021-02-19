@@ -1,18 +1,19 @@
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { memoize } from 'lodash-es';
-import { Themeable } from '../../../mixins/themeable';
-import { classMap } from '../../../utils/class-map';
-import { PropertyTableElement } from '../../private/index';
+import { ComboBoxParams, Data, TextFieldParams } from './types';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { TemplateResult, html } from 'lit-html';
+
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
 import { I18NElement } from '../I18N/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
+import { PropertyTableElement } from '../../private/index';
+import { Themeable } from '../../../mixins/themeable';
+import { classMap } from '../../../utils/class-map';
 import { countries } from './countries';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { memoize } from 'lodash-es';
 import { regions } from './regions';
-import { ComboBoxParams, Data, TextFieldParams } from './types';
 
 export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -44,6 +45,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
       ({ address2: v }) => !v || v.length <= 100 || 'address2_too_long',
       ({ address1: v }) => (v && v.length > 0) || 'address1_required',
       ({ address1: v }) => (v && v.length <= 100) || 'address1_too_long',
+      ({ postal_code: v }) => !v || v.length <= 50 || 'postal_code_too_long',
     ];
   }
 
@@ -52,13 +54,13 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
   private __untrackTranslations?: () => void;
 
   private __getValidator = memoize((prefix: string) => () => {
-    return !this.state.context.errors.some(err => err.startsWith(prefix));
+    return !this.errors.some(err => err.startsWith(prefix));
   });
 
   private __bindField = memoize((key: keyof Data) => {
     return (evt: CustomEvent) => {
       const target = evt.target as HTMLInputElement;
-      this.send({ type: 'EDIT', data: { [key]: target.value } });
+      this.edit({ [key]: target.value });
     };
   });
 
@@ -68,14 +70,13 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
   }
 
   render(): TemplateResult {
-    const { lang, state } = this;
     const ns = AddressFormElement.__ns;
 
-    const isTemplateValid = state.matches({ idle: { template: { dirty: 'valid' } } });
-    const isSnapshotValid = state.matches({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !state.matches('idle');
-    const isDefaultShipping = !!state.context.data?.is_default_shipping;
-    const isDefaultBilling = !!state.context.data?.is_default_billing;
+    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isDisabled = !this.in('idle');
+    const isDefaultShipping = !!this.form?.is_default_shipping;
+    const isDefaultBilling = !!this.form?.is_default_billing;
     const isDefault = isDefaultShipping || isDefaultBilling;
     const isValid = isTemplateValid || isSnapshotValid;
 
@@ -86,14 +87,20 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
         cancel="delete_no"
         header="delete"
         theme="primary error"
-        lang=${lang}
+        lang=${this.lang}
         ns=${ns}
         id="confirm"
-        @submit=${this.__handleDeleteConfirm}
+        data-testid="confirm"
+        @submit=${this.delete}
       >
       </x-confirm-dialog>
 
-      <div class="space-y-l font-lumo text-m leading-m text-body relative">
+      <div
+        class="space-y-l font-lumo text-m leading-m text-body relative"
+        aria-busy=${this.in('busy')}
+        aria-live="polite"
+        data-testid="wrapper"
+      >
         <div class="grid grid-cols-2 gap-m">
           ${this.__renderTextField({
             field: 'address_name',
@@ -117,20 +124,22 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
 
         <vaadin-button
           class="w-full"
-          theme=${state.matches('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-          ?disabled=${(state.matches({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
+          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          data-testid="action"
+          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
           @click=${this.__handleActionClick}
         >
-          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${lang}></foxy-i18n>
+          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
         </vaadin-button>
 
-        ${!state.matches('idle')
+        ${!this.in('idle')
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${state.matches('busy') ? 'busy' : 'error'}
+                  state=${this.in('busy') ? 'busy' : 'error'}
                   layout="vertical"
+                  data-testid="spinner"
                 >
                 </foxy-spinner>
               </div>
@@ -150,12 +159,8 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
     return I18NElement.i18next.getFixedT(this.lang, AddressFormElement.__ns);
   }
 
-  private __handleDeleteConfirm() {
-    this.send({ type: 'DELETE' });
-  }
-
   private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.send({ type: 'SUBMIT' });
+    if (evt.key === 'Enter') this.submit();
   }
 
   private __renderPropertyTable() {
@@ -163,7 +168,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
       <x-property-table
         .items=${(['date_modified', 'date_created'] as const).map(field => {
           const name = this.__t(field);
-          const data = this.state.context.data;
+          const data = this.data;
           return { name, value: data ? this.__formatDate(new Date(data[field])) : '' };
         })}
       >
@@ -184,26 +189,23 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
   }
 
   private __getErrorMessage(prefix: string) {
-    const error = this.state.context.errors.find(err => err.startsWith(prefix));
+    const error = this.errors.find(err => err.startsWith(prefix));
     return error ? this.__t(error).toString() : '';
   }
 
   private __renderComboBox({ source, field, custom = false }: ComboBoxParams) {
-    const { state } = this;
-    const { data, edits } = state.context;
-    const form = { ...data, ...edits } as Partial<Data>;
-
     return html`
       <vaadin-combo-box
         label=${this.__t(field).toString()}
-        value=${ifDefined(form?.[field]?.toString())}
+        value=${ifDefined(this.form?.[field]?.toString())}
         error-message=${this.__getErrorMessage(field)}
+        data-testid=${field}
         item-value-path="code"
         item-label-path="text"
         .checkValidity=${this.__getValidator(field)}
         .items=${source.map(code => ({ text: this.__t(`${field}_map.${code}`), code }))}
         ?allow-custom-value=${custom}
-        ?disabled=${!state.matches('idle')}
+        ?disabled=${!this.in('idle')}
         @change=${this.__bindField(field)}
       >
       </vaadin-combo-box>
@@ -216,18 +218,15 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
     readonly = false,
     required = false,
   }: TextFieldParams) {
-    const { state } = this;
-    const { data, edits } = state.context;
-    const form = { ...data, ...edits } as Partial<Data>;
-
     return html`
       <vaadin-text-field
         class=${classMap({ 'col-span-2': wide })}
         label=${this.__t(field).toString()}
-        value=${ifDefined(form?.[field]?.toString())}
+        value=${ifDefined(this.form?.[field]?.toString())}
         error-message=${this.__getErrorMessage(field)}
+        data-testid=${field}
         .checkValidity=${this.__getValidator(field)}
-        ?disabled=${!state.matches('idle')}
+        ?disabled=${!this.in('idle')}
         ?required=${required}
         ?readonly=${readonly}
         @input=${this.__bindField(field)}
@@ -238,11 +237,11 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
   }
 
   private __handleActionClick(evt: Event) {
-    if (this.state.matches({ idle: 'snapshot' })) {
+    if (this.in({ idle: 'snapshot' })) {
       const confirm = this.renderRoot.querySelector('#confirm');
       (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
     } else {
-      this.send({ type: 'SUBMIT' });
+      this.submit();
     }
   }
 }
