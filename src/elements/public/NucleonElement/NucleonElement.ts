@@ -99,6 +99,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   set data(data: TData | null) {
     this.__service.send({ type: 'SET_DATA', data });
+    this.__href = data?._links.self.href ?? '';
   }
 
   get group(): string {
