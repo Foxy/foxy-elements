@@ -53,10 +53,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   private readonly __service = interpret(
     (Nucleon.machine as NucleonMachine<TData>).withConfig({
       services: {
-        sendDelete: () => this.__delete(),
-        sendPatch: ({ edits }) => this.__patch(edits!),
-        sendPost: ({ edits }) => this.__post(edits!),
-        sendGet: () => this.__get(),
+        sendDelete: () => this._sendDelete(),
+        sendPatch: ({ edits }) => this._sendPatch(edits!),
+        sendPost: ({ edits }) => this._sendPost(edits!),
+        sendGet: () => this._sendGet(),
       },
 
       actions: {
@@ -173,6 +173,46 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__destroyServer();
   }
 
+  protected async _fetch(...args: Parameters<Window['fetch']>): Promise<TData> {
+    const response = await new API(this).fetch(...args);
+    if (!response.ok) throw new Error(response.statusText);
+    return response.json();
+  }
+
+  protected async _sendPost(edits: Partial<TData>): Promise<TData> {
+    const body = JSON.stringify(edits);
+    const data = await this._fetch(this.parent, { body, method: 'POST' });
+    const rumour = NucleonElement.Rumour(this.group);
+
+    rumour.share({ data, related: [this.parent], source: data._links.self.href });
+    return data;
+  }
+
+  protected async _sendGet(): Promise<TData> {
+    const data = await this._fetch(this.href);
+    const rumour = NucleonElement.Rumour(this.group);
+
+    rumour.share({ data, source: this.href });
+    return data;
+  }
+
+  protected async _sendPatch(edits: Partial<TData>): Promise<TData> {
+    const body = JSON.stringify(edits);
+    const data = await this._fetch(this.href, { body, method: 'PATCH' });
+    const rumour = NucleonElement.Rumour(this.group);
+
+    rumour.share({ data, source: this.href });
+    return data;
+  }
+
+  protected async _sendDelete(): Promise<TData> {
+    const data = await this._fetch(this.href, { method: 'DELETE' });
+    const rumour = NucleonElement.Rumour(this.group);
+
+    rumour.share({ data: null, source: this.href, related: [this.parent] });
+    return data;
+  }
+
   private __createService() {
     this.__service.onTransition(state => {
       if (!state.changed) return;
@@ -246,45 +286,5 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
         this.stop();
       }
     });
-  }
-
-  private async __fetch(...args: Parameters<Window['fetch']>) {
-    const response = await new API(this).fetch(...args);
-    if (!response.ok) throw new Error(response.statusText);
-    return response.json();
-  }
-
-  private async __post(edits: Partial<TData>) {
-    const body = JSON.stringify(edits);
-    const data = await this.__fetch(this.parent, { body, method: 'POST' });
-    const rumour = NucleonElement.Rumour(this.group);
-
-    rumour.share({ data, related: [this.parent], source: data._links.self.href });
-    return data;
-  }
-
-  private async __get() {
-    const data = await this.__fetch(this.href);
-    const rumour = NucleonElement.Rumour(this.group);
-
-    rumour.share({ data, source: this.href });
-    return data;
-  }
-
-  private async __patch(edits: Partial<TData>) {
-    const body = JSON.stringify(edits);
-    const data = await this.__fetch(this.href, { body, method: 'PATCH' });
-    const rumour = NucleonElement.Rumour(this.group);
-
-    rumour.share({ data, source: this.href });
-    return data;
-  }
-
-  private async __delete() {
-    const data = await this.__fetch(this.href, { method: 'DELETE' });
-    const rumour = NucleonElement.Rumour(this.group);
-
-    rumour.share({ data: null, source: this.href, related: [this.parent] });
-    return data;
   }
 }
