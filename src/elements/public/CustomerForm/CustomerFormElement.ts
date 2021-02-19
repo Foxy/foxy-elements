@@ -44,13 +44,12 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
   private static __ns = 'customer-form';
 
   private __getValidator = memoize((prefix: string) => () => {
-    return !this.state.context.errors.some(err => err.startsWith(prefix));
+    return !this.errors.some(err => err.startsWith(prefix));
   });
 
   private __bindField = memoize((key: keyof Data) => {
     return (evt: CustomEvent) => {
-      const target = evt.target as HTMLInputElement;
-      this.send({ type: 'EDIT', data: { [key]: target.value } });
+      this.edit({ [key]: (evt.target as HTMLInputElement).value });
     };
   });
 
@@ -65,12 +64,11 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
   }
 
   render(): TemplateResult {
-    const { state, lang } = this;
     const ns = CustomerFormElement.__ns;
 
-    const isTemplateValid = state.matches({ idle: { template: { dirty: 'valid' } } });
-    const isSnapshotValid = state.matches({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !state.matches('idle');
+    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isDisabled = !this.in('idle');
     const isValid = isTemplateValid || isSnapshotValid;
 
     return html`
@@ -80,10 +78,10 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
         cancel="delete_no"
         header="delete"
         theme="primary error"
-        lang=${lang}
+        lang=${this.lang}
         ns=${ns}
         id="confirm"
-        @submit=${this.__handleDeleteConfirm}
+        @submit=${this.delete}
       >
       </x-confirm-dialog>
 
@@ -99,19 +97,19 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
 
         <vaadin-button
           class="w-full"
-          theme=${state.matches('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-          ?disabled=${(state.matches({ idle: 'template' }) && !isValid) || isDisabled}
+          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${this.__handleActionClick}
         >
-          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${lang}></foxy-i18n>
+          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
         </vaadin-button>
 
-        ${!state.matches('idle')
+        ${!this.in('idle')
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${state.matches('busy') ? 'busy' : 'error'}
+                  state=${this.in('busy') ? 'busy' : 'error'}
                   layout="vertical"
                 >
                 </foxy-spinner>
@@ -150,8 +148,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
       <x-property-table
         .items=${(['date_modified', 'date_created'] as const).map(field => {
           const name = this.__t(field);
-          const data = this.state.context.data;
-          return { name, value: data ? this.__formatDate(new Date(data[field])) : '' };
+          return { name, value: this.data ? this.__formatDate(new Date(this.data[field])) : '' };
         })}
       >
       </x-property-table>
@@ -159,22 +156,18 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
   }
 
   private __getErrorMessage(prefix: string) {
-    const error = this.state.context.errors.find(err => err.startsWith(prefix));
+    const error = this.errors.find(err => err.startsWith(prefix));
     return error ? this.__t(error).toString() : '';
   }
 
   private __renderTextField({ field, required = false }: TextFieldParams) {
-    const { state } = this;
-    const { data, edits } = state.context;
-    const form = { ...data, ...edits } as Partial<Data>;
-
     return html`
       <vaadin-text-field
         label=${this.__t(field).toString()}
-        value=${ifDefined(form?.[field]?.toString())}
+        value=${ifDefined(this.form?.[field]?.toString())}
         error-message=${this.__getErrorMessage(field)}
         .checkValidity=${this.__getValidator(field)}
-        ?disabled=${!state.matches('idle')}
+        ?disabled=${!this.in('idle')}
         ?required=${required}
         @input=${this.__bindField(field)}
         @keydown=${this.__handleKeyDown}
@@ -184,19 +177,15 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
   }
 
   private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.send({ type: 'SUBMIT' });
+    if (evt.key === 'Enter') this.submit();
   }
 
   private __handleActionClick(evt: Event) {
-    if (this.state.matches({ idle: 'snapshot' })) {
+    if (this.in({ idle: 'snapshot' })) {
       const confirm = this.renderRoot.querySelector('#confirm');
       (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
     } else {
-      this.send({ type: 'SUBMIT' });
+      this.submit();
     }
-  }
-
-  private __handleDeleteConfirm() {
-    this.send({ type: 'DELETE' });
   }
 }
