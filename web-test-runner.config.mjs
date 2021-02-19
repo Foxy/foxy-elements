@@ -2,7 +2,6 @@ import createTailwindCSS from 'tailwindcss';
 import { esbuildPlugin } from '@web/dev-server-esbuild';
 import { fromRollup } from '@web/dev-server-rollup';
 import { promises as fs } from 'fs';
-import path from 'path';
 import postcss from 'postcss';
 import rollupBabel from '@rollup/plugin-babel';
 import rollupCommonJS from '@rollup/plugin-commonjs';
@@ -119,11 +118,11 @@ export default {
       // this plugin generates tailwind styles and injects
       // them into themeable.js in a string template literal
       async transform(context) {
-        if (!context.path.endsWith('themeable.js')) return;
+        if (!context.path.endsWith('themeable.ts')) return;
 
         const escape = v => v.replace(/\\/gi, '\\\\').replace(/`/gi, '\\`');
         const plugins = [tailwindcss];
-        const from = path.join(__dirname, '../tailwind.css');
+        const from = './tailwind.css';
         const tailwindBuild = await postcss(plugins).process(await fs.readFile(from), { from });
 
         return {
