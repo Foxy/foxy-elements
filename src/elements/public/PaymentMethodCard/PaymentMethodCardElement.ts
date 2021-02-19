@@ -53,24 +53,23 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
   }
 
   render(): TemplateResult {
-    const { lang, state } = this;
-
-    const data = state.context.data;
+    const data = this.data;
     const ns = PaymentMethodCardElement.__ns;
-    const t = I18NElement.i18next.getFixedT(lang, ns);
+    const t = I18NElement.i18next.getFixedT(this.lang, ns);
 
-    if (state.matches({ idle: 'template' }) || !data?.save_cc || !state.matches('idle')) {
-      const spinnerState = state.matches('fail')
-        ? 'error'
-        : state.matches('busy')
-        ? 'busy'
-        : 'empty';
+    if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle')) {
+      const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
 
       return html`
-        <div class="ratio-card" aria-live="polite" aria-busy=${state.matches('busy')}>
+        <div
+          class="ratio-card"
+          aria-live="polite"
+          aria-busy=${this.in('busy')}
+          data-testid="wrapper"
+        >
           <div class="h-full bg-contrast-10"></div>
           <div class="absolute inset-0 flex items-center justify-center">
-            <foxy-spinner state=${spinnerState}></foxy-spinner>
+            <foxy-spinner state=${spinnerState} data-testid="spinner"></foxy-spinner>
           </div>
         </div>
       `;
@@ -87,14 +86,15 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
         cancel="delete_no"
         header="delete"
         theme="primary error"
-        lang=${lang}
+        lang=${this.lang}
         ns=${ns}
         id="confirm"
-        @submit=${this.__handleDeleteConfirm}
+        data-testid="confirm"
+        @submit=${this.delete}
       >
       </x-confirm-dialog>
 
-      <div class="ratio-card">
+      <div class="ratio-card" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
         <div
           class="flex flex-col justify-between text-base text-m leading-m font-lumo p-m bg-unknown bg-${type}"
         >
@@ -104,6 +104,7 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
               theme="icon"
               style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
               aria-label=${t('delete').toString()}
+              data-testid="delete"
               @click=${this.__handleDelete}
             >
               <iron-icon icon="icons:delete"></iron-icon>
@@ -113,12 +114,12 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
           </div>
 
           <div class="font-tnum leading-none flex justify-between">
-            <div>
+            <div data-testid="expiry">
               <span class="sr-only">${t('expires').toString()}&nbsp;</span>
               <span>${data!.cc_exp_month} / ${data!.cc_exp_year}</span>
             </div>
 
-            <div>
+            <div data-testid="number">
               <span class="sr-only">${t('last_4_digits').toString()}&nbsp;</span>
               <span aria-hidden="true">••••</span>
               <span>${last4Digits}</span>
@@ -139,8 +140,12 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
     (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
   }
 
-  private __handleDeleteConfirm() {
-    this.send({ type: 'EDIT', data: { save_cc: (false as unknown) as string } });
-    this.send({ type: 'SUBMIT' });
+  protected async _sendDelete(): Promise<Data> {
+    const body = JSON.stringify({ save_cc: false });
+    const data = await this._fetch(this.href, { method: 'PATCH', body });
+    const rumour = NucleonElement.Rumour(this.group);
+
+    rumour.share({ data: null, source: this.href, related: [this.parent] });
+    return data;
   }
 }
