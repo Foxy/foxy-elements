@@ -1,27 +1,18 @@
-import '@polymer/iron-icon';
-import '@polymer/iron-icons';
-import '@polymer/paper-spinner/paper-spinner-lite.js';
+import {
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  css,
+  html,
+} from 'lit-element';
 
-import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
-
-import { I18N } from '../../private/index';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { Translatable } from '../../../mixins/translatable';
+import { Themeable } from '../../../mixins/themeable';
 
 export type SpinnerElementLayout = 'vertical' | 'horizontal';
 export type SpinnerElementState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
-export class SpinnerElement extends Translatable {
-  static readonly defaultNodeName = 'foxy-spinner';
-
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'paper-spinner-lite': customElements.get('paper-spinner-lite'),
-      'iron-icon': customElements.get('iron-icon'),
-      'x-i18n': I18N,
-    };
-  }
-
+export class SpinnerElement extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -32,7 +23,7 @@ export class SpinnerElement extends Translatable {
 
   static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         paper-spinner-lite {
           --paper-spinner-stroke-width: 2px;
@@ -47,10 +38,6 @@ export class SpinnerElement extends Translatable {
   layout: SpinnerElementLayout = 'horizontal';
 
   state: SpinnerElementState = 'busy';
-
-  constructor() {
-    super('spinner');
-  }
 
   render(): TemplateResult {
     let layout: string;
@@ -89,7 +76,7 @@ export class SpinnerElement extends Translatable {
     return html`
       <div class="font-lumo leading-none text-s ${layout} ${tint}">
         <div class="w-xxs h-xss flex items-center justify-center">${icon}</div>
-        <x-i18n ns=${this.ns} key=${text} lang=${this.lang}></x-i18n>
+        <foxy-i18n ns="spinner" key=${text} lang=${this.lang}></foxy-i18n>
       </div>
     `;
   }

@@ -6,8 +6,6 @@ import { cdn } from '../../../env';
 import { format } from './format/index';
 
 export class I18NElement extends LitElement {
-  static readonly defaultNodeName = 'foxy-i18n';
-
   static readonly fallbackLng = 'en';
 
   static readonly i18next = i18next.createInstance().use(HTTPBackend);
