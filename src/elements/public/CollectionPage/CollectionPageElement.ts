@@ -1,11 +1,13 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
-import { NucleonElement } from '../NucleonElement/index';
+import { HALJSONResource } from '../NucleonElement/types';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 
 type Template = typeof html;
 type ElementRenderer = (html: Template, parent: string, lang: string, item: any) => TemplateResult;
+type CollectionPage = HALJSONResource & { _embedded: Record<string, unknown[]> };
 
-export class CollectionPageElement extends NucleonElement<any> {
+export class CollectionPageElement<TData extends CollectionPage> extends NucleonElement<TData> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -13,21 +15,26 @@ export class CollectionPageElement extends NucleonElement<any> {
     };
   }
 
-  private __renderItem: ElementRenderer | null = null;
+  private __renderItem!: ElementRenderer;
 
-  private __item: string | null = null;
+  private __item!: string;
 
-  get item(): string | null {
+  constructor() {
+    super();
+    this.item = 'foxy-null';
+  }
+
+  get item(): string {
     return this.__item;
   }
 
-  set item(value: string | null) {
+  set item(value: string) {
     this.__renderItem = new Function(
       'html',
       'parent',
       'lang',
       'data',
-      `return html\`<${value} parent=\${parent} .data=\${data} lang=\${lang}></${value}>\``
+      `return html\`<${value} data-testclass="items" parent=\${parent} .data=\${data} lang=\${lang}></${value}>\``
     ) as ElementRenderer;
 
     this.__item = value;
@@ -46,7 +53,7 @@ export class CollectionPageElement extends NucleonElement<any> {
       ${items.map((item: any) => this.__renderItem?.(html, this.href, this.lang, item))}
       ${this.in('idle') && items.length > 0
         ? ''
-        : html`<foxy-spinner state=${spinnerState}></foxy-spinner>`}
+        : html`<foxy-spinner data-testid="spinner" state=${spinnerState}></foxy-spinner>`}
     `;
   }
 
