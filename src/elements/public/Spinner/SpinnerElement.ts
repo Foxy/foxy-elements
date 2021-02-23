@@ -46,23 +46,23 @@ export class SpinnerElement extends LitElement {
     let tint: string;
 
     if (this.state === 'end') {
-      icon = html`<iron-icon icon="icons:done-all"></iron-icon>`;
+      icon = html`<iron-icon data-testid="icon" icon="icons:done-all"></iron-icon>`;
       text = 'end';
       tint = 'text-tertiary';
     } else if (this.state === 'error') {
-      icon = html`<iron-icon icon="icons:error-outline"></iron-icon>`;
+      icon = html`<iron-icon data-testid="icon" icon="icons:error-outline"></iron-icon>`;
       text = 'error';
       tint = 'text-error';
     } else if (this.state === 'paused') {
-      icon = html`<iron-icon icon="icons:more-horiz"></iron-icon>`;
+      icon = html`<iron-icon data-testid="icon" icon="icons:more-horiz"></iron-icon>`;
       text = 'paused';
       tint = 'text-tertiary';
     } else if (this.state === 'empty') {
-      icon = html`<iron-icon icon="icons:info-outline"></iron-icon>`;
+      icon = html`<iron-icon data-testid="icon" icon="icons:info-outline"></iron-icon>`;
       text = 'empty';
       tint = 'text-tertiary';
     } else {
-      icon = html`<paper-spinner-lite active></paper-spinner-lite>`;
+      icon = html`<paper-spinner-lite data-testid="icon" active></paper-spinner-lite>`;
       text = 'busy';
       tint = 'text-primary';
     }
@@ -76,7 +76,7 @@ export class SpinnerElement extends LitElement {
     return html`
       <div class="font-lumo leading-none text-s ${layout} ${tint}">
         <div class="w-xxs h-xss flex items-center justify-center">${icon}</div>
-        <foxy-i18n ns="spinner" key=${text} lang=${this.lang}></foxy-i18n>
+        <foxy-i18n data-testid="text" ns="spinner" key=${text} lang=${this.lang}></foxy-i18n>
       </div>
     `;
   }
