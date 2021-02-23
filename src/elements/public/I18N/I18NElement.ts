@@ -1,14 +1,13 @@
 import { LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import i18next, { StringMap, TOptions } from 'i18next';
 
-import HTTPBackend from 'i18next-http-backend';
-import { cdn } from '../../../env';
+import { backend } from './backend';
 import { format } from './format/index';
 
 export class I18NElement extends LitElement {
   static readonly fallbackLng = 'en';
 
-  static readonly i18next = i18next.createInstance().use(HTTPBackend);
+  static readonly i18next = i18next.createInstance().use(backend);
 
   static onTranslationChange(handler: () => void): () => void {
     const events = ['initialized', 'removed', 'loaded', 'added'] as const;
@@ -63,6 +62,5 @@ I18NElement.i18next.init({
   fallbackLng: I18NElement.fallbackLng,
   fallbackNS: 'global',
   defaultNS: 'global',
-  backend: { loadPath: `${cdn}/translations/{{ns}}/{{lng}}.json` },
   ns: ['global'],
 });
