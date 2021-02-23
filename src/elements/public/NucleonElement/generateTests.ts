@@ -12,17 +12,27 @@ import { createTestMachine } from './createTestMachine';
 import { get } from 'lodash-es';
 import { html } from 'lit-html';
 
-function getRefs<TRefs extends Record<string, HTMLElement>>(element: LitElement): TRefs {
-  return Array.from(element.renderRoot.querySelectorAll('[data-testid]')).reduce(
-    (p, c) => ({ ...p, [c.getAttribute('data-testid')!]: c }),
-    {} as TRefs
+function getRefs<TRefs extends Record<string, Element | Element[]>>(element: LitElement): TRefs {
+  const classes = Array.from(element.renderRoot.querySelectorAll('[data-testclass]')).reduce(
+    (classMap, classRef) => {
+      const testClass = classRef.getAttribute('data-testclass') as string;
+      return { ...classMap, [testClass]: [...(classMap[testClass] ?? []), classRef] };
+    },
+    {} as Record<string, Element[]>
   );
+
+  const ids = Array.from(element.renderRoot.querySelectorAll('[data-testid]')).reduce(
+    (idMap, idRef) => ({ ...idMap, [idRef.getAttribute('data-testid')!]: idRef }),
+    {} as Record<string, Element>
+  );
+
+  return { ...classes, ...ids } as TRefs;
 }
 
 function runCustomTests<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,
-  TRefs extends Record<string, HTMLElement>,
+  TRefs extends Record<string, Element | Element[]>,
   TEvent extends EventObject
 >(
   tests: TestMap<TData, TElement, TRefs>,
@@ -47,7 +57,7 @@ type TestContext<TElement extends HTMLElement> = {
 interface TestMap<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,
-  TRefs extends Record<string, HTMLElement>
+  TRefs extends Record<string, Element | Element[]>
 > {
   [key: string]:
     | EventExecutor<TestContext<TElement> & { refs: TRefs }>
@@ -57,7 +67,7 @@ interface TestMap<
 type ElementConfig<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,
-  TRefs extends Record<string, HTMLElement>
+  TRefs extends Record<string, Element | Element[]>
 > = {
   parent: string;
   maxTestsPerState: number;
@@ -102,7 +112,7 @@ function testDeepestAtMost(maxTimes: number) {
 export function generateTests<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,
-  TRefs extends Record<string, HTMLElement>
+  TRefs extends Record<string, Element | Element[]>
 >(config: ElementConfig<TData, TElement, TRefs>): void {
   const model = createModel<TestContext<TElement>>(
     createTestMachine({
