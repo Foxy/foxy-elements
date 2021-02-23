@@ -24,7 +24,7 @@ export class CollectionPagesElement extends LitElement {
 
   lang = '';
 
-  item: string | null = null;
+  item = 'foxy-null';
 
   pages: string[] = [];
 
