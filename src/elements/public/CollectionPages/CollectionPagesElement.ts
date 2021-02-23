@@ -15,8 +15,6 @@ type TemplateFunction = (
 export class CollectionPagesElement extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
-      spinner: { type: String, noAccessor: true },
-      state: { type: String },
       first: { type: String, noAccessor: true },
       item: { type: String, noAccessor: true },
       page: { type: String, noAccessor: true },
