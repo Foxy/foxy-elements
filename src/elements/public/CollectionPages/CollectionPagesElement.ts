@@ -90,6 +90,9 @@ export class CollectionPagesElement extends LitElement {
 
   private __loadNext() {
     const next = get(this.__lastPage?.form, '_links.next.href') as string | undefined;
-    if (next) this.pages.push(next);
+    if (!next) return;
+
+    this.pages.push(next);
+    this.requestUpdate();
   }
 }
