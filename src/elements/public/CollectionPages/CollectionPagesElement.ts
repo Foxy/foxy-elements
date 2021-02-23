@@ -33,25 +33,30 @@ export class CollectionPagesElement extends LitElement {
     { rootMargin: '100%' }
   );
 
-  private __page: string | null = null;
+  private __page!: string;
 
-  private __renderPage: TemplateFunction | null = null;
+  private __renderPage!: TemplateFunction;
 
-  get first(): string | null {
-    return this.pages[0] ?? null;
+  constructor() {
+    super();
+    this.page = 'foxy-collection-page';
   }
 
-  set first(value: string | null) {
+  get first(): string {
+    return this.pages[0] ?? '';
+  }
+
+  set first(value: string) {
     this.pages.length = 0;
-    if (typeof value === 'string') this.pages[0] = value;
+    if (value) this.pages[0] = value;
     this.requestUpdate();
   }
 
-  get page(): string | null {
+  get page(): string {
     return this.__page;
   }
 
-  set page(value: string | null) {
+  set page(value: string) {
     this.__renderPage = new Function(
       'html',
       'href',
@@ -70,20 +75,17 @@ export class CollectionPagesElement extends LitElement {
 
   updated(): void {
     this.__observer.disconnect();
-    const target = this.__lastPage;
-    if (target) this.__observer.observe(target);
+    if (this.__lastPage) this.__observer.observe(this.__lastPage);
   }
 
   render(): TemplateResult {
-    return html`
-      ${this.pages.map(page => this.__renderPage?.(html, page, this.item!, this.lang))}
-    `;
+    const children = this.pages.map(page => this.__renderPage?.(html, page, this.item!, this.lang));
+    return html`${children}`;
   }
 
   private get __lastPage() {
-    return this.renderRoot.children[this.renderRoot.children.length - 1] as NucleonElement<
-      any
-    > | null;
+    type Child = NucleonElement<any> | null;
+    return this.renderRoot.children[this.renderRoot.children.length - 1] as Child;
   }
 
   private __loadNext() {
