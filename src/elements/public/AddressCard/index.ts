@@ -3,7 +3,7 @@ import '@polymer/iron-icons';
 import '@polymer/iron-icons/maps-icons';
 import '../AddressForm/index';
 import '../FormDialog/index';
-import '../I18N/index';
+import '../I18n/index';
 
 import { AddressCardElement } from './AddressCardElement';
 

@@ -3,7 +3,7 @@ import { TemplateResult, html } from 'lit-html';
 import { Data } from './types';
 import { FormDialogElement } from '../FormDialog/index';
 import { I18N } from '../../private/index';
-import { I18NElement } from '../I18N/index';
+import { I18NElement } from '../I18n/index';
 import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { parseDuration } from '../../../utils/parse-duration';

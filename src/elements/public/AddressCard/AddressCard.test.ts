@@ -3,16 +3,16 @@ import './index';
 import { AddressCardElement } from './AddressCardElement';
 import { Data } from './types';
 import { FormDialogElement } from '../FormDialog/FormDialogElement';
-import { I18NElement } from '../I18N/I18NElement';
+import { I18nElement } from '../I18n/I18nElement';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 
 type Refs = {
   wrapper: HTMLButtonElement;
   dialog: FormDialogElement;
-  line1: I18NElement;
-  line2: I18NElement;
-  line3: I18NElement;
+  line1: I18nElement;
+  line2: I18nElement;
+  line3: I18nElement;
   icon: HTMLElement; // iron-icon
 };
 

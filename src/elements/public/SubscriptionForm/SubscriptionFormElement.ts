@@ -7,7 +7,7 @@ import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { FrequencyInput } from '../../private/FrequencyInput/FrequencyInput';
 import { FrequencyInputChangeEvent } from '../../private/FrequencyInput/FrequencyInputChangeEvent';
-import { I18NElement } from '../I18N/index';
+import { I18NElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTableElement } from '../../private/index';

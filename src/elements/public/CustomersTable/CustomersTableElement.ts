@@ -1,9 +1,10 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
-import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
-import { FormDialogElement } from '../FormDialog/index';
-import { I18NElement } from '../I18N/index';
+
 import { Data } from './types';
+import { FormDialogElement } from '../FormDialog/index';
+import { I18NElement } from '../I18n/index';
+import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
 export class CustomersTableElement extends NucleonTableElement<Data> {
   static get scopedElements(): ScopedElementsMap {

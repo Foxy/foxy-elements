@@ -4,7 +4,7 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
-import { I18NElement } from '../I18N/index';
+import { I18NElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTableElement } from '../../private/index';

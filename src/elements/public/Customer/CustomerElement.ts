@@ -1,15 +1,16 @@
+import { CSSResultArray, TemplateResult, html } from 'lit-element';
+import { PropertyTableElement, Skeleton } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { CSSResultArray, html, TemplateResult } from 'lit-element';
+
+import { Data } from './types';
+import { FormDialogElement } from '../FormDialog/FormDialogElement';
+import { I18NElement } from '../I18n/index';
+import { NucleonElement } from '../NucleonElement/index';
+import { Tabs } from '../../private/Tabs/Tabs';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
-import { PropertyTableElement, Skeleton } from '../../private/index';
-import { Tabs } from '../../private/Tabs/Tabs';
-import { FormDialogElement } from '../FormDialog/FormDialogElement';
-import { I18NElement } from '../I18N/index';
-import { NucleonElement } from '../NucleonElement/index';
 import { styles } from './styles';
-import { Data } from './types';
 
 export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {

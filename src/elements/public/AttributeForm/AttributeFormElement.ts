@@ -6,7 +6,7 @@ import { TemplateResult, html } from 'lit-html';
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
 import { Data } from './types';
-import { I18NElement } from '../I18N/I18NElement';
+import { I18nElement } from '../I18n/I18nElement';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
@@ -54,7 +54,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -194,7 +194,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
   }
 
   private get __t() {
-    return I18NElement.i18next.getFixedT(this.lang, AttributeFormElement.__ns);
+    return I18nElement.i18next.getFixedT(this.lang, AttributeFormElement.__ns);
   }
 
   private __getErrorMessage(prefix: string) {
@@ -210,7 +210,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
         day: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18NElement.fallbackLng);
+      return this.__formatDate(date, I18nElement.fallbackLng);
     }
   }
 

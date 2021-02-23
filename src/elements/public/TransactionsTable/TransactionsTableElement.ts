@@ -1,7 +1,7 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { I18NElement } from '../I18N/index';
+import { I18NElement } from '../I18n/index';
 import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 
 export class TransactionsTableElement extends NucleonTableElement<Data> {

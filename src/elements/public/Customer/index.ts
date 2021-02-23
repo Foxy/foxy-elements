@@ -12,7 +12,7 @@ import '../AttributeCard/index';
 import '../CustomerForm/index';
 import '../AddressCard/index';
 import '../Spinner/index';
-import '../I18N/index';
+import '../I18n/index';
 
 import { CustomerElement } from './CustomerElement';
 

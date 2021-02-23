@@ -4,7 +4,7 @@ import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/index';
 import { Data } from './types';
-import { I18NElement } from '../I18N/index';
+import { I18NElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
