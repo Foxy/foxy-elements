@@ -5,7 +5,7 @@ import halson from 'halson';
 export function composeTransaction(doc: any, items?: any[]) {
   const { id, store, customer, subscription, ...publicData } = doc;
 
-  let result = halson(publicData)
+  let result = halson({ ...publicData, id })
     .addLink('self', `${endpoint}/transactions/${id}`)
     .addLink('fx:void', `${endpoint}/transactions/${id}/void`)
     .addLink('fx:store', `${endpoint}/stores/${store}`)
