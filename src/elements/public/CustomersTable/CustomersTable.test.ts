@@ -29,34 +29,34 @@ describe('CustomersTable', () => {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'true');
         expect(refs.customerDialog).to.have.attribute('parent', element.href);
 
-        refs.i18n.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
+        refs.i18n?.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
       },
 
       fail({ refs, element }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
         expect(refs.customerDialog).to.have.attribute('parent', element.href);
 
-        refs.i18n.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
+        refs.i18n?.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
       },
 
-      test({ refs, element }) {
+      idle({ refs, element }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
         expect(refs.customerDialog).to.have.attribute('parent', element.href);
 
-        refs.i18n.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
+        refs.i18n?.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
 
         element.data?._embedded['fx:customers'].forEach((customer, index) => {
-          const previewButton = refs.previewButtons[index];
-          const email = refs.emails[index];
-          const name = refs.names[index];
-          const id = refs.ids[index];
+          const previewButtonRef = refs.previewButtons[index];
+          const emailRef = refs.emails[index];
+          const nameRef = refs.names[index];
+          const idRef = refs.ids[index];
 
-          expect(email).to.contain.text(customer.email);
-          expect(name).to.contain.text(`${customer.first_name} ${customer.last_name}`);
-          expect(id).to.contain.text(customer.id.toString());
+          expect(emailRef).to.contain.text(customer.email);
+          expect(nameRef).to.contain.text(`${customer.first_name} ${customer.last_name}`);
+          expect(idRef).to.contain.text(customer.id.toString());
 
           const showMethod = sinon.stub(refs.customerDialog, 'show');
-          previewButton.click();
+          previewButtonRef.click();
 
           expect(showMethod).to.have.been.called;
           expect(refs.customerDialog).to.have.property('href', customer._links.self.href);
