@@ -2,7 +2,7 @@ import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
 import { FormDialogElement } from '../FormDialog/index';
-import { I18NElement } from '../I18n/index';
+import { I18nElement } from '../I18n/index';
 import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
@@ -20,7 +20,7 @@ export class CustomersTableElement extends NucleonTableElement<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -79,7 +79,7 @@ export class CustomersTableElement extends NucleonTableElement<Data> {
   }
 
   private get __t() {
-    return I18NElement.i18next.getFixedT(this.lang, CustomersTableElement.__ns);
+    return I18nElement.i18next.getFixedT(this.lang, CustomersTableElement.__ns);
   }
 
   private get __customerDialog(): any {

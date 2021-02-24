@@ -7,7 +7,7 @@ import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { FrequencyInput } from '../../private/FrequencyInput/FrequencyInput';
 import { FrequencyInputChangeEvent } from '../../private/FrequencyInput/FrequencyInputChangeEvent';
-import { I18NElement } from '../I18n/index';
+import { I18nElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTableElement } from '../../private/index';
@@ -54,7 +54,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -214,7 +214,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
   }
 
   private get __t() {
-    return I18NElement.i18next.getFixedT(this.lang, SubscriptionFormElement.__ns);
+    return I18nElement.i18next.getFixedT(this.lang, SubscriptionFormElement.__ns);
   }
 
   private __getErrorMessage(prefix: string) {
@@ -246,7 +246,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
         year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18NElement.fallbackLng);
+      return this.__formatDate(date, I18nElement.fallbackLng);
     }
   }
 
@@ -259,7 +259,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
         currency,
       });
     } catch {
-      return this.__formatPrice(value, currency, I18NElement.fallbackLng);
+      return this.__formatPrice(value, currency, I18nElement.fallbackLng);
     }
   }
 

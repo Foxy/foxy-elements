@@ -4,7 +4,7 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/index';
-import { I18NElement } from '../I18n/index';
+import { I18nElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTableElement } from '../../private/index';
@@ -59,7 +59,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
     this.__removeBreakpoins = addBreakpoints(this);
   }
 
@@ -131,7 +131,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
   }
 
   private get __t() {
-    return I18NElement.i18next.getFixedT(this.lang, CustomerFormElement.__ns);
+    return I18nElement.i18next.getFixedT(this.lang, CustomerFormElement.__ns);
   }
 
   private __formatDate(date: Date, lang = this.lang): string {
@@ -142,7 +142,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
         day: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18NElement.fallbackLng);
+      return this.__formatDate(date, I18nElement.fallbackLng);
     }
   }
 

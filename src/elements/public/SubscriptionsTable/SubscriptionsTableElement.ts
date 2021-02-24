@@ -3,7 +3,7 @@ import { TemplateResult, html } from 'lit-html';
 import { Data } from './types';
 import { FormDialogElement } from '../FormDialog/index';
 import { I18N } from '../../private/index';
-import { I18NElement } from '../I18n/index';
+import { I18nElement } from '../I18n/index';
 import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { parseDuration } from '../../../utils/parse-duration';
@@ -23,7 +23,7 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -141,7 +141,7 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
   }
 
   private get __t() {
-    return I18NElement.i18next.getFixedT(this.lang, SubscriptionsTableElement.__ns);
+    return I18nElement.i18next.getFixedT(this.lang, SubscriptionsTableElement.__ns);
   }
 
   private __formatDate(date: Date, lang = this.lang): string {
@@ -154,7 +154,7 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
         minute: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18NElement.fallbackLng);
+      return this.__formatDate(date, I18nElement.fallbackLng);
     }
   }
 
@@ -167,7 +167,7 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
         currency,
       });
     } catch {
-      return this.__formatPrice(value, currency, I18NElement.fallbackLng);
+      return this.__formatPrice(value, currency, I18nElement.fallbackLng);
     }
   }
 }

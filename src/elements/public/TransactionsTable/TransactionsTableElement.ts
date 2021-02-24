@@ -1,7 +1,7 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { I18NElement } from '../I18n/index';
+import { I18nElement } from '../I18n/index';
 import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
 
 export class TransactionsTableElement extends NucleonTableElement<Data> {
@@ -11,7 +11,7 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -119,7 +119,7 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
   }
 
   private get __t() {
-    return I18NElement.i18next.getFixedT(this.lang, TransactionsTableElement.__ns);
+    return I18nElement.i18next.getFixedT(this.lang, TransactionsTableElement.__ns);
   }
 
   private __formatDate(date: Date, lang = this.lang): string {
@@ -132,7 +132,7 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
         minute: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18NElement.fallbackLng);
+      return this.__formatDate(date, I18nElement.fallbackLng);
     }
   }
 
@@ -145,7 +145,7 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
         currency,
       });
     } catch {
-      return this.__formatPrice(value, currency, I18NElement.fallbackLng);
+      return this.__formatPrice(value, currency, I18nElement.fallbackLng);
     }
   }
 }

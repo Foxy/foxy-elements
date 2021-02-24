@@ -4,7 +4,7 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
-import { I18NElement } from '../I18n/index';
+import { I18nElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTableElement } from '../../private/index';
@@ -66,7 +66,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18NElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -156,7 +156,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
   }
 
   private get __t() {
-    return I18NElement.i18next.getFixedT(this.lang, AddressFormElement.__ns);
+    return I18nElement.i18next.getFixedT(this.lang, AddressFormElement.__ns);
   }
 
   private __handleKeyDown(evt: KeyboardEvent) {
@@ -184,7 +184,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
         day: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18NElement.fallbackLng);
+      return this.__formatDate(date, I18nElement.fallbackLng);
     }
   }
 
