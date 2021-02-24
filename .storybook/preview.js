@@ -30,11 +30,12 @@ addEventListener('fetch', evt => {
       evt.respondWith(
         router.handleRequest(evt.request).handlerPromise.then(response => {
           console.debug(
-            `%c@foxy.io/elements::server\n%c${response.status}%c${evt.request.method} ${evt.request.url}`,
+            `%c@foxy.io/elements::server\n%c${response.status}%c ${evt.request.method} ${evt.request.url}`,
             'color: gray',
             `background: ${
               response.ok ? 'green' : 'red'
-            }; padding: 0 .2em; border-radius: .2em; color: white;`
+            }; padding: 0 .2em; border-radius: .2em; color: white;`,
+            ''
           );
 
           return new Promise(resolve => setTimeout(() => resolve(response), 1000));
