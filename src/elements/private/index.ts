@@ -7,7 +7,6 @@ export * from './ErrorScreen/ErrorScreen';
 export * from './FrequencyInput/FrequencyInput';
 export * from './Group/Group';
 export * from './I18N/I18N';
-export * from './InfiniteScroll/InfiniteScroll';
 export * from './List/List';
 export * from './LoadingScreen/LoadingScreen';
 export * from './MonthdayPicker/MonthdayPicker';
