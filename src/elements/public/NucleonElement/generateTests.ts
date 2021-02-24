@@ -15,8 +15,13 @@ import { html } from 'lit-html';
 function getRefs<TRefs extends Record<string, Element | Element[]>>(element: LitElement): TRefs {
   const classes = Array.from(element.renderRoot.querySelectorAll('[data-testclass]')).reduce(
     (classMap, classRef) => {
-      const testClass = classRef.getAttribute('data-testclass') as string;
-      return { ...classMap, [testClass]: [...(classMap[testClass] ?? []), classRef] };
+      const className = classRef.getAttribute('data-testclass') as string;
+      const classList = className.split(' ');
+
+      return classList.reduce((updatedClassMap, classListItem) => {
+        const updatedClassRefs = [...(updatedClassMap[classListItem] ?? []), classRef];
+        return { ...updatedClassMap, [classListItem]: updatedClassRefs };
+      }, classMap);
     },
     {} as Record<string, Element[]>
   );
