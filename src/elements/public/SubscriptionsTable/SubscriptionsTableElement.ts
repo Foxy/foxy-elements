@@ -89,21 +89,22 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
           mdAndUp: true,
           header: () => this.__t('th_status').toString(),
           cell: sub => {
-            let color = '';
-            let date: Date;
-            let key = '';
+            let color: string;
+            let date: string;
+            let key: string;
 
             if (sub.first_failed_transaction_date) {
-              date = new Date(sub.first_failed_transaction_date);
+              date = sub.first_failed_transaction_date;
               key = 'status_failed';
               color = 'bg-error-10 text-error';
             } else if (sub.end_date) {
-              date = new Date(sub.end_date);
-              const hasEnded = date.getTime() > Date.now();
+              date = sub.end_date;
+              const dateAsObject = new Date(date);
+              const hasEnded = dateAsObject.getTime() > Date.now();
               key = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
               color = hasEnded ? 'bg-success-10 text-success' : 'bg-contrast-5 text-tertiary';
             } else {
-              date = new Date(sub.next_transaction_date);
+              date = sub.next_transaction_date;
               key = 'status_active';
               color = 'bg-success-10 text-success';
             }
