@@ -19,6 +19,7 @@
   "sub_pricing": "{{amount, currency}}/$t({{units}}, { \"count\": {{count}} })",
   "sub_pricing_0_5m": "{{amount}} twice a month",
   "sub_pricing_plural": "{{amount, currency}}/{{count}} $t({{units}}, { \"count\": {{count}} })",
+  "date": "{{value, date}}",
   "and": "and",
   "beta": "Beta",
   "edit": "Edit",

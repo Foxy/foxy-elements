@@ -1,4 +1,5 @@
 {
+  "total": "{{value, currency}}",
   "summary": "{{most_expensive_item.name}}",
   "summary_plural": "{{most_expensive_item.name}} + {{count}} more",
   "status_approved": "Approved",

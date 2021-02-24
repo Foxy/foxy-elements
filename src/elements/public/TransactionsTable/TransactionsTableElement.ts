@@ -20,21 +20,24 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
     return super.render([
       {
         header: () => this.__t('th_total').toString(),
-        cell: transaction => {
-          return html`
-            <span class="font-medium tracking-wide font-tnum">
-              ${this.__formatPrice(transaction.total_order, transaction.currency_code)}
-            </span>
-          `;
-        },
+        cell: transaction => html`
+          <foxy-i18n
+            data-testclass="i18n totals"
+            class="font-medium tracking-wide font-tnum"
+            lang=${this.lang}
+            key="total"
+            ns=${ns}
+            .opts=${{ value: `${transaction.total_order} ${transaction.currency_code}` }}
+          >
+          </foxy-i18n>
+        `,
       },
 
       {
         header: () => this.__t('th_summary').toString(),
         cell: transaction => {
           const items = transaction._embedded?.['fx:items'];
-          if (!items)
-            return html`<foxy-i18n lang=${this.lang} key="no_summary" ns=${ns}></foxy-i18n>`;
+          if (!items) return '';
 
           const opts = {
             most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
@@ -42,7 +45,14 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
           };
 
           return html`
-            <foxy-i18n lang=${this.lang} key="summary" ns=${ns} .opts=${opts}></foxy-i18n>
+            <foxy-i18n
+              data-testclass="i18n summaries"
+              lang=${this.lang}
+              key="summary"
+              ns=${ns}
+              .opts=${opts}
+            >
+            </foxy-i18n>
           `;
         },
       },
@@ -62,10 +72,11 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
 
           return html`
             <foxy-i18n
-              ns=${ns}
-              key=${`status_${transaction.status}`}
-              lang=${this.lang}
+              data-testclass="i18n statuses"
               class="px-s text-s font-medium tracking-wide rounded ${colors[transaction.status]}"
+              lang=${this.lang}
+              key=${`status_${transaction.status}`}
+              ns=${ns}
             >
             </foxy-i18n>
           `;
@@ -77,7 +88,7 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
         header: () => this.__t('th_id').toString(),
         cell: transaction => {
           return html`
-            <span class="text-s text-secondary font-tnum">
+            <span class="text-s text-secondary font-tnum" data-testclass="ids">
               <span class="text-tertiary">ID</span> ${transaction.id}
             </span>
           `;
@@ -89,9 +100,15 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
         header: () => this.__t('th_date').toString(),
         cell: transaction => {
           return html`
-            <span class="text-s text-secondary font-tnum">
-              ${this.__formatDate(new Date(transaction.transaction_date))}
-            </span>
+            <foxy-i18n
+              data-testclass="i18n dates"
+              class="text-s text-secondary font-tnum"
+              lang=${this.lang}
+              key="date"
+              ns=${ns}
+              .opts=${{ value: transaction.transaction_date }}
+            >
+            </foxy-i18n>
           `;
         },
       },
@@ -101,11 +118,12 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
         cell: transaction => {
           return html`
             <a
+              data-testclass="links"
+              target="_blank"
               class="text-s font-medium tracking-wide text-primary rounded px-xs -mx-xs hover:underline focus:outline-none focus:shadow-outline"
               href=${transaction._links['fx:receipt'].href}
-              target="_blank"
             >
-              <foxy-i18n ns=${ns} lang=${this.lang} key="receipt"></foxy-i18n>
+              <foxy-i18n data-testclass="i18n" ns=${ns} lang=${this.lang} key="receipt"></foxy-i18n>
             </a>
           `;
         },
@@ -120,32 +138,5 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
 
   private get __t() {
     return I18nElement.i18next.getFixedT(this.lang, TransactionsTableElement.__ns);
-  }
-
-  private __formatDate(date: Date, lang = this.lang): string {
-    try {
-      return date.toLocaleString(lang, {
-        year: new Date().getFullYear() === date.getFullYear() ? undefined : 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-      });
-    } catch {
-      return this.__formatDate(date, I18nElement.fallbackLng);
-    }
-  }
-
-  private __formatPrice(value: number, currency: string, lang = this.lang): string {
-    try {
-      return value.toLocaleString(lang, {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-        style: 'currency',
-        currency,
-      });
-    } catch {
-      return this.__formatPrice(value, currency, I18nElement.fallbackLng);
-    }
   }
 }
