@@ -1,12 +1,13 @@
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { TemplateResult, html } from 'lit-html';
+
+import { NucleonElement } from '../../public/NucleonElement/index';
 import { Primitive } from 'lit-html/lib/parts';
 import { Skeleton } from '..';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
-import { NucleonElement } from '../../public/NucleonElement/index';
 
 export type Collection<TCurie extends string = any, TResource = any> = {
   readonly _links: Record<'next' | 'self', { href: string }>;
@@ -45,21 +46,15 @@ export abstract class NucleonTableElement<TData extends Collection> extends Scop
   }
 
   render(columns?: Column<TData>[]): TemplateResult {
-    const { state } = this;
-    const data = state.context.data;
-
     return html`
-      <div class="relative" aria-busy=${state.matches('busy')} aria-live="polite">
-        ${!state.matches('idle')
+      <div data-testid="wrapper" class="relative" aria-busy=${this.in('busy')} aria-live="polite">
+        ${!this.in('idle')
           ? html`
               <div class="divide-y divide-contrast-10">
                 ${new Array(this._getLimit()).fill(0).map(() => {
                   return html`
                     <div class="h-l flex items-center">
-                      <x-skeleton
-                        class="w-full"
-                        variant=${state.matches('fail') ? 'error' : 'busy'}
-                      >
+                      <x-skeleton class="w-full" variant=${this.in('fail') ? 'error' : 'busy'}>
                         &nbsp;
                       </x-skeleton>
                     </div>
@@ -82,7 +77,7 @@ export abstract class NucleonTableElement<TData extends Collection> extends Scop
                 </thead>
 
                 <tbody class="divide-y divide-contrast-10 ">
-                  ${Object.values(data?._embedded ?? {}).map(embeds => {
+                  ${Object.values(this.data?._embedded ?? {}).map(embeds => {
                     return embeds.map(resource => {
                       return html`
                         <tr>
