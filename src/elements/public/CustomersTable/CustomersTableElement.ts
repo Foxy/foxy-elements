@@ -28,6 +28,8 @@ export class CustomersTableElement extends NucleonTableElement<Data> {
 
     return html`
       <foxy-form-dialog
+        data-testclass="i18n"
+        data-testid="customerDialog"
         parent=${this.href}
         header="edit"
         lang=${this.lang}
@@ -39,19 +41,24 @@ export class CustomersTableElement extends NucleonTableElement<Data> {
       ${super.render([
         {
           header: () => this.__t('name').toString(),
-          cell: customer => `${customer.first_name} ${customer.last_name}`,
+          cell: customer => html`
+            <span data-testclass="names">${customer.first_name} ${customer.last_name}</span>
+          `,
         },
         {
           mdAndUp: true,
           header: () => this.__t('id').toString(),
           cell: customer => html`
             <span role="presentation" class="text-s text-tertiary">ID&nbsp;</span>
-            <span class="text-s text-secondary font-tnum">${customer.id}</span>
+            <span data-testclass="ids" class="text-s text-secondary font-tnum">${customer.id}</span>
           `,
         },
         {
           header: () => this.__t('email').toString(),
-          cell: customer => html`<span class="text-s text-secondary">${customer.email}</span>`,
+          cell: customer =>
+            html`
+              <span data-testclass="emails" class="text-s text-secondary"> ${customer.email} </span>
+            `,
         },
         {
           mdAndUp: true,
@@ -59,13 +66,15 @@ export class CustomersTableElement extends NucleonTableElement<Data> {
           cell: customer =>
             html`
               <button
+                data-testclass="previewButtons"
                 class="rounded text-s font-medium tracking-wide text-primary hover:opacity-75 focus:outline-none focus:shadow-outline"
                 @click=${(evt: Event) => {
                   this.__customerDialog.href = customer._links.self.href;
                   this.__customerDialog.show(evt.currentTarget as HTMLElement);
                 }}
               >
-                <foxy-i18n ns=${ns} lang=${this.lang} key="preview"></foxy-i18n>
+                <foxy-i18n data-testclass="i18n" ns=${ns} lang=${this.lang} key="preview">
+                </foxy-i18n>
               </button>
             `,
         },
