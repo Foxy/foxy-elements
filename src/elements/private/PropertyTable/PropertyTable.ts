@@ -6,6 +6,7 @@ import { Themeable } from '../../../mixins/themeable';
 export class PropertyTableElement extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
+      disabled: { type: Boolean, reflect: true },
       items: { attribute: false },
       lang: { type: String },
     };
@@ -24,24 +25,21 @@ export class PropertyTableElement extends LitElement {
 
   items: { name: string; value: string }[] = [];
 
+  disabled = false;
+
   render(): TemplateResult {
+    const tdValueColor = this.disabled ? 'text-disabled' : 'text-body';
+    const tdNameColor = this.disabled ? 'text-disabled' : 'text-secondary';
     const tdClass = 'max-w-0 truncate py-s';
 
     return html`
-      <table class="font-lumo text-body text-m leading-m w-full">
-        <thead class="sr-only">
-          <tr>
-            <th><foxy-i18n lang=${this.lang} key="property"></foxy-i18n></th>
-            <th><foxy-i18n lang=${this.lang} key="value"></foxy-i18n></th>
-          </tr>
-        </thead>
-
+      <table class="font-lumo text-m leading-m w-full">
         <tbody class="divide-y divide-contrast-10">
           ${this.items.map(
             ({ name, value }) => html`
               <tr>
-                <td class="${tdClass} w-1/3 pr-m text-tertiary" title=${name}>${name}</td>
-                <td class="${tdClass} w-2/3" title=${value}>${value}</td>
+                <td class="${tdClass} ${tdNameColor} w-1/3 pr-m" title=${name}>${name}</td>
+                <td class="${tdClass} ${tdValueColor} w-2/3" title=${value}>${value}</td>
               </tr>
             `
           )}
