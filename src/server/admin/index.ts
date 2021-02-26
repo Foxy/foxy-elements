@@ -172,7 +172,7 @@ router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
   const lastTransaction = zoom.includes('last_transaction')
-    ? await db.transactions.get(doc.last_transaction)
+    ? await db.transactions.where('subscription').equals(id).last()
     : null;
 
   const body = composeSubscription(doc, lastTransaction);
@@ -188,7 +188,7 @@ router.patch('/s/admin/subscriptions/:id', async ({ params, request }) => {
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
   const lastTransaction = zoom.includes('last_transaction')
-    ? await db.transactions.get(doc.last_transaction)
+    ? await db.transactions.where('subscription').equals(id).last()
     : null;
 
   const body = composeSubscription(doc, lastTransaction);
