@@ -8,6 +8,7 @@ import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 
 
 import { AttributePart } from 'lit-html';
 import { ChoiceChangeEvent } from './ChoiceChangeEvent';
+import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../mixins/translatable';
 import { interpret } from 'xstate';
@@ -74,6 +75,7 @@ export class Choice extends Translatable {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'x-frequency-input': FrequencyInput,
       'vaadin-text-area': customElements.get('vaadin-text-area'),
       'iron-icon': customElements.get('iron-icon'),
     };
@@ -117,6 +119,7 @@ export class Choice extends Translatable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      defaultCustomValue: { type: String, attribute: 'default-custom-value' },
       disabled: { type: Boolean },
       custom: { type: Boolean },
       type: { type: String },
@@ -135,6 +138,14 @@ export class Choice extends Translatable {
     .onTransition(({ changed }) => changed && this.requestUpdate())
     .start();
 
+  public get defaultCustomValue(): string {
+    return this.__service.state.context.defaultCustomValue;
+  }
+
+  public set defaultCustomValue(data: string) {
+    this.__service.send('SET_DEFAULT_CUSTOM_VALUE', { data });
+  }
+
   public get disabled(): boolean {
     return this.__service.state.matches('interactivity.disabled');
   }
@@ -151,11 +162,11 @@ export class Choice extends Translatable {
     this.__service.send('SET_CUSTOM', { data });
   }
 
-  public get type(): 'text' | 'textarea' | 'integer' {
+  public get type(): 'text' | 'textarea' | 'integer' | 'frequency' {
     return this.__service.state.context.type;
   }
 
-  public set type(data: 'text' | 'textarea' | 'integer') {
+  public set type(data: 'text' | 'textarea' | 'integer' | 'frequency') {
     this.__service.send('SET_TYPE', { data });
   }
 
@@ -215,7 +226,7 @@ export class Choice extends Translatable {
           '?disabled': this.disabled,
           '@change': (evt: Event) => {
             const checked = (evt.target as HTMLInputElement).checked;
-            const newItem = item === VALUE_OTHER ? '' : item;
+            const newItem = item === VALUE_OTHER ? this.defaultCustomValue : item;
             const value = this.value;
 
             if (Array.isArray(value)) {
@@ -283,7 +294,9 @@ export class Choice extends Translatable {
       '@change': handleInput,
     });
 
-    if (this.type === 'integer') {
+    if (this.type === 'frequency') {
+      return html`<x-frequency-input ...=${attributes}></x-frequency-input>`;
+    } else if (this.type === 'integer') {
       return html`<vaadin-integer-field ...=${attributes} has-controls></vaadin-integer-field>`;
     } else if (this.type === 'textarea') {
       return html`<vaadin-text-area ...=${attributes}></vaadin-text-area>`;
