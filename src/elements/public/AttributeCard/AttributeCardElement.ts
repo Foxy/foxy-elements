@@ -29,8 +29,7 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
   }
 
   render(): TemplateResult {
-    const state = this.state;
-    const variant = state.matches('busy') ? 'busy' : 'error';
+    const variant = this.in('busy') ? 'busy' : 'error';
 
     return html`
       <foxy-form-dialog
@@ -48,19 +47,20 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
         tabindex="0"
         class="text-body text-l font-lumo leading-m focus:outline-none"
         aria-live="polite"
-        aria-busy=${state.matches('busy')}
+        aria-busy=${this.in('busy')}
         @click=${this.__handleClick}
         @keydown=${this.__handleKeyDown}
       >
         <figcaption
           class="flex items-center space-x-xs uppercase text-xxs font-medium text-tertiary tracking-wider"
         >
-          ${state.matches({ idle: 'snapshot' })
+          ${this.in({ idle: 'snapshot' })
             ? html`
-                <span class="block truncate" title=${state.context.data.name} data-testid="name">
-                  ${state.context.data.name}
+                <span class="block truncate" title=${this.data.name} data-testid="name">
+                  ${this.data.name}
                 </span>
-                ${state.context.data.visibility !== 'public'
+
+                ${this.data.visibility !== 'public'
                   ? html`
                       <iron-icon
                         icon="icons:lock"
@@ -73,10 +73,10 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
             : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}
         </figcaption>
 
-        ${state.matches({ idle: 'snapshot' })
+        ${this.in({ idle: 'snapshot' })
           ? html`
-              <span class="block truncate" title=${state.context.data.value} data-testid="value">
-                ${state.context.data.value}
+              <span class="block truncate" title=${this.data.value} data-testid="value">
+                ${this.data.value}
               </span>
             `
           : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}

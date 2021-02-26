@@ -1,10 +1,4 @@
-import {
-  ComputedElementProperties,
-  HALJSONResource,
-  NucleonMachine,
-  NucleonState,
-  NucleonV8N,
-} from './types';
+import { ComputedElementProperties, HALJSONResource, NucleonMachine, NucleonV8N } from './types';
 import { LitElement, PropertyDeclarations } from 'lit-element';
 import { Nucleon, Rumour } from '@foxy.io/sdk/core';
 import { assign, interpret } from 'xstate';
@@ -75,12 +69,6 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     })
   );
 
-  /** @deprecated */
-  get state(): NucleonState<TData> {
-    const { context, matches } = this.__service.state;
-    return { context, matches };
-  }
-
   /** Validation errors returned from `NucleonElement.v8n` checks. */
   get errors(): string[] {
     return this.__service.state.context.errors;
@@ -131,11 +119,6 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     stateValue: TStateValue
   ): this is this & ComputedElementProperties<TData, TStateValue> {
     return this.__service.state.matches(stateValue);
-  }
-
-  /** @deprecated */
-  send(event: Nucleon.Event<TData>): void {
-    this.__service.send(event);
   }
 
   /** Clears all edits. */

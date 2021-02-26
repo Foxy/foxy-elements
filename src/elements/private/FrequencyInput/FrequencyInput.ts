@@ -19,6 +19,8 @@ import { memoize } from 'lodash-es';
 import { parseDuration } from '../../../utils/parse-duration';
 
 export class FrequencyInput extends LitElement {
+  static readonly defaultValue = '';
+
   static get properties(): PropertyDeclarations {
     return {
       checkValidity: { attribute: false },
@@ -69,7 +71,7 @@ export class FrequencyInput extends LitElement {
 
   label = '';
 
-  value = '';
+  value = FrequencyInput.defaultValue;
 
   disabled = false;
 

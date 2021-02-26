@@ -102,7 +102,6 @@ export class FormDialogElement extends DialogElement {
   }
 
   async save(): Promise<void> {
-    const form = this.renderRoot.querySelector('#form') as NucleonElement<never>;
-    form.send({ type: 'SUBMIT' });
+    (this.renderRoot.querySelector('#form') as NucleonElement<never>).submit();
   }
 }

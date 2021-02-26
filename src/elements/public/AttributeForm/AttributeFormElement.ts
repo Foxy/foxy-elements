@@ -49,7 +49,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
   private __untrackTranslations?: () => void;
 
   private __getValidator = memoize((prefix: string) => () => {
-    return !this.state.context.errors.some(err => err.startsWith(prefix));
+    return !this.errors.some(err => err.startsWith(prefix));
   });
 
   connectedCallback(): void {
@@ -76,7 +76,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
         lang=${lang}
         ns=${ns}
         id="confirm"
-        @submit=${this.__handleDeleteConfirm}
+        @submit=${this.delete}
       >
       </x-confirm-dialog>
 
@@ -159,7 +159,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
                   data-testid="create"
                   theme="success primary"
                   ?disabled=${isDisabled || !isValid}
-                  @click=${this.__handleSubmitClick}
+                  @click=${this.submit}
                 >
                   <foxy-i18n ns="attribute-form" lang=${lang} key="create"></foxy-i18n>
                 </vaadin-button>
@@ -198,7 +198,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
   }
 
   private __getErrorMessage(prefix: string) {
-    const error = this.state.context.errors.find(err => err.startsWith(prefix));
+    const error = this.errors.find(err => err.startsWith(prefix));
     return error ? this.__t(error).toString() : '';
   }
 
@@ -215,33 +215,22 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
   }
 
   private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.send({ type: 'SUBMIT' });
+    if (evt.key === 'Enter') this.submit();
   }
 
   private __handleNameInput(evt: InputEvent) {
-    const name = (evt.target as HTMLInputElement).value;
-    this.send({ type: 'EDIT', data: { name } });
+    this.edit({ name: (evt.target as HTMLInputElement).value });
   }
 
   private __handleValueInput(evt: InputEvent) {
-    const value = (evt.target as HTMLInputElement).value;
-    this.send({ type: 'EDIT', data: { value } });
+    this.edit({ value: (evt.target as HTMLInputElement).value });
   }
 
   private __handleChoiceChange(evt: ChoiceChangeEvent) {
-    const visibility = evt.detail as 'private' | 'restricted' | 'public';
-    this.send({ type: 'EDIT', data: { visibility } });
+    this.edit({ visibility: evt.detail as 'private' | 'restricted' | 'public' });
   }
 
   private __handleDeleteClick(evt: Event) {
     this.__confirmDialog.show(evt.currentTarget as HTMLElement);
-  }
-
-  private __handleDeleteConfirm() {
-    this.send({ type: 'DELETE' });
-  }
-
-  private __handleSubmitClick() {
-    this.send({ type: 'SUBMIT' });
   }
 }
