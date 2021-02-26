@@ -1,103 +1,165 @@
-import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
+import '@vaadin/vaadin-combo-box';
 
-import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+import {
+  CSSResult,
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  css,
+  html,
+} from 'lit-element';
+import { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
 
-import { Dropdown } from '../index';
-import { DropdownChangeEvent } from '../events';
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { Translatable } from '../../../mixins/translatable';
+import { I18nElement } from '../../public/I18n/I18nElement';
+import { live } from '@open-wc/lit-helpers';
+import { memoize } from 'lodash-es';
 import { parseDuration } from '../../../utils/parse-duration';
 
-export class FrequencyInput extends Translatable {
-  public static readonly defaultValue = '1w';
-
-  public static get scopedElements(): ScopedElementsMap {
-    return {
-      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
-      'vaadin-button': customElements.get('vaadin-button'),
-      'x-dropdown': Dropdown,
-    };
-  }
-
+export class FrequencyInput extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
-      ...super.properties,
-      readonly: { type: Boolean },
-      disabled: { type: Boolean },
-      invalid: { type: Boolean },
+      checkValidity: { attribute: false },
+      errorMessage: { type: String, attribute: 'error-message' },
+      disabled: { type: Boolean, reflect: true },
+      readonly: { type: Boolean, reflect: true },
+      label: { type: String },
       value: { type: String },
+      lang: { type: String },
     };
   }
 
-  public readonly = false;
+  static get styles(): CSSResult | CSSResultArray {
+    return css`
+      :host {
+        display: block;
+      }
 
-  public disabled = false;
+      vaadin-custom-field {
+        width: 100%;
+        font-size: 0;
+        line-height: 0;
+      }
 
-  public invalid = false;
+      vaadin-custom-field::part(label) {
+        padding-bottom: var(--lumo-space-s);
+      }
 
-  public value = FrequencyInput.defaultValue;
+      vaadin-custom-field::part(error-message)[aria-hidden='false'] {
+        padding-top: var(--lumo-space-xs);
+      }
 
-  private readonly __items = ['y', 'm', 'w', 'd'] as const;
+      vaadin-integer-field,
+      vaadin-combo-box {
+        width: calc(50% - (var(--lumo-space-s) / 2));
+      }
 
-  public constructor() {
-    super('customer-portal-settings');
-  }
+      vaadin-integer-field {
+        margin-right: var(--lumo-space-s);
+        padding: 0;
+      }
 
-  public render(): TemplateResult {
-    return html`
-      <div class="grid grid-cols-2 gap-s">
-        <vaadin-integer-field
-          data-testid="value"
-          class="w-full"
-          min="1"
-          has-controls
-          prevent-invalid-input
-          ?readonly=${this.readonly}
-          ?disabled=${this.disabled}
-          ?invalid=${this.invalid}
-          value=${this._isI18nReady ? this.__numericValue : ''}
-          @change=${this.__handleNumberChange}
-        >
-        </vaadin-integer-field>
-
-        <x-dropdown
-          data-testid="units"
-          .readonly=${this.readonly}
-          .disabled=${this.disabled}
-          .invalid=${this.invalid}
-          .getText=${(v: string) => (this._isI18nReady ? this._t(`${v}_plural`) : '')}
-          .items=${this.__items}
-          .value=${this._isI18nReady ? this.__unitsValue : ''}
-          @change=${this.__handleUnitsChange}
-        >
-        </x-dropdown>
-      </div>
+      vaadin-combo-box::part(text-field) {
+        padding: 0;
+      }
     `;
   }
 
-  private get __numericValue() {
-    return parseDuration(this.value ?? '').count;
+  label = '';
+
+  value = '';
+
+  disabled = false;
+
+  readonly = false;
+
+  errorMessage = '';
+
+  private __i18n: CustomFieldI18n = {
+    formatValue: inputValues => inputValues.join(''),
+    parseValue: value => {
+      const { count, units } = parseDuration(value);
+      return [count.toString(), units];
+    },
+  };
+
+  private __getItems = memoize((value: string) => {
+    const count = parseDuration(value).count;
+
+    return [
+      { value: 'd', label: this.__t('d', { count }) },
+      { value: 'w', label: this.__t('w', { count }) },
+      { value: 'm', label: this.__t('m', { count }) },
+      { value: 'y', label: this.__t('y', { count }) },
+    ];
+  });
+
+  private __untrackTranslations?: () => void;
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => {
+      this.__getItems.cache.clear?.();
+      this.requestUpdate();
+    });
   }
 
-  private get __unitsValue() {
-    return parseDuration(this.value ?? '').units;
+  render(): TemplateResult {
+    return html`
+      <vaadin-custom-field
+        .i18n=${this.__i18n}
+        .label=${this.label}
+        .value=${live(this.value)}
+        .disabled=${this.disabled}
+        .readonly=${this.readonly}
+        .errorMessage=${this.errorMessage}
+        .checkValidity=${this.checkValidity}
+        @change=${this.__handleChange}
+      >
+        <vaadin-integer-field
+          min="1"
+          max="999"
+          has-controls
+          prevent-invalid-input
+          ?invalid=${!this.checkValidity()}
+        >
+        </vaadin-integer-field>
+
+        <vaadin-combo-box
+          item-value-path="value"
+          item-label-path="label"
+          .items=${this.__getItems(this.value)}
+          ?invalid=${!this.checkValidity()}
+        >
+        </vaadin-combo-box>
+      </vaadin-custom-field>
+    `;
   }
 
-  private __handleNumberChange(evt: Event) {
-    evt.stopPropagation();
-    const value = (evt.target as HTMLInputElement).value;
-    this.value = this.value.replace(String(this.__numericValue), value);
-    this.__sendChange();
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    const field = this.renderRoot.firstElementChild as CustomFieldElement;
+    if (field.value !== this.value) field.value = this.value;
   }
 
-  private __handleUnitsChange(evt: DropdownChangeEvent) {
-    this.value = this.value.replace(String(this.__unitsValue), evt.detail as string);
-    this.__sendChange();
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__untrackTranslations?.();
   }
 
-  private __sendChange() {
+  checkValidity(): boolean {
+    return true;
+  }
+
+  private get __t() {
+    return I18nElement.i18next.getFixedT(this.lang);
+  }
+
+  private __handleChange(evt: CustomEvent<void>) {
+    const field = evt.target as CustomFieldElement;
+    this.value = field.value as string;
     this.dispatchEvent(new FrequencyInputChangeEvent(this.value));
   }
 }
