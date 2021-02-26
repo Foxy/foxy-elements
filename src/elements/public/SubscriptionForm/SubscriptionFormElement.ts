@@ -1,16 +1,13 @@
 import { CSSResult, CSSResultArray } from 'lit-element';
+import { Choice, Group, PropertyTableElement, Skeleton } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
+import { ChoiceChangeEvent } from '../../private/events';
 import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { FrequencyInput } from '../../private/FrequencyInput/FrequencyInput';
-import { FrequencyInputChangeEvent } from '../../private/FrequencyInput/FrequencyInputChangeEvent';
 import { I18nElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
-import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTableElement } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { memoize } from 'lodash-es';
@@ -20,12 +17,12 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-date-picker': customElements.get('vaadin-date-picker'),
-      'x-frequency-input': FrequencyInput,
       'x-property-table': PropertyTableElement,
-      'x-confirm-dialog': ConfirmDialogElement,
-      'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'x-skeleton': Skeleton,
+      'x-choice': Choice,
+      'x-group': Group,
     };
   }
 
@@ -33,176 +30,132 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
     return Themeable.styles;
   }
 
-  static get v8n(): NucleonV8N<Data> {
-    return [
-      ({ next_transaction_date: v }) => {
-        return (v && new Date(v).getTime() > Date.now()) || 'next_transaction_date_past';
-      },
-      ({ frequency: v }) => {
-        return (v && /^(([0-9]{1,3}[dwmy]{1})|(\.5m))$/.test(v)) || 'frequency_invalid';
-      },
-    ];
-  }
+  private static __predefinedFrequencies = ['.5m', '1m', '1y'];
 
   private static __ns = 'subscription-form';
 
   private __untrackTranslations?: () => void;
 
-  private __getValidator = memoize((prefix: string) => () => {
-    return !this.state.context.errors.some(err => err.startsWith(prefix));
-  });
+  private __memoRenderHeader = memoize(this.__renderHeader.bind(this), (...args) => args.join());
+
+  private __memoRenderStatus = memoize(this.__renderStatus.bind(this), (...args) => args.join());
+
+  private __memoRenderTable = memoize(this.__renderTable.bind(this), (...args) => args.join());
+
+  private __muteBuiltInV8N = () => true;
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18nElement.onTranslationChange(() => {
+      this.__memoRenderTable.cache.clear?.();
+      this.requestUpdate();
+    });
   }
 
   render(): TemplateResult {
-    const { lang, state } = this;
-    const form = { ...state.context.edits, ...state.context.data };
-
     const ns = SubscriptionFormElement.__ns;
-    const frequency = parseDuration(form.frequency ?? '1m');
-    const transaction = state.context.data?._embedded['fx:last_transaction'];
-    const frequencyOpts = {
-      count: frequency.count,
-      units: this.__t(frequency.units, { count: frequency.count }),
-      amount: this.__formatPrice(
-        transaction?.total_order ?? 0,
-        transaction?.currency_code ?? 'USD'
-      ),
-    };
-
-    let statusDate: Date | null = null;
-    let statusKey = '';
-
-    if (form.first_failed_transaction_date) {
-      statusDate = new Date(form.first_failed_transaction_date);
-      statusKey = 'status_failed';
-    } else if (form.end_date) {
-      statusDate = new Date(form.end_date);
-      const hasEnded = statusDate.getTime() > Date.now();
-      statusKey = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
-    } else {
-      statusDate = new Date(form.next_transaction_date ?? Date.now());
-      statusKey = 'status_active';
-    }
-
-    const statusOpts = { date: this.__formatDate(statusDate) };
-    const isSnapshot = state.matches({ idle: 'snapshot' });
-    const isIdle = state.matches('idle');
+    const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
 
     return html`
-      <x-confirm-dialog
-        message="end_message"
-        confirm="end_yes"
-        cancel="end_no"
-        header="end"
-        theme="primary error"
-        lang=${lang}
-        ns=${ns}
-        id="confirm"
-        @submit=${this.__end}
-      >
-      </x-confirm-dialog>
-
       <div
-        class=${classMap({
-          'relative space-y-l text-body font-lumo text-m leading-m': true,
-          'text-disabled': !isSnapshot,
-          'text-body': isSnapshot,
-        })}
+        class="text-body relative space-y-l text-body font-lumo text-m leading-m"
+        aria-busy=${this.in('busy')}
+        aria-live="polite"
       >
         <div class="leading-s">
-          <foxy-i18n
-            class="text-xl font-medium"
-            lang=${lang}
-            key="frequency"
-            ns=${ns}
-            .opts=${frequencyOpts}
-          >
-          </foxy-i18n>
-
-          <br />
-
-          <foxy-i18n
-            class=${classMap({ 'text-secondary': isSnapshot })}
-            lang=${lang}
-            key=${statusKey}
-            ns=${ns}
-            .opts=${statusOpts}
-          >
-          </foxy-i18n>
-        </div>
-
-        <div class="space-y-m">
-          <div class="space-y-xs">
-            <foxy-i18n
-              class=${classMap({
-                'font-medium antialiased block text-s': true,
-                'text-disabled': !isSnapshot,
-                'text-secondary': isSnapshot,
-              })}
-              lang=${lang}
-              key="th_frequency"
-              ns=${ns}
-            >
-            </foxy-i18n>
-
-            <x-frequency-input
-              ns=${ns}
-              lang=${lang}
-              value=${form.frequency ?? '1m'}
-              label=${this.__t('th_frequency').toString()}
-              ?invalid=${this.__getValidator('frequency')()}
-              ?disabled=${!isIdle}
-              ?readonly=${isIdle && !form.is_active}
-              error-message=${this.__getErrorMessage('frequency')}
-              @change=${this.__handleFrequencyChange}
-            >
-            </x-frequency-input>
+          <div class="text-xl font-medium tracking-wide">
+            ${this.data
+              ? this.__memoRenderHeader(
+                  this.lang,
+                  this.data.frequency,
+                  this.data._embedded['fx:last_transaction'].total_order,
+                  this.data._embedded['fx:last_transaction'].currency_code
+                )
+              : html`<x-skeleton class="w-full" variant="static"></x-skeleton>`}
           </div>
 
-          <vaadin-date-picker
-            class="w-full"
-            label=${this.__t('next_transaction_date').toString()}
-            value=${this.__toYyyyMmDd(new Date(form.next_transaction_date ?? Date.now()))}
-            error-message=${this.__getErrorMessage('next_transaction_date')}
-            ?disabled=${!isIdle}
-            ?readonly=${isIdle && !form.next_transaction_date}
-            .checkValidity=${isIdle ? this.__getValidator('next_transaction_date') : () => true}
-            @change=${this.__handleNextTransactionDateChange}
-          >
-          </vaadin-date-picker>
+          <div class="text-secondary">
+            ${this.data
+              ? this.__memoRenderStatus(
+                  this.lang,
+                  this.data.next_transaction_date,
+                  this.data.first_failed_transaction_date,
+                  this.data.end_date
+                )
+              : html`<x-skeleton class="w-full" variant="static"></x-skeleton>`}
+          </div>
         </div>
 
-        <x-property-table ?disabled=${!isIdle} .items=${this.__getPropertyTableItems()}>
-        </x-property-table>
+        <x-group frame>
+          <foxy-i18n
+            class=${classMap({ 'text-disabled': !this.in('idle') })}
+            slot="header"
+            lang=${this.lang}
+            key="th_frequency"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
-        ${form.is_active
-          ? html`
-              <vaadin-button
-                theme="error primary"
-                class="w-full"
-                ?disabled=${!isIdle}
-                @click=${this.__confirmEnd}
-              >
-                <foxy-i18n ns=${ns} lang=${lang} key="end"></foxy-i18n>
-              </vaadin-button>
-            `
-          : ''}
-        ${!isIdle
-          ? html`
-              <div class="absolute inset-0 flex items-center justify-center">
-                <foxy-spinner
-                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${state.matches('busy') ? 'busy' : 'error'}
-                  layout="vertical"
-                >
-                </foxy-spinner>
-              </div>
-            `
-          : ''}
+          <x-choice
+            default-custom-value="1d"
+            type="frequency"
+            custom
+            .items=${SubscriptionFormElement.__predefinedFrequencies}
+            .value=${this.form.frequency ?? null}
+            ?disabled=${!this.in({ idle: 'snapshot' })}
+            @change=${this.__handleFrequencyChange}
+          >
+            <foxy-i18n slot=".5m-label" lang=${this.lang} key="frequency_0_5m" ns=${ns}></foxy-i18n>
+            <foxy-i18n slot="1m-label" lang=${this.lang} key="monthly" ns=${ns}></foxy-i18n>
+            <foxy-i18n slot="1y-label" lang=${this.lang} key="yearly" ns=${ns}></foxy-i18n>
+          </x-choice>
+        </x-group>
+
+        <vaadin-date-picker
+          min=${tomorrow.toISOString().substr(0, 10)}
+          class="w-full"
+          label=${this.__t('next_transaction_date').toString()}
+          value=${this.form.next_transaction_date?.substr(0, 10) ?? ''}
+          ?disabled=${!this.in({ idle: 'snapshot' })}
+          ?readonly=${this.in({ idle: 'snapshot' }) && !this.data.is_active}
+          .checkValidity=${this.__muteBuiltInV8N}
+          @change=${this.__handleNextTransactionDateChange}
+        >
+        </vaadin-date-picker>
+
+        <vaadin-date-picker
+          min=${tomorrow.toISOString().substr(0, 10)}
+          class="w-full"
+          label=${this.__t('end_date').toString()}
+          value=${this.form.end_date?.substr(0, 10) ?? ''}
+          placeholder=${this.__t('end_date_placeholder').toString()}
+          ?disabled=${!this.in({ idle: 'snapshot' })}
+          ?readonly=${this.in({ idle: 'snapshot' }) && !this.data.is_active}
+          .checkValidity=${this.__muteBuiltInV8N}
+          @change=${this.__handleEndDateChange}
+        >
+        </vaadin-date-picker>
+
+        ${this.__memoRenderTable(
+          !this.in({ idle: 'snapshot' }),
+          this.data?.date_created ?? '',
+          this.data?.date_modified ?? ''
+        )}
+
+        <div
+          class=${classMap({
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'pointer-events-none opacity-0': this.in({ idle: 'snapshot' }),
+            'opacity-100': !this.in({ idle: 'snapshot' }),
+          })}
+        >
+          <foxy-spinner
+            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${this.in({ idle: 'template' }) ? 'empty' : this.in('fail') ? 'error' : 'busy'}
+            layout="vertical"
+          >
+          </foxy-spinner>
+        </div>
       </div>
     `;
   }
@@ -210,78 +163,81 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
   disconnectedCallback(): void {
     super.disconnectedCallback();
     this.__untrackTranslations?.();
-    this.__getValidator.cache.clear?.();
+    this.__memoRenderHeader.cache.clear?.();
+    this.__memoRenderStatus.cache.clear?.();
+    this.__memoRenderTable.cache.clear?.();
   }
 
   private get __t() {
     return I18nElement.i18next.getFixedT(this.lang, SubscriptionFormElement.__ns);
   }
 
-  private __getErrorMessage(prefix: string) {
-    const error = this.state.context.errors.find(err => err.startsWith(prefix));
-    return error ? this.__t(error).toString() : '';
+  private __handleFrequencyChange(evt: ChoiceChangeEvent) {
+    this.edit({ frequency: evt.detail as string });
   }
 
-  private __getPropertyTableItems() {
-    const data = this.state.context.data;
-    return (['date_modified', 'date_created'] as const).map(field => ({
-      name: this.__t(field),
-      value: this.__formatDate(new Date(data?.[field] ?? Date.now())),
-    }));
-  }
-
-  private __toYyyyMmDd(date: Date) {
-    return [
-      date.getFullYear().toString().padStart(4, '0'),
-      (date.getMonth() + 1).toString().padStart(2, '0'),
-      date.getDay().toString().padStart(2, '0'),
-    ].join('-');
-  }
-
-  private __formatDate(date: Date, lang = this.lang): string {
-    try {
-      return date.toLocaleDateString(lang, {
-        day: 'numeric',
-        month: 'long',
-        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-      });
-    } catch {
-      return this.__formatDate(date, I18nElement.fallbackLng);
-    }
-  }
-
-  private __formatPrice(value: number, currency: string, lang = this.lang): string {
-    try {
-      return value.toLocaleString(lang, {
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-        style: 'currency',
-        currency,
-      });
-    } catch {
-      return this.__formatPrice(value, currency, I18nElement.fallbackLng);
-    }
-  }
-
-  private __confirmEnd(evt: Event) {
-    const confirm = this.renderRoot.querySelector('#confirm') as ConfirmDialogElement;
-    confirm.show(evt.currentTarget as HTMLElement);
-  }
-
-  private __end() {
-    const today = new Date();
-    const tomorrow = new Date(today.setDate(today.getDate() + 1));
-
-    this.send({ type: 'EDIT', data: { end_date: tomorrow.toISOString() } });
-    this.send({ type: 'SUBMIT' });
-  }
-
-  private __handleFrequencyChange(evt: FrequencyInputChangeEvent) {
-    this.send({ type: 'EDIT', data: { frequency: evt.detail! } });
+  private __handleEndDateChange(evt: CustomEvent<unknown>) {
+    const target = evt.target as DatePickerElement;
+    this.edit({ end_date: target.value });
   }
 
   private __handleNextTransactionDateChange(evt: CustomEvent<unknown>) {
     const target = evt.target as DatePickerElement;
-    this.send({ type: 'EDIT', data: { next_transaction_date: target.value } });
+    this.edit({ next_transaction_date: target.value });
+  }
+
+  private __renderHeader(lang: string, frequency: string, total: number, currency: string) {
+    return html`
+      <foxy-i18n
+        lang=${lang}
+        key="sub_pricing${frequency === '.5m' ? '_0_5m' : ''}"
+        ns=${SubscriptionFormElement.__ns}
+        .opts=${{ ...parseDuration(frequency), amount: `${total} ${currency}` }}
+      >
+      </foxy-i18n>
+    `;
+  }
+
+  private __renderStatus(
+    lang: string,
+    nextTransactionDate: string | null | undefined,
+    firstFailedTransactionDate: string | null | undefined,
+    endDate: string | null | undefined
+  ) {
+    const ns = SubscriptionFormElement.__ns;
+
+    let date: string;
+    let key: string;
+
+    if (firstFailedTransactionDate) {
+      date = firstFailedTransactionDate;
+      key = 'status_failed';
+    } else if (endDate) {
+      date = endDate;
+      const hasEnded = new Date(date).getTime() > Date.now();
+      key = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
+    } else {
+      date = nextTransactionDate ?? new Date().toISOString();
+      key = 'status_active';
+    }
+
+    return html`<foxy-i18n lang=${lang} key=${key} ns=${ns} .opts=${{ date }}></foxy-i18n>`;
+  }
+
+  private __renderTable(disabled: boolean, dateCreated: string, dateModified: string) {
+    const dateCreatedRow = {
+      name: this.__t('date_modified'),
+      value: this.__t('date', { value: dateModified }),
+    };
+
+    const dateModifiedRow = {
+      name: this.__t('date_created'),
+      value: this.__t('date', { value: dateCreated }),
+    };
+
+    return html`
+      <x-property-table ?disabled=${disabled} .items=${[dateCreatedRow, dateModifiedRow]}>
+      </x-property-table>
+    `;
   }
 }

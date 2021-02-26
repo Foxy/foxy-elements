@@ -1,5 +1,4 @@
 import '@vaadin/vaadin-date-picker';
-import '@vaadin/vaadin-button';
 import '../Spinner/index';
 import '../I18n/index';
 
