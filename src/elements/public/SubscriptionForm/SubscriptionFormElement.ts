@@ -58,9 +58,10 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
 
     return html`
       <div
-        class="text-body relative space-y-l text-body font-lumo text-m leading-m"
+        data-testid="wrapper"
         aria-busy=${this.in('busy')}
         aria-live="polite"
+        class="text-body relative space-y-l text-body font-lumo text-m leading-m"
       >
         <div class="leading-s">
           <div class="text-xl font-medium tracking-wide">
@@ -88,7 +89,8 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
 
         <x-group frame>
           <foxy-i18n
-            class=${classMap({ 'text-disabled': !this.in('idle') })}
+            data-testclass="i18n"
+            class=${classMap({ 'text-disabled': !this.in('idle') || !this.form.is_active })}
             slot="header"
             lang=${this.lang}
             key="th_frequency"
@@ -98,24 +100,49 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
 
           <x-choice
             default-custom-value="1d"
+            data-testid="frequency"
             type="frequency"
             custom
             .items=${SubscriptionFormElement.__predefinedFrequencies}
             .value=${this.form.frequency ?? null}
-            ?disabled=${!this.in({ idle: 'snapshot' })}
+            ?disabled=${!this.in({ idle: 'snapshot' }) || !this.form.is_active}
             @change=${this.__handleFrequencyChange}
           >
-            <foxy-i18n slot=".5m-label" lang=${this.lang} key="frequency_0_5m" ns=${ns}></foxy-i18n>
-            <foxy-i18n slot="1m-label" lang=${this.lang} key="monthly" ns=${ns}></foxy-i18n>
-            <foxy-i18n slot="1y-label" lang=${this.lang} key="yearly" ns=${ns}></foxy-i18n>
+            <foxy-i18n
+              data-testclass="i18n"
+              slot=".5m-label"
+              lang=${this.lang}
+              key="frequency_0_5m"
+              ns=${ns}
+            >
+            </foxy-i18n>
+
+            <foxy-i18n
+              data-testclass="i18n"
+              slot="1m-label"
+              lang=${this.lang}
+              key="monthly"
+              ns=${ns}
+            >
+            </foxy-i18n>
+
+            <foxy-i18n
+              data-testclass="i18n"
+              slot="1y-label"
+              lang=${this.lang}
+              key="yearly"
+              ns=${ns}
+            >
+            </foxy-i18n>
           </x-choice>
         </x-group>
 
         <vaadin-date-picker
-          min=${tomorrow.toISOString().substr(0, 10)}
+          data-testid="nextPaymentDate"
           class="w-full"
           label=${this.__t('next_transaction_date').toString()}
           value=${this.form.next_transaction_date?.substr(0, 10) ?? ''}
+          min=${tomorrow.toISOString().substr(0, 10)}
           ?disabled=${!this.in({ idle: 'snapshot' })}
           ?readonly=${this.in({ idle: 'snapshot' }) && !this.data.is_active}
           .checkValidity=${this.__muteBuiltInV8N}
@@ -124,11 +151,12 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
         </vaadin-date-picker>
 
         <vaadin-date-picker
-          min=${tomorrow.toISOString().substr(0, 10)}
+          data-testid="endDate"
           class="w-full"
+          placeholder=${this.__t('end_date_placeholder').toString()}
           label=${this.__t('end_date').toString()}
           value=${this.form.end_date?.substr(0, 10) ?? ''}
-          placeholder=${this.__t('end_date_placeholder').toString()}
+          min=${tomorrow.toISOString().substr(0, 10)}
           ?disabled=${!this.in({ idle: 'snapshot' })}
           ?readonly=${this.in({ idle: 'snapshot' }) && !this.data.is_active}
           .checkValidity=${this.__muteBuiltInV8N}
@@ -143,6 +171,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
         )}
 
         <div
+          data-testid="spinnerWrapper"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
             'pointer-events-none opacity-0': this.in({ idle: 'snapshot' }),
@@ -150,9 +179,10 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
           })}
         >
           <foxy-spinner
+            data-testid="spinner"
+            layout="vertical"
             class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${this.in({ idle: 'template' }) ? 'empty' : this.in('fail') ? 'error' : 'busy'}
-            layout="vertical"
           >
           </foxy-spinner>
         </div>
@@ -189,6 +219,8 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
   private __renderHeader(lang: string, frequency: string, total: number, currency: string) {
     return html`
       <foxy-i18n
+        data-testclass="i18n"
+        data-testid="header"
         lang=${lang}
         key="sub_pricing${frequency === '.5m' ? '_0_5m' : ''}"
         ns=${SubscriptionFormElement.__ns}
@@ -221,7 +253,17 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
       key = 'status_active';
     }
 
-    return html`<foxy-i18n lang=${lang} key=${key} ns=${ns} .opts=${{ date }}></foxy-i18n>`;
+    return html`
+      <foxy-i18n
+        data-testclass="i18n"
+        data-testid="status"
+        lang=${lang}
+        key=${key}
+        ns=${ns}
+        .opts=${{ date }}
+      >
+      </foxy-i18n>
+    `;
   }
 
   private __renderTable(disabled: boolean, dateCreated: string, dateModified: string) {
