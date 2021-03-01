@@ -8,7 +8,6 @@ export class PropertyTableElement extends LitElement {
     return {
       disabled: { type: Boolean, reflect: true },
       items: { attribute: false },
-      lang: { type: String },
     };
   }
 
