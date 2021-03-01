@@ -1,15 +1,19 @@
+import { CSSResult, CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
-import { PropertyDeclarations } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
-export class Tabs extends Themeable {
+export class Tabs extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       value: { type: Number },
       size: { type: Number },
     };
+  }
+
+  static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   value = 0;
@@ -45,7 +49,7 @@ export class Tabs extends Themeable {
           name="panel-${index}"
           class=${classMap({ hidden: this.value !== index })}
           aria-hidden=${this.value !== index}
-          aria-labelledby="transactions-tab"
+          aria-labelledby="tab-${index}"
         >
         </slot>
       `);
