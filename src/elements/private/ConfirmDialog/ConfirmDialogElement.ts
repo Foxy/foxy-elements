@@ -58,6 +58,5 @@ export class ConfirmDialogElement extends DialogElement {
 
   private async __handleConfirm() {
     await this.hide();
-    this.dispatchEvent(new DialogElement.SubmitEvent());
   }
 }

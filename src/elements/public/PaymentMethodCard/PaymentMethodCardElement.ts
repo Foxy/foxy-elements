@@ -4,6 +4,7 @@ import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/index';
 import { Data } from './types';
+import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { I18nElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
@@ -90,7 +91,7 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
         ns=${ns}
         id="confirm"
         data-testid="confirm"
-        @submit=${this.delete}
+        @hide=${this.__handleConfirmHide}
       >
       </x-confirm-dialog>
 
@@ -135,11 +136,6 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
     this.__untrackTranslations?.();
   }
 
-  private __handleDelete(evt: Event) {
-    const confirm = this.renderRoot.querySelector('#confirm');
-    (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
-  }
-
   protected async _sendDelete(): Promise<Data> {
     const body = JSON.stringify({ save_cc: false });
     const data = await this._fetch(this.href, { method: 'PATCH', body });
@@ -147,5 +143,14 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
 
     rumour.share({ data: null, source: this.href, related: [this.parent] });
     return data;
+  }
+
+  private __handleDelete(evt: Event) {
+    const confirm = this.renderRoot.querySelector('#confirm');
+    (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
+  }
+
+  private __handleConfirmHide(evt: DialogHideEvent) {
+    if (!evt.detail.cancelled) this.delete();
   }
 }

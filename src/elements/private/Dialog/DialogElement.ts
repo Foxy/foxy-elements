@@ -4,7 +4,6 @@ import { TemplateResult, html } from 'lit-html';
 import { API } from '../../public/NucleonElement/API';
 import { DialogHideEvent } from './DialogHideEvent';
 import { DialogShowEvent } from './DialogShowEvent';
-import { DialogSubmitEvent } from './DialogSubmitEvent';
 import { DialogWindowElement } from './DialogWindowElement';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { Themeable } from '../../../mixins/themeable';
@@ -20,8 +19,6 @@ export abstract class DialogElement extends LitElement {
   static readonly ShowEvent = DialogShowEvent;
 
   static readonly HideEvent = DialogHideEvent;
-
-  static readonly SubmitEvent = DialogSubmitEvent;
 
   static get properties(): PropertyDeclarations {
     return {

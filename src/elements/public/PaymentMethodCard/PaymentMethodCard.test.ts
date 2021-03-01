@@ -32,7 +32,7 @@ describe('PaymentMethodCard', () => {
         refs.delete.click();
         await element.updateComplete;
         await oneEvent(refs.confirm, 'show');
-        refs.confirm.dispatchEvent(new DialogElement.SubmitEvent());
+        refs.confirm.dispatchEvent(new DialogElement.HideEvent());
       },
     },
 

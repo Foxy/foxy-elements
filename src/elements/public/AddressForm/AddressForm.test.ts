@@ -96,7 +96,7 @@ describe('AddressFormElement', () => {
       async delete({ refs, element }) {
         refs.action.click();
         await element.updateComplete;
-        refs.confirm.dispatchEvent(new DialogElement.SubmitEvent());
+        refs.confirm.dispatchEvent(new DialogElement.HideEvent());
       },
     },
 

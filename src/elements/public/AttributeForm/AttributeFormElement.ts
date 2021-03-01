@@ -6,6 +6,7 @@ import { TemplateResult, html } from 'lit-html';
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
 import { Data } from './types';
+import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { I18nElement } from '../I18n/I18nElement';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -76,7 +77,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
         lang=${lang}
         ns=${ns}
         id="confirm"
-        @submit=${this.delete}
+        @hide=${this.__handleConfirmHide}
       >
       </x-confirm-dialog>
 
@@ -232,5 +233,9 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
 
   private __handleDeleteClick(evt: Event) {
     this.__confirmDialog.show(evt.currentTarget as HTMLElement);
+  }
+
+  private __handleConfirmHide(evt: DialogHideEvent) {
+    if (!evt.detail.cancelled) this.delete();
   }
 }

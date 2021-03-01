@@ -4,6 +4,7 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
+import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { I18nElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -91,7 +92,7 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
         ns=${ns}
         id="confirm"
         data-testid="confirm"
-        @submit=${this.delete}
+        @hide=${this.__handleConfirmHide}
       >
       </x-confirm-dialog>
 
@@ -243,5 +244,9 @@ export class AddressFormElement extends ScopedElementsMixin(NucleonElement)<Data
     } else {
       this.submit();
     }
+  }
+
+  private __handleConfirmHide(evt: DialogHideEvent) {
+    if (!evt.detail.cancelled) this.delete();
   }
 }
