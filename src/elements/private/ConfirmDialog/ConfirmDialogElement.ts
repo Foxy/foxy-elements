@@ -40,11 +40,15 @@ export class ConfirmDialogElement extends DialogElement {
         </foxy-i18n>
 
         <div class="grid grid-cols-2 gap-m">
-          <vaadin-button @click=${this.__handleCancel}>
+          <vaadin-button data-testid="cancelButton" @click=${this.__handleCancel}>
             <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.cancel}></foxy-i18n>
           </vaadin-button>
 
-          <vaadin-button theme=${this.theme} @click=${this.__handleConfirm}>
+          <vaadin-button
+            theme=${this.theme}
+            data-testid="confirmButton"
+            @click=${this.__handleConfirm}
+          >
             <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.confirm}></foxy-i18n>
           </vaadin-button>
         </div>
