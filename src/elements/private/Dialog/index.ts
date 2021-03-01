@@ -1,6 +1,6 @@
 import { DialogElement } from './DialogElement';
-import { DialogWindow } from './DialogWindowElement';
+import { DialogWindowElement } from './DialogWindowElement';
 
-customElements.define('foxy-dialog-window', DialogWindow);
+customElements.define('foxy-dialog-window', DialogWindowElement);
 
 export { DialogElement };

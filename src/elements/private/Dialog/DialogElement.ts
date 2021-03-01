@@ -1,33 +1,19 @@
-import { css, CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { CSSResultArray, LitElement, PropertyDeclarations, css } from 'lit-element';
+import { TemplateResult, html } from 'lit-html';
+
+import { API } from '../../public/NucleonElement/API';
+import { DialogHideEvent } from './DialogHideEvent';
+import { DialogShowEvent } from './DialogShowEvent';
+import { DialogSubmitEvent } from './DialogSubmitEvent';
+import { DialogWindowElement } from './DialogWindowElement';
+import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { API } from '../../public/NucleonElement/API';
-import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
-import { DialogWindow } from './DialogWindowElement';
-
-class DialogShowEvent extends CustomEvent<void> {
-  constructor() {
-    super('show');
-  }
-}
-
-class DialogHideEvent extends CustomEvent<{ cancelled: boolean }> {
-  constructor(cancelled = false) {
-    super('hide', { detail: { cancelled } });
-  }
-}
-
-class DialogSubmitEvent extends CustomEvent<void> {
-  constructor() {
-    super('submit');
-  }
-}
 
 export abstract class DialogElement extends LitElement {
   static readonly dialogWindowsHost = '#foxy-dialog-windows-host, body';
 
-  static readonly dialogWindows = new WeakMap<DialogElement, DialogWindow>();
+  static readonly dialogWindows = new WeakMap<DialogElement, DialogWindowElement>();
 
   static readonly openDialogs: DialogElement[] = [];
 
@@ -69,7 +55,7 @@ export abstract class DialogElement extends LitElement {
 
   editable = false;
 
-  header = 'Header';
+  header = '';
 
   alert = false;
 
@@ -78,6 +64,10 @@ export abstract class DialogElement extends LitElement {
   ns = '';
 
   private __returnFocusTo?: HTMLElement;
+
+  private __handleKeyDown = (evt: KeyboardEvent) => {
+    if (evt.key === 'Escape' && DialogElement.openDialogs[0] === this && this.closable) this.hide();
+  };
 
   private __connected = false;
 
@@ -91,15 +81,21 @@ export abstract class DialogElement extends LitElement {
     newValue === this.open ? void 0 : newValue ? this.show() : this.hide();
   }
 
+  connectedCallback(): void {
+    super.connectedCallback();
+    addEventListener('keydown', this.__handleKeyDown);
+  }
+
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    removeEventListener('keydown', this.__handleKeyDown);
 
     DialogElement.dialogWindows.get(this)?.remove();
     DialogElement.dialogWindows.delete(this);
   }
 
   createRenderRoot(): Element | ShadowRoot {
-    const dialogWindow = new DialogWindow();
+    const dialogWindow = new DialogWindowElement();
     const dialogWindowsHost = document.querySelector(DialogElement.dialogWindowsHost);
 
     dialogWindow.addEventListener('fetch', (evt: Event) => {
@@ -127,7 +123,6 @@ export abstract class DialogElement extends LitElement {
     return html`
       <div
         class=${classMap({ 'z-50 fixed inset-0': true, 'pointer-events-none': !this.__visible })}
-        @keydown=${this.__handleKeyDown}
       >
         <div
           id="backdrop"
@@ -185,12 +180,13 @@ export abstract class DialogElement extends LitElement {
                 : html`<div></div>`}
 
               <h1 id="dialog-title" class="truncate self-center text-center">
-                <foxy-i18n .ns=${this.ns} .lang=${this.lang} .key=${this.header}></foxy-i18n>
+                <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.header}></foxy-i18n>
               </h1>
 
               ${this.editable
                 ? html`
                     <vaadin-button
+                      data-testid="save-button"
                       theme="tertiary-inline"
                       class="ml-auto m-s px-s"
                       @click=${this.save}
@@ -216,7 +212,7 @@ export abstract class DialogElement extends LitElement {
     await this.__setOpenDialogs(DialogElement.openDialogs.filter(d => d !== this));
     await this.__setConnected(false);
 
-    this.dispatchEvent(new DialogElement.HideEvent(cancelled));
+    this.dispatchEvent(new DialogElement.HideEvent(!!cancelled));
   }
 
   async show(returnFocusTo?: HTMLElement): Promise<void> {
@@ -233,10 +229,6 @@ export abstract class DialogElement extends LitElement {
 
   async save(): Promise<void> {
     await this.hide(false);
-  }
-
-  private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Escape' && DialogElement.openDialogs[0] === this && this.closable) this.hide();
   }
 
   private async __setOpenDialogs(newValue: DialogElement[]) {
