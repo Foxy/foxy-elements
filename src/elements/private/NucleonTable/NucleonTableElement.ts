@@ -30,7 +30,6 @@ export abstract class NucleonTableElement<TData extends Collection> extends Scop
   static get scopedElements(): ScopedElementsMap {
     return {
       'x-skeleton': Skeleton,
-      'foxy-i18n': customElements.get('foxy-i18n'),
     };
   }
 
@@ -54,7 +53,11 @@ export abstract class NucleonTableElement<TData extends Collection> extends Scop
                 ${new Array(this._getLimit()).fill(0).map(() => {
                   return html`
                     <div class="h-l flex items-center">
-                      <x-skeleton class="w-full" variant=${this.in('fail') ? 'error' : 'busy'}>
+                      <x-skeleton
+                        class="w-full"
+                        variant=${this.in('fail') ? 'error' : 'busy'}
+                        data-testclass="skeletons"
+                      >
                         &nbsp;
                       </x-skeleton>
                     </div>
@@ -63,7 +66,7 @@ export abstract class NucleonTableElement<TData extends Collection> extends Scop
               </div>
             `
           : html`
-              <table class="w-full">
+              <table class="w-full" data-testid="table">
                 <thead class="sr-only">
                   <tr>
                     ${columns?.map(column => {
