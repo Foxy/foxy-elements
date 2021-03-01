@@ -205,16 +205,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
       this.setAttribute('state', [...new Set(flags)].join(' '));
 
       this.requestUpdate();
-      this.dispatchEvent(
-        new UpdateEvent<TData>('update', { detail: state })
-      );
+      this.dispatchEvent(new UpdateEvent());
     });
 
     this.__service.onChange(() => {
       this.requestUpdate();
-      this.dispatchEvent(
-        new UpdateEvent<TData>('update', { detail: this.__service.state })
-      );
+      this.dispatchEvent(new UpdateEvent());
     });
 
     this.__service.start();

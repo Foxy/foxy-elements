@@ -21,19 +21,14 @@ export class FormDialogElement extends DialogElement {
     return {
       ...super.properties,
       href: { type: String },
-      lang: { type: String },
-      form: { type: String },
+      form: { type: String, noAccessor: true },
       parent: { type: String },
-      editable: { attribute: false },
-      closable: { attribute: false },
     };
   }
 
   parent = '';
 
   href = '';
-
-  lang = '';
 
   private __form: string | null = null;
 
@@ -57,12 +52,13 @@ export class FormDialogElement extends DialogElement {
 
   private __handleUpdate = (evt: Event) => {
     if (!(evt instanceof UpdateEvent)) return;
+    const target = evt.target as NucleonElement<never>;
 
-    this.closable = !evt.detail.matches('busy');
+    this.closable = !target.in('busy');
     this.editable =
-      evt.detail.matches({ idle: { template: { clean: 'valid' } } }) ||
-      evt.detail.matches({ idle: { template: { dirty: 'valid' } } }) ||
-      evt.detail.matches({ idle: { snapshot: { dirty: 'valid' } } });
+      target.in({ idle: { template: { clean: 'valid' } } }) ||
+      target.in({ idle: { template: { dirty: 'valid' } } }) ||
+      target.in({ idle: { snapshot: { dirty: 'valid' } } });
   };
 
   get form(): string | null {
