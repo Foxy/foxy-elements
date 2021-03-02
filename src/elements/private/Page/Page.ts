@@ -1,7 +1,5 @@
 import '@vaadin/vaadin-lumo-styles';
-
-import { CSSResultArray, TemplateResult, css, html } from 'lit-element';
-
+import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Page extends Themeable {
@@ -20,7 +18,7 @@ export class Page extends Themeable {
     return html`
       <article class="relative antialiased font-lumo">
         <header class="space-y-xs leading-s">
-          <h1 class="font-bold text-header text-xxl border-b border-contrast-10 pb-s mb-s">
+          <h1 class="font-bold text-header text-xl border-b border-contrast-10 pb-s mb-s">
             <slot name="title"></slot>
           </h1>
           <p class="text-l text-secondary">
