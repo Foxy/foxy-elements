@@ -23,6 +23,7 @@
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
     "test": "wtr src/**/*.test.ts",
     "test:watch": "wtr src/**/*.test.ts --watch",
+    "test:playwright": "wtr src/**/*.test.ts --playwright --browsers chromium firefox webkit",
     "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx"
   },
   "dependencies": {
@@ -71,6 +72,7 @@
     "@web/dev-server-esbuild": "0.2.11",
     "@web/dev-server-rollup": "^0.3.2",
     "@web/test-runner": "0.12.14",
+    "@web/test-runner-playwright": "^0.8.4",
     "@xstate/test": "^0.4.1",
     "@zoltu/typescript-transformer-append-js-extension": "^1.0.1",
     "autoprefixer": "^9.8.6",
