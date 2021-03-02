@@ -2,12 +2,12 @@ import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 
-import { SpinnerElement } from './SpinnerElement';
+import { Spinner } from './Spinner';
 
 describe('Spinner', () => {
   it('renders busy horizontal layout by default', async () => {
     const template = html`<foxy-spinner></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
     const text = element.renderRoot.querySelector('[data-testid="text"]');
     const icon = element.renderRoot.querySelector('[data-testid="icon"]');
 
@@ -26,7 +26,7 @@ describe('Spinner', () => {
 
   it('passes lang down to children', async () => {
     const template = html`<foxy-spinner lang="en-AU"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
     const text = element.renderRoot.querySelector('[data-testid="text"]');
 
     expect(text).to.have.attribute('lang', 'en-AU');
@@ -34,7 +34,7 @@ describe('Spinner', () => {
 
   it('renders busy state', async () => {
     const template = html`<foxy-spinner state="busy"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
     const text = element.renderRoot.querySelector('[data-testid="text"]');
     const icon = element.renderRoot.querySelector('[data-testid="icon"]');
 
@@ -51,7 +51,7 @@ describe('Spinner', () => {
 
   it('renders end state', async () => {
     const template = html`<foxy-spinner state="end"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
     const text = element.renderRoot.querySelector('[data-testid="text"]');
     const icon = element.renderRoot.querySelector('[data-testid="icon"]');
 
@@ -68,7 +68,7 @@ describe('Spinner', () => {
 
   it('renders error state', async () => {
     const template = html`<foxy-spinner state="error"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
     const text = element.renderRoot.querySelector('[data-testid="text"]');
     const icon = element.renderRoot.querySelector('[data-testid="icon"]');
 
@@ -85,7 +85,7 @@ describe('Spinner', () => {
 
   it('renders paused state', async () => {
     const template = html`<foxy-spinner state="paused"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
     const text = element.renderRoot.querySelector('[data-testid="text"]');
     const icon = element.renderRoot.querySelector('[data-testid="icon"]');
 
@@ -102,7 +102,7 @@ describe('Spinner', () => {
 
   it('renders empty state', async () => {
     const template = html`<foxy-spinner state="empty"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
     const text = element.renderRoot.querySelector('[data-testid="text"]');
     const icon = element.renderRoot.querySelector('[data-testid="icon"]');
 
@@ -119,14 +119,14 @@ describe('Spinner', () => {
 
   it('renders horizonal layout', async () => {
     const template = html`<foxy-spinner layout="horizontal"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
 
     expect(element.renderRoot.firstElementChild).not.to.have.class('flex-col');
   });
 
   it('renders vertical layout', async () => {
     const template = html`<foxy-spinner layout="vertical"></foxy-spinner>`;
-    const element = await fixture<SpinnerElement>(template);
+    const element = await fixture<Spinner>(template);
 
     expect(element.renderRoot.firstElementChild).to.have.class('flex-col');
   });

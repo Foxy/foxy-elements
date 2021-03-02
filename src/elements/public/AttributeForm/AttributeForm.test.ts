@@ -1,11 +1,11 @@
 import './index';
 
-import { Choice, ConfirmDialogElement, DialogElement } from '../../private';
+import { Choice, ConfirmDialog, Dialog } from '../../private';
 
-import { AttributeFormElement } from './AttributeFormElement';
+import { AttributeForm } from './AttributeForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Data } from './types';
-import { SpinnerElement } from '../Spinner/SpinnerElement';
+import { Spinner } from '../Spinner/Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
@@ -13,15 +13,15 @@ import { generateTests } from '../NucleonElement/generateTests';
 type Refs = {
   name: TextFieldElement;
   value: TextFieldElement;
-  spinner: SpinnerElement;
+  spinner: Spinner;
   delete: ButtonElement;
   create: ButtonElement;
-  confirm: ConfirmDialogElement;
+  confirm: ConfirmDialog;
   visibility: Choice;
 };
 
-describe('AttributeFormElement', () => {
-  generateTests<Data, AttributeFormElement, Refs>({
+describe('AttributeForm', () => {
+  generateTests<Data, AttributeForm, Refs>({
     tag: 'foxy-attribute-form',
     href: 'https://demo.foxycart.com/s/admin/customer_attributes/0',
     parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
@@ -35,7 +35,7 @@ describe('AttributeFormElement', () => {
       async delete({ refs, element }) {
         refs.delete.click();
         await element.updateComplete;
-        refs.confirm.dispatchEvent(new DialogElement.HideEvent());
+        refs.confirm.dispatchEvent(new Dialog.HideEvent());
       },
 
       async submit({ refs }) {

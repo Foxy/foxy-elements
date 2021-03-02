@@ -4,17 +4,17 @@ import { TemplateResult, html } from 'lit-html';
 import { API } from '../../public/NucleonElement/API';
 import { DialogHideEvent } from './DialogHideEvent';
 import { DialogShowEvent } from './DialogShowEvent';
-import { DialogWindowElement } from './DialogWindowElement';
+import { DialogWindow } from './DialogWindow';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
-export abstract class DialogElement extends LitElement {
+export abstract class Dialog extends LitElement {
   static readonly dialogWindowsHost = '#foxy-dialog-windows-host, body';
 
-  static readonly dialogWindows = new WeakMap<DialogElement, DialogWindowElement>();
+  static readonly dialogWindows = new WeakMap<Dialog, DialogWindow>();
 
-  static readonly openDialogs: DialogElement[] = [];
+  static readonly openDialogs: Dialog[] = [];
 
   static readonly ShowEvent = DialogShowEvent;
 
@@ -63,7 +63,7 @@ export abstract class DialogElement extends LitElement {
   private __returnFocusTo?: HTMLElement;
 
   private __handleKeyDown = (evt: KeyboardEvent) => {
-    if (evt.key === 'Escape' && DialogElement.openDialogs[0] === this && this.closable) this.hide();
+    if (evt.key === 'Escape' && Dialog.openDialogs[0] === this && this.closable) this.hide();
   };
 
   private __connected = false;
@@ -87,13 +87,13 @@ export abstract class DialogElement extends LitElement {
     super.disconnectedCallback();
     removeEventListener('keydown', this.__handleKeyDown);
 
-    DialogElement.dialogWindows.get(this)?.remove();
-    DialogElement.dialogWindows.delete(this);
+    Dialog.dialogWindows.get(this)?.remove();
+    Dialog.dialogWindows.delete(this);
   }
 
   createRenderRoot(): Element | ShadowRoot {
-    const dialogWindow = new DialogWindowElement();
-    const dialogWindowsHost = document.querySelector(DialogElement.dialogWindowsHost);
+    const dialogWindow = new DialogWindow();
+    const dialogWindowsHost = document.querySelector(Dialog.dialogWindowsHost);
 
     dialogWindow.addEventListener('fetch', (evt: Event) => {
       if (evt instanceof FetchEvent) {
@@ -104,7 +104,7 @@ export abstract class DialogElement extends LitElement {
     });
 
     dialogWindowsHost?.appendChild(dialogWindow);
-    DialogElement.dialogWindows.set(this, dialogWindow);
+    Dialog.dialogWindows.set(this, dialogWindow);
 
     return dialogWindow.shadowRoot!;
   }
@@ -112,9 +112,9 @@ export abstract class DialogElement extends LitElement {
   render(content?: () => TemplateResult): TemplateResult {
     if (!this.__connected) return html``;
 
-    const isFirst = DialogElement.openDialogs[0] === this;
-    const isSecond = DialogElement.openDialogs[1] === this;
-    const isThird = DialogElement.openDialogs[2] === this;
+    const isFirst = Dialog.openDialogs[0] === this;
+    const isSecond = Dialog.openDialogs[1] === this;
+    const isThird = Dialog.openDialogs[2] === this;
     const isForthAndGreater = !isFirst && !isSecond && !isThird;
 
     return html`
@@ -206,41 +206,41 @@ export abstract class DialogElement extends LitElement {
   async hide(cancelled = false): Promise<void> {
     this.__returnFocusTo?.focus();
 
-    await this.__setOpenDialogs(DialogElement.openDialogs.filter(d => d !== this));
+    await this.__setOpenDialogs(Dialog.openDialogs.filter(d => d !== this));
     await this.__setConnected(false);
 
-    this.dispatchEvent(new DialogElement.HideEvent(!!cancelled));
+    this.dispatchEvent(new Dialog.HideEvent(!!cancelled));
   }
 
   async show(returnFocusTo?: HTMLElement): Promise<void> {
     this.__returnFocusTo = returnFocusTo;
 
     await this.__setConnected(true);
-    await this.__setOpenDialogs([this, ...DialogElement.openDialogs]);
+    await this.__setOpenDialogs([this, ...Dialog.openDialogs]);
 
     const closeButton = this.renderRoot.querySelector('#close-button') as HTMLButtonElement;
     closeButton?.focus();
 
-    this.dispatchEvent(new DialogElement.ShowEvent());
+    this.dispatchEvent(new Dialog.ShowEvent());
   }
 
   async save(): Promise<void> {
     await this.hide(false);
   }
 
-  private async __setOpenDialogs(newValue: DialogElement[]) {
-    DialogElement.openDialogs.length = 0;
-    DialogElement.openDialogs.push(...newValue);
+  private async __setOpenDialogs(newValue: Dialog[]) {
+    Dialog.openDialogs.length = 0;
+    Dialog.openDialogs.push(...newValue);
 
     await Promise.all([
       // animate dialog stack
-      Promise.all(DialogElement.openDialogs.map(dialog => dialog.requestUpdate())),
+      Promise.all(Dialog.openDialogs.map(dialog => dialog.requestUpdate())),
 
       // trigger exit transition
       new Promise(resolve => {
         const backdrop = this.renderRoot.querySelector('#backdrop') as HTMLDivElement;
         backdrop.addEventListener('transitionend', resolve, { once: true });
-        this.__visible = DialogElement.openDialogs.includes(this);
+        this.__visible = Dialog.openDialogs.includes(this);
       }),
     ]);
   }

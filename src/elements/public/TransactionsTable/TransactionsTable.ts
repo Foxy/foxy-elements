@@ -1,21 +1,21 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { I18nElement } from '../I18n/index';
-import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
+import { I18n } from '../I18n/index';
+import { NucleonTable } from '../../private/NucleonTable/NucleonTable';
 
-export class TransactionsTableElement extends NucleonTableElement<Data> {
+export class TransactionsTable extends NucleonTable<Data> {
   private static __ns = 'transactions-table';
 
   private __untrackTranslations?: () => void;
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
-    const ns = TransactionsTableElement.__ns;
+    const ns = TransactionsTable.__ns;
 
     return super.render([
       {
@@ -137,6 +137,6 @@ export class TransactionsTableElement extends NucleonTableElement<Data> {
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang, TransactionsTableElement.__ns);
+    return I18n.i18next.getFixedT(this.lang, TransactionsTable.__ns);
   }
 }

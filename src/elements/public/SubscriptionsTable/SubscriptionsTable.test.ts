@@ -1,15 +1,15 @@
 import './index';
 
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog';
-import { SubscriptionsTableElement } from './SubscriptionsTableElement';
+import { FormDialog } from '../FormDialog';
+import { SubscriptionsTable } from './SubscriptionsTable';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import { parseDuration } from '../../../utils/parse-duration';
 import sinon from 'sinon';
 
 type Refs = {
-  subscriptionDialog: FormDialogElement;
+  subscriptionDialog: FormDialog;
   editButtons: HTMLButtonElement[];
   frequencies: HTMLSpanElement[];
   summaries: HTMLSpanElement[];
@@ -22,7 +22,7 @@ const url =
   'https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&zoom=last_transaction,transaction_template:items';
 
 describe('SubscriptionsTable', () => {
-  generateTests<Data, SubscriptionsTableElement, Refs>({
+  generateTests<Data, SubscriptionsTable, Refs>({
     parent: url,
     href: url,
     tag: 'foxy-subscriptions-table',

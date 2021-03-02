@@ -1,10 +1,10 @@
 import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { PropertyTableElement, Skeleton, Tabs } from '../../private/index';
+import { PropertyTable, Skeleton, Tabs } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/FormDialogElement';
-import { I18nElement } from '../I18n/I18nElement';
+import { FormDialog } from '../FormDialog/FormDialog';
+import { I18n } from '../I18n/I18n';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
@@ -12,7 +12,7 @@ import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { styles } from './styles';
 
-export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
+export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-payment-method-card': customElements.get('foxy-payment-method-card'),
@@ -22,7 +22,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
       'foxy-attribute-card': customElements.get('foxy-attribute-card'),
       'foxy-address-card': customElements.get('foxy-address-card'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
-      'x-property-table': PropertyTableElement,
+      'x-property-table': PropertyTable,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'x-skeleton': Skeleton,
@@ -45,11 +45,11 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
   connectedCallback(): void {
     super.connectedCallback();
     this.__removeBreakpoints = addBreakpoints(this);
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
-    const ns = CustomerElement.__ns;
+    const ns = Customer.__ns;
     const variant = ifDefined(this.in('busy') ? undefined : 'static');
 
     const transactionsURL = this.in({ idle: 'snapshot' })
@@ -291,7 +291,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
         day: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18nElement.fallbackLng);
+      return this.__formatDate(date, I18n.fallbackLng);
     }
   }
 
@@ -320,19 +320,19 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang, CustomerElement.__ns);
+    return I18n.i18next.getFixedT(this.lang, Customer.__ns);
   }
 
   private get __editDialog() {
-    return this.renderRoot.querySelector('#edit-dialog') as FormDialogElement;
+    return this.renderRoot.querySelector('#edit-dialog') as FormDialog;
   }
 
   private get __newAddressDialog() {
-    return this.renderRoot.querySelector('#new-address-form-dialog') as FormDialogElement;
+    return this.renderRoot.querySelector('#new-address-form-dialog') as FormDialog;
   }
 
   private get __newAttributeDialog() {
-    return this.renderRoot.querySelector('#new-attribute-form-dialog') as FormDialogElement;
+    return this.renderRoot.querySelector('#new-attribute-form-dialog') as FormDialog;
   }
 
   private __showEditDialog(evt: Event) {

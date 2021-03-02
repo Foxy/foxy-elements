@@ -1,12 +1,12 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/index';
-import { I18nElement } from '../I18n/index';
-import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
+import { FormDialog } from '../FormDialog/index';
+import { I18n } from '../I18n/index';
+import { NucleonTable } from '../../private/NucleonTable/NucleonTable';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
-export class CustomersTableElement extends NucleonTableElement<Data> {
+export class CustomersTable extends NucleonTable<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
@@ -20,11 +20,11 @@ export class CustomersTableElement extends NucleonTableElement<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
-    const ns = CustomersTableElement.__ns;
+    const ns = CustomersTable.__ns;
 
     return html`
       <foxy-form-dialog
@@ -88,10 +88,10 @@ export class CustomersTableElement extends NucleonTableElement<Data> {
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang, CustomersTableElement.__ns);
+    return I18n.i18next.getFixedT(this.lang, CustomersTable.__ns);
   }
 
   private get __customerDialog(): any {
-    return this.renderRoot.querySelector('#customer-dialog') as FormDialogElement;
+    return this.renderRoot.querySelector('#customer-dialog') as FormDialog;
   }
 }

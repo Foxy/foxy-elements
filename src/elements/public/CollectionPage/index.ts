@@ -1,6 +1,7 @@
 import '../Spinner/index';
-import { CollectionPageElement } from './CollectionPageElement';
 
-customElements.define('foxy-collection-page', CollectionPageElement);
+import { CollectionPage } from './CollectionPage';
 
-export { CollectionPageElement };
+customElements.define('foxy-collection-page', CollectionPage);
+
+export { CollectionPage };

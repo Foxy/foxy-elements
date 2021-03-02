@@ -9,10 +9,10 @@ import {
 
 import { Themeable } from '../../../mixins/themeable';
 
-export type SpinnerElementLayout = 'vertical' | 'horizontal';
-export type SpinnerElementState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
+export type SpinnerLayout = 'vertical' | 'horizontal';
+export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
-export class SpinnerElement extends LitElement {
+export class Spinner extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -35,9 +35,9 @@ export class SpinnerElement extends LitElement {
     ];
   }
 
-  layout: SpinnerElementLayout = 'horizontal';
+  layout: SpinnerLayout = 'horizontal';
 
-  state: SpinnerElementState = 'busy';
+  state: SpinnerState = 'busy';
 
   render(): TemplateResult {
     let layout: string;

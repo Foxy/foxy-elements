@@ -12,7 +12,7 @@ type TemplateFunction = (
   lang: string
 ) => TemplateResult;
 
-export class CollectionPagesElement extends LitElement {
+export class CollectionPages extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       first: { type: String, noAccessor: true },

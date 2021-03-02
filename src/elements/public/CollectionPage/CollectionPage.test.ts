@@ -1,13 +1,13 @@
 import './index';
 
 import { Data as Attribute } from '../AttributeCard/types';
-import { CollectionPageElement } from './CollectionPageElement';
-import { SpinnerElement } from '../Spinner';
+import { CollectionPage } from './CollectionPage';
+import { Spinner } from '../Spinner';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 
 type Refs = {
-  spinner: SpinnerElement;
+  spinner: Spinner;
   items: HTMLElement[];
 };
 
@@ -23,7 +23,7 @@ class FoxyNullElement extends HTMLElement {
 customElements.define('foxy-null', FoxyNullElement);
 
 describe('CollectionPage', () => {
-  generateTests<Data, CollectionPageElement<Data>, Refs>({
+  generateTests<Data, CollectionPage<Data>, Refs>({
     parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
     href: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
     tag: 'foxy-collection-page',

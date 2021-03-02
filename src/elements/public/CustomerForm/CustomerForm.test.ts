@@ -1,11 +1,11 @@
 import './index';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialogElement } from '../../private/ConfirmDialog';
-import { CustomerFormElement } from './CustomerFormElement';
+import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
+import { CustomerForm } from './CustomerForm';
 import { Data } from '../Customer/types';
-import { DialogElement } from '../../private/Dialog';
-import { SpinnerElement } from '../Spinner';
+import { Dialog } from '../../private/Dialog/Dialog';
+import { Spinner } from '../Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
@@ -16,13 +16,13 @@ type Refs = {
   tax_id: TextFieldElement;
   email: TextFieldElement;
   action: ButtonElement;
-  confirm: ConfirmDialogElement;
+  confirm: ConfirmDialog;
   wrapper: HTMLDivElement;
-  spinner: SpinnerElement;
+  spinner: Spinner;
 };
 
 describe('CustomerForm', () => {
-  generateTests<Data, CustomerFormElement, Refs>({
+  generateTests<Data, CustomerForm, Refs>({
     tag: 'foxy-customer-form',
     href: 'https://demo.foxycart.com/s/admin/customers/0',
     parent: 'https://demo.foxycart.com/s/admin/stores/0/customers',
@@ -57,7 +57,7 @@ describe('CustomerForm', () => {
       async delete({ refs, element }) {
         refs.action.click();
         await element.updateComplete;
-        refs.confirm.dispatchEvent(new DialogElement.HideEvent());
+        refs.confirm.dispatchEvent(new Dialog.HideEvent());
       },
 
       async submit({ refs }) {

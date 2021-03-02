@@ -3,24 +3,24 @@ import './index';
 import { expect, oneEvent } from '@open-wc/testing';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialogElement } from '../../private/ConfirmDialog';
+import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
-import { DialogElement } from '../../private/Dialog';
-import { PaymentMethodCardElement } from './PaymentMethodCardElement';
-import { SpinnerElement } from '../Spinner/SpinnerElement';
+import { Dialog } from '../../private/Dialog/Dialog';
+import { PaymentMethodCard } from './PaymentMethodCard';
+import { Spinner } from '../Spinner/Spinner';
 import { generateTests } from '../NucleonElement/generateTests';
 
 type Refs = {
-  confirm: ConfirmDialogElement;
+  confirm: ConfirmDialog;
   wrapper: HTMLDivElement;
-  spinner: SpinnerElement;
+  spinner: Spinner;
   delete: ButtonElement;
   expiry: HTMLDivElement;
   number: HTMLDivElement;
 };
 
 describe('PaymentMethodCard', () => {
-  generateTests<Data, PaymentMethodCardElement, Refs>({
+  generateTests<Data, PaymentMethodCard, Refs>({
     parent: 'https://demo.foxycart.com/s/admin/customers/0/default_payment_method',
     href: 'https://demo.foxycart.com/s/admin/customers/0/default_payment_method',
     isEmptyValid: true,
@@ -32,7 +32,7 @@ describe('PaymentMethodCard', () => {
         refs.delete.click();
         await element.updateComplete;
         await oneEvent(refs.confirm, 'show');
-        refs.confirm.dispatchEvent(new DialogElement.HideEvent());
+        refs.confirm.dispatchEvent(new Dialog.HideEvent());
       },
     },
 

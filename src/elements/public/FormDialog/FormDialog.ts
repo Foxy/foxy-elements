@@ -1,7 +1,7 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
-import { DialogElement } from '../../private/Dialog/index';
+import { Dialog } from '../../private/Dialog/Dialog';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
@@ -16,7 +16,7 @@ type TemplateFunction = (params: {
   handleUpdate: (evt: Event) => void;
 }) => TemplateResult;
 
-export class FormDialogElement extends DialogElement {
+export class FormDialog extends Dialog {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

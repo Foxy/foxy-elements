@@ -1,24 +1,22 @@
-import './index';
-
 import { TemplateResult, html } from 'lit-html';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
-import { DialogElement } from './DialogElement';
+import { Dialog } from './Dialog';
 import { DialogHideEvent } from './DialogHideEvent';
-import { DialogWindowElement } from './DialogWindowElement';
+import { DialogWindow } from './DialogWindow';
 
-class TestDialogElement extends DialogElement {
+class TestDialog extends Dialog {
   render(): TemplateResult {
     return super.render(() => html`<div data-testid="content"></div>`);
   }
 }
 
-customElements.define('test-dialog', TestDialogElement);
+customElements.define('test-dialog', TestDialog);
 
-describe('DialogElement', () => {
+describe('Dialog', () => {
   it('renders hidden with defaults', async () => {
     const template = html`<test-dialog></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
 
     expect(dialog).to.have.property('closable', false);
     expect(dialog).to.have.property('editable', false);
@@ -28,8 +26,8 @@ describe('DialogElement', () => {
     expect(dialog).to.have.property('open', false);
     expect(dialog).to.have.property('ns', '');
 
-    const outlet = document.querySelector(TestDialogElement.dialogWindowsHost);
-    const window = TestDialogElement.dialogWindows.get(dialog) as DialogWindowElement;
+    const outlet = document.querySelector(TestDialog.dialogWindowsHost);
+    const window = TestDialog.dialogWindows.get(dialog) as DialogWindow;
 
     expect(window).to.have.property('parentElement', outlet);
     expect(dialog).to.have.property('renderRoot', window?.shadowRoot);
@@ -38,7 +36,7 @@ describe('DialogElement', () => {
 
   it('can be opened with element.show()', async () => {
     const template = html`<test-dialog></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
 
     await dialog.show();
 
@@ -48,7 +46,7 @@ describe('DialogElement', () => {
 
   it('can be opened with element.open = true', async () => {
     const template = html`<test-dialog></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
 
     dialog.open = true;
     await oneEvent(dialog, 'show');
@@ -59,7 +57,7 @@ describe('DialogElement', () => {
 
   it('once opened, can be hidden with element.hide()', async () => {
     const template = html`<test-dialog></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
 
     await dialog.show();
     await dialog.hide();
@@ -70,7 +68,7 @@ describe('DialogElement', () => {
 
   it('once opened, can be hidden with element.open = false', async () => {
     const template = html`<test-dialog></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
 
     dialog.open = true;
     await oneEvent(dialog, 'show');
@@ -84,7 +82,7 @@ describe('DialogElement', () => {
 
   it('once opened, can be hidden with ESC when closable === true', async () => {
     const template = html`<test-dialog closable></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
 
     await dialog.show();
     dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
@@ -96,7 +94,7 @@ describe('DialogElement', () => {
 
   it('renders close button with element.closable === true', async () => {
     const template = html`<test-dialog closable></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
     const root = dialog.renderRoot;
 
     await dialog.show();
@@ -109,7 +107,7 @@ describe('DialogElement', () => {
 
   it('renders save button with element.editable === true', async () => {
     const template = html`<test-dialog editable></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
     const root = dialog.renderRoot;
 
     await dialog.show();
@@ -122,7 +120,7 @@ describe('DialogElement', () => {
 
   it('allows i18n customizations', async () => {
     const template = html`<test-dialog header="foo" lang="it" ns="bar"></test-dialog>`;
-    const dialog = await fixture<TestDialogElement>(template);
+    const dialog = await fixture<TestDialog>(template);
     const root = dialog.renderRoot;
 
     await dialog.show();

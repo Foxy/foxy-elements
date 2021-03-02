@@ -13,7 +13,7 @@ import {
 import { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
 
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
-import { I18nElement } from '../../public/I18n/I18nElement';
+import { I18n } from '../../public/I18n/I18n';
 import { live } from '@open-wc/lit-helpers';
 import { memoize } from 'lodash-es';
 import { parseDuration } from '../../../utils/parse-duration';
@@ -100,7 +100,7 @@ export class FrequencyInput extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => {
+    this.__untrackTranslations = I18n.onTranslationChange(() => {
       this.__getItems.cache.clear?.();
       this.requestUpdate();
     });
@@ -157,7 +157,7 @@ export class FrequencyInput extends LitElement {
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang);
+    return I18n.i18next.getFixedT(this.lang);
   }
 
   private __handleChange(evt: CustomEvent<void>) {

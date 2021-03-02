@@ -1,30 +1,30 @@
 import './index';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CollectionPagesElement } from '../CollectionPages/CollectionPagesElement';
-import { CustomerElement } from './CustomerElement';
+import { CollectionPages } from '../CollectionPages/CollectionPages';
+import { Customer } from './Customer';
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/FormDialogElement';
-import { PaymentMethodCardElement } from '../PaymentMethodCard/PaymentMethodCardElement';
-import { SpinnerElement } from '../Spinner/index';
-import { SubscriptionsTableElement } from '../SubscriptionsTable/SubscriptionsTableElement';
-import { TransactionsTableElement } from '../TransactionsTable/TransactionsTableElement';
+import { FormDialog } from '../FormDialog/FormDialog';
+import { PaymentMethodCard } from '../PaymentMethodCard/PaymentMethodCard';
+import { Spinner } from '../Spinner/index';
+import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import sinon from 'sinon';
 
 type Refs = {
-  newAttributeDialog: FormDialogElement;
-  newAddressDialog: FormDialogElement;
-  customerDialog: FormDialogElement;
-  subscriptions: SubscriptionsTableElement;
-  paymentMethod: PaymentMethodCardElement;
-  transactions: TransactionsTableElement;
+  newAttributeDialog: FormDialog;
+  newAddressDialog: FormDialog;
+  customerDialog: FormDialog;
+  subscriptions: SubscriptionsTable;
+  paymentMethod: PaymentMethodCard;
+  transactions: TransactionsTable;
   addAttribute: ButtonElement;
-  topSpinner: SpinnerElement;
+  topSpinner: Spinner;
   addAddress: ButtonElement;
-  attributes: CollectionPagesElement;
-  addresses: CollectionPagesElement;
+  attributes: CollectionPages;
+  addresses: CollectionPages;
   wrapper: HTMLDivElement;
   name: HTMLDivElement;
   edit: ButtonElement;
@@ -32,7 +32,7 @@ type Refs = {
 };
 
 describe('Customer', () => {
-  generateTests<Data, CustomerElement, Refs>({
+  generateTests<Data, Customer, Refs>({
     tag: 'foxy-customer',
     href: 'https://demo.foxycart.com/s/admin/customers/0',
     parent: 'https://demo.foxycart.com/s/admin/stores/0/customers',
@@ -101,7 +101,7 @@ describe('Customer', () => {
           const subscriptions = element.data!._links['fx:subscriptions'].href + subscriptionsZoom;
           expect(refs.subscriptions).to.have.attribute('first', subscriptions);
 
-          const testDialog = (dialog: FormDialogElement, trigger: ButtonElement) => {
+          const testDialog = (dialog: FormDialog, trigger: ButtonElement) => {
             const showMethod = sinon.stub(dialog, 'show');
             trigger.click();
             expect(showMethod).to.have.been.called;

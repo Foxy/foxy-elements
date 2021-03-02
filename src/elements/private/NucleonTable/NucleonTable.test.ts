@@ -1,13 +1,13 @@
 import { Core, Integration } from '@foxy.io/sdk';
 import { expect, html } from '@open-wc/testing';
 
-import { NucleonTableElement } from './NucleonTableElement';
+import { NucleonTable } from './NucleonTable';
 import { Skeleton } from '../Skeleton/Skeleton';
 import { generateTests } from '../../public/NucleonElement/generateTests';
 
 type TestData = Core.Resource<Integration.Rels.Attributes>;
 
-class TestTable extends NucleonTableElement<TestData> {
+class TestTable extends NucleonTable<TestData> {
   render() {
     return super.render([
       {
@@ -35,7 +35,7 @@ type Refs = {
   skeletons: Skeleton[];
 };
 
-describe('NucleonTableElement', () => {
+describe('NucleonTable', () => {
   generateTests<TestData, TestTable, Refs>({
     parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
     href: 'https://demo.foxycart.com/s/admin/customers/0/attributes',

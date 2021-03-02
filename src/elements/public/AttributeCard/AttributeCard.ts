@@ -3,13 +3,13 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/index';
+import { FormDialog } from '../FormDialog/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Skeleton } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { ifDefined } from 'lit-html/directives/if-defined';
 
-export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
+export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
@@ -86,7 +86,7 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
   }
 
   private __handleClick(evt: Event) {
-    const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
+    const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialog;
     dialog.show(evt.currentTarget as HTMLElement);
   }
 

@@ -5,8 +5,8 @@ import '../AddressForm/index';
 import '../FormDialog/index';
 import '../I18n/index';
 
-import { AddressCardElement } from './AddressCardElement';
+import { AddressCard } from './AddressCard';
 
-customElements.define('foxy-address-card', AddressCardElement);
+customElements.define('foxy-address-card', AddressCard);
 
-export { AddressCardElement };
+export { AddressCard };

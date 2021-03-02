@@ -2,8 +2,8 @@ import '../FormDialog/index';
 import '../Customer/index';
 import '../I18n/index';
 
-import { CustomersTableElement } from './CustomersTableElement';
+import { CustomersTable } from './CustomersTable';
 
-customElements.define('foxy-customers-table', CustomersTableElement);
+customElements.define('foxy-customers-table', CustomersTable);
 
-export { CustomersTableElement };
+export { CustomersTable };

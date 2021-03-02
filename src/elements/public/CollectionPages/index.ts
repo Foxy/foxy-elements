@@ -1,5 +1,5 @@
-import { CollectionPagesElement } from './CollectionPagesElement';
+import { CollectionPages } from './CollectionPages';
 
-customElements.define('foxy-collection-pages', CollectionPagesElement);
+customElements.define('foxy-collection-pages', CollectionPages);
 
-export { CollectionPagesElement };
+export { CollectionPages };

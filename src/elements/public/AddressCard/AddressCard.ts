@@ -3,14 +3,14 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/index';
+import { FormDialog } from '../FormDialog/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Skeleton } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 
-export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
+export class AddressCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
@@ -34,7 +34,7 @@ export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data
   private static __ns = 'address-card';
 
   render(): TemplateResult {
-    const ns = AddressCardElement.__ns;
+    const ns = AddressCard.__ns;
     const variant = ifDefined(this.in('fail') ? 'error' : undefined);
     const icon = this.form.is_default_billing
       ? 'icons:payment'
@@ -101,7 +101,7 @@ export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data
   }
 
   private __handleClick(evt: Event) {
-    const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
+    const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialog;
     dialog.show(evt.currentTarget as HTMLElement);
   }
 }

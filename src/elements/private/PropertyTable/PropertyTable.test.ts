@@ -1,24 +1,24 @@
 import { expect, fixture } from '@open-wc/testing';
 
-import { PropertyTableElement } from './PropertyTable';
+import { PropertyTable } from './PropertyTable';
 import { html } from 'lit-html';
 
-customElements.define('x-property-table', PropertyTableElement);
+customElements.define('x-property-table', PropertyTable);
 
 describe('PropertyTable', () => {
   it('has empty items by default', () => {
-    const element = new PropertyTableElement();
+    const element = new PropertyTable();
     expect(element).to.have.deep.property('items', []);
   });
 
   it('has false disabled property by default', () => {
-    const element = new PropertyTableElement();
+    const element = new PropertyTable();
     expect(element).to.have.property('disabled', false);
   });
 
   it('reflects disabled property to attribute', async () => {
     const template = html`<x-property-table></x-property-table>`;
-    const element = await fixture<PropertyTableElement>(template);
+    const element = await fixture<PropertyTable>(template);
 
     element.disabled = true;
     await element.updateComplete;
@@ -28,7 +28,7 @@ describe('PropertyTable', () => {
 
   it('does not reflect items property to attribute', async () => {
     const template = html`<x-property-table></x-property-table>`;
-    const element = await fixture<PropertyTableElement>(template);
+    const element = await fixture<PropertyTable>(template);
 
     element.items = [{ value: 'foo', name: 'bar' }];
     await element.updateComplete;
@@ -38,7 +38,7 @@ describe('PropertyTable', () => {
 
   it('renders empty table by default', async () => {
     const template = html`<x-property-table></x-property-table>`;
-    const element = await fixture<PropertyTableElement>(template);
+    const element = await fixture<PropertyTable>(template);
     const table = element.renderRoot.querySelector('table') as HTMLTableElement;
 
     expect(table.rows).to.be.empty;
@@ -46,7 +46,7 @@ describe('PropertyTable', () => {
 
   it('renders enabled table based on provided items', async () => {
     const template = html`<x-property-table></x-property-table>`;
-    const element = await fixture<PropertyTableElement>(template);
+    const element = await fixture<PropertyTable>(template);
     const items = [{ value: 'foo', name: 'bar' }];
     const table = element.renderRoot.querySelector('table') as HTMLTableElement;
 
@@ -68,7 +68,7 @@ describe('PropertyTable', () => {
 
   it('renders disabled table based on provided items', async () => {
     const template = html`<x-property-table></x-property-table>`;
-    const element = await fixture<PropertyTableElement>(template);
+    const element = await fixture<PropertyTable>(template);
     const items = [{ value: 'foo', name: 'bar' }];
     const table = element.renderRoot.querySelector('table') as HTMLTableElement;
 

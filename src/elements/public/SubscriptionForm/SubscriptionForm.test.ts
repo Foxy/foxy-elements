@@ -4,9 +4,9 @@ import { Choice } from '../../private/Choice/Choice';
 import { ChoiceChangeEvent } from '../../private/events';
 import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { I18nElement } from '../I18n';
-import { SpinnerElement } from '../Spinner/SpinnerElement';
-import { SubscriptionFormElement } from './SubscriptionFormElement';
+import { I18n } from '../I18n';
+import { Spinner } from '../Spinner/Spinner';
+import { SubscriptionForm } from './SubscriptionForm';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import { parseDuration } from '../../../utils/parse-duration';
@@ -16,15 +16,15 @@ type Refs = {
   spinnerWrapper: HTMLDivElement;
   frequency: Choice;
   endDate: DatePickerElement;
-  spinner: SpinnerElement;
+  spinner: Spinner;
   wrapper: HTMLDivElement;
-  header: I18nElement;
-  status: I18nElement;
+  header: I18n;
+  status: I18n;
   i18n: HTMLElement[];
 };
 
 describe('SubscriptionForm', () => {
-  generateTests<Data, SubscriptionFormElement, Refs>({
+  generateTests<Data, SubscriptionForm, Refs>({
     tag: 'foxy-subscription-form',
     href: 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction',
     parent: 'https://demo.foxycart.com/s/admin/subscriptions',

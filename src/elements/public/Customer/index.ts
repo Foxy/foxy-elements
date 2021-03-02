@@ -14,8 +14,8 @@ import '../AddressCard/index';
 import '../Spinner/index';
 import '../I18n/index';
 
-import { CustomerElement } from './CustomerElement';
+import { Customer } from './Customer';
 
-customElements.define('foxy-customer', CustomerElement);
+customElements.define('foxy-customer', Customer);
 
-export { CustomerElement };
+export { Customer };

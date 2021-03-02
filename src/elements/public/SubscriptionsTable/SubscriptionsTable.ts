@@ -1,13 +1,13 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/index';
-import { I18nElement } from '../I18n/index';
-import { NucleonTableElement } from '../../private/NucleonTable/NucleonTableElement';
+import { FormDialog } from '../FormDialog/index';
+import { I18n } from '../I18n/index';
+import { NucleonTable } from '../../private/NucleonTable/NucleonTable';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { parseDuration } from '../../../utils/parse-duration';
 
-export class SubscriptionsTableElement extends NucleonTableElement<Data> {
+export class SubscriptionsTable extends NucleonTable<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       ...super.scopedElements,
@@ -22,12 +22,12 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
     const { lang } = this;
-    const ns = SubscriptionsTableElement.__ns;
+    const ns = SubscriptionsTable.__ns;
 
     return html`
       <foxy-form-dialog
@@ -131,7 +131,7 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
                 data-testclass="editButtons"
                 class="text-s font-medium tracking-wide text-primary rounded px-xs -mx-xs hover:underline focus:outline-none focus:shadow-outline"
                 @click=${() => {
-                  const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialogElement;
+                  const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialog;
                   dialog.href = sub._links.self.href;
                   dialog.show();
                 }}
@@ -151,6 +151,6 @@ export class SubscriptionsTableElement extends NucleonTableElement<Data> {
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang, SubscriptionsTableElement.__ns);
+    return I18n.i18next.getFixedT(this.lang, SubscriptionsTable.__ns);
   }
 }

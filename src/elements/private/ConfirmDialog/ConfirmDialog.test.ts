@@ -1,19 +1,21 @@
-import './index';
+import '../../public/I18n/index';
 
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialogElement } from './ConfirmDialogElement';
-import { DialogElement } from '../Dialog';
+import { ConfirmDialog } from './ConfirmDialog';
+import { Dialog } from '../Dialog/Dialog';
+import { DialogWindow } from '../Dialog/DialogWindow';
 import { html } from 'lit-html';
 
-customElements.define('x-confirm-dialog', ConfirmDialogElement);
+customElements.define('foxy-dialog-window', DialogWindow);
+customElements.define('x-confirm-dialog', ConfirmDialog);
 
-describe('ConfirmDialogElement', () => {
-  it('extends DialogElement', () => {
-    const dialog = new ConfirmDialogElement();
+describe('ConfirmDialog', () => {
+  it('extends Dialog', () => {
+    const dialog = new ConfirmDialog();
 
-    expect(dialog).to.be.instanceOf(DialogElement);
+    expect(dialog).to.be.instanceOf(Dialog);
     expect(dialog).to.have.property('closable', false);
     expect(dialog).to.have.property('editable', false);
     expect(dialog).to.have.property('confirm', 'confirm');
@@ -25,7 +27,7 @@ describe('ConfirmDialogElement', () => {
 
   it('propagates lang and ns to foxy-i18n when opened', async () => {
     const template = html`<x-confirm-dialog></x-confirm-dialog>`;
-    const dialog = await fixture<ConfirmDialogElement>(template);
+    const dialog = await fixture<ConfirmDialog>(template);
     await dialog.show();
 
     dialog.renderRoot.querySelectorAll('foxy-i18n').forEach(i18nElement => {
@@ -36,7 +38,7 @@ describe('ConfirmDialogElement', () => {
 
   it('renders default confirmation ui when opened', async () => {
     const template = html`<x-confirm-dialog></x-confirm-dialog>`;
-    const dialog = await fixture<ConfirmDialogElement>(template);
+    const dialog = await fixture<ConfirmDialog>(template);
     const root = dialog.renderRoot;
 
     await dialog.show();
@@ -50,7 +52,7 @@ describe('ConfirmDialogElement', () => {
   });
 
   it('renders custom confirmation ui when opened', async () => {
-    const dialog = await fixture<ConfirmDialogElement>(html`
+    const dialog = await fixture<ConfirmDialog>(html`
       <x-confirm-dialog message="foo" confirm="bar" cancel="baz" theme="contrast">
       </x-confirm-dialog>
     `);
@@ -67,7 +69,7 @@ describe('ConfirmDialogElement', () => {
 
   it('while open, reacts to cancel button click', async () => {
     const template = html`<x-confirm-dialog></x-confirm-dialog>`;
-    const dialog = await fixture<ConfirmDialogElement>(template);
+    const dialog = await fixture<ConfirmDialog>(template);
 
     await dialog.show();
 
@@ -80,7 +82,7 @@ describe('ConfirmDialogElement', () => {
 
   it('while open, reacts to confirm button click', async () => {
     const template = html`<x-confirm-dialog></x-confirm-dialog>`;
-    const dialog = await fixture<ConfirmDialogElement>(template);
+    const dialog = await fixture<ConfirmDialog>(template);
 
     await dialog.show();
 

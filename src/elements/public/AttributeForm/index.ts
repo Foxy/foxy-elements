@@ -4,8 +4,10 @@ import '@vaadin/vaadin-button';
 import '../Spinner/index';
 import '../I18n/index';
 
-import { AttributeFormElement } from './AttributeFormElement';
+import { AttributeForm } from './AttributeForm';
+import { DialogWindow } from '../../private/Dialog/DialogWindow';
 
-customElements.define('foxy-attribute-form', AttributeFormElement);
+customElements.define('foxy-attribute-form', AttributeForm);
+customElements.define('foxy-dialog-window', DialogWindow);
 
-export { AttributeFormElement };
+export { AttributeForm };

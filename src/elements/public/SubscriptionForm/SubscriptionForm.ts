@@ -1,23 +1,23 @@
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { Choice, Group, PropertyTableElement, Skeleton } from '../../private/index';
+import { Choice, Group, PropertyTable, Skeleton } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
 import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { I18nElement } from '../I18n/index';
+import { I18n } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { memoize } from 'lodash-es';
 import { parseDuration } from '../../../utils/parse-duration';
 
-export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
+export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-date-picker': customElements.get('vaadin-date-picker'),
-      'x-property-table': PropertyTableElement,
+      'x-property-table': PropertyTable,
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'x-skeleton': Skeleton,
@@ -46,14 +46,14 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => {
+    this.__untrackTranslations = I18n.onTranslationChange(() => {
       this.__memoRenderTable.cache.clear?.();
       this.requestUpdate();
     });
   }
 
   render(): TemplateResult {
-    const ns = SubscriptionFormElement.__ns;
+    const ns = SubscriptionForm.__ns;
     const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
 
     return html`
@@ -103,7 +103,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
             data-testid="frequency"
             type="frequency"
             custom
-            .items=${SubscriptionFormElement.__predefinedFrequencies}
+            .items=${SubscriptionForm.__predefinedFrequencies}
             .value=${this.form.frequency ?? null}
             ?disabled=${!this.in({ idle: 'snapshot' }) || !this.form.is_active}
             @change=${this.__handleFrequencyChange}
@@ -199,7 +199,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang, SubscriptionFormElement.__ns);
+    return I18n.i18next.getFixedT(this.lang, SubscriptionForm.__ns);
   }
 
   private __handleFrequencyChange(evt: ChoiceChangeEvent) {
@@ -223,7 +223,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
         data-testid="header"
         lang=${lang}
         key="sub_pricing${frequency === '.5m' ? '_0_5m' : ''}"
-        ns=${SubscriptionFormElement.__ns}
+        ns=${SubscriptionForm.__ns}
         .opts=${{ ...parseDuration(frequency), amount: `${total} ${currency}` }}
       >
       </foxy-i18n>
@@ -236,7 +236,7 @@ export class SubscriptionFormElement extends ScopedElementsMixin(NucleonElement)
     firstFailedTransactionDate: string | null | undefined,
     endDate: string | null | undefined
   ) {
-    const ns = SubscriptionFormElement.__ns;
+    const ns = SubscriptionForm.__ns;
 
     let date: string;
     let key: string;

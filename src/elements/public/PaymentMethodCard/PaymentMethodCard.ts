@@ -4,18 +4,18 @@ import { CSSResultArray, css } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialogElement } from '../../private/ConfirmDialog/index';
+import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18nElement } from '../I18n/index';
+import { I18n } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
 
-export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
+export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-confirm-dialog': ConfirmDialogElement,
+      'x-confirm-dialog': ConfirmDialog,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
@@ -51,13 +51,13 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
     const data = this.data;
-    const ns = PaymentMethodCardElement.__ns;
-    const t = I18nElement.i18next.getFixedT(this.lang, ns);
+    const ns = PaymentMethodCard.__ns;
+    const t = I18n.i18next.getFixedT(this.lang, ns);
 
     if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle')) {
       const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
@@ -148,7 +148,7 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
 
   private __handleDelete(evt: Event) {
     const confirm = this.renderRoot.querySelector('#confirm');
-    (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
+    (confirm as ConfirmDialog).show(evt.currentTarget as HTMLElement);
   }
 
   private __handleConfirmHide(evt: DialogHideEvent) {

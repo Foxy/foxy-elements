@@ -1,13 +1,13 @@
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { Choice, Group, PropertyTableElement } from '../../private/index';
+import { Choice, Group, PropertyTable } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
-import { ConfirmDialogElement } from '../../private/ConfirmDialog/ConfirmDialogElement';
+import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18nElement } from '../I18n/I18nElement';
+import { I18n } from '../I18n/I18n';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
@@ -15,13 +15,13 @@ import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { memoize } from 'lodash-es';
 
-export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
+export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-text-area': customElements.get('vaadin-text-area'),
-      'x-property-table': PropertyTableElement,
-      'x-confirm-dialog': ConfirmDialogElement,
+      'x-property-table': PropertyTable,
+      'x-confirm-dialog': ConfirmDialog,
       'vaadin-button': customElements.get('vaadin-button'),
       'x-choice': Choice,
       'x-group': Group,
@@ -55,12 +55,12 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
     const lang = this.lang;
-    const ns = AttributeFormElement.__ns;
+    const ns = AttributeForm.__ns;
 
     const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
@@ -118,7 +118,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
             </foxy-i18n>
 
             <x-choice
-              .items=${AttributeFormElement.__visibilityOptions}
+              .items=${AttributeForm.__visibilityOptions}
               .value=${(this.form?.visibility ?? 'private') as any}
               lang=${lang}
               ns=${ns}
@@ -191,12 +191,12 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
     this.__getValidator.cache.clear?.();
   }
 
-  private get __confirmDialog(): ConfirmDialogElement {
-    return this.renderRoot.querySelector('#confirm') as ConfirmDialogElement;
+  private get __confirmDialog(): ConfirmDialog {
+    return this.renderRoot.querySelector('#confirm') as ConfirmDialog;
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang, AttributeFormElement.__ns);
+    return I18n.i18next.getFixedT(this.lang, AttributeForm.__ns);
   }
 
   private __getErrorMessage(prefix: string) {
@@ -212,7 +212,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
         day: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18nElement.fallbackLng);
+      return this.__formatDate(date, I18n.fallbackLng);
     }
   }
 

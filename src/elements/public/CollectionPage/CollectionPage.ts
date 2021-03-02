@@ -5,9 +5,9 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 
 type Template = typeof html;
 type ElementRenderer = (html: Template, parent: string, lang: string, item: any) => TemplateResult;
-type CollectionPage = HALJSONResource & { _embedded: Record<string, unknown[]> };
+type HALJSONCollection = HALJSONResource & { _embedded: Record<string, unknown[]> };
 
-export class CollectionPageElement<TData extends CollectionPage> extends NucleonElement<TData> {
+export class CollectionPage<TData extends HALJSONCollection> extends NucleonElement<TData> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

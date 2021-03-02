@@ -1,12 +1,12 @@
 import './index';
 
-import { AddressFormElement } from './AddressFormElement';
+import { AddressForm } from './AddressForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { ConfirmDialogElement } from '../../private/ConfirmDialog';
+import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
-import { DialogElement } from '../../private/Dialog/DialogElement';
-import { SpinnerElement } from '../Spinner/SpinnerElement';
+import { Dialog } from '../../private/Dialog/Dialog';
+import { Spinner } from '../Spinner/Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
@@ -24,13 +24,13 @@ type Refs = {
   city: TextFieldElement;
   postal_code: TextFieldElement;
   action: ButtonElement;
-  spinner: SpinnerElement;
+  spinner: Spinner;
   wrapper: HTMLDivElement;
-  confirm: ConfirmDialogElement;
+  confirm: ConfirmDialog;
 };
 
-describe('AddressFormElement', () => {
-  generateTests<Data, AddressFormElement, Refs>({
+describe('AddressForm', () => {
+  generateTests<Data, AddressForm, Refs>({
     tag: 'foxy-address-form',
     href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
     parent: 'https://demo.foxycart.com/s/admin/customers/0/addresses',
@@ -96,7 +96,7 @@ describe('AddressFormElement', () => {
       async delete({ refs, element }) {
         refs.action.click();
         await element.updateComplete;
-        refs.confirm.dispatchEvent(new DialogElement.HideEvent());
+        refs.confirm.dispatchEvent(new Dialog.HideEvent());
       },
     },
 

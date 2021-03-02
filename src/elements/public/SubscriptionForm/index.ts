@@ -2,8 +2,8 @@ import '@vaadin/vaadin-date-picker';
 import '../Spinner/index';
 import '../I18n/index';
 
-import { SubscriptionFormElement } from './SubscriptionFormElement';
+import { SubscriptionForm } from './SubscriptionForm';
 
-customElements.define('foxy-subscription-form', SubscriptionFormElement);
+customElements.define('foxy-subscription-form', SubscriptionForm);
 
-export { SubscriptionFormElement };
+export { SubscriptionForm };

@@ -1,7 +1,9 @@
 import '../I18n/index';
 
-import { FormDialogElement } from './FormDialogElement';
+import { DialogWindow } from '../../private/Dialog/DialogWindow';
+import { FormDialog } from './FormDialog';
 
-customElements.define('foxy-form-dialog', FormDialogElement);
+customElements.define('foxy-form-dialog', FormDialog);
+customElements.define('foxy-dialog-window', DialogWindow);
 
-export { FormDialogElement };
+export { FormDialog };

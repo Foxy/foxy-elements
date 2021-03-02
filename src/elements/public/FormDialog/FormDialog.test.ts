@@ -3,20 +3,20 @@ import '../AttributeForm/index';
 
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
-import { DialogElement } from '../../private';
+import { Dialog } from '../../private';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { FormDialogElement } from './FormDialogElement';
+import { FormDialog } from './FormDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { html } from 'lit-html';
 import { isEqual } from 'lodash-es';
 import sinon from 'sinon';
 
-describe('FormDialogElement', () => {
-  it('extends DialogElement', () => {
-    const dialog = new FormDialogElement();
+describe('FormDialog', () => {
+  it('extends Dialog', () => {
+    const dialog = new FormDialog();
 
-    expect(dialog).to.be.instanceOf(DialogElement);
+    expect(dialog).to.be.instanceOf(Dialog);
     expect(dialog).to.have.property('parent', '');
     expect(dialog).to.have.property('href', '');
     expect(dialog).to.have.property('form', null);
@@ -28,7 +28,7 @@ describe('FormDialogElement', () => {
     const form = 'foxy-attribute-form';
     const lang = 'ru';
 
-    const dialog = await fixture<FormDialogElement>(html`
+    const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog parent=${parent} href=${href} form=${form} lang=${lang}> </foxy-form-dialog>
     `);
 
@@ -48,7 +48,7 @@ describe('FormDialogElement', () => {
   it('closes itself on successful DELETE request from form', async () => {
     const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
     const form = 'foxy-attribute-form';
-    const dialog = await fixture<FormDialogElement>(html`
+    const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
     `);
 
@@ -79,7 +79,7 @@ describe('FormDialogElement', () => {
   it('closes itself on successful POST request from form', async () => {
     const form = 'foxy-attribute-form';
     const parent = 'https://demo.foxycart.com/s/admin/customers/0/attributes';
-    const dialog = await fixture<FormDialogElement>(html`
+    const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog parent=${parent} form=${form}></foxy-form-dialog>
     `);
 
@@ -110,7 +110,7 @@ describe('FormDialogElement', () => {
   it('becomes unclosable when form is busy', async () => {
     const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
     const form = 'foxy-attribute-form';
-    const dialog = await fixture<FormDialogElement>(html`
+    const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
     `);
 
@@ -132,7 +132,7 @@ describe('FormDialogElement', () => {
     it(`becomes editable when form is in ${JSON.stringify(stateValue)} state`, async () => {
       const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
       const form = 'foxy-attribute-form';
-      const dialog = await fixture<FormDialogElement>(html`
+      const dialog = await fixture<FormDialog>(html`
         <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
       `);
 

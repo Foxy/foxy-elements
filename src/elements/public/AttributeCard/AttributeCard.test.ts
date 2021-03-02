@@ -1,6 +1,6 @@
 import './index';
 
-import { AttributeCardElement } from './AttributeCardElement';
+import { AttributeCard } from './AttributeCard';
 import { Data } from './types';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
@@ -10,8 +10,8 @@ type Refs = {
   value: HTMLSpanElement;
 };
 
-describe('AttributeCardElement', () => {
-  generateTests<Data, AttributeCardElement, Refs>({
+describe('AttributeCard', () => {
+  generateTests<Data, AttributeCard, Refs>({
     tag: 'foxy-attribute-card',
     href: 'https://demo.foxycart.com/s/admin/customer_attributes/0',
     parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',

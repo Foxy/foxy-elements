@@ -1,14 +1,14 @@
 import './index';
 
-import { CustomersTableElement } from './CustomersTableElement';
+import { CustomersTable } from './CustomersTable';
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog';
+import { FormDialog } from '../FormDialog';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import sinon from 'sinon';
 
 type Refs = {
-  customerDialog: FormDialogElement;
+  customerDialog: FormDialog;
   previewButtons: HTMLButtonElement[];
   wrapper: HTMLDivElement;
   emails: HTMLSpanElement[];
@@ -18,7 +18,7 @@ type Refs = {
 };
 
 describe('CustomersTable', () => {
-  generateTests<Data, CustomersTableElement, Refs>({
+  generateTests<Data, CustomersTable, Refs>({
     parent: 'https://demo.foxycart.com/s/admin/stores/0/customers',
     href: 'https://demo.foxycart.com/s/admin/stores/0/customers',
     tag: 'foxy-customers-table',

@@ -2,8 +2,8 @@ import '../SubscriptionForm/index';
 import '../FormDialog/index';
 import '../I18n/index';
 
-import { SubscriptionsTableElement } from './SubscriptionsTableElement';
+import { SubscriptionsTable } from './SubscriptionsTable';
 
-customElements.define('foxy-subscriptions-table', SubscriptionsTableElement);
+customElements.define('foxy-subscriptions-table', SubscriptionsTable);
 
-export { SubscriptionsTableElement };
+export { SubscriptionsTable };

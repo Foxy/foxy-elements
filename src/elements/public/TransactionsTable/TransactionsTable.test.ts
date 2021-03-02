@@ -1,24 +1,24 @@
 import './index';
 
 import { Data } from './types';
-import { I18nElement } from '../I18n';
-import { TransactionsTableElement } from './TransactionsTableElement';
+import { I18n } from '../I18n';
+import { TransactionsTable } from './TransactionsTable';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 
 type Refs = {
-  summaries: I18nElement[];
-  statuses: I18nElement[];
+  summaries: I18n[];
+  statuses: I18n[];
   wrapper: HTMLDivElement;
-  totals: I18nElement[];
-  dates: I18nElement[];
+  totals: I18n[];
+  dates: I18n[];
   links: HTMLAnchorElement[];
   i18n: HTMLElement[];
   ids: HTMLSpanElement[];
 };
 
 describe('TransactionsTable', () => {
-  generateTests<Data, TransactionsTableElement, Refs>({
+  generateTests<Data, TransactionsTable, Refs>({
     parent: 'https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&zoom=items',
     href: 'https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&zoom=items',
     tag: 'foxy-transactions-table',

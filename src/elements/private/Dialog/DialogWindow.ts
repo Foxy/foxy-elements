@@ -3,7 +3,7 @@ import { CSSResult, CSSResultArray, LitElement } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 
-export class DialogWindowElement extends LitElement {
+export class DialogWindow extends LitElement {
   static get styles(): CSSResult | CSSResultArray {
     return Themeable.styles;
   }

@@ -1,7 +1,7 @@
 import '../I18n/index';
 
-import { TransactionsTableElement } from './TransactionsTableElement';
+import { TransactionsTable } from './TransactionsTable';
 
-customElements.define('foxy-transactions-table', TransactionsTableElement);
+customElements.define('foxy-transactions-table', TransactionsTable);
 
-export { TransactionsTableElement };
+export { TransactionsTable };

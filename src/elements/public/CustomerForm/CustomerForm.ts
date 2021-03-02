@@ -3,24 +3,24 @@ import { Data, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialogElement } from '../../private/ConfirmDialog/index';
+import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18nElement } from '../I18n/index';
+import { I18n } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTableElement } from '../../private/index';
+import { PropertyTable } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { validate as isEmail } from 'email-validator';
 import { memoize } from 'lodash-es';
 
-export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Data> {
+export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'x-property-table': PropertyTableElement,
-      'x-confirm-dialog': ConfirmDialogElement,
+      'x-property-table': PropertyTable,
+      'x-confirm-dialog': ConfirmDialog,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -60,12 +60,12 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
     this.__removeBreakpoins = addBreakpoints(this);
   }
 
   render(): TemplateResult {
-    const ns = CustomerFormElement.__ns;
+    const ns = CustomerForm.__ns;
 
     const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
@@ -132,7 +132,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
   }
 
   private get __t() {
-    return I18nElement.i18next.getFixedT(this.lang, CustomerFormElement.__ns);
+    return I18n.i18next.getFixedT(this.lang, CustomerForm.__ns);
   }
 
   private __formatDate(date: Date, lang = this.lang): string {
@@ -143,7 +143,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
         day: 'numeric',
       });
     } catch {
-      return this.__formatDate(date, I18nElement.fallbackLng);
+      return this.__formatDate(date, I18n.fallbackLng);
     }
   }
 
@@ -188,7 +188,7 @@ export class CustomerFormElement extends ScopedElementsMixin(NucleonElement)<Dat
   private __handleActionClick(evt: Event) {
     if (this.in({ idle: 'snapshot' })) {
       const confirm = this.renderRoot.querySelector('#confirm');
-      (confirm as ConfirmDialogElement).show(evt.currentTarget as HTMLElement);
+      (confirm as ConfirmDialog).show(evt.currentTarget as HTMLElement);
     } else {
       this.submit();
     }

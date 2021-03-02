@@ -1,23 +1,23 @@
 import './index';
 
-import { AddressCardElement } from './AddressCardElement';
+import { AddressCard } from './AddressCard';
 import { Data } from './types';
-import { FormDialogElement } from '../FormDialog/FormDialogElement';
-import { I18nElement } from '../I18n/I18nElement';
+import { FormDialog } from '../FormDialog/FormDialog';
+import { I18n } from '../I18n/I18n';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 
 type Refs = {
   wrapper: HTMLButtonElement;
-  dialog: FormDialogElement;
-  line1: I18nElement;
-  line2: I18nElement;
-  line3: I18nElement;
+  dialog: FormDialog;
+  line1: I18n;
+  line2: I18n;
+  line3: I18n;
   icon: HTMLElement; // iron-icon
 };
 
 describe('AddressCard', () => {
-  generateTests<Data, AddressCardElement, Refs>({
+  generateTests<Data, AddressCard, Refs>({
     tag: 'foxy-address-card',
     href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
     parent: 'https://demo.foxycart.com/s/admin/customers/0/addresses',

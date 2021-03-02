@@ -25,7 +25,7 @@ export interface Column<T extends Collection> {
   cell: (resource: T['_embedded'][keyof T['_embedded']][number]) => TemplateResult | Primitive;
 }
 
-export abstract class NucleonTableElement<TData extends Collection> extends ScopedElementsMixin(
+export abstract class NucleonTable<TData extends Collection> extends ScopedElementsMixin(
   NucleonElement
 )<TData> {
   static get scopedElements(): ScopedElementsMap {

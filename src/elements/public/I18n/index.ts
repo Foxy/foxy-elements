@@ -1,5 +1,5 @@
-import { I18nElement } from './I18nElement';
+import { I18n } from './I18n';
 
-customElements.define('foxy-i18n', I18nElement);
+customElements.define('foxy-i18n', I18n);
 
-export { I18nElement };
+export { I18n };

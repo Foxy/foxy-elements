@@ -3,8 +3,8 @@ import '@polymer/iron-icon';
 import '../AttributeForm/index';
 import '../FormDialog/index';
 
-import { AttributeCardElement } from './AttributeCardElement';
+import { AttributeCard } from './AttributeCard';
 
-customElements.define('foxy-attribute-card', AttributeCardElement);
+customElements.define('foxy-attribute-card', AttributeCard);
 
-export { AttributeCardElement };
+export { AttributeCard };

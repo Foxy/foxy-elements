@@ -3,7 +3,7 @@ import { TemplateResult, html } from 'lit-html';
 
 import { Themeable } from '../../../mixins/themeable';
 
-export class PropertyTableElement extends LitElement {
+export class PropertyTable extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       disabled: { type: Boolean, reflect: true },

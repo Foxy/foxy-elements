@@ -2,7 +2,7 @@ import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 
-import { CollectionPagesElement } from './CollectionPagesElement';
+import { CollectionPages } from './CollectionPages';
 
 class TestPageElement extends HTMLElement {
   form = {
@@ -19,7 +19,7 @@ customElements.define('test-page-element', TestPageElement);
 describe('CollectionPages', () => {
   it('renders nothing by default', async () => {
     const template = html`<foxy-collection-pages></foxy-collection-pages>`;
-    const element = await fixture<CollectionPagesElement>(template);
+    const element = await fixture<CollectionPages>(template);
 
     expect(element.children).to.be.empty;
     expect(element).to.have.property('first', '');
@@ -31,7 +31,7 @@ describe('CollectionPages', () => {
   it('renders first page when its url is set', async () => {
     const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
     const template = html`<foxy-collection-pages first=${first}></foxy-collection-pages>`;
-    const element = await fixture<CollectionPagesElement>(template);
+    const element = await fixture<CollectionPages>(template);
 
     expect(element.children[0].outerHTML).to.equal(
       `<foxy-collection-page href="${first}" item="foxy-null" lang=""></foxy-collection-page>`
@@ -48,7 +48,7 @@ describe('CollectionPages', () => {
     const item = 'test-item-element';
     const page = 'test-page-element';
     const lang = 'ru';
-    const element = await fixture<CollectionPagesElement>(html`
+    const element = await fixture<CollectionPages>(html`
       <foxy-collection-pages first=${first} item=${item} page=${page} lang=${lang}>
       </foxy-collection-pages>
     `);
@@ -67,7 +67,7 @@ describe('CollectionPages', () => {
     const page = 'test-page-element';
     const next = 'https://demo.foxycart.test/s/admin/customers/0/attributes?offset=20';
     const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
-    const element = await fixture<CollectionPagesElement>(html`
+    const element = await fixture<CollectionPages>(html`
       <foxy-collection-pages first=${first} page=${page}></foxy-collection-pages>
     `);
 
