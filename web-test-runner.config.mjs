@@ -16,6 +16,9 @@ const babel = fromRollup(rollupBabel.default);
 const json = fromRollup(rollupJSON);
 
 export default {
+  // can't run tests concurrently as long as we use indexeddb for mock api
+  concurrency: 1,
+
   nodeResolve: true,
 
   mimeTypes: {
@@ -24,8 +27,16 @@ export default {
     '**/*.cjs': 'js',
 
     // needed for /server/admin/dump.json
-    '**/*.json': 'js',
+    '**/dump.json': 'js',
   },
+
+  middleware: [
+    // serves mock translations for legacy Translatable mixin tests
+    function serveMockTranslations(context, next) {
+      if (context.url.startsWith('/translations')) context.url = `/src/mocks${context.url}`;
+      return next();
+    },
+  ],
 
   plugins: [
     json(),
