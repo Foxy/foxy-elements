@@ -69,6 +69,7 @@ export class AttributeFormElement extends ScopedElementsMixin(NucleonElement)<Da
 
     return html`
       <x-confirm-dialog
+        data-testid="confirm"
         message="delete_message"
         confirm="delete_yes"
         cancel="delete_no"

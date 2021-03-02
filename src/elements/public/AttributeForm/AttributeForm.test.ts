@@ -1,8 +1,9 @@
 import './index';
 
+import { Choice, ConfirmDialogElement, DialogElement } from '../../private';
+
 import { AttributeFormElement } from './AttributeFormElement';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { Choice } from '../../private';
 import { Data } from './types';
 import { SpinnerElement } from '../Spinner/SpinnerElement';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
@@ -15,6 +16,7 @@ type Refs = {
   spinner: SpinnerElement;
   delete: ButtonElement;
   create: ButtonElement;
+  confirm: ConfirmDialogElement;
   visibility: Choice;
 };
 
@@ -23,15 +25,17 @@ describe('AttributeFormElement', () => {
     tag: 'foxy-attribute-form',
     href: 'https://demo.foxycart.com/s/admin/customer_attributes/0',
     parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
-    maxTestsPerState: 5,
+    maxTestsPerState: 3,
 
     invalidate(form) {
       return { ...form, name: '', value: '' };
     },
 
     actions: {
-      async delete({ refs }) {
+      async delete({ refs, element }) {
         refs.delete.click();
+        await element.updateComplete;
+        refs.confirm.dispatchEvent(new DialogElement.HideEvent());
       },
 
       async submit({ refs }) {
