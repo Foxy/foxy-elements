@@ -9,6 +9,7 @@ import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { styles } from './styles';
 
 export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
@@ -49,7 +50,7 @@ export class CustomerElement extends ScopedElementsMixin(NucleonElement)<Data> {
 
   render(): TemplateResult {
     const ns = CustomerElement.__ns;
-    const variant = this.in('busy') ? 'busy' : 'static';
+    const variant = ifDefined(this.in('busy') ? undefined : 'static');
 
     const transactionsURL = this.in({ idle: 'snapshot' })
       ? `${this.data?._links['fx:transactions'].href}&zoom=items`

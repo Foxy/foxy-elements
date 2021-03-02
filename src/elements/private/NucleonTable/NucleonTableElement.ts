@@ -8,6 +8,7 @@ import { Skeleton } from '..';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 export type Collection<TCurie extends string = any, TResource = any> = {
   readonly _links: Record<'next' | 'self', { href: string }>;
@@ -55,7 +56,7 @@ export abstract class NucleonTableElement<TData extends Collection> extends Scop
                     <div class="h-l flex items-center">
                       <x-skeleton
                         class="w-full"
-                        variant=${this.in('fail') ? 'error' : 'busy'}
+                        variant=${ifDefined(this.in('fail') ? 'error' : undefined)}
                         data-testclass="skeletons"
                       >
                         &nbsp;

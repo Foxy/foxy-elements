@@ -1,5 +1,4 @@
-import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
-
+import { css, CSSResultArray, html, TemplateResult, PropertyDeclarations } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
 
 export class Skeleton extends Themeable {
@@ -25,11 +24,6 @@ export class Skeleton extends Themeable {
           display: inline-block;
           min-width: 4rem;
         }
-
-        :host([size='box']) {
-          display: block;
-          min-width: auto;
-        }
       `,
     ];
   }
@@ -38,24 +32,19 @@ export class Skeleton extends Themeable {
     return {
       ...super.properties,
       variant: { type: String },
-      size: { type: String },
     };
   }
 
-  public variant: 'static' | 'error' | 'busy' = 'busy';
-
-  public size: 'box' | 'line' = 'line';
+  public variant: 'static' | 'error' | null = null;
 
   public render(): TemplateResult {
     const bg = this.variant === 'error' ? 'bg-error-10' : 'bg-contrast-10';
-    const padded = this.size === 'line' ? 'my-xs' : '';
-    const rounded = this.size === 'line' ? 'rounded' : 'rounded-t-l rounded-b-l';
-    const animated = this.variant === 'busy' ? 'animated' : '';
+    const animated = this.variant === null ? 'animated' : '';
 
     return html`
-      <div class="relative h-full">
-        <span class="opacity-0"><slot>&nbsp;</slot></span>
-        <div class="${bg} ${animated} ${rounded} ${padded} absolute inset-0"></div>
+      <div class="relative">
+        <span class="opacity-0"><slot></slot></span>
+        <div class="${bg} ${animated} rounded my-xs absolute inset-0"></div>
       </div>
     `;
   }

@@ -8,6 +8,7 @@ import { NucleonElement } from '../NucleonElement/index';
 import { Skeleton } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -34,7 +35,7 @@ export class AddressCardElement extends ScopedElementsMixin(NucleonElement)<Data
 
   render(): TemplateResult {
     const ns = AddressCardElement.__ns;
-    const variant = this.in('fail') ? 'error' : 'busy';
+    const variant = ifDefined(this.in('fail') ? 'error' : undefined);
     const icon = this.form.is_default_billing
       ? 'icons:payment'
       : this.form.is_default_shipping

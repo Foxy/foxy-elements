@@ -7,6 +7,7 @@ import { FormDialogElement } from '../FormDialog/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Skeleton } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -29,7 +30,7 @@ export class AttributeCardElement extends ScopedElementsMixin(NucleonElement)<Da
   }
 
   render(): TemplateResult {
-    const variant = this.in('busy') ? 'busy' : 'error';
+    const variant = ifDefined(this.in('busy') ? undefined : 'error');
 
     return html`
       <foxy-form-dialog
