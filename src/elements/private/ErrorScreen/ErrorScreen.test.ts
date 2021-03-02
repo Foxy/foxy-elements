@@ -1,4 +1,5 @@
-import { expect, fixture, oneEvent } from '@open-wc/testing';
+import { expect } from '@open-wc/testing';
+import { fixture, oneEvent } from '@open-wc/testing-helpers';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { createModel } from '@xstate/test';
 import { createMachine, EventObject } from 'xstate';
