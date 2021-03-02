@@ -46,7 +46,7 @@ describe('NucleonTableElement', () => {
       busy({ refs }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'true');
         expect(refs.skeletons).to.have.length(20);
-        refs.skeletons.forEach(skeleton => expect(skeleton).to.have.attribute('variant', 'busy'));
+        refs.skeletons.forEach(skeleton => expect(skeleton).not.to.have.attribute('variant'));
       },
 
       fail({ refs }) {
