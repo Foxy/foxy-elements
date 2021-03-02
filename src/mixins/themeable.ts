@@ -1,5 +1,5 @@
-import { CSSResult, CSSResultArray, LitElement, css, unsafeCSS } from 'lit-element';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { LitElement, CSSResult, CSSResultArray, unsafeCSS, css } from 'lit-element';
 
 /**
  * One of the base classes for each rel-specific element in the collection
