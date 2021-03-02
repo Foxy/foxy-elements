@@ -1,12 +1,11 @@
 import { expect, fixture } from '@open-wc/testing';
-
+import { createModel } from '@xstate/test';
+import { createMachine } from 'xstate';
 import { Choice } from '../../../../private/index';
 import { ChoiceChangeEvent } from '../../../../private/events';
-import { FrequencyInput } from '../../../../private/FrequencyInput/FrequencyInput';
+import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
 import { OffsetInput } from './OffsetInput';
 import { OffsetInputChangeEvent } from './OffsetInputChangeEvent';
-import { createMachine } from 'xstate';
-import { createModel } from '@xstate/test';
 
 customElements.define('x-offset-input', OffsetInput);
 

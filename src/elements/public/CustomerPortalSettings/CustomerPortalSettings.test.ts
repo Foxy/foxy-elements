@@ -1,16 +1,19 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { createModel } from '@xstate/test';
+import { LitElement } from 'lit-element';
 import { createMachine } from 'xstate';
 import { RequestEvent } from '../../../events/request';
 import { bookmark } from '../../../mocks/FxBookmark';
+
 import {
   customerPortalSettings,
   customerPortalSettingsMinimal,
 } from '../../../mocks/FxCustomerPortalSettings';
+
 import { store } from '../../../mocks/FxStore';
 import { FxCustomerPortalSettings } from '../../../types/hapi';
-import { getRefs } from '../../../utils/test-utils';
+import { getRefs, retry } from '../../../utils/test-utils';
 import { ErrorScreen, ErrorType } from '../../private/ErrorScreen/ErrorScreen';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
 import { Switch, SwitchChangeEvent } from '../../private/Switch/Switch';
@@ -21,10 +24,12 @@ import { NextDateModification } from './private/NextDateModification/NextDateMod
 import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
+
 import {
   SessionDuration,
   SessionDurationChangeEvent,
 } from './private/SessionDuration/SessionDuration';
+
 import { SessionSecret, SessionSecretChangeEvent } from './private/SessionSecret/SessionSecret';
 
 class TestCustomerPortalSettings extends CustomerPortalSettings {
@@ -138,7 +143,7 @@ function handleRequestWithError(evt: Event) {
 function handleRequestWithSuccess(evt: Event) {
   const { detail } = evt as RequestEvent<CustomerPortalSettings>;
 
-  detail.handle(async (url: RequestInfo) => {
+  detail.handle(async url => {
     if (url === '/') return new Response(JSON.stringify(bookmark));
     if (url.toString().endsWith('/stores/8')) return new Response(JSON.stringify(store));
     if (url.toString().endsWith('/stores/8/customer_portal_settings')) {
@@ -152,7 +157,7 @@ function handleRequestWithSuccess(evt: Event) {
 function handleRequestWithNotFound(evt: Event) {
   const { detail } = evt as RequestEvent<CustomerPortalSettings>;
 
-  detail.handle(async (url: RequestInfo, init: RequestInit) => {
+  detail.handle(async (url, init) => {
     const { method = 'GET' } = init ?? {};
 
     if (method === 'GET') {
@@ -175,9 +180,7 @@ function handleRequestWithNotFound(evt: Event) {
 
 function handleRequestWithInfiniteLoading(evt: Event) {
   const { detail } = evt as RequestEvent<CustomerPortalSettings>;
-  detail.handle(
-    () => new Promise<Response>(resolve => setTimeout(resolve, KINDA_INFINITE))
-  );
+  detail.handle(() => new Promise(resolve => setTimeout(resolve, KINDA_INFINITE)));
 }
 
 function handleRequestWithUnauthorizedError(evt: Event) {
