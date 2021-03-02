@@ -19,8 +19,6 @@ import { memoize } from 'lodash-es';
 import { parseDuration } from '../../../utils/parse-duration';
 
 export class FrequencyInput extends LitElement {
-  static readonly defaultValue = '';
-
   static get properties(): PropertyDeclarations {
     return {
       checkValidity: { attribute: false },
@@ -71,7 +69,7 @@ export class FrequencyInput extends LitElement {
 
   label = '';
 
-  value = FrequencyInput.defaultValue;
+  value = '';
 
   disabled = false;
 
@@ -111,6 +109,7 @@ export class FrequencyInput extends LitElement {
   render(): TemplateResult {
     return html`
       <vaadin-custom-field
+        data-testid="field"
         .i18n=${this.__i18n}
         .label=${this.label}
         .value=${live(this.value)}
@@ -121,6 +120,7 @@ export class FrequencyInput extends LitElement {
         @change=${this.__handleChange}
       >
         <vaadin-integer-field
+          data-testid="value"
           min="1"
           max="999"
           has-controls
@@ -130,6 +130,7 @@ export class FrequencyInput extends LitElement {
         </vaadin-integer-field>
 
         <vaadin-combo-box
+          data-testid="units"
           item-value-path="value"
           item-label-path="label"
           .items=${this.__getItems(this.value)}
