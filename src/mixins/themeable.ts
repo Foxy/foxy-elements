@@ -1,5 +1,7 @@
+import { CSSResult, CSSResultArray, LitElement, css, unsafeCSS } from 'lit-element';
+
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { LitElement, CSSResult, CSSResultArray, unsafeCSS, css } from 'lit-element';
+import { addBreakpoints } from '../utils/add-breakpoints';
 
 /**
  * One of the base classes for each rel-specific element in the collection
@@ -24,5 +26,17 @@ export abstract class Themeable extends ScopedElementsMixin(LitElement) {
         }
       `,
     ];
+  }
+
+  private __removeBreakpoints?: () => void;
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__removeBreakpoints = addBreakpoints(this);
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__removeBreakpoints?.();
   }
 }
