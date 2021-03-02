@@ -1,11 +1,9 @@
-import '@vaadin/vaadin-select';
-
-import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
-import { css, registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles';
-
-import { DropdownChangeEvent } from './DropdownChangeEvent';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import '@vaadin/vaadin-select';
+import { registerStyles, css } from '@vaadin/vaadin-themable-mixin/register-styles';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Themeable } from '../../../mixins/themeable';
+import { DropdownChangeEvent } from './DropdownChangeEvent';
 
 registerStyles(
   'vaadin-list-box',
@@ -41,9 +39,7 @@ export class Dropdown extends Themeable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      readonly: { type: Boolean },
       disabled: { type: Boolean },
-      invalid: { type: Boolean },
       getText: { type: Object, attribute: false },
       items: { type: Array },
       label: { type: String },
@@ -51,11 +47,7 @@ export class Dropdown extends Themeable {
     };
   }
 
-  public readonly = false;
-
   public disabled = false;
-
-  public invalid = false;
 
   public label = '';
 
@@ -83,8 +75,6 @@ export class Dropdown extends Themeable {
         data-testid="select"
         .label=${this.label}
         .value=${this.value === null ? this.__unexistentValue : this.value}
-        .invalid=${this.invalid}
-        .readonly=${this.readonly}
         .disabled=${this.disabled}
         .renderer=${this.__renderItems.bind(this)}
         @change=${this.__handleChange}
