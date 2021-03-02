@@ -1,6 +1,6 @@
 import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
+import { createMachine } from 'xstate/dist/xstate.web.js';
 import { Group } from './Group';
 
 customElements.define('x-group', Group);
