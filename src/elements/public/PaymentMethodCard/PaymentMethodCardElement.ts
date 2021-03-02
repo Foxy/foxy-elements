@@ -1,3 +1,5 @@
+import * as logos from './logos';
+
 import { CSSResultArray, css } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
@@ -9,7 +11,6 @@ import { I18nElement } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
-import { cdn } from '../../../env';
 
 export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -77,7 +78,7 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
     }
 
     const type = data!.cc_type.toLowerCase();
-    const logo = new URL(`./logos/${type}.svg`, cdn).toString();
+    const logo = logos[type as keyof typeof logos] ?? logos.unknown;
     const last4Digits = data!.cc_number_masked.substring(data!.cc_number_masked.length - 4);
 
     return html`
@@ -111,7 +112,7 @@ export class PaymentMethodCardElement extends ScopedElementsMixin(NucleonElement
               <iron-icon icon="icons:delete"></iron-icon>
             </vaadin-button>
 
-            <img src=${logo} class="block rounded h-m" />
+            <div class="rounded h-m">${logo}</div>
           </div>
 
           <div class="font-tnum leading-none flex justify-between">
