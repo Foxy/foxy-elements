@@ -7,7 +7,6 @@ import { ChoiceChangeEvent } from '../../private/events';
 import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18n } from '../I18n/I18n';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
@@ -55,7 +54,9 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = customElements
+      .get('foxy-i18n')
+      .onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -196,7 +197,7 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private get __t() {
-    return I18n.i18next.getFixedT(this.lang, AttributeForm.__ns);
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, AttributeForm.__ns);
   }
 
   private __getErrorMessage(prefix: string) {

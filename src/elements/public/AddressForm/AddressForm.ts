@@ -5,7 +5,6 @@ import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18n } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTable } from '../../private/index';
@@ -67,8 +66,10 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
-    I18n.i18next.loadNamespaces(['country', 'region']);
+    this.__untrackTranslations = customElements
+      .get('foxy-i18n')
+      .onTranslationChange(() => this.requestUpdate());
+    customElements.get('foxy-i18n').i18next.loadNamespaces(['country', 'region']);
   }
 
   render(): TemplateResult {
@@ -158,7 +159,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private get __t() {
-    return I18n.i18next.getFixedT(this.lang, AddressForm.__ns);
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, AddressForm.__ns);
   }
 
   private __handleKeyDown(evt: KeyboardEvent) {
@@ -184,7 +185,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private __renderComboBox({ source, field, custom = false }: ComboBoxParams) {
-    const t = I18n.i18next.getFixedT(this.lang, field);
+    const t = customElements.get('foxy-i18n').i18next.getFixedT(this.lang, field);
 
     return html`
       <vaadin-combo-box

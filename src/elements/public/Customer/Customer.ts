@@ -4,7 +4,6 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
-import { I18n } from '../I18n/I18n';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
@@ -45,7 +44,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   connectedCallback(): void {
     super.connectedCallback();
     this.__removeBreakpoints = addBreakpoints(this);
-    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = customElements
+      .get('foxy-i18n')
+      .onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -282,18 +283,6 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     this.__removeBreakpoints?.();
   }
 
-  private __formatDate(date: Date, lang = this.lang): string {
-    try {
-      return date.toLocaleDateString(lang, {
-        month: 'long',
-        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-        day: 'numeric',
-      });
-    } catch {
-      return this.__formatDate(date, I18n.fallbackLng);
-    }
-  }
-
   private __getPropertyTableItems() {
     return [
       {
@@ -306,17 +295,17 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
       },
       {
         name: this.__t('last_login_date'),
-        value: this.data ? this.__formatDate(new Date(this.data.last_login_date)) : '',
+        value: this.data ? this.__t('date', { value: new Date(this.data.last_login_date) }) : '',
       },
       {
         name: this.__t('date_created'),
-        value: this.data ? this.__formatDate(new Date(this.data.date_created)) : '',
+        value: this.data ? this.__t('date', { value: new Date(this.data.date_created) }) : '',
       },
     ];
   }
 
   private get __t() {
-    return I18n.i18next.getFixedT(this.lang, Customer.__ns);
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, Customer.__ns);
   }
 
   private get __editDialog() {

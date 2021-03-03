@@ -2,10 +2,8 @@ import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/index';
-import { I18n } from '../I18n/index';
 import { NucleonTable } from '../../private/NucleonTable/NucleonTable';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { parseDuration } from '../../../utils/parse-duration';
 import { parseFrequency } from '../../../utils/parse-frequency';
 
 export class SubscriptionsTable extends NucleonTable<Data> {
@@ -23,7 +21,9 @@ export class SubscriptionsTable extends NucleonTable<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = customElements
+      .get('foxy-i18n')
+      .onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -152,6 +152,6 @@ export class SubscriptionsTable extends NucleonTable<Data> {
   }
 
   private get __t() {
-    return I18n.i18next.getFixedT(this.lang, SubscriptionsTable.__ns);
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, SubscriptionsTable.__ns);
   }
 }

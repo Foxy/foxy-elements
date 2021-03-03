@@ -1,5 +1,6 @@
-import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-combo-box';
+import '@vaadin/vaadin-text-field/vaadin-integer-field';
+import '../../public/I18n/index';
 
 import {
   CSSResult,
@@ -13,7 +14,6 @@ import {
 import { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
 
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
-import { I18n } from '../../public/I18n/I18n';
 import { live } from '@open-wc/lit-helpers';
 import { memoize } from 'lodash-es';
 import { parseDuration } from '../../../utils/parse-duration';
@@ -100,7 +100,7 @@ export class FrequencyInput extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18n.onTranslationChange(() => {
+    this.__untrackTranslations = customElements.get('foxy-i18n').onTranslationChange(() => {
       this.__getItems.cache.clear?.();
       this.requestUpdate();
     });
@@ -157,7 +157,7 @@ export class FrequencyInput extends LitElement {
   }
 
   private get __t() {
-    return I18n.i18next.getFixedT(this.lang);
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang);
   }
 
   private __handleChange(evt: CustomEvent<void>) {

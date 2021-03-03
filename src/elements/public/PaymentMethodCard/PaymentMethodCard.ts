@@ -7,7 +7,6 @@ import { TemplateResult, html } from 'lit-html';
 import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18n } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
@@ -51,13 +50,15 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = customElements
+      .get('foxy-i18n')
+      .onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
     const data = this.data;
     const ns = PaymentMethodCard.__ns;
-    const t = I18n.i18next.getFixedT(this.lang, ns);
+    const t = customElements.get('foxy-i18n').i18next.getFixedT(this.lang, ns);
 
     if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle')) {
       const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';

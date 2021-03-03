@@ -5,7 +5,6 @@ import { TemplateResult, html } from 'lit-html';
 
 import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18n } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTable } from '../../private/index';
@@ -60,7 +59,9 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
+    this.__untrackTranslations = customElements
+      .get('foxy-i18n')
+      .onTranslationChange(() => this.requestUpdate());
     this.__removeBreakpoins = addBreakpoints(this);
   }
 
@@ -132,7 +133,7 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private get __t() {
-    return I18n.i18next.getFixedT(this.lang, CustomerForm.__ns);
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, CustomerForm.__ns);
   }
 
   private __renderPropertyTable() {

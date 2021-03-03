@@ -6,7 +6,6 @@ import { TemplateResult, html } from 'lit-html';
 import { ChoiceChangeEvent } from '../../private/events';
 import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { I18n } from '../I18n/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
@@ -46,7 +45,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = I18n.onTranslationChange(() => {
+    this.__untrackTranslations = customElements.get('foxy-i18n').onTranslationChange(() => {
       this.__memoRenderTable.cache.clear?.();
       this.requestUpdate();
     });
@@ -188,7 +187,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
   }
 
   private get __t() {
-    return I18n.i18next.getFixedT(this.lang, SubscriptionForm.__ns);
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, SubscriptionForm.__ns);
   }
 
   private __handleFrequencyChange(evt: ChoiceChangeEvent) {
