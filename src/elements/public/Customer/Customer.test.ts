@@ -14,8 +14,8 @@ import { generateTests } from '../NucleonElement/generateTests';
 import sinon from 'sinon';
 
 type Refs = {
-  newAttributeDialog: FormDialog;
-  newAddressDialog: FormDialog;
+  attributeDialog: FormDialog;
+  addressDialog: FormDialog;
   customerDialog: FormDialog;
   subscriptions: SubscriptionsTable;
   paymentMethod: PaymentMethodCard;
@@ -83,11 +83,11 @@ describe('Customer', () => {
           expect(refs.customerDialog).to.have.attribute('href', customer);
 
           const addresses = element.data!._links['fx:customer_addresses'].href;
-          expect(refs.newAddressDialog).to.have.attribute('parent', addresses);
+          expect(refs.addressDialog).to.have.attribute('parent', addresses);
           expect(refs.addresses).to.have.attribute('first', addresses);
 
           const attributes = element.data!._links['fx:attributes'].href;
-          expect(refs.newAttributeDialog).to.have.attribute('parent', attributes);
+          expect(refs.attributeDialog).to.have.attribute('parent', attributes);
           expect(refs.attributes).to.have.attribute('first', attributes);
 
           const paymentMethod = element.data!._links['fx:default_payment_method'].href;
@@ -109,8 +109,8 @@ describe('Customer', () => {
           };
 
           testDialog(refs.customerDialog, refs.edit);
-          testDialog(refs.newAddressDialog, refs.addAddress);
-          testDialog(refs.newAttributeDialog, refs.addAttribute);
+          testDialog(refs.addressDialog, refs.addAddress);
+          testDialog(refs.attributeDialog, refs.addAttribute);
         },
 
         template({ refs }) {

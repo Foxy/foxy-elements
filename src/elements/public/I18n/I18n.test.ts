@@ -17,7 +17,7 @@ describe('I18n', () => {
 
   it('exposes onTranslationChange helper as static property', () => {
     const handler = sinon.fake();
-    const events = ['initialized', 'removed', 'loaded', 'added'];
+    const events = ['initialized', 'loaded'];
     const off = I18n.onTranslationChange(handler);
 
     events.forEach(event => {
@@ -25,6 +25,14 @@ describe('I18n', () => {
       expect(handler).to.have.been.called;
       handler.resetHistory();
     });
+
+    I18n.i18next.addResourceBundle('en', 'foo', { foo: 'bar' });
+    expect(handler).to.have.been.called;
+    handler.resetHistory();
+
+    I18n.i18next.removeResourceBundle('en', 'foo');
+    expect(handler).to.have.been.called;
+    handler.resetHistory();
 
     off();
   });
@@ -77,7 +85,7 @@ describe('I18n', () => {
     element.lang = 'es';
     const event = ((await oneEvent(window, 'fetch')) as unknown) as FetchEvent;
 
-    expect(event.request).to.have.property('url', 'foxy://i18n/global/es');
+    expect(event.request).to.have.property('url', 'foxy://i18n/shared/es');
 
     event.preventDefault();
     event.respondWith(Promise.resolve(new Response(JSON.stringify(resource))));
@@ -88,7 +96,7 @@ describe('I18n', () => {
   });
 
   it('applies options when provided', async () => {
-    I18n.i18next.addResource('en', 'global', 'foo', 'bar {{baz}}');
+    I18n.i18next.addResource('en', 'shared', 'foo', 'bar {{baz}}');
 
     const template = html`<foxy-i18n key="foo" .opts=${{ baz: 'qux' }}></foxy-i18n>`;
     const element = await fixture<I18n>(template);

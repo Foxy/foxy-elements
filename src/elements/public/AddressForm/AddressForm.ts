@@ -68,6 +68,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   connectedCallback(): void {
     super.connectedCallback();
     this.__untrackTranslations = I18n.onTranslationChange(() => this.requestUpdate());
+    I18n.i18next.loadNamespaces(['country', 'region']);
   }
 
   render(): TemplateResult {
@@ -83,9 +84,9 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
     return html`
       <x-confirm-dialog
-        message="delete_message"
-        confirm="delete_yes"
-        cancel="delete_no"
+        message="delete_prompt"
+        confirm="delete"
+        cancel="cancel"
         header="delete"
         theme="primary error"
         lang=${this.lang}
@@ -170,31 +171,21 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         .items=${(['date_modified', 'date_created'] as const).map(field => {
           const name = this.__t(field);
           const data = this.data;
-          return { name, value: data ? this.__formatDate(new Date(data[field])) : '' };
+          return { name, value: data ? this.__t('date', { value: new Date(data[field]) }) : '' };
         })}
       >
       </x-property-table>
     `;
   }
 
-  private __formatDate(date: Date, lang = this.lang): string {
-    try {
-      return date.toLocaleDateString(lang, {
-        month: 'long',
-        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-        day: 'numeric',
-      });
-    } catch {
-      return this.__formatDate(date, I18n.fallbackLng);
-    }
-  }
-
   private __getErrorMessage(prefix: string) {
     const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.__t(error).toString() : '';
+    return error ? this.__t(error.replace(prefix, 'v8n')).toString() : '';
   }
 
   private __renderComboBox({ source, field, custom = false }: ComboBoxParams) {
+    const t = I18n.i18next.getFixedT(this.lang, field);
+
     return html`
       <vaadin-combo-box
         label=${this.__t(field).toString()}
@@ -204,7 +195,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         item-value-path="code"
         item-label-path="text"
         .checkValidity=${this.__getValidator(field)}
-        .items=${source.map(code => ({ text: this.__t(`${field}_map.${code}`), code }))}
+        .items=${source.map(code => ({ text: t(code).toString(), code }))}
         ?allow-custom-value=${custom}
         ?disabled=${!this.in('idle')}
         @change=${this.__bindField(field)}

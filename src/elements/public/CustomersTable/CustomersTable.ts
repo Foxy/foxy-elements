@@ -11,6 +11,7 @@ export class CustomersTable extends NucleonTable<Data> {
     return {
       ...super.scopedElements,
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
+      'foxy-i18n': customElements.get('foxy-i18n'),
     };
   }
 
@@ -31,10 +32,11 @@ export class CustomersTable extends NucleonTable<Data> {
         data-testclass="i18n"
         data-testid="customerDialog"
         parent=${this.href}
-        header="edit"
+        header="update"
         lang=${this.lang}
         form="foxy-customer"
         id="customer-dialog"
+        ns=${ns}
       >
       </foxy-form-dialog>
 

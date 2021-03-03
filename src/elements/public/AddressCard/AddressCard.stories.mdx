@@ -20,7 +20,11 @@ Displayed while loading the resource.
   <Story name="Loading">
     {() =>
       html`
-        <foxy-address-card href="https://demo.foxycart.com/s/admin/sleep"> </foxy-address-card>
+        <foxy-address-card
+          href="https://demo.foxycart.com/s/admin/sleep"
+          class="p-4 rounded border"
+        >
+        </foxy-address-card>
       `
     }
   </Story>
@@ -35,6 +39,7 @@ Displayed when resource load fails.
     {() =>
       html`<foxy-address-card
         href="https://demo.foxycart.com/s/admin/not-found"
+        class="p-4 rounded border"
       ></foxy-address-card>`
     }
   </Story>
@@ -49,6 +54,7 @@ Displayed after the resource is loaded.
     {() =>
       html`<foxy-address-card
         href="https://demo.foxycart.com/s/admin/customer_addresses/0"
+        class="p-4 rounded border"
       ></foxy-address-card>`
     }
   </Story>

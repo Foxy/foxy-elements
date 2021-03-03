@@ -38,7 +38,7 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
       ({ tax_id: v }) => !v || v.length <= 50 || 'tax_id_too_long',
       ({ email: v }) => (v && v.length > 0) || 'email_required',
       ({ email: v }) => (v && v.length <= 100) || 'email_too_long',
-      ({ email: v }) => (v && isEmail(v)) || 'email_invalid',
+      ({ email: v }) => (v && isEmail(v)) || 'email_invalid_email',
     ];
   }
 
@@ -74,9 +74,9 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
     return html`
       <x-confirm-dialog
-        message="delete_message"
-        confirm="delete_yes"
-        cancel="delete_no"
+        message="delete_prompt"
+        confirm="delete"
+        cancel="cancel"
         header="delete"
         theme="primary error"
         lang=${this.lang}
@@ -135,25 +135,13 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
     return I18n.i18next.getFixedT(this.lang, CustomerForm.__ns);
   }
 
-  private __formatDate(date: Date, lang = this.lang): string {
-    try {
-      return date.toLocaleDateString(lang, {
-        month: 'long',
-        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-        day: 'numeric',
-      });
-    } catch {
-      return this.__formatDate(date, I18n.fallbackLng);
-    }
-  }
-
   private __renderPropertyTable() {
     return html`
       <x-property-table
-        .items=${(['date_modified', 'date_created'] as const).map(field => {
-          const name = this.__t(field);
-          return { name, value: this.data ? this.__formatDate(new Date(this.data[field])) : '' };
-        })}
+        .items=${(['date_modified', 'date_created'] as const).map(field => ({
+          name: this.__t(field),
+          value: this.data ? this.__t('date', { value: new Date(this.data[field]) }) : '',
+        }))}
       >
       </x-property-table>
     `;
@@ -161,7 +149,7 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __getErrorMessage(prefix: string) {
     const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.__t(error).toString() : '';
+    return error ? this.__t(error.replace(prefix, 'v8n')).toString() : '';
   }
 
   private __renderTextField({ field, required = false }: TextFieldParams) {

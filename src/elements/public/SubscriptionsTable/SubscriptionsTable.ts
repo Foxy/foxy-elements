@@ -6,6 +6,7 @@ import { I18n } from '../I18n/index';
 import { NucleonTable } from '../../private/NucleonTable/NucleonTable';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { parseDuration } from '../../../utils/parse-duration';
+import { parseFrequency } from '../../../utils/parse-frequency';
 
 export class SubscriptionsTable extends NucleonTable<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -33,7 +34,7 @@ export class SubscriptionsTable extends NucleonTable<Data> {
       <foxy-form-dialog
         data-testclass="i18n"
         data-testid="subscriptionDialog"
-        header="edit_header"
+        header="update"
         parent=${this.href}
         form="foxy-subscription-form"
         lang=${lang}
@@ -54,9 +55,9 @@ export class SubscriptionsTable extends NucleonTable<Data> {
                 data-testclass="i18n frequencies"
                 class="font-medium tracking-wide font-tnum"
                 lang=${lang}
-                key=${sub.frequency === '.5m' ? 'sub_pricing_0_5m' : 'sub_pricing'}
+                key="price_${sub.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
                 ns=${ns}
-                .opts=${{ ...parseDuration(sub.frequency), amount }}
+                .opts=${{ ...parseFrequency(sub.frequency), amount }}
               >
               </foxy-i18n>
             `;
@@ -76,7 +77,7 @@ export class SubscriptionsTable extends NucleonTable<Data> {
               <foxy-i18n
                 data-testclass="i18n summaries"
                 lang=${lang}
-                key="summary"
+                key="transaction_summary"
                 ns=${ns}
                 .opts=${opts}
               >
@@ -95,17 +96,17 @@ export class SubscriptionsTable extends NucleonTable<Data> {
 
             if (sub.first_failed_transaction_date) {
               date = sub.first_failed_transaction_date;
-              key = 'status_failed';
+              key = 'subscription_failed';
               color = 'bg-error-10 text-error';
             } else if (sub.end_date) {
               date = sub.end_date;
               const dateAsObject = new Date(date);
               const hasEnded = dateAsObject.getTime() > Date.now();
-              key = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
+              key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
               color = hasEnded ? 'bg-success-10 text-success' : 'bg-contrast-5 text-tertiary';
             } else {
               date = sub.next_transaction_date;
-              key = 'status_active';
+              key = 'subscription_active';
               color = 'bg-success-10 text-success';
             }
 
@@ -136,7 +137,7 @@ export class SubscriptionsTable extends NucleonTable<Data> {
                   dialog.show();
                 }}
               >
-                <foxy-i18n data-testclass="i18n" ns=${ns} lang=${lang} key="edit"></foxy-i18n>
+                <foxy-i18n data-testclass="i18n" ns=${ns} lang=${lang} key="update"></foxy-i18n>
               </button>
             `;
           },

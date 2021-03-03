@@ -5,7 +5,7 @@ import { FormDialog } from '../FormDialog';
 import { SubscriptionsTable } from './SubscriptionsTable';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
-import { parseDuration } from '../../../utils/parse-duration';
+import { parseFrequency } from '../../../utils/parse-frequency';
 import sinon from 'sinon';
 
 type Refs = {
@@ -58,8 +58,8 @@ describe('SubscriptionsTable', () => {
           {
             const transaction = subscription._embedded['fx:last_transaction'];
             const amount = `${transaction.total_order} ${transaction.currency_code}`;
-            const opts = { ...parseDuration(subscription.frequency), amount };
-            const key = `sub_pricing${subscription.frequency === '.5m' ? '_0_5m' : ''}`;
+            const opts = { ...parseFrequency(subscription.frequency), amount };
+            const key = `price_${subscription.frequency === '.5m' ? 'twice_a_month' : 'recurring'}`;
 
             expect(frequencyRef).to.have.deep.property('opts', opts);
             expect(frequencyRef).to.have.attribute('key', key);
@@ -73,7 +73,7 @@ describe('SubscriptionsTable', () => {
             };
 
             expect(summaryRef).to.have.deep.property('opts', opts);
-            expect(summaryRef).to.have.attribute('key', 'summary');
+            expect(summaryRef).to.have.attribute('key', 'transaction_summary');
           }
 
           {
@@ -82,15 +82,15 @@ describe('SubscriptionsTable', () => {
 
             if (subscription.first_failed_transaction_date) {
               date = subscription.first_failed_transaction_date;
-              key = 'status_failed';
+              key = 'subscription_failed';
             } else if (subscription.end_date) {
               const dateAsObject = new Date(subscription.end_date);
               const hasEnded = dateAsObject.getTime() > Date.now();
-              key = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
+              key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
               date = subscription.end_date;
             } else {
               date = subscription.next_transaction_date;
-              key = 'status_active';
+              key = 'subscription_active';
             }
 
             expect(statusRef).to.have.deep.property('opts', { date });

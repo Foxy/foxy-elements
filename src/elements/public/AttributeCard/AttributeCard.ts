@@ -1,9 +1,8 @@
-import { CSSResultArray, css } from 'lit-element';
+import { CSSResult, CSSResultArray } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { FormDialog } from '../FormDialog/index';
 import { NucleonElement } from '../NucleonElement/index';
 import { Skeleton } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
@@ -12,45 +11,23 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
     };
   }
 
-  static get styles(): CSSResultArray {
-    return [
-      Themeable.styles,
-      css`
-        :host(:focus-within) {
-          box-shadow: 0 0 0 2px var(--lumo-primary-color-50pct);
-        }
-      `,
-    ];
+  static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   render(): TemplateResult {
     const variant = ifDefined(this.in('busy') ? undefined : 'error');
 
     return html`
-      <foxy-form-dialog
-        header="edit"
-        parent=${this.parent}
-        form="foxy-attribute-form"
-        href=${this.href}
-        lang=${this.lang}
-        id="form-dialog"
-      >
-      </foxy-form-dialog>
-
       <figure
-        role="button"
-        tabindex="0"
         class="text-body text-l font-lumo leading-m focus:outline-none"
         aria-live="polite"
         aria-busy=${this.in('busy')}
-        @click=${this.__handleClick}
-        @keydown=${this.__handleKeyDown}
       >
         <figcaption
           class="flex items-center space-x-xs uppercase text-xxs font-medium text-tertiary tracking-wider"
@@ -71,7 +48,7 @@ export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
                     `
                   : ''}
               `
-            : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}
+            : html`<x-skeleton variant=${variant} class="w-full">&nbsp;</x-skeleton>`}
         </figcaption>
 
         ${this.in({ idle: 'snapshot' })
@@ -80,17 +57,8 @@ export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
                 ${this.data.value}
               </span>
             `
-          : html`<x-skeleton variant=${variant} class="w-full"></x-skeleton>`}
+          : html`<x-skeleton variant=${variant} class="w-full">&nbsp;</x-skeleton>`}
       </figure>
     `;
-  }
-
-  private __handleClick(evt: Event) {
-    const dialog = this.renderRoot.querySelector('#form-dialog') as FormDialog;
-    dialog.show(evt.currentTarget as HTMLElement);
-  }
-
-  private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.__handleClick(evt);
   }
 }

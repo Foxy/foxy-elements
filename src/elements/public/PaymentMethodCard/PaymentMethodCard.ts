@@ -83,9 +83,9 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
 
     return html`
       <x-confirm-dialog
-        message="delete_message"
-        confirm="delete_yes"
-        cancel="delete_no"
+        message="delete_prompt"
+        confirm="delete"
+        cancel="cancel"
         header="delete"
         theme="primary error"
         lang=${this.lang}

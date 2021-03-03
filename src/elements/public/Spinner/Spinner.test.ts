@@ -16,8 +16,8 @@ describe('Spinner', () => {
     expect(element).to.have.property('lang', '');
 
     expect(text).to.have.attribute('lang', '');
-    expect(text).to.have.attribute('key', 'busy');
-    expect(text).to.have.attribute('ns', 'spinner');
+    expect(text).to.have.attribute('key', 'loading_busy');
+    expect(text).to.have.attribute('ns', 'shared spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
     expect(icon).to.have.attribute('active');
@@ -41,8 +41,8 @@ describe('Spinner', () => {
     expect(element).to.have.property('state', 'busy');
 
     expect(text).to.have.attribute('lang', element.lang);
-    expect(text).to.have.attribute('key', 'busy');
-    expect(text).to.have.attribute('ns', 'spinner');
+    expect(text).to.have.attribute('key', 'loading_busy');
+    expect(text).to.have.attribute('ns', 'shared spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
     expect(icon).to.have.attribute('active');
@@ -58,8 +58,8 @@ describe('Spinner', () => {
     expect(element).to.have.property('state', 'end');
 
     expect(text).to.have.attribute('lang', element.lang);
-    expect(text).to.have.attribute('key', 'end');
-    expect(text).to.have.attribute('ns', 'spinner');
+    expect(text).to.have.attribute('key', 'loading_end');
+    expect(text).to.have.attribute('ns', 'shared spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
     expect(icon).to.have.attribute('icon', 'icons:done-all');
@@ -75,8 +75,8 @@ describe('Spinner', () => {
     expect(element).to.have.property('state', 'error');
 
     expect(text).to.have.attribute('lang', element.lang);
-    expect(text).to.have.attribute('key', 'error');
-    expect(text).to.have.attribute('ns', 'spinner');
+    expect(text).to.have.attribute('key', 'loading_error');
+    expect(text).to.have.attribute('ns', 'shared spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
     expect(icon).to.have.attribute('icon', 'icons:error-outline');
@@ -92,8 +92,8 @@ describe('Spinner', () => {
     expect(element).to.have.property('state', 'paused');
 
     expect(text).to.have.attribute('lang', element.lang);
-    expect(text).to.have.attribute('key', 'paused');
-    expect(text).to.have.attribute('ns', 'spinner');
+    expect(text).to.have.attribute('key', 'loading_paused');
+    expect(text).to.have.attribute('ns', 'shared spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
     expect(icon).to.have.attribute('icon', 'icons:more-horiz');
@@ -109,8 +109,8 @@ describe('Spinner', () => {
     expect(element).to.have.property('state', 'empty');
 
     expect(text).to.have.attribute('lang', element.lang);
-    expect(text).to.have.attribute('key', 'empty');
-    expect(text).to.have.attribute('ns', 'spinner');
+    expect(text).to.have.attribute('key', 'loading_empty');
+    expect(text).to.have.attribute('ns', 'shared spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
     expect(icon).to.have.attribute('icon', 'icons:info-outline');

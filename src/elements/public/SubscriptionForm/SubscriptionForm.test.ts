@@ -9,7 +9,7 @@ import { Spinner } from '../Spinner/Spinner';
 import { SubscriptionForm } from './SubscriptionForm';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
-import { parseDuration } from '../../../utils/parse-duration';
+import { parseFrequency } from '../../../utils/parse-frequency';
 
 type Refs = {
   nextPaymentDate: DatePickerElement;
@@ -108,8 +108,8 @@ describe('SubscriptionForm', () => {
           expect(refs.endDate).to.have.property('value', endDateValue);
           expect(refs.endDate).not.to.have.attribute('disabled');
 
-          const headerKey = `sub_pricing${frequency === '.5m' ? '_0_5m' : ''}`;
-          const headerOpts = { ...parseDuration(frequency), amount: `${total} ${currency}` };
+          const headerKey = `price_${frequency === '.5m' ? 'twice_a_month' : 'recurring'}`;
+          const headerOpts = { ...parseFrequency(frequency), amount: `${total} ${currency}` };
 
           expect(refs.header).to.have.attribute('key', headerKey);
           expect(refs.header).to.have.deep.property('opts', headerOpts);
@@ -120,14 +120,14 @@ describe('SubscriptionForm', () => {
 
           if (element.data?.first_failed_transaction_date) {
             statusDate = element.data.first_failed_transaction_date;
-            statusKey = 'status_failed';
+            statusKey = 'subscription_failed';
           } else if (element.data?.end_date) {
             statusDate = element.data.end_date;
             const hasEnded = new Date(statusDate).getTime() > Date.now();
-            statusKey = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
+            statusKey = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
           } else {
             statusDate = element.data?.next_transaction_date ?? new Date().toISOString();
-            statusKey = 'status_active';
+            statusKey = 'subscription_active';
           }
 
           expect(refs.status).to.have.attribute('key', statusKey);

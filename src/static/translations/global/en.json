@@ -16,15 +16,10 @@
   "frequency_0_5m": "Twice a month",
   "frequency_once": "Just this once",
   "frequency_plural": "Every {{count}} {{units, lowercase}}",
-  "price": "{{value, currency}}",
-  "sub_pricing": "{{amount, currency}}/$t({{units}}, { \"count\": {{count}} })",
-  "sub_pricing_0_5m": "{{amount, currency}} twice a month",
-  "sub_pricing_plural": "{{amount, currency}}/{{count}} $t({{units}}, { \"count\": {{count}} })",
-  "date": "{{value, date}}",
   "and": "and",
   "beta": "Beta",
   "edit": "Edit",
-  "save": "Save",
+  "save": "Save changes",
   "undo_all": "Undo all",
   "email": "Email",
   "password": "Password",
@@ -39,14 +34,10 @@
   "reset_password": "Reset password",
   "required": "Please fill in this field",
   "reload": "Reload",
-  "property": "Property",
-  "value": "Value",
   "choice": {
     "other": "Other",
     "other_placeholder": "Enter your choice"
   },
-  "cancel": "Cancel",
-  "failed_to_load": "Failed to load",
   "close": "Close",
   "weekday-picker": {
     "hint": "Allow selecting only {{days, list}} of the month."
@@ -66,14 +57,6 @@
       "message": "We've just detected an error that this element isn't prepared to handle. If you could take a moment and let us know what happened, we'd greatly appreciate your feedback.",
       "action": "Contact us",
       "href": "mailto:hello@foxy.io"
-    },
-    "not_found": {
-      "title": "Not found",
-      "message": "Requested resource does not exist"
-    },
-    "unauthorized": {
-      "title": "Unauthorized",
-      "message": "Please sign in to view this resource"
     },
     "setup_needed": {
       "title": "Setup needed",

@@ -3,8 +3,16 @@ import { TemplateResult, html } from 'lit-html';
 import { Data } from './types';
 import { I18n } from '../I18n/index';
 import { NucleonTable } from '../../private/NucleonTable/NucleonTable';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 
 export class TransactionsTable extends NucleonTable<Data> {
+  static get scopedElements(): ScopedElementsMap {
+    return {
+      ...super.scopedElements,
+      'foxy-i18n': customElements.get('foxy-i18n'),
+    };
+  }
+
   private static __ns = 'transactions-table';
 
   private __untrackTranslations?: () => void;
@@ -25,7 +33,7 @@ export class TransactionsTable extends NucleonTable<Data> {
             data-testclass="i18n totals"
             class="font-medium tracking-wide font-tnum"
             lang=${this.lang}
-            key="total"
+            key="price"
             ns=${ns}
             .opts=${{ value: `${transaction.total_order} ${transaction.currency_code}` }}
           >
@@ -48,7 +56,7 @@ export class TransactionsTable extends NucleonTable<Data> {
             <foxy-i18n
               data-testclass="i18n summaries"
               lang=${this.lang}
-              key="summary"
+              key="transaction_summary"
               ns=${ns}
               .opts=${opts}
             >
@@ -75,7 +83,7 @@ export class TransactionsTable extends NucleonTable<Data> {
               data-testclass="i18n statuses"
               class="px-s text-s font-medium tracking-wide rounded ${colors[transaction.status]}"
               lang=${this.lang}
-              key=${`status_${transaction.status}`}
+              key=${`transaction_${transaction.status}`}
               ns=${ns}
             >
             </foxy-i18n>

@@ -250,3 +250,5 @@ export abstract class Dialog extends LitElement {
     await this.updateComplete.then(() => this.getBoundingClientRect());
   }
 }
+
+customElements.define('foxy-dialog-window', DialogWindow);

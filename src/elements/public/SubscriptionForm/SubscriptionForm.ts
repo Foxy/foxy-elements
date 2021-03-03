@@ -11,7 +11,7 @@ import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { memoize } from 'lodash-es';
-import { parseDuration } from '../../../utils/parse-duration';
+import { parseFrequency } from '../../../utils/parse-frequency';
 
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -72,7 +72,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                   this.data._embedded['fx:last_transaction'].total_order,
                   this.data._embedded['fx:last_transaction'].currency_code
                 )
-              : html`<x-skeleton class="w-full" variant="static"></x-skeleton>`}
+              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
           </div>
 
           <div class="text-secondary">
@@ -83,21 +83,11 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                   this.data.first_failed_transaction_date,
                   this.data.end_date
                 )
-              : html`<x-skeleton class="w-full" variant="static"></x-skeleton>`}
+              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
           </div>
         </div>
 
         <x-group frame>
-          <foxy-i18n
-            data-testclass="i18n"
-            class=${classMap({ 'text-disabled': !this.in('idle') || !this.form.is_active })}
-            slot="header"
-            lang=${this.lang}
-            key="th_frequency"
-            ns=${ns}
-          >
-          </foxy-i18n>
-
           <x-choice
             default-custom-value="1d"
             data-testid="frequency"
@@ -112,7 +102,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
               data-testclass="i18n"
               slot=".5m-label"
               lang=${this.lang}
-              key="frequency_0_5m"
+              key="twice_a_month"
               ns=${ns}
             >
             </foxy-i18n>
@@ -153,7 +143,6 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         <vaadin-date-picker
           data-testid="endDate"
           class="w-full"
-          placeholder=${this.__t('end_date_placeholder').toString()}
           label=${this.__t('end_date').toString()}
           value=${this.form.end_date?.substr(0, 10) ?? ''}
           min=${tomorrow.toISOString().substr(0, 10)}
@@ -222,9 +211,9 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         data-testclass="i18n"
         data-testid="header"
         lang=${lang}
-        key="sub_pricing${frequency === '.5m' ? '_0_5m' : ''}"
+        key="price_${frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
         ns=${SubscriptionForm.__ns}
-        .opts=${{ ...parseDuration(frequency), amount: `${total} ${currency}` }}
+        .opts=${{ ...parseFrequency(frequency), amount: `${total} ${currency}` }}
       >
       </foxy-i18n>
     `;
@@ -243,14 +232,14 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
     if (firstFailedTransactionDate) {
       date = firstFailedTransactionDate;
-      key = 'status_failed';
+      key = 'subscription_failed';
     } else if (endDate) {
       date = endDate;
       const hasEnded = new Date(date).getTime() > Date.now();
-      key = hasEnded ? 'status_will_be_cancelled' : 'status_cancelled';
+      key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
     } else {
       date = nextTransactionDate ?? new Date().toISOString();
-      key = 'status_active';
+      key = 'subscription_active';
     }
 
     return html`

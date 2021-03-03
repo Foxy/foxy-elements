@@ -89,10 +89,10 @@ export class FrequencyInput extends LitElement {
     const count = parseDuration(value).count;
 
     return [
-      { value: 'd', label: this.__t('d', { count }) },
-      { value: 'w', label: this.__t('w', { count }) },
-      { value: 'm', label: this.__t('m', { count }) },
-      { value: 'y', label: this.__t('y', { count }) },
+      { value: 'd', label: this.__t('day', { count }) },
+      { value: 'w', label: this.__t('week', { count }) },
+      { value: 'm', label: this.__t('month', { count }) },
+      { value: 'y', label: this.__t('year', { count }) },
     ];
   });
 

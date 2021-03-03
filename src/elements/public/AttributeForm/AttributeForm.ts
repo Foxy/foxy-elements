@@ -70,9 +70,9 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
     return html`
       <x-confirm-dialog
         data-testid="confirm"
-        message="delete_message"
-        confirm="delete_yes"
-        cancel="delete_no"
+        message="delete_prompt"
+        confirm="delete"
+        cancel="cancel"
         header="delete"
         theme="primary error"
         lang=${lang}
@@ -142,7 +142,7 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
                 <x-property-table
                   .items=${(['date_modified', 'date_created'] as const).map(field => ({
                     name: this.__t(field),
-                    value: this.__formatDate(new Date(this.data![field])),
+                    value: this.__t('date', { value: new Date(this.data![field]) }),
                   }))}
                 >
                 </x-property-table>
@@ -153,7 +153,7 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
                   ?disabled=${isDisabled}
                   @click=${this.__handleDeleteClick}
                 >
-                  <foxy-i18n ns="attribute-form" lang=${lang} key="delete"></foxy-i18n>
+                  <foxy-i18n ns=${ns} lang=${lang} key="delete"></foxy-i18n>
                 </vaadin-button>
               `
             : html`
@@ -163,7 +163,7 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
                   ?disabled=${isDisabled || !isValid}
                   @click=${this.submit}
                 >
-                  <foxy-i18n ns="attribute-form" lang=${lang} key="create"></foxy-i18n>
+                  <foxy-i18n ns=${ns} lang=${lang} key="create"></foxy-i18n>
                 </vaadin-button>
               `}
         </div>
@@ -201,19 +201,7 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __getErrorMessage(prefix: string) {
     const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.__t(error).toString() : '';
-  }
-
-  private __formatDate(date: Date, lang = this.lang): string {
-    try {
-      return date.toLocaleDateString(lang, {
-        month: 'long',
-        year: date.getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
-        day: 'numeric',
-      });
-    } catch {
-      return this.__formatDate(date, I18n.fallbackLng);
-    }
+    return error ? this.__t(error.replace(prefix, 'v8n')).toString() : '';
   }
 
   private __handleKeyDown(evt: KeyboardEvent) {

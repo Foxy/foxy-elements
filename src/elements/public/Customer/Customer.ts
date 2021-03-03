@@ -63,37 +63,35 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     return html`
       <foxy-form-dialog
         data-testclass="i18n"
-        data-testid="newAttributeDialog"
-        header="add_attribute"
+        data-testid="attributeDialog"
         parent=${this.data?._links['fx:attributes'].href ?? ''}
         form="foxy-attribute-form"
         lang=${this.lang}
         ns=${ns}
-        id="new-attribute-form-dialog"
+        id="attribute-dialog"
       >
       </foxy-form-dialog>
 
       <foxy-form-dialog
         data-testclass="i18n"
-        data-testid="newAddressDialog"
-        header="add_address"
+        data-testid="addressDialog"
         parent=${this.data?._links['fx:customer_addresses'].href ?? ''}
         form="foxy-address-form"
         lang=${this.lang}
         ns=${ns}
-        id="new-address-form-dialog"
+        id="address-dialog"
       >
       </foxy-form-dialog>
 
       <foxy-form-dialog
         data-testclass="i18n"
         data-testid="customerDialog"
-        header="edit"
+        header="update"
         href=${this.href}
         form="foxy-customer-form"
         lang=${this.lang}
         ns=${ns}
-        id="edit-dialog"
+        id="customer-dialog"
       >
       </foxy-form-dialog>
 
@@ -109,7 +107,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               <h1 class="tracking-wide text-xxl font-semibold truncate" data-testid="name">
                 ${this.in({ idle: 'snapshot' })
                   ? html`${this.data.first_name} ${this.data.last_name}`
-                  : html`<x-skeleton class="w-full" variant=${variant}></x-skeleton>`}
+                  : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
               </h1>
             </div>
 
@@ -117,26 +115,20 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               data-testid="edit"
               class="px-xs rounded-full"
               theme="icon large"
-              aria-label=${this.__t('edit').toString()}
+              aria-label=${this.__t('update').toString()}
               ?disabled=${!this.in({ idle: 'snapshot' })}
-              @click=${this.__showEditDialog}
+              @click=${this.__editCustomer}
             >
               <iron-icon icon="editor:mode-edit"></iron-icon>
             </vaadin-button>
           </header>
 
-          <x-property-table
-            ns=${ns}
-            lang=${this.lang}
-            data-testclass="i18n"
-            .items=${this.__getPropertyTableItems()}
-          >
-          </x-property-table>
+          <x-property-table .items=${this.__getPropertyTableItems()}></x-property-table>
 
           <section class="space-y-m">
             <header class="space-x-m flex items-center justify-between md:justify-start">
               <h2 class="tracking-wide text-xl font-medium">
-                <foxy-i18n ns=${ns} lang=${this.lang} key="addresses" data-testclass="i18n">
+                <foxy-i18n ns=${ns} lang=${this.lang} key="address_plural" data-testclass="i18n">
                 </foxy-i18n>
               </h2>
 
@@ -146,7 +138,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                 theme="icon"
                 aria-label=${this.__t('add').toString()}
                 ?disabled=${!this.in({ idle: 'snapshot' })}
-                @click=${this.__showNewAddressDialog}
+                @click=${this.__addAddress}
               >
                 <iron-icon icon="icons:add"></iron-icon>
               </vaadin-button>
@@ -161,13 +153,19 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               page="foxy-collection-page"
               item="foxy-address-card"
               lang=${this.lang}
+              @click=${this.__handleAddressesClick}
             >
             </foxy-collection-pages>
           </section>
 
           <section class="space-y-m">
             <h2 class="tracking-wide text-xl font-medium">
-              <foxy-i18n ns=${ns} lang=${this.lang} key="payment_methods" data-testclass="i18n">
+              <foxy-i18n
+                ns=${ns}
+                lang=${this.lang}
+                key="payment_method_plural"
+                data-testclass="i18n"
+              >
               </foxy-i18n>
             </h2>
 
@@ -184,7 +182,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
           <section class="space-y-m">
             <header class="space-x-m flex items-center justify-between md:justify-start">
               <h2 class="tracking-wide text-xl font-medium">
-                <foxy-i18n ns=${ns} lang=${this.lang} key="attributes" data-testclass="i18n">
+                <foxy-i18n ns=${ns} lang=${this.lang} key="attribute_plural" data-testclass="i18n">
                 </foxy-i18n>
               </h2>
 
@@ -194,7 +192,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                 theme="icon"
                 aria-label=${this.__t('add_attribute').toString()}
                 ?disabled=${!this.in({ idle: 'snapshot' })}
-                @click=${this.__showNewAttributeDialog}
+                @click=${this.__addAttribute}
               >
                 <iron-icon icon="icons:add"></iron-icon>
               </vaadin-button>
@@ -209,6 +207,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               page="foxy-collection-page"
               item="foxy-attribute-card"
               lang=${this.lang}
+              @click=${this.__handleAttributesClick}
             >
             </foxy-collection-pages>
           </section>
@@ -217,7 +216,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
             <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
               <foxy-i18n
                 ns=${ns}
-                key="transactions"
+                key="transaction_plural"
                 lang=${this.lang}
                 slot="tab-0"
                 data-testclass="i18n"
@@ -226,7 +225,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
               <foxy-i18n
                 ns=${ns}
-                key="subscriptions"
+                key="subscription_plural"
                 lang=${this.lang}
                 slot="tab-1"
                 data-testclass="i18n"
@@ -296,27 +295,24 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private __getPropertyTableItems() {
-    const firstPurchase = {
-      name: this.__t('first_purchase'),
-      value: this.data ? this.__formatDate(new Date(this.data.date_created)) : '',
-    };
-
-    const lastLogin = {
-      name: this.__t('last_login'),
-      value: this.data ? this.__formatDate(new Date(this.data.last_login_date)) : '',
-    };
-
-    const email = {
-      name: this.__t('email'),
-      value: this.data ? this.data.email : '',
-    };
-
-    const taxID = {
-      name: this.__t('tax_id'),
-      value: this.data ? this.data.tax_id : '',
-    };
-
-    return [email, taxID, lastLogin, firstPurchase];
+    return [
+      {
+        name: this.__t('email'),
+        value: this.data ? this.data.email : '',
+      },
+      {
+        name: this.__t('tax_id'),
+        value: this.data ? this.data.tax_id : '',
+      },
+      {
+        name: this.__t('last_login_date'),
+        value: this.data ? this.__formatDate(new Date(this.data.last_login_date)) : '',
+      },
+      {
+        name: this.__t('date_created'),
+        value: this.data ? this.__formatDate(new Date(this.data.date_created)) : '',
+      },
+    ];
   }
 
   private get __t() {
@@ -324,26 +320,44 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private get __editDialog() {
-    return this.renderRoot.querySelector('#edit-dialog') as FormDialog;
+    return this.renderRoot.querySelector('#customer-dialog') as FormDialog;
   }
 
-  private get __newAddressDialog() {
-    return this.renderRoot.querySelector('#new-address-form-dialog') as FormDialog;
+  private get __addressDialog() {
+    return this.renderRoot.querySelector('#address-dialog') as FormDialog;
   }
 
-  private get __newAttributeDialog() {
-    return this.renderRoot.querySelector('#new-attribute-form-dialog') as FormDialog;
+  private get __attributeDialog() {
+    return this.renderRoot.querySelector('#attribute-dialog') as FormDialog;
   }
 
-  private __showEditDialog(evt: Event) {
+  private __editCustomer(evt: Event) {
     this.__editDialog.show(evt.currentTarget as HTMLElement);
   }
 
-  private __showNewAddressDialog(evt: Event) {
-    this.__newAddressDialog.show(evt.currentTarget as HTMLElement);
+  private __addAddress(evt: Event) {
+    this.__addressDialog.header = 'create';
+    this.__addressDialog.href = '';
+    this.__addressDialog.show(evt.currentTarget as HTMLElement);
   }
 
-  private __showNewAttributeDialog(evt: Event) {
-    this.__newAttributeDialog.show(evt.currentTarget as HTMLElement);
+  private __addAttribute(evt: Event) {
+    this.__attributeDialog.header = 'create';
+    this.__attributeDialog.href = '';
+    this.__attributeDialog.show(evt.currentTarget as HTMLElement);
+  }
+
+  private __handleAddressesClick(evt: Event) {
+    if (!(evt.target instanceof NucleonElement)) return;
+    this.__addressDialog.header = 'update';
+    this.__addressDialog.href = evt.target.href;
+    this.__addressDialog.show();
+  }
+
+  private __handleAttributesClick(evt: Event) {
+    if (!(evt.target instanceof NucleonElement)) return;
+    this.__attributeDialog.header = 'update';
+    this.__attributeDialog.href = evt.target.href;
+    this.__attributeDialog.show();
   }
 }
