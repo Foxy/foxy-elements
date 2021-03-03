@@ -5,10 +5,8 @@ import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { ConfirmDialog } from './ConfirmDialog';
 import { Dialog } from '../Dialog/Dialog';
-import { DialogWindow } from '../Dialog/DialogWindow';
 import { html } from 'lit-html';
 
-customElements.define('foxy-dialog-window', DialogWindow);
 customElements.define('x-confirm-dialog', ConfirmDialog);
 
 describe('ConfirmDialog', () => {
