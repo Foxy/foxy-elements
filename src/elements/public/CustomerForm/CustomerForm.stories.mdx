@@ -1,82 +1,119 @@
+import dedent from 'dedent';
 import { html } from 'lit-html';
-import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
 import './index.ts';
 
-<Meta title="Forms / Customer" component="foxy-customer-form" />
+<Meta title="Forms / CustomerForm" />
 
-# Customer Form
+# CustomerForm
 
-[![hAPI](https://img.shields.io/badge/hAPI-customer__customer-green.svg)](https://api.foxycart.com/rels/customer)
+<Subtitle>Form element for creating or editing customers</Subtitle>
 
-## States
-
-Below are all the states this component can render.
-
-### Loading
-
-Displayed while loading the resource.
-
-<Canvas>
-  <Story name="Loading">
-    {() =>
-      html`
-        <foxy-customer-form class="max-w-xl mx-auto" href="https://demo.foxycart.com/s/admin/sleep">
-        </foxy-customer-form>
-      `
-    }
-  </Story>
-</Canvas>
-
-### Error
-
-Displayed when resource load fails.
-
-<Canvas>
-  <Story name="Error">
+<Canvas
+  mdxSource={dedent`
+    <foxy-customer-form
+      parent="https://demo.foxycart.com/s/admin/stores/0/customers"
+      href="https://demo.foxycart.com/s/admin/customers/0"
+    >
+    </foxy-customer-form>
+  `}
+  isExpanded
+>
+  <Story name="Playground">
     {() =>
       html`
         <foxy-customer-form
-          href="https://demo.foxycart.com/s/admin/not-found"
-          class="max-w-xl mx-auto"
-        >
-        </foxy-customer-form>
-      `
-    }
-  </Story>
-</Canvas>
-
-### Empty
-
-Displayed when no resource is specified.
-
-<Canvas>
-  <Story name="Empty">
-    {() =>
-      html`
-        <foxy-customer-form
-          parent="https://demo.foxycart.com/s/admin/customers"
-          class="max-w-xl mx-auto"
-        >
-        </foxy-customer-form>
-      `
-    }
-  </Story>
-</Canvas>
-
-### Ready
-
-Displayed after the resource is loaded.
-
-<Canvas>
-  <Story name="Ready">
-    {() =>
-      html`
-        <foxy-customer-form
+          parent="https://demo.foxycart.com/s/admin/stores/0/customers"
           href="https://demo.foxycart.com/s/admin/customers/0"
-          class="max-w-xl mx-auto"
+          class="container-narrow"
         >
         </foxy-customer-form>
       `
     }
   </Story>
 </Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-customer-form" />
+
+### hAPI
+
+This element supports the following resources: [customer](https://api.foxycart.com/rels/customer).
+
+### i18next
+
+This element supports the following namespaces: `customer-form`, `shared`.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.template.clean.invalid" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-customer-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/customers"
+        class="container-narrow"
+      >
+      </foxy-customer-form>
+    `
+  }
+</Story>
+
+<Story name="State: idle.template.dirty.valid" parameters={{ docs: { disable: true } }}>
+  {() => html`
+    <foxy-customer-form
+      parent="https://demo.foxycart.com/s/admin/stores/0/customers"
+      class="container-narrow"
+      @update=${((isUpdating = false) => evt => {
+        if (!isUpdating && !evt.target.in({ idle: { template: { dirty: 'valid' } } })) {
+          isUpdating = true;
+          evt.target.data = null;
+          evt.target.edit({ email: 'foo@example.com' });
+          evt.target.updateComplete.then(() => (isUpdating = false));
+        }
+      })()}
+    >
+    </foxy-customer-form>
+  `}
+</Story>
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-customer-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/customers"
+        href="https://demo.foxycart.com/s/admin/customers/0"
+        class="container-narrow"
+      >
+      </foxy-customer-form>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-customer-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/customers"
+        href="https://demo.foxycart.com/s/admin/sleep"
+        class="container-narrow"
+      >
+      </foxy-customer-form>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-customer-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/customers"
+        href="https://demo.foxycart.com/s/admin/not-found"
+        class="container-narrow"
+      >
+      </foxy-customer-form>
+    `
+  }
+</Story>
