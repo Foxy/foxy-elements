@@ -1,74 +1,119 @@
+import dedent from 'dedent';
 import { html } from 'lit-html';
-import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
-
+import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
 import './index.ts';
 
-<Meta title="Forms / Attribute" component="foxy-attribute-form" />
+<Meta title="Forms / AttributeForm" />
 
-# Attribute
+# AttributeForm
 
-[![hAPI](https://img.shields.io/badge/hAPI-attribute-green.svg)](https://api.foxycart.com/rels/attribute)
+<Subtitle>Form element for creating or editing attributes</Subtitle>
 
-## States
-
-Below are all the states this component can render.
-
-### Loading
-
-Displayed while loading the resource.
-
-<Canvas>
-  <Story name="Loading">
-    {() =>
-      html`
-        <foxy-attribute-form href="https://demo.foxycart.com/s/admin/sleep"> </foxy-attribute-form>
-      `
-    }
-  </Story>
-</Canvas>
-
-### Error
-
-Displayed when resource load fails.
-
-<Canvas>
-  <Story name="Error">
-    {() =>
-      html`
-        <foxy-attribute-form
-          href="https://demo.foxycart.com/s/admin/customer_attributes/not-found"
-        ></foxy-attribute-form>
-      `
-    }
-  </Story>
-</Canvas>
-
-### Empty
-
-Displayed when there's no `href` attribute.
-
-<Canvas>
-  <Story name="Empty">
+<Canvas
+  mdxSource={`
+    <foxy-attribute-form
+      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+      href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+    >
+    </foxy-attribute-form>
+  `}
+  isExpanded
+>
+  <Story name="Playground">
     {() =>
       html`
         <foxy-attribute-form
           parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
-        ></foxy-attribute-form>
+          href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+          class="container-narrow"
+        >
+        </foxy-attribute-form>
       `
     }
   </Story>
 </Canvas>
 
-### Ready
+## Reference
 
-Displayed after the resource is loaded.
+<ArgsTable of="foxy-attribute-form" />
 
-<Canvas>
-  <Story name="Ready">
-    {() =>
-      html`<foxy-attribute-form
+### hAPI
+
+This element supports the following resources: [attribute](https://api.foxycart.com/rels/attribute).
+
+### i18next
+
+This element supports the following namespaces: `attribute-form`, `shared`.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.template.clean.invalid" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-attribute-form
+        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        class="container-narrow"
+      >
+      </foxy-attribute-form>
+    `
+  }
+</Story>
+
+<Story name="State: idle.template.dirty.valid" parameters={{ docs: { disable: true } }}>
+  {() => html`
+    <foxy-attribute-form
+      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+      class="container-narrow"
+      @update=${((isUpdating = false) => evt => {
+        if (!isUpdating && !evt.target.in({ idle: { template: { dirty: 'valid' } } })) {
+          isUpdating = true;
+          evt.target.data = null;
+          evt.target.edit({ name: 'Foo', value: 'Bar' });
+          evt.target.updateComplete.then(() => (isUpdating = false));
+        }
+      })()}
+    >
+    </foxy-attribute-form>
+  `}
+</Story>
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-attribute-form
+        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
         href="https://demo.foxycart.com/s/admin/customer_attributes/0"
-      ></foxy-attribute-form>`
-    }
-  </Story>
-</Canvas>
+        class="container-narrow"
+      >
+      </foxy-attribute-form>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-attribute-form
+        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        href="https://demo.foxycart.com/s/admin/sleep"
+        class="container-narrow"
+      >
+      </foxy-attribute-form>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-attribute-form
+        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        href="https://demo.foxycart.com/s/admin/not-found"
+        class="container-narrow"
+      >
+      </foxy-attribute-form>
+    `
+  }
+</Story>
