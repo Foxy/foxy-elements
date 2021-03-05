@@ -1,28 +1,31 @@
+import dedent from 'dedent';
 import { html } from 'lit-html';
-import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
 import './index.ts';
 
-<Meta title="Cards / Address" component="foxy-address-card" />
+<Meta title="Cards / AddressCard" />
 
-# Customer Address
+# AddressCard
 
-[![hAPI](https://img.shields.io/badge/hAPI-customer__address-green.svg)](https://api.foxycart.com/rels/customer_address)
+<Subtitle>Form element for creating or editing customer addresses</Subtitle>
 
-## States
-
-Below are all the states this component can render.
-
-### Loading
-
-Displayed while loading the resource.
-
-<Canvas>
-  <Story name="Loading">
+<Canvas
+  mdxSource={dedent`
+    <foxy-address-card
+      parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+      href="https://demo.foxycart.com/s/admin/customer_addresses/0"
+    >
+    </foxy-address-card>
+  `}
+  isExpanded
+>
+  <Story name="Playground">
     {() =>
       html`
         <foxy-address-card
-          href="https://demo.foxycart.com/s/admin/sleep"
-          class="p-4 rounded border"
+          parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+          href="https://demo.foxycart.com/s/admin/customer_addresses/0"
+          class="box-content w-64 p-4 rounded-lg border"
         >
         </foxy-address-card>
       `
@@ -30,32 +33,69 @@ Displayed while loading the resource.
   </Story>
 </Canvas>
 
-### Error
+## Reference
 
-Displayed when resource load fails.
+<ArgsTable of="foxy-address-card" />
 
-<Canvas>
-  <Story name="Error">
-    {() =>
-      html`<foxy-address-card
-        href="https://demo.foxycart.com/s/admin/not-found"
-        class="p-4 rounded border"
-      ></foxy-address-card>`
-    }
-  </Story>
-</Canvas>
+### hAPI
 
-### Ready
+This element supports the following resources: [customer_address](https://api.foxycart.com/rels/customer_address), [default_billing_address](https://api.foxycart.com/rels/default_billing_address), [default_shipping_address](https://api.foxycart.com/rels/default_shipping_address).
 
-Displayed after the resource is loaded.
+### i18next
 
-<Canvas>
-  <Story name="Ready">
-    {() =>
-      html`<foxy-address-card
+This element supports the following namespaces: `address-card`, `shared`.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
         href="https://demo.foxycart.com/s/admin/customer_addresses/0"
-        class="p-4 rounded border"
-      ></foxy-address-card>`
-    }
-  </Story>
-</Canvas>
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
+
+<Story name="State: idle.template" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+        href="https://demo.foxycart.com/s/admin/sleep"
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+        href="https://demo.foxycart.com/s/admin/not-found"
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
