@@ -1330,55 +1330,79 @@
     {
       "name": "foxy-i18n",
       "path": "./src/elements/public/I18n/index.ts",
+      "description": "Custom element for effortless localization with i18next.",
       "attributes": [
         {
+          "name": "options",
+          "description": "Optional i18next translation function\n[options](https://www.i18next.com/translation-function/essentials#overview-options).",
+          "type": "object",
+          "default": "{}"
+        },
+        {
           "name": "lang",
+          "description": "Optional language to translate `element.key` into (ISO 639-1).\nDefault and fallback: `en`.",
           "type": "string",
-          "default": "\"\""
+          "default": "\"en\""
         },
         {
           "name": "key",
+          "description": "Optional key to translate. Empty by default (renders nothing).\nSee [i18next docs](https://www.i18next.com/translation-function/essentials#accessing-keys) for more info.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "ns",
+          "description": "Optional namespace to use translations from. Default and fallback: `shared`.\nTo provide multiple namespaces, separate them with a space.",
           "type": "string",
-          "default": "\"\""
+          "default": "\"shared\""
         }
       ],
       "properties": [
         {
-          "name": "fallbackLng",
-          "type": "\"en\"",
-          "default": "\"en\""
+          "name": "FetchEvent",
+          "description": "Instances of this event are dispatched on an element before each translation request.",
+          "type": "typeof FetchEvent",
+          "default": "\"FetchEvent\""
         },
         {
           "name": "i18next",
+          "description": "Shared [i18next](https://www.i18next.com) instance for all I18n elements.",
           "type": "i18n",
           "default": "\"i18next.createInstance().use(backend)\""
         },
         {
-          "name": "lang",
-          "attribute": "lang",
-          "type": "string",
-          "default": "\"\""
+          "name": "options",
+          "attribute": "options",
+          "description": "Optional i18next translation function\n[options](https://www.i18next.com/translation-function/essentials#overview-options).",
+          "type": "object",
+          "default": "{}"
         },
         {
-          "name": "opts",
-          "default": "{}"
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional language to translate `element.key` into (ISO 639-1).\nDefault and fallback: `en`.",
+          "type": "string",
+          "default": "\"en\""
         },
         {
           "name": "key",
           "attribute": "key",
+          "description": "Optional key to translate. Empty by default (renders nothing).\nSee [i18next docs](https://www.i18next.com/translation-function/essentials#accessing-keys) for more info.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "ns",
           "attribute": "ns",
+          "description": "Optional namespace to use translations from. Default and fallback: `shared`.\nTo provide multiple namespaces, separate them with a space.",
           "type": "string",
-          "default": "\"\""
+          "default": "\"shared\""
+        }
+      ],
+      "events": [
+        {
+          "name": "fetch",
+          "description": "Instance of `I18n.FetchEvent`. Emitted before each translation request."
         }
       ]
     },
