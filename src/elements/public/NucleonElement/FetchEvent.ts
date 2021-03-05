@@ -5,6 +5,7 @@ type FetchEventInit = EventInit & {
 };
 
 export class FetchEvent extends Event {
+  /** The `Request` the `EventTarget` intends to make. */
   readonly request: Request;
 
   private __resolve: (response: Response) => void;
@@ -18,6 +19,10 @@ export class FetchEvent extends Event {
     this.__resolve = init.resolve;
   }
 
+  /**
+   * Prevent the `EventTarget`'s default fetch handling, and provide a promise for a response yourself.
+   * @example event.respondWith(Promise.resolve(new Response(null, { status: 500 })))
+   */
   respondWith(whenResponseReady: Promise<Response>): void {
     this.preventDefault();
     this.stopImmediatePropagation();
