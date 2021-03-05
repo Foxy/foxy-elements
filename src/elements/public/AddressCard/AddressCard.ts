@@ -1,4 +1,4 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
+import { CSSResult, CSSResultArray, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
@@ -7,7 +7,14 @@ import { Themeable } from '../../../mixins/themeable';
 
 export class AddressCard extends NucleonElement<Data> {
   static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
+    return [
+      Themeable.styles,
+      css`
+        :host {
+          height: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
+        }
+      `,
+    ];
   }
 
   render(): TemplateResult {
