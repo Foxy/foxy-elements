@@ -57,7 +57,7 @@ export class SubscriptionsTable extends NucleonTable<Data> {
                 lang=${lang}
                 key="price_${sub.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
                 ns=${ns}
-                .opts=${{ ...parseFrequency(sub.frequency), amount }}
+                .options=${{ ...parseFrequency(sub.frequency), amount }}
               >
               </foxy-i18n>
             `;
@@ -68,7 +68,7 @@ export class SubscriptionsTable extends NucleonTable<Data> {
           header: () => this.__t('th_summary').toString(),
           cell: sub => {
             const items = sub._embedded['fx:transaction_template']._embedded['fx:items'];
-            const opts = {
+            const options = {
               most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
               count: items.length,
             };
@@ -79,7 +79,7 @@ export class SubscriptionsTable extends NucleonTable<Data> {
                 lang=${lang}
                 key="transaction_summary"
                 ns=${ns}
-                .opts=${opts}
+                .options=${options}
               >
               </foxy-i18n>
             `;
@@ -117,7 +117,7 @@ export class SubscriptionsTable extends NucleonTable<Data> {
                 lang=${lang}
                 key=${key}
                 ns=${ns}
-                .opts=${{ date }}
+                .options=${{ date }}
               >
               </foxy-i18n>
             `;

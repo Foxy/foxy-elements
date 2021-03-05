@@ -212,7 +212,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         lang=${lang}
         key="price_${frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
         ns=${SubscriptionForm.__ns}
-        .opts=${{ ...parseFrequency(frequency), amount: `${total} ${currency}` }}
+        .options=${{ ...parseFrequency(frequency), amount: `${total} ${currency}` }}
       >
       </foxy-i18n>
     `;
@@ -248,7 +248,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         lang=${lang}
         key=${key}
         ns=${ns}
-        .opts=${{ date }}
+        .options=${{ date }}
       >
       </foxy-i18n>
     `;

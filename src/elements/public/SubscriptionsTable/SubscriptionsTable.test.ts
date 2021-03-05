@@ -58,21 +58,21 @@ describe('SubscriptionsTable', () => {
           {
             const transaction = subscription._embedded['fx:last_transaction'];
             const amount = `${transaction.total_order} ${transaction.currency_code}`;
-            const opts = { ...parseFrequency(subscription.frequency), amount };
+            const options = { ...parseFrequency(subscription.frequency), amount };
             const key = `price_${subscription.frequency === '.5m' ? 'twice_a_month' : 'recurring'}`;
 
-            expect(frequencyRef).to.have.deep.property('opts', opts);
+            expect(frequencyRef).to.have.deep.property('options', options);
             expect(frequencyRef).to.have.attribute('key', key);
           }
 
           {
             const items = subscription._embedded['fx:transaction_template']._embedded['fx:items'];
-            const opts = {
+            const options = {
               most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
               count: items.length,
             };
 
-            expect(summaryRef).to.have.deep.property('opts', opts);
+            expect(summaryRef).to.have.deep.property('options', options);
             expect(summaryRef).to.have.attribute('key', 'transaction_summary');
           }
 
@@ -93,7 +93,7 @@ describe('SubscriptionsTable', () => {
               key = 'subscription_active';
             }
 
-            expect(statusRef).to.have.deep.property('opts', { date });
+            expect(statusRef).to.have.deep.property('options', { date });
             expect(statusRef).to.have.attribute('key', key);
           }
 

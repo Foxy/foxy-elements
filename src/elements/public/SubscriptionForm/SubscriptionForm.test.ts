@@ -109,10 +109,10 @@ describe('SubscriptionForm', () => {
           expect(refs.endDate).not.to.have.attribute('disabled');
 
           const headerKey = `price_${frequency === '.5m' ? 'twice_a_month' : 'recurring'}`;
-          const headerOpts = { ...parseFrequency(frequency), amount: `${total} ${currency}` };
+          const headeroptions = { ...parseFrequency(frequency), amount: `${total} ${currency}` };
 
           expect(refs.header).to.have.attribute('key', headerKey);
-          expect(refs.header).to.have.deep.property('opts', headerOpts);
+          expect(refs.header).to.have.deep.property('options', headeroptions);
           expect(refs.header).to.have.property('localName', 'foxy-i18n');
 
           let statusDate: string;
@@ -131,7 +131,7 @@ describe('SubscriptionForm', () => {
           }
 
           expect(refs.status).to.have.attribute('key', statusKey);
-          expect(refs.status).to.have.deep.property('opts', { date: statusDate });
+          expect(refs.status).to.have.deep.property('options', { date: statusDate });
           expect(refs.status).to.have.property('localName', 'foxy-i18n');
         },
       },

@@ -49,26 +49,26 @@ describe('TransactionsTable', () => {
 
           expect(statusRef).to.have.attribute('key', `transaction_${transaction.status}`);
           expect(dateRef).to.have.attribute('key', 'date');
-          expect(dateRef).to.have.deep.property('opts', { value: transaction.transaction_date });
+          expect(dateRef).to.have.deep.property('options', { value: transaction.transaction_date });
           expect(linkRef).to.have.attribute('href', transaction._links['fx:receipt'].href);
           expect(idRef).to.contain.text(transaction.id.toString());
 
           {
             const items = transaction._embedded['fx:items'];
-            const opts = {
+            const options = {
               most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
               count: items.length,
             };
 
             expect(summaryRef).to.have.attribute('key', 'transaction_summary');
-            expect(summaryRef).to.have.deep.property('opts', opts);
+            expect(summaryRef).to.have.deep.property('options', options);
           }
 
           {
             const value = `${transaction.total_order} ${transaction.currency_code}`;
 
             expect(totalRef).to.have.attribute('key', 'price');
-            expect(totalRef).to.have.deep.property('opts', { value });
+            expect(totalRef).to.have.deep.property('options', { value });
           }
         });
       },

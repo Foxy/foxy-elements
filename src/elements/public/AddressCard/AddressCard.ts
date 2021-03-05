@@ -27,7 +27,7 @@ export class AddressCard extends NucleonElement<Data> {
               lang=${this.lang}
               class="whitespace-pre-line block text-m flex-1"
               data-testid="fullAddress"
-              .opts=${this.form}
+              .options=${this.form}
             >
             </foxy-i18n>
 

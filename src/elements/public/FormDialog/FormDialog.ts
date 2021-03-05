@@ -67,15 +67,15 @@ export class FormDialog extends Dialog {
 
   set form(tagName: string | null) {
     this.__renderForm = new Function(
-      'opts',
-      `return opts.html\`
+      'options',
+      `return options.html\`
         <${tagName}
           id="form"
-          href=\${opts.href}
-          lang=\${opts.lang}
-          parent=\${opts.parent}
-          @fetch=\${opts.handleFetch}
-          @update=\${opts.handleUpdate}
+          href=\${options.href}
+          lang=\${options.lang}
+          parent=\${options.parent}
+          @fetch=\${options.handleFetch}
+          @update=\${options.handleUpdate}
         >
         </${tagName}>\``
     ) as TemplateFunction;

@@ -36,7 +36,7 @@ export class TransactionsTable extends NucleonTable<Data> {
             lang=${this.lang}
             key="price"
             ns=${ns}
-            .opts=${{ value: `${transaction.total_order} ${transaction.currency_code}` }}
+            .options=${{ value: `${transaction.total_order} ${transaction.currency_code}` }}
           >
           </foxy-i18n>
         `,
@@ -48,7 +48,7 @@ export class TransactionsTable extends NucleonTable<Data> {
           const items = transaction._embedded?.['fx:items'];
           if (!items) return '';
 
-          const opts = {
+          const options = {
             most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
             count: items.length,
           };
@@ -59,7 +59,7 @@ export class TransactionsTable extends NucleonTable<Data> {
               lang=${this.lang}
               key="transaction_summary"
               ns=${ns}
-              .opts=${opts}
+              .options=${options}
             >
             </foxy-i18n>
           `;
@@ -115,7 +115,7 @@ export class TransactionsTable extends NucleonTable<Data> {
               lang=${this.lang}
               key="date"
               ns=${ns}
-              .opts=${{ value: transaction.transaction_date }}
+              .options=${{ value: transaction.transaction_date }}
             >
             </foxy-i18n>
           `;

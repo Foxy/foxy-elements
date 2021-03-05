@@ -37,7 +37,7 @@ describe('AddressCard', () => {
           expect(refs.fullAddress).to.have.property('ns', 'address-card');
           expect(refs.fullAddress).to.have.property('key', 'full_address');
           expect(refs.fullAddress).to.have.property('lang', element.lang);
-          expect(refs.fullAddress).to.have.deep.property('opts', element.form);
+          expect(refs.fullAddress).to.have.deep.property('options', element.form);
 
           if (element.form.is_default_billing) {
             expect(refs.icon).to.have.property('icon', 'icons:payment');

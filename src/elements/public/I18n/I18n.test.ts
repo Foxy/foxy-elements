@@ -7,10 +7,6 @@ import { I18n } from './I18n';
 import sinon from 'sinon';
 
 describe('I18n', () => {
-  it('exposes initial fallbackLng value as static property', () => {
-    expect(I18n).to.have.property('fallbackLng', 'en');
-  });
-
   it('exposes shared i18next instance as static property', () => {
     expect(I18n).to.have.property('i18next');
   });
@@ -41,10 +37,10 @@ describe('I18n', () => {
     const template = html`<foxy-i18n></foxy-i18n>`;
     const element = await fixture<I18n>(template);
 
-    expect(element).to.have.deep.property('opts', {});
-    expect(element).to.have.property('lang', '');
+    expect(element).to.have.deep.property('options', {});
+    expect(element).to.have.property('lang', 'en');
     expect(element).to.have.property('key', '');
-    expect(element).to.have.property('ns', '');
+    expect(element).to.have.property('ns', 'shared');
     expect(element).shadowDom.to.equal('');
   });
 
@@ -98,7 +94,7 @@ describe('I18n', () => {
   it('applies options when provided', async () => {
     I18n.i18next.addResource('en', 'shared', 'foo', 'bar {{baz}}');
 
-    const template = html`<foxy-i18n key="foo" .opts=${{ baz: 'qux' }}></foxy-i18n>`;
+    const template = html`<foxy-i18n key="foo" .options=${{ baz: 'qux' }}></foxy-i18n>`;
     const element = await fixture<I18n>(template);
 
     expect(element).shadowDom.to.equal('bar qux');
