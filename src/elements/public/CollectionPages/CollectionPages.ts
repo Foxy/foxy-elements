@@ -1,20 +1,29 @@
+import { ItemRenderer, SpinnerRenderer } from '../CollectionPage/CollectionPage';
 import { LitElement, PropertyDeclarations } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
 import { NucleonElement } from '../NucleonElement/index';
 import { get } from 'lodash-es';
 
-type HTMLFunction = typeof html;
-type TemplateFunction = (
-  html: HTMLFunction,
-  href: string,
-  item: string,
-  lang: string
-) => TemplateResult;
+export type PageRendererContext = {
+  html: typeof html;
+  href: string;
+  lang: string;
+  item: string | ItemRenderer;
+  spinner: string | SpinnerRenderer;
+};
+
+export type SpinnerRendererContext = {
+  html: typeof html;
+  lang: string;
+};
+
+export type PageRenderer = (context: PageRendererContext) => TemplateResult;
 
 export class CollectionPages extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
+      spinner: { type: String },
       first: { type: String, noAccessor: true },
       item: { type: String, noAccessor: true },
       page: { type: String, noAccessor: true },
@@ -24,18 +33,20 @@ export class CollectionPages extends LitElement {
 
   lang = '';
 
-  item = 'foxy-null';
+  item: string | ItemRenderer = 'foxy-null';
 
   pages: string[] = [];
+
+  spinner: string | SpinnerRenderer = 'foxy-spinner';
 
   private readonly __observer = new IntersectionObserver(
     es => es.some(s => s.isIntersecting) && this.__loadNext(),
     { rootMargin: '100%' }
   );
 
-  private __page!: string;
+  private __page!: string | PageRenderer;
 
-  private __renderPage!: TemplateFunction;
+  private __renderPage!: PageRenderer;
 
   constructor() {
     super();
@@ -52,18 +63,19 @@ export class CollectionPages extends LitElement {
     this.requestUpdate();
   }
 
-  get page(): string {
+  get page(): string | PageRenderer {
     return this.__page;
   }
 
-  set page(value: string) {
-    this.__renderPage = new Function(
-      'html',
-      'href',
-      'item',
-      'lang',
-      `return html\`<${value} href=\${href} item=\${item} lang=\${lang}></${value}>\``
-    ) as TemplateFunction;
+  set page(value: string | PageRenderer) {
+    if (typeof value === 'string') {
+      this.__renderPage = new Function(
+        'ctx',
+        `return ctx.html\`<${value} .item="\${ctx.item}" .spinner=\${ctx.spinner} href=\${ctx.href} lang=\${ctx.lang}></${value}>\``
+      ) as PageRenderer;
+    } else {
+      this.__renderPage = value;
+    }
 
     this.__page = value;
     this.requestUpdate();
@@ -79,8 +91,15 @@ export class CollectionPages extends LitElement {
   }
 
   render(): TemplateResult {
-    const children = this.pages.map(page => this.__renderPage?.(html, page, this.item!, this.lang));
-    return html`${children}`;
+    return html`${this.pages.map(page =>
+      this.__renderPage?.({
+        html,
+        href: page,
+        lang: this.lang,
+        item: this.item,
+        spinner: this.spinner,
+      })
+    )}`;
   }
 
   private get __lastPage() {
