@@ -30,7 +30,7 @@ export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
         aria-busy=${this.in('busy')}
       >
         <figcaption
-          class="flex items-center space-x-xs uppercase text-xxs font-medium text-tertiary tracking-wider"
+          class="flex items-center space-x-xs uppercase text-xxs font-medium text-secondary tracking-wider"
         >
           ${this.in({ idle: 'snapshot' })
             ? html`
