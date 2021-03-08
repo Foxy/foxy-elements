@@ -1,60 +1,101 @@
+import dedent from 'dedent';
 import { html } from 'lit-html';
-import { Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
 import './index.ts';
 
-<Meta title="Tables / Subscriptions" component="foxy-subscriptions-table" />
+<Meta title="Tables / SubscriptionsTable" />
 
-# Subscriptions
+# SubscriptionsTable
 
-[![hAPI](https://img.shields.io/badge/hAPI-subscriptions-green.svg)](https://api.foxycart.com/rels/subscriptions)
+<Subtitle>Table element displaying subscriptions</Subtitle>
 
-## States
-
-Below are all the states this component can render.
-
-### Loading
-
-Displayed while loading the resource.
-
-<Canvas>
-  <Story name="Loading">
-    {() =>
-      html`
-        <foxy-subscriptions-table href="https://demo.foxycart.com/s/admin/sleep">
-        </foxy-subscriptions-table>
-      `
-    }
-  </Story>
-</Canvas>
-
-### Error
-
-Displayed when resource load fails.
-
-<Canvas>
-  <Story name="Error">
-    {() =>
-      html`
-        <foxy-subscriptions-table href="https://demo.foxycart.com/s/admin/not-found">
-        </foxy-subscriptions-table>
-      `
-    }
-  </Story>
-</Canvas>
-
-### Ready
-
-Displayed after the resource is loaded.
-
-<Canvas>
-  <Story name="Ready">
+<Canvas
+  mdxSource={dedent`
+    <foxy-subscriptions-table
+      parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+      href="https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&limit=10&zoom=last_transaction,transaction_template:items"
+    >
+    </foxy-subscriptions-table>
+  `}
+  isExpanded
+>
+  <Story name="Playground">
     {() =>
       html`
         <foxy-subscriptions-table
+          parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
           href="https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&limit=10&zoom=last_transaction,transaction_template:items"
+          class="box-content px-4 rounded-lg border"
         >
         </foxy-subscriptions-table>
       `
     }
   </Story>
 </Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-subscriptions-table" />
+
+### hAPI
+
+This element supports the following resources: [subscriptions](https://api.foxycart.com/rels/subscriptions).
+
+### i18next
+
+This element supports the following namespaces: `subscriptions-table`, `shared`.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscriptions-table
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        href="https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&limit=10&zoom=last_transaction,transaction_template:items"
+        class="box-content px-4 rounded-lg border"
+      >
+      </foxy-subscriptions-table>
+    `
+  }
+</Story>
+
+<Story name="State: idle.template" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscriptions-table
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        class="box-content px-4 rounded-lg border"
+      >
+      </foxy-subscriptions-table>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscriptions-table
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        href="https://demo.foxycart.com/s/admin/sleep"
+        class="box-content px-4 rounded-lg border"
+      >
+      </foxy-subscriptions-table>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscriptions-table
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        href="https://demo.foxycart.com/s/admin/not-found"
+        class="box-content px-4 rounded-lg border"
+      >
+      </foxy-subscriptions-table>
+    `
+  }
+</Story>
