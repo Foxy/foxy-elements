@@ -2,9 +2,25 @@ import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { HALJSONResource } from '../NucleonElement/types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { SpinnerState } from '../Spinner/Spinner';
 
-type Template = typeof html;
-type ElementRenderer = (html: Template, parent: string, lang: string, item: any) => TemplateResult;
+export type SpinnerRendererContext = {
+  state: SpinnerState;
+  html: typeof html;
+  lang: string;
+};
+
+export type SpinnerRenderer = (ctx: SpinnerRendererContext) => TemplateResult;
+
+export type ItemRendererContext = {
+  parent: string;
+  html: typeof html;
+  lang: string;
+  data: any;
+};
+
+export type ItemRenderer = (ctx: ItemRendererContext) => TemplateResult;
+
 type HALJSONCollection = HALJSONResource & { _embedded: Record<string, unknown[]> };
 
 export class CollectionPage<TData extends HALJSONCollection> extends NucleonElement<TData> {
@@ -15,29 +31,53 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
     };
   }
 
-  private __renderItem!: ElementRenderer;
+  private __renderSpinner!: SpinnerRenderer;
 
-  private __item!: string;
+  private __renderItem!: ItemRenderer;
+
+  private __spinner!: string | SpinnerRenderer;
+
+  private __item!: string | ItemRenderer;
 
   constructor() {
     super();
     this.item = 'foxy-null';
+    this.spinner = 'foxy-spinner';
   }
 
-  get item(): string {
+  get item(): string | ItemRenderer {
     return this.__item;
   }
 
-  set item(value: string) {
-    this.__renderItem = new Function(
-      'html',
-      'parent',
-      'lang',
-      'data',
-      `return html\`<${value} data-testclass="items" parent=\${parent} .data=\${data} lang=\${lang}></${value}>\``
-    ) as ElementRenderer;
+  set item(value: string | ItemRenderer) {
+    if (typeof value === 'string') {
+      this.__renderItem = new Function(
+        'ctx',
+        `return ctx.html\`<${value} data-testclass="items" parent=\${ctx.parent} href=\${ctx.data._links.self.href} lang=\${ctx.lang}></${value}>\``
+      ) as ItemRenderer;
+    } else {
+      this.__renderItem = value;
+    }
 
     this.__item = value;
+    this.requestUpdate();
+  }
+
+  get spinner(): string | SpinnerRenderer {
+    return this.__spinner;
+  }
+
+  set spinner(value: string | SpinnerRenderer) {
+    if (typeof value === 'string') {
+      this.__renderSpinner = new Function(
+        'ctx',
+        `return ctx.html\`<${value} data-testid="spinner" state=\${ctx.state} lang=\${ctx.lang}></${value}>\``
+      ) as SpinnerRenderer;
+    } else {
+      this.__renderSpinner = value;
+    }
+
+    this.__spinner = value;
     this.requestUpdate();
   }
 
@@ -50,10 +90,17 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
     const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
 
     return html`
-      ${items.map((item: any) => this.__renderItem?.(html, this.href, this.lang, item))}
+      ${items.map((item: any) =>
+        this.__renderItem?.({
+          parent: this.href,
+          lang: this.lang,
+          data: item,
+          html,
+        })
+      )}
       ${this.in('idle') && items.length > 0
         ? ''
-        : html`<foxy-spinner data-testid="spinner" state=${spinnerState}></foxy-spinner>`}
+        : this.__renderSpinner({ html, lang: this.lang, state: spinnerState })}
     `;
   }
 
