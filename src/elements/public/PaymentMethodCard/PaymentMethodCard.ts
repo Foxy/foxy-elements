@@ -70,7 +70,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
           aria-busy=${this.in('busy')}
           data-testid="wrapper"
         >
-          <div class="h-full bg-contrast-10"></div>
+          <div class="h-full bg-contrast-5"></div>
           <div class="absolute inset-0 flex items-center justify-center">
             <foxy-spinner state=${spinnerState} data-testid="spinner"></foxy-spinner>
           </div>
