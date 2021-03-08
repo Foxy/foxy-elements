@@ -11,7 +11,11 @@ export class AddressCard extends NucleonElement<Data> {
       Themeable.styles,
       css`
         :host {
-          height: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
+          --content: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
+          --space: var(--lumo-space-s);
+          --label: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
+
+          height: calc(var(--label) + var(--space) + var(--content));
         }
       `,
     ];
@@ -22,12 +26,25 @@ export class AddressCard extends NucleonElement<Data> {
 
     return this.in({ idle: 'snapshot' })
       ? html`
-          <div
-            class="h-full text-left text-m flex leading-m font-lumo space-x-m text-body"
+          <figure
+            class="h-full text-left text-m leading-m font-lumo space-y-s text-body"
             aria-live="polite"
             aria-busy="false"
             data-testid="wrapper"
           >
+            <figcaption class="uppercase text-xxs font-medium text-secondary tracking-wider">
+              <foxy-i18n
+                lang=${this.lang}
+                ns=${ns}
+                key=${this.data.is_default_billing
+                  ? 'default_billing_address'
+                  : this.data.is_default_shipping
+                  ? 'default_shipping_address'
+                  : 'additional_address'}
+              >
+              </foxy-i18n>
+            </figcaption>
+
             <foxy-i18n
               ns=${ns}
               key="full_address"
@@ -37,16 +54,10 @@ export class AddressCard extends NucleonElement<Data> {
               .options=${this.form}
             >
             </foxy-i18n>
-
-            ${this.form.is_default_billing
-              ? html`<iron-icon icon="icons:payment" data-testid="icon"></iron-icon>`
-              : this.form.is_default_shipping
-              ? html`<iron-icon icon="maps:local-shipping" data-testid="icon"></iron-icon>`
-              : ''}
-          </div>
+          </figure>
         `
       : html`
-          <div
+          <figure
             aria-live="polite"
             aria-busy=${this.in('busy')}
             data-testid="wrapper"
@@ -58,7 +69,7 @@ export class AddressCard extends NucleonElement<Data> {
               data-testid="spinner"
             >
             </foxy-spinner>
-          </div>
+          </figure>
         `;
   }
 }

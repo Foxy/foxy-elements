@@ -1,4 +1,5 @@
 {
+  "additional_address": "Additional address",
   "address1": "Address Line 1",
   "address2": "Address Line 2",
   "address_name": "Address name",
@@ -17,6 +18,8 @@
   "date_modified": "Last updated",
   "day": "Day",
   "day_plural": "Days",
+  "default_billing_address": "Default billing address",
+  "default_shipping_address": "Default shipping address",
   "delete": "Delete",
   "delete_prompt": "This resource will be permanently removed. Are you sure?",
   "email": "Email",

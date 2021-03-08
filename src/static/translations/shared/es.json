@@ -1,4 +1,5 @@
 {
+  "additional_address": "Dirección adicional",
   "address1": "Línea de dirección 1",
   "address2": "Línea de dirección 2",
   "address_name": "Nombre de la dirección",
@@ -17,6 +18,8 @@
   "date_modified": "Última actualización",
   "day": "día",
   "day_plural": "Días",
+  "default_billing_address": "Dirección de facturación",
+  "default_shipping_address": "Dirección de entrega",
   "delete": "Eliminar",
   "delete_prompt": "Este recurso se eliminará de forma permanente. ¿Estás seguro?",
   "email": "Correo electrónico",
