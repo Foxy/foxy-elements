@@ -1,5 +1,3 @@
-import '../SubscriptionForm/index';
-import '../FormDialog/index';
 import '../I18n/index';
 
 import { SubscriptionsTable } from './SubscriptionsTable';

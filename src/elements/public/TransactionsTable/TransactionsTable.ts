@@ -1,151 +1,127 @@
-import { TemplateResult, html } from 'lit-html';
-
+import { Column } from '../Table/types';
 import { Data } from './types';
-import { NucleonTable } from '../../private/NucleonTable/NucleonTable';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Table } from '../Table/Table';
 
-export class TransactionsTable extends NucleonTable<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      ...super.scopedElements,
-      'foxy-i18n': customElements.get('foxy-i18n'),
-    };
-  }
+export class TransactionsTable extends Table<Data> {
+  static priceColumn: Column<Data> = {
+    cell: ctx => ctx.html`
+      <foxy-i18n
+        data-testclass="i18n totals"
+        class="font-medium tracking-wide font-tnum"
+        lang=${ctx.lang}
+        key="price"
+        ns=${TransactionsTable.__ns}
+        .options=${{ amount: `${ctx.data.total_order} ${ctx.data.currency_code}` }}
+      >
+      </foxy-i18n>
+    `,
+  };
 
-  private static __ns = 'transactions-table';
+  static summaryColumn: Column<Data> = {
+    cell: ctx => {
+      const items = ctx.data._embedded?.['fx:items'];
+      if (!items) return '';
 
-  private __untrackTranslations?: () => void;
+      const options = {
+        most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
+        count: items.length,
+      };
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__untrackTranslations = customElements
-      .get('foxy-i18n')
-      .onTranslationChange(() => this.requestUpdate());
-  }
+      return ctx.html`
+        <foxy-i18n
+          data-testclass="i18n summaries"
+          lang=${ctx.lang}
+          key="transaction_summary"
+          ns=${TransactionsTable.__ns}
+          .options=${options}
+        >
+        </foxy-i18n>
+      `;
+    },
+  };
 
-  render(): TemplateResult {
-    const ns = TransactionsTable.__ns;
+  static statusColumn: Column<Data> = {
+    hideBelow: 'md',
+    cell: ctx => {
+      const colors = {
+        approved: 'bg-contrast-10 text-contrast',
+        authorized: 'bg-success-10 text-success',
+        declined: 'bg-error-10 text-error',
+        pending: 'bg-contrast-10 text-contrast',
+        rejected: 'bg-error-10 text-error',
+        completed: 'bg-success-10 text-success',
+      };
 
-    return super.render([
-      {
-        header: () => this.__t('th_total').toString(),
-        cell: transaction => html`
+      return ctx.html`
           <foxy-i18n
-            data-testclass="i18n totals"
-            class="font-medium tracking-wide font-tnum"
-            lang=${this.lang}
-            key="price"
-            ns=${ns}
-            .options=${{ value: `${transaction.total_order} ${transaction.currency_code}` }}
+            data-testclass="i18n statuses"
+            class="px-s py-xs text-s font-medium tracking-wide rounded ${colors[ctx.data.status]}"
+            lang=${ctx.lang}
+            key=${`transaction_${ctx.data.status}`}
+            ns=${TransactionsTable.__ns}
           >
           </foxy-i18n>
-        `,
-      },
+        `;
+    },
+  };
 
-      {
-        header: () => this.__t('th_summary').toString(),
-        cell: transaction => {
-          const items = transaction._embedded?.['fx:items'];
-          if (!items) return '';
+  static idColumn: Column<Data> = {
+    hideBelow: 'md',
+    cell: ctx => {
+      return ctx.html`
+        <span class="text-s text-secondary font-tnum" data-testclass="ids">
+          <span class="text-tertiary">ID</span> ${ctx.data.id}
+        </span>
+      `;
+    },
+  };
 
-          const options = {
-            most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
-            count: items.length,
-          };
+  static dateColumn: Column<Data> = {
+    hideBelow: 'md' as const,
+    cell: ctx => {
+      return ctx.html`
+        <foxy-i18n
+          data-testclass="i18n dates"
+          class="text-s text-secondary font-tnum"
+          lang=${ctx.lang}
+          key="date"
+          ns=${TransactionsTable.__ns}
+          .options=${{ value: ctx.data.transaction_date }}
+        >
+        </foxy-i18n>
+      `;
+    },
+  };
 
-          return html`
-            <foxy-i18n
-              data-testclass="i18n summaries"
-              lang=${this.lang}
-              key="transaction_summary"
-              ns=${ns}
-              .options=${options}
-            >
-            </foxy-i18n>
-          `;
-        },
-      },
+  static receiptColumn: Column<Data> = {
+    cell: ctx => {
+      return ctx.html`
+        <a
+          data-testclass="links"
+          target="_blank"
+          class="text-s font-medium tracking-wide text-primary rounded hover:underline focus:outline-none focus:shadow-outline"
+          href=${ctx.data._links['fx:receipt'].href}
+        >
+          <foxy-i18n
+            data-testclass="i18n"
+            ns=${TransactionsTable.__ns}
+            lang=${ctx.lang}
+            key="receipt"
+          >
+          </foxy-i18n>
+        </a>
+      `;
+    },
+  };
 
-      {
-        mdAndUp: true,
-        header: () => this.__t('th_status').toString(),
-        cell: transaction => {
-          const colors = {
-            approved: 'bg-contrast-10 text-contrast',
-            authorized: 'bg-success-10 text-success',
-            declined: 'bg-error-10 text-error',
-            pending: 'bg-contrast-10 text-contrast',
-            rejected: 'bg-error-10 text-error',
-            completed: 'bg-success-10 text-success',
-          };
+  columns = [
+    TransactionsTable.priceColumn,
+    TransactionsTable.summaryColumn,
+    TransactionsTable.statusColumn,
+    TransactionsTable.idColumn,
+    TransactionsTable.dateColumn,
+    TransactionsTable.receiptColumn,
+  ];
 
-          return html`
-            <foxy-i18n
-              data-testclass="i18n statuses"
-              class="px-s text-s font-medium tracking-wide rounded ${colors[transaction.status]}"
-              lang=${this.lang}
-              key=${`transaction_${transaction.status}`}
-              ns=${ns}
-            >
-            </foxy-i18n>
-          `;
-        },
-      },
-
-      {
-        mdAndUp: true,
-        header: () => this.__t('th_id').toString(),
-        cell: transaction => {
-          return html`
-            <span class="text-s text-secondary font-tnum" data-testclass="ids">
-              <span class="text-tertiary">ID</span> ${transaction.id}
-            </span>
-          `;
-        },
-      },
-
-      {
-        mdAndUp: true,
-        header: () => this.__t('th_date').toString(),
-        cell: transaction => {
-          return html`
-            <foxy-i18n
-              data-testclass="i18n dates"
-              class="text-s text-secondary font-tnum"
-              lang=${this.lang}
-              key="date"
-              ns=${ns}
-              .options=${{ value: transaction.transaction_date }}
-            >
-            </foxy-i18n>
-          `;
-        },
-      },
-
-      {
-        header: () => this.__t('th_actions').toString(),
-        cell: transaction => {
-          return html`
-            <a
-              data-testclass="links"
-              target="_blank"
-              class="text-s font-medium tracking-wide text-primary rounded px-xs -mx-xs hover:underline focus:outline-none focus:shadow-outline"
-              href=${transaction._links['fx:receipt'].href}
-            >
-              <foxy-i18n data-testclass="i18n" ns=${ns} lang=${this.lang} key="receipt"></foxy-i18n>
-            </a>
-          `;
-        },
-      },
-    ]);
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__untrackTranslations?.();
-  }
-
-  private get __t() {
-    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, TransactionsTable.__ns);
-  }
+  private static __ns = 'transactions-table';
 }

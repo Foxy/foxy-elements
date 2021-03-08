@@ -1,20 +1,17 @@
 import './index';
 
 import { Data } from './types';
-import { FormDialog } from '../FormDialog';
 import { SubscriptionsTable } from './SubscriptionsTable';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
 import { parseFrequency } from '../../../utils/parse-frequency';
-import sinon from 'sinon';
 
 type Refs = {
-  subscriptionDialog: FormDialog;
-  editButtons: HTMLButtonElement[];
   frequencies: HTMLSpanElement[];
   summaries: HTMLSpanElement[];
   statuses: HTMLSpanElement[];
   wrapper: HTMLDivElement;
+  links: HTMLAnchorElement[];
   i18n: HTMLElement[];
 };
 
@@ -31,29 +28,25 @@ describe('SubscriptionsTable', () => {
     assertions: {
       busy({ refs, element }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'true');
-        expect(refs.subscriptionDialog).to.have.attribute('parent', element.href);
-
         refs.i18n?.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
       },
 
       fail({ refs, element }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
-        expect(refs.subscriptionDialog).to.have.attribute('parent', element.href);
-
         refs.i18n?.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
       },
 
       idle({ refs, element }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
-        expect(refs.subscriptionDialog).to.have.attribute('parent', element.href);
-
         refs.i18n?.forEach(ref => expect(ref).to.have.attribute('lang', element.lang));
 
         element.data?._embedded['fx:subscriptions'].forEach((subscription, index) => {
-          const editButtonRef = refs.editButtons[index];
           const frequencyRef = refs.frequencies[index];
           const summaryRef = refs.summaries[index];
           const statusRef = refs.statuses[index];
+          const linkRef = refs.links[index];
+
+          expect(linkRef).to.have.attribute('href', subscription._links['fx:sub_token_url'].href);
 
           {
             const transaction = subscription._embedded['fx:last_transaction'];
@@ -95,17 +88,6 @@ describe('SubscriptionsTable', () => {
 
             expect(statusRef).to.have.deep.property('options', { date });
             expect(statusRef).to.have.attribute('key', key);
-          }
-
-          {
-            const showMethod = sinon.stub(refs.subscriptionDialog, 'show');
-            editButtonRef.click();
-
-            expect(showMethod).to.have.been.called;
-            expect(refs.subscriptionDialog).to.have.property('href', subscription._links.self.href);
-
-            showMethod.restore();
-            refs.subscriptionDialog.href = '';
           }
         });
       },

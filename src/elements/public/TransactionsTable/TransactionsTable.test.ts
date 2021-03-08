@@ -65,10 +65,10 @@ describe('TransactionsTable', () => {
           }
 
           {
-            const value = `${transaction.total_order} ${transaction.currency_code}`;
+            const amount = `${transaction.total_order} ${transaction.currency_code}`;
 
             expect(totalRef).to.have.attribute('key', 'price');
-            expect(totalRef).to.have.deep.property('options', { value });
+            expect(totalRef).to.have.deep.property('options', { amount });
           }
         });
       },

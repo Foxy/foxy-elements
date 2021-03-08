@@ -1,26 +1,28 @@
 import { Core, Integration } from '@foxy.io/sdk';
 import { expect, html } from '@open-wc/testing';
 
-import { NucleonTable } from './NucleonTable';
-import { Skeleton } from '../Skeleton/Skeleton';
-import { generateTests } from '../../public/NucleonElement/generateTests';
+import { CellContext } from './types';
+import { Table } from './Table';
+import { generateTests } from '../NucleonElement/generateTests';
 
 type TestData = Core.Resource<Integration.Rels.Attributes>;
 
-class TestTable extends NucleonTable<TestData> {
-  render() {
-    return super.render([
-      {
-        header: () => html`<div data-testid="nameHeader">Name</div>`,
-        cell: resource => html`<div data-testclass="names">${resource.name}</div>`,
+class TestTable extends Table<TestData> {
+  columns = [
+    {
+      header: () => html`<div data-testid="nameHeader">Name</div>`,
+      cell: (ctx: CellContext<TestData>) => {
+        return ctx.html`<div data-testclass="names">${ctx.data.name}</div>`;
       },
-      {
-        mdAndUp: true,
-        header: () => html`<div data-testid="valueHeader">Value</div>`,
-        cell: resource => html`<div data-testclass="values">${resource.value}</div>`,
+    },
+    {
+      hideBelow: 'md' as const,
+      header: () => html`<div data-testid="valueHeader">Value</div>`,
+      cell: (ctx: CellContext<TestData>) => {
+        return html`<div data-testclass="values">${ctx.data.value}</div>`;
       },
-    ]);
-  }
+    },
+  ];
 }
 
 customElements.define('test-table', TestTable);
@@ -32,7 +34,6 @@ type Refs = {
   names: HTMLDivElement[];
   valueHeader: HTMLDivElement;
   values: HTMLDivElement[];
-  skeletons: Skeleton[];
 };
 
 describe('NucleonTable', () => {
@@ -45,21 +46,21 @@ describe('NucleonTable', () => {
     assertions: {
       busy({ refs }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'true');
-        expect(refs.skeletons).to.have.length(20);
-        refs.skeletons.forEach(skeleton => expect(skeleton).not.to.have.attribute('variant'));
+        expect(refs.table.rows).to.have.length(11);
       },
 
       fail({ refs }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
-        expect(refs.skeletons).to.have.length(20);
-        refs.skeletons.forEach(skeleton => expect(skeleton).to.have.attribute('variant', 'error'));
+        expect(refs.table.rows).to.have.length(11);
       },
 
       idle({ refs, element }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
-        expect(refs.skeletons).to.be.undefined;
         expect(refs.nameHeader).to.exist;
         expect(refs.valueHeader).to.exist;
+        expect(refs.table.rows).to.have.length(
+          Math.max(element.data?._embedded['fx:attributes'].length ?? 0, 11)
+        );
 
         element.data?._embedded['fx:attributes'].forEach((attribute, rowIndex) => {
           const name = refs.names[rowIndex];

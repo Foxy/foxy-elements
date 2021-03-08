@@ -1,5 +1,3 @@
-import '../FormDialog/index';
-import '../Customer/index';
 import '../I18n/index';
 
 import { CustomersTable } from './CustomersTable';
