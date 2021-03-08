@@ -1,5 +1,10 @@
 import './index';
 
+import { expect, waitUntil } from '@open-wc/testing';
+import { generateTests, getRefs } from '../NucleonElement/generateTests';
+
+import { AddressCard } from '../AddressCard';
+import { AttributeCard } from '../AttributeCard';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { CollectionPages } from '../CollectionPages/CollectionPages';
 import { Customer } from './Customer';
@@ -9,23 +14,25 @@ import { PaymentMethodCard } from '../PaymentMethodCard/PaymentMethodCard';
 import { Spinner } from '../Spinner/index';
 import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
 import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
-import { expect } from '@open-wc/testing';
-import { generateTests } from '../NucleonElement/generateTests';
 import sinon from 'sinon';
 
 type Refs = {
+  subscriptionDialog: FormDialog;
   attributeDialog: FormDialog;
+  attributeCards: AttributeCard[];
   addressDialog: FormDialog;
   customerDialog: FormDialog;
   subscriptions: SubscriptionsTable;
   paymentMethod: PaymentMethodCard;
   transactions: TransactionsTable;
   addAttribute: ButtonElement;
+  addressCards: AddressCard[];
   topSpinner: Spinner;
   addAddress: ButtonElement;
   attributes: CollectionPages;
   addresses: CollectionPages;
   wrapper: HTMLDivElement;
+  email: HTMLDivElement;
   name: HTMLDivElement;
   edit: ButtonElement;
   i18n: HTMLElement[];
@@ -79,6 +86,9 @@ describe('Customer', () => {
           const name = `${element.data!.first_name} ${element.data!.last_name}`;
           expect(refs.name).to.contain.text(name);
 
+          const email = element.data!.email;
+          expect(refs.email).to.contain.text(email);
+
           const customer = element.data!._links.self.href;
           expect(refs.customerDialog).to.have.attribute('href', customer);
 
@@ -101,16 +111,48 @@ describe('Customer', () => {
           const subscriptions = element.data!._links['fx:subscriptions'].href + subscriptionsZoom;
           expect(refs.subscriptions).to.have.attribute('first', subscriptions);
 
-          const testDialog = (dialog: FormDialog, trigger: ButtonElement) => {
-            const showMethod = sinon.stub(dialog, 'show');
-            trigger.click();
+          {
+            const showMethod = sinon.stub(refs.customerDialog, 'show');
+            refs.edit.click();
             expect(showMethod).to.have.been.called;
             showMethod.restore();
-          };
+          }
 
-          testDialog(refs.customerDialog, refs.edit);
-          testDialog(refs.addressDialog, refs.addAddress);
-          testDialog(refs.attributeDialog, refs.addAttribute);
+          {
+            const showMethod = sinon.stub(refs.addressDialog, 'show');
+            refs.addAddress.click();
+
+            expect(refs.addressDialog).to.have.property('href', '');
+            expect(showMethod).to.have.been.called;
+
+            showMethod.resetHistory();
+            await waitUntil(() => !!getRefs<Refs>(element).addressCards?.[0]);
+            Object.assign(refs, getRefs<Refs>(element));
+            refs.addressCards[0].dispatchEvent(new CustomEvent('click', { bubbles: true }));
+
+            expect(refs.addressDialog).to.have.property('href', refs.addressCards[0].href);
+            expect(showMethod).to.have.been.called;
+
+            showMethod.restore();
+          }
+
+          {
+            const showMethod = sinon.stub(refs.attributeDialog, 'show');
+            refs.addAttribute.click();
+
+            expect(refs.attributeDialog).to.have.property('href', '');
+            expect(showMethod).to.have.been.called;
+
+            showMethod.resetHistory();
+            await waitUntil(() => !!getRefs<Refs>(element).attributeCards?.[0]);
+            Object.assign(refs, getRefs<Refs>(element));
+            refs.attributeCards[0].dispatchEvent(new CustomEvent('click', { bubbles: true }));
+
+            expect(refs.attributeDialog).to.have.property('href', refs.attributeCards[0].href);
+            expect(showMethod).to.have.been.called;
+
+            showMethod.restore();
+          }
         },
 
         template({ refs }) {
@@ -118,7 +160,7 @@ describe('Customer', () => {
           expect(refs.addAddress).to.have.attribute('disabled');
           expect(refs.addAttribute).to.have.attribute('disabled');
 
-          expect(refs.topSpinner).to.have.attribute('state', 'error');
+          expect(refs.topSpinner).to.have.attribute('state', 'empty');
         },
       },
     },

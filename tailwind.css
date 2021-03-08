@@ -63,4 +63,12 @@ vaadin-button {
   .max-w-modal {
     max-width: 28rem;
   }
+
+  .snap-x-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
 }

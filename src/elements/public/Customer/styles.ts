@@ -1,60 +1,31 @@
 import { css } from 'lit-element';
 
 export const styles = css`
-  foxy-payment-method-card,
-  foxy-attribute-card,
-  foxy-address-card {
-    width: 18rem;
+  :host {
+    --tile-width: 16rem;
   }
 
-  .h-scroll {
-    scroll-snap-type: x mandatory;
+  .w-tile {
+    width: var(--tile-width);
   }
 
-  .h-scroll > * {
-    display: inherit;
-    flex: inherit;
+  .w-payment-method-card {
+    width: calc(var(--tile-width) + ((var(--lumo-space-m) * 2)) + 2px);
   }
 
-  .h-scroll * + * {
-    margin-left: var(--lumo-space-m);
+  :host([md]) .w-payment-method-card,
+  :host([lg]) .w-payment-method-card,
+  :host([xl]) .w-payment-method-card {
+    --padding: calc((var(--lumo-space-m) * 4));
+    --border: 2px;
+    --value: calc(var(--lumo-line-height-m) * var(--lumo-font-size-l) * 2);
+    --name: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
+    --height: calc(var(--border) + var(--padding) + var(--value) + var(--name));
+
+    width: calc(var(--height) / 9 * 16);
   }
 
-  foxy-attribute-card,
-  foxy-address-card {
-    flex-shrink: 0;
-    border: 1px solid var(--lumo-contrast-10pct);
-    border-radius: var(--lumo-border-radius-l);
-    scroll-snap-align: start;
-  }
-
-  foxy-attribute-card,
-  foxy-address-card {
-    padding: var(--lumo-space-m);
-  }
-
-  foxy-attribute-card:hover,
-  foxy-address-card:hover {
-    border-color: var(--lumo-contrast-30pct);
-  }
-
-  foxy-attribute-card:focus-within,
-  foxy-address-card:focus-within {
-    border-color: var(--lumo-primary-color);
-    box-shadow: none;
-  }
-
-  foxy-collection-pages[item='foxy-attribute-card'] foxy-spinner,
-  foxy-collection-pages[item='foxy-address-card'] foxy-spinner {
-    border-radius: var(--lumo-border-radius-l);
-    background: var(--lumo-contrast-10pct);
-    min-width: 18rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  foxy-collection-pages[item='foxy-attribute-card'] foxy-spinner {
+  .h-attribute-card {
     --padding: calc((var(--lumo-space-m) * 2));
     --border: 2px;
     --value: calc(var(--lumo-line-height-m) * var(--lumo-font-size-l));
@@ -63,11 +34,13 @@ export const styles = css`
     height: calc(var(--border) + var(--padding) + var(--value) + var(--name));
   }
 
-  foxy-collection-pages[item='foxy-address-card'] foxy-spinner {
+  .h-address-card {
     --padding: calc((var(--lumo-space-m) * 2));
     --content: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
     --border: 2px;
+    --space: var(--lumo-space-s);
+    --label: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
 
-    height: calc(var(--border) + var(--padding) + var(--content));
+    height: calc(var(--border) + var(--padding) + var(--label) + var(--space) + var(--content));
   }
 `;

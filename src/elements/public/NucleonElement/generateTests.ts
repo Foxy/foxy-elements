@@ -12,7 +12,9 @@ import { createTestMachine } from './createTestMachine';
 import { get } from 'lodash-es';
 import { html } from 'lit-html';
 
-function getRefs<TRefs extends Record<string, Element | Element[]>>(element: LitElement): TRefs {
+export function getRefs<TRefs extends Record<string, Element | Element[]>>(
+  element: LitElement
+): TRefs {
   const classes = Array.from(element.renderRoot.querySelectorAll('[data-testclass]')).reduce(
     (classMap, classRef) => {
       const className = classRef.getAttribute('data-testclass') as string;

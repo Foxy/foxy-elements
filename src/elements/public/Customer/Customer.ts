@@ -1,10 +1,15 @@
 import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { PropertyTable, Skeleton, Tabs } from '../../private/index';
+import { ItemRenderer, SpinnerRenderer } from '../CollectionPage/CollectionPage';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { Skeleton, Tabs } from '../../private/index';
 
+import { Column } from '../Table/types';
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
-import { NucleonElement } from '../NucleonElement/index';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { PageRenderer } from '../CollectionPages/CollectionPages';
+import { Data as SubsciptionsTableData } from '../SubscriptionsTable/types';
+import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
@@ -21,7 +26,6 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
       'foxy-attribute-card': customElements.get('foxy-attribute-card'),
       'foxy-address-card': customElements.get('foxy-address-card'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
-      'x-property-table': PropertyTable,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'x-skeleton': Skeleton,
@@ -36,6 +40,110 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private static __ns = 'customer';
+
+  private __subscriptionsTableColumns: Column<SubsciptionsTableData>[] = [
+    (customElements.get('foxy-subscriptions-table') as typeof SubscriptionsTable).priceColumn,
+    (customElements.get('foxy-subscriptions-table') as typeof SubscriptionsTable).summaryColumn,
+    (customElements.get('foxy-subscriptions-table') as typeof SubscriptionsTable).statusColumn,
+    {
+      cell: ctx => {
+        const handleClick = () => {
+          const url = new URL(ctx.data._links.self.href);
+          url.searchParams.set('zoom', 'last_transaction');
+
+          this.__subscriptionDialog.href = url.toString();
+          this.__subscriptionDialog.show();
+        };
+
+        return ctx.html`
+          <vaadin-button theme="small tertiary-inline" @click=${handleClick}>
+            <foxy-i18n class="text-s" lang=${ctx.lang} key="update" ns=${Customer.__ns}></foxy-i18n>
+          </vaadin-button>
+        `;
+      },
+    },
+  ];
+
+  private __renderSubscriptionsPage: PageRenderer = ctx => ctx.html`
+    <foxy-subscriptions-table
+      href=${ctx.href}
+      lang=${ctx.lang}
+      .columns=${this.__subscriptionsTableColumns}
+    >
+    </foxy-subscriptions-table>
+  `;
+
+  private __renderSpinner: SpinnerRenderer = ctx => ctx.html`
+    <div class="h-full p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10">
+      <div class="w-tile h-full flex items-center justify-center">
+        <foxy-spinner state=${ctx.state} lang=${ctx.lang}></foxy-spinner>
+      </div>
+    </div>
+  `;
+
+  private __renderAddressPageItem: ItemRenderer = ctx => ctx.html`
+    <button
+      class="snap-start text-left p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10 hover:border-contrast-30 focus:outline-none focus:border-primary"
+      @click=${(evt: Event) => {
+        this.__addressDialog.header = 'update';
+        this.__addressDialog.href = ctx.data._links.self.href;
+        this.__addressDialog.show(evt.target as HTMLElement);
+      }}
+    >
+      <foxy-address-card
+        data-testclass="addressCards i18n"
+        parent=${ctx.parent}
+        class="w-tile"
+        lang=${ctx.lang}
+        href=${ctx.data._links.self.href}
+      >
+      </foxy-address-card>
+    </button>
+  `;
+
+  private __renderAttributePageItem: ItemRenderer = ctx => ctx.html`
+    <button
+      class="snap-start text-left p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10 hover:border-contrast-30 focus:outline-none focus:border-primary"
+      @click=${(evt: Event) => {
+        this.__attributeDialog.header = 'update';
+        this.__attributeDialog.href = ctx.data._links.self.href;
+        this.__attributeDialog.show(evt.target as HTMLElement);
+      }}
+    >
+      <foxy-attribute-card
+        data-testclass="attributeCards i18n"
+        parent=${ctx.parent}
+        class="w-tile"
+        lang=${ctx.lang}
+        href=${ctx.data._links.self.href}
+      >
+      </foxy-attribute-card>
+    </button>
+  `;
+
+  private __renderAddressPage: PageRenderer = ctx => ctx.html`
+    <foxy-collection-page
+      data-testclass="i18n"
+      class="space-x-m h-address-card flex"
+      lang=${ctx.lang}
+      href=${ctx.href}
+      .spinner=${this.__renderSpinner}
+      .item=${this.__renderAddressPageItem}
+    >
+    </foxy-collection-page>
+  `;
+
+  private __renderAttributePage: PageRenderer = ctx => ctx.html`
+    <foxy-collection-page
+      data-testclass="i18n"
+      class="space-x-m h-attribute-card flex"
+      lang=${ctx.lang}
+      href=${ctx.href}
+      .spinner=${this.__renderSpinner}
+      .item=${this.__renderAttributePageItem}
+    >
+    </foxy-collection-page>
+  `;
 
   private __untrackTranslations?: () => void;
 
@@ -87,7 +195,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
       <foxy-form-dialog
         data-testclass="i18n"
         data-testid="customerDialog"
-        header="update"
+        div="update"
         href=${this.href}
         form="foxy-customer-form"
         lang=${this.lang}
@@ -96,20 +204,37 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
       >
       </foxy-form-dialog>
 
+      <foxy-form-dialog
+        data-testclass="i18n"
+        data-testid="subscriptionDialog"
+        div="update"
+        form="foxy-subscription-form"
+        lang=${this.lang}
+        ns=${ns}
+        id="subscription-dialog"
+      >
+      </foxy-form-dialog>
+
       <div class="relative" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
-        <article
+        <div
           class=${classMap({
-            'font-lumo text-body text-m leading-m space-y-xl': true,
+            'font-lumo text-body text-m leading-m space-y-l': true,
             'opacity-50': !this.in({ idle: 'snapshot' }),
           })}
         >
-          <header class="flex items-center justify-between space-x-m">
+          <div class="flex items-center justify-between space-x-m">
             <div class="leading-s min-w-0 flex-1">
-              <h1 class="tracking-wide text-xxl font-semibold truncate" data-testid="name">
+              <h1 class="tracking-wide text-xl font-medium truncate" data-testid="name">
                 ${this.in({ idle: 'snapshot' })
                   ? html`${this.data.first_name} ${this.data.last_name}`
                   : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
               </h1>
+
+              <p class="text-l text-secondary truncate" data-testid="email">
+                ${this.in({ idle: 'snapshot' })
+                  ? html`${this.data.email}`
+                  : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
+              </p>
             </div>
 
             <vaadin-button
@@ -122,98 +247,99 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
             >
               <iron-icon icon="editor:mode-edit"></iron-icon>
             </vaadin-button>
-          </header>
+          </div>
 
-          <x-property-table .items=${this.__getPropertyTableItems()}></x-property-table>
+          <div class="flex flex-col md:flex-row">
+            <div
+              class="flex-1 min-w-0 space-y-m border-contrast-10 rounded-t-l rounded-b-l md:border md:p-m"
+            >
+              <div class="space-x-m flex items-center justify-between">
+                <h2 class="tracking-wide text-l font-medium">
+                  <foxy-i18n
+                    ns=${ns}
+                    lang=${this.lang}
+                    key="attribute_plural"
+                    data-testclass="i18n"
+                  >
+                  </foxy-i18n>
+                </h2>
 
-          <section class="space-y-m">
-            <header class="space-x-m flex items-center justify-between md:justify-start">
-              <h2 class="tracking-wide text-xl font-medium">
+                <vaadin-button
+                  data-testid="addAttribute"
+                  theme="small"
+                  ?disabled=${!this.in({ idle: 'snapshot' })}
+                  @click=${this.__addAttribute}
+                >
+                  <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
+                  <iron-icon slot="suffix" icon="icons:add"></iron-icon>
+                </vaadin-button>
+              </div>
+
+              <foxy-collection-pages
+                data-testclass="i18n"
+                data-testid="attributes"
+                first=${this.data?._links['fx:attributes'].href ?? ''}
+                class="snap-x-mandatory flex items-center space-x-m overflow-auto"
+                lang=${this.lang}
+                .page=${this.__renderAttributePage}
+              >
+              </foxy-collection-pages>
+            </div>
+
+            <div class="mt-l md:mt-0 md:ml-l">
+              <h2 class="tracking-wide text-l font-medium mb-m md:sr-only">
+                <foxy-i18n
+                  ns=${ns}
+                  lang=${this.lang}
+                  key="payment_method_plural"
+                  data-testclass="i18n"
+                >
+                </foxy-i18n>
+              </h2>
+
+              <foxy-payment-method-card
+                data-testclass="i18n"
+                data-testid="paymentMethod"
+                class="w-payment-method-card rounded-t-l rounded-b-l overflow-hidden"
+                href=${this.data?._links['fx:default_payment_method'].href ?? ''}
+                lang=${this.lang}
+              >
+              </foxy-payment-method-card>
+            </div>
+          </div>
+
+          <div class="space-y-m border-contrast-10 rounded-t-l rounded-b-l md:border md:p-m">
+            <div class="space-x-m flex items-center justify-between">
+              <h2 class="tracking-wide text-l font-medium">
                 <foxy-i18n ns=${ns} lang=${this.lang} key="address_plural" data-testclass="i18n">
                 </foxy-i18n>
               </h2>
 
               <vaadin-button
                 data-testid="addAddress"
-                class="px-xs rounded-full"
-                theme="icon"
-                aria-label=${this.__t('add').toString()}
+                theme="small"
                 ?disabled=${!this.in({ idle: 'snapshot' })}
                 @click=${this.__addAddress}
               >
-                <iron-icon icon="icons:add"></iron-icon>
+                <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
+                <iron-icon slot="suffix" icon="icons:add"></iron-icon>
               </vaadin-button>
-            </header>
+            </div>
 
             <foxy-collection-pages
               data-testclass="i18n"
               data-testid="addresses"
-              spinner="foxy-spinner"
               first=${this.data?._links['fx:customer_addresses'].href ?? ''}
-              class="h-scroll flex items-center space-x-m overflow-auto"
-              page="foxy-collection-page"
-              item="foxy-address-card"
+              class="h-address-card snap-x-mandatory flex items-center space-x-m overflow-auto"
               lang=${this.lang}
-              @click=${this.__handleAddressesClick}
+              .page=${this.__renderAddressPage}
             >
             </foxy-collection-pages>
-          </section>
+          </div>
 
-          <section class="space-y-m">
-            <h2 class="tracking-wide text-xl font-medium">
-              <foxy-i18n
-                ns=${ns}
-                lang=${this.lang}
-                key="payment_method_plural"
-                data-testclass="i18n"
-              >
-              </foxy-i18n>
-            </h2>
-
-            <foxy-payment-method-card
-              data-testclass="i18n"
-              data-testid="paymentMethod"
-              class="rounded-t-l rounded-b-l overflow-hidden"
-              href=${this.data?._links['fx:default_payment_method'].href ?? ''}
-              lang=${this.lang}
-            >
-            </foxy-payment-method-card>
-          </section>
-
-          <section class="space-y-m">
-            <header class="space-x-m flex items-center justify-between md:justify-start">
-              <h2 class="tracking-wide text-xl font-medium">
-                <foxy-i18n ns=${ns} lang=${this.lang} key="attribute_plural" data-testclass="i18n">
-                </foxy-i18n>
-              </h2>
-
-              <vaadin-button
-                data-testid="addAttribute"
-                class="px-xs rounded-full"
-                theme="icon"
-                aria-label=${this.__t('add_attribute').toString()}
-                ?disabled=${!this.in({ idle: 'snapshot' })}
-                @click=${this.__addAttribute}
-              >
-                <iron-icon icon="icons:add"></iron-icon>
-              </vaadin-button>
-            </header>
-
-            <foxy-collection-pages
-              data-testclass="i18n"
-              data-testid="attributes"
-              spinner="foxy-spinner"
-              first=${this.data?._links['fx:attributes'].href ?? ''}
-              class="h-scroll flex items-center space-x-m overflow-auto"
-              page="foxy-collection-page"
-              item="foxy-attribute-card"
-              lang=${this.lang}
-              @click=${this.__handleAttributesClick}
-            >
-            </foxy-collection-pages>
-          </section>
-
-          <section class="space-y-m">
+          <div
+            class="space-y-m rounded-t-l rounded-b-l border-contrast-10 md:border md:px-m md:pt-m"
+          >
             <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
               <foxy-i18n
                 ns=${ns}
@@ -250,13 +376,13 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                 spinner="foxy-spinner"
                 first=${subscriptionsURL}
                 slot="panel-1"
-                page="foxy-subscriptions-table"
                 lang=${this.lang}
+                .page=${this.__renderSubscriptionsPage}
               >
               </foxy-collection-pages>
             </x-tabs>
-          </section>
-        </article>
+          </div>
+        </div>
 
         ${this.in({ idle: 'snapshot' })
           ? html``
@@ -267,7 +393,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                   data-testid="topSpinner"
                   layout="vertical"
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${this.in('busy') ? 'busy' : 'error'}
+                  state=${this.in('busy') ? 'busy' : this.in('idle') ? 'empty' : 'error'}
                   lang=${this.lang}
                 >
                 </foxy-spinner>
@@ -281,27 +407,6 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     super.disconnectedCallback();
     this.__untrackTranslations?.();
     this.__removeBreakpoints?.();
-  }
-
-  private __getPropertyTableItems() {
-    return [
-      {
-        name: this.__t('email'),
-        value: this.data ? this.data.email : '',
-      },
-      {
-        name: this.__t('tax_id'),
-        value: this.data ? this.data.tax_id : '',
-      },
-      {
-        name: this.__t('last_login_date'),
-        value: this.data ? this.__t('date', { value: new Date(this.data.last_login_date) }) : '',
-      },
-      {
-        name: this.__t('date_created'),
-        value: this.data ? this.__t('date', { value: new Date(this.data.date_created) }) : '',
-      },
-    ];
   }
 
   private get __t() {
@@ -320,6 +425,10 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     return this.renderRoot.querySelector('#attribute-dialog') as FormDialog;
   }
 
+  private get __subscriptionDialog() {
+    return this.renderRoot.querySelector('#subscription-dialog') as FormDialog;
+  }
+
   private __editCustomer(evt: Event) {
     this.__editDialog.show(evt.currentTarget as HTMLElement);
   }
@@ -334,19 +443,5 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     this.__attributeDialog.header = 'create';
     this.__attributeDialog.href = '';
     this.__attributeDialog.show(evt.currentTarget as HTMLElement);
-  }
-
-  private __handleAddressesClick(evt: Event) {
-    if (!(evt.target instanceof NucleonElement)) return;
-    this.__addressDialog.header = 'update';
-    this.__addressDialog.href = evt.target.href;
-    this.__addressDialog.show();
-  }
-
-  private __handleAttributesClick(evt: Event) {
-    if (!(evt.target instanceof NucleonElement)) return;
-    this.__attributeDialog.header = 'update';
-    this.__attributeDialog.href = evt.target.href;
-    this.__attributeDialog.show();
   }
 }
