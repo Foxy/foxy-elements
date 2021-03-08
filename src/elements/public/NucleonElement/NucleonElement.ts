@@ -337,8 +337,17 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     if (!(event instanceof FetchEvent)) return;
     if (event.request.method !== 'GET') return;
 
+    const localName = this.localName;
+
     traverse(this.__service.state.context.data).forEach(function () {
       if (this.node?._links?.self?.href === event.request.url) {
+        console.debug(
+          `%c@foxy.io/elements::${localName}\n%c200%c GET ${event.request.url}`,
+          'color: gray',
+          `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
+          ''
+        );
+
         const body = JSON.stringify(this.node);
         event.respondWith(Promise.resolve(new Response(body)));
         this.stop();
