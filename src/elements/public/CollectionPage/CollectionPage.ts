@@ -1,29 +1,16 @@
+import { HALJSONCollection, ItemRenderer, SpinnerRenderer } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
-import { HALJSONResource } from '../NucleonElement/types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { SpinnerState } from '../Spinner/Spinner';
 
-export type SpinnerRendererContext = {
-  state: SpinnerState;
-  html: typeof html;
-  lang: string;
-};
-
-export type SpinnerRenderer = (ctx: SpinnerRendererContext) => TemplateResult;
-
-export type ItemRendererContext = {
-  parent: string;
-  html: typeof html;
-  lang: string;
-  data: any;
-};
-
-export type ItemRenderer = (ctx: ItemRendererContext) => TemplateResult;
-
-type HALJSONCollection = HALJSONResource & { _embedded: Record<string, unknown[]> };
-
+/**
+ * Renders an element for each resource in a collection page.
+ *
+ * @element foxy-collection-page
+ * @since 1.1.0
+ */
 export class CollectionPage<TData extends HALJSONCollection> extends NucleonElement<TData> {
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -45,6 +32,16 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
     this.spinner = 'foxy-spinner';
   }
 
+  /**
+   * Custom element tag or a render function to use for displaying collection items.
+   * Generated custom elements will have the following attributes:
+   *
+   * - `parent` – same as `foxy-collection-page[href]`;
+   * - `href` – collection page item's `_links.self.href` value;
+   * - `lang` – same as `foxy-collection-page[lang]`;
+   *
+   * Render function will receive `ItemRendererContext` in the first argument.
+   */
   get item(): string | ItemRenderer {
     return this.__item;
   }
@@ -63,6 +60,15 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
     this.requestUpdate();
   }
 
+  /**
+   * Custom element tag or a render function to use for displaying spinner.
+   * Generated custom element will have the following attributes:
+   *
+   * - `state` - `error`, `busy` or `empty`;
+   * - `lang` – same as `foxy-collection-page[lang]`;
+   *
+   * Render function will receive `SpinnerRendererContext` in the first argument.
+   */
   get spinner(): string | SpinnerRenderer {
     return this.__spinner;
   }
@@ -81,10 +87,12 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
     this.requestUpdate();
   }
 
+  /** @readonly */
   createRenderRoot(): HTMLElement {
     return this;
   }
 
+  /** @readonly */
   render(): TemplateResult {
     const items = this.__items;
     const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
@@ -111,3 +119,5 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
     );
   }
 }
+
+export * from './types';

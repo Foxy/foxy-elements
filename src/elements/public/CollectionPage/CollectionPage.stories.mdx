@@ -1,0 +1,202 @@
+import dedent from 'dedent';
+import { html } from 'lit-html';
+import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import './index.ts';
+import '../AddressCard/index.ts';
+
+<Meta title="Other / CollectionPage" />
+
+# CollectionPage
+
+<Subtitle>Renders an element for each resource in a collection page</Subtitle>
+
+## Using tags
+
+CollectionPage will load a page at the given `href` and will render a custom element with a tag passed to the `item` property/attribute for each embedded collection page item. The custom elements will each be initialized with the following attributes:
+
+- `parent` – same as `foxy-collection-page[href]`;
+- `href` – collection page item's `_links.self.href` value;
+- `lang` – same as `foxy-collection-page[lang]`;
+
+CollectionPage will keep those attributes up-to-date, so changes to the page element will always reach the items.
+
+<Canvas
+  mdxSource={dedent`
+    <foxy-collection-page
+      href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+      item="foxy-address-card"
+    >
+    </foxy-collection-page>
+  `}
+  isExpanded
+>
+  <Story name="Playground">
+    {() =>
+      html`
+        <foxy-collection-page
+          class="space-y-8"
+          href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+          item="foxy-address-card"
+        >
+        </foxy-collection-page>
+      `
+    }
+  </Story>
+</Canvas>
+
+Please note that **items will be rendered in the regular ("light") DOM**, so you can apply your CSS directly to the children and the containing element. For the example above DOM will eventually look like this:
+
+```html
+<foxy-collection-page href="path/to/page" item="foxy-address-card" lang="en">
+  <foxy-address-card parent="path/to/page" href="path/to/item/0" lang="en"></foxy-address-card>
+  <foxy-address-card parent="path/to/page" href="path/to/item/1" lang="en"></foxy-address-card>
+</foxy-collection-page>
+```
+
+CollectionPage will also render a spinner element (`foxy-spinner` by default) in `busy` and `fail` states as well as in the `idle` state if collection page is empty. You can customize spinner element's tag using the `spinner` property/attribite the same way as `item`. Your spinner element will be initialized with the following attributes and rendered in the regular DOM:
+
+- `state` - `error`, `busy` or `empty`;
+- `lang` – same as `foxy-collection-page[lang]`;
+
+```html
+<foxy-collection-page lang="en" href="path/to/page" spinner="my-spinner">
+  <my-spinner state="busy" lang="en"></my-spinner>
+</foxy-collection-page>
+```
+
+## Using render functions
+
+You can pass render functions instead of tag names to both `item` and `spinner`. Render functions provide more flexibility and don't require your items and spinner to be custom elements, but you will have to write a little bit of JS for this approach to work. Here's an example:
+
+```html
+<foxy-collection-page
+  href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+  lang="en"
+  id="page"
+>
+</foxy-collection-page>
+
+<script>
+  customElements.whenDefined('foxy-collection-page').then(() => {
+    document.getElementById('page').item = ({ html, lang, data }) => html`
+      <div lang=${lang}>${data.address1}</div>
+    `;
+  });
+</script>
+```
+
+The code above will eventually render the following HTML:
+
+```html
+<foxy-collection-page
+  href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+  lang="en"
+  id="page"
+>
+  <div lang="en">Address Line 1 of the first item</div>
+  <div lang="en">Address Line 2 of the second item</div>
+</foxy-collection-page>
+```
+
+Item render functions receive a context object with the following properties as the first argument:
+
+- `parent` – same as `foxy-collection-page[href]`;
+- `lang` – same as `foxy-collection-page[lang]`;
+- `data` - item object (e.g. when rendering attributes, it will be an attribute);
+- `html` - tag function from [lit-html](https://lit-html.polymer-project.org/guide#lit-html-templates). Render function is expected to return the output of this tag function.
+
+Same applies to the `spinner` property: you can provide a render function with a custom template instead of a tag:
+
+```html
+<foxy-collection-page
+  href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+  lang="en"
+  id="page"
+>
+</foxy-collection-page>
+
+<script>
+  customElements.whenDefined('foxy-collection-page').then(() => {
+    document.getElementById('page').spinner = ({ html, lang, state }) => html`
+      <div lang=${lang}>${state}</div>
+    `;
+  });
+</script>
+```
+
+Example output while loading:
+
+```html
+<foxy-collection-page
+  href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+  lang="en"
+  id="page"
+>
+  <div lang="en">busy</div>
+</foxy-collection-page>
+```
+
+Spinner render functions receive a context object with the following properties as the first argument:
+
+- `state` - `empty`, `error` or `busy`;
+- `lang` – same as `foxy-collection-page[lang]`;
+- `html` - tag function from [lit-html](https://lit-html.polymer-project.org/guide#lit-html-templates). Render function is expected to return the output of this tag function.
+
+## Reference
+
+<ArgsTable of="foxy-collection-page" />
+
+### hAPI
+
+This element supports any HAL+JSON resource, just like NucleonElement.
+
+### i18next
+
+This element doesn't have any translatable content.
+
+### Theming
+
+This element doesn't render any of its own markup.
+
+<Story name="State: idle.template" parameters={{ docs: { disable: true } }}>
+  {() => html`<foxy-collection-page item="foxy-address-card" lang="en"></foxy-collection-page>`}
+</Story>
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-collection-page
+        href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+        item="foxy-address-card"
+        lang="en"
+      >
+      </foxy-collection-page>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-collection-page
+        href="https://demo.foxycart.com/s/admin/sleep"
+        item="foxy-address-card"
+        lang="en"
+      >
+      </foxy-collection-page>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-collection-page
+        href="https://demo.foxycart.com/s/admin/not-found"
+        item="foxy-address-card"
+        lang="en"
+      >
+      </foxy-collection-page>
+    `
+  }
+</Story>

@@ -400,9 +400,11 @@
     {
       "name": "foxy-collection-page",
       "path": "./src/elements/public/CollectionPage/index.ts",
+      "description": "Renders an element for each resource in a collection page.",
       "attributes": [
         {
           "name": "item",
+          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
           "type": "string",
           "default": "\"foxy-null\""
         },
@@ -433,11 +435,13 @@
         {
           "name": "item",
           "attribute": "item",
+          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
           "type": "string",
           "default": "\"foxy-null\""
         },
         {
           "name": "spinner",
+          "description": "Custom element tag or a render function to use for displaying spinner.\nGenerated custom element will have the following attributes:\n\n- `state` - `error`, `busy` or `empty`;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `SpinnerRendererContext` in the first argument.",
           "type": "string | SpinnerRenderer",
           "default": "\"foxy-spinner\""
         },
