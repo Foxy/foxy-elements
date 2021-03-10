@@ -304,7 +304,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   }
 
   private __destroyRumour() {
-    this.__unsubscribeFromRumour();
+    this.__unsubscribeFromRumour?.();
   }
 
   private __createServer() {
