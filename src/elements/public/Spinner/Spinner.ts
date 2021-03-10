@@ -60,7 +60,7 @@ export class Spinner extends LitElement {
    * Optional i18next namespace to use for translations.
    * Default: `spinner` with fallback to `shared`.
    */
-  ns = 'shared';
+  ns = 'spinner';
 
   /** @readonly */
   render(): TemplateResult {
