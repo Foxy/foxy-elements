@@ -91,20 +91,19 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
   }
 
   private get __rows() {
+    const defaultLimit = 20;
+    const items = Object.values(this.data?._embedded ?? {}).reduce((p, c) => [...p, ...c], []);
+
     let rowCount: number;
 
     try {
-      const maxLimit = 10;
       const strLimit = new URL(this.href ?? '').searchParams.get('limit');
-      const intLimit = strLimit ? parseInt(strLimit) : maxLimit;
-      rowCount = isNaN(intLimit) ? maxLimit : intLimit;
+      const intLimit = strLimit ? parseInt(strLimit) : defaultLimit;
+      rowCount = Math.max(isNaN(intLimit) ? defaultLimit : intLimit, items.length);
     } catch {
-      rowCount = 10;
+      rowCount = defaultLimit;
     }
 
-    const array = new Array(rowCount).fill(null);
-    const items = Object.values(this.data?._embedded ?? {}).reduce((p, c) => [...p, ...c], []);
-
-    return array.map((v, i) => items[i] ?? v);
+    return new Array(rowCount).fill(null).map((v, i) => items[i] ?? v);
   }
 }
