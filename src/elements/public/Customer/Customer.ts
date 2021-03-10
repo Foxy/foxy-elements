@@ -1,20 +1,26 @@
 import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { ItemRenderer, SpinnerRenderer } from '../CollectionPage/CollectionPage';
+import { Core, Integration } from '@foxy.io/sdk';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Skeleton, Tabs } from '../../private/index';
 
+import { Data as Attribute } from '../AttributeCard/types';
 import { Column } from '../Table/types';
+import { Data as CustomerAddress } from '../AddressCard/types';
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
+import { ItemRenderer } from '../CollectionPage/CollectionPage';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { PageRenderer } from '../CollectionPages/CollectionPages';
-import { Data as SubsciptionsTableData } from '../SubscriptionsTable/types';
+import { PageRenderer } from '../CollectionPages/types';
+import { Data as Subscriptions } from '../SubscriptionsTable/types';
 import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { styles } from './styles';
+
+type CustomerAddresses = Core.Resource<Integration.Rels.CustomerAddresses>;
+type Attributes = Core.Resource<Integration.Rels.Attributes>;
 
 export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -41,7 +47,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private static __ns = 'customer';
 
-  private __subscriptionsTableColumns: Column<SubsciptionsTableData>[] = [
+  private __subscriptionsTableColumns: Column<Subscriptions>[] = [
     (customElements.get('foxy-subscriptions-table') as typeof SubscriptionsTable).priceColumn,
     (customElements.get('foxy-subscriptions-table') as typeof SubscriptionsTable).summaryColumn,
     (customElements.get('foxy-subscriptions-table') as typeof SubscriptionsTable).statusColumn,
@@ -64,7 +70,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     },
   ];
 
-  private __renderSubscriptionsPage: PageRenderer = ctx => ctx.html`
+  private __renderSubscriptionsPage: PageRenderer<Subscriptions> = ctx => ctx.html`
     <foxy-subscriptions-table
       href=${ctx.href}
       lang=${ctx.lang}
@@ -73,20 +79,12 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     </foxy-subscriptions-table>
   `;
 
-  private __renderSpinner: SpinnerRenderer = ctx => ctx.html`
-    <div class="h-full p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10">
-      <div class="w-tile h-full flex items-center justify-center">
-        <foxy-spinner state=${ctx.state} lang=${ctx.lang}></foxy-spinner>
-      </div>
-    </div>
-  `;
-
-  private __renderAddressPageItem: ItemRenderer = ctx => ctx.html`
+  private __renderAddressPageItem: ItemRenderer<CustomerAddress> = ctx => ctx.html`
     <button
       class="snap-start text-left p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10 hover:border-contrast-30 focus:outline-none focus:border-primary"
       @click=${(evt: Event) => {
         this.__addressDialog.header = 'update';
-        this.__addressDialog.href = ctx.data._links.self.href;
+        this.__addressDialog.href = ctx.href;
         this.__addressDialog.show(evt.target as HTMLElement);
       }}
     >
@@ -95,18 +93,18 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         parent=${ctx.parent}
         class="w-tile"
         lang=${ctx.lang}
-        href=${ctx.data._links.self.href}
+        href=${ctx.href}
       >
       </foxy-address-card>
     </button>
   `;
 
-  private __renderAttributePageItem: ItemRenderer = ctx => ctx.html`
+  private __renderAttributePageItem: ItemRenderer<Attribute> = ctx => ctx.html`
     <button
       class="snap-start text-left p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10 hover:border-contrast-30 focus:outline-none focus:border-primary"
       @click=${(evt: Event) => {
         this.__attributeDialog.header = 'update';
-        this.__attributeDialog.href = ctx.data._links.self.href;
+        this.__attributeDialog.href = ctx.href;
         this.__attributeDialog.show(evt.target as HTMLElement);
       }}
     >
@@ -115,31 +113,29 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         parent=${ctx.parent}
         class="w-tile"
         lang=${ctx.lang}
-        href=${ctx.data._links.self.href}
+        href=${ctx.href}
       >
       </foxy-attribute-card>
     </button>
   `;
 
-  private __renderAddressPage: PageRenderer = ctx => ctx.html`
+  private __renderAddressPage: PageRenderer<CustomerAddresses> = ctx => ctx.html`
     <foxy-collection-page
       data-testclass="i18n"
-      class="space-x-m h-address-card flex"
+      class="space-x-m flex"
       lang=${ctx.lang}
       href=${ctx.href}
-      .spinner=${this.__renderSpinner}
       .item=${this.__renderAddressPageItem}
     >
     </foxy-collection-page>
   `;
 
-  private __renderAttributePage: PageRenderer = ctx => ctx.html`
+  private __renderAttributePage: PageRenderer<Attributes> = ctx => ctx.html`
     <foxy-collection-page
       data-testclass="i18n"
-      class="space-x-m h-attribute-card flex"
+      class="space-x-m flex"
       lang=${ctx.lang}
       href=${ctx.href}
-      .spinner=${this.__renderSpinner}
       .item=${this.__renderAttributePageItem}
     >
     </foxy-collection-page>
@@ -162,11 +158,11 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     const variant = ifDefined(this.in('busy') ? undefined : 'static');
 
     const transactionsURL = this.in({ idle: 'snapshot' })
-      ? `${this.data?._links['fx:transactions'].href}&zoom=items`
+      ? `${this.data?._links['fx:transactions'].href}&zoom=items&limit=10`
       : '';
 
     const subscriptionsURL = this.in({ idle: 'snapshot' })
-      ? `${this.data?._links['fx:subscriptions'].href}&zoom=last_transaction,transaction_template:items`
+      ? `${this.data?._links['fx:subscriptions'].href}&zoom=last_transaction,transaction_template:items&limit=10`
       : '';
 
     return html`
@@ -330,7 +326,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               data-testclass="i18n"
               data-testid="addresses"
               first=${this.data?._links['fx:customer_addresses'].href ?? ''}
-              class="h-address-card snap-x-mandatory flex items-center space-x-m overflow-auto"
+              class="snap-x-mandatory flex items-center space-x-m overflow-auto"
               lang=${this.lang}
               .page=${this.__renderAddressPage}
             >

@@ -24,23 +24,4 @@ export const styles = css`
 
     width: calc(var(--height) / 9 * 16);
   }
-
-  .h-attribute-card {
-    --padding: calc((var(--lumo-space-m) * 2));
-    --border: 2px;
-    --value: calc(var(--lumo-line-height-m) * var(--lumo-font-size-l));
-    --name: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
-
-    height: calc(var(--border) + var(--padding) + var(--value) + var(--name));
-  }
-
-  .h-address-card {
-    --padding: calc((var(--lumo-space-m) * 2));
-    --content: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
-    --border: 2px;
-    --space: var(--lumo-space-s);
-    --label: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
-
-    height: calc(var(--border) + var(--padding) + var(--label) + var(--space) + var(--content));
-  }
 `;

@@ -29,8 +29,8 @@ type Refs = {
   addressCards: AddressCard[];
   topSpinner: Spinner;
   addAddress: ButtonElement;
-  attributes: CollectionPages;
-  addresses: CollectionPages;
+  attributes: CollectionPages<any>;
+  addresses: CollectionPages<any>;
   wrapper: HTMLDivElement;
   email: HTMLDivElement;
   name: HTMLDivElement;
@@ -103,11 +103,11 @@ describe('Customer', () => {
           const paymentMethod = element.data!._links['fx:default_payment_method'].href;
           expect(refs.paymentMethod).to.have.attribute('href', paymentMethod);
 
-          const transactionsZoom = '&zoom=items';
+          const transactionsZoom = '&zoom=items&limit=10';
           const transactions = element.data!._links['fx:transactions'].href + transactionsZoom;
           expect(refs.transactions).to.have.attribute('first', transactions);
 
-          const subscriptionsZoom = '&zoom=last_transaction,transaction_template:items';
+          const subscriptionsZoom = '&zoom=last_transaction,transaction_template:items&limit=10';
           const subscriptions = element.data!._links['fx:subscriptions'].href + subscriptionsZoom;
           expect(refs.subscriptions).to.have.attribute('first', subscriptions);
 
