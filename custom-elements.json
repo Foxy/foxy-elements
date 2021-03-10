@@ -404,7 +404,7 @@
       "attributes": [
         {
           "name": "item",
-          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
+          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `group` - same as `foxy-collection-page[group]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
           "type": "string",
           "default": "\"foxy-null\""
         },
@@ -435,15 +435,9 @@
         {
           "name": "item",
           "attribute": "item",
-          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
+          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `group` - same as `foxy-collection-page[group]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
           "type": "string",
           "default": "\"foxy-null\""
-        },
-        {
-          "name": "spinner",
-          "description": "Custom element tag or a render function to use for displaying spinner.\nGenerated custom element will have the following attributes:\n\n- `state` - `error`, `busy` or `empty`;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `SpinnerRendererContext` in the first argument.",
-          "type": "string | SpinnerRenderer",
-          "default": "\"foxy-spinner\""
         },
         {
           "name": "UpdateEvent",
@@ -519,66 +513,78 @@
     {
       "name": "foxy-collection-pages",
       "path": "./src/elements/public/CollectionPages/index.ts",
+      "description": "Renders an element for each page in a collection.",
       "attributes": [
         {
           "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "item",
-          "type": "string",
-          "default": "\"foxy-null\""
-        },
-        {
-          "name": "spinner",
-          "type": "string",
-          "default": "\"foxy-spinner\""
-        },
-        {
           "name": "first",
+          "description": "URL of the first page in a collection.",
+          "type": "string"
+        },
+        {
+          "name": "pages",
+          "description": "Array of all currently loaded pages in a collection.",
+          "type": "array"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
           "type": "string"
         },
         {
           "name": "page",
+          "description": "Custom element tag or a render function to use for displaying collection pages.\nGenerated custom elements will have the following attributes:\n\n- `group` – same as `foxy-collection-pages[group]`;\n- `href` – collection page's `_links.self.href` value;\n- `lang` – same as `foxy-collection-pages[lang]`;\n- `item` – will contain `item-tag` when provided with a string value formatted as `page-tag item-tag`.\n\nRender function will receive `PageRenderer<TPage>` in the first argument.\nUses `foxy-collection-page` by default.",
           "type": "string",
-          "default": "\"foxy-collection-page\""
+          "default": "\"foxy-collection-page foxy-null\""
         }
       ],
       "properties": [
         {
           "name": "lang",
           "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "item",
-          "attribute": "item",
-          "type": "string",
-          "default": "\"foxy-null\""
+          "name": "first",
+          "attribute": "first",
+          "description": "URL of the first page in a collection.",
+          "type": "string"
         },
         {
           "name": "pages",
-          "type": "string[]",
-          "default": "[]"
+          "attribute": "pages",
+          "description": "Array of all currently loaded pages in a collection.",
+          "type": "array"
         },
         {
-          "name": "spinner",
-          "attribute": "spinner",
-          "type": "string",
-          "default": "\"foxy-spinner\""
-        },
-        {
-          "name": "first",
-          "attribute": "first",
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
           "type": "string"
         },
         {
           "name": "page",
           "attribute": "page",
+          "description": "Custom element tag or a render function to use for displaying collection pages.\nGenerated custom elements will have the following attributes:\n\n- `group` – same as `foxy-collection-pages[group]`;\n- `href` – collection page's `_links.self.href` value;\n- `lang` – same as `foxy-collection-pages[lang]`;\n- `item` – will contain `item-tag` when provided with a string value formatted as `page-tag item-tag`.\n\nRender function will receive `PageRenderer<TPage>` in the first argument.\nUses `foxy-collection-page` by default.",
           "type": "string",
-          "default": "\"foxy-collection-page\""
+          "default": "\"foxy-collection-page foxy-null\""
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
@@ -2177,38 +2183,44 @@
       "attributes": [
         {
           "name": "layout",
+          "description": "Optional spinner layout: horizonal (default) or vertical. First puts icon next\nto the label, second puts it above the text.",
           "type": "string",
           "default": "\"horizontal\""
         },
         {
           "name": "state",
+          "description": "Optional spinner state:\n\n- `busy` (default) for loading data;\n- `error` for failures;\n- `empty` for when there's no data;\n- `paused` for a pause or a timeout before fetching the next chunk of data;\n- `end` for when there's no more data;",
           "type": "string",
           "default": "\"busy\""
         },
         {
           "name": "ns",
+          "description": "Optional i18next namespace to use for translations.\nDefault: `spinner` with fallback to `shared`.",
           "type": "string",
-          "default": "\"shared\""
+          "default": "\"spinner\""
         }
       ],
       "properties": [
         {
           "name": "layout",
           "attribute": "layout",
+          "description": "Optional spinner layout: horizonal (default) or vertical. First puts icon next\nto the label, second puts it above the text.",
           "type": "string",
           "default": "\"horizontal\""
         },
         {
           "name": "state",
           "attribute": "state",
+          "description": "Optional spinner state:\n\n- `busy` (default) for loading data;\n- `error` for failures;\n- `empty` for when there's no data;\n- `paused` for a pause or a timeout before fetching the next chunk of data;\n- `end` for when there's no more data;",
           "type": "string",
           "default": "\"busy\""
         },
         {
           "name": "ns",
           "attribute": "ns",
+          "description": "Optional i18next namespace to use for translations.\nDefault: `spinner` with fallback to `shared`.",
           "type": "string",
-          "default": "\"shared\""
+          "default": "\"spinner\""
         }
       ]
     },

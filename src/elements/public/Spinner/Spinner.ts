@@ -13,6 +13,7 @@ export type SpinnerLayout = 'vertical' | 'horizontal';
 export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
 export class Spinner extends LitElement {
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -22,6 +23,7 @@ export class Spinner extends LitElement {
     };
   }
 
+  /** @readonly */
   static get styles(): CSSResultArray {
     return [
       Themeable.styles,
@@ -37,12 +39,30 @@ export class Spinner extends LitElement {
     ];
   }
 
+  /**
+   * Optional spinner layout: horizonal (default) or vertical. First puts icon next
+   * to the label, second puts it above the text.
+   */
   layout: SpinnerLayout = 'horizontal';
 
+  /**
+   * Optional spinner state:
+   *
+   * - `busy` (default) for loading data;
+   * - `error` for failures;
+   * - `empty` for when there's no data;
+   * - `paused` for a pause or a timeout before fetching the next chunk of data;
+   * - `end` for when there's no more data;
+   */
   state: SpinnerState = 'busy';
 
+  /**
+   * Optional i18next namespace to use for translations.
+   * Default: `spinner` with fallback to `shared`.
+   */
   ns = 'shared';
 
+  /** @readonly */
   render(): TemplateResult {
     let layout: string;
     let icon: TemplateResult;
@@ -80,8 +100,7 @@ export class Spinner extends LitElement {
     return html`
       <div class="font-lumo leading-none text-s ${layout} ${tint}">
         <div class="w-xxs h-xss flex items-center justify-center">${icon}</div>
-        <foxy-i18n data-testid="text" ns="${this.ns} spinner" key=${text} lang=${this.lang}>
-        </foxy-i18n>
+        <foxy-i18n data-testid="text" ns=${this.ns} key=${text} lang=${this.lang}> </foxy-i18n>
       </div>
     `;
   }
