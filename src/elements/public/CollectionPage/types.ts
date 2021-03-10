@@ -1,22 +1,19 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { HALJSONResource } from '../NucleonElement/types';
-import { SpinnerState } from '../Spinner/Spinner';
 
-export type HALJSONCollection = HALJSONResource & { _embedded: Record<string, unknown[]> };
+export type Page = HALJSONResource & { _embedded: Record<string, HALJSONResource[]> };
+export type ExtractItem<T> = T extends { _embedded: Record<string, (infer U)[]> } ? U : never;
 
-export type SpinnerRendererContext = {
-  state: SpinnerState;
-  html: typeof html;
-  lang: string;
-};
-
-export type ItemRendererContext = {
+export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource> = {
   parent: string;
+  group: string;
   html: typeof html;
   lang: string;
-  data: any;
+  href: string;
+  data: TItem | null;
 };
 
-export type SpinnerRenderer = (ctx: SpinnerRendererContext) => TemplateResult;
-export type ItemRenderer = (ctx: ItemRendererContext) => TemplateResult;
+export type ItemRenderer<TItem extends HALJSONResource = HALJSONResource> = (
+  ctx: ItemRendererContext<TItem>
+) => TemplateResult;

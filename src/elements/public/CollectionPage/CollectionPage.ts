@@ -1,7 +1,9 @@
-import { HALJSONCollection, ItemRenderer, SpinnerRenderer } from './types';
+import { ExtractItem, ItemRenderer, Page } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { repeat } from 'lit-html/directives/repeat';
 
 /**
  * Renders an element for each resource in a collection page.
@@ -9,27 +11,24 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
  * @element foxy-collection-page
  * @since 1.1.0
  */
-export class CollectionPage<TData extends HALJSONCollection> extends NucleonElement<TData> {
+export class CollectionPage<TPage extends Page> extends NucleonElement<TPage> {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      item: { type: String, noAccessor: true },
+      item: { type: String },
     };
   }
 
-  private __renderSpinner!: SpinnerRenderer;
+  private __pageFetchEventHandler = (evt: unknown) => this.__handlePageFetchEvent(evt);
 
-  private __renderItem!: ItemRenderer;
+  private __renderItem!: ItemRenderer<ExtractItem<TPage>>;
 
-  private __spinner!: string | SpinnerRenderer;
-
-  private __item!: string | ItemRenderer;
+  private __item!: string | ItemRenderer<ExtractItem<TPage>>;
 
   constructor() {
     super();
     this.item = 'foxy-null';
-    this.spinner = 'foxy-spinner';
   }
 
   /**
@@ -37,20 +36,21 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
    * Generated custom elements will have the following attributes:
    *
    * - `parent` – same as `foxy-collection-page[href]`;
+   * - `group` - same as `foxy-collection-page[group]`;
    * - `href` – collection page item's `_links.self.href` value;
    * - `lang` – same as `foxy-collection-page[lang]`;
    *
    * Render function will receive `ItemRendererContext` in the first argument.
    */
-  get item(): string | ItemRenderer {
+  get item(): string | ItemRenderer<ExtractItem<TPage>> {
     return this.__item;
   }
 
-  set item(value: string | ItemRenderer) {
+  set item(value: string | ItemRenderer<ExtractItem<TPage>>) {
     if (typeof value === 'string') {
       this.__renderItem = new Function(
         'ctx',
-        `return ctx.html\`<${value} data-testclass="items" parent=\${ctx.parent} href=\${ctx.data._links.self.href} lang=\${ctx.lang}></${value}>\``
+        `return ctx.html\`<${value} data-testclass="items" parent=\${ctx.parent} group=\${ctx.group} href=\${ctx.href} lang=\${ctx.lang}></${value}>\``
       ) as ItemRenderer;
     } else {
       this.__renderItem = value;
@@ -60,63 +60,79 @@ export class CollectionPage<TData extends HALJSONCollection> extends NucleonElem
     this.requestUpdate();
   }
 
-  /**
-   * Custom element tag or a render function to use for displaying spinner.
-   * Generated custom element will have the following attributes:
-   *
-   * - `state` - `error`, `busy` or `empty`;
-   * - `lang` – same as `foxy-collection-page[lang]`;
-   *
-   * Render function will receive `SpinnerRendererContext` in the first argument.
-   */
-  get spinner(): string | SpinnerRenderer {
-    return this.__spinner;
-  }
-
-  set spinner(value: string | SpinnerRenderer) {
-    if (typeof value === 'string') {
-      this.__renderSpinner = new Function(
-        'ctx',
-        `return ctx.html\`<${value} data-testid="spinner" state=\${ctx.state} lang=\${ctx.lang}></${value}>\``
-      ) as SpinnerRenderer;
-    } else {
-      this.__renderSpinner = value;
-    }
-
-    this.__spinner = value;
-    this.requestUpdate();
-  }
-
   /** @readonly */
   createRenderRoot(): HTMLElement {
     return this;
   }
 
   /** @readonly */
-  render(): TemplateResult {
-    const items = this.__items;
-    const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
-
-    return html`
-      ${items.map((item: any) =>
-        this.__renderItem?.({
-          parent: this.href,
-          lang: this.lang,
-          data: item,
-          html,
-        })
-      )}
-      ${this.in('idle') && items.length > 0
-        ? ''
-        : this.__renderSpinner({ html, lang: this.lang, state: spinnerState })}
-    `;
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener('fetch', this.__pageFetchEventHandler);
   }
 
-  private get __items() {
+  /** @readonly */
+  render(): TemplateResult {
+    type RepeatItem = { key: string; href: string; data: ExtractItem<TPage> | null };
+    const items: RepeatItem[] = this.__items.map(item => ({
+      key: item._links.self.href,
+      href: item._links.self.href,
+      data: item,
+    }));
+
+    if (this.in('busy')) {
+      items.push({ key: 'stalled', href: 'foxy://collection-page/stall', data: null });
+    } else if (this.in('fail')) {
+      items.push({ key: 'failed', href: 'foxy://collection-page/fail', data: null });
+    } else if (this.in({ idle: 'template' }) || this.__items.length === 0) {
+      items.push({ key: 'empty', href: '', data: null });
+    }
+
+    return html`${repeat(
+      items,
+      item => item.key,
+      item =>
+        this.__renderItem?.({
+          parent: this.href,
+          group: this.group,
+          lang: this.lang,
+          data: item.data,
+          href: item.href,
+          html,
+        })
+    )}`;
+  }
+
+  /** @readonly */
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.removeEventListener('fetch', this.__pageFetchEventHandler);
+  }
+
+  private get __items(): ExtractItem<TPage>[] {
     return Array.from(Object.values(this.form?._embedded ?? {}) as any[]).reduce(
       (p, c) => [...p, ...c],
-      [] as any[]
+      [] as ExtractItem<TPage>[]
     );
+  }
+
+  private __handlePageFetchEvent(event: unknown) {
+    if (!(event instanceof FetchEvent) || event.target === this) return;
+    const { method, url } = event.request;
+
+    if (method !== 'GET') return;
+    if (url === 'foxy://collection-page/stall') return this.__stallRequest(event);
+    if (url === 'foxy://collection-page/fail') return this.__failRequest(event);
+  }
+
+  private __stallRequest(event: FetchEvent) {
+    event.stopImmediatePropagation();
+    event.respondWith(new Promise(() => void 0));
+  }
+
+  private __failRequest(event: FetchEvent) {
+    event.stopImmediatePropagation();
+    event.respondWith(Promise.resolve(new Response(null, { status: 500 })));
   }
 }
 

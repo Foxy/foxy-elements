@@ -15,6 +15,7 @@ import '../AddressCard/index.ts';
 CollectionPage will load a page at the given `href` and will render a custom element with a tag passed to the `item` property/attribute for each embedded collection page item. The custom elements will each be initialized with the following attributes:
 
 - `parent` – same as `foxy-collection-page[href]`;
+- `group` – same as `foxy-collection-page[href]`;
 - `href` – collection page item's `_links.self.href` value;
 - `lang` – same as `foxy-collection-page[lang]`;
 
@@ -50,23 +51,15 @@ Please note that **items will be rendered in the regular ("light") DOM**, so you
 <foxy-collection-page href="path/to/page" item="foxy-address-card" lang="en">
   <foxy-address-card parent="path/to/page" href="path/to/item/0" lang="en"></foxy-address-card>
   <foxy-address-card parent="path/to/page" href="path/to/item/1" lang="en"></foxy-address-card>
-</foxy-collection-page>
-```
 
-CollectionPage will also render a spinner element (`foxy-spinner` by default) in `busy` and `fail` states as well as in the `idle` state if collection page is empty. You can customize spinner element's tag using the `spinner` property/attribite the same way as `item`. Your spinner element will be initialized with the following attributes and rendered in the regular DOM:
-
-- `state` - `error`, `busy` or `empty`;
-- `lang` – same as `foxy-collection-page[lang]`;
-
-```html
-<foxy-collection-page lang="en" href="path/to/page" spinner="my-spinner">
-  <my-spinner state="busy" lang="en"></my-spinner>
+  <!-- intersection observer target -->
+  <span></span>
 </foxy-collection-page>
 ```
 
 ## Using render functions
 
-You can pass render functions instead of tag names to both `item` and `spinner`. Render functions provide more flexibility and don't require your items and spinner to be custom elements, but you will have to write a little bit of JS for this approach to work. Here's an example:
+You can pass render function instead of tag name to `item`. Render functions provide more flexibility and don't require your items to be custom elements, but you will have to write a little bit of JS for this approach to work. Here's an example:
 
 ```html
 <foxy-collection-page
@@ -79,7 +72,7 @@ You can pass render functions instead of tag names to both `item` and `spinner`.
 <script>
   customElements.whenDefined('foxy-collection-page').then(() => {
     document.getElementById('page').item = ({ html, lang, data }) => html`
-      <div lang=${lang}>${data.address1}</div>
+      <div lang=${lang}>${data?.address1 ?? ''}</div>
     `;
   });
 </script>
@@ -95,6 +88,9 @@ The code above will eventually render the following HTML:
 >
   <div lang="en">Address Line 1 of the first item</div>
   <div lang="en">Address Line 2 of the second item</div>
+
+  <!-- intersection observer target -->
+  <span></span>
 </foxy-collection-page>
 ```
 
@@ -102,45 +98,19 @@ Item render functions receive a context object with the following properties as 
 
 - `parent` – same as `foxy-collection-page[href]`;
 - `lang` – same as `foxy-collection-page[lang]`;
-- `data` - item object (e.g. when rendering attributes, it will be an attribute);
+- `href` – item's `_links.self.href` or a special value;
+- `data` - item object if available (e.g. when rendering attributes, it will be an attribute);
 - `html` - tag function from [lit-html](https://lit-html.polymer-project.org/guide#lit-html-templates). Render function is expected to return the output of this tag function.
 
-Same applies to the `spinner` property: you can provide a render function with a custom template instead of a tag:
+## Special URLs and loading states
 
-```html
-<foxy-collection-page
-  href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
-  lang="en"
-  id="page"
->
-</foxy-collection-page>
+CollectionPage assumes that the `item` element can render `busy`, `fail` and `idle.template` states, and relies on those to indicate loading, failure and lack of content respectively. Attributes set on the `item` element and context passed to the `item` render function will be slightly different depending on the state:
 
-<script>
-  customElements.whenDefined('foxy-collection-page').then(() => {
-    document.getElementById('page').spinner = ({ html, lang, state }) => html`
-      <div lang=${lang}>${state}</div>
-    `;
-  });
-</script>
-```
+- `busy`: last item's `href` will be `foxy://collection-page/stall`, requests to that URL will never complete;
+- `fail`: last item's `href` will be `foxy://collection-page/fail`, requests to that URL will always fail;
+- `idle.template`: last (and only) item's `href` will be empty.
 
-Example output while loading:
-
-```html
-<foxy-collection-page
-  href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
-  lang="en"
-  id="page"
->
-  <div lang="en">busy</div>
-</foxy-collection-page>
-```
-
-Spinner render functions receive a context object with the following properties as the first argument:
-
-- `state` - `empty`, `error` or `busy`;
-- `lang` – same as `foxy-collection-page[lang]`;
-- `html` - tag function from [lit-html](https://lit-html.polymer-project.org/guide#lit-html-templates). Render function is expected to return the output of this tag function.
+Note that `data` will be always be null for the last item in any state that doesn't match `idle.snapshot`. If you're using a nucleon element to display collection page items, make sure it renders the appropriate UI for the states above and it should "just work" with CollectionPage. For custom templates, check `href` against the values above to render a spinner or a status string instead of an item.
 
 ## Reference
 
