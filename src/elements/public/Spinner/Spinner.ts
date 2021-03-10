@@ -29,8 +29,9 @@ export class Spinner extends LitElement {
         paper-spinner-lite {
           --paper-spinner-stroke-width: 2px;
           --paper-spinner-color: currentColor;
-          height: 18px;
-          width: 18px;
+          height: 19px;
+          width: 19px;
+          margin: 2.5px;
         }
       `,
     ];
