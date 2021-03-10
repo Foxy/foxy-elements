@@ -9,7 +9,7 @@ type Params = {
 };
 
 export function composeCollection({ url, rel, count, items, composeItem }: Params) {
-  const limitInQuery = parseInt(new URL(url).searchParams.get('limit') ?? '0');
+  const limitInQuery = parseInt(new URL(url).searchParams.get('limit') ?? '20');
   const limit = isNaN(limitInQuery) || limitInQuery > 300 || limitInQuery < 0 ? 20 : limitInQuery;
 
   const offsetInQuery = parseInt(new URL(url).searchParams.get('offset') ?? '0');
@@ -30,7 +30,12 @@ export function composeCollection({ url, rel, count, items, composeItem }: Param
   const last = new URL('', partialPageUrl);
   last.searchParams.set('offset', Math.max(count - limit, 0).toString());
 
-  return halson({})
+  return halson({
+    total_items: count,
+    returned_items: items.length,
+    offset,
+    limit,
+  })
     .addLink('first', first.toString())
     .addLink('self', url)
     .addLink('prev', prev.toString())
