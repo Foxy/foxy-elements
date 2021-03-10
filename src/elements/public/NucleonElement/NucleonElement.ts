@@ -292,7 +292,6 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     });
 
     this.__service.start();
-    if (this.href) this.__service.send({ type: 'FETCH' });
   }
 
   private __destroyService() {
