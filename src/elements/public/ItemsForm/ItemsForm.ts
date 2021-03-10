@@ -484,6 +484,7 @@ export class ItemsForm extends Translatable {
     this.__itemElements.forEach(e => {
       added += this.__formDataAddItem(fd, e);
     });
+    this.__formDataAddCartWideSubscriptionFields(fd);
     return added;
   }
 
@@ -505,18 +506,11 @@ export class ItemsForm extends Translatable {
     });
   }
 
-  /**
-   * Adds a item to a form data
-   *
-   * @argument {FormData} fd the FormData to which the item will be added
-   * @argument {Item} the item to add
-   **/
-  private __formDataAddItem(fd: FormData, itemEl: Item, parent: Item | null = null): number {
-    const idKey = 'pid';
-    // Reserved attributes are not to be submitted
-    // other attributes, included custom attributes added by the user, will be submitted
+  // Reserved attributes are not to be submitted
+  // other attributes, included custom attributes added by the user, will be submitted
+  private __isAttributeReserved(attribute: string): boolean {
     const reservedAttributes = [
-      idKey,
+      'pid',
       'signatures',
       'currency',
       'total',
@@ -529,9 +523,19 @@ export class ItemsForm extends Translatable {
       'items',
       'signatures',
     ];
+    return reservedAttributes.includes(attribute);
+  }
+
+  /**
+   * Adds a item to a form data
+   *
+   * @argument {FormData} fd the FormData to which the item will be added
+   * @argument {Item} the item to add
+   **/
+  private __formDataAddItem(fd: FormData, itemEl: Item, parent: Item | null = null): number {
     let added = 0;
     if (this.__validItem(itemEl)) {
-      if (!itemEl.value[idKey]) {
+      if (!itemEl.value['pid']) {
         throw new Error('Attempt to convert a item without a propper ID');
       }
       if (parent && parent.getAttribute('code')) {
@@ -539,7 +543,7 @@ export class ItemsForm extends Translatable {
       }
       for (let i = 0; i < itemEl.attributes.length; i++) {
         const field = itemEl.attributes[i];
-        if (!reservedAttributes.includes(field.name) && !field.name.startsWith('data-')) {
+        if (!this.__isAttributeReserved(field.name) && !field.name.startsWith('data-')) {
           let fieldValue: unknown = (itemEl as any)[field.name];
           // Adds a signature if possible
           if (itemEl.code && ['string', 'number'].includes(typeof fieldValue)) {
@@ -596,18 +600,19 @@ export class ItemsForm extends Translatable {
         }
       }
     }
-    // added if themselves are set
-    for (const s of ['sub_token']) {
-      if ((this as any)[s]) {
-        const subKey = this.__buildKeyFromItem(s, itemEl);
-        fd.set(subKey, (this as any)[s]);
-      }
-    }
+  }
+  
+  /**
+   * Adds cart wide subscription fields to a FormData
+   *
+   * @argument {FormData} fd the FormData to which subscription fields will be added
+   */
+  private __formDataAddCartWideSubscriptionFields(fd: FormData): void {
+    // added if itself is set
+    if (this.sub_token) fd.set('sub_token', this.sub_token);
     // added regardless
-    for (const s of ['sub_modify', 'sub_restart']) {
-      const subKey = this.__buildKeyFromItem(s, itemEl);
-      fd.set(subKey, (this as any)[s]);
-    }
+    fd.set('sub_modify', this.sub_modify);
+    fd.set('sub_restart', this.sub_restart);
   }
 
   /**
