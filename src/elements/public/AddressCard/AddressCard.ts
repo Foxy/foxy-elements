@@ -40,7 +40,7 @@ export class AddressCard extends NucleonElement<Data> {
                   ? 'default_billing_address'
                   : this.data.is_default_shipping
                   ? 'default_shipping_address'
-                  : 'additional_address'}
+                  : this.data.address_name}
               >
               </foxy-i18n>
             </figcaption>
