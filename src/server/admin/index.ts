@@ -34,7 +34,7 @@ router.get('/s/admin/stores/:id/subscriptions', async ({ params, request }) => {
 
   const [count, subscriptions] = await Promise.all([
     db.customerAttributes.count(),
-    query.limit(limit).offset(offset).toArray(),
+    query.offset(offset).limit(limit).toArray(),
   ]);
 
   const embeddedLastTransactionBySubscription = await Promise.all(
@@ -101,7 +101,7 @@ router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
 
   const [count, transactions] = await Promise.all([
     db.customerAttributes.count(),
-    query.limit(limit).offset(offset).toArray(),
+    query.offset(offset).limit(limit).toArray(),
   ]);
 
   const embeddedItemsByTransaction = await Promise.all(
@@ -205,7 +205,7 @@ router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
   const { limit, offset } = getPagination(url);
   const [count, items] = await Promise.all([
     db.customerAttributes.count(),
-    db.customerAttributes.where('customer').equals(id).limit(limit).offset(offset).toArray(),
+    db.customerAttributes.where('customer').equals(id).offset(offset).limit(limit).toArray(),
   ]);
 
   const rel = 'fx:attributes';
@@ -271,9 +271,10 @@ router.get('/s/admin/customers/:id/addresses', async ({ params, request }) => {
   const id = parseInt(params.id);
   const url = request.url;
   const { limit, offset } = getPagination(url);
+
   const [count, items] = await Promise.all([
     db.customerAddresses.count(),
-    db.customerAddresses.where('customer').equals(id).limit(limit).offset(offset).toArray(),
+    db.customerAddresses.where('customer').equals(id).offset(offset).limit(limit).toArray(),
   ]);
 
   const rel = 'fx:customer_addresses';
@@ -354,7 +355,7 @@ router.get('/s/admin/stores/:id/customers', async ({ params, request }) => {
   const { limit, offset } = getPagination(url);
   const [count, items] = await Promise.all([
     db.customers.count(),
-    db.customers.where('store').equals(id).limit(limit).offset(offset).toArray(),
+    db.customers.where('store').equals(id).offset(offset).limit(limit).toArray(),
   ]);
 
   const rel = 'fx:customers';
