@@ -1,117 +1,282 @@
-import { ItemRenderer, SpinnerRenderer } from '../CollectionPage/CollectionPage';
-import { LitElement, PropertyDeclarations } from 'lit-element';
-import { TemplateResult, html } from 'lit-html';
+import { Context, Event, Page, PageRenderer } from './types';
+import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
+import { State, StateMachine, interpret } from 'xstate';
 
-import { NucleonElement } from '../NucleonElement/index';
-import { get } from 'lodash-es';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { Rumour } from '@foxy.io/sdk/core';
+import { machine } from './machine';
+import { repeat } from 'lit-html/directives/repeat';
+import traverse from 'traverse';
 
-export type PageRendererContext = {
-  html: typeof html;
-  href: string;
-  lang: string;
-  item: string | ItemRenderer;
-  spinner: string | SpinnerRenderer;
-};
-
-export type SpinnerRendererContext = {
-  html: typeof html;
-  lang: string;
-};
-
-export type PageRenderer = (context: PageRendererContext) => TemplateResult;
-
-export class CollectionPages extends LitElement {
+/**
+ * Renders an element for each page in a collection.
+ *
+ * @fires NucleonElement#update - Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state.
+ * @fires NucleonElement#fetch - Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request.
+ *
+ * @element foxy-collection-pages
+ * @since 1.1.0
+ */
+export class CollectionPages<TPage extends Page> extends LitElement {
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
-      spinner: { type: String },
       first: { type: String, noAccessor: true },
-      item: { type: String, noAccessor: true },
-      page: { type: String, noAccessor: true },
+      pages: { type: Array, noAccessor: true },
+      group: { type: String },
       lang: { type: String },
+      page: { type: String },
     };
   }
 
+  /** Optional ISO 639-1 code describing the language element content is written in. */
   lang = '';
 
-  item: string | ItemRenderer = 'foxy-null';
+  private __renderPage!: PageRenderer<TPage>;
 
-  pages: string[] = [];
+  private __page!: string | PageRenderer<TPage>;
 
-  spinner: string | SpinnerRenderer = 'foxy-spinner';
+  private __group = '';
 
-  private readonly __observer = new IntersectionObserver(
-    es => es.some(s => s.isIntersecting) && this.__loadNext(),
-    { rootMargin: '100%' }
+  private __stopTrackingRumour!: () => void;
+
+  private __fetchEventHandler = (evt: unknown) => this.__handleFetchEvent(evt);
+
+  private __service = interpret(
+    ((machine as unknown) as StateMachine<Context<TPage>, any, Event<TPage>>).withConfig({
+      services: {
+        observeChildren: () => callback => {
+          const observer = new IntersectionObserver(entries => {
+            if (entries.some(entry => entry.isIntersecting)) callback('INTERSECTION');
+          });
+
+          observer.observe(this.renderRoot.querySelector(':last-child') as Element);
+          return () => observer.disconnect();
+        },
+
+        sendGet: async ctx => {
+          const lastPage = ctx.pages[ctx.pages.length - 1];
+          const lastPageHref = lastPage?._links.next.href ?? ctx.first;
+          const response = await new NucleonElement.API(this).fetch(lastPageHref);
+
+          if (!response.ok) throw response;
+          const json = await response.json();
+
+          NucleonElement.Rumour(this.group).share({
+            related: this.pages.map(page => page._links.self.href),
+            source: json._links.self.href,
+            data: json,
+          });
+
+          return json;
+        },
+      },
+    })
   );
-
-  private __page!: string | PageRenderer;
-
-  private __renderPage!: PageRenderer;
 
   constructor() {
     super();
-    this.page = 'foxy-collection-page';
+    this.page = 'foxy-collection-page foxy-null';
   }
 
-  get first(): string {
-    return this.pages[0] ?? '';
-  }
-
-  set first(value: string) {
-    this.pages.length = 0;
-    if (value) this.pages[0] = value;
-    this.requestUpdate();
-  }
-
-  get page(): string | PageRenderer {
+  /**
+   * Custom element tag or a render function to use for displaying collection pages.
+   * Generated custom elements will have the following attributes:
+   *
+   * - `group` – same as `foxy-collection-pages[group]`;
+   * - `href` – collection page's `_links.self.href` value;
+   * - `lang` – same as `foxy-collection-pages[lang]`;
+   * - `item` – will contain `item-tag` when provided with a string value formatted as `page-tag item-tag`.
+   *
+   * Render function will receive `PageRenderer<TPage>` in the first argument.
+   * Uses `foxy-collection-page` by default.
+   */
+  get page(): string | PageRenderer<TPage> {
     return this.__page;
   }
 
-  set page(value: string | PageRenderer) {
+  set page(value: string | PageRenderer<TPage>) {
     if (typeof value === 'string') {
+      const item = value.split(' ').pop();
+      const itemAttribute = item ? `item="${item}"` : '';
+
       this.__renderPage = new Function(
         'ctx',
-        `return ctx.html\`<${value} .item="\${ctx.item}" .spinner=\${ctx.spinner} href=\${ctx.href} lang=\${ctx.lang}></${value}>\``
-      ) as PageRenderer;
+        `return ctx.html\`<${value} ${itemAttribute} group=\${ctx.group} href=\${ctx.href} lang=\${ctx.lang}></${value}>\``
+      ) as PageRenderer<TPage>;
     } else {
       this.__renderPage = value;
     }
 
     this.__page = value;
-    this.requestUpdate();
   }
 
-  createRenderRoot(): HTMLElement {
+  /** URL of the first page in a collection. */
+  get first(): string {
+    return this.__service.state.context.first;
+  }
+
+  set first(data: string) {
+    this.__service.send({ type: 'SET_FIRST', data });
+  }
+
+  /** Array of all currently loaded pages in a collection. */
+  get pages(): TPage[] {
+    return this.__service.state.context.pages;
+  }
+
+  set pages(data: TPage[]) {
+    this.__service.send({ type: 'SET_PAGES', data });
+  }
+
+  /** Rumour group. Elements in different groups will not share updates. Empty by default. */
+  get group(): string {
+    return this.__group;
+  }
+
+  set group(value: string) {
+    this.__group = value;
+    this.__stopTrackingRumour?.();
+    this.__trackRumour();
+  }
+
+  /**
+   * Checks if this element is in the given state. Available states:
+   *
+   * - `busy` when loading a page;
+   * - `fail` when page load fails;
+   * - `idle` when not loading anything for one of the reasons below:
+   *   - `paused` if waiting for user to scroll further;
+   *   - `empty` if collection is empty;
+   *   - `end` if there are no more items in a collection.
+   *
+   * @example element.in({ idle: 'empty' })
+   */
+  in(stateValue: State<Context, Event>['value']): boolean {
+    return this.__service.state.matches(stateValue);
+  }
+
+  /** @readonly */
+  createRenderRoot(): CollectionPages<TPage> {
     return this;
   }
 
-  updated(): void {
-    this.__observer.disconnect();
-    if (this.__lastPage) this.__observer.observe(this.__lastPage);
+  /** @readonly */
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.addEventListener('fetch', this.__fetchEventHandler);
+    this.__createService();
+    this.__trackRumour();
   }
 
+  /** @readonly */
   render(): TemplateResult {
-    return html`${this.pages.map(page =>
-      this.__renderPage?.({
-        html,
-        href: page,
-        lang: this.lang,
-        item: this.item,
-        spinner: this.spinner,
-      })
-    )}`;
+    const items = this.pages.map(page => ({
+      key: page._links.self.href,
+      href: page._links.self.href,
+    }));
+
+    if (this.__service.state.matches('busy')) {
+      items.push({ key: 'stalled', href: 'foxy://collection-pages/stall' });
+    } else if (this.__service.state.matches('fail')) {
+      items.push({ key: 'failed', href: 'foxy://collection-pages/fail' });
+    } else if (this.__service.state.matches({ idle: 'empty' })) {
+      items.push({ key: 'empty', href: '' });
+    }
+
+    return html`
+      <!-- collection items -->
+      ${repeat(
+        items,
+        page => page.key,
+        (page, pageIndex) => {
+          return this.__renderPage({
+            group: this.group,
+            data: this.pages[pageIndex] ?? null,
+            href: page.href,
+            lang: this.lang,
+            html,
+          });
+        }
+      )}
+      <!-- intersection observer target -->
+      <span></span>
+    `;
   }
 
-  private get __lastPage() {
-    type Child = NucleonElement<any> | null;
-    return this.renderRoot.children[this.renderRoot.children.length - 1] as Child;
+  /** @readonly */
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    this.dispatchEvent(new NucleonElement.UpdateEvent());
   }
 
-  private __loadNext() {
-    const next = get(this.__lastPage?.form, '_links.next.href') as string | undefined;
-    if (!next) return;
+  /** @readonly */
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.removeEventListener('fetch', this.__fetchEventHandler);
+    this.__service.stop();
+    this.__stopTrackingRumour?.();
+  }
 
-    this.pages.push(next);
-    this.requestUpdate();
+  private __trackRumour() {
+    this.__stopTrackingRumour = NucleonElement.Rumour(this.group).track(update => {
+      try {
+        this.pages.map(page => update(page));
+      } catch (err) {
+        if (err instanceof Rumour.UpdateError) {
+          this.__service.send({ type: 'SET_FIRST', data: this.first });
+        } else {
+          throw err;
+        }
+      }
+    });
+  }
+
+  private __createService() {
+    this.__service
+      .onTransition(({ changed }) => changed && this.requestUpdate())
+      .onChange(() => this.requestUpdate())
+      .start();
+  }
+
+  private __handleFetchEvent(event: unknown) {
+    if (!(event instanceof FetchEvent) || event.target === this) return;
+    const { method, url } = event.request;
+
+    if (method !== 'GET') return;
+    if (url === 'foxy://collection-pages/stall') return this.__stallRequest(event);
+    if (url === 'foxy://collection-pages/fail') return this.__failRequest(event);
+
+    this.__respondIfPossible(event);
+  }
+
+  private __respondIfPossible(event: FetchEvent) {
+    const localName = this.localName;
+
+    traverse(this.__service.state.context.pages).forEach(function () {
+      if (this.node?._links?.self?.href === event.request.url) {
+        console.debug(
+          `%c@foxy.io/elements::${localName}\n%c200%c GET ${event.request.url}`,
+          'color: gray',
+          `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
+          ''
+        );
+
+        const body = JSON.stringify(this.node);
+        event.respondWith(Promise.resolve(new Response(body)));
+        this.stop();
+      }
+    });
+  }
+
+  private __stallRequest(event: FetchEvent) {
+    event.stopImmediatePropagation();
+    event.respondWith(new Promise(() => void 0));
+  }
+
+  private __failRequest(event: FetchEvent) {
+    event.stopImmediatePropagation();
+    event.respondWith(Promise.resolve(this.__service.state.context.error as Response));
   }
 }

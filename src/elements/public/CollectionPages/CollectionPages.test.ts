@@ -1,146 +1,165 @@
 import './index';
 
-import { CollectionPages, PageRenderer } from './CollectionPages';
-import { expect, fixture, html } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent } from '@open-wc/testing';
 
-class TestPageElement extends HTMLElement {
-  form = {
-    _links: {
-      next: {
-        href: 'https://demo.foxycart.test/s/admin/customers/0/attributes?offset=20',
-      },
-    },
-  };
-}
-
-customElements.define('test-page-element', TestPageElement);
+import { CollectionPages } from './CollectionPages';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { PageRenderer } from './types';
+import { router } from '../../../server/admin';
 
 describe('CollectionPages', () => {
-  it('renders nothing by default', async () => {
+  it('renders empty state by default', async () => {
     const template = html`<foxy-collection-pages></foxy-collection-pages>`;
-    const element = await fixture<CollectionPages>(template);
+    const element = await fixture<CollectionPages<any>>(template);
 
-    expect(element.children).to.be.empty;
-    expect(element).to.have.property('spinner', 'foxy-spinner');
+    expect(element).to.have.property('group', '');
     expect(element).to.have.property('first', '');
-    expect(element).to.have.property('item', 'foxy-null');
-    expect(element).to.have.property('page', 'foxy-collection-page');
+    expect(element).to.have.property('page', 'foxy-collection-page foxy-null');
     expect(element).to.have.property('lang', '');
+
+    const firstChild = element.children[0];
+
+    expect(firstChild).to.have.property('localName', 'foxy-collection-page');
+    expect(firstChild).to.have.attribute('group', '');
+    expect(firstChild).to.have.attribute('href', '');
+    expect(firstChild).to.have.attribute('lang', '');
+    expect(firstChild).to.have.attribute('item', 'foxy-null');
   });
 
-  it('renders first page from default tag name when its url is set', async () => {
-    const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
-    const template = html`<foxy-collection-pages first=${first}></foxy-collection-pages>`;
-    const element = await fixture<CollectionPages>(template);
-    const firstPage = element.children[0];
-
-    expect(firstPage).to.have.property('spinner', 'foxy-spinner');
-    expect(firstPage).to.have.property('item', 'foxy-null');
-    expect(firstPage.outerHTML).to.equal(
-      `<foxy-collection-page href="${first}" lang=""></foxy-collection-page>`
-    );
-
-    expect(element).to.have.property('spinner', 'foxy-spinner');
-    expect(element).to.have.property('first', first);
-    expect(element).to.have.property('item', 'foxy-null');
-    expect(element).to.have.property('page', 'foxy-collection-page');
-    expect(element).to.have.property('lang', '');
-  });
-
-  it('renders first page from custom tag name when its url is set', async () => {
-    const page = 'test-collection-page';
-    const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
-    const element = await fixture<CollectionPages>(html`
-      <foxy-collection-pages first=${first} page=${page}></foxy-collection-pages>
-    `);
-
-    const firstPage = element.children[0];
-
-    expect(firstPage).to.have.property('spinner', 'foxy-spinner');
-    expect(firstPage).to.have.property('item', 'foxy-null');
-    expect(firstPage.outerHTML).to.equal(`<${page} href="${first}" lang=""></${page}>`);
-
-    expect(element).to.have.property('spinner', 'foxy-spinner');
-    expect(element).to.have.property('first', first);
-    expect(element).to.have.property('item', 'foxy-null');
-    expect(element).to.have.property('page', page);
-    expect(element).to.have.property('lang', '');
-  });
-
-  it('renders first page from render function when its url is set', async () => {
-    const page: PageRenderer = ctx => ctx.html`
-      <test-page href=${ctx.href} lang=${ctx.lang} .spinner=${ctx.spinner} .item=${ctx.item}></test-page>
-    `;
-
-    const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
-    const element = await fixture<CollectionPages>(html`
-      <foxy-collection-pages first=${first} .page=${page}></foxy-collection-pages>
-    `);
-
-    const firstPage = element.children[0];
-
-    expect(firstPage).to.have.property('spinner', 'foxy-spinner');
-    expect(firstPage).to.have.property('item', 'foxy-null');
-    expect(firstPage.outerHTML).to.equal(`<test-page href="${first}" lang=""></test-page>`);
-
-    expect(element).to.have.property('spinner', 'foxy-spinner');
-    expect(element).to.have.property('first', first);
-    expect(element).to.have.property('item', 'foxy-null');
-    expect(element).to.have.property('page', page);
-    expect(element).to.have.property('lang', '');
-  });
-
-  it('passes custom item, spinner and lang props down to children', async () => {
-    const spinner = 'test-spiner-element';
-    const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
-    const item = 'test-item-element';
-    const page = 'test-page-element';
-    const lang = 'ru';
-
-    const element = await fixture<CollectionPages>(html`
+  it('renders loading state while loading pages', async () => {
+    const first = 'https://demo.foxycart.com/s/admin/sleep';
+    const element = await fixture<CollectionPages<any>>(html`
       <foxy-collection-pages
-        spinner=${spinner}
         first=${first}
-        item=${item}
-        page=${page}
-        lang=${lang}
+        @fetch=${(evt: FetchEvent) => evt.respondWith(new Promise(() => void 0))}
       >
       </foxy-collection-pages>
     `);
 
-    Array.from(element.children).forEach(child => {
-      expect(child).to.have.property('spinner', spinner);
-      expect(child).to.have.property('item', item);
-      expect(child).to.have.attribute('lang', lang);
-    });
-
-    expect(element).to.have.property('spinner', spinner);
+    expect(element).to.have.property('group', '');
     expect(element).to.have.property('first', first);
-    expect(element).to.have.property('item', item);
-    expect(element).to.have.property('page', page);
-    expect(element).to.have.property('lang', lang);
+    expect(element).to.have.property('page', 'foxy-collection-page foxy-null');
+    expect(element).to.have.property('lang', '');
+
+    const firstChild = element.children[0];
+
+    expect(firstChild).to.have.property('localName', 'foxy-collection-page');
+    expect(firstChild).to.have.attribute('group', '');
+    expect(firstChild).to.have.attribute('href', 'foxy://collection-pages/stall');
+    expect(firstChild).to.have.attribute('lang', '');
+    expect(firstChild).to.have.attribute('item', 'foxy-null');
   });
 
-  it("renders next page if there's a next rel in the last page's form", async () => {
-    const page = 'test-page-element';
-    const next = 'https://demo.foxycart.test/s/admin/customers/0/attributes?offset=20';
+  it('renders first page from default tag name when loaded', async () => {
     const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
-    const element = await fixture<CollectionPages>(html`
-      <foxy-collection-pages first=${first} page=${page}></foxy-collection-pages>
+    const element = await fixture<CollectionPages<any>>(html`
+      <foxy-collection-pages first=${first} @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-collection-pages>
     `);
 
+    expect(element).to.have.property('group', '');
     expect(element).to.have.property('first', first);
-    expect(element).to.have.property('item', 'foxy-null');
+    expect(element).to.have.property('page', 'foxy-collection-page foxy-null');
+    expect(element).to.have.property('lang', '');
+
+    while (!element.in('idle')) await oneEvent(element, 'update');
+
+    const firstChild = element.children[0];
+
+    expect(firstChild).to.have.property('localName', 'foxy-collection-page');
+    expect(firstChild).to.have.attribute('group', '');
+    expect(firstChild).to.have.attribute('href', first);
+    expect(firstChild).to.have.attribute('lang', '');
+    expect(firstChild).to.have.attribute('item', 'foxy-null');
+  });
+
+  it('renders first page from custom tag name when its url is set', async () => {
+    const page = 'test-page test-item';
+    const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
+    const element = await fixture<CollectionPages<any>>(html`
+      <foxy-collection-pages
+        page=${page}
+        first=${first}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-collection-pages>
+    `);
+
+    expect(element).to.have.property('group', '');
+    expect(element).to.have.property('first', first);
     expect(element).to.have.property('page', page);
     expect(element).to.have.property('lang', '');
 
-    expect(element.children[0].outerHTML).to.equal(`<${page} href="${first}" lang=""></${page}>`);
-    expect(element.children[0]).to.have.property('spinner', element.spinner);
-    expect(element.children[0]).to.have.property('item', element.item);
+    while (!element.in('idle')) await oneEvent(element, 'update');
 
-    await new Promise(r => setTimeout(r, 1000));
-    await element.updateComplete;
+    const firstChild = element.children[0];
 
-    expect(element.children[1].outerHTML).to.equal(`<${page} href="${next}" lang=""></${page}>`);
+    expect(firstChild).to.have.property('localName', 'test-page');
+    expect(firstChild).to.have.attribute('group', '');
+    expect(firstChild).to.have.attribute('href', first);
+    expect(firstChild).to.have.attribute('lang', '');
+    expect(firstChild).to.have.attribute('item', 'test-item');
   });
+
+  it('renders first page from render function when its url is set', async () => {
+    const page: PageRenderer = ctx => ctx.html`
+      <test-page group=${ctx.group} href=${ctx.href} lang=${ctx.lang} .data=${ctx.data}>
+      </test-page>
+    `;
+
+    const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
+    const element = await fixture<CollectionPages<any>>(html`
+      <foxy-collection-pages
+        first=${first}
+        .page=${page}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-collection-pages>
+    `);
+
+    expect(element).to.have.property('group', '');
+    expect(element).to.have.property('first', first);
+    expect(element).to.have.property('page', page);
+    expect(element).to.have.property('lang', '');
+
+    while (!element.in('idle')) await oneEvent(element, 'update');
+
+    const firstChild = element.children[0];
+
+    expect(firstChild).to.have.property('localName', 'test-page');
+    expect(firstChild).to.have.attribute('group', '');
+    expect(firstChild).to.have.attribute('href', first);
+    expect(firstChild).to.have.attribute('lang', '');
+    expect(firstChild).to.have.property('data', element.pages[0]);
+  });
+
+  it('passes custom group and lang props down to children', async () => {
+    const first = 'https://demo.foxycart.test/s/admin/customers/0/attributes';
+    const group = 'test-group';
+    const page = 'test-page-element test-item-element';
+    const lang = 'ru';
+
+    const element = await fixture<CollectionPages<any>>(html`
+      <foxy-collection-pages
+        group=${group}
+        first=${first}
+        page=${page}
+        lang=${lang}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-collection-pages>
+    `);
+
+    expect(element).to.have.property('group', group);
+    expect(element).to.have.property('lang', lang);
+
+    Array.from(element.children)
+      .slice(0, -1)
+      .forEach(child => {
+        expect(child).to.have.attribute('group', group);
+        expect(child).to.have.attribute('lang', lang);
+      });
+  });
+
+  // TODO: figure out a way to test IntersectionObserver functionality
 });
