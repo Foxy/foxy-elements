@@ -44,24 +44,25 @@ export class TransactionsTable extends Table<Data> {
     hideBelow: 'md',
     cell: ctx => {
       const colors = {
-        approved: 'bg-contrast-10 text-contrast',
-        authorized: 'bg-success-10 text-success',
-        declined: 'bg-error-10 text-error',
-        pending: 'bg-contrast-10 text-contrast',
-        rejected: 'bg-error-10 text-error',
         completed: 'bg-success-10 text-success',
+        declined: 'bg-error-10 text-error',
+        rejected: 'bg-error-10 text-error',
       };
 
+      const status = ctx.data.status || 'completed';
+      const defaultColor = 'bg-contrast-5 text-contrast';
+      const color = status in colors ? colors[status as keyof typeof colors] : defaultColor;
+
       return ctx.html`
-          <foxy-i18n
-            data-testclass="i18n statuses"
-            class="px-s py-xs text-s font-medium tracking-wide rounded ${colors[ctx.data.status]}"
-            lang=${ctx.lang}
-            key=${`transaction_${ctx.data.status}`}
-            ns=${TransactionsTable.__ns}
-          >
-          </foxy-i18n>
-        `;
+        <foxy-i18n
+          data-testclass="i18n statuses"
+          class="px-s py-xs text-s font-medium tracking-wide rounded ${color}"
+          lang=${ctx.lang}
+          key=${`transaction_${status}`}
+          ns=${TransactionsTable.__ns}
+        >
+        </foxy-i18n>
+      `;
     },
   };
 
