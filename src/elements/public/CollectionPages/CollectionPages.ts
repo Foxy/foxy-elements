@@ -51,7 +51,7 @@ export class CollectionPages<TPage extends Page> extends LitElement {
             if (entries.some(entry => entry.isIntersecting)) callback('INTERSECTION');
           });
 
-          observer.observe(this.renderRoot.querySelector(':last-child') as Element);
+          observer.observe(this.renderRoot.children[this.renderRoot.children.length - 1]);
           return () => observer.disconnect();
         },
 
