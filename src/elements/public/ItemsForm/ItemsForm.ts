@@ -510,18 +510,17 @@ export class ItemsForm extends Translatable {
   // other attributes, included custom attributes added by the user, will be submitted
   private __isAttributeReserved(attribute: string): boolean {
     const reservedAttributes = [
-      'pid',
-      'signatures',
-      'currency',
-      'total',
-      'slot',
       'alt',
+      'currency',
       'description',
       'isChildren',
       'isItem',
-      'open',
       'items',
+      'open',
+      'pid',
       'signatures',
+      'slot',
+      'total',
     ];
     return reservedAttributes.includes(attribute);
   }
