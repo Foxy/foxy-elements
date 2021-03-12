@@ -882,6 +882,7 @@
         },
         {
           "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
           "type": "Column<Resource<Customers, undefined>>[]",
           "default": "[\"nameColumn\",\"idColumn\",\"dateColumn\",\"emailColumn\"]"
         },
@@ -2373,6 +2374,7 @@
         },
         {
           "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
           "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>[]",
           "default": "[\"priceColumn\",\"summaryColumn\",\"statusColumn\",\"subTokenURLColumn\"]"
         },
@@ -2450,6 +2452,7 @@
     {
       "name": "foxy-table",
       "path": "./src/elements/public/Table/index.ts",
+      "description": "Configurable table element for HAL+JSON collections.",
       "attributes": [
         {
           "name": "lang",
@@ -2477,6 +2480,7 @@
       "properties": [
         {
           "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
           "default": "[]"
         },
         {
@@ -2610,6 +2614,7 @@
         },
         {
           "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
           "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>[]",
           "default": "[\"priceColumn\",\"summaryColumn\",\"statusColumn\",\"idColumn\",\"dateColumn\",\"receiptColumn\"]"
         },
