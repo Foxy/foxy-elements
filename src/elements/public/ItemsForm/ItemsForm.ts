@@ -1,11 +1,11 @@
 import '@vaadin/vaadin-button';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Translatable } from '../../../mixins/translatable';
 import { parseDuration } from '../../../utils/parse-duration';
 import { Dropdown, ErrorScreen } from '../../private/index';
 import { ItemsFormChangeEvent, ItemsFormSubmitEvent } from './events';
 import { Item } from './private/Item';
 import { ItemInterface } from './types';
+import { SignableFields } from './private/SignableFields';
 
 export { Item };
 
@@ -21,7 +21,7 @@ export { Item };
  * @element foxy-items-form
  *
  */
-export class ItemsForm extends Translatable {
+export class ItemsForm extends SignableFields {
   /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
@@ -549,8 +549,7 @@ export class ItemsForm extends Translatable {
             if (parent && field.name == 'quantity') {
               fieldValue = Number(field.value) * parent.quantity;
             }
-            const key = this.__buildKeyFromItem(field.name, itemEl);
-            fd.set(key, (fieldValue as string | number).toString());
+            fd.set(itemEl.signedName(field.name), (fieldValue as string | number).toString());
           }
         }
       }
@@ -566,24 +565,6 @@ export class ItemsForm extends Translatable {
     return added;
   }
 
-  // build a key with prepended id and appended signature and |open given an item
-  private __buildKeyFromItem(key: string, item: Item) {
-    return this.__buildKey(
-      item.pid!.toString(),
-      key,
-      item.signatures ? (item.signatures[key] as string) : '',
-      !!item.open && item.open[key]
-    );
-  }
-
-  // builds a id prepended signature and |open appended key
-  private __buildKey(id: string, key: string, signature: string, open: boolean) {
-    if (signature) {
-      key = this.__addSignature(key, signature, open);
-    }
-    return `${id}:${key}`;
-  }
-
   /**
    * Adds subscription fields to a FormData
    *
@@ -594,8 +575,7 @@ export class ItemsForm extends Translatable {
     if (this.sub_frequency) {
       for (const s of ['sub_frequency', 'sub_startdate', 'sub_enddate']) {
         if ((this as any)[s]) {
-          const subKey = this.__buildKeyFromItem(s, itemEl);
-          fd.set(subKey, (this as any)[s]);
+          fd.set(itemEl.signedName(s), (this as any)[s]);
         }
       }
     }
@@ -607,11 +587,13 @@ export class ItemsForm extends Translatable {
    * @argument {FormData} fd the FormData to which subscription fields will be added
    */
   private __formDataAddCartWideSubscriptionFields(fd: FormData): void {
-    // added if itself is set
-    if (this.sub_token) fd.set('sub_token', this.sub_token);
-    // added regardless
-    fd.set('sub_modify', this.sub_modify);
-    fd.set('sub_restart', this.sub_restart);
+    if (this.sub_frequency) {
+      // added if itself is set
+      if (this.sub_token) fd.set(this.signedName('sub_token'), this.sub_token);
+      // added regardless
+      fd.set(this.signedName('sub_modify'), this.sub_modify);
+      fd.set(this.signedName('sub_restart'), this.sub_restart);
+    }
   }
 
   /**

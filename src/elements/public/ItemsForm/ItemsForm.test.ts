@@ -4,6 +4,8 @@ import { ItemsForm } from './ItemsForm';
 import { MockItem } from '../../../mocks/FxItem';
 import { Dropdown, ErrorScreen } from '../../private/index';
 
+const cartWideFields = ['sub_token', 'sub_modify', 'sub_restart', 'sub_cancel'];
+
 /**
  * Avoid CustomElementsRegistry collisions
  *
@@ -428,13 +430,17 @@ describe('The form submits a valid POST to forxycart', async function () {
     expect(form).to.exist;
     const fd = new FormData(form);
     for (const k of fd.keys()) {
-      if (k != 'cart') expect(k.match(/^\d+:.*$/)!.index).to.equal(0);
+      if (k != 'cart') {
+        if (!cartWideFields.includes(k)) {
+          expect(k.match(/^\d+:.*$/)!.index).to.equal(0);
+        }
+      }
     }
   });
 
-  it('Concatenates signatures', async function () {
+  it('Uses signed versions of field names', async function () {
     const el = await fixture(html`
-      <test-items-form currency="usd" store="test.foxycart.com">
+      <test-items-form currency="usd" store="test.foxycart.com" signatures="${JSON.stringify(signatures)}">
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
         <x-testitem name="p2" code="MyCode2" price="10.00" quantity="1"></x-testitem>
       </test-items-form>
@@ -456,50 +462,9 @@ describe('The form submits a valid POST to forxycart', async function () {
     const fd = new FormData(form);
     for (const [k, v] of fd.entries()) {
       if (k != 'cart') {
-        expect(k).to.match(/.*\|\|a{64}$/);
+        expect(k).to.match(/.*signed.*/);
       }
     }
-  });
-
-  it('Concatenates open to custom fields', async function () {
-    const el = await fixture(html`
-      <test-items-form currency="usd" store="test.foxycart.com">
-        <x-testitem
-          name="p1"
-          data-item
-          code="ITEMWITHOPENFIELD"
-          price="10.00"
-          quantity="3"
-        ></x-testitem>
-      </test-items-form>
-    `);
-    const open = { color: true };
-    await elementUpdated(el);
-    const items = el.querySelectorAll('[data-item]');
-    expect(items).to.exist;
-    (signatures as any).color = signatures.name;
-    let last: MockItem | null = null;
-    for (const p of items) {
-      (p as MockItem).signatures = signatures;
-      (p as MockItem).open = open;
-      (p as MockItem).color = 'blue';
-      p.setAttribute('color', 'blue');
-      last = p as MockItem;
-    }
-    if (last) {
-      last.dispatchEvent(new CustomEvent('change'));
-    }
-    await elementUpdated(el);
-    const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
-    const fd = new FormData(form);
-    let found = false;
-    for (const k of fd.keys()) {
-      if (k.match(/\d+:color\|\|a{64}\|\|open$/)) {
-        found = true;
-        break;
-      }
-    }
-    expect(found).to.equal(true);
   });
 
   it('Does not create empty frequency field', async function () {
@@ -533,7 +498,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     let freqFound = false;
     for (const e of new FormData(form).entries()) {
-      if (e[0].match(/^[0-9]+:sub_frequency$/)) {
+      if (e[0].match(/sub_frequency||signed/)) {
         freqFound = true;
         break;
       }
@@ -581,11 +546,11 @@ describe('The form submits a valid POST to forxycart', async function () {
         freqStartEnd[0] += 1;
         expect(e[1]).to.equal('3m');
       }
-      if (e[0].match(/.*sub_startdate$/)) {
+      if (e[0].match(/.*sub_startdate/)) {
         freqStartEnd[1] += 1;
         expect(e[1]).to.equal('30');
       }
-      if (e[0].match(/.*sub_enddate$/)) {
+      if (e[0].match(/.*sub_enddate/)) {
         freqStartEnd[2] += 1;
         expect(e[1]).to.equal('22220101');
       }

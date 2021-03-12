@@ -1,8 +1,8 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Translatable } from '../../../../mixins/translatable';
 import { ErrorScreen, I18N } from '../../../private/index';
 import { ImageDescription, ItemInterface } from '../types';
+import { SignableFields } from './SignableFields';
 import { Preview } from './Preview';
 
 /**
@@ -13,7 +13,7 @@ import { Preview } from './Preview';
  * @csspart picture - Image of the product in preview stack (for single products) or grid (for bundles).
  * @csspart item - The root element inside of the shadow dom.
  */
-export class Item extends Translatable {
+export class Item extends SignableFields {
   // A list of item properties as defined in Foxy Cart Documentation
 
   /** @readonly */
@@ -118,20 +118,6 @@ export class Item extends Translatable {
       open: { type: Object },
       pid: { type: Number, reflect: true },
       items: { type: Array },
-      signatures: {
-        type: Object,
-        converter: value => {
-          const v = (JSON.parse(value!) as unknown) as Record<string, string>;
-          for (const k of Object.keys(v)) {
-            if ((v[k] as string).length != 64) {
-              console.error(
-                'There is something wrong with the signature. It should have 64 characters.'
-              );
-            }
-          }
-          return v;
-        },
-      },
     };
   }
 
@@ -234,25 +220,6 @@ export class Item extends Translatable {
    * This element does not provide any means for the user to specify this property.
    */
   public shipto?: string;
-
-  /**
-   * Optional open: An Object with key, value pairs where the key is a item
-   * attribute and the value is a previously computed HMAC validation code.
-   *
-   * **Important security information:** this web component does not generate or validates the HMAC validation code.
-   * Please, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.
-   */
-  public signatures?: Record<string, string>;
-
-  /**
-   * Optional open: An Object with key, value pairs where the key is a item
-   * attribute and the value is a boolean indicating that the property is editable by the user.
-   *
-   * **Advanced use only**: this web component does not provide means for the user to alter item attributes.
-   *
-   * See [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.
-   */
-  public open?: Record<string, boolean>;
 
   /**
    * Optional length.  This property affects cart UI only.
@@ -498,6 +465,18 @@ export class Item extends Translatable {
       alt: this.alt,
       quantity: this.quantity,
     };
+  }
+
+  /**
+   * Items have their signed names prefixed with their id.
+   *
+   * @argument fieldName the name of the field to get the signed version.
+   * @argument open whether this field is editable by the user.
+   * @returns signed version of the name, prefixed with the item id.
+   */
+  public signedName(fieldName: string): string {
+    const signed = super.signedName(fieldName);
+    return `${this.pid.toString()}:${signed}`;
   }
 
   /**

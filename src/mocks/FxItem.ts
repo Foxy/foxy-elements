@@ -71,6 +71,14 @@ export class MockItem extends HTMLElement {
     return this.price * this.quantity;
   }
 
+  public signedName(fieldName: string) {
+    if (this.pid) {
+      return `${this.pid}:${fieldName}||signed`;
+    } else {
+      return `${fieldName}||signed`;
+    }
+  }
+
   private __fromAttr(key: string) {
     const value = this.getAttribute(key);
     if (value !== null) (this as any)[key] = value; // eslint-disable-line no-use-before-define
