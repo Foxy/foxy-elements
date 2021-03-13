@@ -3,20 +3,21 @@ import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { API } from '../NucleonElement/API';
 import { Dialog } from '../../private/Dialog/Dialog';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { FormRenderer } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 
-type Template = typeof html;
-type TemplateFunction = (params: {
-  html: Template;
-  href: string;
-  lang: string;
-  parent: string;
-  handleFetch: (evt: Event) => void;
-  handleUpdate: (evt: Event) => void;
-}) => TemplateResult;
-
+/**
+ * Dialog wrapper for the forms made with NucleonElement.
+ *
+ * @fires FormDialog#show - Instance of `FormDialog.ShowEvent`. Dispatched after dialog finishes entry transition.
+ * @fires FormDialog#hide - Instance of `FormDialog.HideEvent`. Dispatched after dialog finishes exit transition.
+ *
+ * @element foxy-form-dialog
+ * @since 1.1.0
+ */
 export class FormDialog extends Dialog {
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -26,13 +27,15 @@ export class FormDialog extends Dialog {
     };
   }
 
+  /** Optional URL of the collection this resource belongs to (passed to form). */
   parent = '';
 
+  /** Optional URL of the resource to load (passed to form). */
   href = '';
 
   private __form: string | null = null;
 
-  private __renderForm: TemplateFunction | null = null;
+  private __renderForm: FormRenderer | null = null;
 
   private __handleFetch = (evt: Event) => {
     if (!(evt instanceof FetchEvent)) return;
@@ -61,6 +64,13 @@ export class FormDialog extends Dialog {
       target.in({ idle: { snapshot: { dirty: 'valid' } } });
   };
 
+  /**
+   * Form's custom element tag. Generated custom element will have the following attributes:
+   *
+   * - `parent` – same as `foxy-form-dialog[parent]`;
+   * - `href` – same as `foxy-form-dialog[href]`;
+   * - `lang` – same as `foxy-form-dialog[lang]`;
+   */
   get form(): string | null {
     return this.__form;
   }
@@ -78,12 +88,13 @@ export class FormDialog extends Dialog {
           @update=\${options.handleUpdate}
         >
         </${tagName}>\``
-    ) as TemplateFunction;
+    ) as FormRenderer;
 
     this.__form = tagName;
     this.requestUpdate();
   }
 
+  /** @readonly */
   render(): TemplateResult {
     return super.render(
       this.__renderForm?.bind(null, {
@@ -97,6 +108,7 @@ export class FormDialog extends Dialog {
     );
   }
 
+  /** Submits the form and closes the dialog. */
   async save(): Promise<void> {
     (this.renderRoot.querySelector('#form') as NucleonElement<never>).submit();
   }

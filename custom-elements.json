@@ -1234,19 +1234,23 @@
     {
       "name": "foxy-form-dialog",
       "path": "./src/elements/public/FormDialog/index.ts",
+      "description": "Dialog wrapper for the forms made with NucleonElement.",
       "attributes": [
         {
           "name": "parent",
+          "description": "Optional URL of the collection this resource belongs to (passed to form).",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "href",
+          "description": "Optional URL of the resource to load (passed to form).",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "form",
+          "description": "Form's custom element tag. Generated custom element will have the following attributes:\n\n- `parent` – same as `foxy-form-dialog[parent]`;\n- `href` – same as `foxy-form-dialog[href]`;\n- `lang` – same as `foxy-form-dialog[lang]`;",
           "type": "string"
         },
         {
@@ -1255,36 +1259,43 @@
         },
         {
           "name": "closable",
+          "description": "When true, renders Close button in the header.",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "editable",
+          "description": "When true, renders Save button in the header.",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "header",
+          "description": "Header text or a i18next key for it.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "alert",
+          "description": "When true, centers a dialog on the screen and does not animate the stack under.",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "ns",
+          "description": "Optional i18next namespace to use translations from.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "open",
+          "description": "True if dialog is mounted and has finished entering the screen.",
           "type": "boolean"
         }
       ],
@@ -1292,42 +1303,50 @@
         {
           "name": "parent",
           "attribute": "parent",
+          "description": "Optional URL of the collection this resource belongs to (passed to form).",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "href",
           "attribute": "href",
+          "description": "Optional URL of the resource to load (passed to form).",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "form",
           "attribute": "form",
+          "description": "Form's custom element tag. Generated custom element will have the following attributes:\n\n- `parent` – same as `foxy-form-dialog[parent]`;\n- `href` – same as `foxy-form-dialog[href]`;\n- `lang` – same as `foxy-form-dialog[lang]`;",
           "type": "string"
         },
         {
           "name": "dialogWindowsHost",
+          "description": "Selector of an element that will serve as a mounting point to all dialog windows.\nIt's `<body>` by default, but you can add your own element with `id=\"foxy-dialog-windows-host\"`\nanywhere in the light DOM to render dialogs there.",
           "type": "\"#foxy-dialog-windows-host, body\"",
           "default": "\"#foxy-dialog-windows-host, body\""
         },
         {
           "name": "dialogWindows",
+          "description": "Map of all dialog windows linked to their dialog elements.",
           "type": "WeakMap<Dialog, DialogWindow>",
           "default": "\"new WeakMap<Dialog, DialogWindow>()\""
         },
         {
           "name": "openDialogs",
+          "description": "List of all currently open dialogs.",
           "type": "Dialog[]",
           "default": "[]"
         },
         {
           "name": "ShowEvent",
+          "description": "Instance of this event will be dispatched on a dialog when it finishes entering the screen.\nThis event does not bubble and can't cross shadow DOM boundary.",
           "type": "typeof DialogShowEvent",
           "default": "\"DialogShowEvent\""
         },
         {
           "name": "HideEvent",
+          "description": "Instance of this event will be dispatched on a dialog when it finishes leaving the screen.\nThis event does not bubble and can't cross shadow DOM boundary.",
           "type": "typeof DialogHideEvent",
           "default": "\"DialogHideEvent\""
         },
@@ -1339,43 +1358,60 @@
         {
           "name": "closable",
           "attribute": "closable",
+          "description": "When true, renders Close button in the header.",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "editable",
           "attribute": "editable",
+          "description": "When true, renders Save button in the header.",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "header",
           "attribute": "header",
+          "description": "Header text or a i18next key for it.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "alert",
           "attribute": "alert",
+          "description": "When true, centers a dialog on the screen and does not animate the stack under.",
           "type": "boolean",
           "default": "false"
         },
         {
           "name": "lang",
           "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "ns",
           "attribute": "ns",
+          "description": "Optional i18next namespace to use translations from.",
           "type": "string",
           "default": "\"\""
         },
         {
           "name": "open",
           "attribute": "open",
+          "description": "True if dialog is mounted and has finished entering the screen.",
           "type": "boolean"
+        }
+      ],
+      "events": [
+        {
+          "name": "show",
+          "description": "Instance of `FormDialog.ShowEvent`. Dispatched after dialog finishes entry transition."
+        },
+        {
+          "name": "hide",
+          "description": "Instance of `FormDialog.HideEvent`. Dispatched after dialog finishes exit transition."
         }
       ]
     },

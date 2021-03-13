@@ -10,16 +10,32 @@ import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
 export abstract class Dialog extends LitElement {
+  /**
+   * Selector of an element that will serve as a mounting point to all dialog windows.
+   * It's `<body>` by default, but you can add your own element with `id="foxy-dialog-windows-host"`
+   * anywhere in the light DOM to render dialogs there.
+   */
   static readonly dialogWindowsHost = '#foxy-dialog-windows-host, body';
 
+  /** Map of all dialog windows linked to their dialog elements. */
   static readonly dialogWindows = new WeakMap<Dialog, DialogWindow>();
 
+  /** List of all currently open dialogs. */
   static readonly openDialogs: Dialog[] = [];
 
+  /**
+   * Instance of this event will be dispatched on a dialog when it finishes entering the screen.
+   * This event does not bubble and can't cross shadow DOM boundary.
+   */
   static readonly ShowEvent = DialogShowEvent;
 
+  /**
+   * Instance of this event will be dispatched on a dialog when it finishes leaving the screen.
+   * This event does not bubble and can't cross shadow DOM boundary.
+   */
   static readonly HideEvent = DialogHideEvent;
 
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -36,6 +52,7 @@ export abstract class Dialog extends LitElement {
     };
   }
 
+  /** @readonly */
   static get styles(): CSSResultArray {
     return [
       Themeable.styles,
@@ -48,16 +65,22 @@ export abstract class Dialog extends LitElement {
     ];
   }
 
+  /** When true, renders Close button in the header. */
   closable = false;
 
+  /** When true, renders Save button in the header. */
   editable = false;
 
+  /** Header text or a i18next key for it. */
   header = '';
 
+  /** When true, centers a dialog on the screen and does not animate the stack under. */
   alert = false;
 
+  /** Optional ISO 639-1 code describing the language element content is written in. */
   lang = '';
 
+  /** Optional i18next namespace to use translations from. */
   ns = '';
 
   private __returnFocusTo?: HTMLElement;
@@ -70,6 +93,7 @@ export abstract class Dialog extends LitElement {
 
   private __visible = false;
 
+  /** True if dialog is mounted and has finished entering the screen. */
   get open(): boolean {
     return this.__visible && this.__connected;
   }
@@ -78,11 +102,13 @@ export abstract class Dialog extends LitElement {
     newValue === this.open ? void 0 : newValue ? this.show() : this.hide();
   }
 
+  /** @readonly */
   connectedCallback(): void {
     super.connectedCallback();
     addEventListener('keydown', this.__handleKeyDown);
   }
 
+  /** @readonly */
   disconnectedCallback(): void {
     super.disconnectedCallback();
     removeEventListener('keydown', this.__handleKeyDown);
@@ -91,6 +117,7 @@ export abstract class Dialog extends LitElement {
     Dialog.dialogWindows.delete(this);
   }
 
+  /** @readonly */
   createRenderRoot(): Element | ShadowRoot {
     const dialogWindow = new DialogWindow();
     const dialogWindowsHost = document.querySelector(Dialog.dialogWindowsHost);
@@ -109,6 +136,7 @@ export abstract class Dialog extends LitElement {
     return dialogWindow.shadowRoot!;
   }
 
+  /** @readonly */
   render(content?: () => TemplateResult): TemplateResult {
     if (!this.__connected) return html``;
 
@@ -203,6 +231,12 @@ export abstract class Dialog extends LitElement {
     `;
   }
 
+  /**
+   * Hides the dialog. Returns a promise that resolves when the dialog
+   * finishes leaving the screen.
+   *
+   * @param cancelled Set this to `true` if closing an editable dialog without saving changes.
+   */
   async hide(cancelled = false): Promise<void> {
     this.__returnFocusTo?.focus();
 
@@ -212,6 +246,12 @@ export abstract class Dialog extends LitElement {
     this.dispatchEvent(new Dialog.HideEvent(!!cancelled));
   }
 
+  /**
+   * Shows the dialog. Returns a promise that resolves when the dialog
+   * finishes entering the screen.
+   *
+   * @param returnFocusTo If provided, the dialog will call `.focus()` on that element once it's closed.
+   */
   async show(returnFocusTo?: HTMLElement): Promise<void> {
     this.__returnFocusTo = returnFocusTo;
 
@@ -224,6 +264,7 @@ export abstract class Dialog extends LitElement {
     this.dispatchEvent(new Dialog.ShowEvent());
   }
 
+  /** Alias for `dialog.hide(false)`. */
   async save(): Promise<void> {
     await this.hide(false);
   }
