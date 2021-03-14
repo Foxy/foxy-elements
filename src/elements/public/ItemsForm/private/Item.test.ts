@@ -296,7 +296,7 @@ describe('Item recognizes its children', async function () {
 });
 
 describe('Item builds its signed names', async () => {
-  it('Prepends ids to the field names', async function() {
+  it('Prepends ids to the field names', async function () {
     const layout = html`<test-item name="p1" quantity="1"></test-item>`;
     const element = await fixture<TestItem>(layout);
     expect(element.signedName('quantity')).to.match(/^\d+:quantity.*/);

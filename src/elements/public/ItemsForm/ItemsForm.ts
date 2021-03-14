@@ -580,7 +580,7 @@ export class ItemsForm extends SignableFields {
       }
     }
   }
-  
+
   /**
    * Adds cart wide subscription fields to a FormData
    *

@@ -440,7 +440,11 @@ describe('The form submits a valid POST to forxycart', async function () {
 
   it('Uses signed versions of field names', async function () {
     const el = await fixture(html`
-      <test-items-form currency="usd" store="test.foxycart.com" signatures="${JSON.stringify(signatures)}">
+      <test-items-form
+        currency="usd"
+        store="test.foxycart.com"
+        signatures="${JSON.stringify(signatures)}"
+      >
         <x-testitem name="p1" code="MyCode" price="10.00" quantity="3"></x-testitem>
         <x-testitem name="p2" code="MyCode2" price="10.00" quantity="1"></x-testitem>
       </test-items-form>

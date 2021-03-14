@@ -2,7 +2,6 @@ import { Translatable } from '../../../../mixins/translatable';
 import { PropertyDeclarations } from 'lit-element';
 
 export class SignableFields extends Translatable {
-
   /**
    * Optional open: An Object with key, value pairs where the key is a item
    * attribute and the value is a previously computed HMAC validation code.
@@ -21,7 +20,6 @@ export class SignableFields extends Translatable {
    * See [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.
    */
   public open?: Record<string, boolean>;
-
 
   /** @readonly */
   static get properties(): PropertyDeclarations {
@@ -52,7 +50,7 @@ export class SignableFields extends Translatable {
    * Signatures should not be computed in the frontend.
    *
    * The unaltered field name is returned if there is no available signature.
-   * 
+   *
    * @argument fieldName the name of the field to get the signed version.
    */
   public signedName(fieldName: string): string {
@@ -72,5 +70,4 @@ export class SignableFields extends Translatable {
   public isOpen(fieldName: string): boolean {
     return !!(this.open && this.open[fieldName]);
   }
-
 }
