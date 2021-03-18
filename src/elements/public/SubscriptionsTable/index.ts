@@ -1,3 +1,4 @@
+import '../Spinner/index';
 import '../I18n/index';
 
 import { SubscriptionsTable } from './SubscriptionsTable';
