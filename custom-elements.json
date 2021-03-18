@@ -2,34 +2,787 @@
   "version": "experimental",
   "tags": [
     {
-      "name": "foxy-admin",
-      "path": "./src/elements/public/Admin/index.ts",
+      "name": "foxy-address-card",
+      "path": "./src/elements/public/AddressCard/index.ts",
       "attributes": [
         {
           "name": "lang",
-          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
           "type": "string"
         },
         {
-          "name": "ns",
-          "description": "The namespace to look for the translations in. We use this property to\nsync namespace settings with the parent element and it's highly unlikely\nthat you'll ever need to set or read it in your code.\n\n**Example:** `\"admin\"`",
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
-          "default": "\"defaultNS\""
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-address-form",
+      "path": "./src/elements/public/AddressForm/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-attribute-card",
+      "path": "./src/elements/public/AttributeCard/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-attribute-form",
+      "path": "./src/elements/public/AttributeForm/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-collection-page",
+      "path": "./src/elements/public/CollectionPage/index.ts",
+      "description": "Renders an element for each resource in a collection page.",
+      "attributes": [
+        {
+          "name": "item",
+          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `group` - same as `foxy-collection-page[group]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
+          "type": "string",
+          "default": "\"foxy-null\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "item",
+          "attribute": "item",
+          "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `group` - same as `foxy-collection-page[group]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
+          "type": "string",
+          "default": "\"foxy-null\""
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-collection-pages",
+      "path": "./src/elements/public/CollectionPages/index.ts",
+      "description": "Renders an element for each page in a collection.",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "first",
+          "description": "URL of the first page in a collection.",
+          "type": "string"
+        },
+        {
+          "name": "pages",
+          "description": "Array of all currently loaded pages in a collection.",
+          "type": "array"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "page",
+          "description": "Custom element tag or a render function to use for displaying collection pages.\nGenerated custom elements will have the following attributes:\n\n- `group` – same as `foxy-collection-pages[group]`;\n- `href` – collection page's `_links.self.href` value;\n- `lang` – same as `foxy-collection-pages[lang]`;\n- `item` – will contain `item-tag` when provided with a string value formatted as `page-tag item-tag`.\n\nRender function will receive `PageRenderer<TPage>` in the first argument.\nUses `foxy-collection-page` by default.",
+          "type": "string",
+          "default": "\"foxy-collection-page foxy-null\""
         }
       ],
       "properties": [
         {
           "name": "lang",
           "attribute": "lang",
-          "description": "Contains the language this component presents its translatable\ncontent in. Assigning a value to this property will load new\ntranslations in background and trigger a render afterwards.\n\n**Example:** `\"en\"`",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "first",
+          "attribute": "first",
+          "description": "URL of the first page in a collection.",
           "type": "string"
         },
         {
-          "name": "ns",
-          "attribute": "ns",
-          "description": "The namespace to look for the translations in. We use this property to\nsync namespace settings with the parent element and it's highly unlikely\nthat you'll ever need to set or read it in your code.\n\n**Example:** `\"admin\"`",
+          "name": "pages",
+          "attribute": "pages",
+          "description": "Array of all currently loaded pages in a collection.",
+          "type": "array"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "page",
+          "attribute": "page",
+          "description": "Custom element tag or a render function to use for displaying collection pages.\nGenerated custom elements will have the following attributes:\n\n- `group` – same as `foxy-collection-pages[group]`;\n- `href` – collection page's `_links.self.href` value;\n- `lang` – same as `foxy-collection-pages[lang]`;\n- `item` – will contain `item-tag` when provided with a string value formatted as `page-tag item-tag`.\n\nRender function will receive `PageRenderer<TPage>` in the first argument.\nUses `foxy-collection-page` by default.",
           "type": "string",
-          "default": "\"defaultNS\""
+          "default": "\"foxy-collection-page foxy-null\""
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-customer",
+      "path": "./src/elements/public/Customer/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-customer-form",
+      "path": "./src/elements/public/CustomerForm/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
@@ -80,6 +833,131 @@
       ]
     },
     {
+      "name": "foxy-customers-table",
+      "path": "./src/elements/public/CustomersTable/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "nameColumn",
+          "type": "Column<Resource<Customers, undefined>>",
+          "default": "{}"
+        },
+        {
+          "name": "idColumn",
+          "type": "Column<Resource<Customers, undefined>>",
+          "default": "{\"hideBelow\":\"md\"}"
+        },
+        {
+          "name": "dateColumn",
+          "type": "Column<Resource<Customers, undefined>>",
+          "default": "{\"hideBelow\":\"md\"}"
+        },
+        {
+          "name": "emailColumn",
+          "type": "Column<Resource<Customers, undefined>>",
+          "default": "{}"
+        },
+        {
+          "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
+          "type": "Column<Resource<Customers, undefined>>[]",
+          "default": "[\"nameColumn\",\"idColumn\",\"dateColumn\",\"emailColumn\"]"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
       "name": "foxy-donation",
       "path": "./src/elements/public/Donation/index.ts",
       "description": "A custom element providing customizable donation forms.",
@@ -106,7 +984,7 @@
         },
         {
           "name": "custom",
-          "description": "Optional parts of the form including a custom (\"other\") option.\nAdding `amount` to this array will enable custom amount and adding `designation`\nwill render a custom designation field.\n\n**Example:** `[\"amount\", \"designation\"]`",
+          "description": "Optional parts of the form including a custom (\"other\") option.\nAdding `amount` to this array will enable custom amount.\n\n**Example:** `[\"amount\"]`",
           "type": "array"
         },
         {
@@ -223,7 +1101,7 @@
         {
           "name": "custom",
           "attribute": "custom",
-          "description": "Optional parts of the form including a custom (\"other\") option.\nAdding `amount` to this array will enable custom amount and adding `designation`\nwill render a custom designation field.\n\n**Example:** `[\"amount\", \"designation\"]`",
+          "description": "Optional parts of the form including a custom (\"other\") option.\nAdding `amount` to this array will enable custom amount.\n\n**Example:** `[\"amount\"]`",
           "type": "array"
         },
         {
@@ -354,8 +1232,271 @@
       ]
     },
     {
-      "name": "foxy-quick-form",
-      "path": "./src/elements/public/QuickOrder/index.ts",
+      "name": "foxy-form-dialog",
+      "path": "./src/elements/public/FormDialog/index.ts",
+      "description": "Dialog wrapper for the forms made with NucleonElement.",
+      "attributes": [
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this resource belongs to (passed to form).",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load (passed to form).",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "form",
+          "description": "Form's custom element tag. Generated custom element will have the following attributes:\n\n- `parent` – same as `foxy-form-dialog[parent]`;\n- `href` – same as `foxy-form-dialog[href]`;\n- `lang` – same as `foxy-form-dialog[lang]`;",
+          "type": "string"
+        },
+        {
+          "name": "centered",
+          "type": "boolean"
+        },
+        {
+          "name": "closable",
+          "description": "When true, renders Close button in the header.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "editable",
+          "description": "When true, renders Save button in the header.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "header",
+          "description": "Header text or a i18next key for it.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "alert",
+          "description": "When true, centers a dialog on the screen and does not animate the stack under.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "ns",
+          "description": "Optional i18next namespace to use translations from.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "open",
+          "description": "True if dialog is mounted and has finished entering the screen.",
+          "type": "boolean"
+        }
+      ],
+      "properties": [
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this resource belongs to (passed to form).",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load (passed to form).",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "form",
+          "attribute": "form",
+          "description": "Form's custom element tag. Generated custom element will have the following attributes:\n\n- `parent` – same as `foxy-form-dialog[parent]`;\n- `href` – same as `foxy-form-dialog[href]`;\n- `lang` – same as `foxy-form-dialog[lang]`;",
+          "type": "string"
+        },
+        {
+          "name": "dialogWindowsHost",
+          "description": "Selector of an element that will serve as a mounting point to all dialog windows.\nIt's `<body>` by default, but you can add your own element with `id=\"foxy-dialog-windows-host\"`\nanywhere in the light DOM to render dialogs there.",
+          "type": "\"#foxy-dialog-windows-host, body\"",
+          "default": "\"#foxy-dialog-windows-host, body\""
+        },
+        {
+          "name": "dialogWindows",
+          "description": "Map of all dialog windows linked to their dialog elements.",
+          "type": "WeakMap<Dialog, DialogWindow>",
+          "default": "\"new WeakMap<Dialog, DialogWindow>()\""
+        },
+        {
+          "name": "openDialogs",
+          "description": "List of all currently open dialogs.",
+          "type": "Dialog[]",
+          "default": "[]"
+        },
+        {
+          "name": "ShowEvent",
+          "description": "Instance of this event will be dispatched on a dialog when it finishes entering the screen.\nThis event does not bubble and can't cross shadow DOM boundary.",
+          "type": "typeof DialogShowEvent",
+          "default": "\"DialogShowEvent\""
+        },
+        {
+          "name": "HideEvent",
+          "description": "Instance of this event will be dispatched on a dialog when it finishes leaving the screen.\nThis event does not bubble and can't cross shadow DOM boundary.",
+          "type": "typeof DialogHideEvent",
+          "default": "\"DialogHideEvent\""
+        },
+        {
+          "name": "centered",
+          "attribute": "centered",
+          "type": "boolean"
+        },
+        {
+          "name": "closable",
+          "attribute": "closable",
+          "description": "When true, renders Close button in the header.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "editable",
+          "attribute": "editable",
+          "description": "When true, renders Save button in the header.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "header",
+          "attribute": "header",
+          "description": "Header text or a i18next key for it.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "alert",
+          "attribute": "alert",
+          "description": "When true, centers a dialog on the screen and does not animate the stack under.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "description": "Optional i18next namespace to use translations from.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "open",
+          "attribute": "open",
+          "description": "True if dialog is mounted and has finished entering the screen.",
+          "type": "boolean"
+        }
+      ],
+      "events": [
+        {
+          "name": "show",
+          "description": "Instance of `FormDialog.ShowEvent`. Dispatched after dialog finishes entry transition."
+        },
+        {
+          "name": "hide",
+          "description": "Instance of `FormDialog.HideEvent`. Dispatched after dialog finishes exit transition."
+        }
+      ]
+    },
+    {
+      "name": "foxy-i18n",
+      "path": "./src/elements/public/I18n/index.ts",
+      "description": "Custom element for effortless localization with i18next.",
+      "attributes": [
+        {
+          "name": "options",
+          "description": "Optional i18next translation function\n[options](https://www.i18next.com/translation-function/essentials#overview-options).",
+          "type": "object",
+          "default": "{}"
+        },
+        {
+          "name": "lang",
+          "description": "Optional language to translate `element.key` into (ISO 639-1).\nDefault and fallback: `en`.",
+          "type": "string",
+          "default": "\"en\""
+        },
+        {
+          "name": "key",
+          "description": "Optional key to translate. Empty by default (renders nothing).\nSee [i18next docs](https://www.i18next.com/translation-function/essentials#accessing-keys) for more info.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "ns",
+          "description": "Optional namespace to use translations from. Default and fallback: `shared`.\nTo provide multiple namespaces, separate them with a space.",
+          "type": "string",
+          "default": "\"shared\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "FetchEvent",
+          "description": "Instances of this event are dispatched on an element before each translation request.",
+          "type": "typeof FetchEvent",
+          "default": "\"FetchEvent\""
+        },
+        {
+          "name": "i18next",
+          "description": "Shared [i18next](https://www.i18next.com) instance for all I18n elements.",
+          "type": "i18n",
+          "default": "\"i18next.createInstance().use(backend)\""
+        },
+        {
+          "name": "options",
+          "attribute": "options",
+          "description": "Optional i18next translation function\n[options](https://www.i18next.com/translation-function/essentials#overview-options).",
+          "type": "object",
+          "default": "{}"
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional language to translate `element.key` into (ISO 639-1).\nDefault and fallback: `en`.",
+          "type": "string",
+          "default": "\"en\""
+        },
+        {
+          "name": "key",
+          "attribute": "key",
+          "description": "Optional key to translate. Empty by default (renders nothing).\nSee [i18next docs](https://www.i18next.com/translation-function/essentials#accessing-keys) for more info.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "description": "Optional namespace to use translations from. Default and fallback: `shared`.\nTo provide multiple namespaces, separate them with a space.",
+          "type": "string",
+          "default": "\"shared\""
+        }
+      ],
+      "events": [
+        {
+          "name": "fetch",
+          "description": "Instance of `I18n.FetchEvent`. Emitted before each translation request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-items-form",
+      "path": "./src/elements/public/ItemsForm/index.ts",
       "description": "A custom element providing a customizable donation form.",
       "attributes": [
         {
@@ -369,18 +1510,47 @@
           "type": "string"
         },
         {
+          "name": "target",
+          "description": "Defines target of the form\n\nThis attribute controls the destination window of the form submission.",
+          "type": "string",
+          "default": "\"_top\""
+        },
+        {
+          "name": "cart",
+          "description": "Defines the next cart step\n\nIt can only be either add or checkout.\nIf \"add\" is chosen, this form will add items to the cart and the user will\nbe directed to the cart with these products added upon submission.\n\nIf set to \"checkout\" (this is the default) the user will be directed to\ncheckout.",
+          "type": "string",
+          "default": "\"checkout\""
+        },
+        {
           "name": "sub_frequency",
           "description": "Optional frequency string encoded as count (integer) + units (one of: `d`\nfor days, `w` for weeks, `m` for months, `y` for years). A special value\nfor twice a month is also supported: `.5m`. If set, the form will create a\nsubscription with the specified frequency in the cart.\n\n**Example:** `\"1m\"`",
           "type": "string"
         },
         {
           "name": "sub_startdate",
-          "description": "Optional subscription start date encoded as four integer for the year, two\nfor the month and two for the day. If only two or one digits are provided,\nit is assumed to be next occurence of that day of the month, from the\ncurrent date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"10\"`",
+          "description": "Optional subscription start date encoded as four integer for the year, two\nfor the month and two for the day. If only two or one digits are provided,\nit is assumed to be next occurence of that day of the month, from the\ncurrent date.\n\nSee [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)\n\n** Example:** `\"10\"`",
           "type": "string"
         },
         {
+          "name": "sub_token",
+          "description": "Optional subscription token, unique URL of a subscription, retrieved from\nthe API, XML datafeeds or Admin interface.",
+          "type": "string"
+        },
+        {
+          "name": "sub_modify",
+          "description": "Optional. Allows the “add to cart” link or form to completely replace the\nexisting subscription loaded\n\nCan be either \"replace\", \"append\" or \"\" (a blank string).\nUsing \"append\" or \"\" will result in adding these items to an existing\nsubscription in addition to the existing ones.\n\nThe \"append\" value is set for convenience, as it describes the behaviour.\nThe submitted value, in this case, will be \"\". The submitted value, in\nthis case, will be \"\".\n\nUsing \"replace\" results in replacing the existing subscription with the\ncurrent itmes.\nSee [Products subscription options](https://wiki.foxycart.com/v/2.0/products/subscriptions#subscription-related_product_options)",
+          "type": "string",
+          "default": "\"replace\""
+        },
+        {
+          "name": "sub_restart",
+          "description": "Set to \"true\" to indicate that payment is collectable right now.\nSet to \"auto\" to indicate that payment is collectable right now if the\nsubscription's past-due amount is greater than 0",
+          "type": "string",
+          "default": "\"auto\""
+        },
+        {
           "name": "sub_enddate",
-          "description": "Optional subscription end date encoded as four integer for the year, two\nfor the month and two for the day.\n\nThe absence of a sub_enddate, together with a sub_frequency, means a\nsubscription with indefinite and date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"20221010\"`",
+          "description": "Optional subscription end date encoded as four integer for the year, two\nfor the month and two for the day.\n\nThe absence of a sub_enddate, together with a sub_frequency, means a\nsubscription with indefinite and date.\n\nSee [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)\n\n** Example:** `\"20221010\"`",
           "type": "string"
         },
         {
@@ -389,10 +1559,9 @@
           "default": "[]"
         },
         {
-          "name": "products",
-          "description": "Optional an array of Product objects with at least the following properties:\n- name: the name of the product\n- price: the price of each of this product\nThe following optional properties will be used:\n- quantity: (defaults to 1) how many of each product are added to the form\n- image: an image url to be displayed in the form for this product\n- products: an array of other products that are to be treated as bundled with this product\n- signatures: an object containing a key value list of previously generated HMAC validation codes\n\nOther product properties are accepted and sent to foxy cart.\nhttps://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters",
-          "type": "array",
-          "default": "[]"
+          "name": "items",
+          "description": "Optional an array of ItemInterface objects with at least the following properties:\n- name: the name of the item\n- price: the price of each of this item\nThe following optional properties will be used:\n- quantity: (defaults to 1) how many of each item are added to the form\n- image: an image url to be displayed in the form for this item\n- items: an array of other items that are to be treated as bundled with this item\n- signatures: an object containing a key value list of previously generated HMAC validation codes\n\nOther item properties are accepted and sent to foxy cart\nSee [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)",
+          "type": "array"
         },
         {
           "name": "lang",
@@ -420,6 +1589,20 @@
           "type": "string"
         },
         {
+          "name": "target",
+          "attribute": "target",
+          "description": "Defines target of the form\n\nThis attribute controls the destination window of the form submission.",
+          "type": "string",
+          "default": "\"_top\""
+        },
+        {
+          "name": "cart",
+          "attribute": "cart",
+          "description": "Defines the next cart step\n\nIt can only be either add or checkout.\nIf \"add\" is chosen, this form will add items to the cart and the user will\nbe directed to the cart with these products added upon submission.\n\nIf set to \"checkout\" (this is the default) the user will be directed to\ncheckout.",
+          "type": "string",
+          "default": "\"checkout\""
+        },
+        {
           "name": "sub_frequency",
           "attribute": "sub_frequency",
           "description": "Optional frequency string encoded as count (integer) + units (one of: `d`\nfor days, `w` for weeks, `m` for months, `y` for years). A special value\nfor twice a month is also supported: `.5m`. If set, the form will create a\nsubscription with the specified frequency in the cart.\n\n**Example:** `\"1m\"`",
@@ -428,13 +1611,33 @@
         {
           "name": "sub_startdate",
           "attribute": "sub_startdate",
-          "description": "Optional subscription start date encoded as four integer for the year, two\nfor the month and two for the day. If only two or one digits are provided,\nit is assumed to be next occurence of that day of the month, from the\ncurrent date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"10\"`",
+          "description": "Optional subscription start date encoded as four integer for the year, two\nfor the month and two for the day. If only two or one digits are provided,\nit is assumed to be next occurence of that day of the month, from the\ncurrent date.\n\nSee [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)\n\n** Example:** `\"10\"`",
           "type": "string"
+        },
+        {
+          "name": "sub_token",
+          "attribute": "sub_token",
+          "description": "Optional subscription token, unique URL of a subscription, retrieved from\nthe API, XML datafeeds or Admin interface.",
+          "type": "string"
+        },
+        {
+          "name": "sub_modify",
+          "attribute": "sub_modify",
+          "description": "Optional. Allows the “add to cart” link or form to completely replace the\nexisting subscription loaded\n\nCan be either \"replace\", \"append\" or \"\" (a blank string).\nUsing \"append\" or \"\" will result in adding these items to an existing\nsubscription in addition to the existing ones.\n\nThe \"append\" value is set for convenience, as it describes the behaviour.\nThe submitted value, in this case, will be \"\". The submitted value, in\nthis case, will be \"\".\n\nUsing \"replace\" results in replacing the existing subscription with the\ncurrent itmes.\nSee [Products subscription options](https://wiki.foxycart.com/v/2.0/products/subscriptions#subscription-related_product_options)",
+          "type": "string",
+          "default": "\"replace\""
+        },
+        {
+          "name": "sub_restart",
+          "attribute": "sub_restart",
+          "description": "Set to \"true\" to indicate that payment is collectable right now.\nSet to \"auto\" to indicate that payment is collectable right now if the\nsubscription's past-due amount is greater than 0",
+          "type": "string",
+          "default": "\"auto\""
         },
         {
           "name": "sub_enddate",
           "attribute": "sub_enddate",
-          "description": "Optional subscription end date encoded as four integer for the year, two\nfor the month and two for the day.\n\nThe absence of a sub_enddate, together with a sub_frequency, means a\nsubscription with indefinite and date.\n\nFor more options https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters\n\n** Example:** `\"20221010\"`",
+          "description": "Optional subscription end date encoded as four integer for the year, two\nfor the month and two for the day.\n\nThe absence of a sub_enddate, together with a sub_frequency, means a\nsubscription with indefinite and date.\n\nSee [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)\n\n** Example:** `\"20221010\"`",
           "type": "string"
         },
         {
@@ -444,11 +1647,10 @@
           "default": "[]"
         },
         {
-          "name": "products",
-          "attribute": "products",
-          "description": "Optional an array of Product objects with at least the following properties:\n- name: the name of the product\n- price: the price of each of this product\nThe following optional properties will be used:\n- quantity: (defaults to 1) how many of each product are added to the form\n- image: an image url to be displayed in the form for this product\n- products: an array of other products that are to be treated as bundled with this product\n- signatures: an object containing a key value list of previously generated HMAC validation codes\n\nOther product properties are accepted and sent to foxy cart.\nhttps://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters",
-          "type": "array",
-          "default": "[]"
+          "name": "items",
+          "attribute": "items",
+          "description": "Optional an array of ItemInterface objects with at least the following properties:\n- name: the name of the item\n- price: the price of each of this item\nThe following optional properties will be used:\n- quantity: (defaults to 1) how many of each item are added to the form\n- image: an image url to be displayed in the form for this item\n- items: an array of other items that are to be treated as bundled with this item\n- signatures: an object containing a key value list of previously generated HMAC validation codes\n\nOther item properties are accepted and sent to foxy cart\nSee [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)",
+          "type": "array"
         },
         {
           "name": "total",
@@ -485,30 +1687,25 @@
       ],
       "slots": [
         {
-          "name": "products",
-          "description": "products to be added to the form."
+          "name": "items",
+          "description": "items to be added to the form."
         }
       ]
     },
     {
       "name": "foxy-item",
-      "path": "./src/elements/public/QuickOrder/index.ts",
-      "description": "This component allows a user to configure a product.\n\nThe product may be configured using HTML properties or a JS object.",
+      "path": "./src/elements/public/ItemsForm/index.ts",
+      "description": "This component allows a user to configure an item.\n\nThe item may be configured using HTML properties or a JS object.",
       "attributes": [
         {
           "name": "name",
-          "description": "**Required** the name of the product.\n\n**Example:** `\"Handmade Scarf\"`",
+          "description": "**Required** the name of the item.\n\n**Example:** `\"Dog food\"`",
           "type": "string"
         },
         {
           "name": "price",
           "description": "**Required** the price of a unit of this item\n\n**Example:** `10`",
           "type": "number"
-        },
-        {
-          "name": "currency",
-          "description": "3-letter lowercase currency code.\nIt is provided by the form if not set.\n\n**Example:** `\"usd\"`",
-          "type": "string"
         },
         {
           "name": "image",
@@ -527,19 +1724,19 @@
         },
         {
           "name": "code",
-          "description": "Optional product code. This property affects cart UI only.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "description": "Optional item code. This property affects cart UI only.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
           "type": "string"
         },
         {
           "name": "parent_code",
-          "description": "Optional parent code. This property affects cart UI only.\nIt causes Foxy Cart to recognize the parent-child relationship between two products.\n\nNested products set this property automatically.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "description": "Optional parent code. This property affects cart UI only.\nIt causes Foxy Cart to recognize the parent-child relationship between two items.\n\nNested items set this property automatically.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
           "type": "string"
         },
         {
           "name": "quantity",
-          "description": "**Required** The quantity of this product in the cart.",
+          "description": "**Required** The quantity of this item in the cart.",
           "type": "number",
-          "default": "1"
+          "default": "0"
         },
         {
           "name": "quantity_max",
@@ -553,44 +1750,32 @@
         },
         {
           "name": "category",
-          "description": "Optional category. Sets the category this product is in.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"heavy\"`",
+          "description": "Optional category. Sets the category this item is in.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"heavy\"`",
           "type": "string"
         },
         {
           "name": "expires",
-          "description": "Optional expires. Sets the expiration time of this product.\n\nAdvanced usage only: This property affects cart UI only.\nThis web component will not react to this property.\n\nThe product cannot be purchased after expiration, but if it is part of a\nsubscription, it remains in the subscription as long as it stands.\n\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `15`",
+          "description": "Optional expires. Sets the expiration time of this item.\n\nAdvanced usage only: This property affects cart UI only.\nThis web component will not react to this property.\n\nThe item cannot be purchased after expiration, but if it is part of a\nsubscription, it remains in the subscription as long as it stands.\n\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `15`",
           "type": "string"
         },
         {
           "name": "weight",
-          "description": "Optional per product weight. This property affects cart UI only.",
+          "description": "Optional per item weight. This property affects cart UI only.",
           "type": "number"
         },
         {
           "name": "shipto",
-          "description": "Optional. Specify a ship-to address for a specific product.\n\nAdvanced usage only: This property affects cart UI only.\nThis element does not provide any means for the user to specify this property.",
+          "description": "Optional. Specify a ship-to address for a specific item.\n\nAdvanced usage only: This property affects cart UI only.\nThis element does not provide any means for the user to specify this property.",
           "type": "string"
         },
         {
-          "name": "products",
-          "description": "Optional. An array of child products.\n\nEach child product is an object that can have any of the public properties of this element.\nChild elements will be created accordingly.",
-          "type": "array",
-          "default": "[]"
-        },
-        {
-          "name": "description",
-          "description": "Optional. The description for a product.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
           "name": "signatures",
-          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a previously computed HMAC validation code.\n\n**Important security information:** this web component does not generate or validates the HMAC validation code.\nPlease, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.",
+          "description": "Optional open: An Object with key, value pairs where the key is a item\nattribute and the value is a previously computed HMAC validation code.\n\n**Important security information:** this web component does not generate or validates the HMAC validation code.\nPlease, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.",
           "type": "object"
         },
         {
           "name": "open",
-          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a boolean indicating that the property is editable by the user.\n\n**Advanced use only**: this web component does not provide means for the user to alter product attributes.\n\nSee [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.",
+          "description": "Optional open: An Object with key, value pairs where the key is a item\nattribute and the value is a boolean indicating that the property is editable by the user.\n\n**Advanced use only**: this web component does not provide means for the user to alter item attributes.\n\nSee [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.",
           "type": "object"
         },
         {
@@ -610,15 +1795,26 @@
         },
         {
           "name": "total",
-          "description": "The total price of this product.\n\nIt takes into account child products and the quantity.",
+          "description": "The total price of this item.\n\nIt takes into account child items and the quantity.",
           "type": "number",
           "default": "\"this.__computeTotalPrice()\""
         },
         {
+          "name": "currency",
+          "description": "3-letter lowercase currency code.\nIt is provided by the form if not set.\n\n**Example:** `\"usd\"`",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
           "name": "pid",
-          "description": "A unique id set to the product. Advanced usage only.",
+          "description": "A unique id set to the item. Advanced usage only.",
           "type": "number",
-          "default": "\"ProductItem.__newId()\""
+          "default": "\"Item.__newId()\""
+        },
+        {
+          "name": "items",
+          "description": "Each child item is an object that can have any of the public properties of this element.\nChild elements will be created accordingly.",
+          "type": "array"
         },
         {
           "name": "value",
@@ -645,7 +1841,7 @@
         {
           "name": "name",
           "attribute": "name",
-          "description": "**Required** the name of the product.\n\n**Example:** `\"Handmade Scarf\"`",
+          "description": "**Required** the name of the item.\n\n**Example:** `\"Dog food\"`",
           "type": "string"
         },
         {
@@ -653,12 +1849,6 @@
           "attribute": "price",
           "description": "**Required** the price of a unit of this item\n\n**Example:** `10`",
           "type": "number"
-        },
-        {
-          "name": "currency",
-          "attribute": "currency",
-          "description": "3-letter lowercase currency code.\nIt is provided by the form if not set.\n\n**Example:** `\"usd\"`",
-          "type": "string"
         },
         {
           "name": "image",
@@ -681,21 +1871,21 @@
         {
           "name": "code",
           "attribute": "code",
-          "description": "Optional product code. This property affects cart UI only.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "description": "Optional item code. This property affects cart UI only.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
           "type": "string"
         },
         {
           "name": "parent_code",
           "attribute": "parent_code",
-          "description": "Optional parent code. This property affects cart UI only.\nIt causes Foxy Cart to recognize the parent-child relationship between two products.\n\nNested products set this property automatically.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
+          "description": "Optional parent code. This property affects cart UI only.\nIt causes Foxy Cart to recognize the parent-child relationship between two items.\n\nNested items set this property automatically.\n\n**Example:** `\"ISBN 978-0-12-345678-9\"`",
           "type": "string"
         },
         {
           "name": "quantity",
           "attribute": "quantity",
-          "description": "**Required** The quantity of this product in the cart.",
+          "description": "**Required** The quantity of this item in the cart.",
           "type": "number",
-          "default": "1"
+          "default": "0"
         },
         {
           "name": "quantity_max",
@@ -712,51 +1902,37 @@
         {
           "name": "category",
           "attribute": "category",
-          "description": "Optional category. Sets the category this product is in.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"heavy\"`",
+          "description": "Optional category. Sets the category this item is in.\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `\"heavy\"`",
           "type": "string"
         },
         {
           "name": "expires",
           "attribute": "expires",
-          "description": "Optional expires. Sets the expiration time of this product.\n\nAdvanced usage only: This property affects cart UI only.\nThis web component will not react to this property.\n\nThe product cannot be purchased after expiration, but if it is part of a\nsubscription, it remains in the subscription as long as it stands.\n\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `15`",
+          "description": "Optional expires. Sets the expiration time of this item.\n\nAdvanced usage only: This property affects cart UI only.\nThis web component will not react to this property.\n\nThe item cannot be purchased after expiration, but if it is part of a\nsubscription, it remains in the subscription as long as it stands.\n\nSee [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.\n\n**Example:** `15`",
           "type": "string"
         },
         {
           "name": "weight",
           "attribute": "weight",
-          "description": "Optional per product weight. This property affects cart UI only.",
+          "description": "Optional per item weight. This property affects cart UI only.",
           "type": "number"
         },
         {
           "name": "shipto",
           "attribute": "shipto",
-          "description": "Optional. Specify a ship-to address for a specific product.\n\nAdvanced usage only: This property affects cart UI only.\nThis element does not provide any means for the user to specify this property.",
+          "description": "Optional. Specify a ship-to address for a specific item.\n\nAdvanced usage only: This property affects cart UI only.\nThis element does not provide any means for the user to specify this property.",
           "type": "string"
-        },
-        {
-          "name": "products",
-          "attribute": "products",
-          "description": "Optional. An array of child products.\n\nEach child product is an object that can have any of the public properties of this element.\nChild elements will be created accordingly.",
-          "type": "array",
-          "default": "[]"
-        },
-        {
-          "name": "description",
-          "attribute": "description",
-          "description": "Optional. The description for a product.",
-          "type": "string",
-          "default": "\"\""
         },
         {
           "name": "signatures",
           "attribute": "signatures",
-          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a previously computed HMAC validation code.\n\n**Important security information:** this web component does not generate or validates the HMAC validation code.\nPlease, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.",
+          "description": "Optional open: An Object with key, value pairs where the key is a item\nattribute and the value is a previously computed HMAC validation code.\n\n**Important security information:** this web component does not generate or validates the HMAC validation code.\nPlease, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.",
           "type": "object"
         },
         {
           "name": "open",
           "attribute": "open",
-          "description": "Optional open: An Object with key, value pairs where the key is a product\nattribute and the value is a boolean indicating that the property is editable by the user.\n\n**Advanced use only**: this web component does not provide means for the user to alter product attributes.\n\nSee [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.",
+          "description": "Optional open: An Object with key, value pairs where the key is a item\nattribute and the value is a boolean indicating that the property is editable by the user.\n\n**Advanced use only**: this web component does not provide means for the user to alter item attributes.\n\nSee [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.",
           "type": "object"
         },
         {
@@ -780,16 +1956,29 @@
         {
           "name": "total",
           "attribute": "total",
-          "description": "The total price of this product.\n\nIt takes into account child products and the quantity.",
+          "description": "The total price of this item.\n\nIt takes into account child items and the quantity.",
           "type": "number",
           "default": "\"this.__computeTotalPrice()\""
         },
         {
+          "name": "currency",
+          "attribute": "currency",
+          "description": "3-letter lowercase currency code.\nIt is provided by the form if not set.\n\n**Example:** `\"usd\"`",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
           "name": "pid",
           "attribute": "pid",
-          "description": "A unique id set to the product. Advanced usage only.",
+          "description": "A unique id set to the item. Advanced usage only.",
           "type": "number",
-          "default": "\"ProductItem.__newId()\""
+          "default": "\"Item.__newId()\""
+        },
+        {
+          "name": "items",
+          "attribute": "items",
+          "description": "Each child item is an object that can have any of the public properties of this element.\nChild elements will be created accordingly.",
+          "type": "array"
         },
         {
           "name": "value",
@@ -819,6 +2008,720 @@
         {
           "name": "picture",
           "description": "Image of the product in preview stack (for single products) or grid (for bundles)."
+        },
+        {
+          "name": "item",
+          "description": "The root element inside of the shadow dom."
+        }
+      ]
+    },
+    {
+      "name": "foxy-nucleon",
+      "path": "./src/elements/public/NucleonElement/index.ts",
+      "description": "Base class for custom elements working with remote HAL+JSON resources.",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-payment-method-card",
+      "path": "./src/elements/public/PaymentMethodCard/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-spinner",
+      "path": "./src/elements/public/Spinner/index.ts",
+      "attributes": [
+        {
+          "name": "layout",
+          "description": "Optional spinner layout: horizonal (default) or vertical. First puts icon next\nto the label, second puts it above the text.",
+          "type": "string",
+          "default": "\"horizontal\""
+        },
+        {
+          "name": "state",
+          "description": "Optional spinner state:\n\n- `busy` (default) for loading data;\n- `error` for failures;\n- `empty` for when there's no data;\n- `paused` for a pause or a timeout before fetching the next chunk of data;\n- `end` for when there's no more data;",
+          "type": "string",
+          "default": "\"busy\""
+        },
+        {
+          "name": "ns",
+          "description": "Optional i18next namespace to use for translations.\nDefault: `spinner` with fallback to `shared`.",
+          "type": "string",
+          "default": "\"spinner\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "layout",
+          "attribute": "layout",
+          "description": "Optional spinner layout: horizonal (default) or vertical. First puts icon next\nto the label, second puts it above the text.",
+          "type": "string",
+          "default": "\"horizontal\""
+        },
+        {
+          "name": "state",
+          "attribute": "state",
+          "description": "Optional spinner state:\n\n- `busy` (default) for loading data;\n- `error` for failures;\n- `empty` for when there's no data;\n- `paused` for a pause or a timeout before fetching the next chunk of data;\n- `end` for when there's no more data;",
+          "type": "string",
+          "default": "\"busy\""
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "description": "Optional i18next namespace to use for translations.\nDefault: `spinner` with fallback to `shared`.",
+          "type": "string",
+          "default": "\"spinner\""
+        }
+      ]
+    },
+    {
+      "name": "foxy-subscription-form",
+      "path": "./src/elements/public/SubscriptionForm/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-subscriptions-table",
+      "path": "./src/elements/public/SubscriptionsTable/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "priceColumn",
+          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "default": "{}"
+        },
+        {
+          "name": "summaryColumn",
+          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "default": "{}"
+        },
+        {
+          "name": "statusColumn",
+          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "default": "{\"hideBelow\":\"md\"}"
+        },
+        {
+          "name": "subTokenURLColumn",
+          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "default": "{}"
+        },
+        {
+          "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
+          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>[]",
+          "default": "[\"priceColumn\",\"summaryColumn\",\"statusColumn\",\"subTokenURLColumn\"]"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-table",
+      "path": "./src/elements/public/Table/index.ts",
+      "description": "Configurable table element for HAL+JSON collections.",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
+          "default": "[]"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-transactions-table",
+      "path": "./src/elements/public/TransactionsTable/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "priceColumn",
+          "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
+          "default": "{}"
+        },
+        {
+          "name": "summaryColumn",
+          "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
+          "default": "{}"
+        },
+        {
+          "name": "statusColumn",
+          "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
+          "default": "{\"hideBelow\":\"md\"}"
+        },
+        {
+          "name": "idColumn",
+          "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
+          "default": "{\"hideBelow\":\"md\"}"
+        },
+        {
+          "name": "dateColumn",
+          "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
+          "default": "{\"hideBelow\":\"md\"}"
+        },
+        {
+          "name": "receiptColumn",
+          "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
+          "default": "{}"
+        },
+        {
+          "name": "columns",
+          "description": "Array of column templates. See `Column` type for more details.",
+          "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>[]",
+          "default": "[\"priceColumn\",\"summaryColumn\",\"statusColumn\",\"idColumn\",\"dateColumn\",\"receiptColumn\"]"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     }

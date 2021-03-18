@@ -1,12 +1,11 @@
+import babel from '@rollup/plugin-babel';
+import commonjs from '@rollup/plugin-commonjs';
+import multiInput from 'rollup-plugin-multi-input';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { paramCase } from 'change-case';
-import { terser } from 'rollup-plugin-terser';
-
-import multiInput from 'rollup-plugin-multi-input';
-import commonjs from '@rollup/plugin-commonjs';
-import babel from '@rollup/plugin-babel';
 import path from 'path';
-import env from 'rollup-plugin-inject-process-env';
+import replace from '@rollup/plugin-replace';
+import { terser } from 'rollup-plugin-terser';
 
 export default {
   input: ['dist/elements/public/*/index.js'],
@@ -23,9 +22,9 @@ export default {
     nodeResolve({ browser: true }),
     commonjs(),
     babel({ babelHelpers: 'bundled' }),
-    env({
-      NODE_ENV: 'production',
-      FOXY_CDN: 'https://static.www.foxycart.com/beta/foxy-elements/0.3.0',
+    replace({
+      'process.env.NODE_ENV': '"production"',
+      'process.env.FOXY_CDN': '"https://static.www.foxycart.com/beta/foxy-elements/0.3.0"',
     }),
     terser(),
   ],

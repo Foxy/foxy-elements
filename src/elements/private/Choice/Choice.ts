@@ -1,16 +1,19 @@
-import { spread } from '@open-wc/lit-helpers/src/spread';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-lumo-styles/icons';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
+
+import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
+
 import { AttributePart } from 'lit-html';
-import { interpret } from 'xstate';
-import { Translatable } from '../../../mixins/translatable';
 import { ChoiceChangeEvent } from './ChoiceChangeEvent';
+import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../mixins/translatable';
+import { interpret } from 'xstate';
 import { machine } from './machine';
+import { spread } from '@open-wc/lit-helpers/src/spread';
 
 const VALUE_OTHER = `@foxy.io/elements::other[${(Math.pow(10, 10) * Math.random()).toFixed(0)}]`;
 
@@ -23,6 +26,7 @@ function radio(
   const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
   const scale = checked ? 'scale-100' : 'scale-0';
+  const color = disabled ? 'text-disabled' : 'text-body';
   const ease = 'transition ease-in-out duration-200';
   const dot = `${ease} ${disabled ? '' : 'shadow-xs'} transform ${scale}`;
   const bg = disabled ? disabledBg : enabledBg;
@@ -35,7 +39,7 @@ function radio(
           <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">${label}</div>
+      <div class="font-lumo leading-m ${color}">${label}</div>
     </label>
   `;
 }
@@ -48,6 +52,7 @@ function check(
 ) {
   const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
+  const color = disabled ? 'text-disabled' : 'text-body';
   const ease = 'transition ease-in-out duration-200';
   const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
   const bg = disabled ? disabledBg : enabledBg;
@@ -60,7 +65,7 @@ function check(
           <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo text-body leading-m">${label}</div>
+      <div class="font-lumo leading-m ${color}">${label}</div>
     </label>
   `;
 }
@@ -70,6 +75,7 @@ export class Choice extends Translatable {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'x-frequency-input': FrequencyInput,
       'vaadin-text-area': customElements.get('vaadin-text-area'),
       'iron-icon': customElements.get('iron-icon'),
     };
@@ -113,6 +119,7 @@ export class Choice extends Translatable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      defaultCustomValue: { type: String, attribute: 'default-custom-value' },
       disabled: { type: Boolean },
       custom: { type: Boolean },
       type: { type: String },
@@ -131,6 +138,14 @@ export class Choice extends Translatable {
     .onTransition(({ changed }) => changed && this.requestUpdate())
     .start();
 
+  public get defaultCustomValue(): string {
+    return this.__service.state.context.defaultCustomValue;
+  }
+
+  public set defaultCustomValue(data: string) {
+    this.__service.send('SET_DEFAULT_CUSTOM_VALUE', { data });
+  }
+
   public get disabled(): boolean {
     return this.__service.state.matches('interactivity.disabled');
   }
@@ -147,11 +162,11 @@ export class Choice extends Translatable {
     this.__service.send('SET_CUSTOM', { data });
   }
 
-  public get type(): 'text' | 'textarea' | 'integer' {
+  public get type(): 'text' | 'textarea' | 'integer' | 'frequency' {
     return this.__service.state.context.type;
   }
 
-  public set type(data: 'text' | 'textarea' | 'integer') {
+  public set type(data: 'text' | 'textarea' | 'integer' | 'frequency') {
     this.__service.send('SET_TYPE', { data });
   }
 
@@ -211,7 +226,7 @@ export class Choice extends Translatable {
           '?disabled': this.disabled,
           '@change': (evt: Event) => {
             const checked = (evt.target as HTMLInputElement).checked;
-            const newItem = item === VALUE_OTHER ? '' : item;
+            const newItem = item === VALUE_OTHER ? this.defaultCustomValue : item;
             const value = this.value;
 
             if (Array.isArray(value)) {
@@ -279,7 +294,9 @@ export class Choice extends Translatable {
       '@change': handleInput,
     });
 
-    if (this.type === 'integer') {
+    if (this.type === 'frequency') {
+      return html`<x-frequency-input ...=${attributes}></x-frequency-input>`;
+    } else if (this.type === 'integer') {
       return html`<vaadin-integer-field ...=${attributes} has-controls></vaadin-integer-field>`;
     } else if (this.type === 'textarea') {
       return html`<vaadin-text-area ...=${attributes}></vaadin-text-area>`;

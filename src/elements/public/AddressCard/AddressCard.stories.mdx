@@ -1,0 +1,101 @@
+import dedent from 'dedent';
+import { html } from 'lit-html';
+import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import './index.ts';
+
+<Meta title="Cards / AddressCard" />
+
+# AddressCard
+
+<Subtitle>Form element for creating or editing customer addresses</Subtitle>
+
+<Canvas
+  mdxSource={dedent`
+    <foxy-address-card
+      parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+      href="https://demo.foxycart.com/s/admin/customer_addresses/0"
+    >
+    </foxy-address-card>
+  `}
+  isExpanded
+>
+  <Story name="Playground">
+    {() =>
+      html`
+        <foxy-address-card
+          parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+          href="https://demo.foxycart.com/s/admin/customer_addresses/0"
+          class="box-content w-64 p-4 rounded-lg border"
+        >
+        </foxy-address-card>
+      `
+    }
+  </Story>
+</Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-address-card" />
+
+### hAPI
+
+This element supports the following resources: [customer_address](https://api.foxycart.com/rels/customer_address), [default_billing_address](https://api.foxycart.com/rels/default_billing_address), [default_shipping_address](https://api.foxycart.com/rels/default_shipping_address).
+
+### i18next
+
+This element supports the following namespaces: `address-card`, `shared`.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+        href="https://demo.foxycart.com/s/admin/customer_addresses/0"
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
+
+<Story name="State: idle.template" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+        href="https://demo.foxycart.com/s/admin/sleep"
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-address-card
+        parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
+        href="https://demo.foxycart.com/s/admin/not-found"
+        class="box-content w-64 p-4 rounded-lg border"
+      >
+      </foxy-address-card>
+    `
+  }
+</Story>
