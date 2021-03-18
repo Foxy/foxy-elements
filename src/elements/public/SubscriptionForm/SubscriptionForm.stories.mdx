@@ -1,0 +1,101 @@
+import dedent from 'dedent';
+import { html } from 'lit-html';
+import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@storybook/addon-docs/blocks';
+import './index.ts';
+
+<Meta title="Forms / SubscriptionForm" />
+
+# SubscriptionForm
+
+<Subtitle>Form element for creating or editing subscriptions</Subtitle>
+
+<Canvas
+  mdxSource={dedent`
+    <foxy-subscription-form
+      parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+      href="https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction"
+    >
+    </foxy-subscription-form>
+  `}
+  isExpanded
+>
+  <Story name="Playground">
+    {() =>
+      html`
+        <foxy-subscription-form
+          parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+          href="https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction"
+          class="container-narrow"
+        >
+        </foxy-subscription-form>
+      `
+    }
+  </Story>
+</Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-subscription-form" />
+
+### hAPI
+
+This element supports the following resources: [subscription](https://api.foxycart.com/rels/subscription).
+
+### i18next
+
+This element supports the following namespaces: `subscription-form`, `shared`.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.template" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscription-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        class="container-narrow"
+      >
+      </foxy-subscription-form>
+    `
+  }
+</Story>
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscription-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        href="https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction"
+        class="container-narrow"
+      >
+      </foxy-subscription-form>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscription-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        href="https://demo.foxycart.com/s/admin/sleep"
+        class="container-narrow"
+      >
+      </foxy-subscription-form>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscription-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        href="https://demo.foxycart.com/s/admin/not-found"
+        class="container-narrow"
+      >
+      </foxy-subscription-form>
+    `
+  }
+</Story>
