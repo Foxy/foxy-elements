@@ -1,10 +1,8 @@
-import { actions, createMachine } from 'xstate';
-
+import { createMachine, actions } from 'xstate';
 import { Choice } from './Choice';
 
 type Context = Pick<Choice, 'custom' | 'items' | 'value' | 'type' | 'min' | 'max'> & {
   customValue: string | null;
-  defaultCustomValue: string;
 };
 
 export const machine = createMachine<Context>(
@@ -12,7 +10,6 @@ export const machine = createMachine<Context>(
     id: 'choice',
     type: 'parallel',
     context: {
-      defaultCustomValue: '',
       customValue: null,
       custom: false,
       items: [],
@@ -69,12 +66,10 @@ export const machine = createMachine<Context>(
                     always: [
                       { target: 'integer', cond: 'showsIntegerField' },
                       { target: 'textarea', cond: 'showsTextarea' },
-                      { target: 'frequency', cond: 'showsFrequency' },
                       { target: 'text' },
                     ],
                   },
                   text: {},
-                  frequency: {},
                   textarea: {},
                   integer: {
                     type: 'parallel',
@@ -115,7 +110,6 @@ export const machine = createMachine<Context>(
       },
     },
     on: {
-      SET_DEFAULT_CUSTOM_VALUE: { actions: 'setDefaultCustomValue' },
       SET_CUSTOM: { actions: 'setCustom', target: ['.selection.unknown', '.extension.unknown'] },
       SET_VALUE: { actions: 'setValue', target: ['.selection.unknown', '.extension.unknown'] },
       SET_ITEMS: { actions: 'setItems', target: ['.selection.unknown', '.extension.unknown'] },
@@ -130,7 +124,6 @@ export const machine = createMachine<Context>(
       isPayloadTruthy: (_, evt) => !!evt.data,
       isValueArray: ctx => Array.isArray(ctx.value),
       showsIntegerField: ctx => ctx.type === 'integer',
-      showsFrequency: ctx => ctx.type === 'frequency',
       showsTextarea: ctx => ctx.type === 'textarea',
       hasMinConstraint: ctx => typeof ctx.min === 'number',
       hasMaxConstraint: ctx => typeof ctx.max === 'number',
@@ -138,7 +131,6 @@ export const machine = createMachine<Context>(
       hasCustom: ctx => ctx.custom,
     },
     actions: {
-      setDefaultCustomValue: actions.assign({ defaultCustomValue: (_, evt) => evt.data }),
       setValue: actions.assign({
         value: (_, evt) => evt.data,
         customValue: (ctx, evt) =>

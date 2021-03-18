@@ -26,8 +26,7 @@ vaadin-email-field,
 vaadin-number-field,
 vaadin-custom-field,
 vaadin-integer-field,
-vaadin-password-field,
-vaadin-combo-box::part(text-field) {
+vaadin-password-field {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -45,7 +44,7 @@ vaadin-button {
 
 @tailwind utilities;
 
-@variants sm, md, lg, xl {
+@responsive {
   .grid-rows-auto {
     grid-auto-rows: 1fr;
   }
@@ -58,17 +57,5 @@ vaadin-button {
   .bg-blurred {
     backdrop-filter: blur(25px);
     background: var(--lumo-tint-80pct);
-  }
-
-  .max-w-modal {
-    max-width: 28rem;
-  }
-
-  .snap-x-mandatory {
-    scroll-snap-type: x mandatory;
-  }
-
-  .snap-start {
-    scroll-snap-align: start;
   }
 }
