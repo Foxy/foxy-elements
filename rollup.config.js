@@ -1,3 +1,4 @@
+import alias from '@rollup/plugin-alias';
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import multiInput from 'rollup-plugin-multi-input';
@@ -18,6 +19,14 @@ export default {
     multiInput({
       relative: 'dist/elements/public',
       transformOutputPath: output => `foxy-${paramCase(path.dirname(output))}.js`,
+    }),
+    alias({
+      entries: [
+        {
+          find: /@foxy\.io\/sdk\/(.*)/,
+          replacement: '@foxy.io/sdk/dist/esm/$1',
+        },
+      ],
     }),
     nodeResolve({ browser: true }),
     commonjs(),

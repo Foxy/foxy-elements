@@ -16,7 +16,10 @@ console.log('[tailwindcss]: build started');
     Object.assign({}, require('./tailwind.config.js'), {
       purge: {
         enabled: true,
-        content: ['./src/**/*.*'],
+        content: ['./src/**/*.ts'],
+        options: {
+          whitelistPatterns: [/:host/],
+        },
       },
     })
   );
