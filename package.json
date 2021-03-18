@@ -24,8 +24,7 @@
     "test": "wtr src/**/*.test.ts",
     "test:watch": "wtr src/**/*.test.ts --watch",
     "test:playwright": "wtr src/**/*.test.ts --playwright --browsers chromium firefox webkit",
-    "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx",
-    "tmpbuild": "rimraf dist && ttsc && node postbuild.js && rollup -c"
+    "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx"
   },
   "dependencies": {
     "@foxy.io/sdk": "^1.0.0-beta.14",
