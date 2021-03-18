@@ -39,6 +39,7 @@ module.exports = {
     ],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     'import/named': 'off',
     'import/no-unresolved': 'off',
     'import/extensions': ['error', 'ignorePackages', { ts: 'never' }],

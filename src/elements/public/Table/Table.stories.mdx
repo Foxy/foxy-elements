@@ -1,0 +1,210 @@
+import { ArgsTable, Canvas, Story, Subtitle, Props, Meta } from '@storybook/addon-docs/blocks';
+import { html } from 'lit-html';
+import './index.ts';
+
+<Meta title="Other / Table" />
+
+# Table
+
+<Subtitle>Configurable table element for HAL+JSON collections</Subtitle>
+
+## Getting started
+
+Since Table is a nucleon element, the basics are exactly the same: we have `data` property where the entire collection page is stored, we have the `.in()` method to display relevant UI depending on the state, and we have the `href` attribute/property to tell our element where to load the collection page from. Let's list customer's transactions for this demo:
+
+```html
+<foxy-table
+  id="transactions"
+  href="https://demo.foxycart.com/s/admin/transactions?customer_id=0&limit=10"
+>
+</foxy-table>
+```
+
+If you load this code in a browser, nothing will show up – that's expected because we haven't added any columns yet. We'll need a little bit of JS to help us with that. Let's display transaction IDs and statuses for now:
+
+```ts
+customElements.whenDefined('foxy-table').then(() => {
+  document.getElementById('transactions').columns = [
+    { cell: ({ html, data }) => html`<div>${data.id}</div>` },
+    { cell: ({ html, data }) => html`<div>${data.status}</div>` },
+  ];
+});
+```
+
+<Canvas>
+  <Story name="Basic">
+    {() => html`
+      <foxy-table
+        class="border rounded px-4"
+        href="https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&limit=10"
+        .columns=${[
+          { cell: ({ html, data }) => html`<span>${data.id}</span>` },
+          { cell: ({ html, data }) => html`<span>${data.status}</span>` },
+        ]}
+      >
+      </foxy-table>
+    `}
+  </Story>
+</Canvas>
+
+### Columns
+
+The `columns` property is where the templates live. It's an array of objects, where each item is representing a column and containing templates for `header` and `cell`, as well as the conditional display rules (`hideBelow` property). Let's look througn each:
+
+### Header
+
+`column.header` is an optional function that receives the following context object and expects a template result (output of `context.html`) in return. If there's no `column.header`, table header row will have no cells.
+
+- `html` - tag function from [lit-html](https://lit-html.polymer-project.org/guide#lit-html-templates);
+- `data` - entire collection page, if available (`null` otherwise);
+- `lang` - same as `foxy-table[lang]`.
+
+### Cell
+
+`cell` is an optional function that receives the following context object and expects a template result (output of `context.html`) in return. If there's no `column.cell`, table body rows will have no cells.
+
+- `html` - tag function from [lit-html](https://lit-html.polymer-project.org/guide#lit-html-templates);
+- `data` - collection page item;
+- `lang` - same as `foxy-table[lang]`.
+
+### Breakpoints
+
+`column.hideBelow` is an optional string (one the following values: `sm`, `md`, `lg`, `xl`). If there's no `column.hideBelow`, that column will always be visible. `sm` will hide it when element's width goes below 640px, `md` – 768px, `lg` - 1024px, `xl` - 1280px.
+
+Let's combine all of the above and finish this guide by adding headers and a tablet/desktop-only column (md+) with a customer email to our table:
+
+```ts
+customElements.whenDefined('foxy-table').then(() => {
+  document.getElementById('transactions').columns = [
+    {
+      header: ({ html }) => html`<span>ID</span>`,
+      cell: ({ html, data }) => html`<span>${data.id}</span>`,
+    },
+    {
+      header: ({ html }) => html`<span>Status</span>`,
+      cell: ({ html, data }) => html`<span>${data.status}</span>`,
+    },
+    {
+      hideBelow: 'md',
+      header: ({ html }) => html`<span>Customer</span>`,
+      cell: ({ html, data }) => html`<span>${data.customer_email}</span>`,
+    },
+  ];
+});
+```
+
+<Canvas>
+  <Story name="Complete">
+    {() => html`
+      <foxy-table
+        class="border rounded px-4"
+        href="https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&limit=10"
+        .columns=${[
+          {
+            header: ({ html }) => html`<span>ID</span>`,
+            cell: ({ html, data }) => html`<span>${data.id}</span>`,
+          },
+          {
+            header: ({ html }) => html`<span>Status</span>`,
+            cell: ({ html, data }) => html`<span>${data.status}</span>`,
+          },
+          {
+            hideBelow: 'md',
+            header: ({ html }) => html`<span>Customer</span>`,
+            cell: ({ html, data }) => html`<span>${data.customer_email}</span>`,
+          },
+        ]}
+      >
+      </foxy-table>
+    `}
+  </Story>
+</Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-table" />
+
+### hAPI
+
+This element supports the following hAPI resources. Any other HAL+JSON collection is allowed as well:
+
+- [attributes](https://api.foxycart.com/rels/attributes)
+- [users](https://api.foxycart.com/rels/users)
+- [user_accesses](https://api.foxycart.com/rels/user_accesses)
+- [customers](https://api.foxycart.com/rels/customers)
+- [carts](https://api.foxycart.com/rels/carts)
+- [items](https://api.foxycart.com/rels/items)
+- [applied_coupon_codes](https://api.foxycart.com/rels/applied_coupon_codes)
+- [transactions](https://api.foxycart.com/rels/transactions)
+- [customer_addresses](https://api.foxycart.com/rels/customer_addresses)
+- [coupon_details](https://api.foxycart.com/rels/coupon_details)
+- [discount_details](https://api.foxycart.com/rels/discount_details)
+- [item_options](https://api.foxycart.com/rels/item_options)
+- [payments](https://api.foxycart.com/rels/payments)
+- [applied_taxes](https://api.foxycart.com/rels/applied_taxes)
+- [custom_fields](https://api.foxycart.com/rels/custom_fields)
+- [discounts](https://api.foxycart.com/rels/discounts)
+- [shipments](https://api.foxycart.com/rels/shipments)
+- [billing_addresses](https://api.foxycart.com/rels/billing_addresses)
+- [subscriptions](https://api.foxycart.com/rels/subscriptions)
+- [item_categories](https://api.foxycart.com/rels/item_categories)
+- [downloadables](https://api.foxycart.com/rels/downloadables)
+- [email_templates](https://api.foxycart.com/rels/email_templates)
+- [tax_item_categories](https://api.foxycart.com/rels/tax_item_categories)
+- [taxes](https://api.foxycart.com/rels/taxes)
+- [payment_method_sets](https://api.foxycart.com/rels/payment_method_sets)
+- [payment_method_set_hosted_payment_gateways](https://api.foxycart.com/rels/payment_method_set_hosted_payment_gateways)
+- [payment_method_set_fraud_protections](https://api.foxycart.com/rels/payment_method_set_fraud_protections)
+- [coupons](https://api.foxycart.com/rels/coupons)
+- [coupon_codes](https://api.foxycart.com/rels/coupon_codes)
+- [coupon_code_transactions](https://api.foxycart.com/rels/coupon_code_transactions)
+- [coupon_item_categories](https://api.foxycart.com/rels/coupon_item_categories)
+- [template_sets](https://api.foxycart.com/rels/template_sets)
+- [language_overrides](https://api.foxycart.com/rels/language_overrides)
+- [template_configs](https://api.foxycart.com/rels/template_configs)
+- [cart_templates](https://api.foxycart.com/rels/cart_templates)
+- [cart_include_templates](https://api.foxycart.com/rels/cart_include_templates)
+- [checkout_templates](https://api.foxycart.com/rels/checkout_templates)
+- [receipt_templates](https://api.foxycart.com/rels/receipt_templates)
+- [email_templates](https://api.foxycart.com/rels/email_templates)
+- [error_entries](https://api.foxycart.com/rels/error_entries)
+- [downloadables](https://api.foxycart.com/rels/downloadables)
+- [payment_gateways](https://api.foxycart.com/rels/payment_gateways)
+- [hosted_payment_gateways](https://api.foxycart.com/rels/hosted_payment_gateways)
+- [fraud_protections](https://api.foxycart.com/rels/fraud_protections)
+- [payment_methods_expiring](https://api.foxycart.com/rels/payment_methods_expiring)
+- [store_shipping_methods](https://api.foxycart.com/rels/store_shipping_methods)
+- [store_shipping_services](https://api.foxycart.com/rels/store_shipping_services)
+- [integrations](https://api.foxycart.com/rels/integrations)
+- [native_integrations](https://api.foxycart.com/rels/native_integrations)
+- [stores](https://api.foxycart.com/rels/stores)
+- [checkout_types](https://api.foxycart.com/rels/checkout_types)
+- [customer_password_hash_types](https://api.foxycart.com/rels/customer_password_hash_types)
+- [default_templates](https://api.foxycart.com/rels/default_templates)
+- [cart_include_templates](https://api.foxycart.com/rels/cart_include_templates)
+- [cart_templates](https://api.foxycart.com/rels/cart_templates)
+- [checkout_templates](https://api.foxycart.com/rels/checkout_templates)
+- [receipt_templates](https://api.foxycart.com/rels/receipt_templates)
+- [email_templates](https://api.foxycart.com/rels/email_templates)
+- [hosted_payment_gateways](https://api.foxycart.com/rels/hosted_payment_gateways)
+- [languages](https://api.foxycart.com/rels/languages)
+- [language_strings](https://api.foxycart.com/rels/language_strings)
+- [locale_codes](https://api.foxycart.com/rels/locale_codes)
+- [payment_gateways](https://api.foxycart.com/rels/payment_gateways)
+- [shipping_methods](https://api.foxycart.com/rels/shipping_methods)
+- [shipping_services](https://api.foxycart.com/rels/shipping_services)
+- [shipping_containers](https://api.foxycart.com/rels/shipping_containers)
+- [shipping_drop_types](https://api.foxycart.com/rels/shipping_drop_types)
+- [shipping_address_types](https://api.foxycart.com/rels/shipping_address_types)
+- [countries](https://api.foxycart.com/rels/countries)
+- [regions](https://api.foxycart.com/rels/regions)
+- [store_versions](https://api.foxycart.com/rels/store_versions)
+- [timezones](https://api.foxycart.com/rels/timezones)
+
+### i18next
+
+This element has no translatable content.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
