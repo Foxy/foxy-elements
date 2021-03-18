@@ -6,10 +6,7 @@ module.exports = async function (source, map, meta) {
       Object.assign({}, require('../tailwind.config.js'), {
         purge: {
           enabled: true,
-          content: ['./src/**/*.ts'],
-          options: {
-            whitelistPatterns: [/:host/],
-          },
+          content: ['./src/**/*.*'],
         },
       })
     );

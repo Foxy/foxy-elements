@@ -6,13 +6,7 @@ import { DropdownChangeEvent } from '../../../../private/events';
 import { FrequencyInput } from './FrequencyInput';
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
 
-class TestFrequencyInput extends FrequencyInput {
-  get whenI18nReady() {
-    return this._whenI18nReady;
-  }
-}
-
-customElements.define('x-frequency-input', TestFrequencyInput);
+customElements.define('x-frequency-input', FrequencyInput);
 
 const samples = {
   value: {
@@ -36,24 +30,19 @@ function getRefs(element: FrequencyInput) {
   };
 }
 
-async function testEnabled(element: TestFrequencyInput) {
-  await element.whenI18nReady;
+function testEnabled(element: FrequencyInput) {
   const refs = getRefs(element);
-
   expect(refs.value.disabled).to.be.false;
   expect(refs.units.disabled).to.be.false;
 }
 
-async function testDisabled(element: TestFrequencyInput) {
-  await element.whenI18nReady;
+function testDisabled(element: FrequencyInput) {
   const refs = getRefs(element);
-
   expect(refs.value.disabled).to.be.true;
   expect(refs.units.disabled).to.be.true;
 }
 
-async function testEmpty(element: TestFrequencyInput) {
-  await element.whenI18nReady;
+function testEmpty(element: FrequencyInput) {
   const { units, value } = getRefs(element);
 
   expect(element.value).to.equal('1w');
@@ -61,8 +50,7 @@ async function testEmpty(element: TestFrequencyInput) {
   expect(value.value).to.equal('1');
 }
 
-async function testWithValue(element: TestFrequencyInput) {
-  await element.whenI18nReady;
+async function testWithValue(element: FrequencyInput) {
   const { units, value } = getRefs(element);
 
   expect(element.value).to.equal(samples.value.composed);
