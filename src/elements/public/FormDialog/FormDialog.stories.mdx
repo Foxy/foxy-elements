@@ -1,0 +1,127 @@
+import { ArgsTable, Canvas, Story, Subtitle, Props, Meta } from '@storybook/addon-docs/blocks';
+import { html } from 'lit-html';
+import dedent from 'dedent';
+import '@vaadin/vaadin-button';
+import '../AttributeForm/index';
+import './index';
+
+<Meta title="Other / FormDialog" />
+
+# FormDialog
+
+<Subtitle>Dialog wrapper for the forms made with NucleonElement</Subtitle>
+
+## Getting started
+
+Turning a NucleonElement-powered form into a dialog is as easy as this:
+
+<Canvas
+  isExpanded
+  mdxSource={dedent`
+    <!-- Before -->
+    <foxy-attribute-form
+      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+      href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+    >
+    </foxy-attribite-form>
+ 
+    <!-- After (call dialog.show() or set dialog.open = true to open) -->
+    <foxy-form-dialog
+      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+      href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+      form="foxy-attribute-form"
+    >
+    </foxy-form-dialog>
+`}
+>
+  <Story name="Basic">
+    {() => html`
+      <foxy-form-dialog
+        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+        form="foxy-attribute-form"
+        id="dialog-0"
+      >
+      </foxy-form-dialog>
+      <vaadin-button @click=${() => document.getElementById('dialog-0').show()}>
+        Open dialog
+      </vaadin-button>
+    `}
+  </Story>
+</Canvas>
+
+The code above creates a basic dialog with two buttons: Save and Close. FormDialog will track form updates and will disable those buttons in the `busy` state. The Save button will show up only if there are changes in the form (try editing it in the demo above to see how it reacts).
+
+We can also add a header if we like (the value of `header` can also be an i18next resource key – you won't need to change anything as all translations will resolve through i18next anyway):
+
+<Canvas
+  isExpanded
+  mdxSource={dedent`
+    <foxy-form-dialog
+      header="Edit attribute"
+      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+      href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+      form="foxy-attribute-form"
+    >
+    </foxy-form-dialog>
+`}
+>
+  <Story name="With header">
+    {() => html`
+      <foxy-form-dialog
+        header="Edit attribute"
+        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+        form="foxy-attribute-form"
+        id="dialog-1"
+      >
+      </foxy-form-dialog>
+      <vaadin-button @click=${() => document.getElementById('dialog-1').show()}>
+        Open dialog
+      </vaadin-button>
+    `}
+  </Story>
+</Canvas>
+
+Finally, we can change how our dialog is positioned and animated by setting the `alert` property or attribute to `true`. Unlike the regular dialogs that slide in from the right side of the screen, alerts are rendered in the center and animated with a scale in/out transition. Let's also omit the `href` attribute to showcase how we can use FormDialog for resource creation:
+
+<Canvas
+  isExpanded
+  mdxSource={dedent`
+    <foxy-form-dialog
+      header="Create attribute"
+      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+      form="foxy-attribute-form"
+      alert
+    >
+    </foxy-form-dialog>
+`}
+>
+  <Story name="Alert style">
+    {() => html`
+      <foxy-form-dialog
+        header="Create attribute"
+        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        form="foxy-attribute-form"
+        alert
+        id="dialog-2"
+      >
+      </foxy-form-dialog>
+      <vaadin-button @click=${() => document.getElementById('dialog-2').show()}>
+        Open dialog
+      </vaadin-button>
+    `}
+  </Story>
+</Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-form-dialog" />
+
+### i18next
+
+This element has no translatable content.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
