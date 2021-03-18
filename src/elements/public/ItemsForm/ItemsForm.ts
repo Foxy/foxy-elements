@@ -426,7 +426,7 @@ export class ItemsForm extends Translatable {
           period: this._t(duration.units).toLowerCase(),
         });
       } else {
-        return this._t('checkout.subscribe_multiple_units', {
+        return this._t('checkout.subscribe_muiltiple_units', {
           value,
           period: this.__translateFrequency(this.sub_frequency).toLowerCase(),
         });
