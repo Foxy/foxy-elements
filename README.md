@@ -1,6 +1,8 @@
 # Foxy Elements 🦊🏗
 
-Collection of [web components](https://developer.mozilla.org/docs/Web/Web_Components) powering the new front-end functionality at Foxy with built-in i18n and theming. Works with React, Vue, Svelte and more – or just on it own. Built with [LitElement](https://github.com/polymer/lit-element), [Tailwind](https://github.com/tailwindlabs/tailwindcss) and [Vaadin](https://github.com/vaadin/vaadin).
+Collection of [web components](https://developer.mozilla.org/docs/Web/Web_Components) powering the new front-end functionality at Foxy with built-in i18n and theming. Works with React, Vue, Svelte and more – or just on its own. Built with [LitElement](https://github.com/polymer/lit-element), [Tailwind](https://github.com/tailwindlabs/tailwindcss) and [Vaadin](https://github.com/vaadin/vaadin).
+
+You can view all the components in various states, with plenty of examples, at [elements.foxy.dev](https://elements.foxy.dev/).
 
 ## Getting started
 
