@@ -24,7 +24,8 @@
     "test": "wtr src/**/*.test.ts",
     "test:watch": "wtr src/**/*.test.ts --watch",
     "test:playwright": "wtr src/**/*.test.ts --playwright --browsers chromium firefox webkit",
-    "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx"
+    "prepack": "npm run lint && rimraf dist && ttsc && node postbuild.js && rollup -c && npm run cpx",
+    "tmpbuild": "rimraf dist && ttsc && node postbuild.js && rollup -c"
   },
   "dependencies": {
     "@foxy.io/sdk": "^1.0.0-beta.14",
@@ -52,6 +53,7 @@
     "@babel/preset-env": "^7.11.5",
     "@open-wc/eslint-config": "^3.0.0",
     "@open-wc/testing": "2.5.32",
+    "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-babel": "^5.2.3",
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-json": "^4.1.0",
