@@ -47,13 +47,20 @@ Donation form is a web component that aims to provide customizable donation form
 
 ## Minimal setup
 
-This component needs to be configured before use. You can easily spot a misconfigured component on the page – it will display an error message like the one below:
+The first thing you'll need to do is add the JavaScript call and basic donation component to your page:
 
-<Canvas mdxSource="<foxy-donation></foxy-donation>">
-  <Story name="Default">{html`<foxy-donation></foxy-donation>`}</Story>
-</Canvas>
+```html
+<script type="module" src="https://static.www.foxycart.com/beta/foxy-elements/0.3.0/foxy-donation.js"></script>
+<foxy-donation 
+  currency="usd"
+  amount="25" 
+  store="your-store-domain" 
+  name="One-Time Donation" 
+>
+</foxy-donation>
+```
 
-You'll need to provide the following info via the respective attributes for the minimal setup:
+Below is a description the elements that are required for the respective attributes for the minimal setup (already supplied in the example above):
 
 | Property / Attribute | Description             | Example                    |
 | -------------------- | ----------------------- | -------------------------- |
@@ -62,7 +69,13 @@ You'll need to provide the following info via the respective attributes for the 
 | `store`              | Your store subdomain.   | `jamstackecommerceexample` |
 | `name`               | Cart item name.         | `One-Time Donation`        |
 
-Once you've set the above attributes, you'll see the most basic version of this element – a one-click donation button that you can put anywhere on your page:
+If the component is misconfigured it will display an error message like the one below. If you see this, you'll want to review the code supplied above:
+
+<Canvas mdxSource="<foxy-donation></foxy-donation>">
+  <Story name="Default">{html`<foxy-donation></foxy-donation>`}</Story>
+</Canvas>
+
+Once you've set up the component, you'll see the most basic version of this element ― a one-click donation button that you can put anywhere on your page:
 
 <Canvas
   mdxSource={dedent`
