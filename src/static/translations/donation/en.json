@@ -2,7 +2,7 @@
   "comment_placeholder": "Anything you'd like to let us know",
   "comment_label": "Comment",
   "designation": "Designation",
-  "anonymous": "Remain anonynous",
+  "anonymous": "Remain anonymous",
   "amount": "Amount",
   "donate": "Donate {{amount}}",
   "donate_recurrently": "Donate {{amount}} {{frequency, lowercase}}"
