@@ -419,7 +419,7 @@ export class Item extends Translatable {
           ${this.quantity < 2
             ? ''
             : html`
-                <section class="quantity font-medium text-tertiary whitespace-no-wrap">
+                <section class="quantity font-medium text-tertiary whitespace-nowrap">
                   ${this._t('item.items', { quantity: this.quantity })}
                 </section>
               `}

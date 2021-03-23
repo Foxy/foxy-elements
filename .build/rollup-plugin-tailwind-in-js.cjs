@@ -9,12 +9,16 @@ module.exports = ({ config, extensions = [] }) => ({
   async transform(code, id) {
     if (extensions.every(extension => !id.endsWith(extension))) return null;
 
-    const plugins = [tailwindcss(config), discardComments(), discardEmpty()];
-    const output = await postcss(plugins).process(code, { syntax, from: id });
+    try {
+      const plugins = [tailwindcss(config), discardComments(), discardEmpty()];
+      const output = await postcss(plugins).process(code, { syntax, from: id });
 
-    return {
-      code: output.content,
-      map: output.map,
-    };
+      return {
+        code: output.content,
+        map: output.map,
+      };
+    } catch {
+      return null;
+    }
   },
 });
