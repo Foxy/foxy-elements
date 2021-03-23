@@ -25,7 +25,7 @@ export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
 
     return html`
       <figure
-        class="text-body text-l font-lumo leading-m focus:outline-none"
+        class="text-body text-l font-lumo leading-m focus-outline-none"
         aria-live="polite"
         aria-busy=${this.in('busy')}
       >

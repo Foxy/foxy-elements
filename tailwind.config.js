@@ -204,7 +204,11 @@ const sizeMap = {
 // eslint-disable-next-line no-undef
 module.exports = {
   purge: {
-    enabled: false,
+    enabled: true,
+    content: ['./src/**/*.ts'],
+    options: {
+      whitelistPatterns: [/:host/],
+    },
   },
   future: {
     removeDeprecatedGapUtilities: true,
@@ -221,6 +225,7 @@ module.exports = {
     'focus',
     'disabled',
   ],
+  separator: '-',
   theme: {
     colors: colorsMap,
     spacing: spacingMap,

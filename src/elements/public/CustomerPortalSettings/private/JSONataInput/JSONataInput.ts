@@ -53,7 +53,7 @@ export class JSONataInput extends Translatable {
 
   public render(): TemplateResult {
     const linkStyle =
-      'pl-xs text-primary rounded font-medium cursor-pointer transition duration-200 focus:outline-none focus:shadow-outline hover:underline';
+      'pl-xs text-primary rounded font-medium cursor-pointer transition duration-200 focus-outline-none focus-shadow-outline hover-underline';
 
     return html`
       <x-choice

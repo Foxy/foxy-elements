@@ -1,5 +1,4 @@
-import { Meta, Canvas, Story, ArgsTable } from '@storybook/addon-docs/blocks';
-import { action } from '@storybook/addon-actions';
+import { Meta, Canvas, Story, ArgsTable } from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import { html } from 'lit-html';
 import dedent from 'dedent';
 import { Donation } from './Donation';
@@ -22,8 +21,6 @@ export const getTemplate = (args, children = '') => html`
     .image=${args.image ?? null}
     .name=${args.name ?? null}
     .url=${args.url ?? null}
-    @change=${action('change')}
-    @submit=${evt => (evt.preventDefault(), action('submit')(evt))}
   >
     ${children}
   </foxy-donation>

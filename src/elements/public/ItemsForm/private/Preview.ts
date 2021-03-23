@@ -1,19 +1,27 @@
-import { spread } from '@open-wc/lit-helpers/src/spread';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Themeable } from '../../../../mixins/themeable';
+import {
+  CSSResult,
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  html,
+} from 'lit-element';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+
 import { Picture } from './Picture';
 import { PictureGrid } from './PictureGrid';
+import { Themeable } from '../../../../mixins/themeable';
+import { spread } from '@open-wc/lit-helpers/src/spread';
 
 class Bundle extends PictureGrid<PreviewItem[]> {
   public static get scopedElements(): ScopedElementsMap {
-    return { ...super.scopedElements, 'x-pic': Picture };
+    return { 'x-pic': Picture };
   }
 }
 
 class BundleGrid extends PictureGrid<PreviewItem[][]> {
   public static get scopedElements(): ScopedElementsMap {
-    return { ...super.scopedElements, 'x-pic': Bundle };
+    return { 'x-pic': Bundle };
   }
 }
 
@@ -22,7 +30,7 @@ export interface PreviewItem {
   image: string;
 }
 
-export class Preview extends Themeable {
+export class Preview extends ScopedElementsMixin(LitElement) {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'x-picture': Picture,
@@ -36,6 +44,10 @@ export class Preview extends Themeable {
       image: { attribute: false },
       items: { attribute: false },
     };
+  }
+
+  public static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   public quantity = 0;

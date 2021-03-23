@@ -1,27 +1,10 @@
-/* global window */
+import { endpoint, router } from '../src/server/admin/index.ts';
 
-import { configure, setCustomElements } from '@storybook/web-components';
-import { endpoint, router } from '../src/server/admin';
-
-import { FetchEvent } from '../src/elements/public/NucleonElement/FetchEvent';
+import { FetchEvent } from '../src/elements/public/NucleonElement/FetchEvent.ts';
 import customElements from '../custom-elements.json';
-import { persistHistoryStateBetweenReloads } from './utils';
-
-const context = require.context('../src/elements/public', true, /\.stories\.mdx$/);
+import { setCustomElements } from '@web/storybook-prebuilt/web-components';
 
 setCustomElements(customElements);
-configure(context, module);
-
-if (module.hot) {
-  persistHistoryStateBetweenReloads({
-    lastStoryKey: '@foxy.io/elements::storybook.last_story',
-    lastPathKey: '@foxy.io/elements::storybook.last_path',
-    refreshRate: 250,
-    module,
-  });
-
-  module.hot.accept(context.id, () => location.reload());
-}
 
 addEventListener('fetch', evt => {
   if (evt instanceof FetchEvent && !evt.defaultPrevented) {

@@ -1,22 +1,24 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-lumo-styles/icons';
-import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { interpret } from 'xstate';
-import { Themeable } from '../../../mixins/themeable';
+
+import {
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  css,
+  html,
+} from 'lit-element';
+
 import { CheckboxChangeEvent } from './CheckboxChangeEvent';
 import { CheckboxMachine } from './CheckboxMachine';
+import { Themeable } from '../../../mixins/themeable';
+import { interpret } from 'xstate';
 
-export class Checkbox extends Themeable {
-  public static get scopedElements(): ScopedElementsMap {
-    return {
-      'iron-icon': customElements.get('iron-icon'),
-    };
-  }
-
+export class Checkbox extends LitElement {
   public static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         .ml-xxl {
           margin-left: calc(var(--lumo-space-m) + 1.125rem);
@@ -70,13 +72,13 @@ export class Checkbox extends Themeable {
   public render(): TemplateResult {
     const checked = this.checked;
     const ease = 'transition ease-in-out duration-200';
-    const box = `${ease} ${checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30'}`;
+    const box = `${ease} ${checked ? 'bg-primary' : 'bg-contrast-20 group-hover-bg-contrast-30'}`;
     const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
 
     return html`
       <label class="flex group cursor-pointer">
         <div
-          class="flex-shrink-0 check rounded-s ${box} text-primary-contrast focus-within:shadow-outline"
+          class="flex-shrink-0 check rounded-s ${box} text-primary-contrast focus-within-shadow-outline"
         >
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
           <input

@@ -364,7 +364,7 @@ export class ItemsForm extends Translatable {
                 <x-dropdown
                   type="text"
                   name="frequency"
-                  class="subscription m-s w-full sm:w-auto"
+                  class="subscription m-s w-full sm-w-auto"
                   lang=${this.lang}
                   .value=${this.sub_frequency ?? '0'}
                   .items=${this.frequencies.concat(['0'])}
@@ -376,7 +376,7 @@ export class ItemsForm extends Translatable {
             : ''}
 
           <vaadin-button
-            class="m-s w-full sm:w-auto"
+            class="m-s w-full sm-w-auto"
             theme="primary"
             data-testid="submit"
             ?disabled=${!this.__hasValidItems}

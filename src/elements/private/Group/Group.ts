@@ -1,12 +1,24 @@
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import {
+  CSSResult,
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  html,
+} from 'lit-element';
+
 import { Themeable } from '../../../mixins/themeable';
 
-export class Group extends Themeable {
+export class Group extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       frame: { type: Boolean },
     };
+  }
+
+  public static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   public frame = false;

@@ -62,10 +62,10 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
                       <td
                         class=${classMap({
                           'text-right': columnIndex === this.columns.length - 1,
-                          'hidden sm:table-cell': column.hideBelow === 'sm',
-                          'hidden md:table-cell': column.hideBelow === 'md',
-                          'hidden lg:table-cell': column.hideBelow === 'lg',
-                          'hidden xl:table-cell': column.hideBelow === 'xl',
+                          'hidden sm-table-cell': column.hideBelow === 'sm',
+                          'hidden md-table-cell': column.hideBelow === 'md',
+                          'hidden lg-table-cell': column.hideBelow === 'lg',
+                          'hidden xl-table-cell': column.hideBelow === 'xl',
                           'truncate h-l font-lumo text-body text-m': true,
                         })}
                       >

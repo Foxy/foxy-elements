@@ -1,5 +1,5 @@
-import { addons } from '@storybook/addons';
-import { create } from '@storybook/theming/create';
+import { addons } from '@web/storybook-prebuilt/addons';
+import { create } from '@web/storybook-prebuilt/theming/create';
 
 addons.setConfig({
   panelPosition: 'right',

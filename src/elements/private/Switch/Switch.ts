@@ -1,5 +1,6 @@
-import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { CSSResult, CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
+import { TemplateResult, html } from 'lit-html';
+
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
@@ -9,13 +10,17 @@ export class SwitchChangeEvent extends CustomEvent<boolean> {
   }
 }
 
-export class Switch extends Themeable {
+export class Switch extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       disabled: { attribute: false },
       checked: { attribute: false },
     };
+  }
+
+  public static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   public disabled = false;
@@ -38,8 +43,8 @@ export class Switch extends Themeable {
           style="border-radius: var(--lumo-size-xl); width: calc((var(--lumo-space-l) * 2) + (var(--lumo-space-xs) * 2))"
           class=${classMap({
             'transition duration-150 relative flex flex-shrink-0 items-center': true,
-            'bg-success focus-within:shadow-outline-success': !this.disabled && this.checked,
-            'bg-contrast-10 focus-within:shadow-outline': this.disabled || !this.checked,
+            'bg-success focus-within-shadow-outline-success': !this.disabled && this.checked,
+            'bg-contrast-10 focus-within-shadow-outline': this.disabled || !this.checked,
             'bg-contrast-20': !this.disabled && !this.checked,
           })}
         >
@@ -49,7 +54,7 @@ export class Switch extends Themeable {
               'bg-tint transition duration-200 transform block rounded-full m-xs': true,
               'translate-x-l': this.checked,
               'translate-x-0': !this.checked,
-              'shadow-xs group-hover:shadow-s group-hover:scale-110': !this.disabled,
+              'shadow-xs group-hover-shadow-s group-hover-scale-110': !this.disabled,
             })}
           ></span>
 

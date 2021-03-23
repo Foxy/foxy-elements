@@ -1,6 +1,14 @@
-import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Themeable } from '../../../../mixins/themeable';
+import {
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  css,
+  html,
+} from 'lit-element';
+
 import { PreviewItem } from './Preview';
+import { Themeable } from '../../../../mixins/themeable';
 
 enum ImageState {
   Excluded = 0,
@@ -10,7 +18,7 @@ enum ImageState {
   BeforeExit = 4,
 }
 
-export class Picture extends Themeable {
+export class Picture extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -21,7 +29,7 @@ export class Picture extends Themeable {
 
   public static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         .ease-out-back {
           transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);

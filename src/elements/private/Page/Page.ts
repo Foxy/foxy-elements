@@ -1,11 +1,13 @@
 import '@vaadin/vaadin-lumo-styles';
-import { css, CSSResultArray, html, TemplateResult } from 'lit-element';
+
+import { CSSResultArray, LitElement, TemplateResult, css, html } from 'lit-element';
+
 import { Themeable } from '../../../mixins/themeable';
 
-export class Page extends Themeable {
+export class Page extends LitElement {
   public static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         ::slotted(:not([slot])) {
           margin-top: var(--lumo-space-xl);

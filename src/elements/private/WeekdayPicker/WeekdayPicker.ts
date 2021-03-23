@@ -45,10 +45,10 @@ export class WeekdayPicker extends MonthdayPicker {
       'flex items-center justify-center m-xs h-m w-xl rounded font-medium transition duration-200 ';
 
     if (this._isI18nReady && !this.disabled) {
-      base += 'cursor-pointer focus-within:shadow-outline ';
+      base += 'cursor-pointer focus-within-shadow-outline ';
       base += this.value.includes(day)
         ? 'text-base bg-primary'
-        : 'bg-contrast-5 hover:bg-contrast-10 text-body';
+        : 'bg-contrast-5 hover-bg-contrast-10 text-body';
     } else {
       base += 'text-transparent ';
       base += this.value.includes(day) ? 'bg-primary-50' : 'bg-contrast-5';

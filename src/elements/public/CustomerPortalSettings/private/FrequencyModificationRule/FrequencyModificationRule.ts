@@ -55,7 +55,7 @@ export class FrequencyModificationRule extends Translatable {
           @toggle=${() => (this.open = !this.open)}
         >
           <summary
-            class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus:outline-none focus:shadow-outline"
+            class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus-outline-none focus-shadow-outline"
           >
             <div class="p-m space-y-xs mr-xl">
               <x-i18n
@@ -87,7 +87,7 @@ export class FrequencyModificationRule extends Translatable {
             <button
               data-testid="remove"
               .disabled=${this.disabled || !this._isI18nReady}
-              class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
+              class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover-text-secondary disabled-text-tertiary disabled-opacity-50 disabled-cursor-default focus-outline-none focus-shadow-outline"
               style="width: 54px; height: 54px"
               @click=${prevent(() => {
                 this.dispatchEvent(new FrequencyModificationRuleRemoveEvent());

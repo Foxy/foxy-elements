@@ -81,7 +81,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __renderAddressPageItem: ItemRenderer<CustomerAddress> = ctx => ctx.html`
     <button
-      class="snap-start text-left p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10 hover:border-contrast-30 focus:outline-none focus:border-primary"
+      class="snap-start text-left p-m rounded-t-l rounded-b-m md-rounded flex-shrink-0 border border-contrast-10 hover-border-contrast-30 focus-outline-none focus-border-primary"
       @click=${(evt: Event) => {
         this.__addressDialog.header = 'update';
         this.__addressDialog.href = ctx.href;
@@ -101,7 +101,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __renderAttributePageItem: ItemRenderer<Attribute> = ctx => ctx.html`
     <button
-      class="snap-start text-left p-m rounded-t-l rounded-b-m md:rounded flex-shrink-0 border border-contrast-10 hover:border-contrast-30 focus:outline-none focus:border-primary"
+      class="snap-start text-left p-m rounded-t-l rounded-b-m md-rounded flex-shrink-0 border border-contrast-10 hover-border-contrast-30 focus-outline-none focus-border-primary"
       @click=${(evt: Event) => {
         this.__attributeDialog.header = 'update';
         this.__attributeDialog.href = ctx.href;
@@ -245,9 +245,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
             </vaadin-button>
           </div>
 
-          <div class="flex flex-col md:flex-row">
+          <div class="flex flex-col md-flex-row">
             <div
-              class="flex-1 min-w-0 space-y-m border-contrast-10 rounded-t-l rounded-b-l md:border md:p-m"
+              class="flex-1 min-w-0 space-y-m border-contrast-10 rounded-t-l rounded-b-l md-border md-p-m"
             >
               <div class="space-x-m flex items-center justify-between">
                 <h2 class="tracking-wide text-l font-medium">
@@ -282,8 +282,8 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               </foxy-collection-pages>
             </div>
 
-            <div class="mt-l md:mt-0 md:ml-l">
-              <h2 class="tracking-wide text-l font-medium mb-m md:sr-only">
+            <div class="mt-l md-mt-0 md-ml-l">
+              <h2 class="tracking-wide text-l font-medium mb-m md-sr-only">
                 <foxy-i18n
                   ns=${ns}
                   lang=${this.lang}
@@ -304,7 +304,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
             </div>
           </div>
 
-          <div class="space-y-m border-contrast-10 rounded-t-l rounded-b-l md:border md:p-m">
+          <div class="space-y-m border-contrast-10 rounded-t-l rounded-b-l md-border md-p-m">
             <div class="space-x-m flex items-center justify-between">
               <h2 class="tracking-wide text-l font-medium">
                 <foxy-i18n ns=${ns} lang=${this.lang} key="address_plural" data-testclass="i18n">
@@ -334,7 +334,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
           </div>
 
           <div
-            class="space-y-m rounded-t-l rounded-b-l border-contrast-10 md:border md:px-m md:pt-m"
+            class="space-y-m rounded-t-l rounded-b-l border-contrast-10 md-border md-px-m md-pt-m"
           >
             <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
               <foxy-i18n

@@ -65,7 +65,7 @@ export class OriginsList extends Translatable {
               : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
           )}
 
-          <div class="flex flex-col space-y-s sm:space-y-0 sm:flex-row sm:space-x-s sm:items-start">
+          <div class="flex flex-col space-y-s sm-space-y-0 sm-flex-row sm-space-x-s sm-items-start">
             <vaadin-text-field
               data-testid="input"
               .placeholder=${this._isI18nReady ? 'https://foxy.io' : ''}
@@ -79,9 +79,9 @@ export class OriginsList extends Translatable {
             >
             </vaadin-text-field>
 
-            <div class="sm:flex sm:items-center">
+            <div class="sm-flex sm-items-center">
               <vaadin-button
-                class="w-full sm:w-auto"
+                class="w-full sm-w-auto"
                 data-testid="button"
                 .disabled=${!this._isI18nReady ||
                 this.disabled ||
@@ -98,7 +98,7 @@ export class OriginsList extends Translatable {
                 .ns=${this.ns}
                 key="origins.add_hint"
                 class=${classMap({
-                  'text-xs text-center block font-lumo mt-xs transition duration-200 sm:mt-0 sm:ml-m': true,
+                  'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m': true,
                   'text-tertiary': this.value.length < 10,
                   'text-primary': this.value.length >= 10,
                   hidden: this.value.length === 0,
