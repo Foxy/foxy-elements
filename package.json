@@ -1,5 +1,6 @@
 {
   "name": "@foxy.io/elements",
+  "type": "module",
   "version": "0.0.0",
   "description": "E-commerce web components by Foxy.",
   "repository": {

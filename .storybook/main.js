@@ -1,5 +1,5 @@
-const tailwindConfig = require('../tailwind.config.js');
-const tailwindInJs = require('../.build/rollup-plugin-tailwind-in-js');
+const tailwindConfig = require('../tailwind.config.cjs');
+const tailwindInJs = require('../.build/rollup-plugin-tailwind-in-js.cjs');
 const nodeResolve = require('@rollup/plugin-node-resolve').nodeResolve;
 const typescript = require('@rollup/plugin-typescript');
 const commonjs = require('@rollup/plugin-commonjs');

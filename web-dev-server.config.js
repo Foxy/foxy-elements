@@ -1,13 +1,13 @@
-import { compatPlugin } from './.build/compat-plugin.mjs';
+import { compatPlugin } from './.build/compat-plugin.js';
 import { esbuildPlugin } from '@web/dev-server-esbuild';
 import { fromRollup } from '@web/dev-server-rollup';
 import rollupBabel from '@rollup/plugin-babel';
 import rollupCommonJS from '@rollup/plugin-commonjs';
 import rollupJSON from '@rollup/plugin-json';
 import rollupReplace from '@rollup/plugin-replace';
-import rollupTailwindInJs from './.build/rollup-plugin-tailwind-in-js.js';
+import rollupTailwindInJs from './.build/rollup-plugin-tailwind-in-js.cjs';
 import { storybookPlugin } from '@web/dev-server-storybook';
-import tailwindConfig from './tailwind.config.js';
+import tailwindConfig from './tailwind.config.cjs';
 
 const tailwindInJsPlugin = fromRollup(rollupTailwindInJs);
 const commonjsPlugin = fromRollup(rollupCommonJS);

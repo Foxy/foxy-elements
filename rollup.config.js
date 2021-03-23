@@ -1,19 +1,19 @@
 import alias from '@rollup/plugin-alias';
-import babelPlugin from '@rollup/plugin-babel';
+import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import copy from 'rollup-plugin-copy';
-import multiInputPlugin from 'rollup-plugin-multi-input';
+import { createRequire } from 'module';
+import multiInput from 'rollup-plugin-multi-input';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { paramCase } from 'change-case';
 import path from 'path';
 import replace from '@rollup/plugin-replace';
-import tailwindConfig from './tailwind.config.js';
-import tailwindInJs from './.build/rollup-plugin-tailwind-in-js.js';
 import { terser } from 'rollup-plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 
-const multiInput = multiInputPlugin.default;
-const babel = babelPlugin.default;
+const require = createRequire(import.meta.url);
+const tailwindConfig = require('./tailwind.config.cjs');
+const tailwindInJs = require('./.build/rollup-plugin-tailwind-in-js.cjs');
 
 export default {
   input: ['src/elements/public/*/index.ts'],
