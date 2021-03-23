@@ -9,7 +9,7 @@ import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { memoize } from 'lodash-es';
+import memoize from 'lodash-es/memoize';
 import { parseFrequency } from '../../../utils/parse-frequency';
 
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {

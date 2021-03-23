@@ -9,7 +9,7 @@ import { LitElement } from 'lit-element';
 import { NucleonElement } from './NucleonElement';
 import { createModel } from './createModel';
 import { createTestMachine } from './createTestMachine';
-import { get } from 'lodash-es';
+import get from 'lodash-es/get';
 import { html } from 'lit-html';
 
 export function getRefs<TRefs extends Record<string, Element | Element[]>>(

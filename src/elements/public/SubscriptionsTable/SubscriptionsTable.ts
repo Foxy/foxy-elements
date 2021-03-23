@@ -87,7 +87,7 @@ export class SubscriptionsTable extends Table<Data> {
         <a
           data-testclass="links"
           target="_blank"
-          class="text-s font-medium tracking-wide text-primary rounded hover:underline focus:outline-none focus:shadow-outline"
+          class="text-s font-medium tracking-wide text-primary rounded hover-underline focus-outline-none focus-shadow-outline"
           href=${ctx.data._links['fx:sub_token_url'].href}
         >
           <foxy-i18n

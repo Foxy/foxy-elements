@@ -15,7 +15,7 @@ import { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field
 
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
 import { live } from '@open-wc/lit-helpers';
-import { memoize } from 'lodash-es';
+import memoize from 'lodash-es/memoize';
 import { parseDuration } from '../../../utils/parse-duration';
 
 export class FrequencyInput extends LitElement {

@@ -12,7 +12,7 @@ import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { countries } from './countries';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { memoize } from 'lodash-es';
+import memoize from 'lodash-es/memoize';
 import { regions } from './regions';
 
 export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {

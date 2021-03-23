@@ -1,31 +1,31 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-button';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { cloneDeep } from 'lodash-es';
-import { interpret } from 'xstate';
-import { RequestEvent, UnhandledRequestError } from '../../../events/request';
-import { Translatable } from '../../../mixins/translatable';
-import { FxBookmark, FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
-import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
-import { I18N, Page, Section, Skeleton } from '../../private/index';
-import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
-import { Switch, SwitchChangeEvent } from '../../private/Switch/Switch';
-import { machine } from './machine';
-import { FrequencyModification } from './private/FrequencyModification/FrequencyModification';
-import { FrequencyModificationChangeEvent } from './private/FrequencyModification/FrequencyModificationChangeEvent';
-import { NextDateModification } from './private/NextDateModification/NextDateModification';
-import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
-import { OriginsList } from './private/OriginsList/OriginsList';
-import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
 
+import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
+import { FxBookmark, FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
+import { I18N, Page, Section, Skeleton } from '../../private/index';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import {
   SessionDuration,
   SessionDurationChangeEvent,
 } from './private/SessionDuration/SessionDuration';
-
 import { SessionSecret, SessionSecretChangeEvent } from './private/SessionSecret/SessionSecret';
+import { Switch, SwitchChangeEvent } from '../../private/Switch/Switch';
+
 import { CustomerPortalSettingsLoadSuccessEvent } from './types';
+import { FrequencyModification } from './private/FrequencyModification/FrequencyModification';
+import { FrequencyModificationChangeEvent } from './private/FrequencyModification/FrequencyModificationChangeEvent';
+import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
+import { NextDateModification } from './private/NextDateModification/NextDateModification';
+import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
+import { OriginsList } from './private/OriginsList/OriginsList';
+import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../mixins/translatable';
+import cloneDeep from 'lodash-es/cloneDeep';
+import { interpret } from 'xstate';
+import { machine } from './machine';
 
 function throwIfNotOk(response: Response) {
   if (response.ok) return;

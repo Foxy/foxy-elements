@@ -12,7 +12,7 @@ import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { memoize } from 'lodash-es';
+import memoize from 'lodash-es/memoize';
 
 export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {

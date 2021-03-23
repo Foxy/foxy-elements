@@ -6,7 +6,7 @@ import { assign, interpret } from 'xstate';
 import { API } from './API';
 import { FetchEvent } from './FetchEvent';
 import { UpdateEvent } from './UpdateEvent';
-import { memoize } from 'lodash-es';
+import memoize from 'lodash-es/memoize';
 import traverse from 'traverse';
 
 /**

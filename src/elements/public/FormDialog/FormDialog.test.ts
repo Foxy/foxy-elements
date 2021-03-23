@@ -9,7 +9,7 @@ import { FormDialog } from './FormDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { html } from 'lit-html';
-import { isEqual } from 'lodash-es';
+import isEqual from 'lodash-es/isEqual';
 import sinon from 'sinon';
 
 describe('FormDialog', () => {
