@@ -176,6 +176,35 @@ describe('The form should allow items to be retrieved', async function () {
     expect(el.items[0].price).to.equal(30);
     expect(el.items[0].name).to.equal('Foo');
   });
+
+  it('Should update the items themselves', async function () {
+    const el = await formWith2items(10, 10);
+    await elementUpdated(el);
+    el.items[0].price = 2;
+    el.items[0].name = 'foobarbaz';
+    el.items[1].price = 2;
+    el.items[1].name = 'foobarbaz';
+    await elementUpdated(el);
+    expect(el.items[0].price).to.equal(2);
+    expect(el.items[0].name).to.equal('foobarbaz');
+    expect(el.items[1].price).to.equal(2);
+    expect(el.items[1].name).to.equal('foobarbaz');
+  });
+
+  it('Should not pollute items with illegal values', async function () {
+    const el = await formWith2items(10, 10);
+    await elementUpdated(el);
+    try {
+      el.items[0].foo = 'bar';
+      el.items[0].bar = 'foo';
+      await elementUpdated(el);
+    } catch (e) {
+      expect(e instanceof TypeError).to.be.true;
+    } finally {
+      expect(el.items[0].foo).not.to.exist;
+      expect(el.items[0].bar).not.to.exist;
+    }
+  });
 });
 
 describe('The form should remain valid', async function () {
@@ -600,7 +629,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     }
   });
 
-  it('Defults sub_restart to auto', async function () {
+  it('Defaults sub_restart to auto', async function () {
     const el = await formWith2items(10, 10);
     await elementUpdated(el);
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
@@ -653,7 +682,8 @@ describe('The form submits a valid POST to forxycart', async function () {
     }
   });
 });
-describe('The form directs the user to the propper destination', async function () {
+
+describe('The form directs the user to the proper destination', async function () {
   it('Uses the _top window', async function () {
     const el = await formWith2items(10, 10);
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
