@@ -1,11 +1,11 @@
-import { Core, Integration } from '@foxy.io/sdk';
+import { Core, Backend } from '@foxy.io/sdk';
 import { expect, html } from '@open-wc/testing';
 
 import { CellContext } from './types';
 import { Table } from './Table';
 import { generateTests } from '../NucleonElement/generateTests';
 
-type TestData = Core.Resource<Integration.Rels.Attributes>;
+type TestData = Core.Resource<Backend.Rels.Attributes>;
 
 class TestTable extends Table<TestData> {
   columns = [

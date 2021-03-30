@@ -1,5 +1,5 @@
 import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { Core, Integration } from '@foxy.io/sdk';
+import { Core, Backend } from '@foxy.io/sdk';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Skeleton, Tabs } from '../../private/index';
 
@@ -19,8 +19,8 @@ import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { styles } from './styles';
 
-type CustomerAddresses = Core.Resource<Integration.Rels.CustomerAddresses>;
-type Attributes = Core.Resource<Integration.Rels.Attributes>;
+type CustomerAddresses = Core.Resource<Backend.Rels.CustomerAddresses>;
+type Attributes = Core.Resource<Backend.Rels.Attributes>;
 
 export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
