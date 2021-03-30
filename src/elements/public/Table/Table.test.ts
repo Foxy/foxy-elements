@@ -36,7 +36,7 @@ type Refs = {
   values: HTMLDivElement[];
 };
 
-describe('NucleonTable', () => {
+describe('Table', () => {
   generateTests<TestData, TestTable, Refs>({
     parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
     href: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
@@ -46,12 +46,12 @@ describe('NucleonTable', () => {
     assertions: {
       busy({ refs }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'true');
-        expect(refs.table.rows).to.have.length(11);
+        expect(refs.table.rows).to.have.length(21);
       },
 
       fail({ refs }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
-        expect(refs.table.rows).to.have.length(11);
+        expect(refs.table.rows).to.have.length(21);
       },
 
       idle({ refs, element }) {
@@ -59,7 +59,7 @@ describe('NucleonTable', () => {
         expect(refs.nameHeader).to.exist;
         expect(refs.valueHeader).to.exist;
         expect(refs.table.rows).to.have.length(
-          Math.max(element.data?._embedded['fx:attributes'].length ?? 0, 11)
+          Math.max(element.data?._embedded['fx:attributes'].length ?? 0, 21)
         );
 
         element.data?._embedded['fx:attributes'].forEach((attribute, rowIndex) => {

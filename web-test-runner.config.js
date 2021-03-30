@@ -1,4 +1,4 @@
-import webServerConfig from './web-dev-server.config';
+import webServerConfig from './web-dev-server.config.js';
 
 export default Object.assign({}, webServerConfig, {
   concurrency: 1, // can't run tests concurrently as long as we use indexeddb for mock api

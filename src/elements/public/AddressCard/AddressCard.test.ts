@@ -11,7 +11,6 @@ type Refs = {
   fullAddress: I18n;
   wrapper: HTMLButtonElement;
   spinner: Spinner;
-  icon: HTMLElement; // iron-icon
 };
 
 describe('AddressCard', () => {
@@ -38,14 +37,6 @@ describe('AddressCard', () => {
           expect(refs.fullAddress).to.have.property('key', 'full_address');
           expect(refs.fullAddress).to.have.property('lang', element.lang);
           expect(refs.fullAddress).to.have.deep.property('options', element.form);
-
-          if (element.form.is_default_billing) {
-            expect(refs.icon).to.have.property('icon', 'icons:payment');
-          } else if (element.form.is_default_shipping) {
-            expect(refs.icon).to.have.property('icon', 'maps:local-shipping');
-          } else {
-            expect(refs.icon).to.be.undefined;
-          }
         },
 
         async template({ refs, element }) {
