@@ -193,12 +193,21 @@ const lineHeightMap = {
 };
 
 const sizeMap = {
+  0: '0px',
+  auto: 'auto',
+  px: '1px',
   xxs: cssVar('size-xxs', '1.5rem'),
   xs: cssVar('size-xs', '1.625rem'),
   s: cssVar('size-s', '1.875rem'),
   m: cssVar('size-m', '2.25rem'),
   l: cssVar('size-l', '2.75rem'),
   xl: cssVar('size-xl', '3.5rem'),
+  '1-3': '33.333333%',
+  '1-2': '50%',
+  '2-3': '66.666667%',
+  full: '100%',
+  min: 'min-content',
+  max: 'max-content',
 };
 
 module.exports = {
@@ -232,10 +241,8 @@ module.exports = {
     fontSize: fontSizeMap,
     lineHeight: lineHeightMap,
     screens: {},
-    extend: {
-      height: sizeMap,
-      width: sizeMap,
-    },
+    width: { ...sizeMap, screen: '100vw' },
+    height: { ...sizeMap, screen: '100vh' },
   },
   plugins: [
     plugin(({ addVariant, e }) => {

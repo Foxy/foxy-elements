@@ -125,7 +125,7 @@ export class NextDateModificationRule extends Translatable {
             </x-group>
 
             <div class="flex space-y-l md-space-y-0 flex-col md-flex-row">
-              <div class="md-w-1/2 md-border-r md-border-contrast-10">
+              <div class="md-w-1-2 md-border-r md-border-contrast-10">
                 <x-offset-input
                   data-testid="min"
                   type="min"
@@ -140,7 +140,7 @@ export class NextDateModificationRule extends Translatable {
                 </x-offset-input>
               </div>
 
-              <div class="md-w-1/2">
+              <div class="md-w-1-2">
                 <x-offset-input
                   data-testid="max"
                   type="max"
