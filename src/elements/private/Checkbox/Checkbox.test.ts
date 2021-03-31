@@ -1,7 +1,7 @@
 import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import cloneDeep from 'lodash-es/cloneDeep';
-import { Machine } from 'xstate/dist/xstate.web.js';
+import { Machine } from 'xstate';
 import { Checkbox } from './Checkbox';
 import { CheckboxMachine } from './CheckboxMachine';
 

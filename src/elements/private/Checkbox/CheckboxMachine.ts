@@ -1,4 +1,4 @@
-import { Machine } from 'xstate/dist/xstate.web.js';
+import { Machine } from 'xstate';
 
 interface CheckboxStateSchema {
   states: {
