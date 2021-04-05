@@ -37,8 +37,8 @@ export class PropertyTable extends LitElement {
           ${this.items.map(
             ({ name, value }) => html`
               <tr>
-                <td class="${tdClass} ${tdNameColor} w-1/3 pr-m" title=${name}>${name}</td>
-                <td class="${tdClass} ${tdValueColor} w-2/3" title=${value}>${value}</td>
+                <td class="${tdClass} ${tdNameColor} w-1-3 pr-m" title=${name}>${name}</td>
+                <td class="${tdClass} ${tdValueColor} w-2-3" title=${value}>${value}</td>
               </tr>
             `
           )}

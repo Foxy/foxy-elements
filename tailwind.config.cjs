@@ -33,7 +33,7 @@ const colorsMap = {
     70: cssVar('tint-70pct', 'hsla(0, 0%, 100%, 0.77)'),
     80: cssVar('tint-80pct', 'hsla(0, 0%, 100%, 0.84)'),
     90: cssVar('tint-90pct', 'hsla(0, 0%, 100%, 0.9)'),
-    default: cssVar('tint', '#fff'),
+    DEFAULT: cssVar('tint', '#fff'),
   },
   shade: {
     5: cssVar('shade-5pct', 'hsla(214, 61%, 25%, 0.05)'),
@@ -46,7 +46,7 @@ const colorsMap = {
     70: cssVar('shade-70pct', 'hsla(214, 42%, 18%, 0.72)'),
     80: cssVar('shade-80pct', 'hsla(214, 41%, 17%, 0.83)'),
     90: cssVar('shade-90pct', 'hsla(214, 40%, 16%, 0.94)'),
-    default: cssVar('shade', 'hsl(214, 35%, 15%)'),
+    DEFAULT: cssVar('shade', 'hsl(214, 35%, 15%)'),
   },
   contrast: {
     5: cssVar('contrast-5pct', 'hsla(214, 61%, 25%, 0.05)'),
@@ -59,24 +59,24 @@ const colorsMap = {
     70: cssVar('contrast-70pct', 'hsla(214, 42%, 18%, 0.72)'),
     80: cssVar('contrast-80pct', 'hsla(214, 41%, 17%, 0.83)'),
     90: cssVar('contrast-90pct', 'hsla(214, 40%, 16%, 0.94)'),
-    default: cssVar('contrast', 'hsl(214, 35%, 15%)'),
+    DEFAULT: cssVar('contrast', 'hsl(214, 35%, 15%)'),
   },
   primary: {
     10: cssVar('primary-color-10pct', 'hsla(214, 90%, 52%, 0.1)'),
     50: cssVar('primary-color-50pct', 'hsla(214, 90%, 52%, 0.5)'),
-    default: cssVar('primary-color', 'hsl(214, 90%, 52%)'),
+    DEFAULT: cssVar('primary-color', 'hsl(214, 90%, 52%)'),
     contrast: cssVar('primary-contrast-color', '#fff'),
   },
   error: {
     10: cssVar('error-color-10pct', 'hsla(3, 100%, 60%, 0.1)'),
     50: cssVar('error-color-50pct', 'hsla(3, 100%, 60%, 0.5)'),
-    default: cssVar('error-color', 'hsl(3, 100%, 61%)'),
+    DEFAULT: cssVar('error-color', 'hsl(3, 100%, 61%)'),
     contrast: cssVar('error-contrast-color', '#fff'),
   },
   success: {
     10: cssVar('success-color-10pct', 'hsla(145, 76%, 44%, 0.12)'),
     50: cssVar('success-color-50pct', 'hsla(145, 76%, 44%, 0.55)'),
-    default: cssVar('success-color', 'hsl(145, 80%, 42%)'),
+    DEFAULT: cssVar('success-color', 'hsl(145, 80%, 42%)'),
     contrast: cssVar('success-contrast-color', '#fff'),
   },
 };
@@ -88,7 +88,7 @@ const spacingMap = {
   m: cssVar('space-m', '1rem'),
   l: cssVar('space-l', '1.5rem'),
   xl: cssVar('space-xl', '2.5rem'),
-  default: cssVar('space-m', '1rem'),
+  DEFAULT: cssVar('space-m', '1rem'),
 };
 
 const textColorMap = Object.assign({}, colorsMap, {
@@ -98,13 +98,13 @@ const textColorMap = Object.assign({}, colorsMap, {
   secondary: cssVar('secondary-text-color', 'hsla(214, 42%, 18%, 0.72)'),
   tertiary: cssVar('tertiary-text-color', 'hsla(214, 45%, 20%, 0.5)'),
   primary: Object.assign({}, colorsMap.primary, {
-    default: cssVar('primary-text-color', 'hsl(214, 90%, 52%)'),
+    DEFAULT: cssVar('primary-text-color', 'hsl(214, 90%, 52%)'),
   }),
   success: Object.assign({}, colorsMap.success, {
-    default: cssVar('success-text-color', 'hsl(145, 100%, 32%)'),
+    DEFAULT: cssVar('success-text-color', 'hsl(145, 100%, 32%)'),
   }),
   error: Object.assign({}, colorsMap.error, {
-    default: cssVar('error-text-color', 'hsl(3, 92%, 53%)'),
+    DEFAULT: cssVar('error-text-color', 'hsl(3, 92%, 53%)'),
   }),
 });
 
@@ -114,7 +114,7 @@ const borderRadiusMap = {
   m: cssVar('border-radius-m', '0.5em'),
   l: cssVar('border-radius-l', '0.75em'),
   full: '100%',
-  default: cssVar('border-radius-m', '0.5em'),
+  DEFAULT: cssVar('border-radius-m', '0.5em'),
 };
 
 const boxShadowMap = {
@@ -193,21 +193,30 @@ const lineHeightMap = {
 };
 
 const sizeMap = {
+  0: '0px',
+  auto: 'auto',
+  px: '1px',
   xxs: cssVar('size-xxs', '1.5rem'),
   xs: cssVar('size-xs', '1.625rem'),
   s: cssVar('size-s', '1.875rem'),
   m: cssVar('size-m', '2.25rem'),
   l: cssVar('size-l', '2.75rem'),
   xl: cssVar('size-xl', '3.5rem'),
+  '1-3': '33.333333%',
+  '1-2': '50%',
+  '2-3': '66.666667%',
+  full: '100%',
+  min: 'min-content',
+  max: 'max-content',
 };
 
-// eslint-disable-next-line no-undef
 module.exports = {
   purge: {
-    enabled: false,
-  },
-  future: {
-    removeDeprecatedGapUtilities: true,
+    enabled: true,
+    content: ['./src/**/*.ts'],
+    options: {
+      safelist: [/:host/],
+    },
   },
   variants: [
     'sm',
@@ -221,6 +230,7 @@ module.exports = {
     'focus',
     'disabled',
   ],
+  separator: '-',
   theme: {
     colors: colorsMap,
     spacing: spacingMap,
@@ -230,10 +240,9 @@ module.exports = {
     fontFamily: fontFamilyMap,
     fontSize: fontSizeMap,
     lineHeight: lineHeightMap,
-    extend: {
-      height: sizeMap,
-      width: sizeMap,
-    },
+    screens: {},
+    width: { ...sizeMap, screen: '100vw' },
+    height: { ...sizeMap, screen: '100vh' },
   },
   plugins: [
     plugin(({ addVariant, e }) => {

@@ -57,7 +57,7 @@ export class DisallowedDates extends Translatable {
             : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
         )}
 
-        <div class="sm:flex sm:items-end">
+        <div class="sm-flex sm-items-end">
           <div class="grid grid-cols-2 gap-s">
             <vaadin-date-picker
               data-testid="start"
@@ -85,7 +85,7 @@ export class DisallowedDates extends Translatable {
           <vaadin-button
             .disabled=${isInputDisabled || !this.__startValue}
             data-testid="submit"
-            class="w-full mt-s sm:mt-0 sm:w-auto sm:ml-s"
+            class="w-full mt-s sm-mt-0 sm-w-auto sm-ml-s"
             @click=${this.__submit}
           >
             <x-i18n

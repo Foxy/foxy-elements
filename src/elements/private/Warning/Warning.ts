@@ -1,12 +1,10 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, TemplateResult } from 'lit-element';
+import { CSSResult, CSSResultArray, LitElement, TemplateResult, html } from 'lit-element';
+
 import { Themeable } from '../../../mixins/themeable';
 
-export class Warning extends Themeable {
-  public static get scopedElements(): ScopedElementsMap {
-    return {
-      'iron-icon': customElements.get('iron-icon'),
-    };
+export class Warning extends LitElement {
+  public static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   public render(): TemplateResult {

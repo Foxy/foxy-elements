@@ -1,15 +1,16 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Themeable } from '../../../mixins/themeable';
+import {
+  CSSResult,
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  html,
+} from 'lit-element';
+
 import { ListChangeEvent } from './ListChangeEvent';
+import { Themeable } from '../../../mixins/themeable';
 
-export class List extends Themeable {
-  public static get scopedElements(): ScopedElementsMap {
-    return {
-      'iron-icon': customElements.get('iron-icon'),
-    };
-  }
-
+export class List extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -17,6 +18,10 @@ export class List extends Themeable {
       disabled: { type: Boolean },
       getText: { type: Object },
     };
+  }
+
+  public static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   public value: string[] = [];
@@ -39,7 +44,7 @@ export class List extends Themeable {
 
                 <button
                   ?disabled=${this.disabled}
-                  class="w-l h-l rounded text-tertiary transition duration-150 hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
+                  class="w-l h-l rounded text-tertiary transition duration-150 hover-text-secondary disabled-text-tertiary disabled-opacity-50 disabled-cursor-default focus-outline-none focus-shadow-outline"
                   @click=${() => this.__remove(index)}
                 >
                   <iron-icon icon="lumo:cross"></iron-icon>

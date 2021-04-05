@@ -69,7 +69,7 @@ export class NextDateModificationRule extends Translatable {
           @toggle=${() => (this.open = !this.open)}
         >
           <summary
-            class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus:outline-none focus:shadow-outline"
+            class="${openStyle} cursor-pointer relative leading-s rounded-t-l focus-outline-none focus-shadow-outline"
           >
             <div class="p-m mr-xl text-m text-header font-medium space-y-s">
               <div>
@@ -98,7 +98,7 @@ export class NextDateModificationRule extends Translatable {
             <button
               data-testid="remove"
               .disabled=${this.disabled || !this._isI18nReady}
-              class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover:text-secondary disabled:text-tertiary disabled:opacity-50 disabled:cursor-default focus:outline-none focus:shadow-outline"
+              class="flex items-center justify-center rounded absolute top-0 right-0 text-tertiary hover-text-secondary disabled-text-tertiary disabled-opacity-50 disabled-cursor-default focus-outline-none focus-shadow-outline"
               style="width: 54px; height: 54px"
               @click=${prevent(() => this.dispatchEvent(new NextDateModificationRuleRemoveEvent()))}
             >
@@ -124,8 +124,8 @@ export class NextDateModificationRule extends Translatable {
               </x-jsonata-input>
             </x-group>
 
-            <div class="flex space-y-l md:space-y-0 flex-col md:flex-row">
-              <div class="md:w-1/2 md:border-r md:border-contrast-10">
+            <div class="flex space-y-l md-space-y-0 flex-col md-flex-row">
+              <div class="md-w-1-2 md-border-r md-border-contrast-10">
                 <x-offset-input
                   data-testid="min"
                   type="min"
@@ -140,7 +140,7 @@ export class NextDateModificationRule extends Translatable {
                 </x-offset-input>
               </div>
 
-              <div class="md:w-1/2">
+              <div class="md-w-1-2">
                 <x-offset-input
                   data-testid="max"
                   type="max"

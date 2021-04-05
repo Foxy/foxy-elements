@@ -23,7 +23,7 @@ function radio(
   attrs: (part: AttributePart) => void,
   label: TemplateResult
 ) {
-  const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
+  const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover-bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
   const scale = checked ? 'scale-100' : 'scale-0';
   const color = disabled ? 'text-disabled' : 'text-body';
@@ -34,7 +34,7 @@ function radio(
   return html`
     <label class="group flex items-center ${disabled ? '' : 'cursor-pointer'}">
       <div class="item flex items-center justify-center">
-        <div class="flex radio rounded-full ${ease} ${bg} focus-within:shadow-outline">
+        <div class="flex radio rounded-full ${ease} ${bg} focus-within-shadow-outline">
           <div class="dot m-auto rounded-full bg-tint ${dot}"></div>
           <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
@@ -50,7 +50,7 @@ function check(
   attrs: (part: AttributePart) => void,
   label: TemplateResult
 ) {
-  const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover:bg-contrast-30';
+  const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover-bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
   const color = disabled ? 'text-disabled' : 'text-body';
   const ease = 'transition ease-in-out duration-200';
@@ -60,7 +60,7 @@ function check(
   return html`
     <label class="group flex items-center ${disabled ? '' : 'cursor-pointer'}">
       <div class="item flex items-center justify-center text-primary-contrast">
-        <div class="check rounded-s ${ease} ${bg} focus-within:shadow-outline">
+        <div class="check rounded-s ${ease} ${bg} focus-within-shadow-outline">
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
           <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>

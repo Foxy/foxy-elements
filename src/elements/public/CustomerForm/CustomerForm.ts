@@ -12,7 +12,7 @@ import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { validate as isEmail } from 'email-validator';
-import { memoize } from 'lodash-es';
+import memoize from 'lodash-es/memoize';
 
 export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -89,7 +89,7 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
       </x-confirm-dialog>
 
       <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-m">
+        <div class="grid grid-cols-1 sm-grid-cols-2 gap-m">
           ${this.__renderTextField({ field: 'first_name' })}
           ${this.__renderTextField({ field: 'last_name' })}
           ${this.__renderTextField({ field: 'email', required: true })}

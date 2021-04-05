@@ -1,8 +1,10 @@
-import i18next, { FormatFunction, i18n, TFunction } from 'i18next';
+import { CSSResult, CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
+import i18next, { FormatFunction, TFunction, i18n } from 'i18next';
+
 import HttpApi from 'i18next-http-backend';
-import { cdn } from '../env';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable } from './themeable';
-import { PropertyDeclarations } from 'lit-element';
+import { cdn } from '../env';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -10,12 +12,16 @@ import { PropertyDeclarations } from 'lit-element';
  * This class MUST NOT be used on its own (hence the `abstract` keyword) or
  * referenced externally (outside of the package).
  */
-export abstract class Translatable extends Themeable {
+export abstract class Translatable extends ScopedElementsMixin(LitElement) {
   static get properties(): PropertyDeclarations {
     return {
       lang: { type: String, noAccessor: true },
       ns: { type: String, noAccessor: true },
     };
+  }
+
+  public static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   /**

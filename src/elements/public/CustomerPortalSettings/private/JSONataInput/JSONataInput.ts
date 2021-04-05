@@ -1,14 +1,16 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import jsonata from 'jsonata';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { debounce } from 'lodash-es';
-import { Translatable } from '../../../../../mixins/translatable';
-import { ChoiceChangeEvent } from '../../../../private/events';
+
 import { Choice, I18N } from '../../../../private/index';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+
+import { ChoiceChangeEvent } from '../../../../private/events';
 import { JSONataInputChangeEvent } from './JSONataInputChangeEvent';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../../../mixins/translatable';
+import debounce from 'lodash-es/debounce';
+import jsonata from 'jsonata';
 
 const DEBOUNCE_WAIT = 275;
 
@@ -53,7 +55,7 @@ export class JSONataInput extends Translatable {
 
   public render(): TemplateResult {
     const linkStyle =
-      'pl-xs text-primary rounded font-medium cursor-pointer transition duration-200 focus:outline-none focus:shadow-outline hover:underline';
+      'pl-xs text-primary rounded font-medium cursor-pointer transition duration-200 focus-outline-none focus-shadow-outline hover-underline';
 
     return html`
       <x-choice

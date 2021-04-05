@@ -1,9 +1,10 @@
 import { EventExecutor, TestEventConfig, TestModelOptions } from '@xstate/test/lib/types';
 import { StateMachine, createMachine } from 'xstate';
 import { TestModel, createModel as createXStateModel } from '@xstate/test';
-import { clone, set } from 'lodash-es';
 
 import { TestMachineOptions } from './createTestMachine';
+import clone from 'lodash-es/clone';
+import set from 'lodash-es/set';
 
 type NucleonTestModelOptions<TTestContext> = TestMachineOptions &
   TestModelOptions<TTestContext> & {

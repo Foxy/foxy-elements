@@ -1,5 +1,4 @@
-import { Story, Canvas, Meta, Props, ArgsTable } from '@storybook/addon-docs/blocks';
-import { action } from '@storybook/addon-actions';
+import { Story, Canvas, Meta, Props, ArgsTable } from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import dedent from 'dedent';
 import { html } from 'lit-html';
 import './index';
@@ -13,8 +12,6 @@ export const getTemplate = (args, children = '') => html`
     .sub_startdate=${args.sub_startdate ?? null}
     .sub_enddate=${args.sub_enddate ?? null}
     .items=${args.items ?? null}
-    @change=${action('change')}
-    @submit=${evt => (evt.preventDefault(), action('submit')(evt))}
   >
     ${children}
   </foxy-items-form>

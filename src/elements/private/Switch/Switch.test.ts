@@ -1,9 +1,10 @@
 import { expect, fixture } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { cloneDeep } from 'lodash-es';
-import { Machine } from 'xstate/dist/xstate.web.js';
-import { Switch } from './Switch';
+
 import { CheckboxMachine } from '../Checkbox/CheckboxMachine';
+import { Machine } from 'xstate';
+import { Switch } from './Switch';
+import cloneDeep from 'lodash-es/cloneDeep';
+import { createModel } from '@xstate/test';
 
 function getInput(element: Switch) {
   return element.shadowRoot!.querySelector('input')!;

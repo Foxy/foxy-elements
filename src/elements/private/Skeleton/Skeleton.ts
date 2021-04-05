@@ -1,10 +1,18 @@
-import { css, CSSResultArray, html, TemplateResult, PropertyDeclarations } from 'lit-element';
+import {
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  css,
+  html,
+} from 'lit-element';
+
 import { Themeable } from '../../../mixins/themeable';
 
-export class Skeleton extends Themeable {
+export class Skeleton extends LitElement {
   public static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         @keyframes blink {
           from {

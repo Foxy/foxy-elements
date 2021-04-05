@@ -64,9 +64,9 @@ export class FrequencyModification extends Translatable {
           `
         )}
 
-        <div class="mt-m sm:flex sm:items-center">
+        <div class="mt-m sm-flex sm-items-center">
           <vaadin-button
-            class="w-full sm:w-auto"
+            class="w-full sm-w-auto"
             data-testid="add"
             theme="primary"
             .disabled=${this.disabled || this.value.length >= 10 || !this._isI18nReady}
@@ -81,7 +81,7 @@ export class FrequencyModification extends Translatable {
             .ns=${this.ns}
             key="fmod.add_rule_hint"
             class=${classMap({
-              'text-xs text-center block font-lumo mt-xs transition duration-200 sm:mt-0 sm:ml-m': true,
+              'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m': true,
               'text-tertiary': this.value.length < 10,
               'text-primary': this.value.length >= 10,
               hidden: this.value.length === 0,

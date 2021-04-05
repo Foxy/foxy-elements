@@ -1,5 +1,6 @@
+import { CSSResult, CSSResultArray, LitElement, css } from 'lit-element';
+
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { LitElement, CSSResult, CSSResultArray, unsafeCSS, css } from 'lit-element';
 
 /**
  * One of the base classes for each rel-specific element in the collection
@@ -17,10 +18,84 @@ export abstract class Themeable extends ScopedElementsMixin(LitElement) {
    */
   public static get styles(): CSSResult | CSSResultArray {
     return [
-      unsafeCSS`{{ output }}`,
       css`
+        @tailwind base;
+
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+
         :host {
           display: block;
+        }
+
+        details > summary::-webkit-details-marker {
+          display: none;
+        }
+
+        details > summary {
+          list-style: none;
+        }
+
+        vaadin-select {
+          margin-top: -4px;
+          margin-bottom: -4px;
+        }
+
+        vaadin-text-area,
+        vaadin-text-field,
+        vaadin-date-picker,
+        vaadin-email-field,
+        vaadin-number-field,
+        vaadin-custom-field,
+        vaadin-integer-field,
+        vaadin-password-field,
+        vaadin-combo-box::part(text-field) {
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+
+        vaadin-date-picker::part(text-field) {
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+
+        vaadin-button {
+          margin: 0;
+        }
+
+        @tailwind components;
+
+        @tailwind utilities;
+
+        @layer utilities {
+          @variants sm, md, lg, xl {
+            .grid-rows-auto {
+              grid-auto-rows: 1fr;
+            }
+
+            .icon-inline {
+              --iron-icon-height: 1em;
+              --iron-icon-width: 1em;
+            }
+
+            .bg-blurred {
+              backdrop-filter: blur(25px);
+              background: var(--lumo-tint-80pct);
+            }
+
+            .max-w-modal {
+              max-width: 28rem;
+            }
+
+            .snap-x-mandatory {
+              scroll-snap-type: x mandatory;
+            }
+
+            .snap-start {
+              scroll-snap-align: start;
+            }
+          }
         }
       `,
     ];

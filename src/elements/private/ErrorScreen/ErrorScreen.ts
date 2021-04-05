@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { css, CSSResultArray, PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { CSSResultArray, PropertyDeclarations, css } from 'lit-element';
+import { TemplateResult, html } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 import { I18N } from '../I18N/I18N';
 
@@ -81,7 +81,7 @@ export class ErrorScreen extends Translatable {
             rel="nofollow noreferrer noopener"
             href=${this._i18n.t(`errors.${this.type}.href`).toString()}
             target="_blank"
-            class="px-m py-xs text-primary font-medium tracking-wide border border-contrast-10 rounded transition-colors duration-200 hover:bg-primary-10 hover:border-primary-10 focus:outline-none focus:shadow-outline"
+            class="px-m py-xs text-primary font-medium tracking-wide border border-contrast-10 rounded transition-colors duration-200 hover-bg-primary-10 hover-border-primary-10 focus-outline-none focus-shadow-outline"
             router-ignore
           >
             <x-i18n ns=${this.ns} lang=${this.lang} key="errors.${this.type}.action"></x-i18n>

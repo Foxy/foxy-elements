@@ -1,13 +1,16 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
+
+import { TemplateResult, html } from 'lit-html';
+
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { I18N } from '../../../../private/index';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
-import { random, times } from 'lodash-es';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../../../mixins/translatable';
-import { I18N } from '../../../../private/index';
+import random from 'lodash-es/random';
+import times from 'lodash-es/times';
 
 export class SessionSecretChangeEvent extends CustomEvent<{ value: string; invalid: boolean }> {
   constructor(detail: { value: string; invalid: boolean }) {

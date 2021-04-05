@@ -1,9 +1,10 @@
-import { expect, fixture } from '@open-wc/testing';
-import { createModel, TestModel } from '@xstate/test';
+import { AnyEventObject, State, createMachine } from 'xstate';
 import { TestEventConfig, TestPlan } from '@xstate/test/lib/types';
-import { cloneDeep } from 'lodash-es';
-import { AnyEventObject, createMachine, State } from 'xstate';
+import { TestModel, createModel } from '@xstate/test';
+import { expect, fixture } from '@open-wc/testing';
+
 import { Choice } from './Choice';
+import cloneDeep from 'lodash-es/cloneDeep';
 import { machine } from './machine';
 
 const config = cloneDeep(machine.config);

@@ -1,11 +1,12 @@
-import { css, CSSResultArray } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { CSSResultArray, LitElement, css } from 'lit-element';
+import { TemplateResult, html } from 'lit-html';
+
 import { Themeable } from '../../../mixins/themeable';
 
-export class LoadingScreen extends Themeable {
+export class LoadingScreen extends LitElement {
   public static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         :host {
           position: absolute;

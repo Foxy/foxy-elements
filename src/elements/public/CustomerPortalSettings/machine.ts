@@ -1,17 +1,19 @@
-import { isEqual, random, times } from 'lodash-es';
-import { Machine, actions } from 'xstate';
-
 import {
   CustomerPortalSettingsContext,
-  CustomerPortalSettingsSetOriginsEvent,
-  CustomerPortalSettingsSetFrequencyModificationEvent,
-  CustomerPortalSettingsSetNextDateModificationEvent,
-  CustomerPortalSettingsSetSessionEvent,
-  CustomerPortalSettingsSetSecretEvent,
-  CustomerPortalSettingsLoadSuccessEvent,
   CustomerPortalSettingsLoadErrorEvent,
+  CustomerPortalSettingsLoadSuccessEvent,
+  CustomerPortalSettingsSetFrequencyModificationEvent,
   CustomerPortalSettingsSetHrefEvent,
+  CustomerPortalSettingsSetNextDateModificationEvent,
+  CustomerPortalSettingsSetOriginsEvent,
+  CustomerPortalSettingsSetSecretEvent,
+  CustomerPortalSettingsSetSessionEvent,
 } from './types';
+import { Machine, actions } from 'xstate';
+
+import isEqual from 'lodash-es/isEqual';
+import random from 'lodash-es/random';
+import times from 'lodash-es/times';
 
 // #region guards
 

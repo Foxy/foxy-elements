@@ -54,7 +54,7 @@ export class FrequencyList extends Translatable {
             : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
         )}
 
-        <div class="space-y-s md:space-y-0 md:space-x-s w-full md:flex">
+        <div class="space-y-s md-space-y-0 md-space-x-s w-full md-flex">
           <x-frequency-input
             data-testid="input"
             .lang=${this.lang}
@@ -66,7 +66,7 @@ export class FrequencyList extends Translatable {
 
           <vaadin-button
             data-testid="button"
-            class="w-full md:w-auto"
+            class="w-full md-w-auto"
             .disabled=${isInputDisabled}
             @click=${this.__handleSubmit}
           >

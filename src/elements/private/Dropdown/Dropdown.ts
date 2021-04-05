@@ -1,9 +1,17 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-select';
-import { registerStyles, css } from '@vaadin/vaadin-themable-mixin/register-styles';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Themeable } from '../../../mixins/themeable';
+
+import {
+  CSSResult,
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  html,
+} from 'lit-element';
+import { css, registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles';
+
 import { DropdownChangeEvent } from './DropdownChangeEvent';
+import { Themeable } from '../../../mixins/themeable';
 
 registerStyles(
   'vaadin-list-box',
@@ -28,14 +36,7 @@ function getUnexistentValue() {
   return `@foxy.io/elements#dropdown-${Math.random().toFixed(16).substr(2)}`;
 }
 
-export class Dropdown extends Themeable {
-  public static get scopedElements(): ScopedElementsMap {
-    return {
-      'vaadin-select': customElements.get('vaadin-select'),
-      'vaadin-item': customElements.get('vaadin-item'),
-    };
-  }
-
+export class Dropdown extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -45,6 +46,10 @@ export class Dropdown extends Themeable {
       label: { type: String },
       value: { type: String },
     };
+  }
+
+  public static get styles(): CSSResult | CSSResultArray {
+    return Themeable.styles;
   }
 
   public disabled = false;

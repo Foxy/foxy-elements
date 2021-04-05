@@ -129,12 +129,15 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
     exec: async element => {
       await element.updateComplete;
       const { start, end } = getRefs<Refs>(element);
-
       const newStartDate = parseDate(end.value) ?? new Date();
+
+      newStartDate.setMonth(newStartDate.getMonth() + 1);
+      newStartDate.setDate(newStartDate.getDate() + 1);
+
       const newValue = [
         String(newStartDate.getFullYear()).padStart(4, '0'),
-        String(newStartDate.getMonth() + 1).padStart(2, '0'),
-        String(newStartDate.getDate() + 1).padStart(2, '0'),
+        String(newStartDate.getMonth()).padStart(2, '0'),
+        String(newStartDate.getDate()).padStart(2, '0'),
       ].join('-');
 
       start.value = newValue;

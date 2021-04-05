@@ -11,6 +11,8 @@
 # storybook files
 **/*.stories.js
 **/*.stories.js.map
+dist/server/**/*
+dist/mocks/**/*
 
 # and some system files
 .DS_Store

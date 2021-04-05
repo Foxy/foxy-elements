@@ -1,17 +1,20 @@
-import { spread } from '@open-wc/lit-helpers/src/spread';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
-import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
+
+import {
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  css,
+  html,
+} from 'lit-element';
+
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable } from '../../../../mixins/themeable';
+import { spread } from '@open-wc/lit-helpers/src/spread';
 
-export class PictureGrid<TData = unknown> extends Themeable {
-  public static get scopedElements(): ScopedElementsMap {
-    return {
-      'iron-icon': customElements.get('iron-icon'),
-    };
-  }
-
+export class PictureGrid<TData = unknown> extends ScopedElementsMixin(LitElement) {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -22,7 +25,7 @@ export class PictureGrid<TData = unknown> extends Themeable {
 
   public static get styles(): CSSResultArray {
     return [
-      super.styles,
+      Themeable.styles,
       css`
         .w-preview {
           width: 5.5rem;
