@@ -1,0 +1,74 @@
+import { Subtitle, ArgsTable, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import './index.ts';
+
+<Meta title="Connectors / CustomerApi" />
+
+# CustomerApi
+
+<Subtitle>Element connector for Customer API</Subtitle>
+
+Our Elements are designed to work with a variety of backends – whether provided by Foxy or maintained by a 3rd party. To make that possible, we rely on DOM events to make API requests: before each call, our elements dispatch a `fetch` event and wait for it to be handled before proceeding with the default behaviour. This is where the connectors come in. They intercept `fetch` events, inject auth info and even rewrite requests (if necessary) for a specific backend.
+
+## Getting started
+
+This particular connector makes child Elements compatible with the Customer API powering our Customer Portal and usually available at `https://your.store.domain/s/customer`. To get started, simply wrap your setup into `foxy-customer-api` and specify base URL:
+
+```html
+<foxy-customer-api base="https://your.store.domain/s/customer/" storage="local">
+  <h2>Billing</h2>
+  <foxy-address-card href="https://your.store.domain/s/customer/default_billing_address">
+  </foxy-address-card>
+
+  <h2>Transactions</h2>
+  <foxy-transactions-table href="https://your.store.domain/s/customer/transactions">
+  </foxy-transactions-table>
+</foxy-customer-api>
+```
+
+## Storage
+
+You can choose between multiple types of storage for the session info: `memory` for in-memory storage (clears on reload), `session` for Session Storage (clears when browser restarts) and `local` for Local Storage (clears after two weeks or later depending on the browser settings). You can also get more extensive logging by increasing `level` (up to 5).
+
+## Virtual endpoints
+
+This element supports multiple virtual endpoints. Requests to those endpoints will be automatically rewritten to match their Customer API counterparts:
+
+### `foxy://auth/session`
+
+`POST` with the following payload will call `POST /s/customer/authenticate` and respond with status `200` (on successful sign-in), `401` (when email or password doesn't match) or `500` (if something breaks) and a `null` body.
+
+```ts
+type AuthSessionPostPayload = {
+  type: 'password';
+  credential: { email: string; password: string };
+};
+```
+
+`DELETE` will call `DELETE /s/customer/authenticate` and respond with status `200` (on successful sign-out) or `500` (if something breaks) and a `null` body.
+
+### `foxy://auth/recover`
+
+`POST` with the following payload will call `POST /s/customer/forgot_password` and respond with status `200` (if password reset request was acknowledged) or `500` (if something breaks) and a `null` body.
+
+```ts
+type AuthRecoverPostPayload = {
+  type: 'email';
+  detail: { email: string };
+};
+```
+
+## Reference
+
+<ArgsTable of="foxy-customer-api" />
+
+### hAPI
+
+This element supports only endpoints implementing Customer API, like our [Customer Portal](https://wiki.foxycart.com/v/2.0/customer_portal).
+
+### i18next
+
+This element doesn't have translatable content.
+
+### Theming
+
+This element doesn't render any themeable markup.
