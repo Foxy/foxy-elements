@@ -2,6 +2,53 @@
   "version": "experimental",
   "tags": [
     {
+      "name": "foxy-access-recovery-form",
+      "path": "./src/elements/public/AccessRecoveryForm/index.ts",
+      "description": "Email-based \"forgot password\" form.",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "email",
+          "description": "User email. Value of this property is bound to the form field.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "API",
+          "description": "API class constructor used by the instances of this class.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "email",
+          "attribute": "email",
+          "description": "User email. Value of this property is bound to the form field.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "events": [
+        {
+          "name": "fetch",
+          "description": "Instance of `AccessRecoveryForm.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
       "name": "foxy-address-card",
       "path": "./src/elements/public/AddressCard/index.ts",
       "attributes": [
@@ -684,6 +731,54 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-customer-api",
+      "path": "./src/elements/public/CustomerApi/index.ts",
+      "description": "Element connector for Customer API.",
+      "attributes": [
+        {
+          "name": "storage",
+          "description": "Credentials storage implementing Web Storage API. Access tokens and other related info will be stored here. Defaults to in-memory storage.",
+          "type": "string",
+          "default": "\"memory\""
+        },
+        {
+          "name": "level",
+          "description": "Numeric Consola log level. If omitted, Consola defaults will be used.",
+          "type": "number",
+          "default": "0"
+        },
+        {
+          "name": "base",
+          "description": "Bookmark URL for this API. This is where the tree traversal begins. We also use this URL as a base for relative paths.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "storage",
+          "attribute": "storage",
+          "description": "Credentials storage implementing Web Storage API. Access tokens and other related info will be stored here. Defaults to in-memory storage.",
+          "type": "string",
+          "default": "\"memory\""
+        },
+        {
+          "name": "level",
+          "attribute": "level",
+          "description": "Numeric Consola log level. If omitted, Consola defaults will be used.",
+          "type": "number",
+          "default": "0"
+        },
+        {
+          "name": "base",
+          "attribute": "base",
+          "description": "Bookmark URL for this API. This is where the tree traversal begins. We also use this URL as a base for relative paths.",
+          "type": "string",
+          "default": "\"\""
         }
       ]
     },
@@ -2211,6 +2306,66 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-sign-in-form",
+      "path": "./src/elements/public/SignInForm/index.ts",
+      "description": "Form element for email/password sign in.",
+      "attributes": [
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "email",
+          "description": "User email. Value of this property is bound to the form field.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "password",
+          "description": "User password. Value of this property is bound to the form field.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "API",
+          "description": "API class constructor used by the instances of this class.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "email",
+          "attribute": "email",
+          "description": "User email. Value of this property is bound to the form field.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "password",
+          "attribute": "password",
+          "description": "User password. Value of this property is bound to the form field.",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "events": [
+        {
+          "name": "fetch",
+          "description": "Instance of `SignInForm.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
