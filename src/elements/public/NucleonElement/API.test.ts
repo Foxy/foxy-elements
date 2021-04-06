@@ -15,7 +15,7 @@ describe('NucleonElement', () => {
 
     it('emits FetchEvent on given target when fetching', async () => {
       const whenGotEvent = oneEvent(window, 'fetch');
-      const request = new Request('./test', {
+      const request = new API.WHATWGRequest('./test', {
         method: 'POST',
         body: 'Test',
         headers: { Foo: 'Bar' },
@@ -33,7 +33,7 @@ describe('NucleonElement', () => {
 
     it('makes a request if FetchEvent is not cancelled', () => {
       const fetchStub = stub(window, 'fetch').resolves(new Response());
-      const request = new Request('./test');
+      const request = new API.WHATWGRequest('./test');
       new API(window).fetch(request);
 
       expect(fetchStub).to.have.been.calledWith(request);
@@ -51,7 +51,7 @@ describe('NucleonElement', () => {
           resolve();
         });
 
-        new API(window).fetch(new Request('./test'));
+        new API(window).fetch(new API.WHATWGRequest('./test'));
       });
     });
   });

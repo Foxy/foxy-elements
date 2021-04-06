@@ -1,3 +1,4 @@
+import { API } from '@foxy.io/sdk/core';
 import { BackendModule } from 'i18next';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 
@@ -22,7 +23,7 @@ export const backend: BackendModule = {
       cancelable: true,
       composed: true,
       bubbles: true,
-      request: new Request(`foxy://i18n/${namespace}/${language}`),
+      request: new API.WHATWGRequest(`foxy://i18n/${namespace}/${language}`),
       resolve,
       reject,
     });

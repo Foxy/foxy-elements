@@ -2,6 +2,7 @@ import { DemoDatabase, db, router, whenDbReady } from '../../../server/admin/ind
 import { EventObject, State } from 'xstate';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
+import { API } from '@foxy.io/sdk/core';
 import { EventExecutor } from '@xstate/test/lib/types';
 import { FetchEvent } from './FetchEvent';
 import { HALJSONResource } from './types';
@@ -150,7 +151,7 @@ export function generateTests<
           const lastRequest = lastEvent.request;
           const method = lastRequest.method;
           const headers = lastRequest.headers;
-          const request = new Request(config.href, { method, headers });
+          const request = new API.WHATWGRequest(config.href, { method, headers });
 
           lastEvent.respondWith(router.handleRequest(request)!.handlerPromise);
           await oneEvent(element, 'update');
@@ -177,7 +178,7 @@ export function generateTests<
           const body = await lastRequest.clone().text();
           const method = lastRequest.method;
           const headers = lastRequest.headers;
-          const request = new Request(config.parent, { body, method, headers });
+          const request = new API.WHATWGRequest(config.parent, { body, method, headers });
 
           lastEvent.respondWith(router.handleRequest(request)!.handlerPromise);
           await oneEvent(element, 'update');
@@ -197,7 +198,7 @@ export function generateTests<
           const body = await lastRequest.clone().text();
           const method = lastRequest.method;
           const headers = lastRequest.headers;
-          const request = new Request(config.href, { body, method, headers });
+          const request = new API.WHATWGRequest(config.href, { body, method, headers });
 
           lastEvent.respondWith(router.handleRequest(request)!.handlerPromise);
           await oneEvent(element, 'update');
@@ -213,7 +214,7 @@ export function generateTests<
 
         async DONE_DELETING({ element, events }) {
           const lastEvent = events[events.length - 1];
-          const mockHandler = router.handleRequest(new Request(lastEvent.request.url))!; // don't actually delete, just send GET
+          const mockHandler = router.handleRequest(new API.WHATWGRequest(lastEvent.request.url))!; // don't actually delete, just send GET
 
           lastEvent.respondWith(mockHandler.handlerPromise);
           await oneEvent(element, 'update');
@@ -221,7 +222,8 @@ export function generateTests<
         },
 
         async EDIT_INVALID_VIA_UI({ element, events }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
 
           await config.actions?.edit?.({
@@ -235,7 +237,8 @@ export function generateTests<
         },
 
         async EDIT_VALID_VIA_UI({ element, events }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
 
           await config.actions?.edit?.({
             form: (await response.json()) as TData,
@@ -268,7 +271,8 @@ export function generateTests<
         },
 
         async SET_INVALID_DATA_VIA_PROPERTY({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
           const invalidForm = config.invalidate!(validForm);
 
@@ -279,7 +283,8 @@ export function generateTests<
         },
 
         async SET_VALID_DATA_VIA_PROPERTY({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
 
           element.data = validForm;
@@ -335,7 +340,8 @@ export function generateTests<
         },
 
         async EDIT_INVALID_VIA_API({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
           const invalidForm = config.invalidate!(validForm);
 
@@ -345,7 +351,8 @@ export function generateTests<
         },
 
         async EDIT_VALID_VIA_API({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
 
           element.edit(validForm);
