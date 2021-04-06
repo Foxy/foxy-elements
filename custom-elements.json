@@ -779,6 +779,11 @@
           "description": "Bookmark URL for this API. This is where the tree traversal begins. We also use this URL as a base for relative paths.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "api",
+          "description": "`FoxySDK.Customer.API` instance used by this element to communicate with the backend.",
+          "type": "API"
         }
       ]
     },

@@ -31,28 +31,13 @@ export class CustomerApi extends LitElement {
     if (!(evt instanceof FetchEvent) || evt.defaultPrevented) return;
 
     const getResponse = async () => {
-      const storage =
-        typeof this.storage === 'object'
-          ? this.storage
-          : this.storage === 'local'
-          ? localStorage
-          : this.storage === 'session'
-          ? sessionStorage
-          : undefined;
-
-      const api = new API({
-        level: this.level,
-        base: new URL(this.base),
-        ...(storage ? { storage } : undefined),
-      });
-
       if (evt.request.url === 'foxy://auth/session') {
         try {
-          if (evt.request.method === 'DELETE') await api.signOut();
+          if (evt.request.method === 'DELETE') await this.api.signOut();
 
           if (evt.request.method === 'POST') {
             const payload = await evt.request.clone().json();
-            if (payload.type === 'password') await api.signIn(payload.credential);
+            if (payload.type === 'password') await this.api.signIn(payload.credential);
           }
 
           return new Response(null, { status: 200 });
@@ -66,7 +51,7 @@ export class CustomerApi extends LitElement {
         try {
           if (evt.request.method === 'POST') {
             const payload = await evt.request.clone().json();
-            if (payload.type === 'email') await api.sendPasswordResetEmail(payload.detail);
+            if (payload.type === 'email') await this.api.sendPasswordResetEmail(payload.detail);
           }
 
           return new Response(null, { status: 200 });
@@ -75,11 +60,29 @@ export class CustomerApi extends LitElement {
         }
       }
 
-      return api.fetch(evt.request);
+      return this.api.fetch(evt.request);
     };
 
     evt.respondWith(getResponse());
   };
+
+  /** `FoxySDK.Customer.API` instance used by this element to communicate with the backend. */
+  get api(): API {
+    const storage =
+      typeof this.storage === 'object'
+        ? this.storage
+        : this.storage === 'local'
+        ? localStorage
+        : this.storage === 'session'
+        ? sessionStorage
+        : undefined;
+
+    return new API({
+      level: this.level,
+      base: new URL(this.base),
+      ...(storage ? { storage } : undefined),
+    });
+  }
 
   createRenderRoot(): CustomerApi {
     return this;
