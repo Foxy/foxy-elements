@@ -17,7 +17,7 @@ export class API extends CoreAPI<any> {
       base: new URL(document.baseURI),
       fetch: (...args: Parameters<Window['fetch']>): Promise<Response> =>
         new Promise<Response>((resolve, reject) => {
-          const request = new Request(...args);
+          const request = typeof args[0] === 'string' ? new Request(...args) : args[0];
 
           request.headers.set('Content-Type', 'application/json');
           request.headers.set('FOXY-API-VERSION', '1');

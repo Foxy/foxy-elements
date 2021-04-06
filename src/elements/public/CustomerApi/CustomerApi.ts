@@ -75,7 +75,7 @@ export class CustomerApi extends LitElement {
         }
       }
 
-      return api.fetch(evt.request.url, evt.request);
+      return api.fetch(evt.request);
     };
 
     evt.respondWith(getResponse());
