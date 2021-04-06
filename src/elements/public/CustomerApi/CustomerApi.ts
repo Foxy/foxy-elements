@@ -6,10 +6,17 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 /**
  * Element connector for Customer API.
  *
+ * @fires CustomerApi#signout - Instance of `CustomerApi.SignOutEvent`. Dispatched on an element when session expires or code 401 is returned.
+ * @fires CustomerApi#signin - Instance of `CustomerApi.SignInEvent`. Dispatched on an element once authenticated.
+ *
  * @element foxy-customer-api
  * @since 1.4.0
  */
 export class CustomerApi extends LitElement {
+  static readonly SignOutEvent = class extends CustomEvent<void> {};
+
+  static readonly SignInEvent = class extends CustomEvent<void> {};
+
   static get properties(): PropertyDeclarations {
     return {
       storage: { type: String },
@@ -33,11 +40,17 @@ export class CustomerApi extends LitElement {
     const getResponse = async () => {
       if (evt.request.url === 'foxy://auth/session') {
         try {
-          if (evt.request.method === 'DELETE') await this.api.signOut();
+          if (evt.request.method === 'DELETE') {
+            await this.api.signOut();
+            this.dispatchEvent(new CustomerApi.SignOutEvent('signout'));
+          }
 
           if (evt.request.method === 'POST') {
             const payload = await evt.request.clone().json();
-            if (payload.type === 'password') await this.api.signIn(payload.credential);
+            if (payload.type === 'password') {
+              await this.api.signIn(payload.credential);
+              this.dispatchEvent(new CustomerApi.SignInEvent('signin'));
+            }
           }
 
           return new Response(null, { status: 200 });
@@ -60,7 +73,14 @@ export class CustomerApi extends LitElement {
         }
       }
 
-      return this.api.fetch(evt.request);
+      const response = await this.api.fetch(evt.request);
+
+      if (response.status === 401) {
+        await this.api.signOut();
+        this.dispatchEvent(new CustomerApi.SignOutEvent('signout'));
+      }
+
+      return response;
     };
 
     evt.respondWith(getResponse());

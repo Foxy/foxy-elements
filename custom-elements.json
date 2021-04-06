@@ -760,6 +760,16 @@
       ],
       "properties": [
         {
+          "name": "SignOutEvent",
+          "type": "typeof (Anonymous class)",
+          "default": "\"class extends CustomEvent<void> {}\""
+        },
+        {
+          "name": "SignInEvent",
+          "type": "typeof (Anonymous class)",
+          "default": "\"class extends CustomEvent<void> {}\""
+        },
+        {
           "name": "storage",
           "attribute": "storage",
           "description": "Credentials storage implementing Web Storage API. Access tokens and other related info will be stored here. Defaults to in-memory storage.",
@@ -784,6 +794,16 @@
           "name": "api",
           "description": "`FoxySDK.Customer.API` instance used by this element to communicate with the backend.",
           "type": "API"
+        }
+      ],
+      "events": [
+        {
+          "name": "signout",
+          "description": "Instance of `CustomerApi.SignOutEvent`. Dispatched on an element when session expires or code 401 is returned."
+        },
+        {
+          "name": "signin",
+          "description": "Instance of `CustomerApi.SignInEvent`. Dispatched on an element once authenticated."
         }
       ]
     },
