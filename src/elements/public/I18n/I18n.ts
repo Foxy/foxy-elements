@@ -41,6 +41,26 @@ export class I18n extends LitElement {
     };
   }
 
+  /**
+   * Registers a global event listener that calls `handler` every time an i18next resource
+   * is downloaded by `foxy-i18n`. Allows devs to specify resource location and/or fetch it
+   * via a different channel (e.g. web sockets or using a localization SaaS).
+   *
+   * @param handler Callback to invoke on resource fetch.
+   * @example const unsubscribe = I18n.onResourceFetch((ns, lang) => fetch(`path/to/${ns}/${lang}`));
+   */
+  static onResourceFetch(handler: (ns: string, lang: string) => Promise<Response>): () => void {
+    const handleFetch = (evt: unknown) => {
+      if (evt instanceof FetchEvent && evt.request.url.startsWith('foxy://i18n/')) {
+        const [lang, ns] = evt.request.url.split('/').reverse();
+        evt.respondWith(handler(ns, lang));
+      }
+    };
+
+    addEventListener('fetch', handleFetch);
+    return () => removeEventListener('fetch', handleFetch);
+  }
+
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
