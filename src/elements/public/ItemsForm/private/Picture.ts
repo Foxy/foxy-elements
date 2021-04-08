@@ -48,19 +48,19 @@ export class Picture extends LitElement {
         }
 
         .rotate-12 {
-          --transform-rotate: 12deg;
+          --tw-rotate: 12deg;
         }
 
         .-rotate-12 {
-          --transform-rotate: -12deg;
+          --tw-rotate: -12deg;
         }
 
         .-rotate-24 {
-          --transform-rotate: -24deg;
+          --tw-rotate: -24deg;
         }
 
         .translate-y-half {
-          --transform-translate-y: 50%;
+          --tw-translate-y: 50%;
         }
       `,
     ];
