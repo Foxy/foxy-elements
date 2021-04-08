@@ -49,24 +49,24 @@ export class PictureGrid<TData = unknown> extends ScopedElementsMixin(LitElement
         .grid-3 > :nth-child(1),
         .grid-4 > :nth-child(1),
         .grid-4-plus > :nth-child(1) {
-          --transform-scale-x: calc(2.5 / 5.5);
-          --transform-scale-y: var(--transform-scale-x);
+          --tw-scale-x: calc(2.5 / 5.5);
+          --tw-scale-y: var(--tw-scale-x);
         }
 
         /* 2 */
 
         .grid-1 > :nth-child(2) {
           opacity: 0;
-          --transform-translate-x: 100%;
-          --transform-translate-y: var(--transform-translate-x);
+          --tw-translate-x: 100%;
+          --tw-translate-y: var(--tw-translate-x);
         }
 
         .grid-2 > :nth-child(2),
         .grid-3 > :nth-child(2),
         .grid-4 > :nth-child(2),
         .grid-4-plus > :nth-child(2) {
-          --transform-scale-x: calc(2.5 / 5.5);
-          --transform-scale-y: var(--transform-scale-x);
+          --tw-scale-x: calc(2.5 / 5.5);
+          --tw-scale-y: var(--tw-scale-x);
         }
 
         .grid-3 > :nth-child(2),
@@ -82,14 +82,14 @@ export class PictureGrid<TData = unknown> extends ScopedElementsMixin(LitElement
         .grid-3 > :nth-child(3),
         .grid-4 > :nth-child(3),
         .grid-4-plus > :nth-child(3) {
-          --transform-scale-x: calc(2.5 / 5.5);
-          --transform-scale-y: var(--transform-scale-x);
+          --tw-scale-x: calc(2.5 / 5.5);
+          --tw-scale-y: var(--tw-scale-x);
         }
 
         .grid-1 > :nth-child(3),
         .grid-2 > :nth-child(3) {
           opacity: 0;
-          --transform-translate-y: 100%;
+          --tw-translate-y: 100%;
         }
 
         .grid-3 > :nth-child(3) {
@@ -108,8 +108,8 @@ export class PictureGrid<TData = unknown> extends ScopedElementsMixin(LitElement
         .grid-3 > :nth-child(4),
         .grid-4 > :nth-child(4),
         .grid-4-plus > :nth-child(4) {
-          --transform-scale-x: calc(2.5 / 5.5);
-          --transform-scale-y: var(--transform-scale-x);
+          --tw-scale-x: calc(2.5 / 5.5);
+          --tw-scale-y: var(--tw-scale-x);
         }
 
         .grid-1 > :nth-child(4),
@@ -117,7 +117,7 @@ export class PictureGrid<TData = unknown> extends ScopedElementsMixin(LitElement
         .grid-3 > :nth-child(4) {
           opacity: 0;
           transform-origin: bottom left;
-          --transform-translate-x: 100%;
+          --tw-translate-x: 100%;
         }
 
         .grid-1 > :nth-child(4) > :first-child,
@@ -152,21 +152,21 @@ export class PictureGrid<TData = unknown> extends ScopedElementsMixin(LitElement
         }
 
         .grid-1 > :nth-child(5) {
-          --transform-translate-x: 100%;
+          --tw-translate-x: 100%;
         }
 
         .grid-2 > :nth-child(5),
         .grid-3 > :nth-child(5),
         .grid-4 > :nth-child(5),
         .grid-4-plus > :nth-child(5) {
-          --transform-scale-x: calc(2.5 / 5.5);
-          --transform-scale-y: var(--transform-scale-x);
+          --tw-scale-x: calc(2.5 / 5.5);
+          --tw-scale-y: var(--tw-scale-x);
         }
 
         .grid-3 > :nth-child(5),
         .grid-4 > :nth-child(5),
         .grid-4-plus > :nth-child(5) {
-          --transform-translate-y: -100%;
+          --tw-translate-y: -100%;
         }
 
         /* 6 (placeholder) */
@@ -178,20 +178,20 @@ export class PictureGrid<TData = unknown> extends ScopedElementsMixin(LitElement
         }
 
         .grid-1 > :nth-child(6) {
-          --transform-translate-y: 100%;
+          --tw-translate-y: 100%;
         }
 
         .grid-2 > :nth-child(6),
         .grid-3 > :nth-child(6),
         .grid-4 > :nth-child(6),
         .grid-4-plus > :nth-child(6) {
-          --transform-scale-x: calc(2.5 / 5.5);
-          --transform-scale-y: var(--transform-scale-x);
+          --tw-scale-x: calc(2.5 / 5.5);
+          --tw-scale-y: var(--tw-scale-x);
         }
 
         .grid-4 > :nth-child(6),
         .grid-4-plus > :nth-child(6) {
-          --transform-translate-x: -100%;
+          --tw-translate-x: -100%;
         }
       `,
     ];

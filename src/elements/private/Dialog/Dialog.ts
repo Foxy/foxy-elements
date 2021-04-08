@@ -58,8 +58,8 @@ export abstract class Dialog extends LitElement {
       Themeable.styles,
       css`
         .scale-85 {
-          --transform-scale-x: 0.85;
-          --transform-scale-y: 0.85;
+          --tw-scale-x: 0.85;
+          --tw-scale-y: 0.85;
         }
       `,
     ];
