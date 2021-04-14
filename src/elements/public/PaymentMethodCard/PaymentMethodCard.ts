@@ -1,6 +1,6 @@
 import * as logos from './logos';
 
-import { CSSResultArray, css } from 'lit-element';
+import { CSSResultArray, PropertyDeclarations, css } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -10,6 +10,7 @@ import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
+import { classMap } from '../../../utils/class-map';
 
 export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -19,6 +20,14 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+    };
+  }
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      readonly: { reflect: true, type: Boolean },
+      disabled: { reflect: true, type: Boolean },
     };
   }
 
@@ -43,6 +52,10 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
       `,
     ];
   }
+
+  readonly = false;
+
+  disabled = false;
 
   private static __ns = 'payment-method-card';
 
@@ -83,35 +96,50 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
     const last4Digits = data!.cc_number_masked.substring(data!.cc_number_masked.length - 4);
 
     return html`
-      <x-confirm-dialog
-        message="delete_prompt"
-        confirm="delete"
-        cancel="cancel"
-        header="delete"
-        theme="primary error"
-        lang=${this.lang}
-        ns=${ns}
-        id="confirm"
-        data-testid="confirm"
-        @hide=${this.__handleConfirmHide}
-      >
-      </x-confirm-dialog>
+      ${!this.readonly
+        ? html`
+            <x-confirm-dialog
+              message="delete_prompt"
+              confirm="delete"
+              cancel="cancel"
+              header="delete"
+              theme="primary error"
+              lang=${this.lang}
+              ns=${ns}
+              id="confirm"
+              data-testid="confirm"
+              @hide=${this.__handleConfirmHide}
+            >
+            </x-confirm-dialog>
+          `
+        : ''}
 
       <div class="ratio-card" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
         <div
           class="flex flex-col justify-between text-base text-m leading-m font-lumo p-m bg-unknown bg-${type}"
         >
-          <div class="flex items-start justify-between">
-            <vaadin-button
-              class="px-xs rounded"
-              theme="icon"
-              style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
-              aria-label=${t('delete').toString()}
-              data-testid="delete"
-              @click=${this.__handleDelete}
-            >
-              <iron-icon icon="icons:delete"></iron-icon>
-            </vaadin-button>
+          <div
+            class=${classMap({
+              'flex items-start': true,
+              'justify-between': !this.readonly,
+              'justify-end': this.readonly,
+            })}
+          >
+            ${!this.readonly
+              ? html`
+                  <vaadin-button
+                    class="px-xs rounded"
+                    theme="icon"
+                    style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
+                    aria-label=${t('delete').toString()}
+                    data-testid="delete"
+                    ?disabled=${this.disabled}
+                    @click=${this.__handleDelete}
+                  >
+                    <iron-icon icon="icons:delete"></iron-icon>
+                  </vaadin-button>
+                `
+              : ''}
 
             <div class="rounded h-m">${logo}</div>
           </div>
