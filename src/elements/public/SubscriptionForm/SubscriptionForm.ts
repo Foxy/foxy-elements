@@ -1,14 +1,16 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
+import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { Choice, Group, PropertyTable, Skeleton } from '../../private/index';
+import { Data, DisabledValue, ExcludedValue, Field, ReadonlyValue } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
-import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+import { createDBCConverter } from '../../../utils/dbc-converter';
+import { filterSet } from '../../../utils/filter-set';
 import memoize from 'lodash-es/memoize';
 import { parseFrequency } from '../../../utils/parse-frequency';
 
@@ -25,9 +27,26 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      readonly: { reflect: true, converter: createDBCConverter('readonly') },
+      disabled: { reflect: true, converter: createDBCConverter('disabled') },
+      excluded: { reflect: true, converter: createDBCConverter('excluded') },
+    };
+  }
+
   static get styles(): CSSResult | CSSResultArray {
     return Themeable.styles;
   }
+
+  readonly: ReadonlyValue = false;
+
+  disabled: DisabledValue = false;
+
+  excluded: ExcludedValue = false;
+
+  private static __fields: Field[] = ['end_date', 'frequency', 'next_transaction_date'];
 
   private static __predefinedFrequencies = ['.5m', '1m', '1y'];
 
@@ -53,7 +72,12 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
   render(): TemplateResult {
     const ns = SubscriptionForm.__ns;
+    const active = !!this.data?.is_active;
     const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
+    const readonly = filterSet(SubscriptionForm.__fields, this.readonly);
+    const disabled = filterSet(SubscriptionForm.__fields, this.disabled);
+    const excluded = filterSet(SubscriptionForm.__fields, this.excluded);
+    const isIdleSnapshot = this.in({ idle: 'snapshot' });
 
     return html`
       <div
@@ -86,78 +110,92 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
           </div>
         </div>
 
-        <x-group frame>
-          <x-choice
-            default-custom-value="1d"
-            data-testid="frequency"
-            type="frequency"
-            custom
-            .items=${SubscriptionForm.__predefinedFrequencies}
-            .value=${this.form.frequency ?? null}
-            ?disabled=${!this.in({ idle: 'snapshot' }) || !this.form.is_active}
-            @change=${this.__handleFrequencyChange}
-          >
-            <foxy-i18n
-              data-testclass="i18n"
-              slot=".5m-label"
-              lang=${this.lang}
-              key="twice_a_month"
-              ns=${ns}
-            >
-            </foxy-i18n>
+        ${!excluded.includes('frequency')
+          ? html`
+              <x-group frame>
+                <x-choice
+                  default-custom-value="1d"
+                  data-testid="frequency"
+                  type="frequency"
+                  custom
+                  .items=${SubscriptionForm.__predefinedFrequencies}
+                  .value=${this.form.frequency ?? null}
+                  ?disabled=${!isIdleSnapshot || disabled.includes('frequency')}
+                  ?readonly=${isIdleSnapshot && (!active || readonly.includes('frequency'))}
+                  @change=${this.__handleFrequencyChange}
+                >
+                  <foxy-i18n
+                    data-testclass="i18n"
+                    slot=".5m-label"
+                    lang=${this.lang}
+                    key="twice_a_month"
+                    ns=${ns}
+                  >
+                  </foxy-i18n>
 
-            <foxy-i18n
-              data-testclass="i18n"
-              slot="1m-label"
-              lang=${this.lang}
-              key="monthly"
-              ns=${ns}
-            >
-            </foxy-i18n>
+                  <foxy-i18n
+                    data-testclass="i18n"
+                    slot="1m-label"
+                    lang=${this.lang}
+                    key="monthly"
+                    ns=${ns}
+                  >
+                  </foxy-i18n>
 
-            <foxy-i18n
-              data-testclass="i18n"
-              slot="1y-label"
-              lang=${this.lang}
-              key="yearly"
-              ns=${ns}
-            >
-            </foxy-i18n>
-          </x-choice>
-        </x-group>
-
-        <vaadin-date-picker
-          data-testid="nextPaymentDate"
-          class="w-full"
-          label=${this.__t('next_transaction_date').toString()}
-          value=${this.form.next_transaction_date?.substr(0, 10) ?? ''}
-          min=${tomorrow.toISOString().substr(0, 10)}
-          ?disabled=${!this.in({ idle: 'snapshot' })}
-          ?readonly=${this.in({ idle: 'snapshot' }) && !this.data.is_active}
-          .checkValidity=${this.__muteBuiltInV8N}
-          @change=${this.__handleNextTransactionDateChange}
-        >
-        </vaadin-date-picker>
-
-        <vaadin-date-picker
-          data-testid="endDate"
-          class="w-full"
-          label=${this.__t('end_date').toString()}
-          value=${this.form.end_date?.substr(0, 10) ?? ''}
-          min=${tomorrow.toISOString().substr(0, 10)}
-          ?disabled=${!this.in({ idle: 'snapshot' })}
-          ?readonly=${this.in({ idle: 'snapshot' }) && !this.data.is_active}
-          .checkValidity=${this.__muteBuiltInV8N}
-          @change=${this.__handleEndDateChange}
-        >
-        </vaadin-date-picker>
-
+                  <foxy-i18n
+                    data-testclass="i18n"
+                    slot="1y-label"
+                    lang=${this.lang}
+                    key="yearly"
+                    ns=${ns}
+                  >
+                  </foxy-i18n>
+                </x-choice>
+              </x-group>
+            `
+          : ''}
+        <!---->
+        ${!excluded.includes('next_transaction_date')
+          ? html`
+              <vaadin-date-picker
+                data-testid="nextPaymentDate"
+                class="w-full"
+                label=${this.__t('next_transaction_date').toString()}
+                value=${this.form.next_transaction_date?.substr(0, 10) ?? ''}
+                min=${tomorrow.toISOString().substr(0, 10)}
+                ?disabled=${!isIdleSnapshot || disabled.includes('next_transaction_date')}
+                ?readonly=${isIdleSnapshot &&
+                (!active || readonly.includes('next_transaction_date'))}
+                .checkValidity=${this.__muteBuiltInV8N}
+                @change=${this.__handleNextTransactionDateChange}
+              >
+              </vaadin-date-picker>
+            `
+          : ''}
+        <!---->
+        ${!excluded.includes('end_date')
+          ? html`
+              <vaadin-date-picker
+                data-testid="endDate"
+                class="w-full"
+                label=${this.__t('end_date').toString()}
+                value=${this.form.end_date?.substr(0, 10) ?? ''}
+                min=${tomorrow.toISOString().substr(0, 10)}
+                ?disabled=${!isIdleSnapshot || disabled.includes('end_date')}
+                ?readonly=${isIdleSnapshot && (!active || readonly.includes('end_date'))}
+                .checkValidity=${this.__muteBuiltInV8N}
+                @change=${this.__handleEndDateChange}
+              >
+              </vaadin-date-picker>
+            `
+          : ''}
+        <!---->
         ${this.__memoRenderTable(
           !this.in({ idle: 'snapshot' }),
           this.data?.date_created ?? '',
           this.data?.date_modified ?? ''
         )}
-
+        <!---->
         <div
           data-testid="spinnerWrapper"
           class=${classMap({
