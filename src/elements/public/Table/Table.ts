@@ -108,12 +108,16 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
 
     let rowCount: number;
 
-    try {
-      const strLimit = new URL(this.href ?? '').searchParams.get('limit');
-      const intLimit = strLimit ? parseInt(strLimit) : defaultLimit;
-      rowCount = Math.max(isNaN(intLimit) ? defaultLimit : intLimit, items.length);
-    } catch {
-      rowCount = defaultLimit;
+    if (items.length === 0) {
+      try {
+        const strLimit = new URL(this.href ?? '').searchParams.get('limit');
+        const intLimit = parseInt(strLimit ?? '');
+        rowCount = isNaN(intLimit) ? defaultLimit : intLimit;
+      } catch {
+        rowCount = defaultLimit;
+      }
+    } else {
+      rowCount = items.length;
     }
 
     return new Array(rowCount).fill(null).map((v, i) => items[i] ?? v);
