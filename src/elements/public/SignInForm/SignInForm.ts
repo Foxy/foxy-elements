@@ -14,7 +14,7 @@ import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
-type State = 'invalid' | 'valid' | 'busy' | 'fail.invalid' | 'fail.unknown';
+type State = 'invalid' | 'valid' | 'busy' | { fail: 'invalid' | 'unknown' };
 
 /**
  * Form element for email/password sign in.
@@ -27,6 +27,8 @@ type State = 'invalid' | 'valid' | 'busy' | 'fail.invalid' | 'fail.unknown';
 export class SignInForm extends LitElement {
   /** API class constructor used by the instances of this class. */
   static readonly API = API;
+
+  static readonly UpdateEvent = class extends CustomEvent<void> {};
 
   static get properties(): PropertyDeclarations {
     return {
@@ -90,7 +92,7 @@ export class SignInForm extends LitElement {
         >
         </vaadin-password-field>
 
-        ${this.__state.startsWith('fail.')
+        ${typeof this.__state === 'object' && this.__state.fail
           ? html`
               <div class="flex items-center text-s bg-error-10 rounded p-s text-error mb-m">
                 <iron-icon icon="lumo:error" class="self-start flex-shrink-0 mr-s"></iron-icon>
@@ -98,7 +100,7 @@ export class SignInForm extends LitElement {
                   class="leading-s"
                   lang=${this.lang}
                   ns=${SignInForm.__ns}
-                  key=${this.__state === 'fail.invalid'
+                  key=${this.__state.fail === 'invalid'
                     ? 'invalid_email_or_password_error'
                     : 'unknown_error'}
                 >
@@ -108,7 +110,7 @@ export class SignInForm extends LitElement {
           : ''}
 
         <vaadin-button
-          class=${classMap({ 'w-full': true, 'mt-l': !this.__state.startsWith('fail.') })}
+          class=${classMap({ 'w-full': true, 'mt-l': typeof this.__state === 'string' })}
           theme="primary"
           ?disabled=${this.__state === 'busy'}
           @click=${this.__submit}
@@ -135,6 +137,16 @@ export class SignInForm extends LitElement {
   /** Submits the form if it's valid. */
   submit(): void {
     this.__submit();
+  }
+
+  in(stateValue: State): boolean {
+    if (typeof stateValue === 'string' && typeof this.__state === 'string') {
+      return this.__state === stateValue;
+    } else if (typeof stateValue === 'object' && typeof this.__state === 'object') {
+      return this.__state.fail === stateValue.fail;
+    } else {
+      return false;
+    }
   }
 
   disconnectedCallback(): void {
@@ -171,12 +183,13 @@ export class SignInForm extends LitElement {
     });
 
     this.__setState(
-      response.ok ? 'valid' : response.status === 401 ? 'fail.invalid' : 'fail.unknown'
+      response.ok ? 'valid' : { fail: response.status === 401 ? 'invalid' : 'unknown' }
     );
   }
 
   private __setState(newState: State) {
     this.__state = newState;
+    this.dispatchEvent(new SignInForm.UpdateEvent('update'));
     this.requestUpdate();
   }
 
