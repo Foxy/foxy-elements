@@ -26,6 +26,8 @@ export class AccessRecoveryForm extends LitElement {
   /** API class constructor used by the instances of this class. */
   static readonly API = API;
 
+  static readonly UpdateEvent = class extends CustomEvent<void> {};
+
   static get properties(): PropertyDeclarations {
     return {
       lang: { type: String },
@@ -119,6 +121,10 @@ export class AccessRecoveryForm extends LitElement {
     this.__submit();
   }
 
+  in(stateValue: State): boolean {
+    return this.__state === stateValue;
+  }
+
   disconnectedCallback(): void {
     super.disconnectedCallback();
     this.__untrackTranslations?.();
@@ -151,6 +157,7 @@ export class AccessRecoveryForm extends LitElement {
 
   private __setState(newState: State) {
     this.__state = newState;
+    this.dispatchEvent(new AccessRecoveryForm.UpdateEvent('update'));
     this.requestUpdate();
   }
 
