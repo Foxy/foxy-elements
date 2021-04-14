@@ -1,5 +1,13 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
-import { Data, TextFieldParams } from './types';
+import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
+import {
+  Control,
+  Data,
+  DisabledValue,
+  ExcludedValue,
+  Field,
+  ReadonlyValue,
+  TextFieldParams,
+} from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -10,6 +18,8 @@ import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTable } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
+import { createDBCConverter } from '../../../utils/dbc-converter';
+import { filterSet } from '../../../utils/filter-set';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { validate as isEmail } from 'email-validator';
 import memoize from 'lodash-es/memoize';
@@ -23,6 +33,15 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+    };
+  }
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      readonly: { reflect: true, converter: createDBCConverter('readonly') },
+      disabled: { reflect: true, converter: createDBCConverter('disabled') },
+      excluded: { reflect: true, converter: createDBCConverter('excluded') },
     };
   }
 
@@ -41,7 +60,17 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
     ];
   }
 
+  readonly: ReadonlyValue = false;
+
+  disabled: DisabledValue = false;
+
+  excluded: ExcludedValue = false;
+
   private static __ns = 'customer-form';
+
+  private static __fields: Field[] = ['first_name', 'last_name', 'email', 'tax_id'];
+
+  private static __controls: Control[] = [...CustomerForm.__fields, 'create', 'delete'];
 
   private __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
@@ -67,10 +96,13 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   render(): TemplateResult {
     const ns = CustomerForm.__ns;
+    const action = this.href ? 'delete' : 'create';
+    const disabledControls = filterSet(CustomerForm.__controls, this.disabled);
+    const excludedControls = filterSet(CustomerForm.__controls, this.excluded);
 
     const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !this.in('idle');
+    const isDisabled = !this.in('idle') || disabledControls.includes(action);
     const isValid = isTemplateValid || isSnapshotValid;
 
     return html`
@@ -95,19 +127,23 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
           ${this.__renderTextField({ field: 'email', required: true })}
           ${this.__renderTextField({ field: 'tax_id' })}
         </div>
-
+        <!---->
         ${this.href ? this.__renderPropertyTable() : undefined}
-
-        <vaadin-button
-          class="w-full"
-          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-          data-testid="action"
-          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
-          @click=${this.__handleActionClick}
-        >
-          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
-
+        <!---->
+        ${!excludedControls.includes(action)
+          ? html`
+              <vaadin-button
+                class="w-full"
+                theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+                data-testid="action"
+                ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
+                @click=${this.__handleActionClick}
+              >
+                <foxy-i18n ns=${ns} key=${action} lang=${this.lang}></foxy-i18n>
+              </vaadin-button>
+            `
+          : ''}
+        <!---->
         ${!this.in('idle')
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
@@ -154,6 +190,11 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private __renderTextField({ field, required = false }: TextFieldParams) {
+    if (filterSet(CustomerForm.__controls, this.excluded).includes(field)) return '';
+
+    const readonlyFields = filterSet(CustomerForm.__fields, this.readonly);
+    const disabledControls = filterSet(CustomerForm.__controls, this.disabled);
+
     return html`
       <vaadin-text-field
         label=${this.__t(field).toString()}
@@ -161,7 +202,8 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
         error-message=${this.__getErrorMessage(field)}
         data-testid=${field}
         .checkValidity=${this.__getValidator(field)}
-        ?disabled=${!this.in('idle')}
+        ?disabled=${!this.in('idle') || disabledControls.includes(field)}
+        ?readonly=${readonlyFields.includes(field)}
         ?required=${required}
         @input=${this.__bindField(field)}
         @keydown=${this.__handleKeyDown}
