@@ -113,8 +113,8 @@ export class FrequencyInput extends LitElement {
         .i18n=${this.__i18n}
         .label=${this.label}
         .value=${live(this.value)}
-        .disabled=${this.disabled}
-        .readonly=${this.readonly}
+        ?disabled=${this.disabled}
+        ?readonly=${this.readonly}
         .errorMessage=${this.errorMessage}
         .checkValidity=${this.checkValidity}
         @change=${this.__handleChange}
@@ -126,6 +126,8 @@ export class FrequencyInput extends LitElement {
           has-controls
           prevent-invalid-input
           ?invalid=${!this.checkValidity()}
+          ?disabled=${this.disabled}
+          ?readonly=${this.readonly}
         >
         </vaadin-integer-field>
 
@@ -135,6 +137,8 @@ export class FrequencyInput extends LitElement {
           item-label-path="label"
           .items=${this.__getItems(this.value)}
           ?invalid=${!this.checkValidity()}
+          ?disabled=${this.disabled}
+          ?readonly=${this.readonly}
         >
         </vaadin-combo-box>
       </vaadin-custom-field>
