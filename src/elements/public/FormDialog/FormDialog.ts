@@ -1,11 +1,13 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
+import { DBC } from '../../../utils/parse-dbc';
 import { Dialog } from '../../private/Dialog/Dialog';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormRenderer } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
+import { createDBCConverter } from '../../../utils/dbc-converter';
 
 /**
  * Dialog wrapper for the forms made with NucleonElement.
@@ -24,6 +26,9 @@ export class FormDialog extends Dialog {
       href: { type: String },
       form: { type: String, noAccessor: true },
       parent: { type: String },
+      readonly: { reflect: true, converter: createDBCConverter('readonly') },
+      disabled: { reflect: true, converter: createDBCConverter('disabled') },
+      excluded: { reflect: true, converter: createDBCConverter('excluded') },
     };
   }
 
@@ -32,6 +37,12 @@ export class FormDialog extends Dialog {
 
   /** Optional URL of the resource to load (passed to form). */
   href = '';
+
+  readonly: boolean | DBC = false;
+
+  disabled: boolean | DBC = false;
+
+  excluded: boolean | DBC = false;
 
   private __form: string | null = null;
 
@@ -84,6 +95,9 @@ export class FormDialog extends Dialog {
           href=\${options.href}
           lang=\${options.lang}
           parent=\${options.parent}
+          .disabled=\${options.disabled}
+          .readonly=\${options.readonly}
+          .excluded=\${options.excluded}
           @fetch=\${options.handleFetch}
           @update=\${options.handleUpdate}
         >
@@ -100,6 +114,9 @@ export class FormDialog extends Dialog {
       this.__renderForm?.bind(null, {
         handleUpdate: this.__handleUpdate,
         handleFetch: this.__handleFetch,
+        disabled: this.disabled,
+        readonly: this.readonly,
+        excluded: this.excluded,
         parent: this.parent,
         href: this.href,
         lang: this.lang,
