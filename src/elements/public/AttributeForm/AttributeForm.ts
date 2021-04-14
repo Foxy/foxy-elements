@@ -1,16 +1,20 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
+import {} from '../AddressForm/types';
+
+import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { Choice, Group, PropertyTable } from '../../private/index';
+import { Data, DisabledValue, ExcludedValue, ReadonlyValue } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
-import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+import { createDBCConverter } from '../../../utils/dbc-converter';
+import { filterSet } from '../../../utils/filter-set';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
 
@@ -29,6 +33,15 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      readonly: { reflect: true, converter: createDBCConverter('readonly') },
+      disabled: { reflect: true, converter: createDBCConverter('disabled') },
+      excluded: { reflect: true, converter: createDBCConverter('excluded') },
+    };
+  }
+
   static get styles(): CSSResult | CSSResultArray {
     return Themeable.styles;
   }
@@ -41,6 +54,12 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
       ({ name }) => (name && name.length <= 500) || 'name_too_long',
     ];
   }
+
+  readonly: ReadonlyValue = false;
+
+  disabled: DisabledValue = false;
+
+  excluded: ExcludedValue = false;
 
   private static readonly __visibilityOptions = ['private', 'restricted', 'public'] as const;
 
@@ -68,6 +87,12 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
     const isDisabled = !this.in('idle');
     const isValid = isTemplateValid || isSnapshotValid;
 
+    const fields = ['name', 'value', 'visibility'];
+    const controls = [...fields, 'create', 'delete'];
+    const excludedControls = filterSet(controls, this.excluded);
+    const disabledControls = filterSet(controls, this.disabled);
+    const readonlyFields = filterSet(fields, this.readonly);
+
     return html`
       <x-confirm-dialog
         data-testid="confirm"
@@ -85,59 +110,81 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
       <div class="relative" aria-busy=${this.in('busy')} aria-live="polite">
         <div class="grid grid-cols-1 gap-l">
-          <vaadin-text-field
-            data-testid="name"
-            label=${this.__t('name').toString()}
-            value=${ifDefined(this.form?.name)}
-            .checkValidity=${this.__getValidator('name')}
-            ?disabled=${isDisabled}
-            error-message=${this.__getErrorMessage('name')}
-            @keydown=${this.__handleKeyDown}
-            @input=${this.__handleNameInput}
-          >
-          </vaadin-text-field>
+          ${!excludedControls.includes('name')
+            ? html`
+                <vaadin-text-field
+                  data-testid="name"
+                  label=${this.__t('name').toString()}
+                  value=${ifDefined(this.form?.name)}
+                  .checkValidity=${this.__getValidator('name')}
+                  ?disabled=${isDisabled || disabledControls.includes('name')}
+                  ?readonly=${readonlyFields.includes('name')}
+                  error-message=${this.__getErrorMessage('name')}
+                  @keydown=${this.__handleKeyDown}
+                  @input=${this.__handleNameInput}
+                >
+                </vaadin-text-field>
+              `
+            : ''}
+          <!---->
+          ${!excludedControls.includes('value')
+            ? html`
+                <vaadin-text-area
+                  data-testid="value"
+                  label=${this.__t('value').toString()}
+                  value=${ifDefined(this.form?.value)}
+                  .checkValidity=${this.__getValidator('value')}
+                  ?disabled=${isDisabled || disabledControls.includes('value')}
+                  ?readonly=${readonlyFields.includes('value')}
+                  error-message=${this.__getErrorMessage('value')}
+                  @input=${this.__handleValueInput}
+                >
+                </vaadin-text-area>
+              `
+            : ''}
+          <!---->
+          ${!excludedControls.includes('visibility')
+            ? html`
+                <x-group frame>
+                  <foxy-i18n
+                    class=${classMap({
+                      'text-disabled': isDisabled || disabledControls.includes('visibility'),
+                    })}
+                    lang=${lang}
+                    slot="header"
+                    key="visibility"
+                    ns=${ns}
+                  >
+                  </foxy-i18n>
 
-          <vaadin-text-area
-            data-testid="value"
-            label=${this.__t('value').toString()}
-            value=${ifDefined(this.form?.value)}
-            .checkValidity=${this.__getValidator('value')}
-            ?disabled=${isDisabled}
-            error-message=${this.__getErrorMessage('value')}
-            @input=${this.__handleValueInput}
-          >
-          </vaadin-text-area>
+                  <x-choice
+                    .items=${AttributeForm.__visibilityOptions}
+                    .value=${(this.form?.visibility ?? 'private') as any}
+                    lang=${lang}
+                    ns=${ns}
+                    data-testid="visibility"
+                    ?disabled=${isDisabled || disabledControls.includes('visibility')}
+                    ?readonly=${readonlyFields.includes('visibility')}
+                    @change=${this.__handleChoiceChange}
+                  >
+                    <foxy-i18n ns=${ns} lang=${lang} slot="private-label" key="visibility_private">
+                    </foxy-i18n>
 
-          <x-group frame>
-            <foxy-i18n
-              class=${classMap({ 'text-disabled': isDisabled })}
-              lang=${lang}
-              slot="header"
-              key="visibility"
-              ns=${ns}
-            >
-            </foxy-i18n>
+                    <foxy-i18n
+                      ns=${ns}
+                      lang=${lang}
+                      slot="restricted-label"
+                      key="visibility_restricted"
+                    >
+                    </foxy-i18n>
 
-            <x-choice
-              .items=${AttributeForm.__visibilityOptions}
-              .value=${(this.form?.visibility ?? 'private') as any}
-              lang=${lang}
-              ns=${ns}
-              data-testid="visibility"
-              ?disabled=${isDisabled}
-              @change=${this.__handleChoiceChange}
-            >
-              <foxy-i18n ns=${ns} lang=${lang} slot="private-label" key="visibility_private">
-              </foxy-i18n>
-
-              <foxy-i18n ns=${ns} lang=${lang} slot="restricted-label" key="visibility_restricted">
-              </foxy-i18n>
-
-              <foxy-i18n ns=${ns} lang=${lang} slot="public-label" key="visibility_public">
-              </foxy-i18n>
-            </x-choice>
-          </x-group>
-
+                    <foxy-i18n ns=${ns} lang=${lang} slot="public-label" key="visibility_public">
+                    </foxy-i18n>
+                  </x-choice>
+                </x-group>
+              `
+            : ''}
+          <!---->
           ${this.data
             ? html`
                 <x-property-table
@@ -148,24 +195,32 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
                 >
                 </x-property-table>
 
-                <vaadin-button
-                  data-testid="delete"
-                  theme="error primary"
-                  ?disabled=${isDisabled}
-                  @click=${this.__handleDeleteClick}
-                >
-                  <foxy-i18n ns=${ns} lang=${lang} key="delete"></foxy-i18n>
-                </vaadin-button>
+                ${!excludedControls.includes('delete')
+                  ? html`
+                      <vaadin-button
+                        data-testid="delete"
+                        theme="error primary"
+                        ?disabled=${isDisabled || disabledControls.includes('delete')}
+                        @click=${this.__handleDeleteClick}
+                      >
+                        <foxy-i18n ns=${ns} lang=${lang} key="delete"></foxy-i18n>
+                      </vaadin-button>
+                    `
+                  : ''}
               `
             : html`
-                <vaadin-button
-                  data-testid="create"
-                  theme="success primary"
-                  ?disabled=${isDisabled || !isValid}
-                  @click=${this.submit}
-                >
-                  <foxy-i18n ns=${ns} lang=${lang} key="create"></foxy-i18n>
-                </vaadin-button>
+                ${!excludedControls.includes('create')
+                  ? html`
+                      <vaadin-button
+                        data-testid="create"
+                        theme="success primary"
+                        ?disabled=${isDisabled || !isValid || disabledControls.includes('create')}
+                        @click=${this.submit}
+                      >
+                        <foxy-i18n ns=${ns} lang=${lang} key="create"></foxy-i18n>
+                      </vaadin-button>
+                    `
+                  : ''}
               `}
         </div>
 
