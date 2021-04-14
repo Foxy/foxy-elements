@@ -1,12 +1,12 @@
-import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { Core, Backend } from '@foxy.io/sdk';
+import { Backend, Core } from '@foxy.io/sdk';
+import { CSSResultArray, PropertyDeclarations, TemplateResult, html } from 'lit-element';
+import { Data, DisabledValue, ExcludedValue, ReadonlyValue } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Skeleton, Tabs } from '../../private/index';
 
 import { Data as Attribute } from '../AttributeCard/types';
 import { Column } from '../Table/types';
 import { Data as CustomerAddress } from '../AddressCard/types';
-import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
 import { ItemRenderer } from '../CollectionPage/CollectionPage';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -14,8 +14,9 @@ import { PageRenderer } from '../CollectionPages/types';
 import { Data as Subscriptions } from '../SubscriptionsTable/types';
 import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
 import { Themeable } from '../../../mixins/themeable';
-import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';
+import { createDBCConverter } from '../../../utils/dbc-converter';
+import { getDBCValue } from '../../../utils/filter-set';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { styles } from './styles';
 
@@ -41,9 +42,24 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      readonly: { reflect: true, converter: createDBCConverter('readonly') },
+      disabled: { reflect: true, converter: createDBCConverter('disabled') },
+      excluded: { reflect: true, converter: createDBCConverter('excluded') },
+    };
+  }
+
   static get styles(): CSSResultArray {
     return [Themeable.styles, styles];
   }
+
+  readonly: ReadonlyValue = false;
+
+  disabled: DisabledValue = false;
+
+  excluded: ExcludedValue = false;
 
   private static __ns = 'customer';
 
@@ -81,8 +97,13 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __renderAddressPageItem: ItemRenderer<CustomerAddress> = ctx => ctx.html`
     <button
-      class="snap-start text-left p-m rounded-t-l rounded-b-m md-rounded flex-shrink-0 border border-contrast-10 hover-border-contrast-30 focus-outline-none focus-border-primary"
+      ?disabled=${ctx.data === null}
+      class=${classMap({
+        'snap-start text-left p-m rounded-t-l rounded-b-l flex-shrink-0 border border-contrast-10': true,
+        'hover-border-contrast-30 focus-outline-none focus-border-primary': ctx.data !== null,
+      })}
       @click=${(evt: Event) => {
+        if (ctx.data === null) return;
         this.__addressDialog.header = 'update';
         this.__addressDialog.href = ctx.href;
         this.__addressDialog.show(evt.target as HTMLElement);
@@ -101,8 +122,13 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __renderAttributePageItem: ItemRenderer<Attribute> = ctx => ctx.html`
     <button
-      class="snap-start text-left p-m rounded-t-l rounded-b-m md-rounded flex-shrink-0 border border-contrast-10 hover-border-contrast-30 focus-outline-none focus-border-primary"
+      ?disabled=${ctx.data === null}
+      class=${classMap({
+        'snap-start text-left p-m rounded-t-l rounded-b-l flex-shrink-0 border border-contrast-10': true,
+        'hover-border-contrast-30 focus-outline-none focus-border-primary': ctx.data !== null,
+      })}
       @click=${(evt: Event) => {
+        if (ctx.data === null) return;
         this.__attributeDialog.header = 'update';
         this.__attributeDialog.href = ctx.href;
         this.__attributeDialog.show(evt.target as HTMLElement);
@@ -143,11 +169,8 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __untrackTranslations?: () => void;
 
-  private __removeBreakpoints?: () => void;
-
   connectedCallback(): void {
     super.connectedCallback();
-    this.__removeBreakpoints = addBreakpoints(this);
     this.__untrackTranslations = customElements
       .get('foxy-i18n')
       .onTranslationChange(() => this.requestUpdate());
@@ -158,12 +181,14 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     const variant = ifDefined(this.in('busy') ? undefined : 'static');
 
     const transactionsURL = this.in({ idle: 'snapshot' })
-      ? `${this.data?._links['fx:transactions'].href}&zoom=items&limit=10`
+      ? `${this.data?._links['fx:transactions'].href}&zoom=items`
       : '';
 
     const subscriptionsURL = this.in({ idle: 'snapshot' })
-      ? `${this.data?._links['fx:subscriptions'].href}&zoom=last_transaction,transaction_template:items&limit=10`
+      ? `${this.data?._links['fx:subscriptions'].href}&zoom=last_transaction,transaction_template:items`
       : '';
+
+    const isLoaded = this.in({ idle: 'snapshot' });
 
     return html`
       <foxy-form-dialog
@@ -174,6 +199,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="attribute-dialog"
+        .readonly=${getDBCValue(this.readonly, 'attributeForm')}
+        .disabled=${getDBCValue(this.disabled, 'attributeForm')}
+        .excluded=${getDBCValue(this.excluded, 'attributeForm')}
       >
       </foxy-form-dialog>
 
@@ -185,6 +213,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="address-dialog"
+        .readonly=${getDBCValue(this.readonly, 'addressForm')}
+        .disabled=${getDBCValue(this.disabled, 'addressForm')}
+        .excluded=${getDBCValue(this.excluded, 'addressForm')}
       >
       </foxy-form-dialog>
 
@@ -197,6 +228,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="customer-dialog"
+        .readonly=${getDBCValue(this.readonly, 'customerForm')}
+        .disabled=${getDBCValue(this.disabled, 'customerForm')}
+        .excluded=${getDBCValue(this.excluded, 'customerForm')}
       >
       </foxy-form-dialog>
 
@@ -208,6 +242,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="subscription-dialog"
+        .readonly=${getDBCValue(this.readonly, 'subscriptionForm')}
+        .disabled=${getDBCValue(this.disabled, 'subscriptionForm')}
+        .excluded=${getDBCValue(this.excluded, 'subscriptionForm')}
       >
       </foxy-form-dialog>
 
@@ -218,164 +255,207 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
             'opacity-50': !this.in({ idle: 'snapshot' }),
           })}
         >
-          <div class="flex items-center justify-between space-x-m">
-            <div class="leading-s min-w-0 flex-1">
-              <h1 class="tracking-wide text-xl font-medium truncate" data-testid="name">
-                ${this.in({ idle: 'snapshot' })
-                  ? html`${this.data.first_name} ${this.data.last_name}`
-                  : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
-              </h1>
+          ${!getDBCValue(this.excluded, 'header')
+            ? html`
+                <div class="flex items-center justify-between space-x-m">
+                  <div class="leading-s min-w-0 flex-1">
+                    <h1 class="tracking-wide text-xl font-medium truncate" data-testid="name">
+                      ${this.in({ idle: 'snapshot' })
+                        ? html`${this.data.first_name} ${this.data.last_name}`
+                        : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
+                    </h1>
 
-              <p class="text-l text-secondary truncate" data-testid="email">
-                ${this.in({ idle: 'snapshot' })
-                  ? html`${this.data.email}`
-                  : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
-              </p>
-            </div>
+                    <p class="text-l text-secondary truncate" data-testid="email">
+                      ${this.in({ idle: 'snapshot' })
+                        ? html`${this.data.email}`
+                        : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
+                    </p>
+                  </div>
 
-            <vaadin-button
-              data-testid="edit"
-              class="px-xs rounded-full"
-              theme="icon large"
-              aria-label=${this.__t('update').toString()}
-              ?disabled=${!this.in({ idle: 'snapshot' })}
-              @click=${this.__editCustomer}
-            >
-              <iron-icon icon="editor:mode-edit"></iron-icon>
-            </vaadin-button>
-          </div>
+                  <div><slot name="actions"></slot></div>
 
-          <div class="flex flex-col md-flex-row">
-            <div
-              class="flex-1 min-w-0 space-y-m border-contrast-10 rounded-t-l rounded-b-l md-border md-p-m"
-            >
-              <div class="space-x-m flex items-center justify-between">
-                <h2 class="tracking-wide text-l font-medium">
-                  <foxy-i18n
-                    ns=${ns}
-                    lang=${this.lang}
-                    key="attribute_plural"
+                  ${!getDBCValue(this.excluded, 'editButton')
+                    ? html`
+                        <vaadin-button
+                          data-testid="edit"
+                          class="px-xs rounded-full"
+                          theme="icon large"
+                          aria-label=${this.__t('update').toString()}
+                          .disabled=${!isLoaded || getDBCValue(this.disabled, 'editButton')}
+                          @click=${this.__editCustomer}
+                        >
+                          <iron-icon icon="editor:mode-edit"></iron-icon>
+                        </vaadin-button>
+                      `
+                    : ''}
+                </div>
+              `
+            : ''}
+          <!---->
+          ${!getDBCValue(this.excluded, 'addresses')
+            ? html`
+                <div class="space-y-m pt-m border-t-4 border-contrast-5">
+                  <div class="space-x-m flex items-center justify-between">
+                    <h2 class="tracking-wide text-l font-medium">
+                      <foxy-i18n
+                        ns=${ns}
+                        lang=${this.lang}
+                        key="address_plural"
+                        data-testclass="i18n"
+                      >
+                      </foxy-i18n>
+                    </h2>
+
+                    ${!getDBCValue(this.excluded, 'createAddressButton')
+                      ? html`
+                          <vaadin-button
+                            data-testid="addAddress"
+                            theme="small"
+                            .disabled=${!isLoaded ||
+                            getDBCValue(this.disabled, 'createAddressButton')}
+                            @click=${this.__addAddress}
+                          >
+                            <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
+                            <iron-icon slot="suffix" icon="icons:add"></iron-icon>
+                          </vaadin-button>
+                        `
+                      : ''}
+                  </div>
+
+                  <foxy-collection-pages
                     data-testclass="i18n"
+                    data-testid="addresses"
+                    first=${this.data?._links['fx:customer_addresses'].href ?? ''}
+                    class="snap-x-mandatory flex items-center space-x-m overflow-auto"
+                    lang=${this.lang}
+                    .page=${this.__renderAddressPage}
                   >
-                  </foxy-i18n>
-                </h2>
+                  </foxy-collection-pages>
+                </div>
+              `
+            : ''}
+          <!----->
+          ${!getDBCValue(this.excluded, 'paymentMethodCard')
+            ? html`
+                <div class="space-y-m pt-m border-t-4 border-contrast-5">
+                  <h2 class="tracking-wide text-l font-medium">
+                    <foxy-i18n
+                      ns=${ns}
+                      lang=${this.lang}
+                      key="payment_method_plural"
+                      data-testclass="i18n"
+                    >
+                    </foxy-i18n>
+                  </h2>
 
-                <vaadin-button
-                  data-testid="addAttribute"
-                  theme="small"
-                  ?disabled=${!this.in({ idle: 'snapshot' })}
-                  @click=${this.__addAttribute}
-                >
-                  <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
-                  <iron-icon slot="suffix" icon="icons:add"></iron-icon>
-                </vaadin-button>
-              </div>
+                  <foxy-payment-method-card
+                    data-testclass="i18n"
+                    data-testid="paymentMethod"
+                    class="w-payment-method-card rounded-t-l rounded-b-l overflow-hidden"
+                    href=${this.data?._links['fx:default_payment_method'].href ?? ''}
+                    lang=${this.lang}
+                    .readonly=${getDBCValue(this.readonly, 'paymentMethodCard')}
+                    .disabled=${getDBCValue(this.disabled, 'paymentMethodCard')}
+                  >
+                  </foxy-payment-method-card>
+                </div>
+              `
+            : ''}
+          <!---->
+          ${!getDBCValue(this.excluded, 'attributes')
+            ? html`
+                <div class="space-y-m pt-m border-t-4 border-contrast-5">
+                  <div class="space-x-m flex items-center justify-between">
+                    <h2 class="tracking-wide text-l font-medium">
+                      <foxy-i18n
+                        ns=${ns}
+                        lang=${this.lang}
+                        key="attribute_plural"
+                        data-testclass="i18n"
+                      >
+                      </foxy-i18n>
+                    </h2>
 
-              <foxy-collection-pages
-                data-testclass="i18n"
-                data-testid="attributes"
-                first=${this.data?._links['fx:attributes'].href ?? ''}
-                class="snap-x-mandatory flex items-center space-x-m overflow-auto"
-                lang=${this.lang}
-                .page=${this.__renderAttributePage}
-              >
-              </foxy-collection-pages>
-            </div>
+                    ${!getDBCValue(this.excluded, 'createAttributeButton')
+                      ? html`
+                          <vaadin-button
+                            data-testid="addAttribute"
+                            theme="small"
+                            .disabled=${!isLoaded ||
+                            getDBCValue(this.disabled, 'createAttributeButton')}
+                            @click=${this.__addAttribute}
+                          >
+                            <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
+                            <iron-icon slot="suffix" icon="icons:add"></iron-icon>
+                          </vaadin-button>
+                        `
+                      : ''}
+                  </div>
 
-            <div class="mt-l md-mt-0 md-ml-l">
-              <h2 class="tracking-wide text-l font-medium mb-m md-sr-only">
-                <foxy-i18n
-                  ns=${ns}
-                  lang=${this.lang}
-                  key="payment_method_plural"
-                  data-testclass="i18n"
-                >
-                </foxy-i18n>
-              </h2>
-
-              <foxy-payment-method-card
-                data-testclass="i18n"
-                data-testid="paymentMethod"
-                class="w-payment-method-card rounded-t-l rounded-b-l overflow-hidden"
-                href=${this.data?._links['fx:default_payment_method'].href ?? ''}
-                lang=${this.lang}
-              >
-              </foxy-payment-method-card>
-            </div>
-          </div>
-
-          <div class="space-y-m border-contrast-10 rounded-t-l rounded-b-l md-border md-p-m">
-            <div class="space-x-m flex items-center justify-between">
-              <h2 class="tracking-wide text-l font-medium">
-                <foxy-i18n ns=${ns} lang=${this.lang} key="address_plural" data-testclass="i18n">
-                </foxy-i18n>
-              </h2>
-
-              <vaadin-button
-                data-testid="addAddress"
-                theme="small"
-                ?disabled=${!this.in({ idle: 'snapshot' })}
-                @click=${this.__addAddress}
-              >
-                <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
-                <iron-icon slot="suffix" icon="icons:add"></iron-icon>
-              </vaadin-button>
-            </div>
-
-            <foxy-collection-pages
-              data-testclass="i18n"
-              data-testid="addresses"
-              first=${this.data?._links['fx:customer_addresses'].href ?? ''}
-              class="snap-x-mandatory flex items-center space-x-m overflow-auto"
-              lang=${this.lang}
-              .page=${this.__renderAddressPage}
-            >
-            </foxy-collection-pages>
-          </div>
-
-          <div
-            class="space-y-m rounded-t-l rounded-b-l border-contrast-10 md-border md-px-m md-pt-m"
-          >
+                  <foxy-collection-pages
+                    data-testclass="i18n"
+                    data-testid="attributes"
+                    first=${this.data?._links['fx:attributes'].href ?? ''}
+                    class="snap-x-mandatory flex items-center space-x-m overflow-auto"
+                    lang=${this.lang}
+                    .page=${this.__renderAttributePage}
+                  >
+                  </foxy-collection-pages>
+                </div>
+              `
+            : ''}
+          <!---->
+          <div class="space-y-m pt-m border-t-4 border-contrast-5">
             <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
-              <foxy-i18n
-                ns=${ns}
-                key="transaction_plural"
-                lang=${this.lang}
-                slot="tab-0"
-                data-testclass="i18n"
-              >
-              </foxy-i18n>
+              ${!getDBCValue(this.excluded, 'transactions')
+                ? html`
+                    <foxy-i18n
+                      ns=${ns}
+                      key="transaction_plural"
+                      lang=${this.lang}
+                      slot="tab-0"
+                      data-testclass="i18n"
+                    >
+                    </foxy-i18n>
 
-              <foxy-i18n
-                ns=${ns}
-                key="subscription_plural"
-                lang=${this.lang}
-                slot="tab-1"
-                data-testclass="i18n"
-              >
-              </foxy-i18n>
+                    <foxy-collection-pages
+                      data-testclass="i18n"
+                      data-testid="transactions"
+                      spinner="foxy-spinner"
+                      first=${transactionsURL}
+                      class="divide-y divide-contrast-10"
+                      slot="panel-0"
+                      page="foxy-transactions-table"
+                      lang=${this.lang}
+                    >
+                    </foxy-collection-pages>
+                  `
+                : ''}
+              <!---->
+              ${!getDBCValue(this.excluded, 'subscriptions')
+                ? html`
+                    <foxy-i18n
+                      ns=${ns}
+                      key="subscription_plural"
+                      lang=${this.lang}
+                      slot="tab-1"
+                      data-testclass="i18n"
+                    >
+                    </foxy-i18n>
 
-              <foxy-collection-pages
-                data-testclass="i18n"
-                data-testid="transactions"
-                spinner="foxy-spinner"
-                first=${transactionsURL}
-                slot="panel-0"
-                page="foxy-transactions-table"
-                lang=${this.lang}
-              >
-              </foxy-collection-pages>
-
-              <foxy-collection-pages
-                data-testclass="i18n"
-                data-testid="subscriptions"
-                spinner="foxy-spinner"
-                first=${subscriptionsURL}
-                slot="panel-1"
-                lang=${this.lang}
-                .page=${this.__renderSubscriptionsPage}
-              >
-              </foxy-collection-pages>
+                    <foxy-collection-pages
+                      data-testclass="i18n"
+                      data-testid="subscriptions"
+                      spinner="foxy-spinner"
+                      first=${subscriptionsURL}
+                      class="divide-y divide-contrast-10"
+                      slot="panel-1"
+                      lang=${this.lang}
+                      .page=${this.__renderSubscriptionsPage}
+                    >
+                    </foxy-collection-pages>
+                  `
+                : ''}
             </x-tabs>
           </div>
         </div>
@@ -402,7 +482,6 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     this.__untrackTranslations?.();
-    this.__removeBreakpoints?.();
   }
 
   private get __t() {
