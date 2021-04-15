@@ -1,0 +1,12 @@
+name: PR Title Validation
+on:
+  pull_request:
+    types: ["opened", "edited", "reopened", "synchronize"]
+jobs:
+  validate_pr_title:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    runs-on: ubuntu-latest
+    name: "Validate PR title with commitizen"
+    steps:
+      - run: pip install commitizen
+      - run: cat $GITHUB_EVENT_PATH | jq -r '.pull_request .title' | cz check
