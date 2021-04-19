@@ -1,9 +1,10 @@
 import * as logos from './logos';
 
-import { CSSResultArray, PropertyDeclarations, css } from 'lit-element';
+import { CSSResultArray, css } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
@@ -20,14 +21,6 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
       'foxy-i18n': customElements.get('foxy-i18n'),
-    };
-  }
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      readonly: { reflect: true, type: Boolean },
-      disabled: { reflect: true, type: Boolean },
     };
   }
 
@@ -52,10 +45,6 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
       `,
     ];
   }
-
-  readonly = false;
-
-  disabled = false;
 
   private static __ns = 'payment-method-card';
 
@@ -121,8 +110,8 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
           <div
             class=${classMap({
               'flex items-start': true,
-              'justify-between': !this.readonly,
-              'justify-end': this.readonly,
+              'justify-between': this.readonly === BooleanSelector.False,
+              'justify-end': this.readonly === BooleanSelector.True,
             })}
           >
             ${!this.readonly

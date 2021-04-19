@@ -1,20 +1,18 @@
 import {} from '../AddressForm/types';
 
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
+import { CSSResult, CSSResultArray } from 'lit-element';
 import { Choice, Group, PropertyTable } from '../../private/index';
-import { Data, DisabledValue, ExcludedValue, ReadonlyValue } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
+import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { createDBCConverter } from '../../../utils/dbc-converter';
-import { filterSet } from '../../../utils/filter-set';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
 
@@ -33,15 +31,6 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
     };
   }
 
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      readonly: { reflect: true, converter: createDBCConverter('readonly') },
-      disabled: { reflect: true, converter: createDBCConverter('disabled') },
-      excluded: { reflect: true, converter: createDBCConverter('excluded') },
-    };
-  }
-
   static get styles(): CSSResult | CSSResultArray {
     return Themeable.styles;
   }
@@ -54,12 +43,6 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
       ({ name }) => (name && name.length <= 500) || 'name_too_long',
     ];
   }
-
-  readonly: ReadonlyValue = false;
-
-  disabled: DisabledValue = false;
-
-  excluded: ExcludedValue = false;
 
   private static readonly __visibilityOptions = ['private', 'restricted', 'public'] as const;
 
@@ -87,12 +70,6 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
     const isDisabled = !this.in('idle');
     const isValid = isTemplateValid || isSnapshotValid;
 
-    const fields = ['name', 'value', 'visibility'];
-    const controls = [...fields, 'create', 'delete'];
-    const excludedControls = filterSet(controls, this.excluded);
-    const disabledControls = filterSet(controls, this.disabled);
-    const readonlyFields = filterSet(fields, this.readonly);
-
     return html`
       <x-confirm-dialog
         data-testid="confirm"
@@ -110,15 +87,15 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
       <div class="relative" aria-busy=${this.in('busy')} aria-live="polite">
         <div class="grid grid-cols-1 gap-l">
-          ${!excludedControls.includes('name')
+          ${!this.excluded.matches('name')
             ? html`
                 <vaadin-text-field
                   data-testid="name"
                   label=${this.__t('name').toString()}
                   value=${ifDefined(this.form?.name)}
                   .checkValidity=${this.__getValidator('name')}
-                  ?disabled=${isDisabled || disabledControls.includes('name')}
-                  ?readonly=${readonlyFields.includes('name')}
+                  ?disabled=${isDisabled || this.disabled.matches('name')}
+                  ?readonly=${this.readonly.matches('name')}
                   error-message=${this.__getErrorMessage('name')}
                   @keydown=${this.__handleKeyDown}
                   @input=${this.__handleNameInput}
@@ -127,15 +104,15 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
               `
             : ''}
           <!---->
-          ${!excludedControls.includes('value')
+          ${!this.excluded.matches('value')
             ? html`
                 <vaadin-text-area
                   data-testid="value"
                   label=${this.__t('value').toString()}
                   value=${ifDefined(this.form?.value)}
                   .checkValidity=${this.__getValidator('value')}
-                  ?disabled=${isDisabled || disabledControls.includes('value')}
-                  ?readonly=${readonlyFields.includes('value')}
+                  ?disabled=${isDisabled || this.disabled.matches('value')}
+                  ?readonly=${this.readonly.matches('value')}
                   error-message=${this.__getErrorMessage('value')}
                   @input=${this.__handleValueInput}
                 >
@@ -143,12 +120,12 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
               `
             : ''}
           <!---->
-          ${!excludedControls.includes('visibility')
+          ${!this.excluded.matches('visibility')
             ? html`
                 <x-group frame>
                   <foxy-i18n
                     class=${classMap({
-                      'text-disabled': isDisabled || disabledControls.includes('visibility'),
+                      'text-disabled': isDisabled || this.disabled.matches('visibility'),
                     })}
                     lang=${lang}
                     slot="header"
@@ -163,8 +140,8 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
                     lang=${lang}
                     ns=${ns}
                     data-testid="visibility"
-                    ?disabled=${isDisabled || disabledControls.includes('visibility')}
-                    ?readonly=${readonlyFields.includes('visibility')}
+                    ?disabled=${isDisabled || this.disabled.matches('visibility')}
+                    ?readonly=${this.readonly.matches('visibility')}
                     @change=${this.__handleChoiceChange}
                   >
                     <foxy-i18n ns=${ns} lang=${lang} slot="private-label" key="visibility_private">
@@ -195,12 +172,12 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
                 >
                 </x-property-table>
 
-                ${!excludedControls.includes('delete')
+                ${!this.excluded.matches('delete')
                   ? html`
                       <vaadin-button
                         data-testid="delete"
                         theme="error primary"
-                        ?disabled=${isDisabled || disabledControls.includes('delete')}
+                        ?disabled=${isDisabled || this.disabled.matches('delete')}
                         @click=${this.__handleDeleteClick}
                       >
                         <foxy-i18n ns=${ns} lang=${lang} key="delete"></foxy-i18n>
@@ -209,12 +186,12 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
                   : ''}
               `
             : html`
-                ${!excludedControls.includes('create')
+                ${!this.excluded.matches('create')
                   ? html`
                       <vaadin-button
                         data-testid="create"
                         theme="success primary"
-                        ?disabled=${isDisabled || !isValid || disabledControls.includes('create')}
+                        ?disabled=${isDisabled || !isValid || this.disabled.matches('create')}
                         @click=${this.submit}
                       >
                         <foxy-i18n ns=${ns} lang=${lang} key="create"></foxy-i18n>

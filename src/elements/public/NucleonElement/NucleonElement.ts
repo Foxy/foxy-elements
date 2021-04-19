@@ -1,11 +1,12 @@
+import { BooleanSelector, Nucleon, Rumour } from '@foxy.io/sdk/core';
 import { ComputedElementProperties, HALJSONResource, NucleonMachine, NucleonV8N } from './types';
 import { LitElement, PropertyDeclarations } from 'lit-element';
-import { Nucleon, Rumour } from '@foxy.io/sdk/core';
 import { assign, interpret } from 'xstate';
 
 import { API } from './API';
 import { FetchEvent } from './FetchEvent';
 import { UpdateEvent } from './UpdateEvent';
+import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
 import memoize from 'lodash-es/memoize';
 import traverse from 'traverse';
 
@@ -43,6 +44,9 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      ...createBooleanSelectorProperty('readonly'),
+      ...createBooleanSelectorProperty('disabled'),
+      ...createBooleanSelectorProperty('excluded'),
       parent: { type: String },
       group: { type: String, noAccessor: true },
       href: { type: String, noAccessor: true },
@@ -64,6 +68,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   /** Optional URL of the collection this element's resource belongs to. */
   parent = '';
+
+  readonly: BooleanSelector = BooleanSelector.False;
+
+  disabled: BooleanSelector = BooleanSelector.False;
+
+  excluded: BooleanSelector = BooleanSelector.False;
 
   private __href = '';
 

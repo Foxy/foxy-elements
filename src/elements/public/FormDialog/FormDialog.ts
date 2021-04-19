@@ -1,13 +1,14 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
-import { DBC } from '../../../utils/parse-dbc';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { Dialog } from '../../private/Dialog/Dialog';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormRenderer } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
-import { createDBCConverter } from '../../../utils/dbc-converter';
+import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 /**
  * Dialog wrapper for the forms made with NucleonElement.
@@ -23,12 +24,12 @@ export class FormDialog extends Dialog {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      ...createBooleanSelectorProperty('readonly'),
+      ...createBooleanSelectorProperty('disabled'),
+      ...createBooleanSelectorProperty('excluded'),
       href: { type: String },
       form: { type: String, noAccessor: true },
       parent: { type: String },
-      readonly: { reflect: true, converter: createDBCConverter('readonly') },
-      disabled: { reflect: true, converter: createDBCConverter('disabled') },
-      excluded: { reflect: true, converter: createDBCConverter('excluded') },
     };
   }
 
@@ -38,11 +39,11 @@ export class FormDialog extends Dialog {
   /** Optional URL of the resource to load (passed to form). */
   href = '';
 
-  readonly: boolean | DBC = false;
+  readonly = BooleanSelector.False;
 
-  disabled: boolean | DBC = false;
+  disabled = BooleanSelector.False;
 
-  excluded: boolean | DBC = false;
+  excluded = BooleanSelector.False;
 
   private __form: string | null = null;
 
@@ -95,9 +96,9 @@ export class FormDialog extends Dialog {
           href=\${options.href}
           lang=\${options.lang}
           parent=\${options.parent}
-          .disabled=\${options.disabled}
-          .readonly=\${options.readonly}
-          .excluded=\${options.excluded}
+          disabled=\${options.disabled}
+          readonly=\${options.readonly}
+          excluded=\${options.excluded}
           @fetch=\${options.handleFetch}
           @update=\${options.handleUpdate}
         >
@@ -114,9 +115,9 @@ export class FormDialog extends Dialog {
       this.__renderForm?.bind(null, {
         handleUpdate: this.__handleUpdate,
         handleFetch: this.__handleFetch,
-        disabled: this.disabled,
-        readonly: this.readonly,
-        excluded: this.excluded,
+        disabled: ifDefined(this.disabled.toAttribute() ?? undefined),
+        readonly: ifDefined(this.readonly.toAttribute() ?? undefined),
+        excluded: ifDefined(this.excluded.toAttribute() ?? undefined),
         parent: this.parent,
         href: this.href,
         lang: this.lang,

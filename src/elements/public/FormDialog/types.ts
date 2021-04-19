@@ -1,15 +1,13 @@
-import { TemplateResult, html } from 'lit-html';
-
-import { DBC } from '../../../utils/parse-dbc';
+import { Part, TemplateResult, html } from 'lit-html';
 
 export type FormRenderer = (context: {
   html: typeof html;
   href: string;
   lang: string;
   parent: string;
-  readonly: boolean | DBC;
-  disabled: boolean | DBC;
-  excluded: boolean | DBC;
+  readonly: (part: Part) => void;
+  disabled: (part: Part) => void;
+  excluded: (part: Part) => void;
   handleFetch: (evt: Event) => void;
   handleUpdate: (evt: Event) => void;
 }) => TemplateResult;

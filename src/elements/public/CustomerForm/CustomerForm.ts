@@ -1,13 +1,5 @@
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
-import {
-  Control,
-  Data,
-  DisabledValue,
-  ExcludedValue,
-  Field,
-  ReadonlyValue,
-  TextFieldParams,
-} from './types';
+import { CSSResult, CSSResultArray } from 'lit-element';
+import { Data, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -18,8 +10,6 @@ import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTable } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
-import { createDBCConverter } from '../../../utils/dbc-converter';
-import { filterSet } from '../../../utils/filter-set';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { validate as isEmail } from 'email-validator';
 import memoize from 'lodash-es/memoize';
@@ -33,15 +23,6 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
-    };
-  }
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      readonly: { reflect: true, converter: createDBCConverter('readonly') },
-      disabled: { reflect: true, converter: createDBCConverter('disabled') },
-      excluded: { reflect: true, converter: createDBCConverter('excluded') },
     };
   }
 
@@ -60,17 +41,7 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
     ];
   }
 
-  readonly: ReadonlyValue = false;
-
-  disabled: DisabledValue = false;
-
-  excluded: ExcludedValue = false;
-
   private static __ns = 'customer-form';
-
-  private static __fields: Field[] = ['first_name', 'last_name', 'email', 'tax_id'];
-
-  private static __controls: Control[] = [...CustomerForm.__fields, 'create', 'delete'];
 
   private __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
@@ -97,12 +68,10 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   render(): TemplateResult {
     const ns = CustomerForm.__ns;
     const action = this.href ? 'delete' : 'create';
-    const disabledControls = filterSet(CustomerForm.__controls, this.disabled);
-    const excludedControls = filterSet(CustomerForm.__controls, this.excluded);
 
     const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !this.in('idle') || disabledControls.includes(action);
+    const isDisabled = !this.in('idle') || this.disabled.matches(action);
     const isValid = isTemplateValid || isSnapshotValid;
 
     return html`
@@ -130,7 +99,7 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
         <!---->
         ${this.href ? this.__renderPropertyTable() : undefined}
         <!---->
-        ${!excludedControls.includes(action)
+        ${!this.excluded.matches(action)
           ? html`
               <vaadin-button
                 class="w-full"
@@ -190,10 +159,8 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private __renderTextField({ field, required = false }: TextFieldParams) {
-    if (filterSet(CustomerForm.__controls, this.excluded).includes(field)) return '';
-
-    const readonlyFields = filterSet(CustomerForm.__fields, this.readonly);
-    const disabledControls = filterSet(CustomerForm.__controls, this.disabled);
+    const bsid = field.replace(/_/, '-');
+    if (this.excluded.matches(bsid)) return '';
 
     return html`
       <vaadin-text-field
@@ -202,8 +169,8 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
         error-message=${this.__getErrorMessage(field)}
         data-testid=${field}
         .checkValidity=${this.__getValidator(field)}
-        ?disabled=${!this.in('idle') || disabledControls.includes(field)}
-        ?readonly=${readonlyFields.includes(field)}
+        ?disabled=${!this.in('idle') || this.disabled.matches(bsid)}
+        ?readonly=${this.readonly.matches(bsid)}
         ?required=${required}
         @input=${this.__bindField(field)}
         @keydown=${this.__handleKeyDown}

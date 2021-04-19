@@ -1,14 +1,5 @@
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
-import {
-  ComboBoxParams,
-  Control,
-  Data,
-  DisabledValue,
-  ExcludedValue,
-  Field,
-  ReadonlyValue,
-  TextFieldParams,
-} from './types';
+import { CSSResult, CSSResultArray } from 'lit-element';
+import { ComboBoxParams, Data, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -20,8 +11,6 @@ import { PropertyTable } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { countries } from './countries';
-import { createDBCConverter } from '../../../utils/dbc-converter';
-import { filterSet } from '../../../utils/filter-set';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
 import { regions } from './regions';
@@ -36,15 +25,6 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
-    };
-  }
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      readonly: { reflect: true, converter: createDBCConverter('readonly') },
-      disabled: { reflect: true, converter: createDBCConverter('disabled') },
-      excluded: { reflect: true, converter: createDBCConverter('excluded') },
     };
   }
 
@@ -69,29 +49,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
     ];
   }
 
-  readonly: ReadonlyValue = false;
-
-  disabled: DisabledValue = false;
-
-  excluded: ExcludedValue = false;
-
   private static __ns = 'address-form';
-
-  private static __fields: Field[] = [
-    'address_name',
-    'first_name',
-    'last_name',
-    'company',
-    'phone',
-    'address1',
-    'address2',
-    'country',
-    'region',
-    'city',
-    'postal_code',
-  ];
-
-  private static __controls: Control[] = [...AddressForm.__fields, 'create', 'delete'];
 
   private __untrackTranslations?: () => void;
 
@@ -118,11 +76,9 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
     const ns = AddressForm.__ns;
 
     const action = this.href ? 'delete' : 'create';
-    const excludedControls = filterSet(AddressForm.__controls, this.excluded);
-    const disabledControls = filterSet(AddressForm.__controls, this.disabled);
     const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !this.in('idle') || disabledControls.includes(action);
+    const isDisabled = !this.in('idle') || this.disabled.matches(action);
     const isDefaultShipping = !!this.form?.is_default_shipping;
     const isDefaultBilling = !!this.form?.is_default_billing;
     const isDefault = isDefaultShipping || isDefaultBilling;
@@ -170,7 +126,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         <!---->
         ${this.href ? this.__renderPropertyTable() : undefined}
         <!---->
-        ${!excludedControls.includes(action)
+        ${!this.excluded.matches(action)
           ? html`
               <vaadin-button
                 class="w-full"
@@ -234,12 +190,10 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private __renderComboBox({ source, field, custom = false }: ComboBoxParams) {
-    if (filterSet(AddressForm.__controls, this.excluded).includes(field)) return '';
+    const bsid = field.replace(/_/, '-');
+    if (this.excluded.matches(bsid)) return '';
 
     const t = customElements.get('foxy-i18n').i18next.getFixedT(this.lang, field);
-    const readonlyFields = filterSet(AddressForm.__fields, this.readonly);
-    const disabledControls = filterSet(AddressForm.__controls, this.disabled);
-
     return html`
       <vaadin-combo-box
         label=${this.__t(field).toString()}
@@ -251,8 +205,8 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         .checkValidity=${this.__getValidator(field)}
         .items=${source.map(code => ({ text: t(code).toString(), code }))}
         ?allow-custom-value=${custom}
-        ?readonly=${readonlyFields.includes(field as Field)}
-        ?disabled=${!this.in('idle') || disabledControls.includes(field as Field)}
+        ?readonly=${this.readonly.matches(bsid)}
+        ?disabled=${!this.in('idle') || this.disabled.matches(bsid)}
         @change=${this.__bindField(field)}
       >
       </vaadin-combo-box>
@@ -265,10 +219,8 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
     readonly = false,
     required = false,
   }: TextFieldParams) {
-    if (filterSet(AddressForm.__controls, this.excluded).includes(field)) return '';
-
-    const readonlyFields = filterSet(AddressForm.__fields, this.readonly);
-    const disabledControls = filterSet(AddressForm.__controls, this.disabled);
+    const bsid = field.replace(/_/, '-').replace('1', '-one').replace('2', '-two');
+    if (this.excluded.matches(bsid)) return '';
 
     return html`
       <vaadin-text-field
@@ -278,9 +230,9 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         error-message=${this.__getErrorMessage(field)}
         data-testid=${field}
         .checkValidity=${this.__getValidator(field)}
-        ?disabled=${!this.in('idle') || disabledControls.includes(field as Field)}
+        ?disabled=${!this.in('idle') || this.disabled.matches(bsid)}
         ?required=${required}
-        ?readonly=${readonly || readonlyFields.includes(field as Field)}
+        ?readonly=${readonly || this.readonly.matches(bsid)}
         @input=${this.__bindField(field)}
         @keydown=${this.__handleKeyDown}
       >

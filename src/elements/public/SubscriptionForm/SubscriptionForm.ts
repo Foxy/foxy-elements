@@ -1,16 +1,14 @@
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
+import { CSSResult, CSSResultArray } from 'lit-element';
 import { Choice, Group, PropertyTable, Skeleton } from '../../private/index';
-import { Data, DisabledValue, ExcludedValue, Field, ReadonlyValue } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
+import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { createDBCConverter } from '../../../utils/dbc-converter';
-import { filterSet } from '../../../utils/filter-set';
 import memoize from 'lodash-es/memoize';
 import { parseFrequency } from '../../../utils/parse-frequency';
 
@@ -27,26 +25,9 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     };
   }
 
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      readonly: { reflect: true, converter: createDBCConverter('readonly') },
-      disabled: { reflect: true, converter: createDBCConverter('disabled') },
-      excluded: { reflect: true, converter: createDBCConverter('excluded') },
-    };
-  }
-
   static get styles(): CSSResult | CSSResultArray {
     return Themeable.styles;
   }
-
-  readonly: ReadonlyValue = false;
-
-  disabled: DisabledValue = false;
-
-  excluded: ExcludedValue = false;
-
-  private static __fields: Field[] = ['end_date', 'frequency', 'next_transaction_date'];
 
   private static __predefinedFrequencies = ['.5m', '1m', '1y'];
 
@@ -74,9 +55,6 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     const ns = SubscriptionForm.__ns;
     const active = !!this.data?.is_active;
     const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
-    const readonly = filterSet(SubscriptionForm.__fields, this.readonly);
-    const disabled = filterSet(SubscriptionForm.__fields, this.disabled);
-    const excluded = filterSet(SubscriptionForm.__fields, this.excluded);
     const isIdleSnapshot = this.in({ idle: 'snapshot' });
 
     return html`
@@ -110,7 +88,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
           </div>
         </div>
 
-        ${!excluded.includes('frequency')
+        ${!this.excluded.matches('frequency')
           ? html`
               <x-group frame>
                 <x-choice
@@ -120,8 +98,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                   custom
                   .items=${SubscriptionForm.__predefinedFrequencies}
                   .value=${this.form.frequency ?? null}
-                  ?disabled=${!isIdleSnapshot || disabled.includes('frequency')}
-                  ?readonly=${isIdleSnapshot && (!active || readonly.includes('frequency'))}
+                  ?disabled=${!isIdleSnapshot || this.disabled.matches('frequency')}
+                  ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('frequency'))}
                   @change=${this.__handleFrequencyChange}
                 >
                   <foxy-i18n
@@ -155,7 +133,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
             `
           : ''}
         <!---->
-        ${!excluded.includes('next_transaction_date')
+        ${!this.excluded.matches('next-transaction-date')
           ? html`
               <vaadin-date-picker
                 data-testid="nextPaymentDate"
@@ -163,9 +141,9 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                 label=${this.__t('next_transaction_date').toString()}
                 value=${this.form.next_transaction_date?.substr(0, 10) ?? ''}
                 min=${tomorrow.toISOString().substr(0, 10)}
-                ?disabled=${!isIdleSnapshot || disabled.includes('next_transaction_date')}
+                ?disabled=${!isIdleSnapshot || this.disabled.matches('next-transaction-date')}
                 ?readonly=${isIdleSnapshot &&
-                (!active || readonly.includes('next_transaction_date'))}
+                (!active || this.readonly.matches('next-transaction-date'))}
                 .checkValidity=${this.__muteBuiltInV8N}
                 @change=${this.__handleNextTransactionDateChange}
               >
@@ -173,7 +151,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
             `
           : ''}
         <!---->
-        ${!excluded.includes('end_date')
+        ${!this.excluded.matches('end-date')
           ? html`
               <vaadin-date-picker
                 data-testid="endDate"
@@ -181,8 +159,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                 label=${this.__t('end_date').toString()}
                 value=${this.form.end_date?.substr(0, 10) ?? ''}
                 min=${tomorrow.toISOString().substr(0, 10)}
-                ?disabled=${!isIdleSnapshot || disabled.includes('end_date')}
-                ?readonly=${isIdleSnapshot && (!active || readonly.includes('end_date'))}
+                ?disabled=${!isIdleSnapshot || this.disabled.matches('end-date')}
+                ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('end-date'))}
                 .checkValidity=${this.__muteBuiltInV8N}
                 @change=${this.__handleEndDateChange}
               >

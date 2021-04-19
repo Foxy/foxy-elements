@@ -10,21 +10,22 @@ import {
 
 import { API } from '@foxy.io/sdk/customer';
 import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { Customer } from '../Customer/Customer';
 import { CustomerApi } from '../CustomerApi/CustomerApi';
 import { Page } from './types';
 import { SignInForm } from '../SignInForm/SignInForm';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { createDBCConverter } from '../../../utils/dbc-converter';
-import { parseDBC } from '../../../utils/parse-dbc';
+import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 export class CustomerPortal extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
-      readonly: { reflect: true, converter: createDBCConverter('readonly') },
-      disabled: { reflect: true, converter: createDBCConverter('disabled') },
-      excluded: { reflect: true, converter: createDBCConverter('excluded') },
+      ...createBooleanSelectorProperty('readonly'),
+      ...createBooleanSelectorProperty('disabled'),
+      ...createBooleanSelectorProperty('excluded'),
       base: { type: String },
       lang: { type: String },
     };
@@ -41,13 +42,13 @@ export class CustomerPortal extends LitElement {
     ];
   }
 
-  readonly = parseDBC('paymentMethodCard') as Customer['readonly'];
+  readonly = new BooleanSelector('payment-method-card');
 
-  disabled = false as Customer['disabled'];
+  disabled = BooleanSelector.False;
 
-  excluded = parseDBC(
-    'customerForm.delete; attributes; createAddressButton; addressForm.delete; addressForm.address_name'
-  ) as Customer['excluded'];
+  excluded = new BooleanSelector(
+    'customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
+  );
 
   lang = '';
 
@@ -200,9 +201,9 @@ export class CustomerPortal extends LitElement {
         id="customer"
         lang=${this.lang}
         href=${this.base}
-        .excluded=${this.excluded}
-        .readonly=${this.readonly}
-        .disabled=${this.disabled}
+        excluded=${ifDefined(this.excluded.toAttribute() ?? undefined)}
+        readonly=${ifDefined(this.readonly.toAttribute() ?? undefined)}
+        disabled=${ifDefined(this.disabled.toAttribute() ?? undefined)}
         @update=${this.__handleUpdate}
       >
         <vaadin-button

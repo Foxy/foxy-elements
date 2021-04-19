@@ -1,12 +1,12 @@
 import { Backend, Core } from '@foxy.io/sdk';
-import { CSSResultArray, PropertyDeclarations, TemplateResult, html } from 'lit-element';
-import { Data, DisabledValue, ExcludedValue, ReadonlyValue } from './types';
+import { CSSResultArray, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Skeleton, Tabs } from '../../private/index';
 
 import { Data as Attribute } from '../AttributeCard/types';
 import { Column } from '../Table/types';
 import { Data as CustomerAddress } from '../AddressCard/types';
+import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
 import { ItemRenderer } from '../CollectionPage/CollectionPage';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -15,8 +15,6 @@ import { Data as Subscriptions } from '../SubscriptionsTable/types';
 import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { createDBCConverter } from '../../../utils/dbc-converter';
-import { getDBCValue } from '../../../utils/filter-set';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { styles } from './styles';
 
@@ -42,24 +40,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     };
   }
 
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      readonly: { reflect: true, converter: createDBCConverter('readonly') },
-      disabled: { reflect: true, converter: createDBCConverter('disabled') },
-      excluded: { reflect: true, converter: createDBCConverter('excluded') },
-    };
-  }
-
   static get styles(): CSSResultArray {
     return [Themeable.styles, styles];
   }
-
-  readonly: ReadonlyValue = false;
-
-  disabled: DisabledValue = false;
-
-  excluded: ExcludedValue = false;
 
   private static __ns = 'customer';
 
@@ -199,9 +182,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="attribute-dialog"
-        .readonly=${getDBCValue(this.readonly, 'attributeForm')}
-        .disabled=${getDBCValue(this.disabled, 'attributeForm')}
-        .excluded=${getDBCValue(this.excluded, 'attributeForm')}
+        readonly=${ifDefined(this.readonly.zoom('attribute-form').toAttribute() ?? undefined)}
+        disabled=${ifDefined(this.disabled.zoom('attribute-form').toAttribute() ?? undefined)}
+        excluded=${ifDefined(this.excluded.zoom('attribute-form').toAttribute() ?? undefined)}
       >
       </foxy-form-dialog>
 
@@ -213,9 +196,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="address-dialog"
-        .readonly=${getDBCValue(this.readonly, 'addressForm')}
-        .disabled=${getDBCValue(this.disabled, 'addressForm')}
-        .excluded=${getDBCValue(this.excluded, 'addressForm')}
+        readonly=${ifDefined(this.readonly.zoom('address-form').toAttribute() ?? undefined)}
+        disabled=${ifDefined(this.disabled.zoom('address-form').toAttribute() ?? undefined)}
+        excluded=${ifDefined(this.excluded.zoom('address-form').toAttribute() ?? undefined)}
       >
       </foxy-form-dialog>
 
@@ -228,9 +211,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="customer-dialog"
-        .readonly=${getDBCValue(this.readonly, 'customerForm')}
-        .disabled=${getDBCValue(this.disabled, 'customerForm')}
-        .excluded=${getDBCValue(this.excluded, 'customerForm')}
+        readonly=${ifDefined(this.readonly.zoom('customer-form').toAttribute() ?? undefined)}
+        disabled=${ifDefined(this.disabled.zoom('customer-form').toAttribute() ?? undefined)}
+        excluded=${ifDefined(this.excluded.zoom('customer-form').toAttribute() ?? undefined)}
       >
       </foxy-form-dialog>
 
@@ -242,9 +225,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="subscription-dialog"
-        .readonly=${getDBCValue(this.readonly, 'subscriptionForm')}
-        .disabled=${getDBCValue(this.disabled, 'subscriptionForm')}
-        .excluded=${getDBCValue(this.excluded, 'subscriptionForm')}
+        readonly=${ifDefined(this.readonly.zoom('subscription-form').toAttribute() ?? undefined)}
+        disabled=${ifDefined(this.disabled.zoom('subscription-form').toAttribute() ?? undefined)}
+        excluded=${ifDefined(this.excluded.zoom('subscription-form').toAttribute() ?? undefined)}
       >
       </foxy-form-dialog>
 
@@ -255,7 +238,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
             'opacity-50': !this.in({ idle: 'snapshot' }),
           })}
         >
-          ${!getDBCValue(this.excluded, 'header')
+          ${!this.excluded.matches('header')
             ? html`
                 <div class="flex items-center justify-between space-x-m">
                   <div class="leading-s min-w-0 flex-1">
@@ -274,14 +257,14 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
 
                   <div><slot name="actions"></slot></div>
 
-                  ${!getDBCValue(this.excluded, 'editButton')
+                  ${!this.excluded.matches('edit-button')
                     ? html`
                         <vaadin-button
                           data-testid="edit"
                           class="px-xs rounded-full"
                           theme="icon large"
                           aria-label=${this.__t('update').toString()}
-                          .disabled=${!isLoaded || getDBCValue(this.disabled, 'editButton')}
+                          .disabled=${!isLoaded || this.disabled.matches('edit-button')}
                           @click=${this.__editCustomer}
                         >
                           <iron-icon icon="editor:mode-edit"></iron-icon>
@@ -292,7 +275,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               `
             : ''}
           <!---->
-          ${!getDBCValue(this.excluded, 'addresses')
+          ${!this.excluded.matches('addresses')
             ? html`
                 <div class="space-y-m pt-m border-t-4 border-contrast-5">
                   <div class="space-x-m flex items-center justify-between">
@@ -306,13 +289,12 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                       </foxy-i18n>
                     </h2>
 
-                    ${!getDBCValue(this.excluded, 'createAddressButton')
+                    ${!this.excluded.matches('create-address-button')
                       ? html`
                           <vaadin-button
                             data-testid="addAddress"
                             theme="small"
-                            .disabled=${!isLoaded ||
-                            getDBCValue(this.disabled, 'createAddressButton')}
+                            .disabled=${!isLoaded || this.disabled.matches('create-address-button')}
                             @click=${this.__addAddress}
                           >
                             <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
@@ -335,7 +317,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
               `
             : ''}
           <!----->
-          ${!getDBCValue(this.excluded, 'paymentMethodCard')
+          ${!this.excluded.matches('payment-method-card')
             ? html`
                 <div class="space-y-m pt-m border-t-4 border-contrast-5">
                   <h2 class="tracking-wide text-l font-medium">
@@ -354,15 +336,19 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                     class="w-payment-method-card rounded-t-l rounded-b-l overflow-hidden"
                     href=${this.data?._links['fx:default_payment_method'].href ?? ''}
                     lang=${this.lang}
-                    .readonly=${getDBCValue(this.readonly, 'paymentMethodCard')}
-                    .disabled=${getDBCValue(this.disabled, 'paymentMethodCard')}
+                    readonly=${ifDefined(
+                      this.readonly.zoom('payment-method-card').toAttribute() ?? undefined
+                    )}
+                    disabled=${ifDefined(
+                      this.readonly.zoom('payment-method-card').toAttribute() ?? undefined
+                    )}
                   >
                   </foxy-payment-method-card>
                 </div>
               `
             : ''}
           <!---->
-          ${!getDBCValue(this.excluded, 'attributes')
+          ${!this.excluded.matches('attributes')
             ? html`
                 <div class="space-y-m pt-m border-t-4 border-contrast-5">
                   <div class="space-x-m flex items-center justify-between">
@@ -376,13 +362,13 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                       </foxy-i18n>
                     </h2>
 
-                    ${!getDBCValue(this.excluded, 'createAttributeButton')
+                    ${!this.excluded.matches('create-attribute-button')
                       ? html`
                           <vaadin-button
                             data-testid="addAttribute"
                             theme="small"
                             .disabled=${!isLoaded ||
-                            getDBCValue(this.disabled, 'createAttributeButton')}
+                            this.disabled.matches('create-attribute-button')}
                             @click=${this.__addAttribute}
                           >
                             <foxy-i18n lang=${this.lang} ns=${ns} key="create"></foxy-i18n>
@@ -407,7 +393,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
           <!---->
           <div class="space-y-m pt-m border-t-4 border-contrast-5">
             <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
-              ${!getDBCValue(this.excluded, 'transactions')
+              ${!this.excluded.matches('transactions')
                 ? html`
                     <foxy-i18n
                       ns=${ns}
@@ -432,7 +418,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                   `
                 : ''}
               <!---->
-              ${!getDBCValue(this.excluded, 'subscriptions')
+              ${!this.excluded.matches('subscriptions')
                 ? html`
                     <foxy-i18n
                       ns=${ns}
