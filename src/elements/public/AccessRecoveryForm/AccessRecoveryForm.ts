@@ -8,9 +8,11 @@ import {
 } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
 import { I18n } from '../I18n/I18n';
 import { Themeable } from '../../../mixins/themeable';
+import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
 
 type State = 'invalid' | 'valid' | 'busy' | 'fail';
 
@@ -30,6 +32,9 @@ export class AccessRecoveryForm extends LitElement {
 
   static get properties(): PropertyDeclarations {
     return {
+      ...createBooleanSelectorProperty('readonly'),
+      ...createBooleanSelectorProperty('disabled'),
+      ...createBooleanSelectorProperty('excluded'),
       lang: { type: String },
       email: { type: String },
     };
@@ -44,6 +49,15 @@ export class AccessRecoveryForm extends LitElement {
 
   /** User email. Value of this property is bound to the form field. */
   email = '';
+
+  /** Makes the entire form or a part of it readonly. Customizable parts: `email`. */
+  readonly = BooleanSelector.False;
+
+  /** Disables the entire form or a part of it. Customizable parts: `email` and `submit`. */
+  disabled = BooleanSelector.False;
+
+  /** Hides the entire form or a part of it. Customizable parts: `email`, `submit`, `error` and `spinner`. */
+  excluded = BooleanSelector.False;
 
   private __state: State = 'invalid';
 
@@ -64,18 +78,23 @@ export class AccessRecoveryForm extends LitElement {
         aria-busy=${this.__state === 'busy'}
         class="relative font-lumo text-m leading-m space-y-m"
       >
-        <vaadin-email-field
-          class="w-full"
-          label=${this.__t('email').toString()}
-          value=${this.email}
-          ?disabled=${this.__state === 'busy'}
-          required
-          @input=${this.__handleEmailInput}
-          @keydown=${this.__handleKeyDown}
-        >
-        </vaadin-email-field>
-
-        ${this.__state.startsWith('fail')
+        ${!this.excluded.matches('email')
+          ? html`
+              <vaadin-email-field
+                class="w-full"
+                label=${this.__t('email').toString()}
+                value=${this.email}
+                ?disabled=${this.__state === 'busy' || this.disabled.matches('email')}
+                ?readonly=${this.readonly.matches('email')}
+                required
+                @input=${this.__handleEmailInput}
+                @keydown=${this.__handleKeyDown}
+              >
+              </vaadin-email-field>
+            `
+          : ''}
+        <!---->
+        ${this.__state.startsWith('fail') && !this.excluded.matches('error')
           ? html`
               <div class="flex items-center text-s bg-error-10 rounded p-s text-error">
                 <iron-icon icon="lumo:error" class="self-start flex-shrink-0 mr-s"></iron-icon>
@@ -89,18 +108,22 @@ export class AccessRecoveryForm extends LitElement {
               </div>
             `
           : ''}
-
-        <vaadin-button
-          class="w-full"
-          theme="primary"
-          ?disabled=${this.__state === 'busy'}
-          @click=${this.__submit}
-        >
-          <foxy-i18n ns=${AccessRecoveryForm.__ns} lang=${this.lang} key="recover_access">
-          </foxy-i18n>
-        </vaadin-button>
-
-        ${this.__state === 'busy'
+        <!---->
+        ${!this.excluded.matches('submit')
+          ? html`
+              <vaadin-button
+                class="w-full"
+                theme="primary"
+                ?disabled=${this.__state === 'busy' || this.disabled.matches('submit')}
+                @click=${this.__submit}
+              >
+                <foxy-i18n ns=${AccessRecoveryForm.__ns} lang=${this.lang} key="recover_access">
+                </foxy-i18n>
+              </vaadin-button>
+            `
+          : ''}
+        <!---->
+        ${this.__state === 'busy' && !this.excluded.matches('spinner')
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
