@@ -27,6 +27,11 @@
           "default": "\"API\""
         },
         {
+          "name": "UpdateEvent",
+          "type": "typeof (Anonymous class)",
+          "default": "\"class extends CustomEvent<void> {}\""
+        },
+        {
           "name": "lang",
           "attribute": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -39,6 +44,24 @@
           "description": "User email. Value of this property is bound to the form field.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "description": "Makes the entire form or a part of it readonly. Customizable parts: `email`.",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "Disables the entire form or a part of it. Customizable parts: `email` and `submit`.",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "description": "Hides the entire form or a part of it. Customizable parts: `email`, `submit`, `error` and `spinner`.",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         }
       ],
       "events": [
@@ -107,6 +130,21 @@
           "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "errors",
@@ -208,6 +246,21 @@
           "default": "\"\""
         },
         {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
           "name": "errors",
           "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
           "type": "string[]"
@@ -307,6 +360,21 @@
           "default": "\"\""
         },
         {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
           "name": "errors",
           "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
           "type": "string[]"
@@ -404,6 +472,21 @@
           "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "errors",
@@ -517,6 +600,21 @@
           "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "errors",
@@ -696,6 +794,21 @@
           "default": "\"\""
         },
         {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
           "name": "errors",
           "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
           "type": "string[]"
@@ -868,6 +981,21 @@
           "default": "\"\""
         },
         {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
           "name": "errors",
           "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
           "type": "string[]"
@@ -903,6 +1031,51 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-customer-portal",
+      "path": "./src/elements/public/CustomerPortal/index.ts",
+      "attributes": [
+        {
+          "name": "lang",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "base",
+          "type": "string",
+          "default": "\"\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"new BooleanSelector('payment-method-card')\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"new BooleanSelector(\\n    'customer-form:delete attributes create-address-button address-form:delete address-form:address-name'\\n  )\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "base",
+          "attribute": "base",
+          "type": "string",
+          "default": "\"\""
         }
       ]
     },
@@ -1037,6 +1210,21 @@
           "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "errors",
@@ -1433,6 +1621,21 @@
           "description": "Optional URL of the resource to load (passed to form).",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "form",
@@ -2197,6 +2400,21 @@
           "default": "\"\""
         },
         {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
           "name": "errors",
           "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
           "type": "string[]"
@@ -2296,6 +2514,21 @@
           "default": "\"\""
         },
         {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
           "name": "errors",
           "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
           "type": "string[]"
@@ -2366,6 +2599,11 @@
           "default": "\"API\""
         },
         {
+          "name": "UpdateEvent",
+          "type": "typeof (Anonymous class)",
+          "default": "\"class extends CustomEvent<void> {}\""
+        },
+        {
           "name": "lang",
           "attribute": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -2385,6 +2623,24 @@
           "description": "User password. Value of this property is bound to the form field.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "description": "Makes the entire form or a part of it readonly. Customizable parts: `email` and `password`.",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "Disables the entire form or a part of it. Customizable parts: `email`, `password` and `submit`.",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "description": "Hides the entire form or a part of it. Customizable parts: `email`, `password`, `submit`, `error` and `spinner`.",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         }
       ],
       "events": [
@@ -2500,6 +2756,21 @@
           "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "errors",
@@ -2627,6 +2898,21 @@
           "default": "\"\""
         },
         {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
           "name": "errors",
           "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
           "type": "string[]"
@@ -2730,6 +3016,21 @@
           "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "errors",
@@ -2865,6 +3166,21 @@
           "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "readonly",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "BooleanSelector",
+          "default": "\"False\""
+        },
+        {
+          "name": "excluded",
+          "type": "BooleanSelector",
+          "default": "\"False\""
         },
         {
           "name": "errors",
