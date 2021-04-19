@@ -8,11 +8,13 @@ import {
 } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
 import { I18n } from '../I18n/I18n';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
 
 type State = 'invalid' | 'valid' | 'busy' | { fail: 'invalid' | 'unknown' };
 
@@ -32,6 +34,9 @@ export class SignInForm extends LitElement {
 
   static get properties(): PropertyDeclarations {
     return {
+      ...createBooleanSelectorProperty('readonly'),
+      ...createBooleanSelectorProperty('disabled'),
+      ...createBooleanSelectorProperty('excluded'),
       lang: { type: String },
       email: { type: String },
       password: { type: String },
@@ -50,6 +55,15 @@ export class SignInForm extends LitElement {
 
   /** User password. Value of this property is bound to the form field. */
   password = '';
+
+  /** Makes the entire form or a part of it readonly. Customizable parts: `email` and `password`. */
+  readonly = BooleanSelector.False;
+
+  /** Disables the entire form or a part of it. Customizable parts: `email`, `password` and `submit`. */
+  disabled = BooleanSelector.False;
+
+  /** Hides the entire form or a part of it. Customizable parts: `email`, `password`, `submit`, `error` and `spinner`. */
+  excluded = BooleanSelector.False;
 
   private __state: State = 'invalid';
 
@@ -70,29 +84,39 @@ export class SignInForm extends LitElement {
         aria-busy=${this.__state === 'busy'}
         class="relative font-lumo text-m leading-m"
       >
-        <vaadin-email-field
-          class="w-full mb-m"
-          label=${this.__t('email').toString()}
-          value=${this.email}
-          ?disabled=${this.__state === 'busy'}
-          required
-          @input=${this.__handleEmailInput}
-          @keydown=${this.__handleKeyDown}
-        >
-        </vaadin-email-field>
-
-        <vaadin-password-field
-          class="w-full mb-m"
-          label=${this.__t('password').toString()}
-          value=${this.password}
-          ?disabled=${this.__state === 'busy'}
-          required
-          @input=${this.__handlePasswordInput}
-          @keydown=${this.__handleKeyDown}
-        >
-        </vaadin-password-field>
-
-        ${typeof this.__state === 'object' && this.__state.fail
+        ${!this.excluded.matches('email')
+          ? html`
+              <vaadin-email-field
+                class="w-full mb-m"
+                label=${this.__t('email').toString()}
+                value=${this.email}
+                ?disabled=${this.__state === 'busy' || this.disabled.matches('email')}
+                ?readonly=${this.readonly.matches('email')}
+                required
+                @input=${this.__handleEmailInput}
+                @keydown=${this.__handleKeyDown}
+              >
+              </vaadin-email-field>
+            `
+          : ''}
+        <!---->
+        ${!this.excluded.matches('password')
+          ? html`
+              <vaadin-password-field
+                class="w-full mb-m"
+                label=${this.__t('password').toString()}
+                value=${this.password}
+                ?disabled=${this.__state === 'busy' || this.disabled.matches('password')}
+                ?readonly=${this.readonly.matches('password')}
+                required
+                @input=${this.__handlePasswordInput}
+                @keydown=${this.__handleKeyDown}
+              >
+              </vaadin-password-field>
+            `
+          : ''}
+        <!---->
+        ${typeof this.__state === 'object' && this.__state.fail && !this.excluded.matches('error')
           ? html`
               <div class="flex items-center text-s bg-error-10 rounded p-s text-error mb-m">
                 <iron-icon icon="lumo:error" class="self-start flex-shrink-0 mr-s"></iron-icon>
@@ -108,17 +132,21 @@ export class SignInForm extends LitElement {
               </div>
             `
           : ''}
-
-        <vaadin-button
-          class=${classMap({ 'w-full': true, 'mt-l': typeof this.__state === 'string' })}
-          theme="primary"
-          ?disabled=${this.__state === 'busy'}
-          @click=${this.__submit}
-        >
-          <foxy-i18n ns=${SignInForm.__ns} lang=${this.lang} key="sign_in"></foxy-i18n>
-        </vaadin-button>
-
-        ${this.__state === 'busy'
+        <!---->
+        ${!this.excluded.matches('submit')
+          ? html`
+              <vaadin-button
+                class=${classMap({ 'w-full': true, 'mt-l': typeof this.__state === 'string' })}
+                theme="primary"
+                ?disabled=${this.__state === 'busy' || this.disabled.matches('submit')}
+                @click=${this.__submit}
+              >
+                <foxy-i18n ns=${SignInForm.__ns} lang=${this.lang} key="sign_in"></foxy-i18n>
+              </vaadin-button>
+            `
+          : ''}
+        <!---->
+        ${this.__state === 'busy' && !this.excluded.matches('spinner')
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
