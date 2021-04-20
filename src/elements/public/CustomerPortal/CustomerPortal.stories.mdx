@@ -7,6 +7,7 @@ import {
   Canvas,
   Meta,
 } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import '../../private/DemoCustomerApi/index.ts';
 import './index.ts';
 
 <Meta title="Other / CustomerPortal" />
@@ -15,20 +16,20 @@ import './index.ts';
 
 <Subtitle>Drop-in customer portal</Subtitle>
 
-**IMPORTANT: in this beta release, CustomerPortal requires a live Customer API to work. Demo Customer API is coming soon. If you'd like to see what portal's main UI will look like, check out Customer element demo.**
-
 <Canvas
   isExpanded
-  mdxSource={`<foxy-customer-portal base="https://demo.foxycart.com/s/customer/"></foxy-customer-portal>`}
+  mdxSource={`
+    <foxy-customer-api base="https://demo.foxycart.com/s/customer/" storage="local">
+      <foxy-customer-portal href="https://demo.foxycart.com/s/customer"></foxy-customer-portal>
+    </foxy-customer-api>
+  `}
 >
   <Story name="Playground">
     {() =>
       html`
-        <foxy-customer-portal
-          class="container mx-auto"
-          base="https://serverless.foxycart.test:3000/s/customer/"
-        >
-        </foxy-customer-portal>
+        <demo-customer-api>
+          <foxy-customer-portal href="https://demo.foxycart.com/s/customer"></foxy-customer-portal>
+        </demo-customer-api>
       `
     }
   </Story>

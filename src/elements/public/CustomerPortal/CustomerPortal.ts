@@ -8,11 +8,11 @@ import {
   html,
 } from 'lit-element';
 
-import { API } from '@foxy.io/sdk/customer';
+import { API } from '../NucleonElement/API';
 import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { Customer } from '../Customer/Customer';
-import { CustomerApi } from '../CustomerApi/CustomerApi';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { Page } from './types';
 import { SignInForm } from '../SignInForm/SignInForm';
 import { Themeable } from '../../../mixins/themeable';
@@ -26,7 +26,7 @@ export class CustomerPortal extends LitElement {
       ...createBooleanSelectorProperty('readonly'),
       ...createBooleanSelectorProperty('disabled'),
       ...createBooleanSelectorProperty('excluded'),
-      base: { type: String },
+      href: { type: String },
       lang: { type: String },
     };
   }
@@ -52,29 +52,18 @@ export class CustomerPortal extends LitElement {
 
   lang = '';
 
-  base = '';
+  href = '';
 
   private static __ns = 'customer-portal';
 
-  private __page: Page = localStorage.getItem(API.SESSION) ? Page.Main : Page.SignIn;
+  private __page: Page = Page.Main;
 
   render(): TemplateResult {
-    return html`
-      <foxy-customer-api
-        id="connector"
-        base=${this.base}
-        level="5"
-        storage="local"
-        @signout=${this.__handleConnectorSignOut}
-        @signin=${this.__handleConnectorSignIn}
-      >
-        ${this.__page === Page.AccessRecovery
-          ? this.__renderAccessRecoveryPage()
-          : this.__page === Page.SignIn
-          ? this.__renderSignInPage()
-          : this.__renderMainPage()}
-      </foxy-customer-api>
-    `;
+    return this.__page === Page.AccessRecovery
+      ? this.__renderAccessRecoveryPage()
+      : this.__page === Page.SignIn
+      ? this.__renderSignInPage()
+      : this.__renderMainPage();
   }
 
   private get __accessRecoveryFormElement() {
@@ -83,10 +72,6 @@ export class CustomerPortal extends LitElement {
 
   private get __signInFormElement() {
     return this.renderRoot.querySelector('#sign-in-form') as SignInForm | null;
-  }
-
-  private get __connectorElement() {
-    return this.renderRoot.querySelector('#connector') as CustomerApi;
   }
 
   private get __customerElement() {
@@ -179,7 +164,12 @@ export class CustomerPortal extends LitElement {
         </div>
 
         <div class="space-y-s">
-          <foxy-sign-in-form id="sign-in-form" lang=${this.lang} @update=${this.__handleUpdate}>
+          <foxy-sign-in-form
+            id="sign-in-form"
+            lang=${this.lang}
+            @update=${this.__handleUpdate}
+            @signin=${this.__handleSignIn}
+          >
           </foxy-sign-in-form>
 
           <vaadin-button
@@ -200,11 +190,12 @@ export class CustomerPortal extends LitElement {
       <foxy-customer
         id="customer"
         lang=${this.lang}
-        href=${this.base}
+        href=${this.href}
         excluded=${ifDefined(this.excluded.toAttribute() ?? undefined)}
         readonly=${ifDefined(this.readonly.toAttribute() ?? undefined)}
         disabled=${ifDefined(this.disabled.toAttribute() ?? undefined)}
         @update=${this.__handleUpdate}
+        @fetch=${this.__handleFetch}
       >
         <vaadin-button
           class="px-xs rounded-full"
@@ -225,7 +216,7 @@ export class CustomerPortal extends LitElement {
   }
 
   private async __handleSignOutButtonClick() {
-    await this.__connectorElement.api.signOut();
+    await new API(this).fetch('foxy://auth/session', { method: 'DELETE' });
     this.__setPage(Page.SignIn);
   }
 
@@ -237,15 +228,22 @@ export class CustomerPortal extends LitElement {
     this.__setPage(Page.SignIn);
   }
 
-  private __handleConnectorSignOut() {
-    this.__setPage(Page.SignIn);
-  }
-
-  private __handleConnectorSignIn() {
+  private __handleSignIn() {
     this.__setPage(Page.Main);
   }
 
   private __handleUpdate() {
     this.requestUpdate();
+  }
+
+  private __handleFetch(evt: Event) {
+    if (evt instanceof FetchEvent && !evt.defaultPrevented) {
+      evt.respondWith(
+        new API(this).fetch(evt.request).then(response => {
+          if (response.status === 401) this.__setPage(Page.SignIn);
+          return response;
+        })
+      );
+    }
   }
 }

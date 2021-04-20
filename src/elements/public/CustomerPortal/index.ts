@@ -1,11 +1,10 @@
 import '@vaadin/vaadin-button';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
-import '../AccessRecoveryForm';
-import '../CustomerApi';
-import '../SignInForm';
-import '../Customer';
-import '../I18n';
+import '../AccessRecoveryForm/index';
+import '../SignInForm/index';
+import '../Customer/index';
+import '../I18n/index';
 
 import { CustomerPortal } from './CustomerPortal';
 
