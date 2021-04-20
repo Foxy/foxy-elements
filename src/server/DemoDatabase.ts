@@ -2,7 +2,7 @@ import Dexie from 'dexie';
 import IDBExportImport from 'indexeddb-export-import';
 import dump from './dump.json';
 
-export class DemoDatabase extends Dexie {
+class DemoDatabase extends Dexie {
   static async fill(db: IDBDatabase): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       IDBExportImport.clearDatabase(db, (err: unknown) => {
@@ -35,13 +35,13 @@ export class DemoDatabase extends Dexie {
   constructor() {
     super('foxy_demo_db');
 
-    this.version(1).stores({
+    this.version(2).stores({
       customer_attributes: '++id,customer',
       customer_addresses: '++id,customer',
       payment_methods: '++id,customer',
       subscriptions: '++id,store,customer',
       transactions: '++id,store,customer,subscription',
-      customers: '++id,store',
+      customers: '++id,store,email',
       stores: '++id',
       items: '++id,cart,transaction',
       carts: '++id',
@@ -58,3 +58,8 @@ export class DemoDatabase extends Dexie {
     this.carts = this.table('carts');
   }
 }
+
+const db = new DemoDatabase();
+const whenDbReady = db.open().then(() => DemoDatabase.fill(db.backendDB()));
+
+export { db, whenDbReady, DemoDatabase };

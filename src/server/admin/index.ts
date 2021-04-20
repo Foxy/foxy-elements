@@ -1,4 +1,5 @@
-import { DemoDatabase } from './DemoDatabase';
+import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
+
 import { Router } from 'service-worker-router';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
@@ -8,13 +9,10 @@ import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMe
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
 import { composeTransaction } from './composers/composeTransaction';
-import { getPagination } from './getPagination';
+import { getPagination } from '../getPagination';
 
 const endpoint = 'https://demo.foxycart.com/s/admin';
 const router = new Router();
-const db = new DemoDatabase();
-const whenDbReady = db.open().then(() => DemoDatabase.fill(db.backendDB()));
-
 export { endpoint, router, db, whenDbReady, DemoDatabase };
 
 // subscriptions

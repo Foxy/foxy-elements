@@ -1,4 +1,5 @@
-import { endpoint, router } from '../src/server/admin/index.ts';
+import * as AdminAPI from '../src/server/admin/index.ts';
+import * as CustomerAPI from '../src/server/customer/index.ts';
 
 import { FetchEvent } from '../src/elements/public/NucleonElement/FetchEvent.ts';
 import customElements from '../custom-elements.json';
@@ -8,7 +9,15 @@ setCustomElements(customElements);
 
 addEventListener('fetch', evt => {
   if (evt instanceof FetchEvent && !evt.defaultPrevented) {
-    if (evt.request.url.startsWith(endpoint)) {
+    let router = null;
+
+    if (evt.request.url.startsWith(AdminAPI.endpoint)) {
+      router = AdminAPI.router;
+    } else if (evt.request.url.startsWith(CustomerAPI.endpoint)) {
+      router = CustomerAPI.router;
+    }
+
+    if (router) {
       evt.preventDefault();
       evt.respondWith(
         router.handleRequest(evt.request).handlerPromise.then(response => {
