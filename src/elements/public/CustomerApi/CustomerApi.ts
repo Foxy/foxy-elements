@@ -36,6 +36,7 @@ export class CustomerApi extends LitElement {
 
   private __handleFetch = async (evt: unknown) => {
     if (!(evt instanceof FetchEvent) || evt.defaultPrevented) return;
+    if (evt.eventPhase === evt.AT_TARGET) return;
 
     const getResponse = async () => {
       if (evt.request.url === 'foxy://auth/session') {
