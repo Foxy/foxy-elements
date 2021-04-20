@@ -163,13 +163,18 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
     const ns = Customer.__ns;
     const variant = ifDefined(this.in('busy') ? undefined : 'static');
 
-    const transactionsURL = this.in({ idle: 'snapshot' })
-      ? `${this.data?._links['fx:transactions'].href}&zoom=items`
-      : '';
+    let transactionsLink = '';
+    let subscriptionsLink = '';
 
-    const subscriptionsURL = this.in({ idle: 'snapshot' })
-      ? `${this.data?._links['fx:subscriptions'].href}&zoom=last_transaction,transaction_template:items`
-      : '';
+    if (this.in({ idle: 'snapshot' })) {
+      const transactionsURL = new URL(this.data._links['fx:transactions'].href);
+      transactionsURL.searchParams.set('zoom', 'items');
+      transactionsLink = transactionsURL.toString();
+
+      const subscriptionsURL = new URL(this.data._links['fx:subscriptions'].href);
+      subscriptionsURL.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      subscriptionsLink = subscriptionsURL.toString();
+    }
 
     const isLoaded = this.in({ idle: 'snapshot' });
 
@@ -408,7 +413,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                       data-testclass="i18n"
                       data-testid="transactions"
                       spinner="foxy-spinner"
-                      first=${transactionsURL}
+                      first=${transactionsLink}
                       class="divide-y divide-contrast-10"
                       slot="panel-0"
                       page="foxy-transactions-table"
@@ -433,7 +438,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                       data-testclass="i18n"
                       data-testid="subscriptions"
                       spinner="foxy-spinner"
-                      first=${subscriptionsURL}
+                      first=${subscriptionsLink}
                       class="divide-y divide-contrast-10"
                       slot="panel-1"
                       lang=${this.lang}
