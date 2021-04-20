@@ -32,6 +32,8 @@ export class SignInForm extends LitElement {
 
   static readonly UpdateEvent = class extends CustomEvent<void> {};
 
+  static readonly SignInEvent = class extends CustomEvent<void> {};
+
   static get properties(): PropertyDeclarations {
     return {
       ...createBooleanSelectorProperty('readonly'),
@@ -210,9 +212,12 @@ export class SignInForm extends LitElement {
       }),
     });
 
-    this.__setState(
-      response.ok ? 'valid' : { fail: response.status === 401 ? 'invalid' : 'unknown' }
-    );
+    if (response.ok) {
+      this.dispatchEvent(new SignInForm.SignInEvent('signin'));
+      this.__setState('valid');
+    } else {
+      this.__setState({ fail: response.status === 401 ? 'invalid' : 'unknown' });
+    }
   }
 
   private __setState(newState: State) {
