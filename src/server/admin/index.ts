@@ -169,28 +169,30 @@ router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
+
   const lastTransaction = zoom.includes('last_transaction')
     ? await db.transactions.where('subscription').equals(id).last()
-    : null;
+    : undefined;
 
-  const body = composeSubscription(doc, lastTransaction);
+  const transactionTemplate = zoom.includes('transaction_template')
+    ? await db.carts.get(doc.transaction_template)
+    : undefined;
+
+  const items = zoom.includes('items')
+    ? await db.items.where('cart').equals(doc.transaction_template).limit(20).toArray()
+    : undefined;
+
+  const body = composeSubscription(doc, lastTransaction, transactionTemplate, items);
+
   return new Response(JSON.stringify(body));
 });
 
 router.patch('/s/admin/subscriptions/:id', async ({ params, request }) => {
   await whenDbReady;
+  await db.subscriptions.update(parseInt(params.id), await request.json());
 
-  const id = parseInt(params.id);
-  await db.subscriptions.update(id, await request.json());
-
-  const doc = await db.subscriptions.get(id);
-  const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
-  const lastTransaction = zoom.includes('last_transaction')
-    ? await db.transactions.where('subscription').equals(id).last()
-    : null;
-
-  const body = composeSubscription(doc, lastTransaction);
-  return new Response(JSON.stringify(body));
+  const { url, headers } = request;
+  return router.handleRequest(new Request(url, { headers }))!.handlerPromise;
 });
 
 // customer_attributes
