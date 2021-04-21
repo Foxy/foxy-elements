@@ -279,7 +279,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                 </div>
               `
             : ''}
-          <!---->
+
+          <slot name="after-header"></slot>
+
           ${!this.excluded.matches('addresses')
             ? html`
                 <div class="space-y-m pt-m border-t-4 border-contrast-5">
@@ -321,8 +323,10 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                 </div>
               `
             : ''}
-          <!----->
-          ${!this.excluded.matches('payment-method-card')
+
+          <slot name="after-addresses"></slot>
+
+          ${!this.excluded.matches('payment-method')
             ? html`
                 <div class="space-y-m pt-m border-t-4 border-contrast-5">
                   <h2 class="tracking-wide text-l font-medium">
@@ -348,7 +352,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                 </div>
               `
             : ''}
-          <!---->
+
+          <slot name="after-payment-method-card"></slot>
+
           ${!this.excluded.matches('attributes')
             ? html`
                 <div class="space-y-m pt-m border-t-4 border-contrast-5">
@@ -391,7 +397,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                 </div>
               `
             : ''}
-          <!---->
+
+          <slot name="after-attributes"></slot>
+
           <div class="space-y-m pt-m border-t-4 border-contrast-5">
             <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
               ${!this.excluded.matches('transactions')
