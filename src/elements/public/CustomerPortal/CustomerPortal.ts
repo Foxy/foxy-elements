@@ -13,7 +13,10 @@ import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { Customer } from '../Customer/Customer';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { FormDialog } from '../FormDialog/FormDialog';
+import { ItemRendererContext } from '../CollectionPage/types';
 import { Page } from './types';
+import { PageRendererContext } from '../CollectionPages/types';
 import { SignInForm } from '../SignInForm/SignInForm';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
@@ -26,6 +29,7 @@ export class CustomerPortal extends LitElement {
       ...createBooleanSelectorProperty('readonly'),
       ...createBooleanSelectorProperty('disabled'),
       ...createBooleanSelectorProperty('excluded'),
+      group: { type: String },
       href: { type: String },
       lang: { type: String },
     };
@@ -42,13 +46,15 @@ export class CustomerPortal extends LitElement {
     ];
   }
 
-  readonly = new BooleanSelector('payment-method-card');
+  readonly = BooleanSelector.False;
 
   disabled = BooleanSelector.False;
 
   excluded = new BooleanSelector(
-    'customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
+    'subscriptions customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
   );
+
+  group = '';
 
   lang = '';
 
@@ -70,12 +76,27 @@ export class CustomerPortal extends LitElement {
     return this.renderRoot.querySelector('#access-recovery-form') as AccessRecoveryForm | null;
   }
 
+  private get __subscriptionDialog() {
+    return this.renderRoot.querySelector('#subscription-dialog') as FormDialog;
+  }
+
   private get __signInFormElement() {
     return this.renderRoot.querySelector('#sign-in-form') as SignInForm | null;
   }
 
   private get __customerElement() {
     return this.renderRoot.querySelector('#customer') as Customer | null;
+  }
+
+  private get __activeSubscriptionsLink() {
+    try {
+      const url = new URL(this.__customerElement!.data!._links['fx:subscriptions'].href);
+      url.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      url.searchParams.set('is_active', 'true');
+      return url.toString();
+    } catch {
+      return '';
+    }
   }
 
   private __renderAccessRecoveryPage() {
@@ -187,6 +208,18 @@ export class CustomerPortal extends LitElement {
 
   private __renderMainPage() {
     return html`
+      <foxy-form-dialog
+        header="update"
+        form="foxy-subscription-form"
+        lang=${this.lang}
+        ns=${CustomerPortal.__ns}
+        id="subscription-dialog"
+        readonly=${ifDefined(this.readonly.zoom('subscription-form').toAttribute() ?? undefined)}
+        disabled=${ifDefined(this.disabled.zoom('subscription-form').toAttribute() ?? undefined)}
+        excluded=${ifDefined(this.excluded.zoom('subscription-form').toAttribute() ?? undefined)}
+      >
+      </foxy-form-dialog>
+
       <foxy-customer
         id="customer"
         lang=${this.lang}
@@ -206,6 +239,49 @@ export class CustomerPortal extends LitElement {
         >
           <iron-icon icon="icons:exit-to-app"></iron-icon>
         </vaadin-button>
+
+        <div slot="after-header" class="space-y-m pt-m border-t-4 border-contrast-5 mt-m">
+          <foxy-i18n
+            class="block text-l font-medium tracking-wide"
+            lang=${this.lang}
+            key="subscription_plural"
+            ns=${CustomerPortal.__ns}
+          >
+          </foxy-i18n>
+
+          <foxy-collection-pages
+            class="block space-y-m"
+            first=${this.__activeSubscriptionsLink}
+            group=${this.group}
+            lang=${this.lang}
+            .page=${(pageContext: PageRendererContext<any>) => pageContext.html`
+              <foxy-collection-page
+                href=${pageContext.href}
+                lang=${pageContext.lang}
+                group=${pageContext.group}
+                .item=${(itemContext: ItemRendererContext) => itemContext.html`
+                  <button
+                    class="block w-full border border-contrast-10 p-m rounded-t-l rounded-b-l hover-border-contrast-30 focus-outline-none focus-border-primary"
+                    @click=${(evt: Event) => {
+                      this.__subscriptionDialog.href = itemContext.href;
+                      this.__subscriptionDialog.show(evt.currentTarget as HTMLButtonElement);
+                    }}
+                  >
+                    <foxy-subscription-card
+                      parent=${itemContext.parent}
+                      group=${itemContext.group}
+                      lang=${itemContext.lang}
+                      href=${itemContext.href}
+                    >
+                    </foxy-subscription-card>
+                  </button>
+                `}
+              >
+              </foxy-collection-page>
+            `}
+          >
+          </foxy-collection-pages>
+        </div>
       </foxy-customer>
     `;
   }
