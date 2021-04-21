@@ -85,7 +85,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
     const last4Digits = data!.cc_number_masked.substring(data!.cc_number_masked.length - 4);
 
     return html`
-      ${!this.readonly
+      ${this.readonly === BooleanSelector.False
         ? html`
             <x-confirm-dialog
               message="delete_prompt"
@@ -114,7 +114,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
               'justify-end': this.readonly === BooleanSelector.True,
             })}
           >
-            ${!this.readonly
+            ${this.readonly === BooleanSelector.False
               ? html`
                   <vaadin-button
                     class="px-xs rounded"
@@ -122,7 +122,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
                     style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
                     aria-label=${t('delete').toString()}
                     data-testid="delete"
-                    ?disabled=${this.disabled}
+                    ?disabled=${this.disabled !== BooleanSelector.False}
                     @click=${this.__handleDelete}
                   >
                     <iron-icon icon="icons:delete"></iron-icon>

@@ -341,12 +341,8 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                     class="w-payment-method-card rounded-t-l rounded-b-l overflow-hidden"
                     href=${this.data?._links['fx:default_payment_method'].href ?? ''}
                     lang=${this.lang}
-                    readonly=${ifDefined(
-                      this.readonly.zoom('payment-method-card').toAttribute() ?? undefined
-                    )}
-                    disabled=${ifDefined(
-                      this.readonly.zoom('payment-method-card').toAttribute() ?? undefined
-                    )}
+                    ?readonly=${this.readonly.matches('payment-method')}
+                    ?disabled=${this.disabled.matches('payment-method')}
                   >
                   </foxy-payment-method-card>
                 </div>
