@@ -8,6 +8,7 @@ import {
   Meta,
 } from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import '../../private/DemoCustomerApi/index.ts';
+import '../CustomerApi/index.ts';
 import './index.ts';
 
 <Meta title="Other / CustomerPortal" />
@@ -50,3 +51,14 @@ This element supports the following namespaces: `customer-portal`, `shared`.
 ### Theming
 
 Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="Localdev">
+  {() =>
+    html`
+      <foxy-customer-api base="https://serverless.foxycart.test:3000/s/customer/" storage="local">
+        <foxy-customer-portal href="https://serverless.foxycart.test:3000/s/customer">
+        </foxy-customer-portal>
+      </foxy-customer-api>
+    `
+  }
+</Story>

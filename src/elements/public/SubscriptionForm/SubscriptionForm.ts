@@ -3,11 +3,15 @@ import { Choice, Group, PropertyTable, Skeleton } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
+import { CellContext } from '../Table/types';
 import { ChoiceChangeEvent } from '../../private/events';
 import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { NucleonElement } from '../NucleonElement/index';
+import { PageRendererContext } from '../CollectionPages/types';
 import { Themeable } from '../../../mixins/themeable';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
+import { Data as TransactionsTableData } from '../TransactionsTable/types';
 import { classMap } from '../../../utils/class-map';
 import memoize from 'lodash-es/memoize';
 import { parseFrequency } from '../../../utils/parse-frequency';
@@ -15,9 +19,12 @@ import { parseFrequency } from '../../../utils/parse-frequency';
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'vaadin-date-picker': customElements.get('vaadin-date-picker'),
       'x-property-table': PropertyTable,
+      'foxy-items-form': customElements.get('foxy-items-form'),
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'foxy-table': customElements.get('foxy-table'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'x-skeleton': Skeleton,
       'x-choice': Choice,
@@ -56,6 +63,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     const active = !!this.data?.is_active;
     const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
     const isIdleSnapshot = this.in({ idle: 'snapshot' });
+    const items = this.data?._embedded['fx:transaction_template']._embedded['fx:items'] ?? [];
+    const formItems = items.map(({ _links, _embedded, ...item }) => item);
 
     return html`
       <div
@@ -168,12 +177,94 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
             `
           : ''}
         <!---->
-        ${this.__memoRenderTable(
-          !this.in({ idle: 'snapshot' }),
-          this.data?.date_created ?? '',
-          this.data?.date_modified ?? ''
-        )}
+        ${!this.excluded.matches('timestamps')
+          ? this.__memoRenderTable(
+              !this.in({ idle: 'snapshot' }),
+              this.data?.date_created ?? '',
+              this.data?.date_modified ?? ''
+            )
+          : ''}
         <!---->
+        ${!this.excluded.matches('items') && this.in({ idle: 'snapshot' })
+          ? html`
+              <div class="pt-m border-t-4 border-contrast-5">
+                <foxy-i18n
+                  class="text-l font-medium tracking-wide"
+                  key="item_plural"
+                  ns=${ns}
+                  lang=${this.lang}
+                >
+                </foxy-i18n>
+
+                <div class="-mx-l -mb-l -mt-s">
+                  <foxy-items-form
+                    store="unapplicable"
+                    currency=${this.data?._embedded['fx:last_transaction'].currency_code ?? 'usd'}
+                    lang=${this.lang}
+                    items=${JSON.stringify(formItems)}
+                    readonly
+                  >
+                  </foxy-items-form>
+                  <div class="clear-both"></div>
+                </div>
+              </div>
+            `
+          : ''}
+        <!---->
+        ${!this.excluded.matches('transactions') && this.in({ idle: 'snapshot' })
+          ? html`
+              <div class="space-y-m pt-m border-t-4 border-contrast-5">
+                <foxy-i18n
+                  class="text-l font-medium tracking-wide"
+                  key="transaction_plural"
+                  ns=${ns}
+                  lang=${this.lang}
+                >
+                </foxy-i18n>
+
+                <foxy-collection-pages
+                  group=${this.group}
+                  class="divide-y divide-contrast-10"
+                  first=${this.data?._links['fx:transactions'].href ?? ''}
+                  lang=${this.lang}
+                  .page=${(ctx: PageRendererContext) => {
+                    return ctx.html`
+                      <foxy-table
+                        group=${ctx.group}
+                        lang=${ctx.lang}
+                        href=${ctx.href}
+                        .columns=${[
+                          {
+                            cell(ctx: CellContext<TransactionsTableData>) {
+                              const colors: Record<string, string> = {
+                                declined: 'text-error',
+                                rejected: 'text-error',
+                              };
+
+                              const status = TransactionsTable.statusColumn.cell!(ctx);
+                              const price = TransactionsTable.priceColumn.cell!(ctx);
+                              const color = colors[ctx.data.status] ?? 'text-body';
+
+                              return ctx.html`
+                                <span class="sr-only">${status}</span>
+                                <span class="${color} text-s">${price}</span>
+                              `;
+                            },
+                          },
+                          { cell: TransactionsTable.idColumn.cell },
+                          { cell: TransactionsTable.dateColumn.cell },
+                          { cell: TransactionsTable.receiptColumn.cell },
+                        ]}
+                      >
+                      </foxy-table>
+                    `;
+                  }}
+                >
+                </foxy-collection-pages>
+              </div>
+            `
+          : ''}
+
         <div
           data-testid="spinnerWrapper"
           class=${classMap({

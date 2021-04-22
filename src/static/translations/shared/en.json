@@ -29,6 +29,8 @@
   "frequency_plural": "{{count}} $t({{units}}, { \"count\": {{count}} })",
   "full_address": "{{first_name}} {{last_name}}\n{{address1}} {{address2}}\n{{city}} {{region}} {{postal_code}}",
   "invalid_email_or_password_error": "Incorrect email or password. Please check your credentials and try again.",
+  "item": "Item",
+  "item_plural": "Items",
   "last_4_digits": "Last 4 digits",
   "last_login_date": "Last login",
   "last_name": "Last name",

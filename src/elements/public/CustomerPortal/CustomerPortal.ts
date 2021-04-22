@@ -51,7 +51,7 @@ export class CustomerPortal extends LitElement {
   disabled = BooleanSelector.False;
 
   excluded = new BooleanSelector(
-    'subscriptions customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
+    'subscriptions subscription-form:timestamps customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
   );
 
   group = '';
@@ -259,11 +259,18 @@ export class CustomerPortal extends LitElement {
                 href=${pageContext.href}
                 lang=${pageContext.lang}
                 group=${pageContext.group}
+                class="space-y-m"
                 .item=${(itemContext: ItemRendererContext) => itemContext.html`
                   <button
-                    class="block w-full border border-contrast-10 p-m rounded-t-l rounded-b-l hover-border-contrast-30 focus-outline-none focus-border-primary"
+                    class=${classMap({
+                      'block w-full border border-contrast-10 p-m rounded-t-l rounded-b-l focus-outline-none focus-border-primary': true,
+                      'hover-border-contrast-30': itemContext.data !== null,
+                    })}
+                    ?disabled=${itemContext.data === null}
                     @click=${(evt: Event) => {
-                      this.__subscriptionDialog.href = itemContext.href;
+                      const url = new URL(itemContext.href);
+                      url.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+                      this.__subscriptionDialog.href = url.toString();
                       this.__subscriptionDialog.show(evt.currentTarget as HTMLButtonElement);
                     }}
                   >
