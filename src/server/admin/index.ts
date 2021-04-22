@@ -97,6 +97,9 @@ router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
   const customer = parseInt(searchParams.get('customer_id') ?? '');
   if (!isNaN(customer)) query = db.transactions.where('customer').equals(customer);
 
+  const subscription = parseInt(searchParams.get('subscription_id') ?? '');
+  if (!isNaN(subscription)) query = db.transactions.where('subscription').equals(subscription);
+
   const [count, transactions] = await Promise.all([
     db.customerAttributes.count(),
     query.offset(offset).limit(limit).toArray(),
