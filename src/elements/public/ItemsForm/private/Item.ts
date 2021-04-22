@@ -90,6 +90,7 @@ export class Item extends Translatable {
     return {
       ...super.properties,
       __modified: {},
+      readonly: { type: Boolean, reflect: true },
       currency: { type: String },
       category: { type: String },
       code: { type: String, reflect: true },
@@ -150,6 +151,11 @@ export class Item extends Translatable {
    * **Example:** `10`
    */
   public price?: number;
+
+  /**
+   * Makes quantity input readonly.
+   */
+  public readonly = false;
 
   /**
    * Optional an image url to be displayed in the form.
@@ -471,6 +477,7 @@ export class Item extends Translatable {
               value="${this.quantity}"
               min="0"
               has-controls
+              ?readonly=${this.readonly}
             >
             </vaadin-integer-field>
 

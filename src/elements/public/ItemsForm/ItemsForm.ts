@@ -37,6 +37,7 @@ export class ItemsForm extends Translatable {
     return {
       ...super.properties,
       currency: { type: String },
+      readonly: { type: Boolean },
       cart: {
         type: String, // only accepts checkout or add
         converter: value => {
@@ -142,6 +143,11 @@ export class ItemsForm extends Translatable {
    * **Example:** `"usd"`
    */
   public currency?: string;
+
+  /**
+   * Makes the entire form readonly.
+   */
+  public readonly = false;
 
   /**
    * Defines target of the form
@@ -358,33 +364,39 @@ export class ItemsForm extends Translatable {
           <slot></slot>
         </section>
 
-        <section class="actions flex flex-wrap justify-end m-m">
-          ${this.frequencies && this.frequencies.length
-            ? html`
-                <x-dropdown
-                  type="text"
-                  name="frequency"
-                  class="subscription m-s w-full sm-w-auto"
-                  lang=${this.lang}
-                  .value=${this.sub_frequency ?? '0'}
-                  .items=${this.frequencies.concat(['0'])}
-                  .getText=${this.__translateFrequency.bind(this)}
-                  @change=${this.__handleFrequency}
-                >
-                </x-dropdown>
-              `
-            : ''}
+        ${!this.readonly
+          ? html`
+              <section class="actions flex flex-wrap justify-end m-m">
+                ${this.frequencies && this.frequencies.length
+                  ? html`
+                      <x-dropdown
+                        type="text"
+                        name="frequency"
+                        class="subscription m-s w-full sm-w-auto"
+                        lang=${this.lang}
+                        .value=${this.sub_frequency ?? '0'}
+                        .items=${this.frequencies.concat(['0'])}
+                        .getText=${this.__translateFrequency.bind(this)}
+                        @change=${this.__handleFrequency}
+                      >
+                      </x-dropdown>
+                    `
+                  : ''}
 
-          <vaadin-button
-            class="m-s w-full sm-w-auto"
-            theme="primary"
-            data-testid="submit"
-            ?disabled=${!this.__hasValidItems}
-            @click=${this.handleSubmit}
-          >
-            <span class="total">${this.__submitBtnText(this.__translateAmount(this.total))}</span>
-          </vaadin-button>
-        </section>
+                <vaadin-button
+                  class="m-s w-full sm-w-auto"
+                  theme="primary"
+                  data-testid="submit"
+                  ?disabled=${!this.__hasValidItems}
+                  @click=${this.handleSubmit}
+                >
+                  <span class="total">
+                    ${this.__submitBtnText(this.__translateAmount(this.total))}
+                  </span>
+                </vaadin-button>
+              </section>
+            `
+          : ''}
       </div>
     `;
   }
@@ -412,6 +424,7 @@ export class ItemsForm extends Translatable {
     const newItem = document.createElement(scopedItem);
     newItem.value = p;
     newItem.currency = this.currency;
+    newItem.readonly = this.readonly;
     return newItem;
   }
 
