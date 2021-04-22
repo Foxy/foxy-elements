@@ -23,6 +23,9 @@ export class SubscriptionCard extends NucleonElement<Data> {
   }
 
   render(): TemplateResult {
+    const isActive = !!this.data?.is_active;
+    const isFailed = !!this.data?.first_failed_transaction_date;
+
     return html`
       <div class="relative text-left">
         <div
@@ -34,18 +37,12 @@ export class SubscriptionCard extends NucleonElement<Data> {
           <div
             class=${classMap({
               'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s': true,
-              'text-success bg-success-10': !!this.data?.is_active,
-              'text-body bg-contrast-5': !!this.data?.end_date,
-              'text-error bg-error-10': !!this.data?.first_failed_transaction_date,
+              'text-success bg-success-10': isActive,
+              'text-body bg-contrast-5': !isActive && !isFailed,
+              'text-error bg-error-10': isFailed,
             })}
           >
-            <iron-icon
-              icon=${this.data?.first_failed_transaction_date
-                ? 'error-outline'
-                : this.data?.end_date
-                ? 'done-all'
-                : 'done'}
-            >
+            <iron-icon icon=${isFailed ? 'error-outline' : isActive ? 'done' : 'done-all'}>
             </iron-icon>
           </div>
 
@@ -64,9 +61,9 @@ export class SubscriptionCard extends NucleonElement<Data> {
             <div
               class=${classMap({
                 'text-s tracking-wide': true,
-                'text-tertiary': !!this.data?.end_date,
-                'text-success': !!this.data?.is_active,
-                'text-error': !!this.data?.first_failed_transaction_date,
+                'text-tertiary': !isActive && !isFailed,
+                'text-success': isActive,
+                'text-error': isFailed,
               })}
             >
               <foxy-i18n
