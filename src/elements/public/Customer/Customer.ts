@@ -245,47 +245,48 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         >
           ${!this.excluded.matches('header')
             ? html`
-                <div class="flex items-center justify-between space-x-m">
-                  <div class="leading-s min-w-0 flex-1">
-                    <h1 class="tracking-wide text-xl font-medium truncate" data-testid="name">
-                      ${this.in({ idle: 'snapshot' })
-                        ? html`${this.data.first_name} ${this.data.last_name}`
-                        : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
-                    </h1>
+                <div>
+                  <div class="flex items-center justify-between space-x-m">
+                    <div class="leading-s min-w-0 flex-1">
+                      <h1 class="tracking-wide text-xl font-medium truncate" data-testid="name">
+                        ${this.in({ idle: 'snapshot' })
+                          ? html`${this.data.first_name} ${this.data.last_name}`
+                          : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
+                      </h1>
 
-                    <p class="text-l text-secondary truncate" data-testid="email">
-                      ${this.in({ idle: 'snapshot' })
-                        ? html`${this.data.email}`
-                        : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
-                    </p>
+                      <p class="text-l text-secondary truncate" data-testid="email">
+                        ${this.in({ idle: 'snapshot' })
+                          ? html`${this.data.email}`
+                          : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
+                      </p>
+                    </div>
+
+                    <div><slot name="actions"></slot></div>
+
+                    ${!this.excluded.matches('edit-button')
+                      ? html`
+                          <vaadin-button
+                            data-testid="edit"
+                            class="px-xs rounded-full"
+                            theme="icon large"
+                            aria-label=${this.__t('update').toString()}
+                            .disabled=${!isLoaded || this.disabled.matches('edit-button')}
+                            @click=${this.__editCustomer}
+                          >
+                            <iron-icon icon="editor:mode-edit"></iron-icon>
+                          </vaadin-button>
+                        `
+                      : ''}
                   </div>
 
-                  <div><slot name="actions"></slot></div>
-
-                  ${!this.excluded.matches('edit-button')
-                    ? html`
-                        <vaadin-button
-                          data-testid="edit"
-                          class="px-xs rounded-full"
-                          theme="icon large"
-                          aria-label=${this.__t('update').toString()}
-                          .disabled=${!isLoaded || this.disabled.matches('edit-button')}
-                          @click=${this.__editCustomer}
-                        >
-                          <iron-icon icon="editor:mode-edit"></iron-icon>
-                        </vaadin-button>
-                      `
-                    : ''}
+                  <slot name="after-header"></slot>
                 </div>
               `
             : ''}
-
-          <slot name="after-header"></slot>
-
           ${!this.excluded.matches('addresses')
             ? html`
-                <div class="space-y-m pt-m border-t-4 border-contrast-5">
-                  <div class="space-x-m flex items-center justify-between">
+                <div class="pt-m border-t-4 border-contrast-5">
+                  <div class="space-x-m flex items-center justify-between mb-m">
                     <h2 class="tracking-wide text-l font-medium">
                       <foxy-i18n
                         ns=${ns}
@@ -320,16 +321,15 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                     .page=${this.__renderAddressPage}
                   >
                   </foxy-collection-pages>
+
+                  <slot name="after-addresses"></slot>
                 </div>
               `
             : ''}
-
-          <slot name="after-addresses"></slot>
-
           ${!this.excluded.matches('payment-method')
             ? html`
-                <div class="space-y-m pt-m border-t-4 border-contrast-5">
-                  <h2 class="tracking-wide text-l font-medium">
+                <div class="pt-m border-t-4 border-contrast-5">
+                  <h2 class="tracking-wide text-l font-medium mb-m">
                     <foxy-i18n
                       ns=${ns}
                       lang=${this.lang}
@@ -349,16 +349,15 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                     ?disabled=${this.disabled.matches('payment-method')}
                   >
                   </foxy-payment-method-card>
+
+                  <slot name="after-payment-method-card"></slot>
                 </div>
               `
             : ''}
-
-          <slot name="after-payment-method-card"></slot>
-
           ${!this.excluded.matches('attributes')
             ? html`
-                <div class="space-y-m pt-m border-t-4 border-contrast-5">
-                  <div class="space-x-m flex items-center justify-between">
+                <div class="pt-m border-t-4 border-contrast-5">
+                  <div class="space-x-m flex items-center justify-between mb-m">
                     <h2 class="tracking-wide text-l font-medium">
                       <foxy-i18n
                         ns=${ns}
@@ -394,65 +393,68 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                     .page=${this.__renderAttributePage}
                   >
                   </foxy-collection-pages>
+
+                  <slot name="after-attributes"></slot>
                 </div>
               `
             : ''}
+          ${!this.excluded.matches('tabs')
+            ? html`
+                <div class="space-y-m pt-m border-t-4 border-contrast-5">
+                  <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
+                    ${!this.excluded.matches('transactions')
+                      ? html`
+                          <foxy-i18n
+                            ns=${ns}
+                            key="transaction_plural"
+                            lang=${this.lang}
+                            slot="tab-0"
+                            data-testclass="i18n"
+                          >
+                          </foxy-i18n>
 
-          <slot name="after-attributes"></slot>
+                          <foxy-collection-pages
+                            data-testclass="i18n"
+                            data-testid="transactions"
+                            spinner="foxy-spinner"
+                            first=${transactionsLink}
+                            class="divide-y divide-contrast-10"
+                            slot="panel-0"
+                            page="foxy-transactions-table"
+                            lang=${this.lang}
+                          >
+                          </foxy-collection-pages>
+                        `
+                      : ''}
+                    <!---->
+                    ${!this.excluded.matches('subscriptions')
+                      ? html`
+                          <foxy-i18n
+                            ns=${ns}
+                            key="subscription_plural"
+                            lang=${this.lang}
+                            slot="tab-1"
+                            data-testclass="i18n"
+                          >
+                          </foxy-i18n>
 
-          <div class="space-y-m pt-m border-t-4 border-contrast-5">
-            <x-tabs size="2" ?disabled=${!this.in({ idle: 'snapshot' })}>
-              ${!this.excluded.matches('transactions')
-                ? html`
-                    <foxy-i18n
-                      ns=${ns}
-                      key="transaction_plural"
-                      lang=${this.lang}
-                      slot="tab-0"
-                      data-testclass="i18n"
-                    >
-                    </foxy-i18n>
-
-                    <foxy-collection-pages
-                      data-testclass="i18n"
-                      data-testid="transactions"
-                      spinner="foxy-spinner"
-                      first=${transactionsLink}
-                      class="divide-y divide-contrast-10"
-                      slot="panel-0"
-                      page="foxy-transactions-table"
-                      lang=${this.lang}
-                    >
-                    </foxy-collection-pages>
-                  `
-                : ''}
-              <!---->
-              ${!this.excluded.matches('subscriptions')
-                ? html`
-                    <foxy-i18n
-                      ns=${ns}
-                      key="subscription_plural"
-                      lang=${this.lang}
-                      slot="tab-1"
-                      data-testclass="i18n"
-                    >
-                    </foxy-i18n>
-
-                    <foxy-collection-pages
-                      data-testclass="i18n"
-                      data-testid="subscriptions"
-                      spinner="foxy-spinner"
-                      first=${subscriptionsLink}
-                      class="divide-y divide-contrast-10"
-                      slot="panel-1"
-                      lang=${this.lang}
-                      .page=${this.__renderSubscriptionsPage}
-                    >
-                    </foxy-collection-pages>
-                  `
-                : ''}
-            </x-tabs>
-          </div>
+                          <foxy-collection-pages
+                            data-testclass="i18n"
+                            data-testid="subscriptions"
+                            spinner="foxy-spinner"
+                            first=${subscriptionsLink}
+                            class="divide-y divide-contrast-10"
+                            slot="panel-1"
+                            lang=${this.lang}
+                            .page=${this.__renderSubscriptionsPage}
+                          >
+                          </foxy-collection-pages>
+                        `
+                      : ''}
+                  </x-tabs>
+                </div>
+              `
+            : ''}
         </div>
 
         ${this.in({ idle: 'snapshot' })

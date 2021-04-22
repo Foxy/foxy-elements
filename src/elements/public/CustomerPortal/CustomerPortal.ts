@@ -51,7 +51,7 @@ export class CustomerPortal extends LitElement {
   disabled = BooleanSelector.False;
 
   excluded = new BooleanSelector(
-    'subscriptions subscription-form:timestamps customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
+    'tabs subscription-form:timestamps customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
   );
 
   group = '';
@@ -207,6 +207,15 @@ export class CustomerPortal extends LitElement {
   }
 
   private __renderMainPage() {
+    const customer = this.__customerElement;
+    let transactionsLink = '';
+
+    if (customer?.in({ idle: 'snapshot' })) {
+      const transactionsURL = new URL(customer.data._links['fx:transactions'].href);
+      transactionsURL.searchParams.set('zoom', 'items');
+      transactionsLink = transactionsURL.toString();
+    }
+
     return html`
       <foxy-form-dialog
         header="update"
@@ -240,21 +249,22 @@ export class CustomerPortal extends LitElement {
           <iron-icon icon="icons:exit-to-app"></iron-icon>
         </vaadin-button>
 
-        <div slot="after-header" class="space-y-m pt-m border-t-4 border-contrast-5 mt-m">
-          <foxy-i18n
-            class="block text-l font-medium tracking-wide"
-            lang=${this.lang}
-            key="subscription_plural"
-            ns=${CustomerPortal.__ns}
-          >
-          </foxy-i18n>
+        <div slot="after-header" class="space-y-l mt-m">
+          <div class="space-y-m pt-m border-t-4 border-contrast-5">
+            <foxy-i18n
+              class="block text-l font-medium tracking-wide"
+              lang=${this.lang}
+              key="subscription_plural"
+              ns=${CustomerPortal.__ns}
+            >
+            </foxy-i18n>
 
-          <foxy-collection-pages
-            class="block space-y-m"
-            first=${this.__activeSubscriptionsLink}
-            group=${this.group}
-            lang=${this.lang}
-            .page=${(pageContext: PageRendererContext<any>) => pageContext.html`
+            <foxy-collection-pages
+              class="block space-y-m"
+              first=${this.__activeSubscriptionsLink}
+              group=${this.group}
+              lang=${this.lang}
+              .page=${(pageContext: PageRendererContext<any>) => pageContext.html`
               <foxy-collection-page
                 href=${pageContext.href}
                 lang=${pageContext.lang}
@@ -286,8 +296,28 @@ export class CustomerPortal extends LitElement {
               >
               </foxy-collection-page>
             `}
-          >
-          </foxy-collection-pages>
+            >
+            </foxy-collection-pages>
+          </div>
+
+          <div class="space-y-m pt-m border-t-4 border-contrast-5">
+            <foxy-i18n
+              class="text-l font-medium tracking-wide"
+              ns=${CustomerPortal.__ns}
+              key="transaction_plural"
+              lang=${this.lang}
+            >
+            </foxy-i18n>
+
+            <foxy-collection-pages
+              spinner="foxy-spinner"
+              first=${transactionsLink}
+              class="block divide-y divide-contrast-10 px-m border border-contrast-10 rounded-t-l rounded-b-l"
+              page="foxy-transactions-table"
+              lang=${this.lang}
+            >
+            </foxy-collection-pages>
+          </div>
         </div>
       </foxy-customer>
     `;
