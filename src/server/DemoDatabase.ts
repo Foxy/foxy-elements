@@ -14,6 +14,8 @@ class DemoDatabase extends Dexie {
     });
   }
 
+  customerPortalSettings: Dexie.Table<any, number>;
+
   customerAttributes: Dexie.Table<any, number>;
 
   customerAddresses: Dexie.Table<any, number>;
@@ -35,7 +37,8 @@ class DemoDatabase extends Dexie {
   constructor() {
     super('foxy_demo_db');
 
-    this.version(2).stores({
+    this.version(3).stores({
+      customer_portal_settings: 'store',
       customer_attributes: '++id,customer',
       customer_addresses: '++id,customer',
       payment_methods: '++id,customer',
@@ -47,6 +50,7 @@ class DemoDatabase extends Dexie {
       carts: '++id',
     });
 
+    this.customerPortalSettings = this.table('customer_portal_settings');
     this.customerAttributes = this.table('customer_attributes');
     this.customerAddresses = this.table('customer_addresses');
     this.paymentMethods = this.table('payment_methods');

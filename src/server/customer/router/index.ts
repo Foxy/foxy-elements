@@ -1,3 +1,4 @@
+import './customer_portal_settings';
 import './customer_address';
 import './customer_addresses';
 import './default_payment_method';
