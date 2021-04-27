@@ -9,6 +9,40 @@ import {
 } from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import './index.ts';
 
+export const settings = JSON.stringify({
+  _links: {
+    self: {
+      href: 'https://demo.foxycart.com/s/customer/customer_portal_settings',
+      title: 'Store Customer Portal Settings',
+    },
+  },
+  session_lifespan_in_minutes: 90,
+  allowed_origins: ['https://themancan.com'],
+  subscriptions: {
+    allow_frequency_modification: [
+      {
+        jsonata_query: '$contains(frequency, "m")',
+        values: ['.5m', '1m', '2m'],
+      },
+    ],
+    allow_next_date_modification: [
+      {
+        allowed_days: {
+          days: [1, 3, 5],
+          type: 'day',
+        },
+        disallowed_dates: ['2021-09-02', '2021-09-03', '2021-09-01'],
+        jsonata_query: '$contains(frequency, "m")',
+        max: '2y',
+        min: '1w',
+      },
+    ],
+  },
+  sso: true,
+  date_created: '2020-04-13T08:44:09-0700',
+  date_modified: '2020-04-13T08:46:03-0700',
+});
+
 <Meta title="Forms / SubscriptionForm" />
 
 # SubscriptionForm
@@ -74,6 +108,20 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
         parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
         href="https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items"
         class="container-narrow"
+      >
+      </foxy-subscription-form>
+    `
+  }
+</Story>
+
+<Story name="State: idle.snapshot (with settings)" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-subscription-form
+        parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
+        href="https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items"
+        class="container-narrow"
+        settings=${settings}
       >
       </foxy-subscription-form>
     `

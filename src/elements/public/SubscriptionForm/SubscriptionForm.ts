@@ -1,28 +1,39 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
+import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { Choice, Group, PropertyTable, Skeleton } from '../../private/index';
+import { Data, Settings } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
+import {
+  getAllowedFrequencies,
+  getNextTransactionDateConstraints,
+  isNextTransactionDate,
+} from '@foxy.io/sdk/customer';
 
+import { ButtonElement } from '@vaadin/vaadin-button';
+import { Calendar } from '../Calendar';
 import { CellContext } from '../Table/types';
 import { ChoiceChangeEvent } from '../../private/events';
-import { Data } from './types';
-import { DatePickerElement } from '@vaadin/vaadin-date-picker';
+import { FormDialog } from '../FormDialog';
 import { NucleonElement } from '../NucleonElement/index';
 import { PageRendererContext } from '../CollectionPages/types';
 import { Themeable } from '../../../mixins/themeable';
 import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 import { Data as TransactionsTableData } from '../TransactionsTable/types';
 import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
 import { parseFrequency } from '../../../utils/parse-frequency';
+import { serializeDate } from '../../../utils/serialize-date';
 
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
-      'vaadin-date-picker': customElements.get('vaadin-date-picker'),
       'x-property-table': PropertyTable,
+      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'foxy-items-form': customElements.get('foxy-items-form'),
+      'foxy-calendar': customElements.get('foxy-calendar'),
+      'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-table': customElements.get('foxy-table'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -32,9 +43,18 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      settings: { type: Object },
+    };
+  }
+
   static get styles(): CSSResult | CSSResultArray {
     return Themeable.styles;
   }
+
+  settings: Settings | null = null;
 
   private static __predefinedFrequencies = ['.5m', '1m', '1y'];
 
@@ -48,8 +68,6 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
   private __memoRenderTable = memoize(this.__renderTable.bind(this), (...args) => args.join());
 
-  private __muteBuiltInV8N = () => true;
-
   connectedCallback(): void {
     super.connectedCallback();
     this.__untrackTranslations = customElements.get('foxy-i18n').onTranslationChange(() => {
@@ -61,12 +79,26 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
   render(): TemplateResult {
     const ns = SubscriptionForm.__ns;
     const active = !!this.data?.is_active;
-    const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1));
     const isIdleSnapshot = this.in({ idle: 'snapshot' });
     const items = this.data?._embedded['fx:transaction_template']._embedded['fx:items'] ?? [];
     const formItems = items.map(({ _links, _embedded, ...item }) => item);
 
     return html`
+      <foxy-form-dialog
+        readonly=${ifDefined(this.readonly.zoom('cancellation-dialog').toAttribute() ?? undefined)}
+        disabled=${ifDefined(this.disabled.zoom('cancellation-dialog').toAttribute() ?? undefined)}
+        excluded="save-button ${this.excluded.zoom('cancellation-dialog').toString()}"
+        parent=${this.parent}
+        header="end_subscription"
+        alert
+        form="foxy-subscription-cancellation-form"
+        href=${this.href}
+        lang=${this.lang}
+        id="cancellation-dialog"
+        ns=${ns}
+      >
+      </foxy-form-dialog>
+
       <div
         data-testid="wrapper"
         aria-busy=${this.in('busy')}
@@ -97,83 +129,72 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
           </div>
         </div>
 
-        ${!this.excluded.matches('frequency')
+        ${this.__isFrequencyVisible
           ? html`
               <x-group frame>
+                <foxy-i18n key="frequency_label" ns=${ns} lang=${this.lang} slot="header">
+                </foxy-i18n>
+
                 <x-choice
                   default-custom-value="1d"
                   data-testid="frequency"
                   type="frequency"
-                  custom
-                  .items=${SubscriptionForm.__predefinedFrequencies}
+                  ?custom=${this.settings === null}
+                  .items=${this.__frequencies}
                   .value=${this.form.frequency ?? null}
                   ?disabled=${!isIdleSnapshot || this.disabled.matches('frequency')}
                   ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('frequency'))}
                   @change=${this.__handleFrequencyChange}
                 >
-                  <foxy-i18n
-                    data-testclass="i18n"
-                    slot=".5m-label"
-                    lang=${this.lang}
-                    key="twice_a_month"
-                    ns=${ns}
-                  >
-                  </foxy-i18n>
-
-                  <foxy-i18n
-                    data-testclass="i18n"
-                    slot="1m-label"
-                    lang=${this.lang}
-                    key="monthly"
-                    ns=${ns}
-                  >
-                  </foxy-i18n>
-
-                  <foxy-i18n
-                    data-testclass="i18n"
-                    slot="1y-label"
-                    lang=${this.lang}
-                    key="yearly"
-                    ns=${ns}
-                  >
-                  </foxy-i18n>
+                  ${this.__frequencies.map(
+                    frequency => html`
+                      <foxy-i18n
+                        data-testclass="i18n"
+                        slot="${frequency}-label"
+                        lang=${this.lang}
+                        key=${frequency === '.5m' ? 'twice_a_month' : 'frequency'}
+                        ns=${ns}
+                        options=${JSON.stringify(parseFrequency(frequency))}
+                      >
+                      </foxy-i18n>
+                    `
+                  )}
                 </x-choice>
               </x-group>
             `
           : ''}
         <!---->
-        ${!this.excluded.matches('next-transaction-date')
+        ${this.__isNextTransactionDateVisible
           ? html`
-              <vaadin-date-picker
-                data-testid="nextPaymentDate"
-                class="w-full"
-                label=${this.__t('next_transaction_date').toString()}
-                value=${this.form.next_transaction_date?.substr(0, 10) ?? ''}
-                min=${tomorrow.toISOString().substr(0, 10)}
-                ?disabled=${!isIdleSnapshot || this.disabled.matches('next-transaction-date')}
-                ?readonly=${isIdleSnapshot &&
-                (!active || this.readonly.matches('next-transaction-date'))}
-                .checkValidity=${this.__muteBuiltInV8N}
-                @change=${this.__handleNextTransactionDateChange}
-              >
-              </vaadin-date-picker>
-            `
-          : ''}
-        <!---->
-        ${!this.excluded.matches('end-date')
-          ? html`
-              <vaadin-date-picker
-                data-testid="endDate"
-                class="w-full"
-                label=${this.__t('end_date').toString()}
-                value=${this.form.end_date?.substr(0, 10) ?? ''}
-                min=${tomorrow.toISOString().substr(0, 10)}
-                ?disabled=${!isIdleSnapshot || this.disabled.matches('end-date')}
-                ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('end-date'))}
-                .checkValidity=${this.__muteBuiltInV8N}
-                @change=${this.__handleEndDateChange}
-              >
-              </vaadin-date-picker>
+              <x-group frame>
+                <foxy-i18n key="next_transaction_date" ns=${ns} lang=${this.lang} slot="header">
+                </foxy-i18n>
+
+                <foxy-calendar
+                  data-testid="nextPaymentDate"
+                  value=${ifDefined(this.data?.next_transaction_date)}
+                  ?readonly=${!active || this.readonly.matches('next-transaction-date')}
+                  ?disabled=${!isIdleSnapshot || this.disabled.matches('next-transaction-date')}
+                  .start=${new Date(this.data?.next_transaction_date ?? Date.now())}
+                  .checkAvailability=${(date: Date) => {
+                    const isFutureDate = date.getTime() >= Date.now();
+
+                    if (this.settings && this.data) {
+                      return isNextTransactionDate({
+                        value: serializeDate(date),
+                        settings: this.settings,
+                        subscription: this.data,
+                      });
+                    }
+
+                    return isFutureDate;
+                  }}
+                  @change=${this.__handleNextTransactionDateChange}
+                >
+                </foxy-calendar>
+              </x-group>
+
+              <slot name="after-next-payment-date"></slot>
             `
           : ''}
         <!---->
@@ -185,7 +206,23 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
             )
           : ''}
         <!---->
-        ${!this.excluded.matches('items') && this.in({ idle: 'snapshot' })
+        ${!this.excluded.matches('end-button') && !this.data?.end_date
+          ? html`
+              <vaadin-button
+                theme="primary error"
+                class="w-full"
+                ?disabled=${!isIdleSnapshot || this.disabled.matches('end-button')}
+                @click=${(evt: Event) =>
+                  this.__cancellationDialog.show(evt.currentTarget as ButtonElement)}
+              >
+                <foxy-i18n key="end_subscription" ns=${ns} lang=${this.lang}></foxy-i18n>
+              </vaadin-button>
+
+              <slot name="after-end-button"></slot>
+            `
+          : ''}
+        <!---->
+        ${!this.excluded.matches('items') && this.data
           ? html`
               <div class="pt-m border-t-4 border-contrast-5">
                 <foxy-i18n
@@ -211,7 +248,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
             `
           : ''}
         <!---->
-        ${!this.excluded.matches('transactions') && this.in({ idle: 'snapshot' })
+        ${!this.excluded.matches('transactions') && this.data
           ? html`
               <div class="space-y-m pt-m border-t-4 border-contrast-5">
                 <foxy-i18n
@@ -297,17 +334,49 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, SubscriptionForm.__ns);
   }
 
+  private get __isNextTransactionDateVisible() {
+    if (this.excluded.matches('next-transaction-date')) return false;
+    if (this.settings === null) return true;
+    if (this.data === null) return false;
+
+    const rules = this.settings.subscriptions.allow_next_date_modification;
+    return !!getNextTransactionDateConstraints(this.data, rules);
+  }
+
+  private get __isFrequencyVisible() {
+    if (this.excluded.matches('frequency')) return false;
+    if (this.settings === null) return true;
+    if (this.data === null) return false;
+
+    const allowedFrequencies = getAllowedFrequencies({
+      subscription: this.data,
+      settings: this.settings,
+    });
+
+    return !allowedFrequencies.next().done;
+  }
+
+  private get __frequencies() {
+    if (!this.settings || !this.data) return SubscriptionForm.__predefinedFrequencies;
+
+    const allowedFrequencies = getAllowedFrequencies({
+      subscription: this.data,
+      settings: this.settings,
+    });
+
+    return Array.from(allowedFrequencies);
+  }
+
+  private get __cancellationDialog(): FormDialog {
+    return this.renderRoot.querySelector('#cancellation-dialog') as FormDialog;
+  }
+
   private __handleFrequencyChange(evt: ChoiceChangeEvent) {
     this.edit({ frequency: evt.detail as string });
   }
 
-  private __handleEndDateChange(evt: CustomEvent<unknown>) {
-    const target = evt.target as DatePickerElement;
-    this.edit({ end_date: target.value });
-  }
-
   private __handleNextTransactionDateChange(evt: CustomEvent<unknown>) {
-    const target = evt.target as DatePickerElement;
+    const target = evt.target as Calendar;
     this.edit({ next_transaction_date: target.value });
   }
 

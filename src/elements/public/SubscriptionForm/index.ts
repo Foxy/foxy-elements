@@ -1,6 +1,9 @@
-import '@vaadin/vaadin-date-picker';
+import '@vaadin/vaadin-button';
+import '../SubscriptionCancellationForm/index';
 import '../CollectionPages/index';
+import '../FormDialog/index';
 import '../ItemsForm/index';
+import '../Calendar/index';
 import '../Spinner/index';
 import '../Table/index';
 import '../I18n/index';
