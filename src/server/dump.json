@@ -115,8 +115,8 @@
       "store": 0,
       "customer": 0,
       "transaction_template": 0,
-      "next_transaction_date": "2014-05-01T00:00:00-0700",
-      "start_date": "2010-09-15T00:00:00-0700",
+      "next_transaction_date": "2021-05-19T10:58:39-0700",
+      "start_date": "2020-08-19T10:58:39-0700",
       "end_date": null,
       "frequency": "1m",
       "error_message": "",
@@ -124,8 +124,8 @@
       "first_failed_transaction_date": null,
       "is_active": true,
       "third_party_id": "",
-      "date_created": "2013-08-19T10:58:39-0700",
-      "date_modified": "2013-08-19T10:58:39-0700"
+      "date_created": "2020-08-19T10:58:39-0700",
+      "date_modified": "2020-08-19T10:58:39-0700"
     }
   ],
   "transactions": [
