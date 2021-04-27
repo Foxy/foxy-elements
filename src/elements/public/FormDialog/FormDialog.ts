@@ -25,8 +25,6 @@ export class FormDialog extends Dialog {
     return {
       ...super.properties,
       ...createBooleanSelectorProperty('readonly'),
-      ...createBooleanSelectorProperty('disabled'),
-      ...createBooleanSelectorProperty('excluded'),
       href: { type: String },
       form: { type: String, noAccessor: true },
       parent: { type: String },
@@ -41,11 +39,7 @@ export class FormDialog extends Dialog {
 
   readonly = BooleanSelector.False;
 
-  disabled = BooleanSelector.False;
-
-  excluded = BooleanSelector.False;
-
-  private __form: string | null = null;
+  private __form: string | null | FormRenderer = null;
 
   private __renderForm: FormRenderer | null = null;
 
@@ -83,29 +77,33 @@ export class FormDialog extends Dialog {
    * - `href` – same as `foxy-form-dialog[href]`;
    * - `lang` – same as `foxy-form-dialog[lang]`;
    */
-  get form(): string | null {
+  get form(): string | null | FormRenderer {
     return this.__form;
   }
 
-  set form(tagName: string | null) {
-    this.__renderForm = new Function(
-      'options',
-      `return options.html\`
-        <${tagName}
-          id="form"
-          href=\${options.href}
-          lang=\${options.lang}
-          parent=\${options.parent}
-          disabled=\${options.disabled}
-          readonly=\${options.readonly}
-          excluded=\${options.excluded}
-          @fetch=\${options.handleFetch}
-          @update=\${options.handleUpdate}
-        >
-        </${tagName}>\``
-    ) as FormRenderer;
+  set form(value: string | null | FormRenderer) {
+    if (typeof value === 'string') {
+      this.__renderForm = new Function(
+        'options',
+        `return options.html\`
+          <${value}
+            id="form"
+            href=\${options.href}
+            lang=\${options.lang}
+            parent=\${options.parent}
+            disabled=\${options.disabled}
+            readonly=\${options.readonly}
+            excluded=\${options.excluded}
+            @fetch=\${options.handleFetch}
+            @update=\${options.handleUpdate}
+          >
+            \${options.content}
+          </${value}>\``
+      ) as FormRenderer;
+    } else {
+      this.__renderForm = value;
+    }
 
-    this.__form = tagName;
     this.requestUpdate();
   }
 

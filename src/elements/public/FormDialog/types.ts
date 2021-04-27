@@ -1,6 +1,6 @@
 import { Part, TemplateResult, html } from 'lit-html';
 
-export type FormRenderer = (context: {
+export type FormRendererContext = {
   html: typeof html;
   href: string;
   lang: string;
@@ -10,4 +10,6 @@ export type FormRenderer = (context: {
   excluded: (part: Part) => void;
   handleFetch: (evt: Event) => void;
   handleUpdate: (evt: Event) => void;
-}) => TemplateResult;
+};
+
+export type FormRenderer = (context: FormRendererContext) => TemplateResult;

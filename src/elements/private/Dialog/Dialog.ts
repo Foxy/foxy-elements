@@ -2,12 +2,14 @@ import { CSSResultArray, LitElement, PropertyDeclarations, css } from 'lit-eleme
 import { TemplateResult, html } from 'lit-html';
 
 import { API } from '../../public/NucleonElement/API';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { DialogHideEvent } from './DialogHideEvent';
 import { DialogShowEvent } from './DialogShowEvent';
 import { DialogWindow } from './DialogWindow';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
 
 export abstract class Dialog extends LitElement {
   /**
@@ -39,6 +41,8 @@ export abstract class Dialog extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      ...createBooleanSelectorProperty('disabled'),
+      ...createBooleanSelectorProperty('excluded'),
       __connected: { attribute: false },
       __visible: { attribute: false },
       centered: { type: Boolean },
@@ -67,6 +71,10 @@ export abstract class Dialog extends LitElement {
 
   /** When true, renders Close button in the header. */
   closable = false;
+
+  disabled = BooleanSelector.False;
+
+  excluded = BooleanSelector.False;
 
   /** When true, renders Save button in the header. */
   editable = false;
@@ -186,12 +194,13 @@ export abstract class Dialog extends LitElement {
             <div
               class="h-l grid grid-cols-3 text-m font-lumo font-medium border-b border-contrast-10"
             >
-              ${this.closable
+              ${this.closable && !this.excluded.matches('close-button')
                 ? html`
                     <vaadin-button
                       id="close-button"
                       theme="tertiary-inline"
                       class="mr-auto m-s px-s"
+                      ?disabled=${this.disabled.matches('close-button')}
                       @click=${this.hide}
                     >
                       <foxy-i18n
@@ -208,10 +217,11 @@ export abstract class Dialog extends LitElement {
                 <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.header}></foxy-i18n>
               </h1>
 
-              ${this.editable
+              ${this.editable && !this.excluded.matches('save-button')
                 ? html`
                     <vaadin-button
                       data-testid="save-button"
+                      ?disabled=${this.disabled.matches('save-button')}
                       theme="tertiary-inline"
                       class="ml-auto m-s px-s"
                       @click=${this.save}
