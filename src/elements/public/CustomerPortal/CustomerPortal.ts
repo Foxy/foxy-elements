@@ -7,30 +7,34 @@ import {
   css,
   html,
 } from 'lit-element';
+import { Settings, State, machine } from './machine';
 
 import { API } from '../NucleonElement/API';
 import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ComputedElementProperties } from './types';
 import { Customer } from '../Customer/Customer';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog/FormDialog';
+import { FormRendererContext } from '../FormDialog/types';
 import { ItemRendererContext } from '../CollectionPage/types';
-import { Page } from './types';
 import { PageRendererContext } from '../CollectionPages/types';
 import { SignInForm } from '../SignInForm/SignInForm';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { interpret } from 'xstate';
 
 export class CustomerPortal extends LitElement {
+  /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...createBooleanSelectorProperty('readonly'),
       ...createBooleanSelectorProperty('disabled'),
       ...createBooleanSelectorProperty('excluded'),
-      group: { type: String },
-      href: { type: String },
+      group: { type: String, noAccessor: true },
+      href: { type: String, noAccessor: true },
       lang: { type: String },
     };
   }
@@ -39,12 +43,30 @@ export class CustomerPortal extends LitElement {
     return [
       Themeable.styles,
       css`
+        :host {
+          display: flex;
+          flex-direction: column;
+        }
+
+        :host > div {
+          flex: 1;
+        }
+
         .max-w-20rem {
           max-width: 20rem;
         }
       `,
     ];
   }
+
+  /** Optional ISO 639-1 code describing the language element content is written in. */
+  lang = '';
+
+  /**
+   * Rumour group. Elements in different groups will not share updates. Empty by default.
+   * @example element.group = 'my-group'
+   */
+  group = '';
 
   readonly = BooleanSelector.False;
 
@@ -54,22 +76,99 @@ export class CustomerPortal extends LitElement {
     'tabs subscription-form:timestamps customer-form:delete attributes create-address-button address-form:delete address-form:address-name'
   );
 
-  group = '';
-
-  lang = '';
-
-  href = '';
-
   private static __ns = 'customer-portal';
 
-  private __page: Page = Page.Main;
+  private __href = '';
+
+  private __service = interpret(
+    machine.withConfig({
+      services: {
+        load: async () => {
+          const response = await new API(this).fetch(`${this.href}/customer_portal_settings`);
+          if (!response.ok) throw new Error(await response.text());
+          return response.json();
+        },
+
+        signOut: async () => {
+          const response = await new API(this).fetch('foxy://auth/session', { method: 'DELETE' });
+          if (!response.ok) throw new Error(await response.text());
+        },
+      },
+    })
+  );
+
+  get settings(): Settings | null {
+    return this.__service.state.context.settings;
+  }
+
+  /**
+   * Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).
+   * @example element.href = 'https://demo.foxycart.com/s/customer/attributes/0'
+   */
+  get href(): string {
+    return this.__href;
+  }
+
+  set href(value: string) {
+    this.__href = value;
+    this.__service.send({ type: 'RESET' });
+  }
+
+  /**
+   * Checks if this element is in the given state.
+   * @example element.in({ idle: 'snapshot' })
+   */
+  in<TStateValue extends State['value']>(
+    stateValue: TStateValue
+  ): this is this & ComputedElementProperties<TStateValue> {
+    return this.__service.state.matches(stateValue);
+  }
 
   render(): TemplateResult {
-    return this.__page === Page.AccessRecovery
-      ? this.__renderAccessRecoveryPage()
-      : this.__page === Page.SignIn
-      ? this.__renderSignInPage()
-      : this.__renderMainPage();
+    if (this.in({ idle: 'accessRecovery' })) return this.__renderAccessRecoveryPage();
+    if (this.in({ idle: 'signIn' })) return this.__renderSignInPage();
+    if (this.in({ idle: 'home' })) return this.__renderMainPage();
+
+    return html`
+      <div class="flex items-center justify-center">
+        <foxy-spinner lang=${this.lang} state=${this.in('fail') ? 'error' : 'busy'}></foxy-spinner>
+      </div>
+    `;
+  }
+
+  /** @readonly */
+  connectedCallback(): void {
+    super.connectedCallback();
+    this.__createService();
+  }
+
+  /** @readonly */
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.__destroyService();
+  }
+
+  private __createService() {
+    this.__service.onTransition(state => {
+      if (!state.changed) return;
+
+      const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
+      this.setAttribute('state', [...new Set(flags)].join(' '));
+
+      this.requestUpdate();
+      this.dispatchEvent(new CustomEvent('update'));
+    });
+
+    this.__service.onChange(() => {
+      this.requestUpdate();
+      this.dispatchEvent(new CustomEvent('update'));
+    });
+
+    this.__service.start();
+  }
+
+  private __destroyService() {
+    this.__service.stop();
   }
 
   private get __accessRecoveryFormElement() {
@@ -104,49 +203,51 @@ export class CustomerPortal extends LitElement {
     const isBusy = !!this.__accessRecoveryFormElement?.in('busy');
 
     return html`
-      <div class="space-y-l mx-auto max-w-20rem">
-        <div class="flex flex-col leading-m font-lumo">
-          <foxy-i18n
-            class=${classMap({
-              'text-xxl font-bold': true,
-              'text-disabled': isBusy,
-              'text-body': !isBusy,
-            })}
-            lang=${this.lang}
-            key="recover_access"
-            ns=${ns}
-          >
-          </foxy-i18n>
+      <div class="flex items-center justify-center">
+        <div class="space-y-l mx-auto max-w-20rem">
+          <div class="flex flex-col leading-m font-lumo">
+            <foxy-i18n
+              class=${classMap({
+                'text-xxl font-bold': true,
+                'text-disabled': isBusy,
+                'text-body': !isBusy,
+              })}
+              lang=${this.lang}
+              key="recover_access"
+              ns=${ns}
+            >
+            </foxy-i18n>
 
-          <foxy-i18n
-            class=${classMap({
-              'text-l': true,
-              'text-disabled': isBusy,
-              'text-secondary': !isBusy,
-            })}
-            lang=${this.lang}
-            key="recover_access_hint"
-            ns=${ns}
-          >
-          </foxy-i18n>
-        </div>
+            <foxy-i18n
+              class=${classMap({
+                'text-l': true,
+                'text-disabled': isBusy,
+                'text-secondary': !isBusy,
+              })}
+              lang=${this.lang}
+              key="recover_access_hint"
+              ns=${ns}
+            >
+            </foxy-i18n>
+          </div>
 
-        <div class="space-y-s">
-          <foxy-access-recovery-form
-            id="access-recovery-form"
-            lang=${this.lang}
-            @update=${this.__handleUpdate}
-          >
-          </foxy-access-recovery-form>
+          <div class="space-y-s">
+            <foxy-access-recovery-form
+              id="access-recovery-form"
+              lang=${this.lang}
+              @update=${this.__handleUpdate}
+            >
+            </foxy-access-recovery-form>
 
-          <vaadin-button
-            class="w-full"
-            theme="tertiary"
-            ?disabled=${isBusy}
-            @click=${this.__handleBackToSignInButtonClick}
-          >
-            <foxy-i18n ns=${ns} lang=${this.lang} key="cancel"></foxy-i18n>
-          </vaadin-button>
+            <vaadin-button
+              class="w-full"
+              theme="tertiary"
+              ?disabled=${isBusy}
+              @click=${this.__handleBackToSignInButtonClick}
+            >
+              <foxy-i18n ns=${ns} lang=${this.lang} key="cancel"></foxy-i18n>
+            </vaadin-button>
+          </div>
         </div>
       </div>
     `;
@@ -157,50 +258,52 @@ export class CustomerPortal extends LitElement {
     const isBusy = !!this.__signInFormElement?.in('busy');
 
     return html`
-      <div class="space-y-l mx-auto max-w-20rem">
-        <div class="flex flex-col leading-m text-m text-body font-lumo">
-          <foxy-i18n
-            class=${classMap({
-              'text-xxl font-bold': true,
-              'text-disabled': isBusy,
-              'text-body': !isBusy,
-            })}
-            lang=${this.lang}
-            key="sign_in"
-            ns=${ns}
-          >
-          </foxy-i18n>
+      <div class="flex items-center justify-center">
+        <div class="space-y-l mx-auto max-w-20rem">
+          <div class="flex flex-col leading-m text-m text-body font-lumo">
+            <foxy-i18n
+              class=${classMap({
+                'text-xxl font-bold': true,
+                'text-disabled': isBusy,
+                'text-body': !isBusy,
+              })}
+              lang=${this.lang}
+              key="sign_in"
+              ns=${ns}
+            >
+            </foxy-i18n>
 
-          <foxy-i18n
-            class=${classMap({
-              'text-l': true,
-              'text-disabled': isBusy,
-              'text-secondary': !isBusy,
-            })}
-            lang=${this.lang}
-            key="sign_in_hint"
-            ns=${ns}
-          >
-          </foxy-i18n>
-        </div>
+            <foxy-i18n
+              class=${classMap({
+                'text-l': true,
+                'text-disabled': isBusy,
+                'text-secondary': !isBusy,
+              })}
+              lang=${this.lang}
+              key="sign_in_hint"
+              ns=${ns}
+            >
+            </foxy-i18n>
+          </div>
 
-        <div class="space-y-s">
-          <foxy-sign-in-form
-            id="sign-in-form"
-            lang=${this.lang}
-            @update=${this.__handleUpdate}
-            @signin=${this.__handleSignIn}
-          >
-          </foxy-sign-in-form>
+          <div class="space-y-s">
+            <foxy-sign-in-form
+              id="sign-in-form"
+              lang=${this.lang}
+              @update=${this.__handleUpdate}
+              @signin=${this.__handleSignIn}
+            >
+            </foxy-sign-in-form>
 
-          <vaadin-button
-            class="w-full"
-            theme="tertiary"
-            ?disabled=${isBusy}
-            @click=${this.__handleRecoverAccessButtonClick}
-          >
-            <foxy-i18n ns=${ns} lang=${this.lang} key="recover_access"></foxy-i18n>
-          </vaadin-button>
+            <vaadin-button
+              class="w-full"
+              theme="tertiary"
+              ?disabled=${isBusy}
+              @click=${this.__handleRecoverAccessButtonClick}
+            >
+              <foxy-i18n ns=${ns} lang=${this.lang} key="recover_access"></foxy-i18n>
+            </vaadin-button>
+          </div>
         </div>
       </div>
     `;
@@ -219,13 +322,27 @@ export class CustomerPortal extends LitElement {
     return html`
       <foxy-form-dialog
         header="update"
-        form="foxy-subscription-form"
         lang=${this.lang}
         ns=${CustomerPortal.__ns}
         id="subscription-dialog"
         readonly=${ifDefined(this.readonly.zoom('subscription-form').toAttribute() ?? undefined)}
         disabled=${ifDefined(this.disabled.zoom('subscription-form').toAttribute() ?? undefined)}
         excluded=${ifDefined(this.excluded.zoom('subscription-form').toAttribute() ?? undefined)}
+        .form=${(ctx: FormRendererContext) => ctx.html`
+          <foxy-subscription-form
+            id="form"
+            href=${ctx.href}
+            lang=${ctx.lang}
+            parent=${ctx.parent}
+            settings=${JSON.stringify(this.settings)}
+            disabled=${ctx.disabled}
+            readonly=${ctx.readonly}
+            excluded=${ctx.excluded}
+            @fetch=${ctx.handleFetch}
+            @update=${ctx.handleUpdate}
+          >
+          </foxy-subscription-form>
+        `}
       >
       </foxy-form-dialog>
 
@@ -323,26 +440,20 @@ export class CustomerPortal extends LitElement {
     `;
   }
 
-  private __setPage(page: Page) {
-    this.__page = page;
-    this.requestUpdate();
-  }
-
   private async __handleSignOutButtonClick() {
-    await new API(this).fetch('foxy://auth/session', { method: 'DELETE' });
-    this.__setPage(Page.SignIn);
+    this.__service.send('SIGN_OUT');
   }
 
   private __handleRecoverAccessButtonClick() {
-    this.__setPage(Page.AccessRecovery);
+    this.__service.send('RECOVER_ACCESS');
   }
 
   private __handleBackToSignInButtonClick() {
-    this.__setPage(Page.SignIn);
+    this.__service.send('SIGN_IN');
   }
 
   private __handleSignIn() {
-    this.__setPage(Page.Main);
+    this.__service.send('SIGN_IN');
   }
 
   private __handleUpdate() {
@@ -353,7 +464,7 @@ export class CustomerPortal extends LitElement {
     if (evt instanceof FetchEvent && !evt.defaultPrevented) {
       evt.respondWith(
         new API(this).fetch(evt.request).then(response => {
-          if (response.status === 401) this.__setPage(Page.SignIn);
+          if (response.status === 401) this.__service.send('SIGN_OUT');
           return response;
         })
       );
