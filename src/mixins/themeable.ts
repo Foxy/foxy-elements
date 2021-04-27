@@ -23,6 +23,8 @@ export abstract class Themeable extends ScopedElementsMixin(LitElement) {
 
         * {
           -webkit-tap-highlight-color: transparent;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
         }
 
         :host {
