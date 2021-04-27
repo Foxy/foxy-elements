@@ -28,8 +28,9 @@ import './index.ts';
   <Story name="Playground">
     {() =>
       html`
-        <demo-customer-api>
-          <foxy-customer-portal href="https://demo.foxycart.com/s/customer"></foxy-customer-portal>
+        <demo-customer-api class="absolute inset-0 overflow-auto m-4">
+          <foxy-customer-portal href="https://demo.foxycart.com/s/customer" class="min-h-full">
+          </foxy-customer-portal>
         </demo-customer-api>
       `
     }
@@ -51,14 +52,3 @@ This element supports the following namespaces: `customer-portal`, `shared`.
 ### Theming
 
 Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
-
-<Story name="Localdev">
-  {() =>
-    html`
-      <foxy-customer-api base="https://serverless.foxycart.test:3000/s/customer/" storage="local">
-        <foxy-customer-portal href="https://serverless.foxycart.test:3000/s/customer">
-        </foxy-customer-portal>
-      </foxy-customer-api>
-    `
-  }
-</Story>
