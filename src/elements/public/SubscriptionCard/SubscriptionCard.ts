@@ -39,7 +39,7 @@ export class SubscriptionCard extends NucleonElement<Data> {
                 <div
                   class=${classMap({
                     'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s': true,
-                    'text-success bg-success-10': isActive,
+                    'text-success bg-success-10': isActive && !isFailed,
                     'text-body bg-contrast-5': !isActive && !isFailed,
                     'text-error bg-error-10': isFailed,
                   })}
@@ -67,7 +67,7 @@ export class SubscriptionCard extends NucleonElement<Data> {
                 class=${classMap({
                   'text-s tracking-wide': true,
                   'text-tertiary': !isActive && !isFailed,
-                  'text-success': isActive,
+                  'text-success': isActive && !isFailed,
                   'text-error': isFailed,
                 })}
               >
