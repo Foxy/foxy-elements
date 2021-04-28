@@ -13,7 +13,9 @@ export function composeCustomer(doc: any, attributes?: any[]) {
     .addLink('fx:default_payment_method', `${endpoint}/default_payment_method`)
     .addLink('fx:transactions', `${endpoint}/transactions`)
     .addLink('fx:subscriptions', `${endpoint}/subscriptions`)
-    .addLink('fx:customer_addresses', `${endpoint}/addresses`);
+    .addLink('fx:customer_addresses', `${endpoint}/addresses`)
+    .addLink('fx:sub_modification_url', 'about:blank')
+    .addLink('fx:sub_token_url', 'about:blank');
 
   if (attributes && attributes.length > 0) {
     result = result.addEmbed(
