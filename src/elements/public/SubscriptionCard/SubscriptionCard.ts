@@ -30,62 +30,70 @@ export class SubscriptionCard extends NucleonElement<Data> {
       <div class="relative text-left">
         <div
           class=${classMap({
-            'flex items-center space-x-m transition duration-150 ease-in-out': true,
+            'flex items-start sm-items-center space-x-m transition duration-150 ease-in-out': true,
             'opacity-0': !this.in({ idle: 'snapshot' }),
           })}
         >
-          <div
-            class=${classMap({
-              'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s': true,
-              'text-success bg-success-10': isActive,
-              'text-body bg-contrast-5': !isActive && !isFailed,
-              'text-error bg-error-10': isFailed,
-            })}
-          >
-            <iron-icon icon=${isFailed ? 'error-outline' : isActive ? 'done' : 'done-all'}>
-            </iron-icon>
-          </div>
+          ${!this.excluded.matches('icon')
+            ? html`
+                <div
+                  class=${classMap({
+                    'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s': true,
+                    'text-success bg-success-10': isActive,
+                    'text-body bg-contrast-5': !isActive && !isFailed,
+                    'text-error bg-error-10': isFailed,
+                  })}
+                >
+                  <iron-icon icon=${isFailed ? 'error-outline' : isActive ? 'done' : 'done-all'}>
+                  </iron-icon>
+                </div>
+              `
+            : ''}
 
-          <div class="flex-1 min-w-0 leading-s">
-            <div class="text-body font-medium origin-top-left text-m">
-              <foxy-i18n
-                ns=${SubscriptionCard.__ns}
-                key="transaction_summary"
-                lang=${this.lang}
-                options=${JSON.stringify(this.__getSummaryOptions())}
+          <div class="flex-1 min-w-0 leading-s flex flex-col sm-flex-row sm-items-center">
+            <div class="order-1 sm-order-0">
+              <div class="text-body font-medium origin-top-left text-l">
+                <foxy-i18n
+                  ns=${SubscriptionCard.__ns}
+                  key="transaction_summary"
+                  lang=${this.lang}
+                  options=${JSON.stringify(this.__getSummaryOptions())}
+                >
+                </foxy-i18n>
+                &#8203;
+              </div>
+
+              <div
+                class=${classMap({
+                  'text-s tracking-wide': true,
+                  'text-tertiary': !isActive && !isFailed,
+                  'text-success': isActive,
+                  'text-error': isFailed,
+                })}
               >
-              </foxy-i18n>
-              &#8203;
+                <foxy-i18n
+                  ns=${SubscriptionCard.__ns}
+                  key=${this.__getStatusKey()}
+                  lang=${this.lang}
+                  options=${JSON.stringify(this.__getStatusOptions())}
+                >
+                </foxy-i18n>
+                &#8203;
+              </div>
             </div>
 
             <div
-              class=${classMap({
-                'text-s tracking-wide': true,
-                'text-tertiary': !isActive && !isFailed,
-                'text-success': isActive,
-                'text-error': isFailed,
-              })}
+              class="flex-1 font-medium leading-xs mb-xs sm-mb-0 sm-text-right text-body text-xxs sm-text-xl tracking-wide sm-tracking-normal uppercase sm-normal-case order-0 sm-order-1 font-tnum text-secondary sm-text-body"
             >
               <foxy-i18n
-                ns=${SubscriptionCard.__ns}
-                key=${this.__getStatusKey()}
                 lang=${this.lang}
-                options=${JSON.stringify(this.__getStatusOptions())}
+                key="price_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
+                ns=${SubscriptionCard.__ns}
+                options=${JSON.stringify(this.__getPriceOptions())}
               >
               </foxy-i18n>
               &#8203;
             </div>
-          </div>
-
-          <div class="flex-1 font-medium text-right hidden text-body text-xl md-block font-tnum">
-            <foxy-i18n
-              lang=${this.lang}
-              key="price_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
-              ns=${SubscriptionCard.__ns}
-              options=${JSON.stringify(this.__getPriceOptions())}
-            >
-            </foxy-i18n>
-            &#8203;
           </div>
         </div>
 
