@@ -163,7 +163,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                   value=${ifDefined(this.data?.next_transaction_date)}
                   ?readonly=${!active || this.readonly.matches('next-transaction-date')}
                   ?disabled=${!isIdleSnapshot || this.disabled.matches('next-transaction-date')}
-                  .start=${new Date(this.data?.next_transaction_date ?? Date.now())}
+                  start=${ifDefined(this.data?.next_transaction_date.substr(0, 10))}
                   .checkAvailability=${(date: Date) => {
                     const isFutureDate = date.getTime() >= Date.now();
 

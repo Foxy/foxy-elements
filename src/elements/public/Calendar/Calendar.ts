@@ -19,7 +19,7 @@ export class Calendar extends LitElement {
       readonly: { type: Boolean, reflect: true },
       disabled: { type: Boolean, reflect: true },
       value: { type: String },
-      start: { attribute: false },
+      start: { type: String },
       lang: { type: String },
     };
   }
@@ -36,7 +36,7 @@ export class Calendar extends LitElement {
 
   value = '';
 
-  start = new Date();
+  start = '';
 
   lang = '';
 
@@ -48,9 +48,18 @@ export class Calendar extends LitElement {
     this.value = value ? serializeDate(value) : '';
   }
 
+  get startAsDate(): Date | null {
+    return parseDate(this.start);
+  }
+
+  set startAsDate(value: Date | null) {
+    this.start = value ? serializeDate(value) : '';
+  }
+
   render(): TemplateResult {
-    const prevMonth = new Date(this.start);
-    const nextMonth = new Date(this.start);
+    const thisMonth = new Date(this.startAsDate ?? Date.now());
+    const prevMonth = new Date(thisMonth);
+    const nextMonth = new Date(thisMonth);
     const lang = this.lang || 'en';
 
     prevMonth.setMonth(prevMonth.getMonth() - 1);
@@ -75,7 +84,7 @@ export class Calendar extends LitElement {
               'text-disabled': this.disabled,
             })}
           >
-            ${this.start.toLocaleDateString(lang, { month: 'long', year: 'numeric' })}
+            ${this.startAsDate?.toLocaleDateString(lang, { month: 'long', year: 'numeric' })}
           </span>
 
           <vaadin-button
@@ -89,7 +98,7 @@ export class Calendar extends LitElement {
           </vaadin-button>
         </div>
 
-        ${this.__renderMonth(this.start.getMonth(), this.start.getFullYear())}
+        ${this.__renderMonth(thisMonth.getMonth(), thisMonth.getFullYear())}
       </div>
     `;
   }
@@ -171,10 +180,12 @@ export class Calendar extends LitElement {
   }
 
   private __handlePrevButtonClick() {
-    this.start = new Date(this.start.setMonth(this.start.getMonth() - 1));
+    const currentStart = new Date(this.start ?? Date.now());
+    this.startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() - 1));
   }
 
   private __handleNextButtonClick() {
-    this.start = new Date(this.start.setMonth(this.start.getMonth() + 1));
+    const currentStart = new Date(this.start ?? Date.now());
+    this.startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() + 1));
   }
 }
