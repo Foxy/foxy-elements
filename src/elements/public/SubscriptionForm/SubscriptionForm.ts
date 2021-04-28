@@ -28,7 +28,6 @@ import { serializeDate } from '../../../utils/serialize-date';
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-subscription-card': customElements.get('foxy-subscription-card'),
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'x-property-table': PropertyTable,
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
@@ -36,8 +35,10 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
       'foxy-calendar': customElements.get('foxy-calendar'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'vcf-tooltip': customElements.get('vcf-tooltip'),
       'foxy-table': customElements.get('foxy-table'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'iron-icon': customElements.get('iron-icon'),
       'x-skeleton': Skeleton,
       'x-choice': Choice,
       'x-group': Group,
@@ -117,12 +118,13 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                 )
               : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
           </div>
-          <div class="text-secondary">
+          <div>
             ${this.data
               ? this.__memoRenderStatus(
                   this.lang,
                   this.data.next_transaction_date,
                   this.data.first_failed_transaction_date,
+                  this.data.error_message,
                   this.data.end_date
                 )
               : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
@@ -399,35 +401,52 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     lang: string,
     nextTransactionDate: string | null | undefined,
     firstFailedTransactionDate: string | null | undefined,
+    errorMessage: string | undefined,
     endDate: string | null | undefined
   ) {
     const ns = SubscriptionForm.__ns;
 
+    let color: string;
     let date: string;
     let key: string;
 
     if (firstFailedTransactionDate) {
+      color = 'text-error';
       date = firstFailedTransactionDate;
       key = 'subscription_failed';
     } else if (endDate) {
       date = endDate;
       const hasEnded = new Date(date).getTime() > Date.now();
       key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
+      color = hasEnded ? 'text-success' : 'text-secondary';
     } else {
+      color = 'text-success';
       date = nextTransactionDate ?? new Date().toISOString();
       key = 'subscription_active';
     }
 
-    return html`
+    const text = html`
       <foxy-i18n
         data-testclass="i18n"
         data-testid="status"
+        class=${color}
         lang=${lang}
         key=${key}
         ns=${ns}
         .options=${{ date }}
       >
       </foxy-i18n>
+    `;
+
+    if (!firstFailedTransactionDate) return text;
+
+    return html`
+      <span id="status" class="flex items-center space-x-xs ${color}">
+        ${text}<iron-icon icon="icons:info-outline" class="icon-inline"></iron-icon>
+      </span>
+      <vcf-tooltip for="status" position="bottom">
+        <span class="text-s">${errorMessage}</span>
+      </vcf-tooltip>
     `;
   }
 
