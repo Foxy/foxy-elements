@@ -1,5 +1,6 @@
 import '@vaadin/vaadin-button';
 import '../SubscriptionCancellationForm/index';
+import '../SubscriptionCard/index';
 import '../CollectionPages/index';
 import '../FormDialog/index';
 import '../ItemsForm/index';

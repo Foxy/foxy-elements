@@ -28,6 +28,7 @@ import { serializeDate } from '../../../utils/serialize-date';
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-subscription-card': customElements.get('foxy-subscription-card'),
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'x-property-table': PropertyTable,
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
@@ -105,29 +106,18 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         aria-live="polite"
         class="text-body relative space-y-l text-body font-lumo text-m leading-m"
       >
-        <div class="leading-s">
-          <div class="text-xl font-medium tracking-wide">
-            ${this.data
-              ? this.__memoRenderHeader(
-                  this.lang,
-                  this.data.frequency,
-                  this.data._embedded['fx:last_transaction'].total_order,
-                  this.data._embedded['fx:last_transaction'].currency_code
-                )
-              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
-          </div>
+        <foxy-subscription-card
+          excluded="icon"
+          parent=${this.parent}
+          group=${this.group}
+          class="pb-m border-b-4 border-contrast-5"
+          href=${this.href}
+          lang=${this.lang}
+          ns=${ns}
+        >
+        </foxy-subscription-card>
 
-          <div class="text-secondary">
-            ${this.data
-              ? this.__memoRenderStatus(
-                  this.lang,
-                  this.data.next_transaction_date,
-                  this.data.first_failed_transaction_date,
-                  this.data.end_date
-                )
-              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
-          </div>
-        </div>
+        <slot name="after-status"></slot>
 
         ${this.__isFrequencyVisible
           ? html`
@@ -163,7 +153,9 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
               </x-group>
             `
           : ''}
-        <!---->
+
+        <slot name="after-frequency"></slot>
+
         ${this.__isNextTransactionDateVisible
           ? html`
               <x-group frame>
@@ -193,11 +185,11 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                 >
                 </foxy-calendar>
               </x-group>
-
-              <slot name="after-next-payment-date"></slot>
             `
           : ''}
-        <!---->
+
+        <slot name="after-next-payment-date"></slot>
+
         ${!this.excluded.matches('timestamps')
           ? this.__memoRenderTable(
               !this.in({ idle: 'snapshot' }),
@@ -205,7 +197,9 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
               this.data?.date_modified ?? ''
             )
           : ''}
-        <!---->
+
+        <slot name="after-timestamps"></slot>
+
         ${!this.excluded.matches('end-button') && !this.data?.end_date
           ? html`
               <vaadin-button
@@ -217,21 +211,23 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
               >
                 <foxy-i18n key="end_subscription" ns=${ns} lang=${this.lang}></foxy-i18n>
               </vaadin-button>
-
-              <slot name="after-end-button"></slot>
             `
           : ''}
-        <!---->
+
+        <slot name="after-end-button"></slot>
+
         ${!this.excluded.matches('items') && this.data
           ? html`
               <div class="pt-m border-t-4 border-contrast-5">
-                <foxy-i18n
-                  class="text-l font-medium tracking-wide"
-                  key="item_plural"
-                  ns=${ns}
-                  lang=${this.lang}
-                >
-                </foxy-i18n>
+                <slot name="items-header">
+                  <foxy-i18n
+                    class="text-l font-medium tracking-wide"
+                    key="item_plural"
+                    ns=${ns}
+                    lang=${this.lang}
+                  >
+                  </foxy-i18n>
+                </slot>
 
                 <div class="-mx-l -mb-l -mt-s">
                   <foxy-items-form
@@ -247,7 +243,9 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
               </div>
             `
           : ''}
-        <!---->
+
+        <slot name="after-items"></slot>
+
         ${!this.excluded.matches('transactions') && this.data
           ? html`
               <div class="space-y-m pt-m border-t-4 border-contrast-5">
@@ -301,6 +299,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
               </div>
             `
           : ''}
+
+        <slot name="after-transactions"></slot>
 
         <div
           data-testid="spinnerWrapper"

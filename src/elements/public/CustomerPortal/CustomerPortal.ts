@@ -311,12 +311,34 @@ export class CustomerPortal extends LitElement {
 
   private __renderMainPage() {
     const customer = this.__customerElement;
+    const ns = CustomerPortal.__ns;
+
+    let updateBillingLink = '';
     let transactionsLink = '';
+    let updateItemsLink = '';
+    let cancelLink = '';
 
     if (customer?.in({ idle: 'snapshot' })) {
       const transactionsURL = new URL(customer.data._links['fx:transactions'].href);
       transactionsURL.searchParams.set('zoom', 'items');
       transactionsLink = transactionsURL.toString();
+
+      if ('fx:sub_token_url' in customer.data._links) {
+        const link = (customer.data._links['fx:sub_token_url'] as any).href as string;
+        const cancelURL = new URL(link);
+        const updateBillingURL = new URL(link);
+
+        cancelURL.searchParams.set('sub_cancel', 'true');
+        cancelLink = cancelURL.toString();
+
+        updateBillingURL.searchParams.set('cart', 'checkout');
+        updateBillingURL.searchParams.set('sub_restart', 'auto');
+        updateBillingLink = updateBillingURL.toString();
+      }
+
+      if ('fx:sub_modification_url' in customer.data._links) {
+        updateItemsLink = (customer.data._links['fx:sub_modification_url'] as any).href as string;
+      }
     }
 
     return html`
@@ -337,10 +359,72 @@ export class CustomerPortal extends LitElement {
             settings=${JSON.stringify(this.settings)}
             disabled=${ctx.disabled}
             readonly=${ctx.readonly}
-            excluded=${ctx.excluded}
+            excluded="end-button ${ctx.excluded}"
             @fetch=${ctx.handleFetch}
             @update=${ctx.handleUpdate}
           >
+            <div slot="after-status" class="space-x-s mt-s">
+              ${
+                !this.excluded.zoom('subscription-form').matches('update-billing-link') &&
+                updateBillingLink.length > 0
+                  ? html`
+                      <a
+                        target="_blank"
+                        class="inline-block font-medium tracking-wide cursor-pointer text-primary text-s rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
+                        href=${updateBillingLink}
+                        rel="nofollow noreferrer noopener"
+                      >
+                        <foxy-i18n key="update_billing" lang=${ctx.lang} ns=${ns}></foxy-i18n>
+                        <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                      </a>
+                    `
+                  : ''
+              }
+
+              ${
+                !this.excluded.zoom('subscription-form').matches('end-subscription-link') &&
+                cancelLink.length > 0
+                  ? html`
+                      <a
+                        target="_blank"
+                        class="inline-block font-medium tracking-wide cursor-pointer text-primary text-s rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
+                        href=${cancelLink}
+                        rel="nofollow noreferrer noopener"
+                      >
+                        <foxy-i18n lang=${ctx.lang} key="end_subscription" ns=${ns}></foxy-i18n>
+                        <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                      </a>
+                    `
+                  : ''
+              }
+            </div>
+
+            ${
+              !this.excluded.zoom('subscription-form').matches('update-items-link') &&
+              updateItemsLink.length > 0
+                ? html`
+                    <div slot="items-header" class="flex items-center justify-between">
+                      <foxy-i18n
+                        class="text-l font-medium tracking-wide"
+                        lang=${this.lang}
+                        key="item_plural"
+                        ns=${ns}
+                      >
+                      </foxy-i18n>
+
+                      <a
+                        target="_blank"
+                        class="inline-block font-medium tracking-wide cursor-pointer text-primary text-s rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
+                        href=${updateItemsLink}
+                        rel="nofollow noreferrer noopener"
+                      >
+                        <foxy-i18n key="update" lang=${ctx.lang} ns=${ns}></foxy-i18n>
+                        <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                      </a>
+                    </div>
+                  `
+                : ''
+            }
           </foxy-subscription-form>
         `}
       >
