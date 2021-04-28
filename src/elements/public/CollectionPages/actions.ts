@@ -1,5 +1,9 @@
-import { Context, Page, SetFirstEvent, SetPagesEvent } from './types';
+import { Context, Page, SetFirstEvent, SetManualEvent, SetPagesEvent } from './types';
 import { DoneInvokeEvent, assign } from 'xstate';
+
+export const setManual = assign<Context, SetManualEvent>({
+  manual: (_, evt) => evt.data,
+});
 
 export const setError = assign<Context, DoneInvokeEvent<Response>>({
   error: (_, evt) => evt.data,

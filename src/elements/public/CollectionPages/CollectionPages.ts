@@ -22,6 +22,7 @@ export class CollectionPages<TPage extends Page> extends LitElement {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      manual: { type: Boolean, reflect: true },
       first: { type: String, noAccessor: true },
       pages: { type: Array, noAccessor: true },
       group: { type: String },
@@ -48,7 +49,7 @@ export class CollectionPages<TPage extends Page> extends LitElement {
       services: {
         observeChildren: () => callback => {
           const observer = new IntersectionObserver(entries => {
-            if (entries.some(entry => entry.isIntersecting)) callback('INTERSECTION');
+            if (entries.some(entry => entry.isIntersecting)) callback('RESUME');
           });
 
           observer.observe(this.renderRoot.children[this.renderRoot.children.length - 1]);
@@ -74,6 +75,8 @@ export class CollectionPages<TPage extends Page> extends LitElement {
       },
     })
   );
+
+  private static __ns = 'collection-pages';
 
   constructor() {
     super();
@@ -141,6 +144,15 @@ export class CollectionPages<TPage extends Page> extends LitElement {
     this.__trackRumour();
   }
 
+  /** If false, will load pages on scroll. If true, will display a button triggering the process. */
+  get manual(): boolean {
+    return this.__service.state.context.manual;
+  }
+
+  set manual(data: boolean) {
+    this.__service.send({ type: 'SET_MANUAL', data });
+  }
+
   /**
    * Checks if this element is in the given state. Available states:
    *
@@ -148,6 +160,8 @@ export class CollectionPages<TPage extends Page> extends LitElement {
    * - `fail` when page load fails;
    * - `idle` when not loading anything for one of the reasons below:
    *   - `paused` if waiting for user to scroll further;
+   *     - `manual` when next page load will be triggered by clicking a button;
+   *     - `auto` when next page load will be triggered by scrolling to the observer target;
    *   - `empty` if collection is empty;
    *   - `end` if there are no more items in a collection.
    *
@@ -172,6 +186,7 @@ export class CollectionPages<TPage extends Page> extends LitElement {
 
   /** @readonly */
   render(): TemplateResult {
+    const ns = (this.constructor as typeof CollectionPages).__ns;
     const items = this.pages.map(page => ({
       key: page._links.self.href,
       href: page._links.self.href,
@@ -200,8 +215,19 @@ export class CollectionPages<TPage extends Page> extends LitElement {
           });
         }
       )}
-      <!-- intersection observer target -->
-      <span></span>
+      ${this.manual
+        ? this.in({ idle: 'paused' })
+          ? html`
+              <!-- manual trigger -->
+              <vaadin-button theme="small contrast" @click=${() => this.__service.send('RESUME')}>
+                <foxy-i18n lang=${this.lang} key="load_more" ns=${ns}></foxy-i18n>
+              </vaadin-button>
+            `
+          : ''
+        : html`
+            <!-- intersection observer target -->
+            <span></span>
+          `}
     `;
   }
 

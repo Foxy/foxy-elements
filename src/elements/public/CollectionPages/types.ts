@@ -11,10 +11,11 @@ export type Context<TPage extends Page = Page> = {
   first: string;
   pages: TPage[];
   error: Response | null;
+  manual: boolean;
 };
 
-export type IntersectionEvent = {
-  type: 'INTERSECTION';
+export type ResumeEvent = {
+  type: 'RESUME';
 };
 
 export type SetPagesEvent<TPage extends Page = Page> = {
@@ -27,10 +28,16 @@ export type SetFirstEvent = {
   data: string;
 };
 
+export type SetManualEvent = {
+  type: 'SET_MANUAL';
+  data: boolean;
+};
+
 export type Event<TPage extends Page = Page> =
   | SetPagesEvent<TPage>
   | SetFirstEvent
-  | IntersectionEvent;
+  | SetManualEvent
+  | ResumeEvent;
 
 export type PageRendererContext<TPage extends Page = Page> = {
   group: string;

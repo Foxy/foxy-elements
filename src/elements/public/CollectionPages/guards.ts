@@ -17,3 +17,7 @@ export const isEmptyArray: Condition<Context, SetPagesEvent> = (_, evt) => {
 export const isLastPage: Condition<Context, DoneInvokeEvent<Page>> = (_, evt) => {
   return evt.data.returned_items < evt.data.limit;
 };
+
+export const isManual: Condition<Context, any> = ctx => {
+  return ctx.manual;
+};

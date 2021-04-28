@@ -55,6 +55,12 @@ export class CustomerPortal extends LitElement {
         .max-w-20rem {
           max-width: 20rem;
         }
+
+        foxy-collection-pages[manual] > vaadin-button {
+          border-top: none;
+          display: block;
+          margin: var(--lumo-space-m) auto;
+        }
       `,
     ];
   }
@@ -452,6 +458,7 @@ export class CustomerPortal extends LitElement {
             </foxy-i18n>
 
             <foxy-collection-pages
+              manual
               class="block space-y-m"
               first=${this.__activeSubscriptionsLink}
               group=${this.group}
@@ -503,6 +510,7 @@ export class CustomerPortal extends LitElement {
 
             <foxy-collection-pages
               spinner="foxy-spinner"
+              manual
               first=${transactionsLink}
               class="block divide-y divide-contrast-10 px-m border border-contrast-10 rounded-t-l rounded-b-l"
               page="foxy-transactions-table"
