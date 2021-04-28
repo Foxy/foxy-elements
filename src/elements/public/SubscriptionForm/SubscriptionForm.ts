@@ -12,7 +12,6 @@ import {
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Calendar } from '../Calendar';
 import { CellContext } from '../Table/types';
-import { ChoiceChangeEvent } from '../../private/events';
 import { FormDialog } from '../FormDialog';
 import { NucleonElement } from '../NucleonElement/index';
 import { PageRendererContext } from '../CollectionPages/types';
@@ -29,6 +28,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
+      'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'x-property-table': PropertyTable,
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'foxy-items-form': customElements.get('foxy-items-form'),
@@ -187,38 +187,56 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         <slot name="after-next-payment-date"></slot>
 
         ${this.__isFrequencyVisible
-          ? html`
-              <x-group frame>
-                <foxy-i18n key="frequency_label" ns=${ns} lang=${this.lang} slot="header">
-                </foxy-i18n>
-
-                <x-choice
-                  default-custom-value="1d"
-                  data-testid="frequency"
-                  type="frequency"
-                  ?custom=${this.settings === null}
-                  .items=${this.__frequencies}
-                  .value=${this.form.frequency ?? null}
+          ? this.settings && this.__frequencies.length > 4
+            ? html`
+                <vaadin-combo-box
+                  item-value-path="value"
+                  item-label-path="label"
                   ?disabled=${!isIdleSnapshot || this.disabled.matches('frequency')}
                   ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('frequency'))}
+                  .items=${this.__frequencies.map(v => ({
+                    label: this.__t(v === '.5m' ? 'twice_a_month' : 'frequency', parseFrequency(v)),
+                    value: v,
+                  }))}
+                  class="w-full"
+                  label=${this.__t('frequency_label').toString()}
+                  value=${ifDefined(this.form.frequency)}
                   @change=${this.__handleFrequencyChange}
                 >
-                  ${this.__frequencies.map(
-                    frequency => html`
-                      <foxy-i18n
-                        data-testclass="i18n"
-                        slot="${frequency}-label"
-                        lang=${this.lang}
-                        key=${frequency === '.5m' ? 'twice_a_month' : 'frequency'}
-                        ns=${ns}
-                        options=${JSON.stringify(parseFrequency(frequency))}
-                      >
-                      </foxy-i18n>
-                    `
-                  )}
-                </x-choice>
-              </x-group>
-            `
+                </vaadin-combo-box>
+              `
+            : html`
+                <x-group frame>
+                  <foxy-i18n key="frequency_label" ns=${ns} lang=${this.lang} slot="header">
+                  </foxy-i18n>
+
+                  <x-choice
+                    default-custom-value="1d"
+                    data-testid="frequency"
+                    type="frequency"
+                    ?custom=${this.settings === null}
+                    .items=${this.__frequencies}
+                    .value=${this.form.frequency ?? null}
+                    ?disabled=${!isIdleSnapshot || this.disabled.matches('frequency')}
+                    ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('frequency'))}
+                    @change=${this.__handleFrequencyChange}
+                  >
+                    ${this.__frequencies.map(
+                      frequency => html`
+                        <foxy-i18n
+                          data-testclass="i18n"
+                          slot="${frequency}-label"
+                          lang=${this.lang}
+                          key=${frequency === '.5m' ? 'twice_a_month' : 'frequency'}
+                          ns=${ns}
+                          options=${JSON.stringify(parseFrequency(frequency))}
+                        >
+                        </foxy-i18n>
+                      `
+                    )}
+                  </x-choice>
+                </x-group>
+              `
           : ''}
 
         <slot name="after-frequency"></slot>
@@ -374,8 +392,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     return this.renderRoot.querySelector('#cancellation-dialog') as FormDialog;
   }
 
-  private __handleFrequencyChange(evt: ChoiceChangeEvent) {
-    this.edit({ frequency: evt.detail as string });
+  private __handleFrequencyChange(evt: Event) {
+    this.edit({ frequency: (evt.target as HTMLInputElement).value });
   }
 
   private __handleNextTransactionDateChange(evt: CustomEvent<unknown>) {
