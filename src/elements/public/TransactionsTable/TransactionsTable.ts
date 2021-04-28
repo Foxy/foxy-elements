@@ -110,6 +110,7 @@ export class TransactionsTable extends Table<Data> {
             key="receipt"
           >
           </foxy-i18n>
+          <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
         </a>
       `;
     },
