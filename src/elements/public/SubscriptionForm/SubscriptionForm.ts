@@ -106,18 +106,83 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         aria-live="polite"
         class="text-body relative space-y-l text-body font-lumo text-m leading-m"
       >
-        <foxy-subscription-card
-          excluded="icon"
-          parent=${this.parent}
-          group=${this.group}
-          class="pb-m border-b-4 border-contrast-5"
-          href=${this.href}
-          lang=${this.lang}
-          ns=${ns}
-        >
-        </foxy-subscription-card>
+        <div class="leading-s">
+          <div class="text-xl font-medium">
+            ${this.data
+              ? this.__memoRenderHeader(
+                  this.lang,
+                  this.data.frequency,
+                  this.data._embedded['fx:last_transaction'].total_order,
+                  this.data._embedded['fx:last_transaction'].currency_code
+                )
+              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
+          </div>
+          <div class="text-secondary">
+            ${this.data
+              ? this.__memoRenderStatus(
+                  this.lang,
+                  this.data.next_transaction_date,
+                  this.data.first_failed_transaction_date,
+                  this.data.end_date
+                )
+              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
+          </div>
+        </div>
 
         <slot name="after-status"></slot>
+
+        ${!this.excluded.matches('items') && this.data
+          ? html`
+              <div>
+                <foxy-items-form
+                  currency=${this.data?._embedded['fx:last_transaction'].currency_code ?? 'usd'}
+                  readonly
+                  class="-mx-l -mb-l -mt-s"
+                  store="unapplicable"
+                  items=${JSON.stringify(formItems)}
+                  lang=${this.lang}
+                >
+                </foxy-items-form>
+                <div class="clear-both"></div>
+              </div>
+            `
+          : ''}
+
+        <slot name="after-items"></slot>
+
+        ${this.__isNextTransactionDateVisible
+          ? html`
+              <x-group frame>
+                <foxy-i18n key="next_transaction_date" ns=${ns} lang=${this.lang} slot="header">
+                </foxy-i18n>
+
+                <foxy-calendar
+                  data-testid="nextPaymentDate"
+                  value=${ifDefined(this.data?.next_transaction_date)}
+                  ?readonly=${!active || this.readonly.matches('next-transaction-date')}
+                  ?disabled=${!isIdleSnapshot || this.disabled.matches('next-transaction-date')}
+                  .start=${new Date(this.data?.next_transaction_date ?? Date.now())}
+                  .checkAvailability=${(date: Date) => {
+                    const isFutureDate = date.getTime() >= Date.now();
+
+                    if (this.settings && this.data) {
+                      return isNextTransactionDate({
+                        value: serializeDate(date),
+                        settings: this.settings,
+                        subscription: this.data,
+                      });
+                    }
+
+                    return isFutureDate;
+                  }}
+                  @change=${this.__handleNextTransactionDateChange}
+                >
+                </foxy-calendar>
+              </x-group>
+            `
+          : ''}
+
+        <slot name="after-next-payment-date"></slot>
 
         ${this.__isFrequencyVisible
           ? html`
@@ -156,40 +221,6 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
         <slot name="after-frequency"></slot>
 
-        ${this.__isNextTransactionDateVisible
-          ? html`
-              <x-group frame>
-                <foxy-i18n key="next_transaction_date" ns=${ns} lang=${this.lang} slot="header">
-                </foxy-i18n>
-
-                <foxy-calendar
-                  data-testid="nextPaymentDate"
-                  value=${ifDefined(this.data?.next_transaction_date)}
-                  ?readonly=${!active || this.readonly.matches('next-transaction-date')}
-                  ?disabled=${!isIdleSnapshot || this.disabled.matches('next-transaction-date')}
-                  .start=${new Date(this.data?.next_transaction_date ?? Date.now())}
-                  .checkAvailability=${(date: Date) => {
-                    const isFutureDate = date.getTime() >= Date.now();
-
-                    if (this.settings && this.data) {
-                      return isNextTransactionDate({
-                        value: serializeDate(date),
-                        settings: this.settings,
-                        subscription: this.data,
-                      });
-                    }
-
-                    return isFutureDate;
-                  }}
-                  @change=${this.__handleNextTransactionDateChange}
-                >
-                </foxy-calendar>
-              </x-group>
-            `
-          : ''}
-
-        <slot name="after-next-payment-date"></slot>
-
         ${!this.excluded.matches('timestamps')
           ? this.__memoRenderTable(
               !this.in({ idle: 'snapshot' }),
@@ -215,36 +246,6 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
           : ''}
 
         <slot name="after-end-button"></slot>
-
-        ${!this.excluded.matches('items') && this.data
-          ? html`
-              <div class="pt-m border-t-4 border-contrast-5">
-                <slot name="items-header">
-                  <foxy-i18n
-                    class="text-l font-medium tracking-wide"
-                    key="item_plural"
-                    ns=${ns}
-                    lang=${this.lang}
-                  >
-                  </foxy-i18n>
-                </slot>
-
-                <div class="-mx-l -mb-l -mt-s">
-                  <foxy-items-form
-                    store="unapplicable"
-                    currency=${this.data?._embedded['fx:last_transaction'].currency_code ?? 'usd'}
-                    lang=${this.lang}
-                    items=${JSON.stringify(formItems)}
-                    readonly
-                  >
-                  </foxy-items-form>
-                  <div class="clear-both"></div>
-                </div>
-              </div>
-            `
-          : ''}
-
-        <slot name="after-items"></slot>
 
         ${!this.excluded.matches('transactions') && this.data
           ? html`
