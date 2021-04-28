@@ -261,8 +261,6 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                       </p>
                     </div>
 
-                    <div><slot name="actions"></slot></div>
-
                     ${!this.excluded.matches('edit-button')
                       ? html`
                           <vaadin-button
@@ -277,6 +275,8 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                           </vaadin-button>
                         `
                       : ''}
+
+                    <slot name="actions"></slot>
                   </div>
 
                   <slot name="after-header"></slot>

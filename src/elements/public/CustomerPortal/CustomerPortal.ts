@@ -441,7 +441,7 @@ export class CustomerPortal extends LitElement {
         @fetch=${this.__handleFetch}
       >
         <vaadin-button
-          class="px-xs rounded-full"
+          class="ml-m px-xs rounded-full"
           theme="icon large"
           slot="actions"
           ?disabled=${!this.__customerElement?.in({ idle: 'snapshot' })}
