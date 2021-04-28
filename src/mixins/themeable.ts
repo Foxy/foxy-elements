@@ -71,6 +71,10 @@ export abstract class Themeable extends ScopedElementsMixin(LitElement) {
         @tailwind utilities;
 
         @layer utilities {
+          .border-radius-overflow-fix {
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+          }
+
           @variants sm, md, lg, xl {
             .grid-rows-auto {
               grid-auto-rows: 1fr;

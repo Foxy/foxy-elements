@@ -342,7 +342,7 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
                   <foxy-payment-method-card
                     data-testclass="i18n"
                     data-testid="paymentMethod"
-                    class="w-payment-method-card rounded-t-l rounded-b-l overflow-hidden"
+                    class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
                     href=${this.data?._links['fx:default_payment_method'].href ?? ''}
                     lang=${this.lang}
                     ?readonly=${this.readonly.matches('payment-method')}
