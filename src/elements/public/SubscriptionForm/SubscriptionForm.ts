@@ -209,7 +209,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         ${!this.excluded.matches('end-button') && !this.data?.end_date
           ? html`
               <vaadin-button
-                theme="primary error"
+                theme="error"
                 class="w-full"
                 ?disabled=${!isIdleSnapshot || this.disabled.matches('end-button')}
                 @click=${(evt: Event) =>
