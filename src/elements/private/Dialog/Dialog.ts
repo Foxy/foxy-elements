@@ -222,8 +222,8 @@ export abstract class Dialog extends LitElement {
                     <vaadin-button
                       data-testid="save-button"
                       ?disabled=${this.disabled.matches('save-button')}
-                      theme="tertiary-inline"
-                      class="ml-auto m-s px-s"
+                      theme="primary"
+                      class="ml-auto h-auto min-h-0 min-w-0 m-xs px-m"
                       @click=${this.save}
                     >
                       <foxy-i18n ns=${this.ns} lang=${this.lang} key="save"></foxy-i18n>
