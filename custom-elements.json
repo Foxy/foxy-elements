@@ -528,7 +528,7 @@
       ]
     },
     {
-      "name": "foxy-calendar",
+      "name": "foxy-internal-calendar",
       "path": "./src/elements/public/Calendar/index.ts",
       "attributes": [
         {

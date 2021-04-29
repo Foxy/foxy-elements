@@ -7,7 +7,7 @@ import '../SubscriptionCancellationForm/index';
 import '../CollectionPages/index';
 import '../FormDialog/index';
 import '../ItemsForm/index';
-import '../Calendar/index';
+import '../../internal/Calendar/index';
 import '../Spinner/index';
 import '../Table/index';
 import '../I18n/index';

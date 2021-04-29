@@ -1,5 +1,5 @@
 import '@vaadin/vaadin-button';
-import '../Calendar/index';
+import '../../internal/Calendar/index';
 import '../Spinner/index';
 import '../I18n/index';
 

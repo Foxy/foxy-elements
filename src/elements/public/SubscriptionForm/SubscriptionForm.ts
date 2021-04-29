@@ -10,7 +10,7 @@ import {
 } from '@foxy.io/sdk/customer';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { Calendar } from '../Calendar';
+import { Calendar } from '../../internal/Calendar';
 import { CellContext } from '../Table/types';
 import { FormDialog } from '../FormDialog';
 import { NucleonElement } from '../NucleonElement/index';
@@ -31,7 +31,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
-      'foxy-calendar': customElements.get('foxy-calendar'),
+      'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'vcf-tooltip': customElements.get('vcf-tooltip'),
@@ -197,7 +197,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                 <foxy-i18n key="next_transaction_date" ns=${ns} lang=${this.lang} slot="header">
                 </foxy-i18n>
 
-                <foxy-calendar
+                <foxy-internal-calendar
                   data-testid="nextPaymentDate"
                   value=${ifDefined(this.data?.next_transaction_date)}
                   ?readonly=${!active || this.readonly.matches('next-transaction-date')}
@@ -218,7 +218,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                   }}
                   @change=${this.__handleNextTransactionDateChange}
                 >
-                </foxy-calendar>
+                </foxy-internal-calendar>
               </x-group>
             `
           : ''}

@@ -1,7 +1,7 @@
 import { CSSResult, CSSResultArray, TemplateResult, html } from 'lit-element';
 import { Group, Warning } from '../../private';
 
-import { Calendar } from '../Calendar/Calendar';
+import { Calendar } from '../../internal/Calendar/Calendar';
 import { Data } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -16,7 +16,7 @@ export class SubscriptionCancellationForm extends ScopedElementsMixin(NucleonEle
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-button': customElements.get('vaadin-button'),
-      'foxy-calendar': customElements.get('foxy-calendar'),
+      'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'x-warning': Warning,
@@ -74,7 +74,7 @@ export class SubscriptionCancellationForm extends ScopedElementsMixin(NucleonEle
                 >
                 </foxy-i18n>
 
-                <foxy-calendar
+                <foxy-internal-calendar
                   .checkAvailability=${(date: Date) => date.getTime() >= tomorrow.getTime()}
                   ?disabled=${!isIdleSnapshot || this.disabled.matches('end-date')}
                   ?readonly=${isCancelled || this.readonly.matches('end-date')}
@@ -82,7 +82,7 @@ export class SubscriptionCancellationForm extends ScopedElementsMixin(NucleonEle
                   lang=${lang}
                   @change=${this.__handleEndDateChange}
                 >
-                </foxy-calendar>
+                </foxy-internal-calendar>
               </x-group>
             `
           : ''}
