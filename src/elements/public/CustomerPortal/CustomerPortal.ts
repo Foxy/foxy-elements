@@ -369,19 +369,18 @@ export class CustomerPortal extends LitElement {
             @fetch=${ctx.handleFetch}
             @update=${ctx.handleUpdate}
           >
-            <div slot="after-status" class="space-x-s">
+            <div slot="after-status" class="space-x-s flex">
               ${
                 !this.excluded.zoom('subscription-form').matches('update-billing-link') &&
                 updateBillingLink.length > 0
                   ? html`
                       <a
-                        target="_blank"
-                        class="inline-block font-medium tracking-wide cursor-pointer text-primary text-s rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
+                        class="flex-auto font-medium tracking-wide cursor-pointer text-primary text-s rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
                         href=${updateBillingLink}
-                        rel="nofollow noreferrer noopener"
+                        rel="nofollow noopener"
                       >
                         <foxy-i18n key="update_billing" lang=${ctx.lang} ns=${ns}></foxy-i18n>
-                        <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                        <iron-icon icon="icons:credit-card" class="icon-inline"></iron-icon>
                       </a>
                     `
                   : ''
@@ -392,13 +391,12 @@ export class CustomerPortal extends LitElement {
                 cancelLink.length > 0
                   ? html`
                       <a
-                        target="_blank"
-                        class="inline-block font-medium tracking-wide cursor-pointer text-primary text-s rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
+                        class="flex-auto text-right font-medium tracking-wide cursor-pointer text-tertiary text-s rounded-s hover-underline focus-outline-none focus-ring-2 focus-ring-tertiary-50 focus-ring-offset-2"
                         href=${cancelLink}
-                        rel="nofollow noreferrer noopener"
+                        rel="nofollow noopener"
                       >
                         <foxy-i18n lang=${ctx.lang} key="end_subscription" ns=${ns}></foxy-i18n>
-                        <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                        <iron-icon icon="icons:block" class="icon-inline"></iron-icon>
                       </a>
                     `
                   : ''
@@ -410,14 +408,13 @@ export class CustomerPortal extends LitElement {
               updateItemsLink.length > 0
                 ? html`
                     <a
-                      target="_blank"
                       class="space-x-xs mt-m font-medium transition duration-150 ease-in-out flex items-center justify-center h-m cursor-pointer text-primary text-m rounded-s bg-contrast-5 hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
                       slot="after-items"
                       href=${updateItemsLink}
-                      rel="nofollow noreferrer noopener"
+                      rel="nofollow noopener"
                     >
                       <foxy-i18n key="update_items" lang=${ctx.lang} ns=${ns}></foxy-i18n>
-                      <iron-icon icon="icons:open-in-new" class="icon-inline"></iron-icon>
+                      <iron-icon icon="icons:shopping-basket" class="icon-inline"></iron-icon>
                     </a>
                   `
                 : ''
