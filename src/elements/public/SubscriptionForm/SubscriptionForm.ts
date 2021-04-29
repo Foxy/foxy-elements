@@ -1,5 +1,5 @@
 import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
-import { Choice, Group, PropertyTable, Skeleton } from '../../private/index';
+import { Choice, Group, Skeleton } from '../../private/index';
 import { Data, Settings } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
@@ -15,6 +15,7 @@ import { CellContext } from '../Table/types';
 import { FormDialog } from '../FormDialog';
 import { NucleonElement } from '../NucleonElement/index';
 import { PageRendererContext } from '../CollectionPages/types';
+import { Preview } from '../ItemsForm/private/Preview';
 import { Themeable } from '../../../mixins/themeable';
 import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 import { Data as TransactionsTableData } from '../TransactionsTable/types';
@@ -29,9 +30,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     return {
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
-      'x-property-table': PropertyTable,
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
-      'foxy-items-form': customElements.get('foxy-items-form'),
       'foxy-calendar': customElements.get('foxy-calendar'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -40,6 +39,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
       'foxy-i18n': customElements.get('foxy-i18n'),
       'iron-icon': customElements.get('iron-icon'),
       'x-skeleton': Skeleton,
+      'x-preview': Preview,
       'x-choice': Choice,
       'x-group': Group,
     };
@@ -68,14 +68,11 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
   private __memoRenderStatus = memoize(this.__renderStatus.bind(this), (...args) => args.join());
 
-  private __memoRenderTable = memoize(this.__renderTable.bind(this), (...args) => args.join());
-
   connectedCallback(): void {
     super.connectedCallback();
-    this.__untrackTranslations = customElements.get('foxy-i18n').onTranslationChange(() => {
-      this.__memoRenderTable.cache.clear?.();
-      this.requestUpdate();
-    });
+    this.__untrackTranslations = customElements
+      .get('foxy-i18n')
+      .onTranslationChange(() => this.requestUpdate());
   }
 
   render(): TemplateResult {
@@ -107,8 +104,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         aria-live="polite"
         class="text-body relative space-y-l text-body font-lumo text-m leading-m"
       >
-        <div class="leading-s">
-          <div class="text-xl font-medium">
+        <div class="leading-xs">
+          <div class="text-xxl font-bold">
             ${this.data
               ? this.__memoRenderHeader(
                   this.lang,
@@ -118,7 +115,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                 )
               : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
           </div>
-          <div>
+          <div class="text-l">
             ${this.data
               ? this.__memoRenderStatus(
                   this.lang,
@@ -135,22 +132,64 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
         ${!this.excluded.matches('items') && this.data
           ? html`
-              <div>
-                <foxy-items-form
-                  currency=${this.data?._embedded['fx:last_transaction'].currency_code ?? 'usd'}
-                  readonly
-                  class="-mx-l -mb-l -mt-s"
-                  store="unapplicable"
-                  items=${JSON.stringify(formItems)}
-                  lang=${this.lang}
-                >
-                </foxy-items-form>
-                <div class="clear-both"></div>
-              </div>
+              <x-group frame>
+                <slot name="items-header" slot="header">
+                  <foxy-i18n key="item_plural" ns=${ns} lang=${this.lang}> </foxy-i18n>
+                </slot>
+
+                <div class="divide-y divide-contrast-10 pl-s">
+                  ${formItems.map(
+                    item => html`
+                      <figure class="flex items-center space-x-m py-s pr-m">
+                        <x-preview class="w-l h-l" .quantity=${item.quantity} .image=${item.image}>
+                        </x-preview>
+
+                        <figcaption class="leading-s flex-1 flex justify-between items-center">
+                          <div class="flex flex-col">
+                            <span class="font-medium">${item.name}</span>
+                            <span class="text-secondary text-s">
+                              ${item.price.toLocaleString(this.lang || 'en', {
+                                style: 'currency',
+                                currency: this.data!._embedded['fx:last_transaction'].currency_code,
+                              })}
+                            </span>
+                          </div>
+
+                          ${item.quantity > 1
+                            ? html`
+                                <div class="px-s h-xs rounded bg-contrast-5 flex items-center">
+                                  <span class="font-tnum text-contrast text-s font-bold">
+                                    ${item.quantity}
+                                  </span>
+                                </div>
+                              `
+                            : ''}
+                        </figcaption>
+                      </figure>
+                    `
+                  )}
+                </div>
+              </x-group>
             `
           : ''}
 
         <slot name="after-items"></slot>
+
+        ${!this.excluded.matches('end-button') && !this.data?.end_date
+          ? html`
+              <vaadin-button
+                theme="error"
+                class="w-full"
+                ?disabled=${!isIdleSnapshot || this.disabled.matches('end-button')}
+                @click=${(evt: Event) =>
+                  this.__cancellationDialog.show(evt.currentTarget as ButtonElement)}
+              >
+                <foxy-i18n key="end_subscription" ns=${ns} lang=${this.lang}></foxy-i18n>
+              </vaadin-button>
+            `
+          : ''}
+
+        <slot name="after-end-button"></slot>
 
         ${this.__isNextTransactionDateVisible
           ? html`
@@ -241,46 +280,15 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
         <slot name="after-frequency"></slot>
 
-        ${!this.excluded.matches('timestamps')
-          ? this.__memoRenderTable(
-              !this.in({ idle: 'snapshot' }),
-              this.data?.date_created ?? '',
-              this.data?.date_modified ?? ''
-            )
-          : ''}
-
-        <slot name="after-timestamps"></slot>
-
-        ${!this.excluded.matches('end-button') && !this.data?.end_date
-          ? html`
-              <vaadin-button
-                theme="error"
-                class="w-full"
-                ?disabled=${!isIdleSnapshot || this.disabled.matches('end-button')}
-                @click=${(evt: Event) =>
-                  this.__cancellationDialog.show(evt.currentTarget as ButtonElement)}
-              >
-                <foxy-i18n key="end_subscription" ns=${ns} lang=${this.lang}></foxy-i18n>
-              </vaadin-button>
-            `
-          : ''}
-
-        <slot name="after-end-button"></slot>
-
         ${!this.excluded.matches('transactions') && this.data
           ? html`
-              <div class="space-y-m pt-m border-t-4 border-contrast-5">
-                <foxy-i18n
-                  class="text-l font-medium tracking-wide"
-                  key="transaction_plural"
-                  ns=${ns}
-                  lang=${this.lang}
-                >
+              <x-group frame>
+                <foxy-i18n lang=${this.lang} slot="header" key="transaction_plural" ns=${ns}>
                 </foxy-i18n>
 
                 <foxy-collection-pages
                   group=${this.group}
-                  class="divide-y divide-contrast-10"
+                  class="block divide-y divide-contrast-10 px-m"
                   first=${this.data?._links['fx:transactions'].href ?? ''}
                   lang=${this.lang}
                   .page=${(ctx: PageRendererContext) => {
@@ -307,7 +315,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                               `;
                             },
                           },
-                          { cell: TransactionsTable.idColumn.cell },
+                          { cell: TransactionsTable.idColumn.cell, hideBelow: 'sm' },
                           { cell: TransactionsTable.dateColumn.cell },
                           { cell: TransactionsTable.receiptColumn.cell },
                         ]}
@@ -317,7 +325,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
                   }}
                 >
                 </foxy-collection-pages>
-              </div>
+              </x-group>
             `
           : ''}
 
@@ -348,7 +356,6 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     this.__untrackTranslations?.();
     this.__memoRenderHeader.cache.clear?.();
     this.__memoRenderStatus.cache.clear?.();
-    this.__memoRenderTable.cache.clear?.();
   }
 
   private get __t() {
@@ -424,7 +431,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
   ) {
     const ns = SubscriptionForm.__ns;
 
-    let color: string;
+    let color = 'text-secondary';
     let date: string;
     let key: string;
 
@@ -436,9 +443,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
       date = endDate;
       const hasEnded = new Date(date).getTime() > Date.now();
       key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
-      color = hasEnded ? 'text-success' : 'text-secondary';
     } else {
-      color = 'text-success';
       date = nextTransactionDate ?? new Date().toISOString();
       key = 'subscription_active';
     }
@@ -465,23 +470,6 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
       <vcf-tooltip for="status" position="bottom">
         <span class="text-s">${errorMessage}</span>
       </vcf-tooltip>
-    `;
-  }
-
-  private __renderTable(disabled: boolean, dateCreated: string, dateModified: string) {
-    const dateCreatedRow = {
-      name: this.__t('date_modified'),
-      value: this.__t('date', { value: dateModified }),
-    };
-
-    const dateModifiedRow = {
-      name: this.__t('date_created'),
-      value: this.__t('date', { value: dateCreated }),
-    };
-
-    return html`
-      <x-property-table ?disabled=${disabled} .items=${[dateCreatedRow, dateModifiedRow]}>
-      </x-property-table>
     `;
   }
 }

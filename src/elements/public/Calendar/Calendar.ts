@@ -80,7 +80,7 @@ export class Calendar extends LitElement {
 
           <span
             class=${classMap({
-              'text-center self-center font-medium tracking-wide': true,
+              'text-center self-center font-medium': true,
               'text-disabled': this.disabled,
             })}
           >
