@@ -11,7 +11,7 @@ export class AddressCard extends NucleonElement<Data> {
       Themeable.styles,
       css`
         :host {
-          --content: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
+          --content: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 4);
           --space: var(--lumo-space-s);
           --label: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
 
@@ -45,15 +45,42 @@ export class AddressCard extends NucleonElement<Data> {
               </foxy-i18n>
             </figcaption>
 
-            <foxy-i18n
-              ns=${ns}
-              key="full_address"
-              lang=${this.lang}
-              class="whitespace-pre-line block text-m flex-1"
-              data-testid="fullAddress"
-              .options=${this.form}
-            >
-            </foxy-i18n>
+            <div>
+              <div class="flex items-center text-m space-x-s">
+                <iron-icon icon="social:person" class="icon-inline flex-shrink-0"></iron-icon>
+                <foxy-i18n
+                  ns=${ns}
+                  key="full_name"
+                  lang=${this.lang}
+                  class="truncate"
+                  options=${JSON.stringify(this.form)}
+                >
+                </foxy-i18n>
+              </div>
+
+              <div class="flex items-center text-m space-x-s">
+                <iron-icon icon="maps:place" class="icon-inline flex-shrink-0"></iron-icon>
+                <foxy-i18n
+                  ns=${ns}
+                  key="full_address"
+                  class="truncate"
+                  lang=${this.lang}
+                  data-testid="fullAddress"
+                  options=${JSON.stringify(this.form)}
+                >
+                </foxy-i18n>
+              </div>
+
+              <div class="flex items-center text-m space-x-s">
+                <iron-icon icon="icons:work" class="icon-inline flex-shrink-0"></iron-icon>
+                <span class="truncate">${this.form.company || '–'}</span>
+              </div>
+
+              <div class="flex items-center text-m space-x-s">
+                <iron-icon icon="maps:local-phone" class="icon-inline flex-shrink-0"></iron-icon>
+                <span class="truncate">${this.form.phone || '–'}</span>
+              </div>
+            </div>
           </figure>
         `
       : html`
