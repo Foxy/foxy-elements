@@ -3,8 +3,10 @@ import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { API } from '../NucleonElement/API';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { Dialog } from '../../private/Dialog/Dialog';
+import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormRenderer } from './types';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
@@ -109,22 +111,45 @@ export class FormDialog extends Dialog {
 
   /** @readonly */
   render(): TemplateResult {
-    return super.render(
-      this.__renderForm?.bind(null, {
-        handleUpdate: this.__handleUpdate,
-        handleFetch: this.__handleFetch,
-        disabled: ifDefined(this.disabled.toAttribute() ?? undefined),
-        readonly: ifDefined(this.readonly.toAttribute() ?? undefined),
-        excluded: ifDefined(this.excluded.toAttribute() ?? undefined),
-        parent: this.parent,
-        href: this.href,
-        lang: this.lang,
-        html,
-      })
-    );
+    return html`
+      <foxy-internal-confirm-dialog
+        message="undo_message"
+        confirm="undo_confirm"
+        cancel="undo_cancel"
+        header="undo_header"
+        theme="error"
+        lang=${this.lang}
+        id="confirm"
+        @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && super.hide(true)}
+      >
+      </foxy-internal-confirm-dialog>
+
+      ${super.render(
+        this.__renderForm?.bind(null, {
+          handleUpdate: this.__handleUpdate,
+          handleFetch: this.__handleFetch,
+          disabled: ifDefined(this.disabled.toAttribute() ?? undefined),
+          readonly: ifDefined(this.readonly.toAttribute() ?? undefined),
+          excluded: ifDefined(this.excluded.toAttribute() ?? undefined),
+          parent: this.parent,
+          href: this.href,
+          lang: this.lang,
+          html,
+        })
+      )}
+    `;
   }
 
-  /** Submits the form and closes the dialog. */
+  async hide(cancelled = false): Promise<void> {
+    if (cancelled) {
+      const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
+      confirm.show();
+    } else {
+      return super.hide(cancelled);
+    }
+  }
+
+  /** Submits the form. */
   async save(): Promise<void> {
     (this.renderRoot.querySelector('#form') as NucleonElement<never>).submit();
   }

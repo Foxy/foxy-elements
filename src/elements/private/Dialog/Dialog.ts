@@ -201,7 +201,7 @@ export abstract class Dialog extends LitElement {
                       theme="tertiary-inline"
                       class="mr-auto m-s px-s"
                       ?disabled=${this.disabled.matches('close-button')}
-                      @click=${this.hide}
+                      @click=${() => this.hide(this.editable)}
                     >
                       <foxy-i18n
                         lang=${this.lang}

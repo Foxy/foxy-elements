@@ -1,4 +1,5 @@
 import '../I18n/index';
+import '../../internal/InternalConfirmDialog/index';
 
 import { FormDialog } from './FormDialog';
 
