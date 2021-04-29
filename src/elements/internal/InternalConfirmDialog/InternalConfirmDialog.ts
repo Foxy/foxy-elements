@@ -1,9 +1,9 @@
 import { TemplateResult, html } from 'lit-html';
 
-import { Dialog } from '../Dialog/Dialog';
+import { Dialog } from '../../private/Dialog/Dialog';
 import { PropertyDeclarations } from 'lit-element';
 
-export class ConfirmDialog extends Dialog {
+export class InternalConfirmDialog extends Dialog {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

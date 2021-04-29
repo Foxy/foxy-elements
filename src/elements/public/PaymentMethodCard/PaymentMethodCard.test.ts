@@ -3,15 +3,15 @@ import './index';
 import { expect, oneEvent } from '@open-wc/testing';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { Dialog } from '../../private/Dialog/Dialog';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { PaymentMethodCard } from './PaymentMethodCard';
 import { Spinner } from '../Spinner/Spinner';
 import { generateTests } from '../NucleonElement/generateTests';
 
 type Refs = {
-  confirm: ConfirmDialog;
+  confirm: InternalConfirmDialog;
   wrapper: HTMLDivElement;
   spinner: Spinner;
   delete: ButtonElement;

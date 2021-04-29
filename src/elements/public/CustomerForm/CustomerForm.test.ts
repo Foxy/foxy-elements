@@ -1,10 +1,10 @@
 import './index';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { CustomerForm } from './CustomerForm';
 import { Data } from '../Customer/types';
 import { Dialog } from '../../private/Dialog/Dialog';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { Spinner } from '../Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
@@ -16,7 +16,7 @@ type Refs = {
   tax_id: TextFieldElement;
   email: TextFieldElement;
   action: ButtonElement;
-  confirm: ConfirmDialog;
+  confirm: InternalConfirmDialog;
   wrapper: HTMLDivElement;
   spinner: Spinner;
 };

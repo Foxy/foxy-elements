@@ -3,9 +3,9 @@ import './index';
 import { AddressForm } from './AddressForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { Dialog } from '../../private/Dialog/Dialog';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { Spinner } from '../Spinner/Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
@@ -26,7 +26,7 @@ type Refs = {
   action: ButtonElement;
   spinner: Spinner;
   wrapper: HTMLDivElement;
-  confirm: ConfirmDialog;
+  confirm: InternalConfirmDialog;
 };
 
 describe('AddressForm', () => {

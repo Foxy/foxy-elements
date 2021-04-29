@@ -3,8 +3,8 @@ import { ComboBoxParams, Data, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTable } from '../../private/index';
@@ -18,10 +18,10 @@ import { regions } from './regions';
 export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-internal-confirm-dialog': InternalConfirmDialog,
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -85,7 +85,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
     const isValid = isTemplateValid || isSnapshotValid;
 
     return html`
-      <x-confirm-dialog
+      <foxy-internal-confirm-dialog
         message="delete_prompt"
         confirm="delete"
         cancel="cancel"
@@ -97,7 +97,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         data-testid="confirm"
         @hide=${this.__handleConfirmHide}
       >
-      </x-confirm-dialog>
+      </foxy-internal-confirm-dialog>
 
       <div
         class="space-y-l font-lumo text-m leading-m text-body relative"
@@ -243,7 +243,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   private __handleActionClick(evt: Event) {
     if (this.in({ idle: 'snapshot' })) {
       const confirm = this.renderRoot.querySelector('#confirm');
-      (confirm as ConfirmDialog).show(evt.currentTarget as HTMLElement);
+      (confirm as InternalConfirmDialog).show(evt.currentTarget as HTMLElement);
     } else {
       this.submit();
     }

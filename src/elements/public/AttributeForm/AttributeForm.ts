@@ -6,9 +6,9 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
@@ -19,10 +19,10 @@ import memoize from 'lodash-es/memoize';
 export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-internal-confirm-dialog': InternalConfirmDialog,
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-text-area': customElements.get('vaadin-text-area'),
       'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
       'vaadin-button': customElements.get('vaadin-button'),
       'x-choice': Choice,
       'x-group': Group,
@@ -71,7 +71,7 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
     const isValid = isTemplateValid || isSnapshotValid;
 
     return html`
-      <x-confirm-dialog
+      <foxy-internal-confirm-dialog
         data-testid="confirm"
         message="delete_prompt"
         confirm="delete"
@@ -83,7 +83,7 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
         id="confirm"
         @hide=${this.__handleConfirmHide}
       >
-      </x-confirm-dialog>
+      </foxy-internal-confirm-dialog>
 
       <div class="relative" aria-busy=${this.in('busy')} aria-live="polite">
         <div class="grid grid-cols-1 gap-l">
@@ -224,8 +224,8 @@ export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
     this.__getValidator.cache.clear?.();
   }
 
-  private get __confirmDialog(): ConfirmDialog {
-    return this.renderRoot.querySelector('#confirm') as ConfirmDialog;
+  private get __confirmDialog(): InternalConfirmDialog {
+    return this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
   }
 
   private get __t() {

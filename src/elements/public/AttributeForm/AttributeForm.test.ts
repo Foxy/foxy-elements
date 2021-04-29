@@ -1,10 +1,11 @@
 import './index';
 
-import { Choice, ConfirmDialog, Dialog } from '../../private';
+import { Choice, Dialog } from '../../private';
 
 import { AttributeForm } from './AttributeForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Data } from './types';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { Spinner } from '../Spinner/Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
@@ -16,7 +17,7 @@ type Refs = {
   spinner: Spinner;
   delete: ButtonElement;
   create: ButtonElement;
-  confirm: ConfirmDialog;
+  confirm: InternalConfirmDialog;
   visibility: Choice;
 };
 

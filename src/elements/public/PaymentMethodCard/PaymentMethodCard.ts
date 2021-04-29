@@ -5,9 +5,9 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/index';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
@@ -16,7 +16,7 @@ import { classMap } from '../../../utils/class-map';
 export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-confirm-dialog': ConfirmDialog,
+      'foxy-internal-confirm-dialog': InternalConfirmDialog,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
@@ -87,7 +87,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
     return html`
       ${this.readonly === BooleanSelector.False
         ? html`
-            <x-confirm-dialog
+            <foxy-internal-confirm-dialog
               message="delete_prompt"
               confirm="delete"
               cancel="cancel"
@@ -99,7 +99,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
               data-testid="confirm"
               @hide=${this.__handleConfirmHide}
             >
-            </x-confirm-dialog>
+            </foxy-internal-confirm-dialog>
           `
         : ''}
 
@@ -166,7 +166,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
 
   private __handleDelete(evt: Event) {
     const confirm = this.renderRoot.querySelector('#confirm');
-    (confirm as ConfirmDialog).show(evt.currentTarget as HTMLElement);
+    (confirm as InternalConfirmDialog).show(evt.currentTarget as HTMLElement);
   }
 
   private __handleConfirmHide(evt: DialogHideEvent) {
