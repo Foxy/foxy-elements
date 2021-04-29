@@ -94,7 +94,8 @@ export abstract class Dialog extends LitElement {
   private __returnFocusTo?: HTMLElement;
 
   private __handleKeyDown = (evt: KeyboardEvent) => {
-    if (evt.key === 'Escape' && Dialog.openDialogs[0] === this && this.closable) this.hide();
+    if (evt.key === 'Escape' && Dialog.openDialogs[0] === this && this.closable)
+      this.hide(this.editable);
   };
 
   private __connected = false;
@@ -107,7 +108,7 @@ export abstract class Dialog extends LitElement {
   }
 
   set open(newValue: boolean) {
-    newValue === this.open ? void 0 : newValue ? this.show() : this.hide();
+    newValue === this.open ? void 0 : newValue ? this.show() : this.hide(this.editable);
   }
 
   /** @readonly */
@@ -165,7 +166,7 @@ export abstract class Dialog extends LitElement {
             'opacity-0': !this.__visible,
           })}
           tabindex="-1"
-          @click=${() => (this.open = this.closable ? false : this.open)}
+          @click=${() => this.hide(this.editable)}
         ></div>
 
         <div
