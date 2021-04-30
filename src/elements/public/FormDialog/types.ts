@@ -1,13 +1,14 @@
-import { Part, TemplateResult, html } from 'lit-html';
+import { html, TemplateResult } from 'lit-html';
+import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
 
 export type FormRendererContext = {
   html: typeof html;
   href: string;
   lang: string;
   parent: string;
-  readonly: (part: Part) => void;
-  disabled: (part: Part) => void;
-  excluded: (part: Part) => void;
+  readonly: ReturnType<typeof booleanSelectorOf>;
+  disabled: ReturnType<typeof booleanSelectorOf>;
+  excluded: ReturnType<typeof booleanSelectorOf>;
   handleFetch: (evt: Event) => void;
   handleUpdate: (evt: Event) => void;
 };

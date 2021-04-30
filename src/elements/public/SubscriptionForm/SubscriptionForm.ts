@@ -1,29 +1,29 @@
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
-import { Choice, Group, Skeleton } from '../../private/index';
-import { Data, Settings } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
   isNextTransactionDate,
 } from '@foxy.io/sdk/customer';
-
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { Calendar } from '../../internal/Calendar';
-import { CellContext } from '../Table/types';
-import { FormDialog } from '../FormDialog';
-import { NucleonElement } from '../NucleonElement/index';
-import { PageRendererContext } from '../CollectionPages/types';
-import { Preview } from '../ItemsForm/private/Preview';
-import { Themeable } from '../../../mixins/themeable';
-import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
-import { Data as TransactionsTableData } from '../TransactionsTable/types';
-import { classMap } from '../../../utils/class-map';
+import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
+import { html, TemplateResult } from 'lit-html';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
+import { Themeable } from '../../../mixins/themeable';
+import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
+import { classMap } from '../../../utils/class-map';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { serializeDate } from '../../../utils/serialize-date';
+import { Calendar } from '../../internal/Calendar';
+import { Choice, Group, Skeleton } from '../../private/index';
+import { PageRendererContext } from '../CollectionPages/types';
+import { FormDialog } from '../FormDialog';
+import { Preview } from '../ItemsForm/private/Preview';
+import { NucleonElement } from '../NucleonElement/index';
+import { CellContext } from '../Table/types';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
+import { Data as TransactionsTableData } from '../TransactionsTable/types';
+import { Data, Settings } from './types';
 
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -84,8 +84,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
 
     return html`
       <foxy-form-dialog
-        readonly=${ifDefined(this.readonly.zoom('cancellation-dialog').toAttribute() ?? undefined)}
-        disabled=${ifDefined(this.disabled.zoom('cancellation-dialog').toAttribute() ?? undefined)}
+        readonly=${booleanSelectorOf(this.readonly, 'cancellation-dialog')}
+        disabled=${booleanSelectorOf(this.disabled, 'cancellation-dialog')}
         excluded="save-button ${this.excluded.zoom('cancellation-dialog').toString()}"
         parent=${this.parent}
         header="end_subscription"

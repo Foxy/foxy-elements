@@ -17,6 +17,7 @@ import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { styles } from './styles';
+import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
 
 type CustomerAddresses = Core.Resource<Backend.Rels.CustomerAddresses>;
 type Attributes = Core.Resource<Backend.Rels.Attributes>;
@@ -187,9 +188,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="attribute-dialog"
-        readonly=${ifDefined(this.readonly.zoom('attribute-form').toAttribute() ?? undefined)}
-        disabled=${ifDefined(this.disabled.zoom('attribute-form').toAttribute() ?? undefined)}
-        excluded=${ifDefined(this.excluded.zoom('attribute-form').toAttribute() ?? undefined)}
+        readonly=${booleanSelectorOf(this.readonly, 'attribute-form')}
+        disabled=${booleanSelectorOf(this.disabled, 'attribute-form')}
+        excluded=${booleanSelectorOf(this.excluded, 'attribute-form')}
       >
       </foxy-form-dialog>
 
@@ -201,9 +202,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="address-dialog"
-        readonly=${ifDefined(this.readonly.zoom('address-form').toAttribute() ?? undefined)}
-        disabled=${ifDefined(this.disabled.zoom('address-form').toAttribute() ?? undefined)}
-        excluded=${ifDefined(this.excluded.zoom('address-form').toAttribute() ?? undefined)}
+        readonly=${booleanSelectorOf(this.readonly, 'address-form')}
+        disabled=${booleanSelectorOf(this.disabled, 'address-form')}
+        excluded=${booleanSelectorOf(this.excluded, 'address-form')}
       >
       </foxy-form-dialog>
 
@@ -216,9 +217,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="customer-dialog"
-        readonly=${ifDefined(this.readonly.zoom('customer-form').toAttribute() ?? undefined)}
-        disabled=${ifDefined(this.disabled.zoom('customer-form').toAttribute() ?? undefined)}
-        excluded=${ifDefined(this.excluded.zoom('customer-form').toAttribute() ?? undefined)}
+        readonly=${booleanSelectorOf(this.readonly, 'customer-form')}
+        disabled=${booleanSelectorOf(this.disabled, 'customer-form')}
+        excluded=${booleanSelectorOf(this.excluded, 'customer-form')}
       >
       </foxy-form-dialog>
 
@@ -230,9 +231,9 @@ export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
         lang=${this.lang}
         ns=${ns}
         id="subscription-dialog"
-        readonly=${ifDefined(this.readonly.zoom('subscription-form').toAttribute() ?? undefined)}
-        disabled=${ifDefined(this.disabled.zoom('subscription-form').toAttribute() ?? undefined)}
-        excluded=${ifDefined(this.excluded.zoom('subscription-form').toAttribute() ?? undefined)}
+        readonly=${booleanSelectorOf(this.readonly, 'subscription-form')}
+        disabled=${booleanSelectorOf(this.disabled, 'subscription-form')}
+        excluded=${booleanSelectorOf(this.excluded, 'subscription-form')}
       >
       </foxy-form-dialog>
 

@@ -1,30 +1,29 @@
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import {
+  css,
   CSSResult,
   CSSResultArray,
+  html,
   LitElement,
   PropertyDeclarations,
   TemplateResult,
-  css,
-  html,
 } from 'lit-element';
-import { Settings, State, machine } from './machine';
-
-import { API } from '../NucleonElement/API';
-import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
-import { BooleanSelector } from '@foxy.io/sdk/core';
-import { ComputedElementProperties } from './types';
-import { Customer } from '../Customer/Customer';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { FormDialog } from '../FormDialog/FormDialog';
-import { FormRendererContext } from '../FormDialog/types';
-import { ItemRendererContext } from '../CollectionPage/types';
-import { PageRendererContext } from '../CollectionPages/types';
-import { SignInForm } from '../SignInForm/SignInForm';
+import { interpret } from 'xstate';
 import { Themeable } from '../../../mixins/themeable';
+import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
 import { classMap } from '../../../utils/class-map';
 import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { interpret } from 'xstate';
+import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
+import { ItemRendererContext } from '../CollectionPage/types';
+import { PageRendererContext } from '../CollectionPages/types';
+import { Customer } from '../Customer/Customer';
+import { FormDialog } from '../FormDialog/FormDialog';
+import { FormRendererContext } from '../FormDialog/types';
+import { API } from '../NucleonElement/API';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { SignInForm } from '../SignInForm/SignInForm';
+import { machine, Settings, State } from './machine';
+import { ComputedElementProperties } from './types';
 
 export class CustomerPortal extends LitElement {
   /** @readonly */
@@ -353,9 +352,9 @@ export class CustomerPortal extends LitElement {
         lang=${this.lang}
         ns=${CustomerPortal.__ns}
         id="subscription-dialog"
-        readonly=${ifDefined(this.readonly.zoom('subscription-form').toAttribute() ?? undefined)}
-        disabled=${ifDefined(this.disabled.zoom('subscription-form').toAttribute() ?? undefined)}
-        excluded=${ifDefined(this.excluded.zoom('subscription-form').toAttribute() ?? undefined)}
+        readonly=${booleanSelectorOf(this.readonly, 'subscription-form')}
+        disabled=${booleanSelectorOf(this.disabled, 'subscription-form')}
+        excluded=${booleanSelectorOf(this.excluded, 'subscription-form')}
         .form=${(ctx: FormRendererContext) => ctx.html`
           <foxy-subscription-form
             id="form"
@@ -430,9 +429,9 @@ export class CustomerPortal extends LitElement {
         id="customer"
         lang=${this.lang}
         href=${this.href}
-        excluded=${ifDefined(this.excluded.toAttribute() ?? undefined)}
-        readonly=${ifDefined(this.readonly.toAttribute() ?? undefined)}
-        disabled=${ifDefined(this.disabled.toAttribute() ?? undefined)}
+        excluded=${booleanSelectorOf(this.excluded)}
+        readonly=${booleanSelectorOf(this.readonly)}
+        disabled=${booleanSelectorOf(this.disabled)}
         @update=${this.__handleUpdate}
         @fetch=${this.__handleFetch}
       >

@@ -1,16 +1,15 @@
-import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
-
-import { API } from '../NucleonElement/API';
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
+import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { Dialog } from '../../private/Dialog/Dialog';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { API } from '../NucleonElement/API';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { FormRenderer } from './types';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
-import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import { FormRenderer } from './types';
 
 /**
  * Dialog wrapper for the forms made with NucleonElement.
@@ -128,9 +127,9 @@ export class FormDialog extends Dialog {
         this.__renderForm?.bind(null, {
           handleUpdate: this.__handleUpdate,
           handleFetch: this.__handleFetch,
-          disabled: ifDefined(this.disabled.toAttribute() ?? undefined),
-          readonly: ifDefined(this.readonly.toAttribute() ?? undefined),
-          excluded: ifDefined(this.excluded.toAttribute() ?? undefined),
+          disabled: booleanSelectorOf(this.disabled),
+          readonly: booleanSelectorOf(this.readonly),
+          excluded: booleanSelectorOf(this.excluded),
           parent: this.parent,
           href: this.href,
           lang: this.lang,
