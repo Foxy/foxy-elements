@@ -96,6 +96,21 @@
       "date_modified": "2013-08-16T14:53:46-0700"
     }
   ],
+  "error_entries": [
+    {
+      "url": "https://api-sandbox.foxycart.com/api_rest.php",
+      "error_message": "DataFeed Failed: (2) 2012-08-10 12:12:49 No data returned for  [0]\n malformed",
+      "user_agent": "curl/7.21.3 (i386-pc-win32) libcurl/7.21.3 OpenSSL/0.9.8q zlib/1.2.5",
+      "referer": "",
+      "ip_address": "10.1.249.103",
+      "ip_country": "",
+      "post_values": "",
+      "get_values": "",
+      "hide_error": false,
+      "date_created": "2012-08-10T12:12:49-0700",
+      "date_modified": null
+    }
+  ],
   "payment_methods": [
     {
       "id": 0,
