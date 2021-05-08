@@ -18,6 +18,8 @@ export class DemoDatabase extends Dexie {
 
   customerAddresses: Dexie.Table<any, number>;
 
+  errorEntries: Dexie.Table<any, number>;
+
   paymentMethods: Dexie.Table<any, number>;
 
   subscriptions: Dexie.Table<any, number>;
@@ -38,6 +40,7 @@ export class DemoDatabase extends Dexie {
     this.version(1).stores({
       customer_attributes: '++id,customer',
       customer_addresses: '++id,customer',
+      error_entries: '++id',
       payment_methods: '++id,customer',
       subscriptions: '++id,store,customer',
       transactions: '++id,store,customer,subscription',
@@ -49,6 +52,7 @@ export class DemoDatabase extends Dexie {
 
     this.customerAttributes = this.table('customer_attributes');
     this.customerAddresses = this.table('customer_addresses');
+    this.errorEntries = this.table('error_entries');
     this.paymentMethods = this.table('payment_methods');
     this.subscriptions = this.table('subscriptions');
     this.transactions = this.table('transactions');
