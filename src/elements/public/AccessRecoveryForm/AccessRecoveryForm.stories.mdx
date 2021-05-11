@@ -1,5 +1,5 @@
-import dedent from 'dedent';
 import { html } from 'lit-html';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 import {
   Subtitle,
@@ -12,17 +12,74 @@ import {
 import './index.ts';
 import '../CustomerApi/index.ts';
 
-<Meta title="Forms / AccessRecoveryForm" />
+<Meta
+  title="Forms / AccessRecoveryForm"
+  argTypes={{
+    readonlycontrols: {
+      control: {
+        type: 'check',
+        options: ['email', 'submit'],
+      },
+    },
+    disabledcontrols: {
+      control: {
+        type: 'check',
+        options: ['email', 'submit'],
+      },
+    },
+    hiddencontrols: {
+      control: {
+        type: 'check',
+        options: ['email', 'message', 'submit'],
+      },
+    },
+    lang: {
+      control: {
+        type: 'select',
+        options: ['en', 'es'],
+      },
+    },
+  }}
+/>
 
 # AccessRecoveryForm
 
 <Subtitle>Email-based "forgot password" form</Subtitle>
 
-<Canvas mdxSource={dedent`<foxy-access-recovery-form></foxy-access-recovery-form>`} isExpanded>
-  <Story name="Playground">
-    {() => html`
+<Canvas
+  mdxSource={`<foxy-access-recovery-form parent="foxy://auth/recover"></foxy-access-recovery-form>`}
+  isExpanded
+>
+  <Story
+    name="Playground"
+    args={{
+      readonlycontrols: [],
+      disabledcontrols: [],
+      hiddencontrols: [],
+      readonly: false,
+      disabled: false,
+      lang: 'en',
+      href: '',
+      parent: 'foxy://auth/recover',
+      'email:before': '',
+      'email:after': '',
+      'message:before': '',
+      'message:after': '',
+      'submit:before': '',
+      'submit:after': '',
+    }}
+  >
+    {args => html`
       <foxy-access-recovery-form
+        disabledcontrols=${args.disabledcontrols.join(' ')}
+        readonlycontrols=${args.readonlycontrols.join(' ')}
+        hiddencontrols=${args.hiddencontrols.join(' ')}
+        ?disabled=${args.disabled}
+        ?readonly=${args.readonly}
+        parent=${args.parent}
         class="container-narrow"
+        href=${args.href}
+        lang=${args.lang}
         @fetch=${evt =>
           evt.respondWith(
             new Promise(resolve =>
@@ -30,6 +87,12 @@ import '../CustomerApi/index.ts';
             )
           )}
       >
+        <div slot="email:before">${unsafeHTML(args['email:before'])}</div>
+        <div slot="email:after">${unsafeHTML(args['email:after'])}</div>
+        <div slot="message:before">${unsafeHTML(args['message:before'])}</div>
+        <div slot="message:after">${unsafeHTML(args['message:after'])}</div>
+        <div slot="submit:before">${unsafeHTML(args['submit:before'])}</div>
+        <div slot="submit:after">${unsafeHTML(args['submit:after'])}</div>
       </foxy-access-recovery-form>
     `}
   </Story>
@@ -81,24 +144,15 @@ For the use case outlined above, you can also just wrap this form into `foxy-cus
 
 ```html
 <foxy-customer-api base="https://my.store.domain/s/customer/">
-  <foxy-access-recovery-form></foxy-access-recovery-form>
+  <foxy-access-recovery-form parent="https://my.store.domain/s/customer/forgot_password">
+  </foxy-access-recovery-form>
 </foxy-customer-api>
 ```
 
 ### i18next
 
-This element supports the following namespaces: `sign-in-form`, `shared`.
+This element supports the following namespaces: `access-recovery-form`, `shared`.
 
 ### Theming
 
 Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
-
-<Story name="Code 500" parameters={{ docs: { disable: true } }}>
-  {() => html`
-    <foxy-access-recovery-form
-      email="foo@example.com"
-      @fetch=${evt => evt.respondWith(Promise.resolve(new Response(null, { status: 500 })))}
-    >
-    </foxy-access-recovery-form>
-  `}
-</Story>

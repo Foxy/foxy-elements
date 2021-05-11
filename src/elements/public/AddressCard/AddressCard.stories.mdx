@@ -1,13 +1,36 @@
 import dedent from 'dedent';
 import { html } from 'lit-html';
-import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import {
+  Subtitle,
+  ArgsTable,
+  Story,
+  Canvas,
+  Meta,
+} from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import './index.ts';
 
-<Meta title="Cards / AddressCard" />
+<Meta
+  title="Cards / AddressCard"
+  argTypes={{
+    hiddencontrols: {
+      control: {
+        type: 'check',
+        options: ['address-name', 'full-name', 'full-address', 'company', 'phone'],
+      },
+    },
+    lang: {
+      control: {
+        type: 'select',
+        options: ['en', 'es'],
+      },
+    },
+  }}
+/>
 
 # AddressCard
 
-<Subtitle>Form element for creating or editing customer addresses</Subtitle>
+<Subtitle>Card element displaying a customer address</Subtitle>
 
 <Canvas
   mdxSource={dedent`
@@ -19,14 +42,44 @@ import './index.ts';
   `}
   isExpanded
 >
-  <Story name="Playground">
-    {() =>
+  <Story
+    name="Playground"
+    args={{
+      hiddencontrols: [],
+      lang: 'en',
+      href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
+      parent: 'https://demo.foxycart.com/s/admin/customers/0/customer_addresses',
+      'address-name:before': '',
+      'address-name:after': '',
+      'full-name:before': '',
+      'full-name:after': '',
+      'full-address:before': '',
+      'full-address:after': '',
+      'company:before': '',
+      'company:after': '',
+      'phone:before': '',
+      'phone:after': '',
+    }}
+  >
+    {args =>
       html`
         <foxy-address-card
-          parent="https://demo.foxycart.com/s/admin/customers/0/customer_addresses"
-          href="https://demo.foxycart.com/s/admin/customer_addresses/0"
+          hiddencontrols=${args.hiddencontrols.join(' ')}
+          parent=${args.parent}
           class="box-content w-64 p-4 rounded-lg border"
+          href=${args.href}
+          lang=${args.lang}
         >
+          <div slot="address-name:before">${unsafeHTML(args['address-name:before'])}</div>
+          <div slot="address-name:after">${unsafeHTML(args['address-name:after'])}</div>
+          <div slot="full-name:before">${unsafeHTML(args['full-name:before'])}</div>
+          <div slot="full-name:after">${unsafeHTML(args['full-name:after'])}</div>
+          <div slot="full-address:before">${unsafeHTML(args['full-address:before'])}</div>
+          <div slot="full-address:after">${unsafeHTML(args['full-address:after'])}</div>
+          <div slot="company:before">${unsafeHTML(args['company:before'])}</div>
+          <div slot="company:after">${unsafeHTML(args['company:after'])}</div>
+          <div slot="phone:before">${unsafeHTML(args['phone:before'])}</div>
+          <div slot="phone:after">${unsafeHTML(args['phone:after'])}</div>
         </foxy-address-card>
       `
     }

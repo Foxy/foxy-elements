@@ -1,15 +1,13 @@
-import { BooleanSelector } from '@foxy.io/sdk/core';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
-import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+
+import { API } from '../NucleonElement/API';
 import { Dialog } from '../../private/Dialog/Dialog';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { API } from '../NucleonElement/API';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { FormRenderer } from './types';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
-import { FormRenderer } from './types';
 
 /**
  * Dialog wrapper for the forms made with NucleonElement.
@@ -25,7 +23,6 @@ export class FormDialog extends Dialog {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      ...createBooleanSelectorProperty('readonly'),
       href: { type: String },
       form: { type: String, noAccessor: true },
       parent: { type: String },
@@ -37,8 +34,6 @@ export class FormDialog extends Dialog {
 
   /** Optional URL of the resource to load (passed to form). */
   href = '';
-
-  readonly = BooleanSelector.False;
 
   private __form: string | null | FormRenderer = null;
 
@@ -89,12 +84,15 @@ export class FormDialog extends Dialog {
         `return options.html\`
           <${value}
             id="form"
-            href=\${options.href}
-            lang=\${options.lang}
-            parent=\${options.parent}
-            disabled=\${options.disabled}
-            readonly=\${options.readonly}
-            excluded=\${options.excluded}
+            href=\${options.dialog.href}
+            lang=\${options.dialog.lang}
+            parent=\${options.dialog.parent}
+            disabledcontrols=\${options.dialog.disabledControls.toString()}
+            readonlycontrols=\${options.dialog.readonlyControls.toString()}
+            hiddencontrols=\${options.dialog.hiddenControls.toString()}
+            ?disabled=\${options.dialog.disabled}
+            ?readonly=\${options.dialog.readonly}
+            ?hidden=\${options.dialog.hidden}
             @fetch=\${options.handleFetch}
             @update=\${options.handleUpdate}
           >
@@ -127,12 +125,7 @@ export class FormDialog extends Dialog {
         this.__renderForm?.bind(null, {
           handleUpdate: this.__handleUpdate,
           handleFetch: this.__handleFetch,
-          disabled: booleanSelectorOf(this.disabled),
-          readonly: booleanSelectorOf(this.readonly),
-          excluded: booleanSelectorOf(this.excluded),
-          parent: this.parent,
-          href: this.href,
-          lang: this.lang,
+          dialog: this,
           html,
         })
       )}

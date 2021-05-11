@@ -1,14 +1,10 @@
-import { html, TemplateResult } from 'lit-html';
-import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
+import { TemplateResult, html } from 'lit-html';
+
+import { FormDialog } from '.';
 
 export type FormRendererContext = {
   html: typeof html;
-  href: string;
-  lang: string;
-  parent: string;
-  readonly: ReturnType<typeof booleanSelectorOf>;
-  disabled: ReturnType<typeof booleanSelectorOf>;
-  excluded: ReturnType<typeof booleanSelectorOf>;
+  dialog: FormDialog;
   handleFetch: (evt: Event) => void;
   handleUpdate: (evt: Event) => void;
 };

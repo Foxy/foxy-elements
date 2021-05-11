@@ -1,5 +1,7 @@
 import { TemplateResult, html } from 'lit-html';
 
+import { BooleanSelector } from '@foxy.io/sdk/core';
+
 export type Page = {
   _links: { next: { href: string }; self: { href: string } };
   returned_items: number;
@@ -40,6 +42,12 @@ export type Event<TPage extends Page = Page> =
   | ResumeEvent;
 
 export type PageRendererContext<TPage extends Page = Page> = {
+  readonlyControls: BooleanSelector;
+  disabledControls: BooleanSelector;
+  hiddenControls: BooleanSelector;
+  readonly: boolean;
+  disabled: boolean;
+  hidden: boolean;
   group: string;
   html: typeof html;
   href: string;

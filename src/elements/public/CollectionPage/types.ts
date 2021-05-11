@@ -1,11 +1,18 @@
 import { TemplateResult, html } from 'lit-html';
 
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { HALJSONResource } from '../NucleonElement/types';
 
 export type Page = HALJSONResource & { _embedded: Record<string, HALJSONResource[]> };
 export type ExtractItem<T> = T extends { _embedded: Record<string, (infer U)[]> } ? U : never;
 
 export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource> = {
+  readonlyControls: BooleanSelector;
+  disabledControls: BooleanSelector;
+  hiddenControls: BooleanSelector;
+  readonly: boolean;
+  disabled: boolean;
+  hidden: boolean;
   parent: string;
   group: string;
   html: typeof html;

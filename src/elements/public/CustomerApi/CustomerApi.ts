@@ -39,22 +39,30 @@ export class CustomerApi extends LitElement {
     if (evt.eventPhase === evt.AT_TARGET) return;
 
     const getResponse = async () => {
+      console.log(evt.request);
       if (evt.request.url === 'foxy://auth/session') {
         try {
           if (evt.request.method === 'DELETE') {
             await this.api.signOut();
             this.dispatchEvent(new CustomerApi.SignOutEvent('signout'));
+            return new Response();
           }
 
           if (evt.request.method === 'POST') {
             const payload = await evt.request.clone().json();
+
             if (payload.type === 'password') {
               await this.api.signIn(payload.credential);
               this.dispatchEvent(new CustomerApi.SignInEvent('signin'));
             }
-          }
 
-          return new Response(null, { status: 200 });
+            return new Response(
+              JSON.stringify({
+                _links: { self: { href: evt.request.url } },
+                ...payload,
+              })
+            );
+          }
         } catch (err) {
           const status = err instanceof API.AuthError && err.code === 'UNAUTHORIZED' ? 401 : 500;
           return new Response(null, { status });
@@ -65,13 +73,22 @@ export class CustomerApi extends LitElement {
         try {
           if (evt.request.method === 'POST') {
             const payload = await evt.request.clone().json();
-            if (payload.type === 'email') await this.api.sendPasswordResetEmail(payload.detail);
-          }
 
-          return new Response(null, { status: 200 });
-        } catch (err) {
-          return new Response(null, { status: 500 });
+            if (payload.type === 'email') {
+              await this.api.sendPasswordResetEmail(payload.detail);
+              return new Response(
+                JSON.stringify({
+                  _links: { self: { href: evt.request.url } },
+                  email: payload.email,
+                })
+              );
+            }
+          }
+        } catch {
+          //
         }
+
+        return new Response(null, { status: 500 });
       }
 
       const response = await this.api.fetch(evt.request);

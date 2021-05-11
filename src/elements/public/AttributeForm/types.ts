@@ -1,4 +1,5 @@
-import * as FoxySDK from '@foxy.io/sdk';
+import { Rels } from '@foxy.io/sdk/customer';
+import { Resource } from '@foxy.io/sdk/core';
 
-export type Rel = FoxySDK.Backend.Rels.Attribute;
-export type Data = FoxySDK.Core.Resource<Rel, undefined>;
+export type Data = Resource<Rels.Attribute>;
+export type TextFieldParams = { field: keyof Data };

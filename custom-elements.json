@@ -4,8 +4,41 @@
     {
       "name": "foxy-access-recovery-form",
       "path": "./src/elements/public/AccessRecoveryForm/index.ts",
-      "description": "Email-based \"forgot password\" form.",
+      "description": "Email-based \"forgot password\" form.\n\nConfigurable controls:\n\n- `email`\n- `message`\n- `submit`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -13,23 +46,102 @@
           "default": "\"\""
         },
         {
-          "name": "email",
-          "description": "User email. Value of this property is bound to the form field.",
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         }
       ],
       "properties": [
         {
-          "name": "API",
-          "description": "API class constructor used by the instances of this class.",
-          "type": "typeof API",
-          "default": "\"API\""
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
         },
         {
           "name": "UpdateEvent",
-          "type": "typeof (Anonymous class)",
-          "default": "\"class extends CustomEvent<void> {}\""
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
         },
         {
           "name": "lang",
@@ -39,42 +151,113 @@
           "default": "\"\""
         },
         {
-          "name": "email",
-          "attribute": "email",
-          "description": "User email. Value of this property is bound to the form field.",
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "description": "Makes the entire form or a part of it readonly. Customizable parts: `email`.",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
-          "name": "disabled",
-          "description": "Disables the entire form or a part of it. Customizable parts: `email` and `submit`.",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
         },
         {
-          "name": "excluded",
-          "description": "Hides the entire form or a part of it. Customizable parts: `email`, `submit`, `error` and `spinner`.",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         }
       ],
       "events": [
         {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
           "name": "fetch",
-          "description": "Instance of `AccessRecoveryForm.API.FetchEvent`. Emitted before each API request."
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "email:before"
+        },
+        {
+          "name": "email:after"
+        },
+        {
+          "name": "message:before"
+        },
+        {
+          "name": "message:after"
+        },
+        {
+          "name": "submit:before"
+        },
+        {
+          "name": "submit:after"
         }
       ]
     },
     {
       "name": "foxy-address-card",
       "path": "./src/elements/public/AddressCard/index.ts",
+      "description": "Card element displaying a customer address.\n\nConfigurable controls **(new in v1.4.0)**:\n\n- `address-name`\n- `full-name`\n- `full-address`\n- `company`\n- `phone`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -99,6 +282,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -132,19 +377,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -182,13 +416,89 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "address-name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "address-name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "full-name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "full-name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "full-address:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "full-address:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "company:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "company:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "phone:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "phone:after",
+          "description": "**new in v1.4.0**"
         }
       ]
     },
     {
       "name": "foxy-address-form",
       "path": "./src/elements/public/AddressForm/index.ts",
+      "description": "Basic form displaying customer address.\n\nConfigurable controls **(new in v1.4.0)**:\n\n- `address-name`\n- `first-name`\n- `last-name`\n- `region`\n- `city`\n- `phone`\n- `company`\n- `address-line-one`\n- `address-line-two`\n- `postal-code`\n- `timestamps`\n- `delete`\n- `create`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -213,6 +523,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -246,19 +618,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -296,13 +657,153 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "address-name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "address-name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "first-name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "first-name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "last-name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "last-name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "region:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "region:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "city:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "city:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "phone:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "phone:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "company:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "company:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "address-line-one:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "address-line-one:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "address-line-two:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "address-line-two:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "postal-code:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "postal-code:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "timestamps:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "timestamps:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "create:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "create:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "delete:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "delete:after",
+          "description": "**new in v1.4.0**"
         }
       ]
     },
     {
       "name": "foxy-attribute-card",
       "path": "./src/elements/public/AttributeCard/index.ts",
+      "description": "Basic card displaying an attribute.\n\nConfigurable controls **(new in v1.4.0)**:\n\n- `name`\n- `value`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -327,6 +828,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -360,19 +923,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -410,13 +962,65 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "value:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "value:after",
+          "description": "**new in v1.4.0**"
         }
       ]
     },
     {
       "name": "foxy-attribute-form",
       "path": "./src/elements/public/AttributeForm/index.ts",
+      "description": "Form element for creating or editing attributes.\n\nConfigurable controls **(new in v1.4.0)**:\n\n- `name`\n- `value`\n- `visibility`\n- `timestamps`\n- `delete`\n- `create`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -441,6 +1045,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -474,19 +1140,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -525,74 +1180,274 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
+      ],
+      "slots": [
+        {
+          "name": "name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "value:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "value:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "visibility:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "visibility:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "timestamps:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "timestamps:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "create:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "create:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "delete:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "delete:after",
+          "description": "**new in v1.4.0**"
+        }
       ]
     },
     {
-      "name": "foxy-internal-calendar",
-      "path": "./src/elements/public/Calendar/index.ts",
+      "name": "foxy-cancellation-form",
+      "path": "./src/elements/public/CancellationForm/index.ts",
+      "description": "Form element for canceling subscriptions.\n\nConfigurable controls:\n\n- `warning`\n- `end-date`\n- `submit`",
       "attributes": [
         {
           "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
           "type": "boolean",
           "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
         },
         {
           "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
           "type": "boolean",
           "default": "false"
         },
         {
-          "name": "value",
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "lang",
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         }
       ],
       "properties": [
         {
-          "name": "checkAvailability",
-          "default": "\"() => true\""
-        },
-        {
           "name": "readonly",
           "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
           "type": "boolean",
           "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
         },
         {
           "name": "disabled",
           "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
           "type": "boolean",
           "default": "false"
         },
         {
-          "name": "value",
-          "attribute": "value",
-          "type": "string",
-          "default": "\"\""
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
         },
         {
-          "name": "start",
-          "default": "\"new Date()\""
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
         },
         {
           "name": "lang",
           "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "valueAsDate",
-          "type": "Date | null"
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "failure",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         }
       ],
       "events": [
         {
-          "name": "change"
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "warning:before"
+        },
+        {
+          "name": "warning:after"
+        },
+        {
+          "name": "end-date:before"
+        },
+        {
+          "name": "end-date:after"
+        },
+        {
+          "name": "submit:before"
+        },
+        {
+          "name": "submit:after"
         }
       ]
     },
@@ -606,6 +1461,39 @@
           "description": "Custom element tag or a render function to use for displaying collection items.\nGenerated custom elements will have the following attributes:\n\n- `parent` – same as `foxy-collection-page[href]`;\n- `group` - same as `foxy-collection-page[group]`;\n- `href` – collection page item's `_links.self.href` value;\n- `lang` – same as `foxy-collection-page[lang]`;\n\nRender function will receive `ItemRendererContext` in the first argument.",
           "type": "string",
           "default": "\"foxy-null\""
+        },
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
         },
         {
           "name": "lang",
@@ -639,6 +1527,60 @@
           "default": "\"foxy-null\""
         },
         {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -671,19 +1613,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -751,10 +1682,48 @@
           "type": "string"
         },
         {
+          "name": "manual",
+          "description": "If false, will load pages on scroll. If true, will display a button triggering the process.",
+          "type": "boolean"
+        },
+        {
           "name": "page",
           "description": "Custom element tag or a render function to use for displaying collection pages.\nGenerated custom elements will have the following attributes:\n\n- `group` – same as `foxy-collection-pages[group]`;\n- `href` – collection page's `_links.self.href` value;\n- `lang` – same as `foxy-collection-pages[lang]`;\n- `item` – will contain `item-tag` when provided with a string value formatted as `page-tag item-tag`.\n\nRender function will receive `PageRenderer<TPage>` in the first argument.\nUses `foxy-collection-page` by default.",
           "type": "string",
           "default": "\"foxy-collection-page foxy-null\""
+        },
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
         }
       ],
       "properties": [
@@ -784,11 +1753,71 @@
           "type": "string"
         },
         {
+          "name": "manual",
+          "attribute": "manual",
+          "description": "If false, will load pages on scroll. If true, will display a button triggering the process.",
+          "type": "boolean"
+        },
+        {
           "name": "page",
           "attribute": "page",
           "description": "Custom element tag or a render function to use for displaying collection pages.\nGenerated custom elements will have the following attributes:\n\n- `group` – same as `foxy-collection-pages[group]`;\n- `href` – collection page's `_links.self.href` value;\n- `lang` – same as `foxy-collection-pages[lang]`;\n- `item` – will contain `item-tag` when provided with a string value formatted as `page-tag item-tag`.\n\nRender function will receive `PageRenderer<TPage>` in the first argument.\nUses `foxy-collection-page` by default.",
           "type": "string",
           "default": "\"foxy-collection-page foxy-null\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
         }
       ],
       "events": [
@@ -805,7 +1834,41 @@
     {
       "name": "foxy-customer",
       "path": "./src/elements/public/Customer/index.ts",
+      "description": "All-in-one element for customer management.\n\nConfigurable controls (new in v1.4.0):\n\n- `header`\n- `header:actions`\n- `header:actions:edit`\n- `header:actions:edit:form` + any control in `foxy-customer-form`\n- `addresses`\n- `addresses:actions`\n- `addresses:actions:create`\n- `addresses:actions:create:form` + any control in `foxy-address-form`\n- `addresses:list`\n- `addresses:list:card` + any control in `foxy-address-card`\n- `addresses:list:form` + any control in `foxy-address-form`\n- `payment-methods`\n- `payment-methods:list`\n- `payment-methods:list:card` + any control in `foxy-payment-method-card`\n- `attributes`\n- `attributes:actions`\n- `attributes:actions:create`\n- `attributes:actions:create:form` + any control in `foxy-attribute-form`\n- `attributes:list`\n- `attributes:list:card` + any control in `foxy-attribute-card`\n- `attributes:list:form` + any control in `foxy-attribute-form`\n- `transactions`\n- `subscriptions`\n- `subscriptions:form` + any control in `foxy-subscriptions-form`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -830,6 +1893,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -863,19 +1988,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -913,6 +2027,128 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "header:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:edit:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:edit:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:create:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:create:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:list:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:list:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:list:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:list:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:create:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:create:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:list:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:list:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "transactions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "transactions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "subscriptions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "subscriptions:after",
+          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -992,7 +2228,41 @@
     {
       "name": "foxy-customer-form",
       "path": "./src/elements/public/CustomerForm/index.ts",
+      "description": "Form element for creating or editing customers.\n\nConfigurable controls **(new in v1.4.0)**:\n\n- `first-name`\n- `last-name`\n- `email`\n- `tax-id`\n- `timestamps`\n- `delete`\n- `create`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -1017,6 +2287,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -1050,19 +2382,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -1100,13 +2421,105 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "first-name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "first-name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "last-name:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "last-name:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "email:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "email:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "tax-id:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "tax-id:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "timestamps:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "timestamps:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "create:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "create:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "delete:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "delete:after",
+          "description": "**new in v1.4.0**"
         }
       ]
     },
     {
       "name": "foxy-customer",
       "path": "./src/elements/public/CustomerPortal/index.ts",
+      "description": "All-in-one element for customer management.\n\nConfigurable controls (new in v1.4.0):\n\n- `header`\n- `header:actions`\n- `header:actions:edit`\n- `header:actions:edit:form` + any control in `foxy-customer-form`\n- `addresses`\n- `addresses:actions`\n- `addresses:actions:create`\n- `addresses:actions:create:form` + any control in `foxy-address-form`\n- `addresses:list`\n- `addresses:list:card` + any control in `foxy-address-card`\n- `addresses:list:form` + any control in `foxy-address-form`\n- `payment-methods`\n- `payment-methods:list`\n- `payment-methods:list:card` + any control in `foxy-payment-method-card`\n- `attributes`\n- `attributes:actions`\n- `attributes:actions:create`\n- `attributes:actions:create:form` + any control in `foxy-attribute-form`\n- `attributes:list`\n- `attributes:list:card` + any control in `foxy-attribute-card`\n- `attributes:list:form` + any control in `foxy-attribute-form`\n- `transactions`\n- `subscriptions`\n- `subscriptions:form` + any control in `foxy-subscriptions-form`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -1131,6 +2544,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -1164,19 +2639,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -1215,18 +2679,135 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
+      ],
+      "slots": [
+        {
+          "name": "header:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:edit:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:actions:edit:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:create:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:actions:create:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:list:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "addresses:list:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:list:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "payment-methods:list:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:create:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:actions:create:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:list:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:list:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "transactions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "transactions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "subscriptions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "subscriptions:after",
+          "description": "**new in v1.4.0**"
+        }
       ]
     },
     {
       "name": "foxy-customer-portal",
       "path": "./src/elements/public/CustomerPortal/index.ts",
+      "description": "Drop-in customer portal.\n\nConfigurable controls:\n\n- `sign-in`\n- `sign-in:header`\n- `sign-in:email`\n- `sign-in:password`\n- `sign-in:error`\n- `sign-in:submit`\n- `sign-in:recover`\n\n- `access-recovery`\n- `access-recovery:header`\n- `access-recovery:email`\n- `access-recovery:message`\n- `access-recovery:submit`\n- `access-recovery:back`\n\n- `customer`\n- `customer:header`\n- `customer:header:actions`\n- `customer:header:actions:edit`\n- `customer:header:actions:edit:form` + any control in `foxy-customer-form`\n- `customer:header:actions:sign-out`\n- `customer:addresses`\n- `customer:addresses:actions`\n- `customer:addresses:list`\n- `customer:addresses:list:card` + any control in `foxy-address-card`\n- `customer:addresses:list:form` + any control in `foxy-address-form`\n- `customer:payment-methods`\n- `customer:payment-methods:list`\n- `customer:payment-methods:list:card` + any control in `foxy-payment-method-card`\n- `customer:transactions`\n- `customer:subscriptions`\n- `customer:subscriptions:form` + any control in `foxy-subscriptions-form`",
       "attributes": [
-        {
-          "name": "lang",
-          "description": "Optional ISO 639-1 code describing the language element content is written in.",
-          "type": "string",
-          "default": "\"\""
-        },
         {
           "name": "group",
           "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
@@ -1237,37 +2818,54 @@
           "name": "href",
           "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
           "type": "string"
-        }
-      ],
-      "properties": [
+        },
         {
           "name": "lang",
-          "attribute": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
           "type": "string",
           "default": "\"\""
         },
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        }
+      ],
+      "properties": [
         {
           "name": "group",
           "attribute": "group",
           "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
           "type": "string",
           "default": "\"\""
-        },
-        {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"new BooleanSelector(\\n    'tabs subscription-form:timestamps customer-form:delete attributes create-address-button address-form:delete address-form:address-name'\\n  )\""
         },
         {
           "name": "settings",
@@ -1278,11 +2876,232 @@
           "attribute": "href",
           "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
           "type": "string"
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
         }
       ],
       "events": [
         {
           "name": "update"
+        }
+      ],
+      "slots": [
+        {
+          "name": "sign-in:before"
+        },
+        {
+          "name": "sign-in:after"
+        },
+        {
+          "name": "sign-in:header:before"
+        },
+        {
+          "name": "sign-in:header:after"
+        },
+        {
+          "name": "sign-in:email:before"
+        },
+        {
+          "name": "sign-in:email:after"
+        },
+        {
+          "name": "sign-in:password:before"
+        },
+        {
+          "name": "sign-in:password:after"
+        },
+        {
+          "name": "sign-in:error:before"
+        },
+        {
+          "name": "sign-in:error:after"
+        },
+        {
+          "name": "sign-in:submit:before"
+        },
+        {
+          "name": "sign-in:submit:after"
+        },
+        {
+          "name": "sign-in:back:before"
+        },
+        {
+          "name": "sign-in:back:after"
+        },
+        {
+          "name": "access-recovery:before"
+        },
+        {
+          "name": "access-recovery:after"
+        },
+        {
+          "name": "access-recovery:header:before"
+        },
+        {
+          "name": "access-recovery:header:after"
+        },
+        {
+          "name": "access-recovery:email:before"
+        },
+        {
+          "name": "access-recovery:email:after"
+        },
+        {
+          "name": "access-recovery:message:before"
+        },
+        {
+          "name": "access-recovery:message:after"
+        },
+        {
+          "name": "access-recovery:submit:before"
+        },
+        {
+          "name": "access-recovery:submit:after"
+        },
+        {
+          "name": "access-recovery:back:before"
+        },
+        {
+          "name": "access-recovery:back:after"
+        },
+        {
+          "name": "customer:before"
+        },
+        {
+          "name": "customer:after"
+        },
+        {
+          "name": "customer:header:before"
+        },
+        {
+          "name": "customer:header:after"
+        },
+        {
+          "name": "customer:header:actions:before"
+        },
+        {
+          "name": "customer:header:actions:after"
+        },
+        {
+          "name": "customer:header:actions:edit:before"
+        },
+        {
+          "name": "customer:header:actions:edit:after"
+        },
+        {
+          "name": "customer:header:actions:sign-out:before"
+        },
+        {
+          "name": "customer:header:actions:sign-out:after"
+        },
+        {
+          "name": "customer:addresses:before"
+        },
+        {
+          "name": "customer:addresses:after"
+        },
+        {
+          "name": "customer:addresses:actions:before"
+        },
+        {
+          "name": "customer:addresses:actions:after"
+        },
+        {
+          "name": "customer:addresses:list:before"
+        },
+        {
+          "name": "customer:addresses:list:after"
+        },
+        {
+          "name": "customer:payment-methods:before"
+        },
+        {
+          "name": "customer:payment-methods:after"
+        },
+        {
+          "name": "customer:payment-methods:list:before"
+        },
+        {
+          "name": "customer:payment-methods:list:after"
+        },
+        {
+          "name": "customer:transactions:before"
+        },
+        {
+          "name": "customer:transactions:after"
+        },
+        {
+          "name": "customer:subscriptions:before"
+        },
+        {
+          "name": "customer:subscriptions:after"
         }
       ]
     },
@@ -1419,19 +3238,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -1812,6 +3620,39 @@
           "name": "open",
           "description": "True if dialog is mounted and has finished entering the screen.",
           "type": "boolean"
+        },
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
         }
       ],
       "properties": [
@@ -1828,11 +3669,6 @@
           "description": "Optional URL of the resource to load (passed to form).",
           "type": "string",
           "default": "\"\""
-        },
-        {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
         },
         {
           "name": "form",
@@ -1883,16 +3719,6 @@
           "default": "false"
         },
         {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
           "name": "editable",
           "attribute": "editable",
           "description": "When true, renders Save button in the header.",
@@ -1932,6 +3758,60 @@
           "attribute": "open",
           "description": "True if dialog is mounted and has finished entering the screen.",
           "type": "boolean"
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
         }
       ],
       "events": [
@@ -2633,19 +4513,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -2689,7 +4558,41 @@
     {
       "name": "foxy-payment-method-card",
       "path": "./src/elements/public/PaymentMethodCard/index.ts",
+      "description": "Basic card displaying a payment method.\n\nConfigurable controls **(new in v1.4.0)**:\n\n- `actions`\n- `actions:delete`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -2714,6 +4617,68 @@
         }
       ],
       "properties": [
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -2747,19 +4712,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -2798,13 +4752,64 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
+      ],
+      "slots": [
+        {
+          "name": "actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "actions:delete:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "actions:delete:after",
+          "description": "**new in v1.4.0**"
+        }
       ]
     },
     {
       "name": "foxy-sign-in-form",
       "path": "./src/elements/public/SignInForm/index.ts",
-      "description": "Form element for email/password sign in.",
+      "description": "Form element for email/password sign in.\n\nConfigurable controls:\n\n- `email`\n- `password`\n- `error`\n- `submit`",
       "attributes": [
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.",
@@ -2812,34 +4817,102 @@
           "default": "\"\""
         },
         {
-          "name": "email",
-          "description": "User email. Value of this property is bound to the form field.",
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "password",
-          "description": "User password. Value of this property is bound to the form field.",
-          "type": "string",
-          "default": "\"\""
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         }
       ],
       "properties": [
         {
-          "name": "API",
-          "description": "API class constructor used by the instances of this class.",
-          "type": "typeof API",
-          "default": "\"API\""
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
         },
         {
           "name": "UpdateEvent",
-          "type": "typeof (Anonymous class)",
-          "default": "\"class extends CustomEvent<void> {}\""
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
         },
         {
-          "name": "SignInEvent",
-          "type": "typeof (Anonymous class)",
-          "default": "\"class extends CustomEvent<void> {}\""
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
         },
         {
           "name": "lang",
@@ -2849,42 +4922,78 @@
           "default": "\"\""
         },
         {
-          "name": "email",
-          "attribute": "email",
-          "description": "User email. Value of this property is bound to the form field.",
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "password",
-          "attribute": "password",
-          "description": "User password. Value of this property is bound to the form field.",
-          "type": "string",
-          "default": "\"\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
-          "name": "readonly",
-          "description": "Makes the entire form or a part of it readonly. Customizable parts: `email` and `password`.",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
         },
         {
-          "name": "disabled",
-          "description": "Disables the entire form or a part of it. Customizable parts: `email`, `password` and `submit`.",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
         },
         {
-          "name": "excluded",
-          "description": "Hides the entire form or a part of it. Customizable parts: `email`, `password`, `submit`, `error` and `spinner`.",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         }
       ],
       "events": [
         {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
           "name": "fetch",
-          "description": "Instance of `SignInForm.API.FetchEvent`. Emitted before each API request."
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "email:before"
+        },
+        {
+          "name": "email:after"
+        },
+        {
+          "name": "password:before"
+        },
+        {
+          "name": "password:after"
+        },
+        {
+          "name": "error:before"
+        },
+        {
+          "name": "error:after"
+        },
+        {
+          "name": "submit:before"
+        },
+        {
+          "name": "submit:after"
         }
       ]
     },
@@ -2936,122 +5045,9 @@
       ]
     },
     {
-      "name": "foxy-subscription-cancellation-form",
-      "path": "./src/elements/public/SubscriptionCancellationForm/index.ts",
-      "attributes": [
-        {
-          "name": "lang",
-          "description": "Optional ISO 639-1 code describing the language element content is written in.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "parent",
-          "description": "Optional URL of the collection this element's resource belongs to.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "group",
-          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
-          "type": "string"
-        },
-        {
-          "name": "href",
-          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
-          "type": "string"
-        }
-      ],
-      "properties": [
-        {
-          "name": "UpdateEvent",
-          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
-          "type": "typeof UpdateEvent",
-          "default": "\"UpdateEvent\""
-        },
-        {
-          "name": "Rumour",
-          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
-          "type": "((group: string) => Rumour) & MemoizedFunction",
-          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
-        },
-        {
-          "name": "API",
-          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
-          "type": "typeof API",
-          "default": "\"API\""
-        },
-        {
-          "name": "lang",
-          "attribute": "lang",
-          "description": "Optional ISO 639-1 code describing the language element content is written in.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "parent",
-          "attribute": "parent",
-          "description": "Optional URL of the collection this element's resource belongs to.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "errors",
-          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
-          "type": "string[]"
-        },
-        {
-          "name": "form",
-          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
-          "type": "Partial<TData>"
-        },
-        {
-          "name": "data",
-          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
-          "type": "TData | null"
-        },
-        {
-          "name": "group",
-          "attribute": "group",
-          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
-          "type": "string"
-        },
-        {
-          "name": "href",
-          "attribute": "href",
-          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
-          "type": "string"
-        }
-      ],
-      "events": [
-        {
-          "name": "update",
-          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
-        },
-        {
-          "name": "fetch",
-          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ]
-    },
-    {
       "name": "foxy-subscription-card",
       "path": "./src/elements/public/SubscriptionCard/index.ts",
+      "description": "Card element displaying subscription summary.",
       "attributes": [
         {
           "name": "lang",
@@ -3077,6 +5073,14 @@
         }
       ],
       "properties": [
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -3110,19 +5114,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -3166,10 +5159,44 @@
     {
       "name": "foxy-subscription-form",
       "path": "./src/elements/public/SubscriptionForm/index.ts",
+      "description": "Form element for creating or editing subscriptions.\n\nConfigurable controls **(new in v1.4.0)**:\n\n- `header`\n- `items`\n- `items:actions`\n- `end-date`\n- `end-date:form`\n- `next-transaction-date`\n- `frequency`\n- `transactions`",
       "attributes": [
         {
           "name": "settings",
           "type": "object"
+        },
+        {
+          "name": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
         },
         {
           "name": "lang",
@@ -3199,6 +5226,68 @@
           "name": "settings",
           "attribute": "settings",
           "type": "object"
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "description": "If true, makes every editable control inside of this element read-only.\nThis property is reflected to the `readonly` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as read-only. Parsed version of the `readonlycontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "description": "If true, disables every interactive control inside of this element.\nThis property is reflected to the `disabled` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to render as disabled.  Parsed version of the `disabledcontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "description": "If true, hides every configurable control inside of this element.\nThis property is reflected to the `hidden` boolean attribute.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "description": "[BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting\ncontrols to hide.  Parsed version of the `hiddencontrols` attribute value.",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`\nand `readonly` properties. If `readonly` is true, this selector will match any control,\notherwise it will match the same controls as in `readonlyControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`\nand `disabled` properties. If `disabled` is true, this selector will match any control,\notherwise it will match the same controls as in `disabledControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "description": "Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`\nand `hidden` properties. If `hidden` is true, this selector will match any control,\notherwise it will match the same controls as in `hiddenControls`.",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "type": "string"
+        },
+        {
+          "name": "t",
+          "type": "TFunction"
         },
         {
           "name": "UpdateEvent",
@@ -3233,19 +5322,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -3283,6 +5361,64 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "header:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "header:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "items:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "items:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "items:actions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "items:actions:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "end-date:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "end-date:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "next-transaction-date:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "next-transaction-date:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "frequency:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "frequency:after",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "transactions:before",
+          "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "transactions:after",
+          "description": "**new in v1.4.0**"
         }
       ]
     },
@@ -3373,19 +5509,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -3493,19 +5618,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",
@@ -3643,19 +5757,8 @@
           "default": "\"\""
         },
         {
-          "name": "readonly",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "BooleanSelector",
-          "default": "\"False\""
-        },
-        {
-          "name": "excluded",
-          "type": "BooleanSelector",
-          "default": "\"False\""
+          "name": "failure",
+          "type": "Response | null"
         },
         {
           "name": "errors",

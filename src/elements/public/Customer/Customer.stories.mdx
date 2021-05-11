@@ -1,9 +1,228 @@
 import dedent from 'dedent';
 import { html } from 'lit-html';
-import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+
+import {
+  Subtitle,
+  ArgsTable,
+  Story,
+  Canvas,
+  Meta,
+} from '@web/storybook-prebuilt/addon-docs/blocks.js';
+
 import './index.ts';
 
-<Meta title="Relations / Customer" />
+<Meta
+  title="Relations / Customer"
+  argTypes={{
+    readonlycontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'header:actions:edit:form:first-name',
+          'header:actions:edit:form:last-name',
+          'header:actions:edit:form:email',
+          'header:actions:edit:form:tax-id',
+          'addresses:actions:create:form:address-name',
+          'addresses:actions:create:form:first-name',
+          'addresses:actions:create:form:last-name',
+          'addresses:actions:create:form:company',
+          'addresses:actions:create:form:phone',
+          'addresses:actions:create:form:address-one',
+          'addresses:actions:create:form:address-two',
+          'addresses:actions:create:form:country',
+          'addresses:actions:create:form:region',
+          'addresses:actions:create:form:city',
+          'addresses:actions:create:form:postal-code',
+          'addresses:list:form:address-name',
+          'addresses:list:form:first-name',
+          'addresses:list:form:last-name',
+          'addresses:list:form:company',
+          'addresses:list:form:phone',
+          'addresses:list:form:address-one',
+          'addresses:list:form:address-two',
+          'addresses:list:form:country',
+          'addresses:list:form:region',
+          'addresses:list:form:city',
+          'addresses:list:form:postal-code',
+          'addresses:list:card',
+          'payment-methods:list:card',
+          'attributes:actions:create:form:name',
+          'attributes:actions:create:form:value',
+          'attributes:actions:create:form:visibility',
+          'attributes:list:form:name',
+          'attributes:list:form:value',
+          'attributes:list:form:visibility',
+          'attributes:list:card',
+          'subscriptions:form:end-date',
+          'subscriptions:form:end-date:form:end-date',
+          'subscriptions:form:next-transaction-date',
+          'subscriptions:form:frequency',
+        ],
+      },
+    },
+    disabledcontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'header:actions:edit',
+          'header:actions:edit:form:first-name',
+          'header:actions:edit:form:last-name',
+          'header:actions:edit:form:email',
+          'header:actions:edit:form:tax-id',
+          'header:actions:edit:form:delete',
+          'addresses:actions:create',
+          'addresses:actions:create:form:address-name',
+          'addresses:actions:create:form:first-name',
+          'addresses:actions:create:form:last-name',
+          'addresses:actions:create:form:company',
+          'addresses:actions:create:form:phone',
+          'addresses:actions:create:form:address-one',
+          'addresses:actions:create:form:address-two',
+          'addresses:actions:create:form:country',
+          'addresses:actions:create:form:region',
+          'addresses:actions:create:form:city',
+          'addresses:actions:create:form:postal-code',
+          'addresses:actions:create:form:create',
+          'addresses:list:form:address-name',
+          'addresses:list:form:first-name',
+          'addresses:list:form:last-name',
+          'addresses:list:form:company',
+          'addresses:list:form:phone',
+          'addresses:list:form:address-one',
+          'addresses:list:form:address-two',
+          'addresses:list:form:country',
+          'addresses:list:form:region',
+          'addresses:list:form:city',
+          'addresses:list:form:postal-code',
+          'addresses:list:form:delete',
+          'addresses:list:card',
+          'payment-methods:list:card:actions:delete',
+          'attributes:actions:create',
+          'attributes:actions:create:form:name',
+          'attributes:actions:create:form:value',
+          'attributes:actions:create:form:visibility',
+          'attributes:actions:create:form:create',
+          'attributes:list:form:name',
+          'attributes:list:form:value',
+          'attributes:list:form:visibility',
+          'attributes:list:form:delete',
+          'attributes:list:card',
+          'subscriptions',
+          'subscriptions:form:end-date',
+          'subscriptions:form:end-date:form:end-date',
+          'subscriptions:form:end-date:form:submit',
+          'subscriptions:form:next-transaction-date',
+          'subscriptions:form:frequency',
+        ],
+      },
+    },
+    hiddencontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'header',
+          'header:actions',
+          'header:actions:edit',
+          'header:actions:edit:form:first-name',
+          'header:actions:edit:form:last-name',
+          'header:actions:edit:form:email',
+          'header:actions:edit:form:tax-id',
+          'header:actions:edit:form:timestamps',
+          'header:actions:edit:form:delete',
+          'addresses',
+          'addresses:actions',
+          'addresses:actions:create',
+          'addresses:actions:create:form:address-name',
+          'addresses:actions:create:form:first-name',
+          'addresses:actions:create:form:last-name',
+          'addresses:actions:create:form:company',
+          'addresses:actions:create:form:phone',
+          'addresses:actions:create:form:address-one',
+          'addresses:actions:create:form:address-two',
+          'addresses:actions:create:form:country',
+          'addresses:actions:create:form:region',
+          'addresses:actions:create:form:city',
+          'addresses:actions:create:form:postal-code',
+          'addresses:actions:create:form:create',
+          'addresses:list',
+          'addresses:list:form:address-name',
+          'addresses:list:form:first-name',
+          'addresses:list:form:last-name',
+          'addresses:list:form:company',
+          'addresses:list:form:phone',
+          'addresses:list:form:address-one',
+          'addresses:list:form:address-two',
+          'addresses:list:form:country',
+          'addresses:list:form:region',
+          'addresses:list:form:city',
+          'addresses:list:form:postal-code',
+          'addresses:list:form:timestamps',
+          'addresses:list:form:delete',
+          'addresses:list:card:address-name',
+          'addresses:list:card:full-name',
+          'addresses:list:card:full-address',
+          'addresses:list:card:company',
+          'addresses:list:card:phone',
+          'payment-methods',
+          'payment-methods:list',
+          'payment-methods:list:card:actions',
+          'payment-methods:list:card:actions:delete',
+          'attributes',
+          'attributes:actions',
+          'attributes:actions:create',
+          'attributes:actions:create:form:name',
+          'attributes:actions:create:form:value',
+          'attributes:actions:create:form:visibility',
+          'attributes:actions:create:form:create',
+          'attributes:list',
+          'attributes:list:form:name',
+          'attributes:list:form:value',
+          'attributes:list:form:visibility',
+          'attributes:list:form:timestamps',
+          'attributes:list:form:delete',
+          'attributes:list:card',
+          'transactions',
+          'subscriptions',
+          'subscriptions:form:header',
+          'subscriptions:form:items',
+          'subscriptions:form:items:actions',
+          'subscriptions:form:end-date',
+          'subscriptions:form:end-date:form:warning',
+          'subscriptions:form:end-date:form:end-date',
+          'subscriptions:form:end-date:form:submit',
+          'subscriptions:form:next-transaction-date',
+          'subscriptions:form:frequency',
+          'subscriptions:form:transactions',
+        ],
+      },
+    },
+    lang: {
+      control: {
+        type: 'select',
+        options: ['en', 'es'],
+      },
+    },
+  }}
+/>
+
+export const controlsWithSlots = [
+  'header',
+  'header:actions',
+  'header:actions:edit',
+  'addresses',
+  'addresses:actions',
+  'addresses:actions:create',
+  'addresses:list',
+  'payment-methods',
+  'payment-methods:list',
+  'attributes',
+  'attributes:actions',
+  'attributes:actions:create',
+  'attributes:list',
+  'transactions',
+  'subscriptions',
+];
 
 # Customer
 
@@ -19,16 +238,44 @@ import './index.ts';
   `}
   isExpanded
 >
-  <Story name="Playground">
-    {() =>
-      html`
+  <Story
+    name="Playground"
+    args={{
+      readonlycontrols: [],
+      disabledcontrols: [],
+      hiddencontrols: [],
+      readonly: false,
+      disabled: false,
+      lang: 'en',
+      href: 'https://demo.foxycart.com/s/admin/customers/0',
+      parent: 'https://demo.foxycart.com/s/admin/stores/0/customers',
+      ...controlsWithSlots.reduce(
+        (args, control) => ({ ...args, [`${control}:before`]: '', [`${control}:after`]: '' }),
+        {}
+      ),
+    }}
+  >
+    {args => {
+      return html`
         <foxy-customer
-          parent="https://demo.foxycart.com/s/admin/stores/0/customers"
-          href="https://demo.foxycart.com/s/admin/customers/0"
+          disabledcontrols=${args.disabledcontrols.join(' ')}
+          readonlycontrols=${args.readonlycontrols.join(' ')}
+          hiddencontrols=${args.hiddencontrols.join(' ')}
+          ?disabled=${args.disabled}
+          ?readonly=${args.readonly}
+          parent=${args.parent}
+          href=${args.href}
+          lang=${args.lang}
         >
+          ${controlsWithSlots.map(control => {
+            return html`
+              <div slot="${control}:before">${unsafeHTML(args[`${control}:before`])}</div>
+              <div slot="${control}:after">${unsafeHTML(args[`${control}:after`])}</div>
+            `;
+          })}
         </foxy-customer>
-      `
-    }
+      `;
+    }}
   </Story>
 </Canvas>
 

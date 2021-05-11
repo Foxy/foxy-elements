@@ -2,16 +2,15 @@ import { CSSResultArray, LitElement, PropertyDeclarations, css } from 'lit-eleme
 import { TemplateResult, html } from 'lit-html';
 
 import { API } from '../../public/NucleonElement/API';
-import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from './DialogHideEvent';
 import { DialogShowEvent } from './DialogShowEvent';
 import { DialogWindow } from './DialogWindow';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
-import { Themeable } from '../../../mixins/themeable';
+import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
 
-export abstract class Dialog extends LitElement {
+export abstract class Dialog extends ConfigurableMixin(ThemeableMixin(LitElement)) {
   /**
    * Selector of an element that will serve as a mounting point to all dialog windows.
    * It's `<body>` by default, but you can add your own element with `id="foxy-dialog-windows-host"`
@@ -41,8 +40,6 @@ export abstract class Dialog extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      ...createBooleanSelectorProperty('disabled'),
-      ...createBooleanSelectorProperty('excluded'),
       __connected: { attribute: false },
       __visible: { attribute: false },
       centered: { type: Boolean },
@@ -59,7 +56,7 @@ export abstract class Dialog extends LitElement {
   /** @readonly */
   static get styles(): CSSResultArray {
     return [
-      Themeable.styles,
+      super.styles,
       css`
         .scale-85 {
           --tw-scale-x: 0.85;
@@ -71,10 +68,6 @@ export abstract class Dialog extends LitElement {
 
   /** When true, renders Close button in the header. */
   closable = false;
-
-  disabled = BooleanSelector.False;
-
-  excluded = BooleanSelector.False;
 
   /** When true, renders Save button in the header. */
   editable = false;
@@ -195,13 +188,13 @@ export abstract class Dialog extends LitElement {
             <div
               class="h-l grid grid-cols-3 text-m font-lumo font-medium border-b border-contrast-10"
             >
-              ${this.closable && !this.excluded.matches('close-button')
+              ${this.closable && !this.hiddenSelector.matches('close-button', true)
                 ? html`
                     <vaadin-button
                       id="close-button"
                       theme="tertiary-inline"
                       class="mr-auto m-s px-s"
-                      ?disabled=${this.disabled.matches('close-button')}
+                      ?disabled=${this.disabledSelector.matches('close-button', true)}
                       @click=${() => this.hide(this.editable)}
                     >
                       <foxy-i18n
@@ -218,11 +211,11 @@ export abstract class Dialog extends LitElement {
                 <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.header}></foxy-i18n>
               </h1>
 
-              ${this.editable && !this.excluded.matches('save-button')
+              ${this.editable && !this.hiddenSelector.matches('save-button', true)
                 ? html`
                     <vaadin-button
                       data-testid="save-button"
-                      ?disabled=${this.disabled.matches('save-button')}
+                      ?disabled=${this.disabledSelector.matches('save-button', true)}
                       theme="primary"
                       class="ml-auto h-auto min-h-0 min-w-0 m-xs px-m"
                       @click=${this.save}

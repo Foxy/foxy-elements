@@ -1,194 +1,164 @@
-import {
-  CSSResult,
-  CSSResultArray,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  html,
-} from 'lit-element';
+import { TemplateResult, html } from 'lit-element';
 
-import { API } from '../NucleonElement/API';
-import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { Data } from './types';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
-import { I18n } from '../I18n/I18n';
-import { Themeable } from '../../../mixins/themeable';
-import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
+import { NucleonElement } from '../NucleonElement';
+import { NucleonV8N } from '../NucleonElement/types';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { validate as isEmail } from 'email-validator';
 
-type State = 'invalid' | 'valid' | 'busy' | 'fail';
+const NS = 'access-recovery-form';
+const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
 
 /**
  * Email-based "forgot password" form.
  *
- * @fires AccessRecoveryForm#fetch - Instance of `AccessRecoveryForm.API.FetchEvent`. Emitted before each API request.
+ * Configurable controls:
+ *
+ * - `email`
+ * - `message`
+ * - `submit`
+ *
+ * @slot email:before
+ * @slot email:after
+ *
+ * @slot message:before
+ * @slot message:after
+ *
+ * @slot submit:before
+ * @slot submit:after
  *
  * @element foxy-access-recovery-form
  * @since 1.4.0
  */
-export class AccessRecoveryForm extends LitElement {
-  /** API class constructor used by the instances of this class. */
-  static readonly API = API;
+export class AccessRecoveryForm extends Base<Data> {
+  static get v8n(): NucleonV8N<Data> {
+    return [
+      ({ detail: d }) => (d?.email && d.email.length > 0) || 'email_required',
+      ({ detail: d }) => isEmail(d?.email ?? '') || 'email_invalid_email',
+    ];
+  }
 
-  static readonly UpdateEvent = class extends CustomEvent<void> {};
+  private readonly __checkEmailValidity = () => {
+    return !this.errors.some(err => err.startsWith('email'));
+  };
 
-  static get properties(): PropertyDeclarations {
-    return {
-      ...createBooleanSelectorProperty('readonly'),
-      ...createBooleanSelectorProperty('disabled'),
-      ...createBooleanSelectorProperty('excluded'),
-      lang: { type: String },
-      email: { type: String },
+  private readonly __renderEmail = () => {
+    const emailErrors = this.errors.filter(error => error.startsWith('email'));
+    const emailErrorKeys = emailErrors.map(error => error.replace('email', 'v8n'));
+    const emailErrorMessage = emailErrorKeys[0] ? this.t(emailErrorKeys[0]).toString() : '';
+
+    const handleKeyDown = (evt: KeyboardEvent) => {
+      if (evt.key === 'Enter') this.submit();
     };
-  }
 
-  static get styles(): CSSResultArray | CSSResult {
-    return Themeable.styles;
-  }
+    const handleInput = (evt: InputEvent) => {
+      this.edit({
+        detail: { email: (evt.target as EmailFieldElement).value },
+        type: 'email',
+      });
+    };
 
-  /** Optional ISO 639-1 code describing the language element content is written in. */
-  lang = '';
+    return html`
+      <slot name="email:before"></slot>
 
-  /** User email. Value of this property is bound to the form field. */
-  email = '';
+      <vaadin-email-field
+        error-message=${emailErrorMessage}
+        class="w-full"
+        label=${this.t('email').toString()}
+        value=${ifDefined(this.form.detail?.email)}
+        ?disabled=${this.in('busy') || this.disabledSelector.matches('email', true)}
+        ?readonly=${this.readonlySelector.matches('email', true)}
+        .checkValidity=${this.__checkEmailValidity}
+        @input=${handleInput}
+        @keydown=${handleKeyDown}
+      >
+      </vaadin-email-field>
 
-  /** Makes the entire form or a part of it readonly. Customizable parts: `email`. */
-  readonly = BooleanSelector.False;
+      <slot name="email:after"></slot>
+    `;
+  };
 
-  /** Disables the entire form or a part of it. Customizable parts: `email` and `submit`. */
-  disabled = BooleanSelector.False;
+  private readonly __renderMessage = () => {
+    const hasFailed = this.errors.includes('unknown_error');
+    const color = hasFailed ? 'bg-error-10 text-error' : 'bg-success-10 text-success';
+    const icon = hasFailed ? 'lumo:error' : 'lumo:cog';
+    const key = hasFailed ? 'unknown_error' : 'recover_access_success';
 
-  /** Hides the entire form or a part of it. Customizable parts: `email`, `submit`, `error` and `spinner`. */
-  excluded = BooleanSelector.False;
+    return html`
+      <slot name="message:before"></slot>
 
-  private __state: State = 'invalid';
+      <p class="leading-s flex items-start text-s rounded p-s ${color}">
+        <iron-icon class="flex-shrink-0 mr-s" icon=${icon}></iron-icon>
+        <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns}></foxy-i18n>
+      </p>
 
-  private __untrackTranslations?: () => void;
+      <slot name="message:after"></slot>
+    `;
+  };
 
-  private static __ns = 'sign-in-form';
+  private readonly __renderSubmit = () => {
+    const isValid = this.errors.length === 0;
+    const isBusy = this.in('busy');
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    const I18nElement = customElements.get('foxy-i18n') as typeof I18n;
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
-  }
+    return html`
+      <slot name="submit:before"></slot>
+
+      <vaadin-button
+        class="w-full"
+        theme="primary"
+        ?disabled=${isBusy || !isValid || this.disabledSelector.matches('submit', true)}
+        @click=${this.submit}
+      >
+        <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
+      </vaadin-button>
+
+      <slot name="submit:after"></slot>
+    `;
+  };
 
   render(): TemplateResult {
+    const hiddenSelector = this.hiddenSelector;
+    const isDone = this.in({ idle: 'snapshot' }) || this.errors.includes('unknown_error');
+    const isBusy = this.in('busy');
+
     return html`
-      <div
+      <main
         aria-live="polite"
-        aria-busy=${this.__state === 'busy'}
+        aria-busy=${isBusy}
         class="relative font-lumo text-m leading-m space-y-m"
       >
-        ${!this.excluded.matches('email')
-          ? html`
-              <vaadin-email-field
-                class="w-full"
-                label=${this.__t('email').toString()}
-                value=${this.email}
-                ?disabled=${this.__state === 'busy' || this.disabled.matches('email')}
-                ?readonly=${this.readonly.matches('email')}
-                required
-                @input=${this.__handleEmailInput}
-                @keydown=${this.__handleKeyDown}
-              >
-              </vaadin-email-field>
-            `
-          : ''}
-        <!---->
-        ${this.__state.startsWith('fail') && !this.excluded.matches('error')
-          ? html`
-              <div class="flex items-center text-s bg-error-10 rounded p-s text-error">
-                <iron-icon icon="lumo:error" class="self-start flex-shrink-0 mr-s"></iron-icon>
-                <foxy-i18n
-                  class="leading-s"
-                  lang=${this.lang}
-                  ns=${AccessRecoveryForm.__ns}
-                  key="unknown_error"
-                >
-                </foxy-i18n>
-              </div>
-            `
-          : ''}
-        <!---->
-        ${!this.excluded.matches('submit')
-          ? html`
-              <vaadin-button
-                class="w-full"
-                theme="primary"
-                ?disabled=${this.__state === 'busy' || this.disabled.matches('submit')}
-                @click=${this.__submit}
-              >
-                <foxy-i18n ns=${AccessRecoveryForm.__ns} lang=${this.lang} key="recover_access">
-                </foxy-i18n>
-              </vaadin-button>
-            `
-          : ''}
-        <!---->
-        ${this.__state === 'busy' && !this.excluded.matches('spinner')
-          ? html`
-              <div class="absolute inset-0 flex items-center justify-center">
-                <foxy-spinner
-                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  layout="vertical"
-                  data-testid="spinner"
-                >
-                </foxy-spinner>
-              </div>
-            `
-          : ''}
-      </div>
+        ${hiddenSelector.matches('email', true) ? '' : this.__renderEmail()}
+        ${hiddenSelector.matches('message', true) || !isDone ? '' : this.__renderMessage()}
+        ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
+
+        <div
+          class=${classMap({
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'opacity-0 pointer-events-none': !isBusy,
+          })}
+        >
+          <foxy-spinner
+            layout="vertical"
+            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            lang=${this.lang}
+            ns=${this.ns}
+          >
+          </foxy-spinner>
+        </div>
+      </main>
     `;
   }
 
-  /** Submits the form if it's valid. */
-  submit(): void {
-    this.__submit();
-  }
-
-  in(stateValue: State): boolean {
-    return this.__state === stateValue;
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__untrackTranslations?.();
-  }
-
-  private get __t() {
-    const I18nElement = customElements.get('foxy-i18n') as typeof I18n;
-    return I18nElement.i18next.getFixedT(this.lang, AccessRecoveryForm.__ns);
-  }
-
-  private get __emailField() {
-    return this.renderRoot.querySelector('vaadin-email-field') as EmailFieldElement;
-  }
-
-  private async __submit() {
-    if (!this.__emailField.validate()) return;
-
-    this.__setState('busy');
-
-    const response = await new API(this).fetch('foxy://auth/recover', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'email',
-        detail: { email: this.email },
-      }),
-    });
-
-    this.__setState(response.ok ? 'valid' : 'fail');
-  }
-
-  private __setState(newState: State) {
-    this.__state = newState;
-    this.dispatchEvent(new AccessRecoveryForm.UpdateEvent('update'));
-    this.requestUpdate();
-  }
-
-  private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.__submit();
-  }
-
-  private __handleEmailInput(evt: InputEvent) {
-    this.email = (evt.target as EmailFieldElement).value;
+  protected async _fetch(...args: Parameters<Window['fetch']>): Promise<Data> {
+    try {
+      return await super._fetch(...args);
+    } catch (err) {
+      throw ['unknown_error'];
+    }
   }
 }

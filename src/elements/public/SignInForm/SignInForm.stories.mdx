@@ -1,5 +1,6 @@
 import dedent from 'dedent';
 import { html } from 'lit-html';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 import {
   Subtitle,
@@ -12,24 +13,85 @@ import {
 import './index.ts';
 import '../CustomerApi/index.ts';
 
-<Meta title="Forms / SignInForm" />
+<Meta
+  title="Forms / SignInForm"
+  argTypes={{
+    readonlycontrols: {
+      control: {
+        type: 'check',
+        options: ['email', 'password'],
+      },
+    },
+    disabledcontrols: {
+      control: {
+        type: 'check',
+        options: ['email', 'password', 'submit'],
+      },
+    },
+    hiddencontrols: {
+      control: {
+        type: 'check',
+        options: ['email', 'password', 'error', 'submit'],
+      },
+    },
+    lang: {
+      control: {
+        type: 'select',
+        options: ['en', 'es'],
+      },
+    },
+  }}
+/>
+
+export const controlsWithSlots = ['email', 'password', 'error', 'submit'];
 
 # SignInForm
 
 <Subtitle>Form element for email/password sign in</Subtitle>
 
-<Canvas mdxSource={dedent`<foxy-sign-in-form></foxy-sign-in-form>`} isExpanded>
-  <Story name="Playground">
-    {() => html`
+<Canvas
+  isExpanded
+  mdxSource={dedent`
+    <foxy-customer-api base="https://demo.foxycart.com/s/customer/">
+      <foxy-sign-in-form parent="foxy://auth/session"></foxy-sign-in-form>
+    </foxy-customer-api>
+  `}
+>
+  <Story
+    name="Playground"
+    args={{
+      readonlycontrols: [],
+      disabledcontrols: [],
+      hiddencontrols: [],
+      readonly: false,
+      disabled: false,
+      lang: 'en',
+      href: '',
+      parent: 'foxy://auth/session',
+      ...controlsWithSlots.reduce(
+        (args, control) => ({ ...args, [`${control}:before`]: '', [`${control}:after`]: '' }),
+        {}
+      ),
+    }}
+  >
+    {args => html`
       <foxy-sign-in-form
+        disabledcontrols=${args.disabledcontrols.join(' ')}
+        readonlycontrols=${args.readonlycontrols.join(' ')}
+        hiddencontrols=${args.hiddencontrols.join(' ')}
+        ?disabled=${args.disabled}
+        ?readonly=${args.readonly}
+        parent=${args.parent}
         class="container-narrow"
-        @fetch=${evt =>
-          evt.respondWith(
-            new Promise(resolve =>
-              setTimeout(() => resolve(new Response(null, { status: 200 })), 750)
-            )
-          )}
+        href=${args.href}
+        lang=${args.lang}
       >
+        ${controlsWithSlots.map(control => {
+          return html`
+            <div slot="${control}:before">${unsafeHTML(args[`${control}:before`])}</div>
+            <div slot="${control}:after">${unsafeHTML(args[`${control}:after`])}</div>
+          `;
+        })}
       </foxy-sign-in-form>
     `}
   </Story>
@@ -62,20 +124,29 @@ As a developer, you must intercept this request by listening to the `fetch` even
 ```ts
 import { API } from '@foxy.io/sdk/customer';
 
-const api = new API({ base: new URL('https://my.store.domain/s/customer') });
-const element = document.getElementById('my-form-id');
+async function handleRequest(request, api) {
+  let json;
 
-element.addEventListener('fetch', evt => {
+  try {
+    json = await request.json();
+    await api.signIn(json.credential);
+  } catch (err) {
+    const status = err.code === 'UNAUTHORIZED' ? 401 : 500;
+    return new Response(null, { status });
+  }
+
+  json._links = { self: { href: request.url } };
+  return new Response(JSON.stringify(json));
+}
+
+const api = new API({ base: new URL('https://my.store.domain/s/customer') });
+const form = document.getElementById('my-form-id');
+
+form.addEventListener('fetch', evt => {
   if (evt.request.url !== 'foxy://auth/session') return;
   if (evt.request.method !== 'POST') return;
 
-  evt.respondWith(
-    evt.request
-      .json()
-      .then(({ credential })} => api.signIn(credential))
-      .catch(({ code }) => (code === 'UNAUTHORIZED' ? 401 : 500))
-      .then((status = 200) => new Response(null, { status }))
-  );
+  evt.respondWith(handleRequest(evt.request, api));
 });
 ```
 
@@ -83,7 +154,7 @@ For the use case outlined above, you can also just wrap this form into `foxy-cus
 
 ```html
 <foxy-customer-api base="https://my.store.domain/s/customer/">
-  <foxy-sign-in-form></foxy-sign-in-form>
+  <foxy-sign-in-form parent="foxy://auth/session"></foxy-sign-in-form>
 </foxy-customer-api>
 ```
 
@@ -98,9 +169,14 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
 <Story name="Code 401" parameters={{ docs: { disable: true } }}>
   {() => html`
     <foxy-sign-in-form
-      password="foobarbaz"
-      email="foo@example.com"
-      @fetch=${evt => evt.respondWith(Promise.resolve(new Response(null, { status: 401 })))}
+      class="container-narrow"
+      @fetch=${evt => {
+        evt.respondWith(
+          new Promise(resolve => {
+            setTimeout(() => resolve(new Response(null, { status: 401 })), 750);
+          })
+        );
+      }}
     >
     </foxy-sign-in-form>
   `}
@@ -109,9 +185,14 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
 <Story name="Code 500" parameters={{ docs: { disable: true } }}>
   {() => html`
     <foxy-sign-in-form
-      password="foobarbaz"
-      email="foo@example.com"
-      @fetch=${evt => evt.respondWith(Promise.resolve(new Response(null, { status: 500 })))}
+      class="container-narrow"
+      @fetch=${evt => {
+        evt.respondWith(
+          new Promise(resolve => {
+            setTimeout(() => resolve(new Response(null, { status: 500 })), 750);
+          })
+        );
+      }}
     >
     </foxy-sign-in-form>
   `}

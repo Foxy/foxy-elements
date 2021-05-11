@@ -1,5 +1,7 @@
 import dedent from 'dedent';
 import { html } from 'lit-html';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+
 import {
   Subtitle,
   ArgsTable,
@@ -7,11 +9,208 @@ import {
   Canvas,
   Meta,
 } from '@web/storybook-prebuilt/addon-docs/blocks.js';
-import '../../private/DemoCustomerApi/index.ts';
+
+import '../../internal/InternalDemoCustomerApi/index.ts';
 import '../CustomerApi/index.ts';
 import './index.ts';
 
-<Meta title="Other / CustomerPortal" />
+<Meta
+  title="Other / CustomerPortal"
+  argTypes={{
+    readonlycontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'sign-in',
+          'sign-in:email',
+          'sign-in:password',
+          'access-recovery',
+          'access-recovery:email',
+          'customer',
+          'customer:header',
+          'customer:header:actions',
+          'customer:header:actions:edit',
+          'customer:header:actions:edit:form',
+          'customer:header:actions:edit:form:first-name',
+          'customer:header:actions:edit:form:last-name',
+          'customer:header:actions:edit:form:email',
+          'customer:header:actions:edit:form:tax-id',
+          'customer:addresses:list',
+          'customer:addresses:list:form',
+          'customer:addresses:list:form:address-name',
+          'customer:addresses:list:form:first-name',
+          'customer:addresses:list:form:last-name',
+          'customer:addresses:list:form:company',
+          'customer:addresses:list:form:phone',
+          'customer:addresses:list:form:address-one',
+          'customer:addresses:list:form:address-two',
+          'customer:addresses:list:form:country',
+          'customer:addresses:list:form:region',
+          'customer:addresses:list:form:city',
+          'customer:addresses:list:form:postal-code',
+          'customer:addresses:list:card',
+          'customer:payment-methods',
+          'customer:payment-methods:list',
+          'customer:payment-methods:list:card',
+          'customer:subscriptions',
+          'customer:subscriptions:form',
+          'customer:subscriptions:form:next-transaction-date',
+          'customer:subscriptions:form:frequency',
+        ],
+      },
+    },
+    disabledcontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'sign-in',
+          'sign-in:email',
+          'sign-in:password',
+          'sign-in:submit',
+          'sign-in:recover',
+          'access-recovery',
+          'access-recovery:email',
+          'access-recovery:submit',
+          'access-recovery:back',
+          'customer',
+          'customer:header',
+          'customer:header:actions',
+          'customer:header:actions:sign-out',
+          'customer:header:actions:edit',
+          'customer:header:actions:edit:form:first-name',
+          'customer:header:actions:edit:form:last-name',
+          'customer:header:actions:edit:form:email',
+          'customer:header:actions:edit:form:tax-id',
+          'customer:header:actions:edit:form:delete',
+          'customer:addresses',
+          'customer:addresses:list',
+          'customer:addresses:list:form',
+          'customer:addresses:list:form:address-name',
+          'customer:addresses:list:form:first-name',
+          'customer:addresses:list:form:last-name',
+          'customer:addresses:list:form:company',
+          'customer:addresses:list:form:phone',
+          'customer:addresses:list:form:address-one',
+          'customer:addresses:list:form:address-two',
+          'customer:addresses:list:form:country',
+          'customer:addresses:list:form:region',
+          'customer:addresses:list:form:city',
+          'customer:addresses:list:form:postal-code',
+          'customer:addresses:list:form:delete',
+          'customer:addresses:list:card',
+          'customer:payment-methods',
+          'customer:payment-methods:list',
+          'customer:payment-methods:list:card',
+          'customer:payment-methods:list:card:actions',
+          'customer:payment-methods:list:card:actions:delete',
+          'customer:subscriptions',
+          'customer:subscriptions:form',
+          'customer:subscriptions:form:next-transaction-date',
+          'customer:subscriptions:form:frequency',
+        ],
+      },
+    },
+    hiddencontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'sign-in',
+          'sign-in:header',
+          'sign-in:email',
+          'sign-in:password',
+          'sign-in:error',
+          'sign-in:submit',
+          'sign-in:recover',
+          'access-recovery',
+          'access-recovery:header',
+          'access-recovery:email',
+          'access-recovery:message',
+          'access-recovery:submit',
+          'access-recovery:back',
+          'customer:header',
+          'customer:header:actions',
+          'customer:header:actions:sign-out',
+          'customer:header:actions:edit',
+          'customer:header:actions:edit:form',
+          'customer:header:actions:edit:form:first-name',
+          'customer:header:actions:edit:form:last-name',
+          'customer:header:actions:edit:form:email',
+          'customer:header:actions:edit:form:tax-id',
+          'customer:header:actions:edit:form:timestamps',
+          'customer:header:actions:edit:form:delete',
+          'customer:addresses',
+          'customer:addresses:list',
+          'customer:addresses:list:form',
+          'customer:addresses:list:form:address-name',
+          'customer:addresses:list:form:first-name',
+          'customer:addresses:list:form:last-name',
+          'customer:addresses:list:form:company',
+          'customer:addresses:list:form:phone',
+          'customer:addresses:list:form:address-one',
+          'customer:addresses:list:form:address-two',
+          'customer:addresses:list:form:country',
+          'customer:addresses:list:form:region',
+          'customer:addresses:list:form:city',
+          'customer:addresses:list:form:postal-code',
+          'customer:addresses:list:form:timestamps',
+          'customer:addresses:list:form:delete',
+          'customer:addresses:list:card:address-name',
+          'customer:addresses:list:card:full-name',
+          'customer:addresses:list:card:full-address',
+          'customer:addresses:list:card:company',
+          'customer:addresses:list:card:phone',
+          'customer:payment-methods',
+          'customer:payment-methods:list',
+          'customer:payment-methods:list:card',
+          'customer:payment-methods:list:card:actions',
+          'customer:payment-methods:list:card:actions:delete',
+          'customer:transactions',
+          'customer:subscriptions',
+          'customer:subscriptions:form',
+          'customer:subscriptions:form:header',
+          'customer:subscriptions:form:items',
+          'customer:subscriptions:form:items:actions',
+          'customer:subscriptions:form:next-transaction-date',
+          'customer:subscriptions:form:frequency',
+          'customer:subscriptions:form:transactions',
+        ],
+      },
+    },
+    lang: {
+      control: {
+        type: 'select',
+        options: ['en', 'es'],
+      },
+    },
+  }}
+/>
+
+export const controlsWithSlots = [
+  'sign-in',
+  'sign-in:header',
+  'sign-in:email',
+  'sign-in:password',
+  'sign-in:error',
+  'sign-in:submit',
+  'sign-in:recover',
+  'access-recovery',
+  'access-recovery:header',
+  'access-recovery:email',
+  'access-recovery:message',
+  'access-recovery:submit',
+  'access-recovery:back',
+  'customer',
+  'customer:header',
+  'customer:header:actions',
+  'customer:header:actions:edit',
+  'customer:header:actions:sign-out',
+  'customer:subscriptions',
+  'customer:transactions',
+  'customer:addresses',
+  'customer:addresses:list',
+  'customer:payment-methods',
+  'customer:payment-methods:list',
+];
 
 # CustomerPortal
 
@@ -25,13 +224,44 @@ import './index.ts';
     </foxy-customer-api>
   `}
 >
-  <Story name="Playground">
-    {() =>
+  <Story
+    name="Playground"
+    args={{
+      readonlycontrols: [],
+      disabledcontrols: [],
+      hiddencontrols: [],
+      readonly: false,
+      disabled: false,
+      lang: 'en',
+      href: 'https://demo.foxycart.com/s/customer',
+      ...controlsWithSlots.reduce(
+        (args, control) => ({ ...args, [`${control}:before`]: '', [`${control}:after`]: '' }),
+        {}
+      ),
+    }}
+  >
+    {args =>
       html`
-        <demo-customer-api class="absolute inset-0 overflow-auto m-4">
-          <foxy-customer-portal href="https://demo.foxycart.com/s/customer" class="min-h-full">
+        <foxy-internal-demo-customer-api class="absolute inset-0 overflow-auto m-4">
+          <foxy-customer-portal
+            disabledcontrols=${args.disabledcontrols.join(' ')}
+            readonlycontrols=${args.readonlycontrols.join(' ')}
+            hiddencontrols=${args.hiddencontrols.join(' ')}
+            ?disabled=${args.disabled}
+            ?readonly=${args.readonly}
+            parent=${args.parent}
+            href=${args.href}
+            lang=${args.lang}
+            class="min-h-full"
+          >
+            ${controlsWithSlots.map(control => {
+              return html`
+                <div slot="${control}:before">${unsafeHTML(args[`${control}:before`])}</div>
+                <div slot="${control}:after">${unsafeHTML(args[`${control}:after`])}</div>
+              `;
+            })}
           </foxy-customer-portal>
-        </demo-customer-api>
+        </foxy-internal-demo-customer-api>
       `
     }
   </Story>

@@ -7,12 +7,12 @@ import {
   html,
 } from 'lit-element';
 
-import { Themeable } from '../../../mixins/themeable';
+import { ThemeableMixin } from '../../../mixins/themeable';
 
 export type SpinnerLayout = 'vertical' | 'horizontal';
 export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
-export class Spinner extends LitElement {
+export class Spinner extends ThemeableMixin(LitElement) {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
@@ -26,7 +26,7 @@ export class Spinner extends LitElement {
   /** @readonly */
   static get styles(): CSSResultArray {
     return [
-      Themeable.styles,
+      super.styles,
       css`
         paper-spinner-lite {
           --paper-spinner-stroke-width: 2px;

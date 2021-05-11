@@ -1,7 +1,14 @@
-import { CSSResult, CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
+import {
+  CSSResult,
+  CSSResultArray,
+  Constructor,
+  LitElement,
+  PropertyDeclarations,
+} from 'lit-element';
 import i18next, { FormatFunction, TFunction, i18n } from 'i18next';
 
 import HttpApi from 'i18next-http-backend';
+import { I18n } from '../elements/public/I18n/I18n';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable } from './themeable';
 import { cdn } from '../env';
@@ -11,6 +18,8 @@ import { cdn } from '../env';
  * providing internationalization capabilities to the derived components.
  * This class MUST NOT be used on its own (hence the `abstract` keyword) or
  * referenced externally (outside of the package).
+ *
+ * @deprecated
  */
 export abstract class Translatable extends ScopedElementsMixin(LitElement) {
   static get properties(): PropertyDeclarations {
@@ -169,3 +178,40 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
     return this._i18n.getFixedT(this.__lang, ns);
   }
 }
+
+type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
+
+export const TranslatableMixin = <T extends Base>(BaseElement: T, ns: string) => {
+  return class LocalizableElement extends BaseElement {
+    static get properties(): PropertyDeclarations {
+      return { ...super.properties, lang: { type: String } };
+    }
+
+    /** Optional ISO 639-1 code describing the language element content is written in. */
+    lang = '';
+
+    private __untrackTranslations?: () => void;
+
+    /** @since 1.4.0 */
+    get ns(): string {
+      return ns;
+    }
+
+    /** @since 1.4.0 */
+    get t(): TFunction {
+      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
+      return I18nElement?.i18next.getFixedT(this.lang, this.ns) ?? ((key: string) => key);
+    }
+
+    connectedCallback(): void {
+      super.connectedCallback();
+      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
+      this.__untrackTranslations = I18nElement?.onTranslationChange(() => this.requestUpdate());
+    }
+
+    disconnectedCallback(): void {
+      super.disconnectedCallback();
+      this.__untrackTranslations?.();
+    }
+  };
+};

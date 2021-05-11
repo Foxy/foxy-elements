@@ -1,32 +1,42 @@
 import * as logos from './logos';
 
 import { CSSResultArray, css } from 'lit-element';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/index';
-import { Themeable } from '../../../mixins/themeable';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { backgrounds } from './backgrounds';
 import { classMap } from '../../../utils/class-map';
 
-export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'foxy-internal-confirm-dialog': InternalConfirmDialog,
-      'vaadin-button': customElements.get('vaadin-button'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'iron-icon': customElements.get('iron-icon'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
-    };
-  }
+const NS = 'payment-method-card';
+const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
 
+/**
+ * Basic card displaying a payment method.
+ *
+ * Configurable controls **(new in v1.4.0)**:
+ *
+ * - `actions`
+ * - `actions:delete`
+ *
+ * @slot actions:before - **new in v1.4.0**
+ * @slot actions:after - **new in v1.4.0**
+ * @slot actions:delete:before - **new in v1.4.0**
+ * @slot actions:delete:after - **new in v1.4.0**
+ *
+ * @element foxy-payment-method-form
+ * @since 1.2.0
+ */
+export class PaymentMethodCard extends Base<Data> {
   static get styles(): CSSResultArray {
     return [
-      Themeable.styles,
+      super.styles,
       backgrounds,
       css`
         .ratio-card {
@@ -46,21 +56,40 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
     ];
   }
 
-  private static __ns = 'payment-method-card';
+  private readonly __renderActionsDelete = () => {
+    return html`
+      <div class="flex">
+        <slot name="actions:delete:before"></slot>
 
-  private __untrackTranslations?: () => void;
+        <vaadin-button
+          class="px-xs rounded"
+          theme="icon"
+          style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
+          aria-label=${this.t('delete').toString()}
+          data-testid="delete"
+          ?disabled=${this.disabledSelector.matches('actions:delete', true)}
+          @click=${this.__handleDelete}
+        >
+          <iron-icon icon="icons:delete"></iron-icon>
+        </vaadin-button>
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__untrackTranslations = customElements
-      .get('foxy-i18n')
-      .onTranslationChange(() => this.requestUpdate());
-  }
+        <slot name="actions:delete:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderActions = () => {
+    return html`
+      <div class="flex">
+        <slot name="actions:before"></slot>
+        ${this.hiddenSelector.matches('actions:delete', true) ? '' : this.__renderActionsDelete()}
+        <slot name="actions:after"></slot>
+      </div>
+    `;
+  };
 
   render(): TemplateResult {
-    const data = this.data;
-    const ns = PaymentMethodCard.__ns;
-    const t = customElements.get('foxy-i18n').i18next.getFixedT(this.lang, ns);
+    const { data, lang, ns } = this;
 
     if (this.in({ idle: 'template' }) || !data?.save_cc || !this.in('idle')) {
       const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
@@ -85,23 +114,19 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
     const last4Digits = data!.cc_number_masked.substring(data!.cc_number_masked.length - 4);
 
     return html`
-      ${this.readonly === BooleanSelector.False
-        ? html`
-            <foxy-internal-confirm-dialog
-              message="delete_prompt"
-              confirm="delete"
-              cancel="cancel"
-              header="delete"
-              theme="primary error"
-              lang=${this.lang}
-              ns=${ns}
-              id="confirm"
-              data-testid="confirm"
-              @hide=${this.__handleConfirmHide}
-            >
-            </foxy-internal-confirm-dialog>
-          `
-        : ''}
+      <foxy-internal-confirm-dialog
+        message="delete_prompt"
+        confirm="delete"
+        cancel="cancel"
+        header="delete"
+        theme="primary error"
+        lang=${lang}
+        ns=${ns}
+        id="confirm"
+        data-testid="confirm"
+        @hide=${this.__handleConfirmHide}
+      >
+      </foxy-internal-confirm-dialog>
 
       <div class="ratio-card" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
         <div
@@ -110,37 +135,22 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
           <div
             class=${classMap({
               'flex items-start': true,
-              'justify-between': this.readonly === BooleanSelector.False,
-              'justify-end': this.readonly === BooleanSelector.True,
+              'justify-between': this.readonlyControls === BooleanSelector.False,
+              'justify-end': this.readonlyControls === BooleanSelector.True,
             })}
           >
-            ${this.readonly === BooleanSelector.False
-              ? html`
-                  <vaadin-button
-                    class="px-xs rounded"
-                    theme="icon"
-                    style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
-                    aria-label=${t('delete').toString()}
-                    data-testid="delete"
-                    ?disabled=${this.disabled !== BooleanSelector.False}
-                    @click=${this.__handleDelete}
-                  >
-                    <iron-icon icon="icons:delete"></iron-icon>
-                  </vaadin-button>
-                `
-              : ''}
-
-            <div class="rounded h-m">${logo}</div>
+            ${this.hiddenSelector.matches('actions', true) ? '' : this.__renderActions()}
+            <div class="ml-auto rounded h-m">${logo}</div>
           </div>
 
           <div class="font-tnum leading-none flex justify-between">
             <div data-testid="expiry">
-              <span class="sr-only">${t('expires').toString()}&nbsp;</span>
+              <span class="sr-only">${this.t('expires').toString()}&nbsp;</span>
               <span>${data!.cc_exp_month} / ${data!.cc_exp_year}</span>
             </div>
 
             <div data-testid="number">
-              <span class="sr-only">${t('last_4_digits').toString()}&nbsp;</span>
+              <span class="sr-only">${this.t('last_4_digits').toString()}&nbsp;</span>
               <span aria-hidden="true">••••</span>
               <span>${last4Digits}</span>
             </div>
@@ -148,11 +158,6 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
         </div>
       </div>
     `;
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__untrackTranslations?.();
   }
 
   protected async _sendDelete(): Promise<Data> {

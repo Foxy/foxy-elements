@@ -1,27 +1,23 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { Themeable } from '../../../mixins/themeable';
-import { addBreakpoints } from '../../../utils/add-breakpoints';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { parseFrequency } from '../../../utils/parse-frequency';
 
-export class SubscriptionCard extends NucleonElement<Data> {
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
-  }
+const NS = 'subscription-card';
+const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)));
 
-  private static __ns = 'subscription-card';
-
-  private __removeBreakpoints?: () => void;
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__removeBreakpoints = addBreakpoints(this);
-  }
-
+/**
+ * Card element displaying subscription summary.
+ *
+ * @element foxy-subscription-card
+ * @since 1.4.0
+ */
+export class SubscriptionCard extends Base<Data> {
   render(): TemplateResult {
     const isActive = !!this.data?.is_active;
     const isFailed = !!this.data?.first_failed_transaction_date;
@@ -34,27 +30,23 @@ export class SubscriptionCard extends NucleonElement<Data> {
             'opacity-0': !this.in({ idle: 'snapshot' }),
           })}
         >
-          ${!this.excluded.matches('icon')
-            ? html`
-                <div
-                  class=${classMap({
-                    'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s': true,
-                    'text-success bg-success-10': isActive && !isFailed,
-                    'text-body bg-contrast-5': !isActive && !isFailed,
-                    'text-error bg-error-10': isFailed,
-                  })}
-                >
-                  <iron-icon icon=${isFailed ? 'error-outline' : isActive ? 'done' : 'done-all'}>
-                  </iron-icon>
-                </div>
-              `
-            : ''}
+          <div
+            class=${classMap({
+              'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s': true,
+              'text-success bg-success-10': isActive && !isFailed,
+              'text-body bg-contrast-5': !isActive && !isFailed,
+              'text-error bg-error-10': isFailed,
+            })}
+          >
+            <iron-icon icon=${isFailed ? 'error-outline' : isActive ? 'done' : 'done-all'}>
+            </iron-icon>
+          </div>
 
           <div class="flex-1 min-w-0 leading-s flex flex-col sm-flex-row sm-items-center">
             <div class="order-1 sm-order-0">
               <div class="text-body font-medium origin-top-left text-l">
                 <foxy-i18n
-                  ns=${SubscriptionCard.__ns}
+                  ns=${this.ns}
                   key="transaction_summary"
                   lang=${this.lang}
                   options=${JSON.stringify(this.__getSummaryOptions())}
@@ -72,7 +64,7 @@ export class SubscriptionCard extends NucleonElement<Data> {
                 })}
               >
                 <foxy-i18n
-                  ns=${SubscriptionCard.__ns}
+                  ns=${this.ns}
                   key=${this.__getStatusKey()}
                   lang=${this.lang}
                   options=${JSON.stringify(this.__getStatusOptions())}
@@ -83,12 +75,12 @@ export class SubscriptionCard extends NucleonElement<Data> {
             </div>
 
             <div
-              class="flex-1 font-medium leading-xs mb-xs sm-mb-0 sm-text-right text-body text-xxs sm-text-xl tracking-wide sm-tracking-normal uppercase sm-normal-case order-0 sm-order-1 font-tnum text-secondary sm-text-body"
+              class="flex-1 font-medium leading-xs mb-xs sm-mb-0 sm-text-right text-xxs sm-text-xl tracking-wide sm-tracking-normal uppercase sm-normal-case order-0 sm-order-1 font-tnum text-secondary sm-text-body"
             >
               <foxy-i18n
                 lang=${this.lang}
                 key="price_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
-                ns=${SubscriptionCard.__ns}
+                ns=${this.ns}
                 options=${JSON.stringify(this.__getPriceOptions())}
               >
               </foxy-i18n>
@@ -111,11 +103,6 @@ export class SubscriptionCard extends NucleonElement<Data> {
         </div>
       </div>
     `;
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__removeBreakpoints?.();
   }
 
   private __getSummaryOptions() {

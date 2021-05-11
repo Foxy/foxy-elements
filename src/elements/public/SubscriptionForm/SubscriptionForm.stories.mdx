@@ -1,5 +1,6 @@
 import dedent from 'dedent';
 import { html } from 'lit-html';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import {
   Subtitle,
   ArgsTable,
@@ -43,9 +44,64 @@ export const settings = JSON.stringify({
   date_modified: '2020-04-13T08:46:03-0700',
 });
 
-<Meta title="Forms / SubscriptionForm" />
+<Meta
+  title="Forms / SubscriptionForm"
+  argTypes={{
+    readonlycontrols: {
+      control: {
+        type: 'check',
+        options: ['end-date:form:end-date', 'next-transaction-date', 'frequency'],
+      },
+    },
+    disabledcontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'end-date',
+          'end-date:form:end-date',
+          'end-date:form:submit',
+          'next-transaction-date',
+          'frequency',
+        ],
+      },
+    },
+    hiddencontrols: {
+      control: {
+        type: 'check',
+        options: [
+          'header',
+          'items',
+          'items:actions',
+          'end-date',
+          'end-date:form:warning',
+          'end-date:form:end-date',
+          'end-date:form:submit',
+          'next-transaction-date',
+          'frequency',
+          'transactions',
+        ],
+      },
+    },
+    lang: {
+      control: {
+        type: 'select',
+        options: ['en', 'es'],
+      },
+    },
+  }}
+/>
 
 # SubscriptionForm
+
+export const controlsWithSlots = [
+  'header',
+  'items',
+  'items:actions',
+  'end-date',
+  'next-transaction-date',
+  'frequency',
+  'transactions',
+];
 
 <Subtitle>Form element for creating or editing subscriptions</Subtitle>
 
@@ -59,14 +115,43 @@ export const settings = JSON.stringify({
   `}
   isExpanded
 >
-  <Story name="Playground">
-    {() =>
+  <Story
+    name="Playground"
+    args={{
+      readonlycontrols: [],
+      disabledcontrols: [],
+      hiddencontrols: [],
+      readonly: false,
+      disabled: false,
+      lang: 'en',
+      href:
+        'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items',
+      parent: 'https://demo.foxycart.com/s/admin/stores/0/subscriptions',
+      ...controlsWithSlots.reduce(
+        (args, control) => ({ ...args, [`${control}:before`]: '', [`${control}:after`]: '' }),
+        {}
+      ),
+    }}
+  >
+    {args =>
       html`
         <foxy-subscription-form
-          parent="https://demo.foxycart.com/s/admin/stores/0/subscriptions"
-          href="https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items"
+          disabledcontrols=${args.disabledcontrols.join(' ')}
+          readonlycontrols=${args.readonlycontrols.join(' ')}
+          hiddencontrols=${args.hiddencontrols.join(' ')}
+          ?disabled=${args.disabled}
+          ?readonly=${args.readonly}
+          parent=${args.parent}
           class="container-narrow"
+          href=${args.href}
+          lang=${args.lang}
         >
+          ${controlsWithSlots.map(control => {
+            return html`
+              <div slot="${control}:before">${unsafeHTML(args[`${control}:before`])}</div>
+              <div slot="${control}:after">${unsafeHTML(args[`${control}:after`])}</div>
+            `;
+          })}
         </foxy-subscription-form>
       `
     }

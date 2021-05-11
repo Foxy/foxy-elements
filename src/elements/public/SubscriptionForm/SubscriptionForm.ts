@@ -1,31 +1,74 @@
+import { Choice, Group, Skeleton } from '../../private/index';
+import { Data, Item, Settings } from './types';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { TemplateResult, html } from 'lit-html';
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
   isNextTransactionDate,
 } from '@foxy.io/sdk/customer';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import memoize from 'lodash-es/memoize';
-import { Themeable } from '../../../mixins/themeable';
-import { booleanSelectorOf } from '../../../utils/boolean-selector-of';
-import { classMap } from '../../../utils/class-map';
-import { parseFrequency } from '../../../utils/parse-frequency';
-import { serializeDate } from '../../../utils/serialize-date';
-import { Calendar } from '../../internal/Calendar';
-import { Choice, Group, Skeleton } from '../../private/index';
-import { PageRendererContext } from '../CollectionPages/types';
-import { FormDialog } from '../FormDialog';
-import { Preview } from '../ItemsForm/private/Preview';
-import { NucleonElement } from '../NucleonElement/index';
 import { CellContext } from '../Table/types';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { FormDialog } from '../FormDialog';
+import { InternalCalendar } from '../../internal/InternalCalendar';
+import { NucleonElement } from '../NucleonElement/index';
+import { PageRendererContext } from '../CollectionPages/types';
+import { Preview } from '../ItemsForm/private/Preview';
+import { PropertyDeclarations } from 'lit-element';
+import { ThemeableMixin } from '../../../mixins/themeable';
 import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 import { Data as TransactionsTableData } from '../TransactionsTable/types';
-import { Data, Settings } from './types';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { parseFrequency } from '../../../utils/parse-frequency';
+import { serializeDate } from '../../../utils/serialize-date';
 
-export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
+const NS = 'subscription-form';
+const Base = ScopedElementsMixin(
+  ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)))
+);
+
+/**
+ * Form element for creating or editing subscriptions.
+ *
+ * Configurable controls **(new in v1.4.0)**:
+ *
+ * - `header`
+ * - `items`
+ * - `items:actions`
+ * - `end-date`
+ * - `end-date:form`
+ * - `next-transaction-date`
+ * - `frequency`
+ * - `transactions`
+ *
+ * @slot header:before - **new in v1.4.0**
+ * @slot header:after - **new in v1.4.0**
+ *
+ * @slot items:before - **new in v1.4.0**
+ * @slot items:after - **new in v1.4.0**
+ * @slot items:actions:before - **new in v1.4.0**
+ * @slot items:actions:after - **new in v1.4.0**
+ *
+ * @slot end-date:before - **new in v1.4.0**
+ * @slot end-date:after - **new in v1.4.0**
+ *
+ * @slot next-transaction-date:before - **new in v1.4.0**
+ * @slot next-transaction-date:after - **new in v1.4.0**
+ *
+ * @slot frequency:before - **new in v1.4.0**
+ * @slot frequency:after - **new in v1.4.0**
+ *
+ * @slot transactions:before - **new in v1.4.0**
+ * @slot transactions:after - **new in v1.4.0**
+ *
+ * @element foxy-subscription-form
+ * @since 1.2.0
+ */
+export class SubscriptionForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
@@ -52,298 +95,401 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
-  }
-
   settings: Settings | null = null;
 
-  private static __predefinedFrequencies = ['.5m', '1m', '1y'];
+  private readonly __renderHeaderSubtitle = () => {
+    const { data, lang, ns } = this;
 
-  private static __ns = 'subscription-form';
+    if (data) {
+      let color = 'text-secondary';
+      let date: string;
+      let key: string;
 
-  private __untrackTranslations?: () => void;
+      if (data.first_failed_transaction_date) {
+        color = 'text-error';
+        date = data.first_failed_transaction_date;
+        key = 'subscription_failed';
+      } else if (data.end_date) {
+        date = data.end_date;
+        const hasEnded = new Date(date).getTime() > Date.now();
+        key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
+      } else {
+        date = data.next_transaction_date ?? new Date().toISOString();
+        key = 'subscription_active';
+      }
 
-  private __memoRenderHeader = memoize(this.__renderHeader.bind(this), (...args) => args.join());
+      const text = html`
+        <foxy-i18n
+          data-testclass="i18n"
+          data-testid="status"
+          options=${JSON.stringify({ date })}
+          class=${color}
+          lang=${lang}
+          key=${key}
+          ns=${ns}
+        >
+        </foxy-i18n>
+      `;
 
-  private __memoRenderStatus = memoize(this.__renderStatus.bind(this), (...args) => args.join());
+      if (data.first_failed_transaction_date) {
+        return html`
+          <span id="status" class="flex items-center space-x-xs ${color}">
+            ${text}<iron-icon icon="icons:info-outline" class="icon-inline"></iron-icon>
+          </span>
+          <vcf-tooltip for="status" position="bottom">
+            <span class="text-s">${data.error_message}</span>
+          </vcf-tooltip>
+        `;
+      }
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__untrackTranslations = customElements
-      .get('foxy-i18n')
-      .onTranslationChange(() => this.requestUpdate());
-  }
+      return text;
+    }
 
-  render(): TemplateResult {
-    const ns = SubscriptionForm.__ns;
-    const active = !!this.data?.is_active;
-    const isIdleSnapshot = this.in({ idle: 'snapshot' });
-    const items = this.data?._embedded['fx:transaction_template']._embedded['fx:items'] ?? [];
-    const formItems = items.map(({ _links, _embedded, ...item }) => item);
+    return html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`;
+  };
+
+  private readonly __renderHeaderTitle = () => {
+    const { data, lang, ns } = this;
+
+    if (data) {
+      const frequency = parseFrequency(data.frequency);
+      const currency = data._embedded['fx:last_transaction'].currency_code;
+      const total = data._embedded['fx:last_transaction'].total_order;
+
+      return html`
+        <foxy-i18n
+          data-testclass="i18n"
+          data-testid="header"
+          options=${JSON.stringify({ ...frequency, amount: `${total} ${currency}` })}
+          lang=${lang}
+          key="price_${data.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
+          ns=${ns}
+        >
+        </foxy-i18n>
+      `;
+    }
+
+    return html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`;
+  };
+
+  private readonly __renderHeader = () => {
+    return html`
+      <div>
+        <slot name="header:before"></slot>
+        <div class="leading-xs text-xxl font-bold">${this.__renderHeaderTitle()}</div>
+        <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>
+        <slot name="header:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderItemsActions = () => {
+    return html`
+      <div class="flex">
+        <slot name="items:actions:before"></slot>
+        <foxy-i18n key="item_plural" ns=${this.ns} lang=${this.lang} class="flex-1"></foxy-i18n>
+        <slot name="items:actions:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderItemsItem = (item: Item) => {
+    const price = item.price.toLocaleString(this.lang || 'en', {
+      style: 'currency',
+      currency: this.data!._embedded['fx:last_transaction'].currency_code,
+    });
+
+    let quantity: TemplateResult;
+
+    if (item.quantity > 1) {
+      quantity = html`
+        <div class="px-s h-xs rounded bg-contrast-5 flex items-center">
+          <span class="font-tnum text-contrast text-s font-bold">${item.quantity}</span>
+        </div>
+      `;
+    } else {
+      quantity = html``;
+    }
 
     return html`
-      <foxy-form-dialog
-        readonly=${booleanSelectorOf(this.readonly, 'cancellation-dialog')}
-        disabled=${booleanSelectorOf(this.disabled, 'cancellation-dialog')}
-        excluded="save-button ${this.excluded.zoom('cancellation-dialog').toString()}"
-        parent=${this.parent}
-        header="end_subscription"
-        alert
-        form="foxy-subscription-cancellation-form"
-        href=${this.href}
-        lang=${this.lang}
-        id="cancellation-dialog"
-        ns=${ns}
-      >
-      </foxy-form-dialog>
+      <figure class="flex items-center space-x-m py-s pr-m">
+        <x-preview class="w-l h-l" .quantity=${item.quantity} .image=${item.image}></x-preview>
 
+        <figcaption class="leading-s flex-1 flex justify-between items-center">
+          <div class="flex flex-col">
+            <span class="font-medium">${item.name}</span>
+            <span class="text-secondary text-s"> ${price} </span>
+          </div>
+
+          ${quantity}
+        </figcaption>
+      </figure>
+    `;
+  };
+
+  private readonly __renderItems = () => {
+    const hiddenSelector = this.hiddenSelector;
+    const items = this.data?._embedded['fx:transaction_template']._embedded['fx:items'] ?? [];
+    const label = hiddenSelector.matches('items:actions', true) ? '' : this.__renderItemsActions();
+
+    return html`
+      <div>
+        <slot name="items:before"></slot>
+        <x-group frame>
+          <div slot="header">${label}</div>
+          <div class="divide-y divide-contrast-10 pl-s">${items.map(this.__renderItemsItem)}</div>
+        </x-group>
+        <slot name="items:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderEndDate = () => {
+    const { disabledSelector, lang, ns } = this;
+
+    return html`
+      <div>
+        <slot name="end-date:before"></slot>
+
+        <foxy-form-dialog
+          readonlycontrols=${this.readonlySelector.zoom('end-date:form').toString()}
+          disabledcontrols=${disabledSelector.zoom('end-date:form').toString()}
+          hiddencontrols="save-button ${this.hiddenSelector.zoom('end-date:form').toString()}"
+          parent=${this.parent}
+          header="end_subscription"
+          alert
+          form="foxy-cancellation-form"
+          href=${this.href}
+          lang=${lang}
+          id="end-date-form"
+          ns=${ns}
+        >
+        </foxy-form-dialog>
+
+        <vaadin-button
+          theme="error"
+          class="w-full"
+          ?disabled=${!this.data || disabledSelector.matches('end-date', true)}
+          @click=${(evt: Event) => {
+            const form = this.renderRoot.querySelector('#end-date-form') as FormDialog;
+            form.show(evt.currentTarget as ButtonElement);
+          }}
+        >
+          <foxy-i18n key="end_subscription" ns=${ns} lang=${lang}></foxy-i18n>
+        </vaadin-button>
+
+        <slot name="end-date:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __checkNextTransactionDateAvailability = (date: Date) => {
+    const { settings, data: subscription } = this;
+
+    if (settings && subscription) {
+      const value = serializeDate(date);
+      return isNextTransactionDate({ value, settings, subscription });
+    }
+
+    return date.getTime() >= Date.now();
+  };
+
+  private readonly __renderNextTransactionDate = () => {
+    const { data, lang, ns } = this;
+    const isActive = !!data?.is_active;
+
+    return html`
+      <div>
+        <slot name="next-transaction-date:before"></slot>
+
+        <x-group frame>
+          <foxy-i18n key="next_transaction_date" ns=${ns} lang=${lang} slot="header"></foxy-i18n>
+          <foxy-internal-calendar
+            data-testid="nextPaymentDate"
+            value=${ifDefined(data?.next_transaction_date)}
+            ?readonly=${!isActive || this.readonlySelector.matches('next-transaction-date', true)}
+            ?disabled=${!data || this.disabledSelector.matches('next-transaction-date', true)}
+            start=${ifDefined(data?.next_transaction_date.substr(0, 10))}
+            .checkAvailability=${this.__checkNextTransactionDateAvailability}
+            @change=${(evt: Event) => {
+              const target = evt.target as InternalCalendar;
+              this.edit({ next_transaction_date: target.value });
+            }}
+          >
+          </foxy-internal-calendar>
+        </x-group>
+
+        <slot name="next-transaction-date:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderFrequencyAsDropdown = () => {
+    const { data } = this;
+    const active = !!data?.is_active;
+    const items = this.__frequencies.map(v => ({
+      label: this.t(v === '.5m' ? 'twice_a_month' : 'frequency', parseFrequency(v)),
+      value: v,
+    }));
+
+    return html`
+      <vaadin-combo-box
+        item-value-path="value"
+        item-label-path="label"
+        ?disabled=${!data || this.disabledSelector.matches('frequency', true)}
+        ?readonly=${data && (!active || this.readonlySelector.matches('frequency', true))}
+        class="w-full"
+        label=${this.t('frequency_label').toString()}
+        value=${ifDefined(this.form.frequency)}
+        .items=${items}
+        @change=${(evt: Event) => {
+          this.edit({ frequency: (evt.target as HTMLInputElement).value });
+        }}
+      >
+      </vaadin-combo-box>
+    `;
+  };
+
+  private readonly __renderFrequencyAsRadioList = () => {
+    const { data, lang, ns } = this;
+
+    return html`
+      <x-group frame>
+        <foxy-i18n key="frequency_label" ns=${ns} lang=${lang} slot="header"> </foxy-i18n>
+
+        <x-choice
+          default-custom-value="1d"
+          data-testid="frequency"
+          type="frequency"
+          ?custom=${this.settings === null}
+          .items=${this.__frequencies}
+          .value=${this.form.frequency ?? null}
+          ?disabled=${!data || this.disabledSelector.matches('frequency', true)}
+          ?readonly=${data && (!data.is_active || this.readonlySelector.matches('frequency', true))}
+          @change=${(evt: Event) => {
+            this.edit({ frequency: (evt.target as HTMLInputElement).value });
+          }}
+        >
+          ${this.__frequencies.map(
+            frequency => html`
+              <foxy-i18n
+                data-testclass="i18n"
+                options=${JSON.stringify(parseFrequency(frequency))}
+                slot="${frequency}-label"
+                lang=${lang}
+                key=${frequency === '.5m' ? 'twice_a_month' : 'frequency'}
+                ns=${ns}
+              >
+              </foxy-i18n>
+            `
+          )}
+        </x-choice>
+      </x-group>
+    `;
+  };
+
+  private readonly __renderFrequency = () => {
+    return html`
+      <div>
+        <slot name="frequency:before"></slot>
+
+        ${this.settings && this.__frequencies.length > 4
+          ? this.__renderFrequencyAsDropdown()
+          : this.__renderFrequencyAsRadioList()}
+
+        <slot name="frequency:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __transactionsTableColumns = [
+    {
+      cell(ctx: CellContext<TransactionsTableData>) {
+        const colors: Record<string, string> = {
+          declined: 'text-error',
+          rejected: 'text-error',
+        };
+
+        const status = TransactionsTable.statusColumn.cell!(ctx);
+        const price = TransactionsTable.priceColumn.cell!(ctx);
+        const color = colors[ctx.data.status] ?? 'text-body';
+
+        return ctx.html`
+          <span class="sr-only">${status}</span>
+          <span class="${color} text-s">${price}</span>
+        `;
+      },
+    },
+    { cell: TransactionsTable.idColumn.cell, hideBelow: 'sm' },
+    { cell: TransactionsTable.dateColumn.cell },
+    { cell: TransactionsTable.receiptColumn.cell },
+  ];
+
+  private readonly __renderTransactionsPage = ({ html, ...ctx }: PageRendererContext) => {
+    return html`
+      <foxy-table
+        group=${ctx.group}
+        lang=${ctx.lang}
+        href=${ctx.href}
+        .columns=${this.__transactionsTableColumns}
+      >
+      </foxy-table>
+    `;
+  };
+
+  private readonly __renderTransactions = () => {
+    const { lang, ns } = this;
+
+    return html`
+      <div>
+        <slot name="transactions:before"></slot>
+
+        <x-group frame>
+          <foxy-i18n lang=${lang} slot="header" key="transaction_plural" ns=${ns}></foxy-i18n>
+          <foxy-collection-pages
+            group=${this.group}
+            class="block divide-y divide-contrast-10 px-m"
+            first=${this.data?._links['fx:transactions'].href ?? ''}
+            lang=${lang}
+            .page=${this.__renderTransactionsPage}
+          >
+          </foxy-collection-pages>
+        </x-group>
+
+        <slot name="transactions:after"></slot>
+      </div>
+    `;
+  };
+
+  render(): TemplateResult {
+    const isBusy = this.in('busy');
+
+    return html`
       <div
         data-testid="wrapper"
-        aria-busy=${this.in('busy')}
+        aria-busy=${isBusy}
         aria-live="polite"
-        class="text-body relative space-y-l text-body font-lumo text-m leading-m"
+        class="relative space-y-l text-body font-lumo text-m leading-m"
       >
-        <div class="leading-xs">
-          <div class="text-xxl font-bold">
-            ${this.data
-              ? this.__memoRenderHeader(
-                  this.lang,
-                  this.data.frequency,
-                  this.data._embedded['fx:last_transaction'].total_order,
-                  this.data._embedded['fx:last_transaction'].currency_code
-                )
-              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
-          </div>
-          <div class="text-l">
-            ${this.data
-              ? this.__memoRenderStatus(
-                  this.lang,
-                  this.data.next_transaction_date,
-                  this.data.first_failed_transaction_date,
-                  this.data.error_message,
-                  this.data.end_date
-                )
-              : html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`}
-          </div>
-        </div>
-
-        <slot name="after-status"></slot>
-
-        ${!this.excluded.matches('items') && this.data
-          ? html`
-              <x-group frame>
-                <slot name="items-header" slot="header">
-                  <foxy-i18n key="item_plural" ns=${ns} lang=${this.lang}> </foxy-i18n>
-                </slot>
-
-                <div class="divide-y divide-contrast-10 pl-s">
-                  ${formItems.map(
-                    item => html`
-                      <figure class="flex items-center space-x-m py-s pr-m">
-                        <x-preview class="w-l h-l" .quantity=${item.quantity} .image=${item.image}>
-                        </x-preview>
-
-                        <figcaption class="leading-s flex-1 flex justify-between items-center">
-                          <div class="flex flex-col">
-                            <span class="font-medium">${item.name}</span>
-                            <span class="text-secondary text-s">
-                              ${item.price.toLocaleString(this.lang || 'en', {
-                                style: 'currency',
-                                currency: this.data!._embedded['fx:last_transaction'].currency_code,
-                              })}
-                            </span>
-                          </div>
-
-                          ${item.quantity > 1
-                            ? html`
-                                <div class="px-s h-xs rounded bg-contrast-5 flex items-center">
-                                  <span class="font-tnum text-contrast text-s font-bold">
-                                    ${item.quantity}
-                                  </span>
-                                </div>
-                              `
-                            : ''}
-                        </figcaption>
-                      </figure>
-                    `
-                  )}
-                </div>
-              </x-group>
-            `
-          : ''}
-
-        <slot name="after-items"></slot>
-
-        ${!this.excluded.matches('end-button') && !this.data?.end_date
-          ? html`
-              <vaadin-button
-                theme="error"
-                class="w-full"
-                ?disabled=${!isIdleSnapshot || this.disabled.matches('end-button')}
-                @click=${(evt: Event) =>
-                  this.__cancellationDialog.show(evt.currentTarget as ButtonElement)}
-              >
-                <foxy-i18n key="end_subscription" ns=${ns} lang=${this.lang}></foxy-i18n>
-              </vaadin-button>
-            `
-          : ''}
-
-        <slot name="after-end-button"></slot>
-
-        ${this.__isNextTransactionDateVisible
-          ? html`
-              <x-group frame>
-                <foxy-i18n key="next_transaction_date" ns=${ns} lang=${this.lang} slot="header">
-                </foxy-i18n>
-
-                <foxy-internal-calendar
-                  data-testid="nextPaymentDate"
-                  value=${ifDefined(this.data?.next_transaction_date)}
-                  ?readonly=${!active || this.readonly.matches('next-transaction-date')}
-                  ?disabled=${!isIdleSnapshot || this.disabled.matches('next-transaction-date')}
-                  start=${ifDefined(this.data?.next_transaction_date.substr(0, 10))}
-                  .checkAvailability=${(date: Date) => {
-                    const isFutureDate = date.getTime() >= Date.now();
-
-                    if (this.settings && this.data) {
-                      return isNextTransactionDate({
-                        value: serializeDate(date),
-                        settings: this.settings,
-                        subscription: this.data,
-                      });
-                    }
-
-                    return isFutureDate;
-                  }}
-                  @change=${this.__handleNextTransactionDateChange}
-                >
-                </foxy-internal-calendar>
-              </x-group>
-            `
-          : ''}
-
-        <slot name="after-next-payment-date"></slot>
-
-        ${this.__isFrequencyVisible
-          ? this.settings && this.__frequencies.length > 4
-            ? html`
-                <vaadin-combo-box
-                  item-value-path="value"
-                  item-label-path="label"
-                  ?disabled=${!isIdleSnapshot || this.disabled.matches('frequency')}
-                  ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('frequency'))}
-                  .items=${this.__frequencies.map(v => ({
-                    label: this.__t(v === '.5m' ? 'twice_a_month' : 'frequency', parseFrequency(v)),
-                    value: v,
-                  }))}
-                  class="w-full"
-                  label=${this.__t('frequency_label').toString()}
-                  value=${ifDefined(this.form.frequency)}
-                  @change=${this.__handleFrequencyChange}
-                >
-                </vaadin-combo-box>
-              `
-            : html`
-                <x-group frame>
-                  <foxy-i18n key="frequency_label" ns=${ns} lang=${this.lang} slot="header">
-                  </foxy-i18n>
-
-                  <x-choice
-                    default-custom-value="1d"
-                    data-testid="frequency"
-                    type="frequency"
-                    ?custom=${this.settings === null}
-                    .items=${this.__frequencies}
-                    .value=${this.form.frequency ?? null}
-                    ?disabled=${!isIdleSnapshot || this.disabled.matches('frequency')}
-                    ?readonly=${isIdleSnapshot && (!active || this.readonly.matches('frequency'))}
-                    @change=${this.__handleFrequencyChange}
-                  >
-                    ${this.__frequencies.map(
-                      frequency => html`
-                        <foxy-i18n
-                          data-testclass="i18n"
-                          slot="${frequency}-label"
-                          lang=${this.lang}
-                          key=${frequency === '.5m' ? 'twice_a_month' : 'frequency'}
-                          ns=${ns}
-                          options=${JSON.stringify(parseFrequency(frequency))}
-                        >
-                        </foxy-i18n>
-                      `
-                    )}
-                  </x-choice>
-                </x-group>
-              `
-          : ''}
-
-        <slot name="after-frequency"></slot>
-
-        ${!this.excluded.matches('transactions') && this.data
-          ? html`
-              <x-group frame>
-                <foxy-i18n lang=${this.lang} slot="header" key="transaction_plural" ns=${ns}>
-                </foxy-i18n>
-
-                <foxy-collection-pages
-                  group=${this.group}
-                  class="block divide-y divide-contrast-10 px-m"
-                  first=${this.data?._links['fx:transactions'].href ?? ''}
-                  lang=${this.lang}
-                  .page=${(ctx: PageRendererContext) => {
-                    return ctx.html`
-                      <foxy-table
-                        group=${ctx.group}
-                        lang=${ctx.lang}
-                        href=${ctx.href}
-                        .columns=${[
-                          {
-                            cell(ctx: CellContext<TransactionsTableData>) {
-                              const colors: Record<string, string> = {
-                                declined: 'text-error',
-                                rejected: 'text-error',
-                              };
-
-                              const status = TransactionsTable.statusColumn.cell!(ctx);
-                              const price = TransactionsTable.priceColumn.cell!(ctx);
-                              const color = colors[ctx.data.status] ?? 'text-body';
-
-                              return ctx.html`
-                                <span class="sr-only">${status}</span>
-                                <span class="${color} text-s">${price}</span>
-                              `;
-                            },
-                          },
-                          { cell: TransactionsTable.idColumn.cell, hideBelow: 'sm' },
-                          { cell: TransactionsTable.dateColumn.cell },
-                          { cell: TransactionsTable.receiptColumn.cell },
-                        ]}
-                      >
-                      </foxy-table>
-                    `;
-                  }}
-                >
-                </foxy-collection-pages>
-              </x-group>
-            `
-          : ''}
-
-        <slot name="after-transactions"></slot>
+        ${this.hiddenSelector.matches('header', true) ? '' : this.__renderHeader()}
+        ${this.hiddenSelector.matches('items', true) ? '' : this.__renderItems()}
+        ${this.hiddenSelector.matches('end-date', true) ? '' : this.__renderEndDate()}
+        ${this.__isNextTransactionDateVisible ? this.__renderNextTransactionDate() : ''}
+        ${this.__isFrequencyVisible ? this.__renderFrequency() : ''}
+        ${this.hiddenSelector.matches('transactions', true) ? '' : this.__renderTransactions()}
 
         <div
-          data-testid="spinnerWrapper"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
-            'pointer-events-none opacity-0': this.in({ idle: 'snapshot' }),
-            'opacity-100': !this.in({ idle: 'snapshot' }),
+            'opacity-0 pointer-events-none': !isBusy,
           })}
         >
           <foxy-spinner
-            data-testid="spinner"
             layout="vertical"
             class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in({ idle: 'template' }) ? 'empty' : this.in('fail') ? 'error' : 'busy'}
+            state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            lang=${this.lang}
+            ns=${this.ns}
           >
           </foxy-spinner>
         </div>
@@ -351,19 +497,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     `;
   }
 
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__untrackTranslations?.();
-    this.__memoRenderHeader.cache.clear?.();
-    this.__memoRenderStatus.cache.clear?.();
-  }
-
-  private get __t() {
-    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, SubscriptionForm.__ns);
-  }
-
   private get __isNextTransactionDateVisible() {
-    if (this.excluded.matches('next-transaction-date')) return false;
+    if (this.hiddenSelector.matches('next-transaction-date', true)) return false;
     if (this.settings === null) return true;
     if (this.data === null) return false;
 
@@ -372,7 +507,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
   }
 
   private get __isFrequencyVisible() {
-    if (this.excluded.matches('frequency')) return false;
+    if (this.hiddenSelector.matches('frequency', true)) return false;
     if (this.settings === null) return true;
     if (this.data === null) return false;
 
@@ -385,7 +520,7 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
   }
 
   private get __frequencies() {
-    if (!this.settings || !this.data) return SubscriptionForm.__predefinedFrequencies;
+    if (!this.settings || !this.data) return ['.5m', '1m', '1y'];
 
     const allowedFrequencies = getAllowedFrequencies({
       subscription: this.data,
@@ -393,83 +528,5 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
     });
 
     return Array.from(allowedFrequencies);
-  }
-
-  private get __cancellationDialog(): FormDialog {
-    return this.renderRoot.querySelector('#cancellation-dialog') as FormDialog;
-  }
-
-  private __handleFrequencyChange(evt: Event) {
-    this.edit({ frequency: (evt.target as HTMLInputElement).value });
-  }
-
-  private __handleNextTransactionDateChange(evt: CustomEvent<unknown>) {
-    const target = evt.target as Calendar;
-    this.edit({ next_transaction_date: target.value });
-  }
-
-  private __renderHeader(lang: string, frequency: string, total: number, currency: string) {
-    return html`
-      <foxy-i18n
-        data-testclass="i18n"
-        data-testid="header"
-        lang=${lang}
-        key="price_${frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
-        ns=${SubscriptionForm.__ns}
-        .options=${{ ...parseFrequency(frequency), amount: `${total} ${currency}` }}
-      >
-      </foxy-i18n>
-    `;
-  }
-
-  private __renderStatus(
-    lang: string,
-    nextTransactionDate: string | null | undefined,
-    firstFailedTransactionDate: string | null | undefined,
-    errorMessage: string | undefined,
-    endDate: string | null | undefined
-  ) {
-    const ns = SubscriptionForm.__ns;
-
-    let color = 'text-secondary';
-    let date: string;
-    let key: string;
-
-    if (firstFailedTransactionDate) {
-      color = 'text-error';
-      date = firstFailedTransactionDate;
-      key = 'subscription_failed';
-    } else if (endDate) {
-      date = endDate;
-      const hasEnded = new Date(date).getTime() > Date.now();
-      key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
-    } else {
-      date = nextTransactionDate ?? new Date().toISOString();
-      key = 'subscription_active';
-    }
-
-    const text = html`
-      <foxy-i18n
-        data-testclass="i18n"
-        data-testid="status"
-        class=${color}
-        lang=${lang}
-        key=${key}
-        ns=${ns}
-        .options=${{ date }}
-      >
-      </foxy-i18n>
-    `;
-
-    if (!firstFailedTransactionDate) return text;
-
-    return html`
-      <span id="status" class="flex items-center space-x-xs ${color}">
-        ${text}<iron-icon icon="icons:info-outline" class="icon-inline"></iron-icon>
-      </span>
-      <vcf-tooltip for="status" position="bottom">
-        <span class="text-s">${errorMessage}</span>
-      </vcf-tooltip>
-    `;
   }
 }

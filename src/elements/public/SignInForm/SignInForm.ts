@@ -1,240 +1,204 @@
-import {
-  CSSResult,
-  CSSResultArray,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  html,
-} from 'lit-element';
+import { TemplateResult, html } from 'lit-element';
 
-import { API } from '../NucleonElement/API';
-import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { Data } from './types';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
-import { I18n } from '../I18n/I18n';
+import { NucleonElement } from '..';
+import { NucleonV8N } from '../NucleonElement/types';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
-import { Themeable } from '../../../mixins/themeable';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
-import { createBooleanSelectorProperty } from '../../../utils/create-boolean-selector-property';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { validate as isEmail } from 'email-validator';
 
-type State = 'invalid' | 'valid' | 'busy' | { fail: 'invalid' | 'unknown' };
+const NS = 'sign-in-form';
+const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
 
 /**
  * Form element for email/password sign in.
  *
- * @fires SignInForm#fetch - Instance of `SignInForm.API.FetchEvent`. Emitted before each API request.
+ * Configurable controls:
+ *
+ * - `email`
+ * - `password`
+ * - `error`
+ * - `submit`
+ *
+ * @slot email:before
+ * @slot email:after
+ * @slot password:before
+ * @slot password:after
+ * @slot error:before
+ * @slot error:after
+ * @slot submit:before
+ * @slot submit:after
  *
  * @element foxy-sign-in-form
  * @since 1.4.0
  */
-export class SignInForm extends LitElement {
-  /** API class constructor used by the instances of this class. */
-  static readonly API = API;
-
-  static readonly UpdateEvent = class extends CustomEvent<void> {};
-
-  static readonly SignInEvent = class extends CustomEvent<void> {};
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...createBooleanSelectorProperty('readonly'),
-      ...createBooleanSelectorProperty('disabled'),
-      ...createBooleanSelectorProperty('excluded'),
-      lang: { type: String },
-      email: { type: String },
-      password: { type: String },
-    };
+export class SignInForm extends Base<Data> {
+  static get v8n(): NucleonV8N<Data> {
+    return [
+      ({ credential: c }) => !!c?.email || 'email_required',
+      ({ credential: c }) => isEmail(c?.email ?? '') || 'email_invalid_email',
+      ({ credential: c }) => !!c?.password || 'password_required',
+    ];
   }
 
-  static get styles(): CSSResultArray | CSSResult {
-    return Themeable.styles;
-  }
+  private readonly __emailValidator = () => !this.errors.some(err => err.startsWith('email'));
 
-  /** Optional ISO 639-1 code describing the language element content is written in. */
-  lang = '';
+  private readonly __passwordValidator = () => !this.errors.some(err => err.startsWith('password'));
 
-  /** User email. Value of this property is bound to the form field. */
-  email = '';
+  private readonly __renderEmail = () => {
+    const { disabledSelector, readonlySelector, errors } = this;
 
-  /** User password. Value of this property is bound to the form field. */
-  password = '';
+    const emailError = errors.find(err => err.startsWith('email'));
+    const emailErrorKey = emailError?.replace('email', 'v8n');
+    const emailErrorMessage = emailErrorKey ? this.t(emailErrorKey).toString() : '';
 
-  /** Makes the entire form or a part of it readonly. Customizable parts: `email` and `password`. */
-  readonly = BooleanSelector.False;
+    const isBusy = this.in('busy');
 
-  /** Disables the entire form or a part of it. Customizable parts: `email`, `password` and `submit`. */
-  disabled = BooleanSelector.False;
+    return html`
+      <div>
+        <slot name="email:before"></slot>
 
-  /** Hides the entire form or a part of it. Customizable parts: `email`, `password`, `submit`, `error` and `spinner`. */
-  excluded = BooleanSelector.False;
+        <vaadin-email-field
+          error-message=${emailErrorMessage}
+          class="w-full mb-m"
+          label=${this.t('email').toString()}
+          value=${ifDefined(this.form.credential?.email)}
+          ?disabled=${isBusy || disabledSelector.matches('email', true)}
+          ?readonly=${readonlySelector.matches('email', true)}
+          .checkValidity=${this.__emailValidator}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+          @input=${(evt: InputEvent) => {
+            const email = (evt.target as EmailFieldElement).value;
+            const password = this.form.credential?.password ?? '';
+            this.edit({ credential: { email, password }, type: 'password' });
+          }}
+        >
+        </vaadin-email-field>
 
-  private __state: State = 'invalid';
+        <slot name="email:after"></slot>
+      </div>
+    `;
+  };
 
-  private __untrackTranslations?: () => void;
+  private readonly __renderPassword = () => {
+    const { disabledSelector, readonlySelector, errors } = this;
 
-  private static __ns = 'sign-in-form';
+    const passwordError = errors.find(err => err.startsWith('password'));
+    const passwordErrorKey = passwordError?.replace('password', 'v8n');
+    const passwordErrorMessage = passwordErrorKey ? this.t(passwordErrorKey).toString() : '';
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    const I18nElement = customElements.get('foxy-i18n') as typeof I18n;
-    this.__untrackTranslations = I18nElement.onTranslationChange(() => this.requestUpdate());
-  }
+    const isBusy = this.in('busy');
+
+    return html`
+      <div>
+        <slot name="password:before"></slot>
+
+        <vaadin-password-field
+          error-message=${passwordErrorMessage}
+          class="w-full mb-m"
+          label=${this.t('password').toString()}
+          value=${ifDefined(this.form.credential?.password)}
+          ?disabled=${isBusy || disabledSelector.matches('password', true)}
+          ?readonly=${readonlySelector.matches('password', true)}
+          .checkValidity=${this.__passwordValidator}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+          @input=${(evt: InputEvent) => {
+            const email = this.form.credential?.email ?? '';
+            const password = (evt.target as PasswordFieldElement).value;
+            this.edit({ credential: { email, password }, type: 'password' });
+          }}
+        >
+        </vaadin-password-field>
+
+        <slot name="password:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderError = () => {
+    return html`
+      <div>
+        <slot name="error:before"></slot>
+
+        <p class="leading-s flex items-start text-s rounded p-s bg-error-10 text-error">
+          <iron-icon class="flex-shrink-0 mr-s" icon="lumo:error"></iron-icon>
+          <foxy-i18n lang=${this.lang} key=${this.errors[0]} ns=${this.ns}></foxy-i18n>
+        </p>
+
+        <slot name="error:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderSubmit = () => {
+    const isValid =
+      this.in({ idle: { snapshot: { dirty: 'valid' } } }) ||
+      this.in({ idle: { snapshot: { clean: 'valid' } } }) ||
+      this.in({ idle: { template: { dirty: 'valid' } } }) ||
+      this.in({ idle: { template: { clean: 'valid' } } });
+
+    return html`
+      <div>
+        <slot name="submit:before"></slot>
+
+        <vaadin-button
+          class=${classMap({ 'w-full': true, 'mt-l': !this.in('fail') })}
+          theme="primary"
+          ?disabled=${!isValid || this.in('busy') || this.disabledSelector.matches('submit', true)}
+          @click=${this.submit}
+        >
+          <foxy-i18n ns=${this.ns} lang=${this.lang} key="sign_in"></foxy-i18n>
+        </vaadin-button>
+
+        <slot name="submit:after"></slot>
+      </div>
+    `;
+  };
 
   render(): TemplateResult {
+    const { hiddenSelector, errors, lang, ns } = this;
+
+    const isCredentialUnknown = errors.includes('invalid_email_or_password_error');
+    const isErrorUnknown = errors.includes('unknown_error');
+    const isFailed = isErrorUnknown || isCredentialUnknown;
+    const isBusy = this.in('busy');
+
     return html`
-      <div
-        aria-live="polite"
-        aria-busy=${this.__state === 'busy'}
-        class="relative font-lumo text-m leading-m"
-      >
-        ${!this.excluded.matches('email')
-          ? html`
-              <vaadin-email-field
-                class="w-full mb-m"
-                label=${this.__t('email').toString()}
-                value=${this.email}
-                ?disabled=${this.__state === 'busy' || this.disabled.matches('email')}
-                ?readonly=${this.readonly.matches('email')}
-                required
-                @input=${this.__handleEmailInput}
-                @keydown=${this.__handleKeyDown}
-              >
-              </vaadin-email-field>
-            `
-          : ''}
-        <!---->
-        ${!this.excluded.matches('password')
-          ? html`
-              <vaadin-password-field
-                class="w-full mb-m"
-                label=${this.__t('password').toString()}
-                value=${this.password}
-                ?disabled=${this.__state === 'busy' || this.disabled.matches('password')}
-                ?readonly=${this.readonly.matches('password')}
-                required
-                @input=${this.__handlePasswordInput}
-                @keydown=${this.__handleKeyDown}
-              >
-              </vaadin-password-field>
-            `
-          : ''}
-        <!---->
-        ${typeof this.__state === 'object' && this.__state.fail && !this.excluded.matches('error')
-          ? html`
-              <div class="flex items-center text-s bg-error-10 rounded p-s text-error mb-m">
-                <iron-icon icon="lumo:error" class="self-start flex-shrink-0 mr-s"></iron-icon>
-                <foxy-i18n
-                  class="leading-s"
-                  lang=${this.lang}
-                  ns=${SignInForm.__ns}
-                  key=${this.__state.fail === 'invalid'
-                    ? 'invalid_email_or_password_error'
-                    : 'unknown_error'}
-                >
-                </foxy-i18n>
-              </div>
-            `
-          : ''}
-        <!---->
-        ${!this.excluded.matches('submit')
-          ? html`
-              <vaadin-button
-                class=${classMap({ 'w-full': true, 'mt-l': typeof this.__state === 'string' })}
-                theme="primary"
-                ?disabled=${this.__state === 'busy' || this.disabled.matches('submit')}
-                @click=${this.__submit}
-              >
-                <foxy-i18n ns=${SignInForm.__ns} lang=${this.lang} key="sign_in"></foxy-i18n>
-              </vaadin-button>
-            `
-          : ''}
-        <!---->
-        ${this.__state === 'busy' && !this.excluded.matches('spinner')
-          ? html`
-              <div class="absolute inset-0 flex items-center justify-center">
-                <foxy-spinner
-                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  layout="vertical"
-                  data-testid="spinner"
-                >
-                </foxy-spinner>
-              </div>
-            `
-          : ''}
-      </div>
+      <main aria-live="polite" aria-busy=${isBusy} class="relative font-lumo text-m leading-m">
+        ${hiddenSelector.matches('email', true) ? '' : this.__renderEmail()}
+        ${hiddenSelector.matches('password', true) ? '' : this.__renderPassword()}
+        ${hiddenSelector.matches('error', true) || !isFailed ? '' : this.__renderError()}
+        ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
+
+        <div
+          class=${classMap({
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'opacity-0 pointer-events-none': !isBusy,
+          })}
+        >
+          <foxy-spinner
+            layout="vertical"
+            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            lang=${lang}
+            ns=${ns}
+          >
+          </foxy-spinner>
+        </div>
+      </main>
     `;
   }
 
-  /** Submits the form if it's valid. */
-  submit(): void {
-    this.__submit();
-  }
-
-  in(stateValue: State): boolean {
-    if (typeof stateValue === 'string' && typeof this.__state === 'string') {
-      return this.__state === stateValue;
-    } else if (typeof stateValue === 'object' && typeof this.__state === 'object') {
-      return this.__state.fail === stateValue.fail;
-    } else {
-      return false;
+  protected async _fetch(...args: Parameters<Window['fetch']>): Promise<Data> {
+    try {
+      return await super._fetch(...args);
+    } catch (err) {
+      const status = (err as Response).status;
+      throw [status === 401 ? 'invalid_email_or_password_error' : 'unknown_error'];
     }
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__untrackTranslations?.();
-  }
-
-  private get __t() {
-    const I18nElement = customElements.get('foxy-i18n') as typeof I18n;
-    return I18nElement.i18next.getFixedT(this.lang, SignInForm.__ns);
-  }
-
-  private get __emailField() {
-    return this.renderRoot.querySelector('vaadin-email-field') as EmailFieldElement;
-  }
-
-  private get __passwordField() {
-    return this.renderRoot.querySelector('vaadin-password-field') as PasswordFieldElement;
-  }
-
-  private async __submit() {
-    const isEmailValid = this.__emailField.validate();
-    const isPasswordValid = this.__passwordField.validate();
-
-    if (!isEmailValid || !isPasswordValid) return;
-    this.__setState('busy');
-
-    const response = await new API(this).fetch('foxy://auth/session', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'password',
-        credential: { email: this.email, password: this.password },
-      }),
-    });
-
-    if (response.ok) {
-      this.dispatchEvent(new SignInForm.SignInEvent('signin'));
-      this.__setState('valid');
-    } else {
-      this.__setState({ fail: response.status === 401 ? 'invalid' : 'unknown' });
-    }
-  }
-
-  private __setState(newState: State) {
-    this.__state = newState;
-    this.dispatchEvent(new SignInForm.UpdateEvent('update'));
-    this.requestUpdate();
-  }
-
-  private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.__submit();
-  }
-
-  private __handleEmailInput(evt: InputEvent) {
-    this.email = (evt.target as EmailFieldElement).value;
-  }
-
-  private __handlePasswordInput(evt: InputEvent) {
-    this.password = (evt.target as PasswordFieldElement).value;
   }
 }

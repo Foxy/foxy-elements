@@ -2,6 +2,7 @@ import { Context, Event, Page, PageRenderer } from './types';
 import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { State, StateMachine, interpret } from 'xstate';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Rumour } from '@foxy.io/sdk/core';
@@ -18,7 +19,7 @@ import traverse from 'traverse';
  * @element foxy-collection-pages
  * @since 1.1.0
  */
-export class CollectionPages<TPage extends Page> extends LitElement {
+export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitElement) {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
@@ -106,7 +107,20 @@ export class CollectionPages<TPage extends Page> extends LitElement {
 
       this.__renderPage = new Function(
         'ctx',
-        `return ctx.html\`<${value} ${itemAttribute} group=\${ctx.group} href=\${ctx.href} lang=\${ctx.lang}></${value}>\``
+        `return ctx.html\`
+          <${value}
+            disabledcontrols=\${ctx.disabledControls.toString()}
+            readonlycontrols=\${ctx.readonlyControls.toString()}
+            hiddencontrols=\${ctx.hiddenControls.toString()}
+            group=\${ctx.group}
+            href=\${ctx.href}
+            lang=\${ctx.lang}
+            ${itemAttribute}
+            ?disabled=\${this.disabled}
+            ?readonly=\${this.readonly}
+            ?hidden=\${this.hidden}
+          >
+          </${value}>\``
       ) as PageRenderer<TPage>;
     } else {
       this.__renderPage = value;
@@ -207,6 +221,12 @@ export class CollectionPages<TPage extends Page> extends LitElement {
         page => page.key,
         (page, pageIndex) => {
           return this.__renderPage({
+            disabledControls: this.disabledControls,
+            readonlyControls: this.readonlyControls,
+            hiddenControls: this.hiddenControls,
+            disabled: this.disabled,
+            readonly: this.readonly,
+            hidden: this.hidden,
             group: this.group,
             data: this.pages[pageIndex] ?? null,
             href: page.href,

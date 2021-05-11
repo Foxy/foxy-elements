@@ -1,11 +1,13 @@
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { Collection, Column } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { NucleonElement } from '../NucleonElement/index';
-import { Themeable } from '../../../mixins/themeable';
-import { addBreakpoints } from '../../../utils/add-breakpoints';
+import { PropertyDeclarations } from 'lit-element';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+
+const Base = ResponsiveMixin(ThemeableMixin(NucleonElement));
 
 /**
  * Configurable table element for HAL+JSON collections.
@@ -13,7 +15,7 @@ import { classMap } from '../../../utils/class-map';
  * @element foxy-table
  * @since 1.1.0
  */
-export class Table<TData extends Collection> extends NucleonElement<TData> {
+export class Table<TData extends Collection> extends Base<TData> {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
@@ -22,21 +24,8 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
     };
   }
 
-  /** @readonly */
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
-  }
-
   /** Array of column templates. See `Column` type for more details. */
   columns: Column<TData>[] = [];
-
-  private __removeBreakpoints?: () => void;
-
-  /** @readonly */
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__removeBreakpoints = addBreakpoints(this);
-  }
 
   /** @readonly */
   render(): TemplateResult {
@@ -94,12 +83,6 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
           : ''}
       </div>
     `;
-  }
-
-  /** @readonly */
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__removeBreakpoints?.();
   }
 
   private get __rows() {

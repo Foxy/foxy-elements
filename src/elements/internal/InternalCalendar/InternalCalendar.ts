@@ -1,18 +1,11 @@
-import {
-  CSSResult,
-  CSSResultArray,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  html,
-} from 'lit-element';
+import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
-import { Themeable } from '../../../mixins/themeable';
+import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import { parseDate } from '../../../utils/parse-date';
 import { serializeDate } from '../../../utils/serialize-date';
 
-export class Calendar extends LitElement {
+export class InternalCalendar extends ThemeableMixin(LitElement) {
   static get properties(): PropertyDeclarations {
     return {
       checkAvailability: { attribute: false },
@@ -22,10 +15,6 @@ export class Calendar extends LitElement {
       start: { type: String },
       lang: { type: String },
     };
-  }
-
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
   }
 
   checkAvailability: (date: Date) => boolean = () => true;

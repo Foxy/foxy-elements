@@ -1,21 +1,89 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
 import { ComboBoxParams, Data, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { I18n } from '../I18n/I18n';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/index';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private/index';
-import { Themeable } from '../../../mixins/themeable';
+import { PropertyTable } from '../../private/PropertyTable/PropertyTable';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { countries } from './countries';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
 import { regions } from './regions';
 
-export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
+const NS = 'address-form';
+const Base = ScopedElementsMixin(
+  ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)))
+);
+
+/**
+ * Basic form displaying customer address.
+ *
+ * Configurable controls **(new in v1.4.0)**:
+ *
+ * - `address-name`
+ * - `first-name`
+ * - `last-name`
+ * - `region`
+ * - `city`
+ * - `phone`
+ * - `company`
+ * - `address-line-one`
+ * - `address-line-two`
+ * - `postal-code`
+ * - `timestamps`
+ * - `delete`
+ * - `create`
+ *
+ * @slot address-name:before - **new in v1.4.0**
+ * @slot address-name:after - **new in v1.4.0**
+ *
+ * @slot first-name:before - **new in v1.4.0**
+ * @slot first-name:after - **new in v1.4.0**
+ *
+ * @slot last-name:before - **new in v1.4.0**
+ * @slot last-name:after - **new in v1.4.0**
+ *
+ * @slot region:before - **new in v1.4.0**
+ * @slot region:after - **new in v1.4.0**
+ *
+ * @slot city:before - **new in v1.4.0**
+ * @slot city:after - **new in v1.4.0**
+ *
+ * @slot phone:before - **new in v1.4.0**
+ * @slot phone:after - **new in v1.4.0**
+ *
+ * @slot company:before - **new in v1.4.0**
+ * @slot company:after - **new in v1.4.0**
+ *
+ * @slot address-line-one:before - **new in v1.4.0**
+ * @slot address-line-one:after - **new in v1.4.0**
+ *
+ * @slot address-line-two:before - **new in v1.4.0**
+ * @slot address-line-two:after - **new in v1.4.0**
+ *
+ * @slot postal-code:before - **new in v1.4.0**
+ * @slot postal-code:after - **new in v1.4.0**
+ *
+ * @slot timestamps:before - **new in v1.4.0**
+ * @slot timestamps:after - **new in v1.4.0**
+ *
+ * @slot create:before - **new in v1.4.0**
+ * @slot create:after - **new in v1.4.0**
+ *
+ * @slot delete:before - **new in v1.4.0**
+ * @slot delete:after - **new in v1.4.0**
+ *
+ * @element foxy-address-form
+ * @since 1.2.0
+ */
+export class AddressForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-internal-confirm-dialog': InternalConfirmDialog,
@@ -26,10 +94,6 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
     };
-  }
-
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
   }
 
   static get v8n(): NucleonV8N<Data> {
@@ -49,40 +113,136 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
     ];
   }
 
-  private static __ns = 'address-form';
-
-  private __untrackTranslations?: () => void;
-
-  private __getValidator = memoize((prefix: string) => () => {
+  private readonly __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
   });
 
-  private __bindField = memoize((key: keyof Data) => {
+  private readonly __bindField = memoize((key: keyof Data) => {
     return (evt: CustomEvent) => {
       const target = evt.target as HTMLInputElement;
       this.edit({ [key]: target.value });
     };
   });
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__untrackTranslations = customElements
-      .get('foxy-i18n')
-      .onTranslationChange(() => this.requestUpdate());
-    customElements.get('foxy-i18n').i18next.loadNamespaces(['country', 'region']);
-  }
+  private readonly __maybeRenderComboBox = (params: ComboBoxParams) => {
+    const { source, field, custom = false } = params;
+    const bsid = field.replace(/_/, '-');
+    if (this.hiddenSelector.matches(bsid)) return '';
 
-  render(): TemplateResult {
-    const ns = AddressForm.__ns;
+    const I18nElement = customElements.get('foxy-i18n') as typeof I18n;
+    const t = I18nElement.i18next.getFixedT(this.lang, field);
 
-    const action = this.href ? 'delete' : 'create';
+    return html`
+      <div>
+        <slot name="${bsid}:before"></slot>
+
+        <vaadin-combo-box
+          class="w-full"
+          label=${this.t(field).toString()}
+          value=${ifDefined(this.form?.[field]?.toString())}
+          error-message=${this.__getErrorMessage(field)}
+          data-testid=${field}
+          item-value-path="code"
+          item-label-path="text"
+          .checkValidity=${this.__getValidator(field)}
+          .items=${source.map(code => ({ text: t(code).toString(), code }))}
+          ?allow-custom-value=${custom}
+          ?readonly=${this.readonlySelector.matches(bsid, true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid, true)}
+          @change=${this.__bindField(field)}
+        >
+        </vaadin-combo-box>
+
+        <slot name="${bsid}:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __maybeRenderTextField = (params: TextFieldParams) => {
+    const { field, wide = false, readonly = false, required = false } = params;
+    const bsid = field.replace(/_/, '-').replace('1', '-one').replace('2', '-two');
+    if (this.hiddenSelector.matches(bsid)) return '';
+
+    return html`
+      <div class=${classMap({ 'col-span-2': wide })}>
+        <slot name="${bsid}:before"></slot>
+
+        <vaadin-text-field
+          class="w-full"
+          label=${this.t(field).toString()}
+          value=${ifDefined(this.form?.[field]?.toString())}
+          error-message=${this.__getErrorMessage(field)}
+          data-testid=${field}
+          .checkValidity=${this.__getValidator(field)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid)}
+          ?required=${required}
+          ?readonly=${readonly || this.readonlySelector.matches(bsid)}
+          @input=${this.__bindField(field)}
+          @keydown=${this.__handleKeyDown}
+        >
+        </vaadin-text-field>
+
+        <slot name="${bsid}:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderTimestamps = () => {
+    const items = (['date_modified', 'date_created'] as const).map(field => ({
+      name: this.t(field),
+      value: this.data ? this.t('date', { value: new Date(this.data[field]) }) : '',
+    }));
+
+    return html`
+      <div>
+        <slot name="timestamps:before"></slot>
+        <x-property-table .items=${items}></x-property-table>
+        <slot name="timestamps:after"></slot>
+      </div>
+    `;
+  };
+
+  private readonly __renderAction = (action: string) => {
     const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !this.in('idle') || this.disabled.matches(action);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches(action, true);
     const isDefaultShipping = !!this.form?.is_default_shipping;
     const isDefaultBilling = !!this.form?.is_default_billing;
     const isDefault = isDefaultShipping || isDefaultBilling;
     const isValid = isTemplateValid || isSnapshotValid;
+
+    return html`
+      <div>
+        <slot name="${action}:before"></slot>
+
+        <vaadin-button
+          class="w-full"
+          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          data-testid="action"
+          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
+          @click=${this.__handleActionClick}
+        >
+          <foxy-i18n ns=${this.ns} key=${action} lang=${this.lang}></foxy-i18n>
+        </vaadin-button>
+
+        <slot name="${action}:after"></slot>
+      </div>
+    `;
+  };
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    customElements.get('foxy-i18n').i18next.loadNamespaces(['country', 'region']);
+  }
+
+  render(): TemplateResult {
+    const { hiddenSelector, lang, ns } = this;
+    const action = this.href ? 'delete' : 'create';
+
+    const isDefaultShipping = !!this.form?.is_default_shipping;
+    const isDefaultBilling = !!this.form?.is_default_billing;
+    const isDefault = isDefaultShipping || isDefaultBilling;
+    const isBusy = this.in('busy');
 
     return html`
       <foxy-internal-confirm-dialog
@@ -91,7 +251,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         cancel="cancel"
         header="delete"
         theme="primary error"
-        lang=${this.lang}
+        lang=${lang}
         ns=${ns}
         id="confirm"
         data-testid="confirm"
@@ -106,138 +266,58 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         data-testid="wrapper"
       >
         <div class="grid grid-cols-2 gap-m">
-          ${this.__renderTextField({
+          ${this.__maybeRenderTextField({
             field: 'address_name',
             wide: true,
             readonly: isDefault,
             required: true,
           })}
-          ${this.__renderTextField({ field: 'first_name' })}
-          ${this.__renderTextField({ field: 'last_name' })}
-          ${this.__renderTextField({ field: 'company' })}
-          ${this.__renderTextField({ field: 'phone' })}
-          ${this.__renderTextField({ field: 'address1', wide: true, required: true })}
-          ${this.__renderTextField({ field: 'address2', wide: true })}
-          ${this.__renderComboBox({ field: 'country', source: countries })}
-          ${this.__renderComboBox({ field: 'region', source: regions, custom: true })}
-          ${this.__renderTextField({ field: 'city' })}
-          ${this.__renderTextField({ field: 'postal_code' })}
+          ${this.__maybeRenderTextField({ field: 'first_name' })}
+          ${this.__maybeRenderTextField({ field: 'last_name' })}
+          ${this.__maybeRenderTextField({ field: 'company' })}
+          ${this.__maybeRenderTextField({ field: 'phone' })}
+          ${this.__maybeRenderTextField({ field: 'address1', wide: true, required: true })}
+          ${this.__maybeRenderTextField({ field: 'address2', wide: true })}
+          ${this.__maybeRenderComboBox({ field: 'country', source: countries })}
+          ${this.__maybeRenderComboBox({ field: 'region', source: regions, custom: true })}
+          ${this.__maybeRenderTextField({ field: 'city' })}
+          ${this.__maybeRenderTextField({ field: 'postal_code' })}
         </div>
-        <!---->
-        ${this.href ? this.__renderPropertyTable() : undefined}
-        <!---->
-        ${!this.excluded.matches(action)
-          ? html`
-              <vaadin-button
-                class="w-full"
-                theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-                data-testid="action"
-                ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
-                @click=${this.__handleActionClick}
-              >
-                <foxy-i18n ns=${ns} key=${action} lang=${this.lang}></foxy-i18n>
-              </vaadin-button>
-            `
-          : ''}
-        <!---->
-        ${!this.in('idle')
-          ? html`
-              <div class="absolute inset-0 flex items-center justify-center">
-                <foxy-spinner
-                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${this.in('busy') ? 'busy' : 'error'}
-                  layout="vertical"
-                  data-testid="spinner"
-                >
-                </foxy-spinner>
-              </div>
-            `
-          : ''}
+
+        ${hiddenSelector.matches('timestamps', true) ? '' : this.__renderTimestamps()}
+        ${hiddenSelector.matches(action, true) ? '' : this.__renderAction(action)}
+
+        <div
+          class=${classMap({
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'opacity-0 pointer-events-none': !isBusy,
+          })}
+        >
+          <foxy-spinner
+            layout="vertical"
+            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            lang=${lang}
+            ns=${ns}
+          >
+          </foxy-spinner>
+        </div>
       </div>
     `;
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.__untrackTranslations?.();
     this.__getValidator.cache.clear?.();
-  }
-
-  private get __t() {
-    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, AddressForm.__ns);
   }
 
   private __handleKeyDown(evt: KeyboardEvent) {
     if (evt.key === 'Enter') this.submit();
   }
 
-  private __renderPropertyTable() {
-    return html`
-      <x-property-table
-        .items=${(['date_modified', 'date_created'] as const).map(field => {
-          const name = this.__t(field);
-          const data = this.data;
-          return { name, value: data ? this.__t('date', { value: new Date(data[field]) }) : '' };
-        })}
-      >
-      </x-property-table>
-    `;
-  }
-
   private __getErrorMessage(prefix: string) {
     const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.__t(error.replace(prefix, 'v8n')).toString() : '';
-  }
-
-  private __renderComboBox({ source, field, custom = false }: ComboBoxParams) {
-    const bsid = field.replace(/_/, '-');
-    if (this.excluded.matches(bsid)) return '';
-
-    const t = customElements.get('foxy-i18n').i18next.getFixedT(this.lang, field);
-    return html`
-      <vaadin-combo-box
-        label=${this.__t(field).toString()}
-        value=${ifDefined(this.form?.[field]?.toString())}
-        error-message=${this.__getErrorMessage(field)}
-        data-testid=${field}
-        item-value-path="code"
-        item-label-path="text"
-        .checkValidity=${this.__getValidator(field)}
-        .items=${source.map(code => ({ text: t(code).toString(), code }))}
-        ?allow-custom-value=${custom}
-        ?readonly=${this.readonly.matches(bsid)}
-        ?disabled=${!this.in('idle') || this.disabled.matches(bsid)}
-        @change=${this.__bindField(field)}
-      >
-      </vaadin-combo-box>
-    `;
-  }
-
-  private __renderTextField({
-    field,
-    wide = false,
-    readonly = false,
-    required = false,
-  }: TextFieldParams) {
-    const bsid = field.replace(/_/, '-').replace('1', '-one').replace('2', '-two');
-    if (this.excluded.matches(bsid)) return '';
-
-    return html`
-      <vaadin-text-field
-        class=${classMap({ 'col-span-2': wide })}
-        label=${this.__t(field).toString()}
-        value=${ifDefined(this.form?.[field]?.toString())}
-        error-message=${this.__getErrorMessage(field)}
-        data-testid=${field}
-        .checkValidity=${this.__getValidator(field)}
-        ?disabled=${!this.in('idle') || this.disabled.matches(bsid)}
-        ?required=${required}
-        ?readonly=${readonly || this.readonly.matches(bsid)}
-        @input=${this.__bindField(field)}
-        @keydown=${this.__handleKeyDown}
-      >
-      </vaadin-text-field>
-    `;
+    return error ? this.t(error.replace(prefix, 'v8n')).toString() : '';
   }
 
   private __handleActionClick(evt: Event) {
