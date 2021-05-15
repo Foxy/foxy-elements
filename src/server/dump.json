@@ -116,6 +116,10 @@
   ],
   "error_entries": [
     {
+      "id": 0,
+      "store": 0,
+      "customer": 0,
+      "transaction": 0,
       "url": "https://api-sandbox.foxycart.com/api_rest.php",
       "error_message": "DataFeed Failed: (2) 2012-08-10 12:12:49 No data returned for  [0]\n malformed",
       "user_agent": "curl/7.21.3 (i386-pc-win32) libcurl/7.21.3 OpenSSL/0.9.8q zlib/1.2.5",
