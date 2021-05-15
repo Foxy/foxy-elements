@@ -189,7 +189,6 @@ router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
-
   const lastTransaction = zoom.includes('last_transaction')
     ? await db.transactions.where('subscription').equals(id).last()
     : undefined;
