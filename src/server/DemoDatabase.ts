@@ -51,7 +51,6 @@ class DemoDatabase extends Dexie {
       payment_methods: '++id,customer',
       subscriptions: '++id,store,customer',
       transactions: '++id,store,customer,subscription',
-      error_entries: '++id',
       customers: '++id,store',
       stores: '++id',
       items: '++id,cart,transaction',
