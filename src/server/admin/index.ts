@@ -4,6 +4,7 @@ import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
+import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
@@ -85,6 +86,13 @@ router.get('/s/admin/stores/:id/subscriptions', async ({ params, request }) => {
 });
 
 // transactions
+router.get('/s/admin/transactions/:id', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const doc = await db.transactions.get(id);
+  const body = composeTransaction(doc);
+  return new Response(JSON.stringify(body));
+});
 
 router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
   await whenDbReady;
@@ -167,14 +175,12 @@ router.get('/s/admin/items/:id', async ({ params }) => {
 
 router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   await whenDbReady;
-
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
   const lastTransaction = zoom.includes('last_transaction')
     ? await db.transactions.where('subscription').equals(id).last()
     : null;
-
   const body = composeSubscription(doc, lastTransaction);
   return new Response(JSON.stringify(body));
 });
@@ -192,6 +198,23 @@ router.patch('/s/admin/subscriptions/:id', async ({ params, request }) => {
     : null;
 
   const body = composeSubscription(doc, lastTransaction);
+  return new Response(JSON.stringify(body));
+});
+
+// error_entries
+
+router.get('/s/admin/stores/:id/error_entries', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+  const [count, items] = await Promise.all([
+    db.errorEntries.count(),
+    db.errorEntries.where('store').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+  const rel = 'fx:error_entries';
+  const composeItem = composeErrorEntry;
+  const body = composeCollection({ composeItem, rel, url, count, items });
   return new Response(JSON.stringify(body));
 });
 
