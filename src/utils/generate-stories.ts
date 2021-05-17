@@ -254,7 +254,6 @@ export function generateStories({
 
       // remove trailing semicolon
       const noSemiStr = str.substring(0, str.length - 2);
-      console.log(hljs);
 
       return unsafeHTML(hljs.highlightAuto(noSemiStr).value);
     } catch (err) {
