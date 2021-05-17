@@ -372,7 +372,7 @@ export function generateTests<
       },
 
       tests: {
-        async busy(context, event) {
+        async 'busy'(context, event) {
           const match = context.element.in('busy');
           expect(match, 'matches state: busy').to.be.true;
 
@@ -417,7 +417,7 @@ export function generateTests<
           }
         },
 
-        async idle(context, event) {
+        async 'idle'(context, event) {
           const match = context.element.in('idle');
           expect(match, 'matches state: idle').to.be.true;
 
@@ -552,7 +552,7 @@ export function generateTests<
           }
         },
 
-        async fail(context, event) {
+        async 'fail'(context, event) {
           const match = context.element.in('fail');
           expect(match, 'matches state: fail').to.be.true;
 

@@ -32,7 +32,8 @@ export class SubscriptionCard extends Base<Data> {
         >
           <div
             class=${classMap({
-              'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s': true,
+              'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s':
+                true,
               'text-success bg-success-10': isActive && !isFailed,
               'text-body bg-contrast-5': !isActive && !isFailed,
               'text-error bg-error-10': isFailed,
@@ -91,7 +92,8 @@ export class SubscriptionCard extends Base<Data> {
 
         <div
           class=${classMap({
-            'pointer-events-none absolute inset-0 flex items-center justify-center transition ease-in-out duration-150': true,
+            'pointer-events-none absolute inset-0 flex items-center justify-center transition ease-in-out duration-150':
+              true,
             'opacity-0': this.in({ idle: 'snapshot' }),
           })}
         >

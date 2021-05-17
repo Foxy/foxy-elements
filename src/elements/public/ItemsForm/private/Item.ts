@@ -122,7 +122,7 @@ export class Item extends Translatable {
       signatures: {
         type: Object,
         converter: value => {
-          const v = (JSON.parse(value!) as unknown) as Record<string, string>;
+          const v = JSON.parse(value!) as unknown as Record<string, string>;
           for (const k of Object.keys(v)) {
             if ((v[k] as string).length != 64) {
               console.error(

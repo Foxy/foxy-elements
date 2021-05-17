@@ -26,8 +26,8 @@ export interface FxAttribute {
 
 export interface FxCustomerPortalSettings {
   _links: {
-    curies: Curies;
-    self: Link;
+    'curies': Curies;
+    'self': Link;
     'fx:store': Link;
   };
 
@@ -84,8 +84,8 @@ export interface FxCustomerPortalSettings {
 
 export interface FxBookmark {
   _links: {
-    curies: Curies;
-    self: Link;
+    'curies': Curies;
+    'self': Link;
     'fx:property_helpers': Link;
     'fx:reporting': Link;
     'fx:encode': Link;
@@ -100,8 +100,8 @@ export interface FxBookmark {
 
 export interface FxStore {
   _links: {
-    curies: Curies;
-    self: Link;
+    'curies': Curies;
+    'self': Link;
     'fx:attributes': Link;
     'fx:store_version': Link;
     'fx:users': Link;
@@ -231,8 +231,8 @@ export interface FxStore {
 
 export interface FxUser {
   _links: {
-    curies: Curies;
-    self: Link;
+    'curies': Curies;
+    'self': Link;
     'fx:default_store': Link;
     'fx:attributes': Link;
     'fx:stores': Link;

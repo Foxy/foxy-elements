@@ -49,13 +49,13 @@ export const settings = JSON.stringify({
   argTypes={{
     readonlycontrols: {
       control: {
-        type: 'check',
+        type: 'inline-check',
         options: ['end-date:form:end-date', 'next-transaction-date', 'frequency'],
       },
     },
     disabledcontrols: {
       control: {
-        type: 'check',
+        type: 'inline-check',
         options: [
           'end-date',
           'end-date:form:end-date',
@@ -67,7 +67,7 @@ export const settings = JSON.stringify({
     },
     hiddencontrols: {
       control: {
-        type: 'check',
+        type: 'inline-check',
         options: [
           'header',
           'items',

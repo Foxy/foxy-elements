@@ -43,6 +43,7 @@ export default {
       include: [
         '**/indexeddb-export-import/**/*',
         '**/email-validator/**/*',
+        '**/highlight.js/**/*',
         '**/url-pattern/**/*',
         '**/traverse/**/*',
         '**/consola/**/*',
@@ -69,7 +70,7 @@ export default {
           {
             alias: {
               'cross-fetch': 'cross-fetch/dist/browser-ponyfill.js',
-              consola: 'consola/dist/consola.browser.js',
+              'consola': 'consola/dist/consola.browser.js',
             },
           },
         ],

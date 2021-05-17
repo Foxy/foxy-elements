@@ -2,14 +2,14 @@ import { FxCustomerPortalSettings } from '../types/hapi';
 
 export const customerPortalSettings: FxCustomerPortalSettings = {
   _links: {
-    curies: [
+    'curies': [
       {
         name: 'fx',
         href: 'https://api.foxycart.com/rels/{rel}',
         templated: true,
       },
     ],
-    self: {
+    'self': {
       href: 'https://api.foxy.test/stores/8/customer_portal_settings',
       title: 'Store Customer Portal Settings',
     },
@@ -48,14 +48,14 @@ export const customerPortalSettings: FxCustomerPortalSettings = {
 
 export const customerPortalSettingsMinimal: FxCustomerPortalSettings = {
   _links: {
-    curies: [
+    'curies': [
       {
         name: 'fx',
         href: 'https://api.foxycart.com/rels/{rel}',
         templated: true,
       },
     ],
-    self: {
+    'self': {
       href: 'https://api.foxy.test/stores/8/customer_portal_settings',
       title: 'Store Customer Portal Settings',
     },

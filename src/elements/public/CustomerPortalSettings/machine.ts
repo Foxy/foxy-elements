@@ -80,8 +80,8 @@ const create = actions.assign<CustomerPortalSettingsContext>({
     date_modified: new Date().toISOString(),
     _links: {
       'fx:store': ctx.store!._links.self,
-      curies: ctx.store!._links.curies,
-      self: ctx.store!._links['fx:customer_portal_settings'],
+      'curies': ctx.store!._links.curies,
+      'self': ctx.store!._links['fx:customer_portal_settings'],
     },
   }),
 });

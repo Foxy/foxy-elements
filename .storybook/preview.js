@@ -2,9 +2,11 @@ import * as AdminAPI from '../src/server/admin/index.ts';
 import * as CustomerAPI from '../src/server/customer/index.ts';
 
 import { FetchEvent } from '../src/elements/public/NucleonElement/FetchEvent.ts';
-import customElements from '../custom-elements.json';
 import { setCustomElements } from '@web/storybook-prebuilt/web-components';
+import customElements from '../custom-elements.json';
 
+// Remove attribute docs because they aren't analyzed correctly
+customElements.tags.forEach(tag => (tag.attributes = []));
 setCustomElements(customElements);
 
 addEventListener('fetch', evt => {

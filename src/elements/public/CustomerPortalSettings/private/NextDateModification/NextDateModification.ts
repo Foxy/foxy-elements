@@ -108,10 +108,11 @@ export class NextDateModification extends Translatable {
             .ns=${this.ns}
             key="ndmod.add_hint"
             class=${classMap({
-              'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m': true,
+              'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
+                true,
               'text-tertiary': Array.isArray(this.value) && this.value.length < 10,
               'text-primary': Array.isArray(this.value) && this.value.length >= 10,
-              hidden: !Array.isArray(this.value) || this.value.length === 0,
+              'hidden': !Array.isArray(this.value) || this.value.length === 0,
             })}
           >
           </x-i18n>
