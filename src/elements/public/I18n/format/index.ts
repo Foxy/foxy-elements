@@ -1,5 +1,6 @@
 import { FormatFunction } from 'i18next';
 import { date } from './date';
+import { time } from './time';
 import { price } from './price';
 
 /**
@@ -14,7 +15,7 @@ export const format: FormatFunction = (...args): string => {
   return formats.reduce((result, format) => {
     if (format === 'price') return price(result, format, language);
     if (format === 'date') return date(result, format, language);
-
+    if (format === 'time') return time(result, format, language);
     return result;
   }, value);
 };

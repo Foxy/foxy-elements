@@ -3,7 +3,7 @@ import i18next, { StringMap, TOptions } from 'i18next';
 
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { backend } from './backend';
-import { format } from './format/index';
+import { format } from './format';
 
 /**
  * Custom element for effortless localization with i18next.

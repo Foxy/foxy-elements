@@ -58,6 +58,7 @@
   "subscription_plural": "Subscriptions",
   "subscription_will_be_cancelled": "Ends on {{date, date}}",
   "tax_id": "Tax ID",
+  "time": "{{value, time}}",
   "transaction_approved": "Approved",
   "transaction_authorized": "Authorized",
   "transaction_captured": "Captured",
