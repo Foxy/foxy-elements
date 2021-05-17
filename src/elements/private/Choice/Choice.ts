@@ -235,8 +235,8 @@ export class Choice extends Translatable {
         const disabled = this.disabled || !this._isI18nReady;
 
         const attributes = spread({
-          value: other ? VALUE_OTHER : item,
-          name: multiple ? item : 'choice',
+          'value': other ? VALUE_OTHER : item,
+          'name': multiple ? item : 'choice',
           'data-testid': `item-${item}`,
           '?disabled': disabled || this.readonly,
           '@change': (evt: Event) => {
@@ -299,11 +299,11 @@ export class Choice extends Translatable {
     };
 
     const attributes = spread({
-      placeholder: this._t('choice.other').toString(),
-      class: 'w-full mb-m',
-      value: this.__service.state.context.customValue,
-      max: this.max,
-      min: this.min,
+      'placeholder': this._t('choice.other').toString(),
+      'class': 'w-full mb-m',
+      'value': this.__service.state.context.customValue,
+      'max': this.max,
+      'min': this.min,
       '?disabled': this.disabled,
       '?readonly': this.readonly,
       'data-testid': 'field',

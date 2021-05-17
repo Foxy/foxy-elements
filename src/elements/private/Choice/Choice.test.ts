@@ -205,37 +205,41 @@ config!.states!.extension.states!.present.states!.selected.states!.integer.meta 
   },
 };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.none.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.min).to.be.undefined;
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.none.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.be.undefined;
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.custom.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.min).to.equal(element.min);
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.custom.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.equal(element.min);
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.none.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.max).to.be.undefined;
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.none.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.be.undefined;
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.custom.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.max).to.equal(element.max);
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.custom.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.equal(element.max);
+    },
+  };
 
 const model = createModel<Choice>(createMachine(config, machine.options)).withEvents({
   SET_DISABLED: {
