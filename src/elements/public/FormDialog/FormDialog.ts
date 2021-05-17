@@ -93,10 +93,10 @@ export class FormDialog extends Dialog {
             ?disabled=\${options.dialog.disabled}
             ?readonly=\${options.dialog.readonly}
             ?hidden=\${options.dialog.hidden}
+            .templates=\${options.dialog.templates}
             @fetch=\${options.handleFetch}
             @update=\${options.handleUpdate}
           >
-            \${options.content}
           </${value}>\``
       ) as FormRenderer;
     } else {

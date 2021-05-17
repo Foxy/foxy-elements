@@ -1,5 +1,5 @@
 import { Choice, Group, PropertyTable } from '../../private/index';
-import { Data, TextFieldParams } from './types';
+import { Data, Templates, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -24,15 +24,6 @@ const Base = TranslatableMixin(
 /**
  * Form element for creating or editing attributes.
  *
- * Configurable controls **(new in v1.4.0)**:
- *
- * - `name`
- * - `value`
- * - `visibility`
- * - `timestamps`
- * - `delete`
- * - `create`
- *
  * @slot name:before - **new in v1.4.0**
  * @slot name:after - **new in v1.4.0**
  * @slot value:before - **new in v1.4.0**
@@ -52,7 +43,8 @@ const Base = TranslatableMixin(
 export class AttributeForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-internal-confirm-dialog': InternalConfirmDialog,
+      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-text-area': customElements.get('vaadin-text-area'),
       'x-property-table': PropertyTable,
@@ -73,6 +65,8 @@ export class AttributeForm extends Base<Data> {
     ];
   }
 
+  templates: Templates = {};
+
   private static readonly __visibilityOptions = ['private', 'restricted', 'public'] as const;
 
   private readonly __getValidator = memoize((prefix: string) => () => {
@@ -92,7 +86,7 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="${bsid}:before"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-text-field
           class="w-full"
@@ -108,7 +102,7 @@ export class AttributeForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        <slot name="${bsid}:after"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -120,7 +114,7 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="visibility:before"></slot>
+        ${this._renderTemplateOrSlot('visibility:before')}
 
         <x-group frame>
           <foxy-i18n
@@ -153,7 +147,7 @@ export class AttributeForm extends Base<Data> {
           </x-choice>
         </x-group>
 
-        <slot name="visibility:after"></slot>
+        ${this._renderTemplateOrSlot('visibility:after')}
       </div>
     `;
   };
@@ -166,9 +160,9 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="timestamps:before"></slot>
+        ${this._renderTemplateOrSlot('timestamps:before')}
         <x-property-table .items=${items}></x-property-table>
-        <slot name="timestamps:after"></slot>
+        ${this._renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
   };
@@ -176,7 +170,7 @@ export class AttributeForm extends Base<Data> {
   private readonly __renderDelete = () => {
     return html`
       <div>
-        <slot name="delete:before"></slot>
+        ${this._renderTemplateOrSlot('delete:before')}
 
         <vaadin-button
           class="w-full"
@@ -188,7 +182,7 @@ export class AttributeForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="delete"></foxy-i18n>
         </vaadin-button>
 
-        <slot name="delete:after"></slot>
+        ${this._renderTemplateOrSlot('delete:after')}
       </div>
     `;
   };
@@ -200,7 +194,7 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="create:before"></slot>
+        ${this._renderTemplateOrSlot('create:before')}
 
         <vaadin-button
           data-testid="create"
@@ -212,7 +206,7 @@ export class AttributeForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="create"></foxy-i18n>
         </vaadin-button>
 
-        <slot name="create:after"></slot>
+        ${this._renderTemplateOrSlot('create:after')}
       </div>
     `;
   };
@@ -248,7 +242,8 @@ export class AttributeForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >

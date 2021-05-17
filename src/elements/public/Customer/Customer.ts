@@ -1,25 +1,24 @@
-import { Attributes, CustomerAddresses, Data, Tab } from './types';
-import { CSSResultArray, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-
-import { Data as Attribute } from '../AttributeCard/types';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { Column } from '../Table/types';
+import { CSSResultArray, html, TemplateResult } from 'lit-element';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data as CustomerAddress } from '../AddressCard/types';
-import { FormDialog } from '../FormDialog/FormDialog';
-import { ItemRenderer } from '../CollectionPage/types';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { PageRenderer } from '../CollectionPages/types';
-import { Skeleton } from '../../private/Skeleton/Skeleton';
-import { Data as Subscriptions } from '../SubscriptionsTable/types';
-import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
-import { Tabs } from '../../private/Tabs/Tabs';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import { Skeleton } from '../../private/Skeleton/Skeleton';
+import { Tabs } from '../../private/Tabs/Tabs';
+import { Data as CustomerAddress } from '../AddressCard/types';
+import { Data as Attribute } from '../AttributeCard/types';
+import { ItemRenderer } from '../CollectionPage/types';
+import { PageRenderer } from '../CollectionPages/types';
+import { FormDialog } from '../FormDialog/FormDialog';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
+import { Data as Subscriptions } from '../SubscriptionsTable/types';
+import { Column } from '../Table/types';
 import { styles } from './styles';
+import { Attributes, CustomerAddresses, Data, Tab, Templates } from './types';
 
 const NS = 'customer';
 const Base = ScopedElementsMixin(
@@ -28,33 +27,6 @@ const Base = ScopedElementsMixin(
 
 /**
  * All-in-one element for customer management.
- *
- * Configurable controls (new in v1.4.0):
- *
- * - `header`
- * - `header:actions`
- * - `header:actions:edit`
- * - `header:actions:edit:form` + any control in `foxy-customer-form`
- * - `addresses`
- * - `addresses:actions`
- * - `addresses:actions:create`
- * - `addresses:actions:create:form` + any control in `foxy-address-form`
- * - `addresses:list`
- * - `addresses:list:card` + any control in `foxy-address-card`
- * - `addresses:list:form` + any control in `foxy-address-form`
- * - `payment-methods`
- * - `payment-methods:list`
- * - `payment-methods:list:card` + any control in `foxy-payment-method-card`
- * - `attributes`
- * - `attributes:actions`
- * - `attributes:actions:create`
- * - `attributes:actions:create:form` + any control in `foxy-attribute-form`
- * - `attributes:list`
- * - `attributes:list:card` + any control in `foxy-attribute-card`
- * - `attributes:list:form` + any control in `foxy-attribute-form`
- * - `transactions`
- * - `subscriptions`
- * - `subscriptions:form` + any control in `foxy-subscriptions-form`
  *
  * @slot header:before - **new in v1.4.0**
  * @slot header:after - **new in v1.4.0**
@@ -102,6 +74,7 @@ export class Customer extends Base<Data> {
       'foxy-subscriptions-table': customElements.get('foxy-subscriptions-table'),
       'foxy-transactions-table': customElements.get('foxy-transactions-table'),
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-attribute-card': customElements.get('foxy-attribute-card'),
       'foxy-address-card': customElements.get('foxy-address-card'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
@@ -118,6 +91,8 @@ export class Customer extends Base<Data> {
     return [super.styles, styles];
   }
 
+  templates: Templates = {};
+
   // #region header
 
   private readonly __renderHeaderActionsEdit = () => {
@@ -131,7 +106,7 @@ export class Customer extends Base<Data> {
     const isEditActionDisabled = !isLoaded || disabledSelector.matches(actionId, true);
 
     return html`
-      <slot name="header:actions:edit:before"></slot>
+      ${this._renderTemplateOrSlot('header:actions:edit:before')}
 
       <foxy-form-dialog
         data-testclass="i18n"
@@ -145,6 +120,7 @@ export class Customer extends Base<Data> {
         readonlycontrols=${readonlySelector.zoom(formId).toString()}
         disabledcontrols=${disabledSelector.zoom(formId).toString()}
         hiddencontrols=${hiddenSelector.zoom(formId).toString()}
+        .templates=${this._getNestedTemplates('header:actions:edit:form')}
       >
       </foxy-form-dialog>
 
@@ -162,7 +138,7 @@ export class Customer extends Base<Data> {
         <iron-icon icon="editor:mode-edit"></iron-icon>
       </vaadin-button>
 
-      <slot name="header:actions:edit:after"></slot>
+      ${this._renderTemplateOrSlot('header:actions:edit:after')}
     `;
   };
 
@@ -170,9 +146,9 @@ export class Customer extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('header:actions');
 
     return html`
-      <slot name="header:actions:before"></slot>
+      ${this._renderTemplateOrSlot('header:actions:before')}
       ${hiddenSelector.matches('edit', true) ? '' : this.__renderHeaderActionsEdit()}
-      <slot name="header:actions:after"></slot>
+      ${this._renderTemplateOrSlot('header:actions:after')}
     `;
   };
 
@@ -180,7 +156,7 @@ export class Customer extends Base<Data> {
     const variant = ifDefined(this.in('busy') ? undefined : 'static');
 
     return html`
-      <slot name="header:before"></slot>
+      ${this._renderTemplateOrSlot('header:before')}
 
       <header class="flex items-center justify-between space-x-m">
         <div class="leading-s min-w-0 flex-1">
@@ -200,7 +176,7 @@ export class Customer extends Base<Data> {
         ${this.hiddenSelector.matches('header:actions', true) ? '' : this.__renderHeaderActions()}
       </header>
 
-      <slot name="header:after"></slot>
+      ${this._renderTemplateOrSlot('header:after')}
     `;
   };
 
@@ -219,7 +195,7 @@ export class Customer extends Base<Data> {
     const isDisabled = !isLoaded || disabledSelector.matches('create', true);
 
     return html`
-      <slot name="addresses:actions:create:before"></slot>
+      ${this._renderTemplateOrSlot('addresses:actions:create:before')}
 
       <div>
         <vaadin-button
@@ -234,30 +210,27 @@ export class Customer extends Base<Data> {
             dialog.show(button);
           }}
         >
-          ${isDisabled
-            ? ''
-            : html`
-                <foxy-form-dialog
-                  data-testclass="i18n"
-                  data-testid="addressDialog"
-                  parent=${data?._links['fx:customer_addresses'].href ?? ''}
-                  form="foxy-address-form"
-                  lang=${lang}
-                  ns=${ns}
-                  id="address-dialog"
-                  readonlycontrols=${readonlySelector.zoom('create:form').toString()}
-                  disabledcontrols=${disabledSelector.zoom('create:form').toString()}
-                  hiddencontrols=${hiddenSelector.zoom('create:form').toString()}
-                >
-                </foxy-form-dialog>
-              `}
+          <foxy-form-dialog
+            readonlycontrols=${readonlySelector.zoom('create:form').toString()}
+            disabledcontrols=${disabledSelector.zoom('create:form').toString()}
+            hiddencontrols=${hiddenSelector.zoom('create:form').toString()}
+            data-testclass="i18n"
+            data-testid="addressDialog"
+            parent=${data?._links['fx:customer_addresses'].href ?? ''}
+            form="foxy-address-form"
+            lang=${lang}
+            ns=${ns}
+            id="address-dialog"
+            .templates=${this._getNestedTemplates('addresses:actions:create:form')}
+          >
+          </foxy-form-dialog>
 
           <foxy-i18n lang=${this.lang} ns=${this.ns} key="create"></foxy-i18n>
           <iron-icon slot="suffix" icon="icons:add"></iron-icon>
         </vaadin-button>
       </div>
 
-      <slot name="addresses:actions:create:after"></slot>
+      ${this._renderTemplateOrSlot('addresses:actions:create:after')}
     `;
   };
 
@@ -265,9 +238,9 @@ export class Customer extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('addresses:actions');
 
     return html`
-      <slot name="addresses:actions:before"></slot>
+      ${this._renderTemplateOrSlot('addresses:actions:before')}
       ${hiddenSelector.matches('create', true) ? '' : this.__renderAddressesActionsCreate()}
-      <slot name="addresses:actions:after"></slot>
+      ${this._renderTemplateOrSlot('addresses:actions:after')}
     `;
   };
 
@@ -284,7 +257,8 @@ export class Customer extends Base<Data> {
     };
 
     const computedClass = classMap({
-      'snap-start text-left p-m rounded-t-l rounded-b-l flex-shrink-0 border border-contrast-10': true,
+      'snap-start text-left p-m rounded-t-l rounded-b-l flex-shrink-0': true,
+      'border border-contrast-10': true,
       'hover-border-contrast-30 focus-outline-none focus-border-primary': ctx.data !== null,
     });
 
@@ -302,6 +276,7 @@ export class Customer extends Base<Data> {
           ?hidden=${ctx.hidden}
           ?readonly=${ctx.readonly}
           ?disabled=${ctx.disabled}
+          .templates=${ctx.templates}
         >
         </foxy-address-card>
       </button>
@@ -323,6 +298,7 @@ export class Customer extends Base<Data> {
         ?readonly=${ctx.readonly}
         ?disabled=${ctx.disabled}
         .item=${this.__renderAddressesListCard}
+        .templates=${ctx.templates}
       >
       </foxy-collection-page>
     `;
@@ -333,9 +309,12 @@ export class Customer extends Base<Data> {
     const cardId = 'addresses:list:card';
 
     return html`
-      <slot name="addresses:list:before"></slot>
+      ${this._renderTemplateOrSlot('addresses:list:before')}
 
       <foxy-form-dialog
+        readonlycontrols=${this.readonlySelector.zoom(formId).toString()}
+        disabledcontrols=${this.disabledSelector.zoom(formId).toString()}
+        hiddencontrols=${this.hiddenSelector.zoom(formId).toString()}
         data-testclass="i18n"
         data-testid="addressDialog"
         parent=${this.data?._links['fx:customer_addresses'].href ?? ''}
@@ -344,9 +323,7 @@ export class Customer extends Base<Data> {
         lang=${this.lang}
         ns=${this.ns}
         id="addresses-list-form"
-        readonlycontrols=${this.readonlySelector.zoom(formId).toString()}
-        disabledcontrols=${this.disabledSelector.zoom(formId).toString()}
-        hiddencontrols=${this.hiddenSelector.zoom(formId).toString()}
+        .templates=${this._getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
 
@@ -361,10 +338,11 @@ export class Customer extends Base<Data> {
         group=${this.group}
         lang=${this.lang}
         .page=${this.__renderAddressesListPage}
+        .templates=${this._getNestedTemplates(cardId)}
       >
       </foxy-collection-pages>
 
-      <slot name="addresses:list:after"></slot>
+      ${this._renderTemplateOrSlot('addresses:list:after')}
     `;
   };
 
@@ -373,7 +351,7 @@ export class Customer extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('addresses');
 
     return html`
-      <slot name="addresses:before"></slot>
+      ${this._renderTemplateOrSlot('addresses:before')}
 
       <section class="pt-m border-t-4 border-contrast-5">
         <header class="space-x-m flex items-center mb-m">
@@ -387,7 +365,7 @@ export class Customer extends Base<Data> {
         ${hiddenSelector.matches('list', true) ? '' : this.__renderAddressesList()}
       </section>
 
-      <slot name="addresses:after"></slot>
+      ${this._renderTemplateOrSlot('addresses:after')}
     `;
   };
 
@@ -399,21 +377,22 @@ export class Customer extends Base<Data> {
     const cardId = 'payment-methods:list:card';
 
     return html`
-      <slot name="payment-methods:list:before"></slot>
+      ${this._renderTemplateOrSlot('payment-methods:list:before')}
 
       <foxy-payment-method-card
+        readonlycontrols=${this.readonlySelector.zoom(cardId).toString()}
+        disabledcontrols=${this.disabledSelector.zoom(cardId).toString()}
+        hiddencontrols=${this.hiddenSelector.zoom(cardId).toString()}
         data-testclass="i18n"
         data-testid="paymentMethod"
         class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
         href=${this.data?._links['fx:default_payment_method'].href ?? ''}
         lang=${this.lang}
-        readonlycontrols=${this.readonlySelector.zoom(cardId).toString()}
-        disabledcontrols=${this.disabledSelector.zoom(cardId).toString()}
-        hiddencontrols=${this.hiddenSelector.zoom(cardId).toString()}
+        .templates=${this._getNestedTemplates(cardId)}
       >
       </foxy-payment-method-card>
 
-      <slot name="payment-methods:list:after"></slot>
+      ${this._renderTemplateOrSlot('payment-methods:list:after')}
     `;
   };
 
@@ -421,7 +400,7 @@ export class Customer extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('payment-methods');
 
     return html`
-      <slot name="payment-methods:before"></slot>
+      ${this._renderTemplateOrSlot('payment-methods:before')}
 
       <div class="pt-m border-t-4 border-contrast-5">
         <h2 class="tracking-wide text-l font-medium mb-m">
@@ -437,7 +416,7 @@ export class Customer extends Base<Data> {
         ${hiddenSelector.matches('list', true) ? '' : this.__renderPaymentMethodsList()}
       </div>
 
-      <slot name="payment-methods:after"></slot>
+      ${this._renderTemplateOrSlot('payment-methods:after')}
     `;
   };
 
@@ -456,7 +435,7 @@ export class Customer extends Base<Data> {
     const isDisabled = !isLoaded || disabledSelector.matches('create', true);
 
     return html`
-      <slot name="attributes:actions:create:before"></slot>
+      ${this._renderTemplateOrSlot('attributes:actions:create:before')}
 
       <div>
         <vaadin-button
@@ -472,15 +451,16 @@ export class Customer extends Base<Data> {
           }}
         >
           <foxy-form-dialog
+            readonlycontrols=${readonlySelector.zoom('create:form').toString()}
+            disabledcontrols=${disabledSelector.zoom('create:form').toString()}
+            hiddencontrols=${hiddenSelector.zoom('create:form').toString()}
             data-testclass="i18n"
             data-testid="attributeDialog"
             parent=${data?._links['fx:attributes'].href ?? ''}
             form="foxy-attribute-form"
             lang=${lang}
             ns=${ns}
-            readonlycontrols=${readonlySelector.zoom('create:form').toString()}
-            disabledcontrols=${disabledSelector.zoom('create:form').toString()}
-            hiddencontrols=${hiddenSelector.zoom('create:form').toString()}
+            .templates=${this._getNestedTemplates('attributes:actions:create:form')}
           >
           </foxy-form-dialog>
 
@@ -489,7 +469,7 @@ export class Customer extends Base<Data> {
         </vaadin-button>
       </div>
 
-      <slot name="attributes:actions:create:after"></slot>
+      ${this._renderTemplateOrSlot('attributes:actions:create:after')}
     `;
   };
 
@@ -497,30 +477,9 @@ export class Customer extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('attributes:actions');
 
     return html`
-      <slot name="attributes:actions:before"></slot>
+      ${this._renderTemplateOrSlot('attributes:actions:before')}
       ${hiddenSelector.matches('create', true) ? '' : this.__renderAttributesActionsCreate()}
-      <slot name="attributes:actions:after"></slot>
-    `;
-  };
-
-  private readonly __renderAttributesListForm = () => {
-    const formId = 'attributes:list:form';
-
-    return html`
-      <foxy-form-dialog
-        data-testclass="i18n"
-        data-testid="attributeDialog"
-        parent=${this.data?._links['fx:attributes'].href ?? ''}
-        header="update"
-        form="foxy-attribute-form"
-        lang=${this.lang}
-        ns=${this.ns}
-        id="attributes-list-form"
-        readonlycontrols=${this.readonlySelector.zoom(formId).toString()}
-        disabledcontrols=${this.disabledSelector.zoom(formId).toString()}
-        hiddencontrols=${this.hiddenSelector.zoom(formId).toString()}
-      >
-      </foxy-form-dialog>
+      ${this._renderTemplateOrSlot('attributes:actions:after')}
     `;
   };
 
@@ -537,7 +496,8 @@ export class Customer extends Base<Data> {
     };
 
     const computedClass = classMap({
-      'snap-start text-left p-m rounded-t-l rounded-b-l flex-shrink-0 border border-contrast-10': true,
+      'snap-start text-left p-m rounded-t-l rounded-b-l flex-shrink-0 border border-contrast-10':
+        true,
       'hover-border-contrast-30 focus-outline-none focus-border-primary': ctx.data !== null,
     });
 
@@ -549,6 +509,7 @@ export class Customer extends Base<Data> {
           class="w-tile"
           lang=${ctx.lang}
           href=${ctx.href}
+          .templates=${ctx.templates}
         >
         </foxy-attribute-card>
       </button>
@@ -564,18 +525,33 @@ export class Customer extends Base<Data> {
         lang=${ctx.lang}
         href=${ctx.href}
         .item=${this.__renderAttributesListCard}
+        .templates=${ctx.templates}
       >
       </foxy-collection-page>
     `;
   };
 
   private readonly __renderAttributesList = () => {
-    return html`
-      <slot name="attributes:list:before"></slot>
+    const formId = 'attributes:list:form';
 
-      ${this.disabledSelector.matches('attributes:list', true)
-        ? ''
-        : this.__renderAttributesListForm()}
+    return html`
+      ${this._renderTemplateOrSlot('attributes:list:before')}
+
+      <foxy-form-dialog
+        readonlycontrols=${this.readonlySelector.zoom(formId).toString()}
+        disabledcontrols=${this.disabledSelector.zoom(formId).toString()}
+        hiddencontrols=${this.hiddenSelector.zoom(formId).toString()}
+        data-testclass="i18n"
+        data-testid="attributeDialog"
+        parent=${this.data?._links['fx:attributes'].href ?? ''}
+        header="update"
+        form="foxy-attribute-form"
+        lang=${this.lang}
+        ns=${this.ns}
+        id="attributes-list-form"
+        .templates=${this._getNestedTemplates(formId)}
+      >
+      </foxy-form-dialog>
 
       <foxy-collection-pages
         data-testclass="i18n"
@@ -585,10 +561,11 @@ export class Customer extends Base<Data> {
         group=${this.group}
         lang=${this.lang}
         .page=${this.__renderAttributesListPage}
+        .templates=${this._getNestedTemplates('attributes:list:card')}
       >
       </foxy-collection-pages>
 
-      <slot name="attributes:list:after"></slot>
+      ${this._renderTemplateOrSlot('attributes:list:after')}
     `;
   };
 
@@ -597,7 +574,7 @@ export class Customer extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('attributes');
 
     return html`
-      <slot name="attributes:before"></slot>
+      ${this._renderTemplateOrSlot('attributes:before')}
 
       <section class="pt-m border-t-4 border-contrast-5">
         <header class="space-x-m flex items-center mb-m">
@@ -612,7 +589,7 @@ export class Customer extends Base<Data> {
         ${hiddenSelector.matches('list', true) ? '' : this.__renderAttributesList()}
       </section>
 
-      <slot name="attributes:after"></slot>
+      ${this._renderTemplateOrSlot('attributes:after')}
     `;
   };
 
@@ -630,7 +607,7 @@ export class Customer extends Base<Data> {
     }
 
     return html`
-      <slot name="transactions:before"></slot>
+      ${this._renderTemplateOrSlot('transactions:before')}
 
       <foxy-collection-pages
         data-testclass="i18n"
@@ -644,7 +621,7 @@ export class Customer extends Base<Data> {
       >
       </foxy-collection-pages>
 
-      <slot name="transactions:after"></slot>
+      ${this._renderTemplateOrSlot('transactions:after')}
     `;
   };
 
@@ -689,6 +666,7 @@ export class Customer extends Base<Data> {
   };
 
   private readonly __renderSubscriptions = () => {
+    const formId = 'subscriptions:form';
     let subscriptionsLink = '';
 
     if (this.in({ idle: 'snapshot' })) {
@@ -698,9 +676,12 @@ export class Customer extends Base<Data> {
     }
 
     return html`
-      <slot name="subscriptions:before"></slot>
+      ${this._renderTemplateOrSlot('subscriptions:before')}
 
       <foxy-form-dialog
+        readonlycontrols=${this.readonlySelector.zoom(formId).toString()}
+        disabledcontrols=${this.disabledSelector.zoom(formId).toString()}
+        hiddencontrols=${this.hiddenSelector.zoom(formId).toString()}
         data-testclass="i18n"
         data-testid="subscriptionDialog"
         header="update"
@@ -709,9 +690,7 @@ export class Customer extends Base<Data> {
         lang=${this.lang}
         ns=${this.ns}
         id="subscriptions-form"
-        readonlycontrols=${this.readonlySelector.zoom('subscriptions:form').toString()}
-        disabledcontrols=${this.disabledSelector.zoom('subscriptions:form').toString()}
-        hiddencontrols=${this.hiddenSelector.zoom('subscriptions:form').toString()}
+        .templates=${this._getNestedTemplates(formId)}
       >
       </foxy-form-dialog>
 
@@ -727,7 +706,7 @@ export class Customer extends Base<Data> {
       >
       </foxy-collection-pages>
 
-      <slot name="subscriptions:after"></slot>
+      ${this._renderTemplateOrSlot('subscriptions:after')}
     `;
   };
 
@@ -791,7 +770,8 @@ export class Customer extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': isLoaded,
           })}
         >

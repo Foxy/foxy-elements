@@ -1,7 +1,7 @@
 import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
+import { Data, Templates } from './types';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
 import { NucleonElement } from '..';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -17,13 +17,6 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
 
 /**
  * Form element for email/password sign in.
- *
- * Configurable controls:
- *
- * - `email`
- * - `password`
- * - `error`
- * - `submit`
  *
  * @slot email:before
  * @slot email:after
@@ -46,6 +39,8 @@ export class SignInForm extends Base<Data> {
     ];
   }
 
+  templates: Templates = {};
+
   private readonly __emailValidator = () => !this.errors.some(err => err.startsWith('email'));
 
   private readonly __passwordValidator = () => !this.errors.some(err => err.startsWith('password'));
@@ -61,7 +56,7 @@ export class SignInForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="email:before"></slot>
+        ${this._renderTemplateOrSlot('email:before')}
 
         <vaadin-email-field
           error-message=${emailErrorMessage}
@@ -80,7 +75,7 @@ export class SignInForm extends Base<Data> {
         >
         </vaadin-email-field>
 
-        <slot name="email:after"></slot>
+        ${this._renderTemplateOrSlot('email:after')}
       </div>
     `;
   };
@@ -96,7 +91,7 @@ export class SignInForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="password:before"></slot>
+        ${this._renderTemplateOrSlot('password:before')}
 
         <vaadin-password-field
           error-message=${passwordErrorMessage}
@@ -115,7 +110,7 @@ export class SignInForm extends Base<Data> {
         >
         </vaadin-password-field>
 
-        <slot name="password:after"></slot>
+        ${this._renderTemplateOrSlot('password:after')}
       </div>
     `;
   };
@@ -123,14 +118,14 @@ export class SignInForm extends Base<Data> {
   private readonly __renderError = () => {
     return html`
       <div>
-        <slot name="error:before"></slot>
+        ${this._renderTemplateOrSlot('error:before')}
 
         <p class="leading-s flex items-start text-s rounded p-s bg-error-10 text-error">
           <iron-icon class="flex-shrink-0 mr-s" icon="lumo:error"></iron-icon>
           <foxy-i18n lang=${this.lang} key=${this.errors[0]} ns=${this.ns}></foxy-i18n>
         </p>
 
-        <slot name="error:after"></slot>
+        ${this._renderTemplateOrSlot('error:after')}
       </div>
     `;
   };
@@ -144,7 +139,7 @@ export class SignInForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="submit:before"></slot>
+        ${this._renderTemplateOrSlot('submit:before')}
 
         <vaadin-button
           class=${classMap({ 'w-full': true, 'mt-l': !this.in('fail') })}
@@ -155,7 +150,7 @@ export class SignInForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="sign_in"></foxy-i18n>
         </vaadin-button>
 
-        <slot name="submit:after"></slot>
+        ${this._renderTemplateOrSlot('submit:after')}
       </div>
     `;
   };
@@ -177,7 +172,8 @@ export class SignInForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >

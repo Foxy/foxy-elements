@@ -1,7 +1,7 @@
 import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
+import { Data, Templates } from './types';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -16,12 +16,6 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
 
 /**
  * Email-based "forgot password" form.
- *
- * Configurable controls:
- *
- * - `email`
- * - `message`
- * - `submit`
  *
  * @slot email:before
  * @slot email:after
@@ -42,6 +36,8 @@ export class AccessRecoveryForm extends Base<Data> {
       ({ detail: d }) => isEmail(d?.email ?? '') || 'email_invalid_email',
     ];
   }
+
+  templates: Templates = {};
 
   private readonly __checkEmailValidity = () => {
     return !this.errors.some(err => err.startsWith('email'));
@@ -64,7 +60,7 @@ export class AccessRecoveryForm extends Base<Data> {
     };
 
     return html`
-      <slot name="email:before"></slot>
+      ${this._renderTemplateOrSlot('email:before')}
 
       <vaadin-email-field
         error-message=${emailErrorMessage}
@@ -79,7 +75,7 @@ export class AccessRecoveryForm extends Base<Data> {
       >
       </vaadin-email-field>
 
-      <slot name="email:after"></slot>
+      ${this._renderTemplateOrSlot('email:after')}
     `;
   };
 
@@ -90,14 +86,14 @@ export class AccessRecoveryForm extends Base<Data> {
     const key = hasFailed ? 'unknown_error' : 'recover_access_success';
 
     return html`
-      <slot name="message:before"></slot>
+      ${this._renderTemplateOrSlot('message:before')}
 
       <p class="leading-s flex items-start text-s rounded p-s ${color}">
         <iron-icon class="flex-shrink-0 mr-s" icon=${icon}></iron-icon>
         <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns}></foxy-i18n>
       </p>
 
-      <slot name="message:after"></slot>
+      ${this._renderTemplateOrSlot('message:after')}
     `;
   };
 
@@ -106,7 +102,7 @@ export class AccessRecoveryForm extends Base<Data> {
     const isBusy = this.in('busy');
 
     return html`
-      <slot name="submit:before"></slot>
+      ${this._renderTemplateOrSlot('submit:before')}
 
       <vaadin-button
         class="w-full"
@@ -117,7 +113,7 @@ export class AccessRecoveryForm extends Base<Data> {
         <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
       </vaadin-button>
 
-      <slot name="submit:after"></slot>
+      ${this._renderTemplateOrSlot('submit:after')}
     `;
   };
 
@@ -138,7 +134,8 @@ export class AccessRecoveryForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >

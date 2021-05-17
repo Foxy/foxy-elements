@@ -1,4 +1,4 @@
-import { Data, TextFieldParams } from './types';
+import { Data, Templates, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -23,16 +23,6 @@ const Base = ResponsiveMixin(
 
 /**
  * Form element for creating or editing customers.
- *
- * Configurable controls **(new in v1.4.0)**:
- *
- * - `first-name`
- * - `last-name`
- * - `email`
- * - `tax-id`
- * - `timestamps`
- * - `delete`
- * - `create`
  *
  * @slot first-name:before - **new in v1.4.0**
  * @slot first-name:after - **new in v1.4.0**
@@ -61,7 +51,8 @@ const Base = ResponsiveMixin(
 export class CustomerForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-internal-confirm-dialog': InternalConfirmDialog,
+      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-property-table': PropertyTable,
       'vaadin-button': customElements.get('vaadin-button'),
@@ -81,6 +72,8 @@ export class CustomerForm extends Base<Data> {
     ];
   }
 
+  templates: Templates = {};
+
   private __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
   });
@@ -93,7 +86,7 @@ export class CustomerForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="${bsid}:before"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-text-field
           class="w-full"
@@ -109,7 +102,7 @@ export class CustomerForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        <slot name="${bsid}:after"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -117,7 +110,7 @@ export class CustomerForm extends Base<Data> {
   private __renderTimestamps = () => {
     return html`
       <div>
-        <slot name="timestamps:before"></slot>
+        ${this._renderTemplateOrSlot('timestamps:before')}
 
         <x-property-table
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
@@ -127,7 +120,7 @@ export class CustomerForm extends Base<Data> {
         >
         </x-property-table>
 
-        <slot name="timestamps:after"></slot>
+        ${this._renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
   };
@@ -151,7 +144,7 @@ export class CustomerForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="${action}:before"></slot>
+        ${this._renderTemplateOrSlot(`${action}:before`)}
 
         <vaadin-button
           class="w-full"
@@ -163,7 +156,7 @@ export class CustomerForm extends Base<Data> {
           <foxy-i18n ns=${ns} key=${action} lang=${lang}></foxy-i18n>
         </vaadin-button>
 
-        <slot name="${action}:after"></slot>
+        ${this._renderTemplateOrSlot(`${action}:after`)}
       </div>
     `;
   };
@@ -203,7 +196,8 @@ export class CustomerForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >

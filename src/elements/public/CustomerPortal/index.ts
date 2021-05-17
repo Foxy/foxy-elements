@@ -2,6 +2,7 @@ import '@polymer/iron-icons/editor-icons';
 import '@vaadin/vaadin-button';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
+import '../../internal/InternalSandbox/index';
 import '../AccessRecoveryForm/index';
 import '../PaymentMethodCard/index';
 import '../TransactionsTable/index';

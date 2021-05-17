@@ -1,5 +1,6 @@
 import '@vaadin/vaadin-button';
 import '../../internal/InternalCalendar/index';
+import '../../internal/InternalSandbox/index';
 import '../Spinner/index';
 import '../I18n/index';
 

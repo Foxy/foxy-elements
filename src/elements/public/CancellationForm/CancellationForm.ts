@@ -2,7 +2,7 @@ import { Group, Warning } from '../../private';
 import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
+import { Data, Templates } from './types';
 import { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -22,12 +22,6 @@ const Base = ScopedElementsMixin(
 /**
  * Form element for canceling subscriptions.
  *
- * Configurable controls:
- *
- * - `warning`
- * - `end-date`
- * - `submit`
- *
  * @slot warning:before
  * @slot warning:after
  * @slot end-date:before
@@ -42,6 +36,7 @@ export class CancellationForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -54,12 +49,14 @@ export class CancellationForm extends Base<Data> {
     return [({ end_date: v }) => !!v || 'end_date_required'];
   }
 
+  templates: Templates = {};
+
   private readonly __renderWarning = () => {
     const { lang, ns } = this;
 
     return html`
       <div>
-        <slot name="warning:before"></slot>
+        ${this._renderTemplateOrSlot('warning:before')}
 
         <x-warning>
           <foxy-i18n
@@ -71,7 +68,7 @@ export class CancellationForm extends Base<Data> {
           </foxy-i18n>
         </x-warning>
 
-        <slot name="warning:after"></slot>
+        ${this._renderTemplateOrSlot('warning:after')}
       </div>
     `;
   };
@@ -83,7 +80,7 @@ export class CancellationForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="end-date:before"></slot>
+        ${this._renderTemplateOrSlot('end-date:before')}
 
         <x-group frame>
           <foxy-i18n
@@ -108,7 +105,7 @@ export class CancellationForm extends Base<Data> {
           </foxy-internal-calendar>
         </x-group>
 
-        <slot name="end-date:after"></slot>
+        ${this._renderTemplateOrSlot('end-date:after')}
       </div>
     `;
   };
@@ -120,7 +117,7 @@ export class CancellationForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="submit:before"></slot>
+        ${this._renderTemplateOrSlot('submit:before')}
 
         <vaadin-button
           ?disabled=${!isValid || this.disabledSelector.matches('submit', true)}
@@ -131,7 +128,7 @@ export class CancellationForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="end_subscription"></foxy-i18n>
         </vaadin-button>
 
-        <slot name="submit:after"></slot>
+        ${this._renderTemplateOrSlot('submit:after')}
       </div>
     `;
   };
@@ -148,7 +145,8 @@ export class CancellationForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >

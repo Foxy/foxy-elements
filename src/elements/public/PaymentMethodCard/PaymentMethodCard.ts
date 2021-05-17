@@ -5,7 +5,7 @@ import { TemplateResult, html } from 'lit-html';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
+import { Data, Templates } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/index';
@@ -19,11 +19,6 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
 
 /**
  * Basic card displaying a payment method.
- *
- * Configurable controls **(new in v1.4.0)**:
- *
- * - `actions`
- * - `actions:delete`
  *
  * @slot actions:before - **new in v1.4.0**
  * @slot actions:after - **new in v1.4.0**
@@ -56,10 +51,12 @@ export class PaymentMethodCard extends Base<Data> {
     ];
   }
 
+  templates: Templates = {};
+
   private readonly __renderActionsDelete = () => {
     return html`
       <div class="flex">
-        <slot name="actions:delete:before"></slot>
+        ${this._renderTemplateOrSlot('actions:delete:before')}
 
         <vaadin-button
           class="px-xs rounded"
@@ -73,7 +70,7 @@ export class PaymentMethodCard extends Base<Data> {
           <iron-icon icon="icons:delete"></iron-icon>
         </vaadin-button>
 
-        <slot name="actions:delete:after"></slot>
+        ${this._renderTemplateOrSlot('actions:delete:after')}
       </div>
     `;
   };
@@ -81,9 +78,9 @@ export class PaymentMethodCard extends Base<Data> {
   private readonly __renderActions = () => {
     return html`
       <div class="flex">
-        <slot name="actions:before"></slot>
+        ${this._renderTemplateOrSlot('actions:before')}
         ${this.hiddenSelector.matches('actions:delete', true) ? '' : this.__renderActionsDelete()}
-        <slot name="actions:after"></slot>
+        ${this._renderTemplateOrSlot('actions:after')}
       </div>
     `;
   };

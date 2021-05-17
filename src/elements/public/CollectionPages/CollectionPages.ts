@@ -46,7 +46,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
   private __fetchEventHandler = (evt: unknown) => this.__handleFetchEvent(evt);
 
   private __service = interpret(
-    ((machine as unknown) as StateMachine<Context<TPage>, any, Event<TPage>>).withConfig({
+    (machine as unknown as StateMachine<Context<TPage>, any, Event<TPage>>).withConfig({
       services: {
         observeChildren: () => callback => {
           const observer = new IntersectionObserver(entries => {
@@ -119,6 +119,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
             ?disabled=\${this.disabled}
             ?readonly=\${this.readonly}
             ?hidden=\${this.hidden}
+            .templates=\${this.templates}
           >
           </${value}>\``
       ) as PageRenderer<TPage>;
@@ -224,6 +225,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
             disabledControls: this.disabledControls,
             readonlyControls: this.readonlyControls,
             hiddenControls: this.hiddenControls,
+            templates: this.templates,
             disabled: this.disabled,
             readonly: this.readonly,
             hidden: this.hidden,

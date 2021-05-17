@@ -1,8 +1,10 @@
 import '@polymer/iron-icon';
 import '@polymer/iron-icons';
 import '@vaadin/vaadin-button';
-import '../I18n/index';
+import '../../internal/InternalConfirmDialog/index';
+import '../../internal/InternalSandbox/index';
 import '../Spinner/index';
+import '../I18n/index';
 
 import { PaymentMethodCard } from './PaymentMethodCard';
 

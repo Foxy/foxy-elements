@@ -1,7 +1,7 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
+import { Data, Templates } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -13,11 +13,6 @@ const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(NucleonElement))
 /**
  * Basic card displaying an attribute.
  *
- * Configurable controls **(new in v1.4.0)**:
- *
- * - `name`
- * - `value`
- *
  * @slot name:before - **new in v1.4.0**
  * @slot name:after - **new in v1.4.0**
  * @slot value:before - **new in v1.4.0**
@@ -27,11 +22,13 @@ const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(NucleonElement))
  * @since 1.2.0
  */
 export class AttributeCard extends Base<Data> {
+  templates: Templates = {};
+
   private readonly __renderName = () => {
     const { data } = this;
 
     return html`
-      <slot name="name:before"></slot>
+      ${this._renderTemplateOrSlot('name:before')}
 
       <div class="flex items-center space-x-xs text-xxs text-secondary">
         <div
@@ -47,7 +44,7 @@ export class AttributeCard extends Base<Data> {
           : ''}
       </div>
 
-      <slot name="name:after"></slot>
+      ${this._renderTemplateOrSlot('name:after')}
     `;
   };
 
@@ -55,11 +52,11 @@ export class AttributeCard extends Base<Data> {
     const { data } = this;
 
     return html`
-      <slot name="value:before"></slot>
+      ${this._renderTemplateOrSlot('value:before')}
       <div class="truncate" title=${data?.value ?? ''} data-testid="value">
         ${data?.value ?? html`&nbsp;`}
       </div>
-      <slot name="value:after"></slot>
+      ${this._renderTemplateOrSlot('value:after')}
     `;
   };
 
@@ -79,7 +76,8 @@ export class AttributeCard extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-250 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-250 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': isLoaded,
           })}
         >

@@ -1,4 +1,4 @@
-import { ComboBoxParams, Data, TextFieldParams } from './types';
+import { ComboBoxParams, Data, Templates, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -24,22 +24,6 @@ const Base = ScopedElementsMixin(
 
 /**
  * Basic form displaying customer address.
- *
- * Configurable controls **(new in v1.4.0)**:
- *
- * - `address-name`
- * - `first-name`
- * - `last-name`
- * - `region`
- * - `city`
- * - `phone`
- * - `company`
- * - `address-line-one`
- * - `address-line-two`
- * - `postal-code`
- * - `timestamps`
- * - `delete`
- * - `create`
  *
  * @slot address-name:before - **new in v1.4.0**
  * @slot address-name:after - **new in v1.4.0**
@@ -68,6 +52,9 @@ const Base = ScopedElementsMixin(
  * @slot address-line-two:before - **new in v1.4.0**
  * @slot address-line-two:after - **new in v1.4.0**
  *
+ * @slot country:before - **new in v1.4.0**
+ * @slot country:after - **new in v1.4.0**
+ *
  * @slot postal-code:before - **new in v1.4.0**
  * @slot postal-code:after - **new in v1.4.0**
  *
@@ -86,7 +73,8 @@ const Base = ScopedElementsMixin(
 export class AddressForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-internal-confirm-dialog': InternalConfirmDialog,
+      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'x-property-table': PropertyTable,
@@ -113,6 +101,8 @@ export class AddressForm extends Base<Data> {
     ];
   }
 
+  templates: Templates = {};
+
   private readonly __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
   });
@@ -134,7 +124,7 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="${bsid}:before"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-combo-box
           class="w-full"
@@ -153,7 +143,7 @@ export class AddressForm extends Base<Data> {
         >
         </vaadin-combo-box>
 
-        <slot name="${bsid}:after"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -165,7 +155,7 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div class=${classMap({ 'col-span-2': wide })}>
-        <slot name="${bsid}:before"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-text-field
           class="w-full"
@@ -182,7 +172,7 @@ export class AddressForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        <slot name="${bsid}:after"></slot>
+        ${this._renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -195,9 +185,9 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="timestamps:before"></slot>
+        ${this._renderTemplateOrSlot('timestamps:before')}
         <x-property-table .items=${items}></x-property-table>
-        <slot name="timestamps:after"></slot>
+        ${this._renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
   };
@@ -213,7 +203,7 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="${action}:before"></slot>
+        ${this._renderTemplateOrSlot(`${action}:before`)}
 
         <vaadin-button
           class="w-full"
@@ -225,7 +215,7 @@ export class AddressForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} key=${action} lang=${this.lang}></foxy-i18n>
         </vaadin-button>
 
-        <slot name="${action}:after"></slot>
+        ${this._renderTemplateOrSlot(`${action}:after`)}
       </div>
     `;
   };
@@ -289,7 +279,8 @@ export class AddressForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >

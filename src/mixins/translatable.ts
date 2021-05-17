@@ -192,12 +192,18 @@ export const TranslatableMixin = <T extends Base>(BaseElement: T, ns: string) =>
 
     private __untrackTranslations?: () => void;
 
-    /** @since 1.4.0 */
+    /**
+     * Namespace used by this element.
+     * @since 1.4.0
+     */
     get ns(): string {
       return ns;
     }
 
-    /** @since 1.4.0 */
+    /**
+     * Translation function from i18next fixed to the current language and element namespace.
+     * @since 1.4.0
+     */
     get t(): TFunction {
       const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
       return I18nElement?.i18next.getFixedT(this.lang, this.ns) ?? ((key: string) => key);

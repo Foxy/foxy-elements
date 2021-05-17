@@ -1,30 +1,29 @@
-import { Choice, Group, Skeleton } from '../../private/index';
-import { Data, Item, Settings } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
   isNextTransactionDate,
 } from '@foxy.io/sdk/customer';
-
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CellContext } from '../Table/types';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { FormDialog } from '../FormDialog';
-import { InternalCalendar } from '../../internal/InternalCalendar';
-import { NucleonElement } from '../NucleonElement/index';
-import { PageRendererContext } from '../CollectionPages/types';
-import { Preview } from '../ItemsForm/private/Preview';
 import { PropertyDeclarations } from 'lit-element';
+import { html, TemplateResult } from 'lit-html';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { ThemeableMixin } from '../../../mixins/themeable';
-import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
-import { Data as TransactionsTableData } from '../TransactionsTable/types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
-import { ifDefined } from 'lit-html/directives/if-defined';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { serializeDate } from '../../../utils/serialize-date';
+import { InternalCalendar } from '../../internal/InternalCalendar';
+import { Choice, Group, Skeleton } from '../../private/index';
+import { PageRendererContext } from '../CollectionPages/types';
+import { FormDialog } from '../FormDialog';
+import { Preview } from '../ItemsForm/private/Preview';
+import { NucleonElement } from '../NucleonElement/index';
+import { CellContext } from '../Table/types';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
+import { Data as TransactionsTableData } from '../TransactionsTable/types';
+import { Data, Item, Settings, Templates } from './types';
 
 const NS = 'subscription-form';
 const Base = ScopedElementsMixin(
@@ -33,17 +32,6 @@ const Base = ScopedElementsMixin(
 
 /**
  * Form element for creating or editing subscriptions.
- *
- * Configurable controls **(new in v1.4.0)**:
- *
- * - `header`
- * - `items`
- * - `items:actions`
- * - `end-date`
- * - `end-date:form`
- * - `next-transaction-date`
- * - `frequency`
- * - `transactions`
  *
  * @slot header:before - **new in v1.4.0**
  * @slot header:after - **new in v1.4.0**
@@ -71,10 +59,11 @@ const Base = ScopedElementsMixin(
 export class SubscriptionForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
-      'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'vcf-tooltip': customElements.get('vcf-tooltip'),
@@ -96,6 +85,8 @@ export class SubscriptionForm extends Base<Data> {
   }
 
   settings: Settings | null = null;
+
+  templates: Templates = {};
 
   private readonly __renderHeaderSubtitle = () => {
     const { data, lang, ns } = this;
@@ -175,10 +166,10 @@ export class SubscriptionForm extends Base<Data> {
   private readonly __renderHeader = () => {
     return html`
       <div>
-        <slot name="header:before"></slot>
+        ${this._renderTemplateOrSlot('header:before')}
         <div class="leading-xs text-xxl font-bold">${this.__renderHeaderTitle()}</div>
         <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>
-        <slot name="header:after"></slot>
+        ${this._renderTemplateOrSlot('header:after')}
       </div>
     `;
   };
@@ -186,9 +177,9 @@ export class SubscriptionForm extends Base<Data> {
   private readonly __renderItemsActions = () => {
     return html`
       <div class="flex">
-        <slot name="items:actions:before"></slot>
+        ${this._renderTemplateOrSlot('items:actions:before')}
         <foxy-i18n key="item_plural" ns=${this.ns} lang=${this.lang} class="flex-1"></foxy-i18n>
-        <slot name="items:actions:after"></slot>
+        ${this._renderTemplateOrSlot('items:actions:after')}
       </div>
     `;
   };
@@ -234,12 +225,12 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="items:before"></slot>
+        ${this._renderTemplateOrSlot('items:before')}
         <x-group frame>
           <div slot="header">${label}</div>
           <div class="divide-y divide-contrast-10 pl-s">${items.map(this.__renderItemsItem)}</div>
         </x-group>
-        <slot name="items:after"></slot>
+        ${this._renderTemplateOrSlot('items:after')}
       </div>
     `;
   };
@@ -249,7 +240,7 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="end-date:before"></slot>
+        ${this._renderTemplateOrSlot('end-date:before')}
 
         <foxy-form-dialog
           readonlycontrols=${this.readonlySelector.zoom('end-date:form').toString()}
@@ -263,6 +254,7 @@ export class SubscriptionForm extends Base<Data> {
           lang=${lang}
           id="end-date-form"
           ns=${ns}
+          .templates=${this._getNestedTemplates('end-date:form')}
         >
         </foxy-form-dialog>
 
@@ -278,7 +270,7 @@ export class SubscriptionForm extends Base<Data> {
           <foxy-i18n key="end_subscription" ns=${ns} lang=${lang}></foxy-i18n>
         </vaadin-button>
 
-        <slot name="end-date:after"></slot>
+        ${this._renderTemplateOrSlot('end-date:after')}
       </div>
     `;
   };
@@ -300,7 +292,7 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="next-transaction-date:before"></slot>
+        ${this._renderTemplateOrSlot('next-transaction-date:before')}
 
         <x-group frame>
           <foxy-i18n key="next_transaction_date" ns=${ns} lang=${lang} slot="header"></foxy-i18n>
@@ -319,7 +311,7 @@ export class SubscriptionForm extends Base<Data> {
           </foxy-internal-calendar>
         </x-group>
 
-        <slot name="next-transaction-date:after"></slot>
+        ${this._renderTemplateOrSlot('next-transaction-date:after')}
       </div>
     `;
   };
@@ -391,13 +383,11 @@ export class SubscriptionForm extends Base<Data> {
   private readonly __renderFrequency = () => {
     return html`
       <div>
-        <slot name="frequency:before"></slot>
-
+        ${this._renderTemplateOrSlot('frequency:before')}
         ${this.settings && this.__frequencies.length > 4
           ? this.__renderFrequencyAsDropdown()
           : this.__renderFrequencyAsRadioList()}
-
-        <slot name="frequency:after"></slot>
+        ${this._renderTemplateOrSlot('frequency:after')}
       </div>
     `;
   };
@@ -442,7 +432,7 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div>
-        <slot name="transactions:before"></slot>
+        ${this._renderTemplateOrSlot('transactions:before')}
 
         <x-group frame>
           <foxy-i18n lang=${lang} slot="header" key="transaction_plural" ns=${ns}></foxy-i18n>
@@ -456,7 +446,7 @@ export class SubscriptionForm extends Base<Data> {
           </foxy-collection-pages>
         </x-group>
 
-        <slot name="transactions:after"></slot>
+        ${this._renderTemplateOrSlot('transactions:after')}
       </div>
     `;
   };
@@ -480,7 +470,8 @@ export class SubscriptionForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >

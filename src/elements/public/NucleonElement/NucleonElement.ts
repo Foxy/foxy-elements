@@ -23,6 +23,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
    * Instances of this event are dispatched on an element whenever it changes its
    * state (e.g. when going from `busy` to `idle` or on `form` data change).
    * This event isn't cancelable, and it does not bubble.
+   * @readonly
    */
   static readonly UpdateEvent = UpdateEvent;
 
@@ -30,12 +31,14 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
    * Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)
    * instance if it doesn't exist or returns cached one otherwise. NucleonElements
    * use empty Rumour group by default.
+   * @readonly
    */
   static readonly Rumour = memoize<(group: string) => Rumour>(() => new Rumour());
 
   /**
    * Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client
    * that dispatches cancellable `FetchEvent` on an element before each request.
+   * @readonly
    */
   static readonly API = API;
 
@@ -58,10 +61,16 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     return [];
   }
 
-  /** Optional ISO 639-1 code describing the language element content is written in. */
+  /**
+   * Optional ISO 639-1 code describing the language element content is written in.
+   * Changing the `lang` attribute will update the value of this property.
+   */
   lang = '';
 
-  /** Optional URL of the collection this element's resource belongs to. */
+  /**
+   * Optional URL of the collection this element's resource belongs to.
+   * Changing the `parent` attribute will update the value of this property.
+   */
   parent = '';
 
   private __href = '';
@@ -97,7 +106,15 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     })
   );
 
-  /** @since 1.4.0 */
+  /**
+   * If network request returns non-2XX code, the entire error response
+   * will be available via this getter.
+   *
+   * This property is readonly. Changing failure records via this property is
+   * not guaranteed to work. NucleonElement does not provide a way to override error status.
+   *
+   * @since 1.4.0
+   */
   get failure(): Response | null {
     return this.__service.state.context.failure;
   }

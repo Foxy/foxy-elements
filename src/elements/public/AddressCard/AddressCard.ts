@@ -1,7 +1,7 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
+import { Data, Templates } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -12,14 +12,6 @@ const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, 
 
 /**
  * Card element displaying a customer address.
- *
- * Configurable controls **(new in v1.4.0)**:
- *
- * - `address-name`
- * - `full-name`
- * - `full-address`
- * - `company`
- * - `phone`
  *
  * @slot address-name:before - **new in v1.4.0**
  * @slot address-name:after - **new in v1.4.0**
@@ -40,6 +32,8 @@ const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, 
  * @since 1.2.0
  */
 export class AddressCard extends Base<Data> {
+  templates: Templates = {};
+
   private readonly __renderAddressName = () => {
     const key = this.data?.is_default_billing
       ? 'default_billing_address'
@@ -49,14 +43,14 @@ export class AddressCard extends Base<Data> {
 
     return html`
       <div class="mb-s leading-none">
-        <slot name="address-name:before"></slot>
+        ${this._renderTemplateOrSlot('address-name:before')}
 
         <span class="uppercase text-xxs font-medium text-secondary tracking-wider">
           <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns}></foxy-i18n>
           &ZeroWidthSpace;
         </span>
 
-        <slot name="address-name:after"></slot>
+        ${this._renderTemplateOrSlot('address-name:after')}
       </div>
     `;
   };
@@ -64,7 +58,7 @@ export class AddressCard extends Base<Data> {
   private readonly __renderLine = (id: string, icon: string, text: TemplateResult) => {
     return html`
       <p>
-        <slot name="${id}:before"></slot>
+        ${this._renderTemplateOrSlot(`${id}:before`)}
 
         <span class="flex items-center text-m space-x-s">
           <iron-icon icon=${icon} class="icon-inline flex-shrink-0"></iron-icon>
@@ -72,7 +66,7 @@ export class AddressCard extends Base<Data> {
           &ZeroWidthSpace;
         </span>
 
-        <slot name="${id}:after"></slot>
+        ${this._renderTemplateOrSlot(`${id}:after`)}
       </p>
     `;
   };
@@ -148,7 +142,8 @@ export class AddressCard extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-250 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-250 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'opacity-0 pointer-events-none': isLoaded,
           })}
         >

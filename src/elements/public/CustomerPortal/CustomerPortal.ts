@@ -11,7 +11,7 @@ import { Settings, State, machine } from './machine';
 
 import { API } from '../NucleonElement/API';
 import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
-import { ComputedElementProperties } from './types';
+import { ComputedElementProperties, Templates } from './types';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Customer } from '../Customer/Customer';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
@@ -31,53 +31,18 @@ const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(LitElement)), NS
 /**
  * Drop-in customer portal.
  *
- * Configurable controls:
- *
- * - `sign-in`
- * - `sign-in:header`
- * - `sign-in:email`
- * - `sign-in:password`
- * - `sign-in:error`
- * - `sign-in:submit`
- * - `sign-in:recover`
- *
- * - `access-recovery`
- * - `access-recovery:header`
- * - `access-recovery:email`
- * - `access-recovery:message`
- * - `access-recovery:submit`
- * - `access-recovery:back`
- *
- * - `customer`
- * - `customer:header`
- * - `customer:header:actions`
- * - `customer:header:actions:edit`
- * - `customer:header:actions:edit:form` + any control in `foxy-customer-form`
- * - `customer:header:actions:sign-out`
- * - `customer:addresses`
- * - `customer:addresses:actions`
- * - `customer:addresses:list`
- * - `customer:addresses:list:card` + any control in `foxy-address-card`
- * - `customer:addresses:list:form` + any control in `foxy-address-form`
- * - `customer:payment-methods`
- * - `customer:payment-methods:list`
- * - `customer:payment-methods:list:card` + any control in `foxy-payment-method-card`
- * - `customer:transactions`
- * - `customer:subscriptions`
- * - `customer:subscriptions:form` + any control in `foxy-subscriptions-form`
- *
  * @slot sign-in:before
  * @slot sign-in:after
  * @slot sign-in:header:before
  * @slot sign-in:header:after
- * @slot sign-in:email:before
- * @slot sign-in:email:after
- * @slot sign-in:password:before
- * @slot sign-in:password:after
- * @slot sign-in:error:before
- * @slot sign-in:error:after
- * @slot sign-in:submit:before
- * @slot sign-in:submit:after
+ * @slot sign-in:form:email:before
+ * @slot sign-in:form:email:after
+ * @slot sign-in:form:password:before
+ * @slot sign-in:form:password:after
+ * @slot sign-in:form:error:before
+ * @slot sign-in:form:error:after
+ * @slot sign-in:form:submit:before
+ * @slot sign-in:form:submit:after
  * @slot sign-in:back:before
  * @slot sign-in:back:after
  *
@@ -85,12 +50,12 @@ const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(LitElement)), NS
  * @slot access-recovery:after
  * @slot access-recovery:header:before
  * @slot access-recovery:header:after
- * @slot access-recovery:email:before
- * @slot access-recovery:email:after
- * @slot access-recovery:message:before
- * @slot access-recovery:message:after
- * @slot access-recovery:submit:before
- * @slot access-recovery:submit:after
+ * @slot access-recovery:form:email:before
+ * @slot access-recovery:form:email:after
+ * @slot access-recovery:form:message:before
+ * @slot access-recovery:form:message:after
+ * @slot access-recovery:form:submit:before
+ * @slot access-recovery:form:submit:after
  * @slot access-recovery:back:before
  * @slot access-recovery:back:after
  *
@@ -158,14 +123,13 @@ export class CustomerPortal extends Base {
     ];
   }
 
-  /** Optional ISO 639-1 code describing the language element content is written in. */
-  lang = '';
-
   /**
    * Rumour group. Elements in different groups will not share updates. Empty by default.
    * @example element.group = 'my-group'
    */
   group = '';
+
+  templates: Templates = {};
 
   private readonly __renderAccessRecoveryHeader = () => {
     const { lang, ns } = this;
@@ -175,7 +139,7 @@ export class CustomerPortal extends Base {
 
     return html`
       <div class="flex flex-col leading-m font-lumo">
-        <slot name="access-recovery:header:before"></slot>
+        ${this._renderTemplateOrSlot('access-recovery:header:before')}
 
         <foxy-i18n
           class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
@@ -193,7 +157,7 @@ export class CustomerPortal extends Base {
         >
         </foxy-i18n>
 
-        <slot name="access-recovery:header:after"></slot>
+        ${this._renderTemplateOrSlot('access-recovery:header:after')}
       </div>
     `;
   };
@@ -205,7 +169,7 @@ export class CustomerPortal extends Base {
 
     return html`
       <div>
-        <slot name="access-recovery:back:before"></slot>
+        ${this._renderTemplateOrSlot('access-recovery:back:before')}
 
         <vaadin-button
           class="w-full"
@@ -216,7 +180,7 @@ export class CustomerPortal extends Base {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="cancel"></foxy-i18n>
         </vaadin-button>
 
-        <slot name="access-recovery:back:after"></slot>
+        ${this._renderTemplateOrSlot('access-recovery:back:after')}
       </div>
     `;
   };
@@ -227,34 +191,29 @@ export class CustomerPortal extends Base {
 
     return html`
       <div class="mx-auto max-w-20rem flex items-center justify-center">
-        <slot name="${scope}:before"></slot>
+        ${this._renderTemplateOrSlot(`${scope}:before`)}
 
         <div class="space-y-l">
           ${hiddenSelector.matches('header', true) ? '' : this.__renderAccessRecoveryHeader()}
 
           <div class="space-y-s">
             <foxy-access-recovery-form
-              id="${scope}-form"
-              lang=${this.lang}
-              parent="foxy://auth/recover"
               readonlycontrols=${this.readonlySelector.zoom(scope).toString()}
               disabledcontrols=${this.disabledSelector.zoom(scope).toString()}
               hiddencontrols=${hiddenSelector.toString()}
+              parent="foxy://auth/recover"
+              lang=${this.lang}
+              id="${scope}-form"
+              .templates=${this._getNestedTemplates('access-recovery')}
               @update=${() => this.requestUpdate()}
             >
-              <slot name="${scope}:email:before" slot="email:before"></slot>
-              <slot name="${scope}:email:after" slot="email:after"></slot>
-              <slot name="${scope}:message:before" slot="message:before"></slot>
-              <slot name="${scope}:message:after" slot="message:after"></slot>
-              <slot name="${scope}:submit:before" slot="submit:before"></slot>
-              <slot name="${scope}:submit:after" slot="submit:after"></slot>
             </foxy-access-recovery-form>
 
             ${hiddenSelector.matches('back', true) ? '' : this.__renderAccessRecoveryBack()}
           </div>
         </div>
 
-        <slot name="${scope}:after"></slot>
+        ${this._renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -267,7 +226,7 @@ export class CustomerPortal extends Base {
 
     return html`
       <div class="flex flex-col leading-m font-lumo">
-        <slot name="sign-in:header:before"></slot>
+        ${this._renderTemplateOrSlot('sign-in:header:before')}
 
         <foxy-i18n
           class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
@@ -285,7 +244,7 @@ export class CustomerPortal extends Base {
         >
         </foxy-i18n>
 
-        <slot name="sign-in:header:after"></slot>
+        ${this._renderTemplateOrSlot('sign-in:header:after')}
       </div>
     `;
   };
@@ -297,7 +256,7 @@ export class CustomerPortal extends Base {
 
     return html`
       <div>
-        <slot name="sign-in:recover:before"></slot>
+        ${this._renderTemplateOrSlot('sign-in:recover:before')}
 
         <vaadin-button
           class="w-full"
@@ -308,7 +267,7 @@ export class CustomerPortal extends Base {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="recover_access"></foxy-i18n>
         </vaadin-button>
 
-        <slot name="sign-in:recover:after"></slot>
+        ${this._renderTemplateOrSlot('sign-in:recover:after')}
       </div>
     `;
   };
@@ -319,19 +278,20 @@ export class CustomerPortal extends Base {
 
     return html`
       <div class="mx-auto max-w-20rem flex items-center justify-center">
-        <slot name="${scope}:before"></slot>
+        ${this._renderTemplateOrSlot(`${scope}:before`)}
 
         <div class="space-y-l">
           ${hiddenSelector.matches('header', true) ? '' : this.__renderSignInHeader()}
 
           <div class="space-y-s">
             <foxy-sign-in-form
-              id="${scope}-form"
-              lang=${this.lang}
-              parent="foxy://auth/session"
               readonlycontrols=${this.readonlySelector.zoom(scope).toString()}
               disabledcontrols=${this.disabledSelector.zoom(scope).toString()}
               hiddencontrols=${hiddenSelector.toString()}
+              parent="foxy://auth/session"
+              lang=${this.lang}
+              id="${scope}-form"
+              .templates=${this._getNestedTemplates('sign-in')}
               @signin=${() => this.__service.send('SIGN_IN')}
               @update=${(evt: Event) => {
                 const form = evt.currentTarget as SignInForm;
@@ -339,21 +299,13 @@ export class CustomerPortal extends Base {
                 this.requestUpdate();
               }}
             >
-              <slot name="${scope}:email:before" slot="email:before"></slot>
-              <slot name="${scope}:email:after" slot="email:after"></slot>
-              <slot name="${scope}:password:before" slot="password:before"></slot>
-              <slot name="${scope}:password:after" slot="password:after"></slot>
-              <slot name="${scope}:error:before" slot="error:before"></slot>
-              <slot name="${scope}:error:after" slot="error:after"></slot>
-              <slot name="${scope}:submit:before" slot="submit:before"></slot>
-              <slot name="${scope}:submit:after" slot="submit:after"></slot>
             </foxy-sign-in-form>
 
             ${hiddenSelector.matches('recover', true) ? '' : this.__renderSignInRecover()}
           </div>
         </div>
 
-        <slot name="${scope}:after"></slot>
+        ${this._renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -432,7 +384,8 @@ export class CustomerPortal extends Base {
     return html`
       <button
         class=${classMap({
-          'block w-full border border-contrast-10 p-m rounded-t-l rounded-b-l focus-outline-none focus-border-primary': true,
+          'block w-full border border-contrast-10 p-m rounded-t-l rounded-b-l focus-outline-none focus-border-primary':
+            true,
           'hover-border-contrast-30': ctx.data !== null,
         })}
         ?disabled=${ctx.data === null}
@@ -486,7 +439,7 @@ export class CustomerPortal extends Base {
       >
       </foxy-form-dialog>
 
-      <slot name="customer:subscriptions:before"></slot>
+      ${this._renderTemplateOrSlot('customer:subscriptions:before')}
 
       <div class="space-y-m pt-m border-t-4 border-contrast-5">
         <foxy-i18n
@@ -508,29 +461,7 @@ export class CustomerPortal extends Base {
         </foxy-collection-pages>
       </div>
 
-      <slot name="customer:subscriptions:after"></slot>
-    `;
-  };
-
-  private readonly __renderCustomerHeaderActionsSignOut = () => {
-    const scope = 'customer:header:actions:sign-out';
-    const isCustomerLoaded = this.__customerElement?.in({ idle: 'snapshot' });
-
-    return html`
-      <div class="ml-m flex">
-        <slot name="${scope}:before"></slot>
-
-        <vaadin-button
-          class="px-xs rounded-full"
-          theme="icon large"
-          ?disabled=${this.disabledSelector.matches(scope) || !isCustomerLoaded}
-          @click=${this.__handleSignOutButtonClick}
-        >
-          <iron-icon icon="icons:exit-to-app"></iron-icon>
-        </vaadin-button>
-
-        <slot name="${scope}:after"></slot>
-      </div>
+      ${this._renderTemplateOrSlot('customer:subscriptions:after')}
     `;
   };
 
@@ -552,7 +483,7 @@ export class CustomerPortal extends Base {
     }
 
     return html`
-      <slot name="customer:transactions:before"></slot>
+      ${this._renderTemplateOrSlot('customer:transactions:before')}
 
       <div class="space-y-m pt-m border-t-4 border-contrast-5">
         <foxy-i18n
@@ -574,7 +505,29 @@ export class CustomerPortal extends Base {
         </foxy-collection-pages>
       </div>
 
-      <slot name="customer:transactions:after"></slot>
+      ${this._renderTemplateOrSlot('customer:transactions:after')}
+    `;
+  };
+
+  private readonly __renderCustomerHeaderActionsSignOut = () => {
+    const scope = 'customer:header:actions:sign-out';
+    const isCustomerLoaded = !!this.__customerElement?.in({ idle: 'snapshot' });
+
+    return html`
+      <div class="ml-m flex">
+        ${this._renderTemplateOrSlot(`${scope}:before`)}
+
+        <vaadin-button
+          class="px-xs rounded-full"
+          theme="icon large"
+          ?disabled=${this.disabledSelector.matches(scope) || !isCustomerLoaded}
+          @click=${() => this.__service.send('SIGN_OUT')}
+        >
+          <iron-icon icon="icons:exit-to-app"></iron-icon>
+        </vaadin-button>
+
+        ${this._renderTemplateOrSlot(`${scope}:after`)}
+      </div>
     `;
   };
 
@@ -590,7 +543,7 @@ export class CustomerPortal extends Base {
     ];
 
     return html`
-      <slot name="customer:before"></slot>
+      ${this._renderTemplateOrSlot('customer:before')}
 
       <foxy-customer
         readonlycontrols=${this.readonlySelector.zoom('customer').toString()}
@@ -599,6 +552,7 @@ export class CustomerPortal extends Base {
         href=${this.href}
         lang=${this.lang}
         id="customer"
+        .templates=${this._getNestedTemplates('customer')}
         @update=${() => this.requestUpdate()}
         @fetch=${(evt: Event) => {
           if (evt instanceof FetchEvent && !evt.defaultPrevented) {
@@ -642,7 +596,7 @@ export class CustomerPortal extends Base {
         </div>
       </foxy-customer>
 
-      <slot name="customer:after"></slot>
+      ${this._renderTemplateOrSlot('customer:after')}
     `;
   };
 
@@ -756,9 +710,5 @@ export class CustomerPortal extends Base {
     } catch {
       return '';
     }
-  }
-
-  private async __handleSignOutButtonClick() {
-    this.__service.send('SIGN_OUT');
   }
 }

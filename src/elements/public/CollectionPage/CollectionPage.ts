@@ -64,6 +64,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
             ?disabled=\${this.disabled}
             ?readonly=\${this.readonly}
             ?hidden=\${this.hidden}
+            .templates=\${this.templates}
           >
           </${value}>\``
       ) as ItemRenderer;
@@ -111,6 +112,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
           disabledControls: this.disabledControls,
           readonlyControls: this.readonlyControls,
           hiddenControls: this.hiddenControls,
+          templates: this.templates,
           disabled: this.disabled,
           readonly: this.readonly,
           hidden: this.hidden,

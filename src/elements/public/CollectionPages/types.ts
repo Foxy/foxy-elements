@@ -1,6 +1,7 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { Renderer } from '../../../mixins/configurable';
 
 export type Page = {
   _links: { next: { href: string }; self: { href: string } };
@@ -45,6 +46,7 @@ export type PageRendererContext<TPage extends Page = Page> = {
   readonlyControls: BooleanSelector;
   disabledControls: BooleanSelector;
   hiddenControls: BooleanSelector;
+  templates: Partial<Record<string, Renderer<any>>>;
   readonly: boolean;
   disabled: boolean;
   hidden: boolean;

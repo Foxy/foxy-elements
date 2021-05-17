@@ -4,6 +4,7 @@ import '@vaadin/vaadin-button';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 import '../../internal/InternalCalendar/index';
+import '../../internal/InternalSandbox/index';
 import '../CancellationForm/index';
 import '../CollectionPages/index';
 import '../FormDialog/index';
