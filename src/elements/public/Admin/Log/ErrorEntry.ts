@@ -41,14 +41,25 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
     }
   }
 
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles
+    ];
+  }
+
+  open: boolean;
+
+  constructor() {
+    super();
+    this.open = false;
+  }
+
   render(): TemplateResult {
     return html`
     ${this.data?._embedded['fx:error_entries'].map(i => {
       return html`
         <article class='m-s text-body'>
           <header class='border-l-2 h-full p-s relative ${this.open ? 'border-error': 'border-primary'}'>
-            <foxy-i18n key='date' options='{"value": "${i.date_created}"}' class='text-s ${this.open ? 'text-error': 'text-primary'}'></foxy-i18n>
-            <foxy-i18n key='time' options='{"value": "${i.date_created}"}' class='text-s ${this.open ? 'text-error': 'text-primary'}'></foxy-i18n>
             <vaadin-button @click=${this.__toggleOpen}
                            theme="icon"
                            class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0'
@@ -59,18 +70,40 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
                 : html`<iron-icon icon='icons:expand-more'></iron-icon>`
               }
             </vaadin-button>
+            <foxy-i18n key='date' options='{"value": "${i.date_created}"}' class='text-s ${this.open ? 'text-error': 'text-primary'}'></foxy-i18n>
+            <foxy-i18n key='time' options='{"value": "${i.date_created}"}' class='text-s ${this.open ? 'text-error': 'text-primary'}'></foxy-i18n>
             <div>${i.error_message}</div>
 
           </header>
           ${this.open
             ? html`
               <main>
+                ${i._links['fx:customer']?.href
+                  ? html`
+                    <section class='my-s'>
+                      <h1 class='text-disabled text-m space-y-s'>Customer</h1>
+                      <div class='rounded-l border border-contrast-10 p-s'>
+                        <foxy-customer-info class="my-s" href="${i._links['fx:customer']?.href}"></foxy-customer-info>
+                      </div>
+                    </section> `
+                  : ''
+                }
+                ${i._links['fx:transaction']?.href
+                  ? html`
+                    <section class='my-s'>
+                      <h1 class='text-disabled text-m space-y-s'>Transaction</h1>
+                      <div class='rounded-l border border-contrast-10 p-s'>
+                        <foxy-transaction-info href="${i._links['fx:transaction']?.href}"></foxy-transaction-info>
+                      </div>
+                    </section>`
+                  : ''
+                }
                 <section class='my-s'>
                   <h1 class='text-tertiary text-m m-0 space-0'>Request</h1>
-                  <main class='rounded-l border border-contrast-10 p-s'>
+                  <div class='rounded-l border border-contrast-10 p-s'>
                     <p>${i.url}</p>
                     ${i.referrer
-                      ? html`<span class='text-secondary'>Navigated from</span> <span>${i.referrer}</span>`
+                      ? html`<span class='text-secondary'>Navigated from</span> <a href='${i.referrer}'>${i.referrer}</a>`
                       : html``
                     }
                     ${i.get_values
@@ -82,22 +115,8 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
                       ? html`<foxy-queryparams-viewer data='${i.post_values}' method='POST'></foxy-queryparams-viewer>`
                       : html``
                     }
-                  </main>
+                  </div>
                 </section>
-                ${i._links['fx:customer']?.href
-                  ? html`<section class='space-y-s'>
-                      <h1 class='text-disabled text-m space-y-s'>Client</h1>
-                      <foxy-customer-info href="${i._links['fx:customer']?.href}"></foxy-customer-info>
-                    </section> `
-                  : ''
-                }
-                ${i._links['fx:transaction']?.href
-                  ? html`<section class='space-y-s'>
-                      <h1 class='text-disabled text-m space-y-s'>Transaction</h1>
-                      <foxy-transaction-info href="${i._links['fx:transaction']?.href}"></foxy-transaction-info>
-                    </section>`
-                  : ''
-                }
 
               </main>
             `
