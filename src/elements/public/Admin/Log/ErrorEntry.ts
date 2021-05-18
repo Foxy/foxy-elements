@@ -10,24 +10,11 @@ type Data = FoxySDK.Core.Resource<ErrorEntries>;
 
 export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
 
-  open: boolean;
-
-  static get properties() {
+  static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       open: {type: Boolean}
     }
-  }
-
-  constructor() {
-    super();
-    this.open = false;
-  }
-
-  static get styles(): CSSResult | CSSResultArray {
-    return [
-      Themeable.styles
-    ];
   }
 
   public static get scopedElements(): ScopedElementsMap {
