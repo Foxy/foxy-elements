@@ -8,6 +8,8 @@ export const time: FormatFunction = (value, format, lang): string => {
   const valueAsDate = new Date(value);
   return valueAsDate.toLocaleTimeString(lang, {
     hour: '2-digit',
-    minute: '2-digit' }
+    minute: '2-digit',
+    second: '2-digit',
+    }
   );
 };
