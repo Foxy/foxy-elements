@@ -7,11 +7,11 @@ import {
   css,
   html,
 } from 'lit-element';
+import { ComputedElementProperties, Templates } from './types';
 import { Settings, State, machine } from './machine';
 
 import { API } from '../NucleonElement/API';
 import { AccessRecoveryForm } from '../AccessRecoveryForm/AccessRecoveryForm';
-import { ComputedElementProperties, Templates } from './types';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Customer } from '../Customer/Customer';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
@@ -532,8 +532,9 @@ export class CustomerPortal extends Base {
   };
 
   private readonly __renderCustomer = () => {
+    const hiddenSelector = this.hiddenSelector.zoom('customer');
     const extendedHiddenControlsArray = [
-      this.hiddenSelector.zoom('customer').toString(),
+      hiddenSelector.toString(),
       'header:actions:edit:form:delete',
       'attributes',
       'transactions',
@@ -581,18 +582,16 @@ export class CustomerPortal extends Base {
         <slot name="customer:payment-methods:list:after" slot="payment-methods:list:after"></slot>
 
         <div slot="header:actions:after">
-          ${this.hiddenSelector.matches('customer:header:actions:sign-out', true)
+          ${hiddenSelector.matches('header:actions:sign-out', true)
             ? ''
             : this.__renderCustomerHeaderActionsSignOut()}
         </div>
 
         <div slot="header:after" class="space-y-l mt-m">
-          ${this.hiddenSelector.matches('customer:subscriptions', true)
+          ${hiddenSelector.matches('subscriptions', true)
             ? ''
             : this.__renderCustomerSubscriptions()}
-          ${this.hiddenSelector.matches('customer:transactions', true)
-            ? ''
-            : this.__renderCustomerTransactions()}
+          ${hiddenSelector.matches('transactions', true) ? '' : this.__renderCustomerTransactions()}
         </div>
       </foxy-customer>
 

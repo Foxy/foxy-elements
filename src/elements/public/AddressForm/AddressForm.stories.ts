@@ -1,31 +1,41 @@
 import './index';
 
-import { generateStories } from '../../../utils/generate-stories';
+import { Summary } from '../../../storygen/Summary';
+import { getMeta } from '../../../storygen/getMeta';
+import { getStory } from '../../../storygen/getStory';
 
-const readonlyControls = [
-  'address-name',
-  'first-name',
-  'last-name',
-  'company',
-  'phone',
-  'address-line-one',
-  'address-line-two',
-  'country',
-  'region',
-  'city',
-  'postal-code',
-];
+const summary: Summary = {
+  href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
+  parent: 'https://demo.foxycart.com/s/admin/customers/0/customer_addresses',
+  nucleon: true,
+  localName: 'foxy-address-form',
+  translatable: true,
+  configurable: {
+    sections: ['timestamps'],
+    buttons: ['delete', 'create'],
+    inputs: [
+      'address-name',
+      'first-name',
+      'last-name',
+      'company',
+      'phone',
+      'address-line-one',
+      'address-line-two',
+      'country',
+      'region',
+      'city',
+      'postal-code',
+    ],
+  },
+};
 
-const { Meta, Playground, IdleSnapshotState, IdleTemplateState, BusyState, FailState } =
-  generateStories({
-    readonlyControls,
-    disabledControls: [...readonlyControls, 'create', 'delete'],
-    hiddenControls: [...readonlyControls, 'timestamps', 'create', 'delete'],
-    parent: 'https://demo.foxycart.com/s/admin/customers/0/customer_addresses',
-    title: 'Forms/AddressForm',
-    href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
-    tag: 'foxy-address-form',
-  });
+export default getMeta(summary);
 
-export default Meta;
-export { Playground, IdleSnapshotState, IdleTemplateState, BusyState, FailState };
+export const Playground = getStory({ ...summary, code: true });
+export const Empty = getStory(summary);
+export const Error = getStory(summary);
+export const Busy = getStory(summary);
+
+Empty.args.href = '';
+Error.args.href = 'https://demo.foxycart.com/s/admin/not-found';
+Busy.args.href = 'https://demo.foxycart.com/s/admin/sleep';

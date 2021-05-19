@@ -5,14 +5,23 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.foxycart.com/s/admin/customers/0/default_payment_method',
+  href: 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items',
+  parent: 'https://demo.foxycart.com/s/admin/stores/0/subscriptions',
   nucleon: true,
-  localName: 'foxy-payment-method-card',
+  localName: 'foxy-subscription-form',
   translatable: true,
-  configurable: { sections: ['actions'], buttons: ['actions:delete'] },
+  configurable: {
+    sections: ['header', 'items', 'items:actions', 'end-date:form:warning', 'transactions'],
+    buttons: ['end-date', 'end-date:form:submit'],
+    inputs: ['end-date:form:end-date', 'next-transaction-date', 'frequency'],
+  },
 };
 
-export default getMeta(summary);
+const Meta = getMeta(summary);
+
+Meta.argTypes.settings = { control: false };
+
+export default Meta;
 
 export const Playground = getStory({ ...summary, code: true });
 export const Empty = getStory(summary);

@@ -1,17 +1,21 @@
 import './index';
 
-import { generateStories } from '../../../utils/generate-stories';
+import { Summary } from '../../../storygen/Summary';
+import { getMeta } from '../../../storygen/getMeta';
+import { getStory } from '../../../storygen/getStory';
 
-const { Meta, Playground, IdleSnapshotState, IdleTemplateState, BusyState, FailState } =
-  generateStories({
-    disabledControls: ['email', 'password', 'submit'],
-    readonlyControls: ['email', 'password', 'submit'],
-    hiddenControls: ['email', 'password', 'error', 'submit'],
-    parent: 'foxy://auth/session',
-    title: 'Forms/SignInForm',
-    href: '',
-    tag: 'foxy-sign-in-form',
-  });
+const summary: Summary = {
+  parent: 'foxy://auth/session',
+  nucleon: true,
+  localName: 'foxy-sign-in-form',
+  translatable: true,
+  configurable: {
+    sections: ['error'],
+    buttons: ['submit'],
+    inputs: ['email', 'password'],
+  },
+};
 
-export default Meta;
-export { Playground, IdleSnapshotState, IdleTemplateState, BusyState, FailState };
+export default getMeta(summary);
+
+export const Playground = getStory({ ...summary, code: true });

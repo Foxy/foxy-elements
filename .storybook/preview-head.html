@@ -36,27 +36,50 @@
     font-weight: bold;
   }
 
-  .box {
+  .foxy-story {
+    overflow: hidden;
+    display: block;
     border: 1px solid var(--lumo-contrast-10pct);
+  }
+
+  .foxy-story--narrow {
+    background: var(--lumo-contrast-5pct);
+  }
+
+  .foxy-story__preview {
     border-radius: var(--lumo-border-radius-l);
+    background: var(--lumo-base-color);
     padding: var(--lumo-space-m);
   }
 
-  pre {
-    font: normal var(--lumo-font-size-s) monospace;
-    margin-top: var(--lumo-space-l);
+  .foxy-story--narrow>.foxy-story__preview {
+    max-width: 30rem;
+    border: 1px solid var(--lumo-contrast-10pct);
+    margin: var(--lumo-space-xl) auto;
+  }
+
+  .foxy-story__code {
+    border-top: 1px solid var(--lumo-contrast-10pct);
+    line-height: var(--lumo-line-height-s);
+    background: var(--lumo-tint);
     overflow: auto;
+    padding: var(--lumo-space-m);
+    display: block;
+    color: var(--lumo-contrast-70pct);
+    font: normal var(--lumo-font-size-l) monospace;
+    margin-top: 0;
   }
 
-  pre>code {
-    color: var(--lumo-secondary-text-color);
+  .foxy-story__code .hljs-name {
+    color: var(--lumo-primary-color);
   }
 
-  pre>code .hljs-name {
-    color: var(--lumo-primary-text-color);
+  .foxy-story__code .hljs-attr {
+    color: var(--lumo-contrast);
   }
 
-  pre>code .hljs-attr {
-    color: var(--lumo-body-text-color);
+  /* Hide "No code available" warning (we have our own thing for this). */
+  .docs-story> :last-child {
+    display: none;
   }
 </style>
