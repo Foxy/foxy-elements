@@ -1,6 +1,5 @@
 import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
 
-import { Router } from 'service-worker-router';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
@@ -10,9 +9,9 @@ import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
 import { composeTransaction } from './composers/composeTransaction';
 import { getPagination } from '../getPagination';
+import { router } from '../router';
 
 const endpoint = 'https://demo.foxycart.com/s/admin';
-const router = new Router();
 export { endpoint, router, db, whenDbReady, DemoDatabase };
 
 // subscriptions
@@ -407,7 +406,3 @@ router.delete('/s/admin/customers/:id', async ({ params }) => {
 router.get('/s/admin/not-found', async () => new Response(null, { status: 404 }));
 
 router.get('/s/admin/sleep', () => new Promise(() => void 0));
-
-// catch-all
-
-router.all('*', async () => new Response(null, { status: 500 }));

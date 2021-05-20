@@ -1,7 +1,7 @@
 import { authorize } from '../authorize';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
 import { db } from '../../DemoDatabase';
-import { router } from './router';
+import { router } from '../../router';
 
 router.get('/s/customer/default_payment_method', async ({ request }) => {
   const authResult = await authorize(request);

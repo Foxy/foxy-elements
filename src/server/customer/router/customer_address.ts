@@ -1,8 +1,7 @@
-import { db, whenDbReady } from '../../DemoDatabase';
-
 import { authorize } from '../authorize';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
-import { router } from './router';
+import { db } from '../../DemoDatabase';
+import { router } from '../../router';
 
 router.get('/s/customer/addresses/:id', async ({ params, request }) => {
   const authResult = await authorize(request);

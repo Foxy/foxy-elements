@@ -1,4 +1,4 @@
-import { router } from './router';
+import { router } from '../../router';
 
 router.post('/s/customer/forgot_password', async () => {
   // demo auth doesn't need to issue a temporary password because

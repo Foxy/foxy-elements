@@ -3,7 +3,7 @@ import { composeCollection } from './composers/composeCollection';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { db } from '../../DemoDatabase';
 import { getPagination } from '../../getPagination';
-import { router } from './router';
+import { router } from '../../router';
 
 router.get('/s/customer/addresses', async ({ request }) => {
   const authResult = await authorize(request);

@@ -1,6 +1,6 @@
 import { db, whenDbReady } from '../../DemoDatabase';
 
-import { router } from './router';
+import { router } from '../../router';
 
 const createError = (message: string) =>
   JSON.stringify({

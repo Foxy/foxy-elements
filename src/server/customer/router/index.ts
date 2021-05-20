@@ -11,7 +11,7 @@ import './forgot_password';
 import { authorize } from '../authorize';
 import { composeCustomer } from './composers/composeCustomer';
 import { db } from '../../DemoDatabase';
-import { router } from './router';
+import { router } from '../../router';
 
 router.get('/s/customer', async ({ request }) => {
   const authResult = await authorize(request);
@@ -41,6 +41,5 @@ router.patch('/s/customer', async ({ request }) => {
 
 router.get('/s/customer/not-found', async () => new Response(null, { status: 404 }));
 router.get('/s/customer/sleep', () => new Promise(() => void 0));
-router.all('*', async () => new Response(null, { status: 500 }));
 
 export { router };
