@@ -1,4 +1,4 @@
-import { DemoDatabase, db, router, whenDbReady } from '../../../server/admin/index';
+import { DemoDatabase, db, router, whenDbReady } from '../../../server/index';
 import { EventObject, State } from 'xstate';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
@@ -37,7 +37,7 @@ export function getRefs<TRefs extends Record<string, Element | Element[]>>(
   return { ...classes, ...ids } as TRefs;
 }
 
-function runCustomTests<
+async function runCustomTests<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,
   TRefs extends Record<string, Element | Element[]>,
@@ -48,13 +48,13 @@ function runCustomTests<
   context: TestContext<TElement>,
   event: TEvent
 ) {
+  const commonTest = tests.test;
+  const refs = getRefs<TRefs>(context.element);
+  if (typeof commonTest === 'function') await commonTest({ ...context, refs }, event);
+
   let test = get(tests, `${state}.test`);
   if (typeof test !== 'function') test = get(tests, state);
-
-  if (typeof test === 'function') {
-    const refs = getRefs<TRefs>(context.element);
-    return test({ ...context, refs }, event);
-  }
+  if (typeof test === 'function') await test({ ...context, refs }, event);
 }
 
 type TestContext<TElement extends HTMLElement> = {

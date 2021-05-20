@@ -169,7 +169,9 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
         }
       };
 
-      return html`<foxy-internal-sandbox .render=${render}></foxy-internal-sandbox>`;
+      return html`
+        <foxy-internal-sandbox data-testid=${name} .render=${render}></foxy-internal-sandbox>
+      `;
     }
 
     protected _getNestedTemplates<T extends Partial<Record<string, Renderer<any>>>>(id: string): T {
