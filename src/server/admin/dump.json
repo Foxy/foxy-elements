@@ -113,6 +113,40 @@
       "hide_error": false,
       "date_created": "2012-08-10T12:12:49-0700",
       "date_modified": null
+    },
+    {
+      "id": 1,
+      "store": 0,
+      "customer": 0,
+      "transaction": 0,
+      "url": "https://api-sandbox.foxycart.com/api_rest.php",
+      "error_message": "DataFeed Failed: (2) 2013-08-10 12:12:49 No data returned for  [0]\n malformed",
+      "user_agent": "curl/8.21.3 (i386-pc-win32) libcurl/7.21.3 OpenSSL/0.9.8q zlib/1.2.5",
+      "referrer": "https://example.com",
+      "ip_address": "10.2.249.103",
+      "ip_country": "",
+      "post_values": "fcsid=ef7r23si2a8kra9gt91krlltli&ThisAction=checkout&customer_id=32df6844ba6d2a75004d1ada29685292&is_anonymous=0",
+      "get_values": "fcsid=ef9r23si2a8kra9gt91krlltli&ThisAction=checkout&customer_id=32df6856ba6d2a75015d1ada29685290&is_anonymous=0&anonymous_checkout_selected=0",
+      "hide_error": true,
+      "date_created": "2012-10-19T17:12:49-0700",
+      "date_modified": null
+    },
+    {
+      "id": 2,
+      "store": 0,
+      "customer": 0,
+      "transaction": 0,
+      "url": "https://api-sandbox.foxycart.com/api_rest.php",
+      "error_message": "DataFeed Failed: (5) 2014-08-10 12:12:49 No data returned for  [0]\n malformed",
+      "user_agent": "curl/11.21.3 (i386-pc-win32) libcurl/7.21.3 OpenSSL/0.9.8q zlib/1.2.5",
+      "referrer": "https://example.com",
+      "ip_address": "13.2.249.103",
+      "ip_country": "",
+      "post_values": "email_is_found=4&customer_email=example@example.com&shipping_first_name=Foo&shipping_last_name=Oliveira&shipping_company=&shipping_phone=&shipping_tax_id=&shipping_address1=Summer st 19&shipping_address2=&shipping_postal_code=55517266&shipping_city=Springfield&shipping_region=DF&shipping_country=BR&use_different_addresses=0&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=mastercard&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 7480&cc_exp_year_saved=2027&cc_exp_month_saved=08&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:1024,&quot;browserScreenWidth&quot;:1280,&quot;browserLanguage&quot;:&quot;en-US&quot;,&quot;browserTimeZone&quot;:180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
+      "get_values": "shipping_address5=&shipping_postal_code=55517266&shipping_city=Springfield&shipping_region=DF&shipping_country=BR&use_different_addresses=0&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=mastercard&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 7480&cc_exp_year_saved=2027&cc_exp_month_saved=08&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:1024,&quot;browserScreenWidth&quot;:1280,&quot;browserLanguage&quot;:&quot;en-US&quot;,&quot;browserTimeZone&quot;:180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
+      "hide_error": false,
+      "date_created": "2015-10-19T17:12:49-0700",
+      "date_modified": null
     }
   ],
   "payment_methods": [

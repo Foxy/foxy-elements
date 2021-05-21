@@ -10,24 +10,23 @@ import './index.ts';
 <Subtitle>Render a Table of Error Log Entries</Subtitle>
 
 <Canvas
-mdxSource={dedent`
-  <foxy-error-entry
+  mdxSource={dedent`
+  <foxy-error-log
     href="https://demo.foxycart.com/s/admin/stores/0/error_entries"
-    class="box-content px-4 rounded-lg border"
+    class="block px-4 rounded-lg border"
     >
-    </foxy-error-entry>
-    `}
-    >
-    <Story name="EEntry">
-{() =>
-  html`
-    <foxy-error-entry
+    </foxy-error-log>
+    `}>
+  <Story name="EEntry">
+    {() =>
+      html`
+    <foxy-error-log
     href="https://demo.foxycart.com/s/admin/stores/0/error_entries"
-    class="box-content px-4 rounded-lg border"
+    class="block px-4 rounded-lg border"
     >
-    </foxy-error-entry>
+    </foxy-error-log>
     `
-}
-</Story>
+    }
+  </Story>
 </Canvas>
 

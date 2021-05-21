@@ -218,11 +218,25 @@ router.get('/s/admin/stores/:id/error_entries', async ({ params, request }) => {
   return new Response(JSON.stringify(body));
 });
 
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+  const errorEntry = db.errorEntries.get(parseInt(params.id));
+  const body = composeErrorEntry(errorEntry);
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  await db.errorEntries.update(id, await request.json());
+  const body = composeErrorEntry(await db.errorEntries.get(id));
+  return new Response(JSON.stringify(body));
+});
+
 // customer_attributes
 
 router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
   await whenDbReady;
-
   const id = parseInt(params.id);
   const url = request.url;
   const { limit, offset } = getPagination(url);
@@ -230,7 +244,6 @@ router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
     db.customerAttributes.count(),
     db.customerAttributes.where('customer').equals(id).offset(offset).limit(limit).toArray(),
   ]);
-
   const rel = 'fx:attributes';
   const composeItem = composeCustomerAttribute;
   const body = composeCollection({ composeItem, rel, url, count, items });

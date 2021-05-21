@@ -1,5 +1,5 @@
-import { ErrorEntry } from './ErrorEntry';
+import { ErrorLog }  from './ErrorLog';
 
-customElements.define('foxy-error-entry', ErrorEntry);
+customElements.define('foxy-error-log', ErrorLog);
 
-export { ErrorEntry };
+export { ErrorLog };
