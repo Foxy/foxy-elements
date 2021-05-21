@@ -156,6 +156,28 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       }
     }
 
+    compileTemplates(): void {
+      this.templates = {};
+
+      Array.from(this.children).forEach(child => {
+        if (child.localName !== 'template') return;
+
+        const slot = child.getAttribute('slot');
+        if (slot === null) return;
+
+        try {
+          const script = `return html\`${child.innerHTML}\``;
+          const render = new Function('html', 'host', script) as () => TemplateResult;
+
+          this.templates[slot] = render;
+        } catch (err) {
+          console.error(err);
+        }
+      });
+
+      this.requestUpdate();
+    }
+
     protected _renderTemplateOrSlot(name: string) {
       if (!this.templates[name]) return html`<slot name=${name}></slot>`;
 
@@ -199,40 +221,22 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
     }
 
     private __onMutation() {
-      this.__observer.disconnect();
-      this.templates = {};
-
-      Array.from(this.children).forEach(child => {
-        if (child.localName !== 'template') return;
-
-        const slot = child.getAttribute('slot');
-        if (slot === null) return;
-
-        try {
-          const script = `return html\`${child.innerHTML}\``;
-          const render = new Function('html', 'host', script) as () => TemplateResult;
-
-          this.templates[slot] = render;
-        } catch (err) {
-          console.error(err);
-        }
-
-        this.__observer.observe((child as HTMLTemplateElement).content, {
-          characterData: true,
-          attributes: true,
-          childList: true,
-          subtree: true,
-        });
-      });
-
-      this.__observer.observe(this, {
+      const config = {
         characterData: true,
         attributes: true,
         childList: true,
         subtree: true,
+      };
+
+      this.__observer.disconnect();
+      this.__observer.observe(this, config);
+
+      Array.from(this.children).forEach(child => {
+        if (child.localName !== 'template' || !child.hasAttribute('slot')) return;
+        this.__observer.observe((child as HTMLTemplateElement).content, config);
       });
 
-      this.requestUpdate();
+      this.compileTemplates();
     }
   };
 };

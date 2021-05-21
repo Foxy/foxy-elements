@@ -4,16 +4,15 @@ import { Renderer } from '../mixins/configurable';
 import { expect } from '@open-wc/testing';
 
 type TestElement = LitElement & {
+  compileTemplates: () => void;
   templates: Partial<Record<string, Renderer<any>>>;
   mode?: string;
 };
 
 export async function testTemplateMarkup(element: TestElement, name: string): Promise<void> {
-  element.mode = 'development';
-  await element.updateComplete;
-
   element.innerHTML = `<template slot="${name}"><div data-testid="${name}"></div></template>`;
-  await new Promise(r => setTimeout(r)).then(() => element.updateComplete);
+  element.compileTemplates();
+  await element.updateComplete;
 
   const selector = `foxy-internal-sandbox[data-testid="${name}"]`;
   const sandbox = element.renderRoot.querySelector(selector) as InternalSandbox;
@@ -24,5 +23,6 @@ export async function testTemplateMarkup(element: TestElement, name: string): Pr
   expect(mark?.outerHTML, `${selector} shadow dom must include ${layout}`).to.equal(layout);
 
   element.innerHTML = '';
-  await new Promise(r => setTimeout(r)).then(() => element.updateComplete);
+  element.compileTemplates();
+  await element.updateComplete;
 }

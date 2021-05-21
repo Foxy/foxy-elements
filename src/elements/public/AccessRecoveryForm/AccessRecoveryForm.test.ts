@@ -8,6 +8,9 @@ import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field'
 import { Spinner } from '../Spinner';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
+import { testDisabledSelector } from '../../../testgen/testDisabledSelector';
+import { testHiddenSelector } from '../../../testgen/testHiddenSelector';
+import { testReadonlySelector } from '../../../testgen/testReadonlySelector';
 import { testSlot } from '../../../testgen/testSlot';
 import { testTemplateFunction } from '../../../testgen/testTemplateFunction';
 import { testTemplateMarkup } from '../../../testgen/testTemplateMarkup';
@@ -25,7 +28,7 @@ describe('AccessRecoveryForm', () => {
     tag: 'foxy-access-recovery-form',
     href: 'https://demo.foxycart.com/s/virtual/recovery',
     parent: 'https://demo.foxycart.com/s/virtual/recovery',
-    maxTestsPerState: 2,
+    maxTestsPerState: 3,
     isEmptyValid: false,
     invalidate: form => ({ ...form, detail: { email: '' } }),
 
@@ -46,7 +49,11 @@ describe('AccessRecoveryForm', () => {
         expect(refs.spinner).to.have.attribute('ns', element.ns);
         expect(refs.email.value ?? '').to.equal(element.form.detail?.email ?? '');
 
+        await testReadonlySelector(element, 'email');
+
         for (const control of ['email', 'submit']) {
+          await testHiddenSelector(element, control);
+
           for (const position of ['before', 'after']) {
             const slot = [control, position].join(':') as keyof Templates;
 
@@ -57,42 +64,32 @@ describe('AccessRecoveryForm', () => {
         }
       },
 
-      busy: async ({ refs, element }) => {
+      busy: async ({ refs }) => {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'true');
         expect(refs.spinner).to.have.attribute('state', 'busy');
         expect(refs.submit).to.have.attribute('disabled');
         expect(refs.email).to.have.attribute('disabled');
-
-        for (const slot of ['message:before', 'message:after']) {
-          await testSlot(element, slot).catch(err => expect(err).to.exist);
-          await testTemplateMarkup(element, slot).catch(err => expect(err).to.exist);
-          await testTemplateFunction(element, slot).catch(err => expect(err).to.exist);
-        }
       },
 
       idle: {
         test: async ({ refs, element }) => {
           expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
           expect(refs.spinner.parentElement).to.have.class('opacity-0');
-
-          for (const slot of ['message:before', 'message:after']) {
-            await testSlot(element, slot).catch(err => expect(err).to.exist);
-            await testTemplateMarkup(element, slot).catch(err => expect(err).to.exist);
-            await testTemplateFunction(element, slot).catch(err => expect(err).to.exist);
-          }
+          await testDisabledSelector(element, 'email');
         },
 
         snapshot: {
-          test: async ({ refs }) => {
+          test: async ({ refs, element }) => {
             expect(refs.message).to.have.attribute('key', 'recover_access_success');
+            await testHiddenSelector(element, 'message');
           },
           clean: {
             invalid: async ({ refs }) => expect(refs.submit).to.have.attribute('disabled'),
-            valid: async ({ refs }) => expect(refs.submit).not.to.have.attribute('disabled'),
+            valid: ({ element }) => testDisabledSelector(element, 'submit'),
           },
           dirty: {
             invalid: async ({ refs }) => expect(refs.submit).to.have.attribute('disabled'),
-            valid: async ({ refs }) => expect(refs.submit).not.to.have.attribute('disabled'),
+            valid: ({ element }) => testDisabledSelector(element, 'submit'),
           },
         },
 
@@ -102,11 +99,11 @@ describe('AccessRecoveryForm', () => {
           },
           clean: {
             invalid: async ({ refs }) => expect(refs.submit).to.have.attribute('disabled'),
-            valid: async ({ refs }) => expect(refs.submit).not.to.have.attribute('disabled'),
+            valid: ({ element }) => testDisabledSelector(element, 'submit'),
           },
           dirty: {
             invalid: async ({ refs }) => expect(refs.submit).to.have.attribute('disabled'),
-            valid: async ({ refs }) => expect(refs.submit).not.to.have.attribute('disabled'),
+            valid: ({ element }) => testDisabledSelector(element, 'submit'),
           },
         },
       },
@@ -117,6 +114,8 @@ describe('AccessRecoveryForm', () => {
         expect(refs.email).to.have.attribute('disabled');
         expect(refs.message).to.have.attribute('key', 'unknown_error');
         expect(refs.submit).to.have.attribute('disabled');
+
+        await testHiddenSelector(element, 'message');
 
         for (const slot of ['message:before', 'message:after']) {
           await testSlot(element, slot);
