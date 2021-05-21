@@ -1,7 +1,7 @@
+import { Data, Templates } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data, Templates } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -46,7 +46,8 @@ export class AddressCard extends Base<Data> {
         ${this._renderTemplateOrSlot('address-name:before')}
 
         <span class="uppercase text-xxs font-medium text-secondary tracking-wider">
-          <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns}></foxy-i18n>
+          <foxy-i18n data-testid="address-name" lang=${this.lang} key=${key} ns=${this.ns}>
+          </foxy-i18n>
           &ZeroWidthSpace;
         </span>
 
@@ -62,7 +63,7 @@ export class AddressCard extends Base<Data> {
 
         <span class="flex items-center text-m space-x-s">
           <iron-icon icon=${icon} class="icon-inline flex-shrink-0"></iron-icon>
-          <span class="truncate">${text}</span>
+          <span class="truncate" data-testid=${id}>${text}</span>
           &ZeroWidthSpace;
         </span>
 
@@ -75,10 +76,11 @@ export class AddressCard extends Base<Data> {
     const text = this.data
       ? html`
           <foxy-i18n
-            ns=${this.ns}
-            key="full_name"
-            lang=${this.lang}
+            data-testid="full-name"
             options=${JSON.stringify(this.data)}
+            lang=${this.lang}
+            key="full_name"
+            ns=${this.ns}
           >
           </foxy-i18n>
         `
@@ -91,11 +93,11 @@ export class AddressCard extends Base<Data> {
     const text = this.data
       ? html`
           <foxy-i18n
-            ns=${this.ns}
-            key="full_address"
-            lang=${this.lang}
-            data-testid="fullAddress"
+            data-testid="full-address"
             options=${JSON.stringify(this.data)}
+            lang=${this.lang}
+            key="full_address"
+            ns=${this.ns}
           >
           </foxy-i18n>
         `
@@ -142,13 +144,14 @@ export class AddressCard extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-250 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
+            'transition duration-250 ease-in-out absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': isLoaded,
           })}
         >
           <foxy-spinner
+            data-testid="spinner"
             state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
+            class="m-auto"
             lang=${this.lang}
             ns=${this.ns}
           >
