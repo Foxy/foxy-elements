@@ -131,7 +131,7 @@ export class AddressForm extends Base<Data> {
           label=${this.t(field).toString()}
           value=${ifDefined(this.form?.[field]?.toString())}
           error-message=${this.__getErrorMessage(field)}
-          data-testid=${field}
+          data-testid=${bsid}
           item-value-path="code"
           item-label-path="text"
           .checkValidity=${this.__getValidator(field)}
@@ -162,7 +162,7 @@ export class AddressForm extends Base<Data> {
           label=${this.t(field).toString()}
           value=${ifDefined(this.form?.[field]?.toString())}
           error-message=${this.__getErrorMessage(field)}
-          data-testid=${field}
+          data-testid=${bsid}
           .checkValidity=${this.__getValidator(field)}
           ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid)}
           ?required=${required}
@@ -186,7 +186,7 @@ export class AddressForm extends Base<Data> {
     return html`
       <div>
         ${this._renderTemplateOrSlot('timestamps:before')}
-        <x-property-table .items=${items}></x-property-table>
+        <x-property-table .items=${items} data-testid="timestamps"></x-property-table>
         ${this._renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
@@ -208,7 +208,7 @@ export class AddressForm extends Base<Data> {
         <vaadin-button
           class="w-full"
           theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-          data-testid="action"
+          data-testid=${action}
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
           @click=${this.__handleActionClick}
         >
@@ -279,6 +279,7 @@ export class AddressForm extends Base<Data> {
         ${hiddenSelector.matches(action, true) ? '' : this.__renderAction(action)}
 
         <div
+          data-testid="spinner"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': !isBusy && !isFail,
