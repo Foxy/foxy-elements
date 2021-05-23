@@ -233,6 +233,7 @@ export class AddressForm extends Base<Data> {
     const isDefaultBilling = !!this.form?.is_default_billing;
     const isDefault = isDefaultShipping || isDefaultBilling;
     const isBusy = this.in('busy');
+    const isFail = this.in('fail');
 
     return html`
       <foxy-internal-confirm-dialog
@@ -279,15 +280,14 @@ export class AddressForm extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
-            'opacity-0 pointer-events-none': !isBusy,
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': !isBusy && !isFail,
           })}
         >
           <foxy-spinner
             layout="vertical"
-            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${lang}
             ns=${ns}
           >
