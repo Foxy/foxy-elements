@@ -274,7 +274,7 @@ export class AddressForm extends Base<Data> {
           ${this.__maybeRenderTextField({ field: 'postal_code' })}
         </div>
 
-        ${hiddenSelector.matches('timestamps', true) ? '' : this.__renderTimestamps()}
+        ${!this.data || hiddenSelector.matches('timestamps', true) ? '' : this.__renderTimestamps()}
         ${hiddenSelector.matches(action, true) ? '' : this.__renderAction(action)}
 
         <div
