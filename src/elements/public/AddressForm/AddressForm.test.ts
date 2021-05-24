@@ -7,6 +7,7 @@ import { ButtonElement } from '@vaadin/vaadin-button';
 import { Data } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
 import { InternalSandbox } from '../../internal/InternalSandbox';
+import { NucleonElement } from '../NucleonElement';
 import { SelectElement } from '@vaadin/vaadin-select';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { getByName } from '../../../testgen/getByName';
@@ -17,6 +18,14 @@ import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('AddressForm', () => {
+  it('extends NucleonElement', () => {
+    expect(new AddressForm()).to.be.instanceOf(NucleonElement);
+  });
+
+  it('registers as foxy-address-form', () => {
+    expect(customElements.get('foxy-address-form')).to.equal(AddressForm);
+  });
+
   describe('address-name', () => {
     it('has i18n label key "address_name"', async () => {
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
