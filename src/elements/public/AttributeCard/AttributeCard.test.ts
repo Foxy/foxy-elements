@@ -1,34 +1,218 @@
 import './index';
 
+import { expect, fixture, waitUntil } from '@open-wc/testing';
+
 import { AttributeCard } from './AttributeCard';
 import { Data } from './types';
-import { expect } from '@open-wc/testing';
-import { generateTests } from '../NucleonElement/generateTests';
-
-type Refs = {
-  name: HTMLSpanElement;
-  value: HTMLSpanElement;
-};
+import { InternalSandbox } from '../../internal/InternalSandbox';
+import { NucleonElement } from '../NucleonElement';
+import { getByName } from '../../../testgen/getByName';
+import { getByTestId } from '../../../testgen/getByTestId';
+import { getTestData } from '../../../testgen/getTestData';
+import { html } from 'lit-element';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('AttributeCard', () => {
-  generateTests<Data, AttributeCard, Refs>({
-    tag: 'foxy-attribute-card',
-    href: 'https://demo.foxycart.com/s/admin/customer_attributes/0',
-    parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
-    maxTestsPerState: 5,
-    isEmptyValid: true,
-    assertions: {
-      busy({ refs }) {
-        expect(refs.name, "name mustn't be rendered").to.be.undefined;
-        expect(refs.value, "value mustn't be rendered").to.be.undefined;
-      },
+  it('extends NucleonElement', () => {
+    expect(new AttributeCard()).to.be.instanceOf(NucleonElement);
+  });
 
-      idle: {
-        snapshot({ refs, element }) {
-          expect(refs.name).to.contain.text(element.form.name!);
-          expect(refs.value).to.contain.text(element.form.value!);
-        },
-      },
-    },
+  it('registers as foxy-attribute-card', () => {
+    expect(customElements.get('foxy-attribute-card')).to.equal(AttributeCard);
+  });
+
+  describe('name', () => {
+    it('renders attribute name when loaded', async () => {
+      const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+      const data = { ...(await getTestData<Data>(href)), name: 'Foo' };
+      const layout = html`<foxy-attribute-card .data=${data}></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+
+      expect(await getByTestId(element, 'name')).to.contain.text('Foo');
+    });
+
+    it('renders "name:before" slot by default', async () => {
+      const layout = html`<foxy-attribute-card></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByName(element, 'name:before')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "name:before" slot with template "name:before" if available', async () => {
+      const name = 'name:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<AttributeCard>(html`
+        <foxy-attribute-card>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-attribute-card>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "name:after" slot by default', async () => {
+      const layout = html`<foxy-attribute-card></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByName(element, 'name:after')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "name:after" slot with template "name:after" if available', async () => {
+      const name = 'name:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<AttributeCard>(html`
+        <foxy-attribute-card>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-attribute-card>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('is visible by default', async () => {
+      const layout = html`<foxy-attribute-card></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByTestId(element, 'name')).to.exist;
+    });
+
+    it('is hidden when card is hidden', async () => {
+      const layout = html`<foxy-attribute-card hidden></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByTestId(element, 'name')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes name', async () => {
+      const layout = html`<foxy-attribute-card hiddencontrols="name"></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByTestId(element, 'name')).to.not.exist;
+    });
+  });
+
+  describe('value', () => {
+    it('renders attribute value when loaded', async () => {
+      const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+      const data = { ...(await getTestData<Data>(href)), value: 'Foo' };
+      const layout = html`<foxy-attribute-card .data=${data}></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+
+      expect(await getByTestId(element, 'value')).to.contain.text('Foo');
+    });
+
+    it('renders "value:before" slot by default', async () => {
+      const layout = html`<foxy-attribute-card></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByName(element, 'value:before')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "value:before" slot with template "value:before" if available', async () => {
+      const name = 'value:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<AttributeCard>(html`
+        <foxy-attribute-card>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-attribute-card>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "value:after" slot by default', async () => {
+      const layout = html`<foxy-attribute-card></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByName(element, 'value:after')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "value:after" slot with template "value:after" if available', async () => {
+      const name = 'value:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<AttributeCard>(html`
+        <foxy-attribute-card>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-attribute-card>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('is visible by default', async () => {
+      const layout = html`<foxy-attribute-card></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByTestId(element, 'value')).to.exist;
+    });
+
+    it('is hidden when card is hidden', async () => {
+      const layout = html`<foxy-attribute-card hidden></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByTestId(element, 'value')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes value', async () => {
+      const layout = html`<foxy-attribute-card hiddencontrols="value"></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      expect(await getByTestId(element, 'value')).to.not.exist;
+    });
+  });
+
+  describe('spinner', () => {
+    it('renders "empty" foxy-spinner by default', async () => {
+      const layout = html`<foxy-attribute-card lang="es"></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      const spinner = await getByTestId(element, 'spinner');
+      const wrapper = spinner!.parentElement;
+
+      expect(wrapper).not.to.have.class('opacity-0');
+      expect(spinner).to.have.attribute('state', 'empty');
+      expect(spinner).to.have.attribute('lang', 'es');
+      expect(spinner).to.have.attribute('ns', 'attribute-card');
+    });
+
+    it('renders "busy" foxy-spinner while loading', async () => {
+      const layout = html`<foxy-attribute-card href="/" lang="es"></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      const spinner = await getByTestId(element, 'spinner');
+      const wrapper = spinner!.parentElement;
+
+      expect(wrapper).not.to.have.class('opacity-0');
+      expect(spinner).to.have.attribute('state', 'busy');
+      expect(spinner).to.have.attribute('lang', 'es');
+      expect(spinner).to.have.attribute('ns', 'attribute-card');
+    });
+
+    it('renders "error" foxy-spinner if loading fails', async () => {
+      const layout = html`<foxy-attribute-card href="/" lang="es"></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      const spinner = await getByTestId(element, 'spinner');
+      const wrapper = spinner!.parentElement;
+
+      await waitUntil(() => element.in('fail'));
+
+      expect(wrapper).not.to.have.class('opacity-0');
+      expect(spinner).to.have.attribute('state', 'error');
+      expect(spinner).to.have.attribute('lang', 'es');
+      expect(spinner).to.have.attribute('ns', 'attribute-card');
+    });
+
+    it('hides the spinner once loaded', async () => {
+      const data = await getTestData('https://demo.foxycart.com/s/admin/customer_attributes/0');
+      const layout = html`<foxy-attribute-card .data=${data}></foxy-attribute-card>`;
+      const element = await fixture<AttributeCard>(layout);
+      const spinner = await getByTestId(element, 'spinner');
+
+      expect(spinner!.parentElement).to.have.class('opacity-0');
+    });
   });
 });

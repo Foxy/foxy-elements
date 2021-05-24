@@ -1,7 +1,7 @@
+import { Data, Templates } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data, Templates } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -76,12 +76,13 @@ export class AttributeCard extends Base<Data> {
 
         <div
           class=${classMap({
-            'transition duration-250 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
+            'transition duration-250 ease-in-out absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': isLoaded,
           })}
         >
           <foxy-spinner
+            data-testid="spinner"
+            class="m-auto"
             state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
             lang=${this.lang}
             ns=${this.ns}
