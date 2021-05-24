@@ -1,8 +1,8 @@
+import { Data, Templates } from './types';
 import { Group, Warning } from '../../private';
 import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data, Templates } from './types';
 import { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -60,6 +60,7 @@ export class CancellationForm extends Base<Data> {
 
         <x-warning>
           <foxy-i18n
+            data-testid="warning"
             class=${classMap({ 'text-disabled': !this.in({ idle: 'snapshot' }) })}
             lang=${lang}
             key="end_subscription_explainer"
@@ -84,6 +85,7 @@ export class CancellationForm extends Base<Data> {
 
         <x-group frame>
           <foxy-i18n
+            data-testid="end-date-label"
             class=${classMap({ 'text-disabled': !isIdleSnapshot })}
             slot="header"
             lang=${lang}
@@ -93,6 +95,7 @@ export class CancellationForm extends Base<Data> {
           </foxy-i18n>
 
           <foxy-internal-calendar
+            data-testid="end-date"
             .checkAvailability=${(date: Date) => date.getTime() >= tomorrow}
             ?disabled=${!isIdleSnapshot || this.disabledSelector.matches('end-date', true)}
             ?readonly=${!!this.data?.end_date || this.readonlySelector.matches('end-date', true)}
@@ -120,10 +123,11 @@ export class CancellationForm extends Base<Data> {
         ${this._renderTemplateOrSlot('submit:before')}
 
         <vaadin-button
+          data-testid="submit"
           ?disabled=${!isValid || this.disabledSelector.matches('submit', true)}
           theme="primary error"
           class="w-full"
-          @click=${this.submit}
+          @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="end_subscription"></foxy-i18n>
         </vaadin-button>
@@ -136,6 +140,7 @@ export class CancellationForm extends Base<Data> {
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector;
     const isBusy = this.in('busy');
+    const isFail = this.in('fail');
 
     return html`
       <div class="space-y-l font-lumo text-m text-body leading-m relative">
@@ -144,16 +149,16 @@ export class CancellationForm extends Base<Data> {
         ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
 
         <div
+          data-testid="spinner"
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
-            'opacity-0 pointer-events-none': !isBusy,
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': !isBusy && !isFail,
           })}
         >
           <foxy-spinner
             layout="vertical"
-            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${this.lang}
             ns=${this.ns}
           >
