@@ -1,7 +1,7 @@
+import { Data, Templates } from './types';
 import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data, Templates } from './types';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
 import { NucleonElement } from '..';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -60,6 +60,7 @@ export class SignInForm extends Base<Data> {
 
         <vaadin-email-field
           error-message=${emailErrorMessage}
+          data-testid="email"
           class="w-full mb-m"
           label=${this.t('email').toString()}
           value=${ifDefined(this.form.credential?.email)}
@@ -95,6 +96,7 @@ export class SignInForm extends Base<Data> {
 
         <vaadin-password-field
           error-message=${passwordErrorMessage}
+          data-testid="password"
           class="w-full mb-m"
           label=${this.t('password').toString()}
           value=${ifDefined(this.form.credential?.password)}
@@ -122,7 +124,8 @@ export class SignInForm extends Base<Data> {
 
         <p class="leading-s flex items-start text-s rounded p-s bg-error-10 text-error">
           <iron-icon class="flex-shrink-0 mr-s" icon="lumo:error"></iron-icon>
-          <foxy-i18n lang=${this.lang} key=${this.errors[0]} ns=${this.ns}></foxy-i18n>
+          <foxy-i18n data-testid="error" lang=${this.lang} key=${this.errors[0]} ns=${this.ns}>
+          </foxy-i18n>
         </p>
 
         ${this._renderTemplateOrSlot('error:after')}
@@ -142,10 +145,11 @@ export class SignInForm extends Base<Data> {
         ${this._renderTemplateOrSlot('submit:before')}
 
         <vaadin-button
+          data-testid="submit"
           class=${classMap({ 'w-full': true, 'mt-l': !this.in('fail') })}
           theme="primary"
           ?disabled=${!isValid || this.in('busy') || this.disabledSelector.matches('submit', true)}
-          @click=${this.submit}
+          @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="sign_in"></foxy-i18n>
         </vaadin-button>
@@ -171,15 +175,16 @@ export class SignInForm extends Base<Data> {
         ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
 
         <div
+          data-testid="spinner"
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >
           <foxy-spinner
             layout="vertical"
-            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state="busy"
             lang=${lang}
             ns=${ns}
           >
