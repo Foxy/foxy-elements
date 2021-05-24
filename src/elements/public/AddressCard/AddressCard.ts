@@ -35,19 +35,25 @@ export class AddressCard extends Base<Data> {
   templates: Templates = {};
 
   private readonly __renderAddressName = () => {
-    const key = this.data?.is_default_billing
-      ? 'default_billing_address'
-      : this.data?.is_default_shipping
-      ? 'default_shipping_address'
-      : this.data?.address_name ?? '';
+    const isDefaultBilling = !!this.data?.is_default_billing;
+    const isDefaultShipping = !!this.data?.is_default_shipping;
 
     return html`
       <div class="mb-s leading-none">
         ${this._renderTemplateOrSlot('address-name:before')}
 
         <span class="uppercase text-xxs font-medium text-secondary tracking-wider">
-          <foxy-i18n data-testid="address-name" lang=${this.lang} key=${key} ns=${this.ns}>
-          </foxy-i18n>
+          ${isDefaultBilling || isDefaultShipping
+            ? html`
+                <foxy-i18n
+                  data-testid="address-name"
+                  lang=${this.lang}
+                  key="default_${isDefaultBilling ? 'billing' : 'shipping'}_address"
+                  ns=${this.ns}
+                >
+                </foxy-i18n>
+              `
+            : html`<span data-testid="address-name">${this.data?.address_name}</span>`}
           &ZeroWidthSpace;
         </span>
 
@@ -76,7 +82,6 @@ export class AddressCard extends Base<Data> {
     const text = this.data
       ? html`
           <foxy-i18n
-            data-testid="full-name"
             options=${JSON.stringify(this.data)}
             lang=${this.lang}
             key="full_name"
