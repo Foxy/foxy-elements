@@ -93,7 +93,7 @@ export class CustomerForm extends Base<Data> {
           label=${this.t(field).toString()}
           value=${ifDefined(this.form?.[field]?.toString())}
           error-message=${error ? this.t(error.replace(field, 'v8n')).toString() : ''}
-          data-testid=${field}
+          data-testid=${bsid}
           .checkValidity=${this.__getValidator(field)}
           ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid, true)}
           ?readonly=${this.readonlySelector.matches(bsid, true)}
@@ -113,6 +113,7 @@ export class CustomerForm extends Base<Data> {
         ${this._renderTemplateOrSlot('timestamps:before')}
 
         <x-property-table
+          data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
             value: this.data ? this.t('date', { value: new Date(this.data[field]) }) : '',
@@ -149,7 +150,7 @@ export class CustomerForm extends Base<Data> {
         <vaadin-button
           class="w-full"
           theme=${this.in('idle') ? `primary ${href ? 'error' : 'success'}` : ''}
-          data-testid="action"
+          data-testid=${action}
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${handleClick}
         >
@@ -165,6 +166,7 @@ export class CustomerForm extends Base<Data> {
     const { hiddenSelector, href, lang, ns } = this;
     const action = href ? 'delete' : 'create';
     const isBusy = this.in('busy');
+    const isFail = this.in('fail');
 
     return html`
       <foxy-internal-confirm-dialog
@@ -195,16 +197,16 @@ export class CustomerForm extends Base<Data> {
         ${hiddenSelector.matches(action) ? '' : this.__renderAction(action)}
 
         <div
+          data-testid="spinner"
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
-            'opacity-0 pointer-events-none': !isBusy,
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': !isBusy && !isFail,
           })}
         >
           <foxy-spinner
             layout="vertical"
-            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${lang}
             ns=${ns}
           >
