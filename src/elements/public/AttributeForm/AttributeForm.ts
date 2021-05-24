@@ -118,6 +118,7 @@ export class AttributeForm extends Base<Data> {
 
         <x-group frame>
           <foxy-i18n
+            data-testid="visibility-label"
             class=${classMap({ 'text-disabled': isDisabled })}
             lang=${lang}
             slot="header"
@@ -161,7 +162,7 @@ export class AttributeForm extends Base<Data> {
     return html`
       <div>
         ${this._renderTemplateOrSlot('timestamps:before')}
-        <x-property-table .items=${items}></x-property-table>
+        <x-property-table .items=${items} data-testid="timestamps"></x-property-table>
         ${this._renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
@@ -201,7 +202,7 @@ export class AttributeForm extends Base<Data> {
           class="w-full"
           theme="success primary"
           ?disabled=${!this.in('idle') || !isValid || this.disabledSelector.matches('create', true)}
-          @click=${this.submit}
+          @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="create"></foxy-i18n>
         </vaadin-button>
@@ -214,6 +215,7 @@ export class AttributeForm extends Base<Data> {
   render(): TemplateResult {
     const { hiddenSelector, data, lang, ns } = this;
     const isBusy = this.in('busy');
+    const isFail = this.in('fail');
 
     return html`
       <foxy-internal-confirm-dialog
@@ -241,16 +243,16 @@ export class AttributeForm extends Base<Data> {
         </div>
 
         <div
+          data-testid="spinner"
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
-            'opacity-0 pointer-events-none': !isBusy,
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': !isBusy && !isFail,
           })}
         >
           <foxy-spinner
             layout="vertical"
-            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${lang}
             ns=${ns}
           >
