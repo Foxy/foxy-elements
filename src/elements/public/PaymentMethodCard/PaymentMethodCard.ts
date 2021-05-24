@@ -1,11 +1,11 @@
 import * as logos from './logos';
 
 import { CSSResultArray, css } from 'lit-element';
+import { Data, Templates } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data, Templates } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/index';
@@ -63,7 +63,7 @@ export class PaymentMethodCard extends Base<Data> {
           theme="icon"
           style="--lumo-primary-text-color: #fff; --lumo-primary-color-50pct: rgba(255, 255, 255, 0.5); --lumo-contrast-5pct: rgba(255, 255, 255, 0.05)"
           aria-label=${this.t('delete').toString()}
-          data-testid="delete"
+          data-testid="actions:delete"
           ?disabled=${this.disabledSelector.matches('actions:delete', true)}
           @click=${this.__handleDelete}
         >
@@ -77,7 +77,7 @@ export class PaymentMethodCard extends Base<Data> {
 
   private readonly __renderActions = () => {
     return html`
-      <div class="flex">
+      <div class="flex" data-testid="actions">
         ${this._renderTemplateOrSlot('actions:before')}
         ${this.hiddenSelector.matches('actions:delete', true) ? '' : this.__renderActionsDelete()}
         ${this._renderTemplateOrSlot('actions:after')}
@@ -100,7 +100,13 @@ export class PaymentMethodCard extends Base<Data> {
         >
           <div class="h-full bg-contrast-5"></div>
           <div class="absolute inset-0 flex items-center justify-center">
-            <foxy-spinner state=${spinnerState} data-testid="spinner"></foxy-spinner>
+            <foxy-spinner
+              data-testid="spinner"
+              state=${spinnerState}
+              lang=${this.lang}
+              ns=${this.ns}
+            >
+            </foxy-spinner>
           </div>
         </div>
       `;
@@ -112,6 +118,7 @@ export class PaymentMethodCard extends Base<Data> {
 
     return html`
       <foxy-internal-confirm-dialog
+        data-testid="confirm"
         message="delete_prompt"
         confirm="delete"
         cancel="cancel"
@@ -120,7 +127,6 @@ export class PaymentMethodCard extends Base<Data> {
         lang=${lang}
         ns=${ns}
         id="confirm"
-        data-testid="confirm"
         @hide=${this.__handleConfirmHide}
       >
       </foxy-internal-confirm-dialog>
