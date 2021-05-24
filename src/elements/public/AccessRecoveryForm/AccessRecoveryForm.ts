@@ -114,7 +114,7 @@ export class AccessRecoveryForm extends Base<Data> {
         class="w-full"
         theme="primary"
         ?disabled=${isBusy || !isValid || isFailed || this.disabledSelector.matches('submit', true)}
-        @click=${this.submit}
+        @click=${() => this.submit()}
       >
         <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
       </vaadin-button>
@@ -140,13 +140,13 @@ export class AccessRecoveryForm extends Base<Data> {
         ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
 
         <div
+          data-testid="spinner"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': !isBusy,
           })}
         >
           <foxy-spinner
-            data-testid="spinner"
             layout="vertical"
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state="busy"
