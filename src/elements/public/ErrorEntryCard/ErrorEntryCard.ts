@@ -1,230 +1,444 @@
-import { PropertyDeclarations, TemplateResult } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-
-import { Data } from './types';
-import { DataList } from './DataList';
-import { Group } from '../../private/Group/Group';
-import { NucleonElement } from '../NucleonElement/index';
-import { ResourceViewer } from './ResourceViewer';
-import { ThemeableMixin } from '../../../mixins/themeable';
-import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { NucleonElement } from '../NucleonElement';
+import * as FoxySDK from '@foxy.io/sdk';
+import { css, CSSResult, CSSResultArray, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { html } from 'lit-html';
+import { Themeable } from '../../../mixins/themeable';
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
+import { ButtonElement } from '@vaadin/vaadin-button';
 
-const NS = 'error-entry-card';
-const Base = TranslatableMixin(ThemeableMixin(ScopedElementsMixin(NucleonElement)), NS);
+type Rel = FoxySDK.Backend.Rels.ErrorEntry;
+type Data = FoxySDK.Core.Resource<Rel, undefined>;
 
-/**
- * Displays an ErrorEntry from the Log of FoxyAPI.
- *
- * @element foxy-error-entry-card
- */
-export class ErrorEntryCard extends Base<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'x-resource-viewer': ResourceViewer,
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'x-data-list': DataList,
-      'iron-icon': customElements.get('iron-icon'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
-      'x-group': Group,
-    };
+export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
+
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles,
+      css`
+        .nohide.fadeout {
+          animation-name: initial;
+        }
+        .fadeout {
+          animation-duration: 0.2s;
+          animation-name: out;
+          animation-fill-mode: forwards;
+          animation-timing-function: ease-in;
+        }
+        @keyframes out {
+          0% {
+            transform: translateX(0);
+            max-height: 120px;
+            opacity: 1;
+          }
+          99% {
+            transform: translateX(-55px);
+            max-height: 40px;
+            opacity: 0;
+            position: relative;
+          }
+          to {
+            left: -100vw;
+            position: absolute;
+          }
+        }
+      `
+    ];
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      open: { type: Boolean, reflect: true },
+      open: { type: Boolean },
+      nohide: { type: Boolean },
     };
   }
 
-  /**
-   * If true, displays the error details.
-   * Additionally, sets `form.hide_error` to `true` and submits changes on first view.
-   */
-  open = false;
+  public static get scopedElements(): ScopedElementsMap {
+    return {
+      'iron-icon': customElements.get('iron-icon'),
+      'foxy-i18n': customElements.get('foxy-i18n'),
+      'vaadin-button': ButtonElement,
+      'vaadin-checkbox': CheckboxElement,
+      'x-custom-box': Box,
+      'x-customer-info-card': CustomerInfoCard,
+      'x-client-info-card': ClientInfoCard,
+      'x-transaction-info-card': TransactionInfoCard,
+      'x-params-viewer': URLSearchParamsViewer,
+    };
+  }
+
+  open: boolean;
+
+  nohide = false;
+
+  constructor() {
+    super();
+    this.open = false;
+  }
 
   render(): TemplateResult {
-    const data = this.data;
-    const isBusy = this.in('busy');
-
-    if (data) {
-      const { hide_error } = data;
-      const { open } = this;
-
+    if (!this.data) {
       return html`
-        <details
-          aria-busy=${isBusy}
-          aria-live="polite"
-          class="text-body w-full"
-          ?open=${open}
-          @toggle=${this.__handleToggle}
-        >
-          <summary class="rounded-s ring-offset-4 ring-primary-50 focus-outline-none focus-ring-2">
-            <div
-              style="padding-left: calc(var(--lumo-space-xs) + var(--lumo-space-s) - 1px)"
-              class=${classMap({
-                'border-l-2 leading-s relative cursor-pointer': true,
-                'border-contrast': hide_error && !open,
-                'border-primary': !hide_error,
-                'border-error': hide_error && open,
-                'h-l': !open,
-              })}
-            >
-              ${this.__renderSummary(data)}
-            </div>
-          </summary>
-
-          ${open ? this.__renderDetails(data) : ''}
-        </details>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <foxy-spinner
+              data-testid="spinner"
+              class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+              layout="horizontal"
+              >
+          </foxy-spinner>
+        </div>
       `;
     } else {
       return html`
-        <div
-          aria-busy=${isBusy}
-          aria-live="polite"
-          style="padding-left: calc(var(--lumo-space-xs) + var(--lumo-space-s) - 1px)"
-          class="flex items-center justify-center border-l-2 leading-s relative border-contrast-10 h-l"
-        >
-          <foxy-spinner
-            data-testid="spinner"
-            layout="horizontal"
-            state=${isBusy ? 'busy' : this.in('fail') ? 'error' : 'empty'}
-            lang=${this.lang}
-            ns=${this.ns}
-          >
-          </foxy-spinner>
+        <div aria-busy=${this.in('busy')}
+             aria-live='polite'
+             class='${this.nohide? 'nohide': ''} ${ this.data.hide_error ? 'fadeout': ''} flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
+          <vaadin-checkbox
+            title="Hide this error"
+            class="pt-s"
+            ?disabled=${!this.in('idle')}
+            .value=${this.data._links.self.href}
+            ?checked=${this.data.hide_error}
+            @change=${this.__handleCheckErrorEntry}
+          ></vaadin-checkbox>
+          <article class='m-s text-body'>
+            <header class='border-l-2 p-s relative ${this.open ? 'border-error' : 'border-primary'}'>
+              <vaadin-button @click=${this.__toggleOpen}
+                    theme="icon"
+                    class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0'
+                    aria-label='toggle'
+                    >
+                    ${this.open
+                        ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
+                        : html`<iron-icon icon='icons:expand-more'></iron-icon>`
+                        }
+              </vaadin-button>
+              ${this.data.hide_error ? html`<span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">Hidden</span>` : ''}
+              <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
+              <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
+              <div>${this.data.error_message}</div>
+            </header>
+            ${this.open ? html`
+                  <main>
+                    ${(this.data._links as any)['fx:customer']?.href
+                        ? html`
+                          <x-custom-box title="Customer">
+                            <x-customer-info-card href="${(this.data._links as any)['fx:customer']?.href}"></x-customer-info-card>
+                          </x-custom-box>
+                        `
+                        : ''
+                        }
+                        ${(this.data._links as any)['fx:transaction']?.href
+                            ? html`
+                              <x-custom-box title="Transaction">
+                                <x-transaction-info-card href="${(this.data._links as any)['fx:transaction']?.href}"></x-transaction-info-card>
+                              </x-custom-box>
+                            `
+                            : ''
+                        }
+                        ${this.data.user_agent}
+                        <x-custom-box title="Client">
+                          <x-client-info-card user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
+                        </x-custom-box>
+                        </x-custom-box>
+                        <x-custom-box title="Request">
+                          <p>${this.data.url}</p>
+                          ${this.data.referrer
+                            ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
+                            : html``
+                          }
+                          ${this.data.get_values
+                            ? html`
+                              <x-params-viewer data='${this.data.get_values}' method='GET'></x-params-viewer>`
+                            : html``
+                          }
+                          ${this.data.post_values
+                            ? html`<x-params-viewer data='${this.data.post_values}' method='POST'></x-params-viewer>`
+                            : html``
+                          }
+                        </x-custom-box>
+                  </main>
+                `
+                : ``
+                }
+          </article>
         </div>
       `;
     }
   }
 
-  private __renderGetOrPostValues(getValues: string, postValues: string) {
-    const values = getValues || postValues;
-    const params = new URLSearchParams(this.__decodeHtml(values));
-    const method = getValues ? 'GET' : 'POST';
-
-    return html`
-      <div class="relative leading-xs pt-s">
-        <div class="absolute font-semibold right-0 text-tertiary text-xs top-0 mt-s">${method}</div>
-        <x-data-list data=${JSON.stringify(Array.from(params.entries()))}></x-data-list>
-      </div>
-    `;
+  private __handleCheckErrorEntry() {
+    this.edit({
+      ...this.data,
+      ...{ hide_error: !this.form?.hide_error }
+    });
+    this.submit();
   }
 
-  private __renderReferrer(referrer: string) {
-    return html`
-      <span class="text-secondary">Navigated from</span>
-      <a
-        target="_blank"
-        class="font-semibold text-primary hover-underline"
-        href=${referrer}
-        rel="nofollow noopener noreferrer"
-      >
-        ${referrer}
-      </a>
-    `;
+
+  private __toggleOpen() {
+    this.open = !this.open;
+  }
+}
+
+class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Customer>> {
+
+  public static get scopedElements(): ScopedElementsMap {
+    return {
+      'foxy-spinner': customElements.get('foxy-spinner'),
+    };
   }
 
-  private __renderSummary(data: Data) {
-    return html`
-      <div class="text-s absolute right-0 top-0 text-tertiary">
-        <iron-icon icon="icons:expand-${this.open ? 'less' : 'more'}"></iron-icon>
-      </div>
-
-      <div class="text-s mb-xs ${data.hide_error ? 'text-error' : 'text-primary'}">
-        <foxy-i18n
-          options=${JSON.stringify({ value: data.date_created })}
-          lang=${this.lang}
-          key="date"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
-
-        <foxy-i18n
-          options=${JSON.stringify({ value: data.date_created })}
-          lang=${this.lang}
-          key="time"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
-      </div>
-
-      <p class="${this.open ? '' : 'truncate'} overflow-hidden font-medium">
-        ${data.error_message}
-      </p>
-    `;
+  static get styles(): CSSResult | CSSResultArray {
+    return [Themeable.styles]
   }
 
-  private __renderDetails(data: Data) {
-    return html`
-      <div class="space-y-m pt-m">
-        <x-group frame>
-          <foxy-i18n slot="header" lang=${this.lang} key="request" ns=${this.ns}></foxy-i18n>
-
-          <div class="mx-xs p-s text-s divide-y divide-contrast-10 space-y-s">
-            <p>
-              <span class="block font-semibold">${data.url}</span>
-              ${data.referrer ? this.__renderReferrer(data.referrer) : ''}
-            </p>
-
-            ${data.get_values || data.post_values
-              ? this.__renderGetOrPostValues(data.get_values, data.post_values)
-              : ''}
+  render(): TemplateResult {
+    if (this.in({ idle: 'template' }) || !this.in('idle')) {
+      const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
+      return html`
+        <div aria-live="polite" aria-busy=${this.in('busy')} data-testid="wrapper">
+          <div class="h-full bg-contrast-5"></div>
+          <div class="inset-0 flex justify-center">
+            <foxy-spinner layout='horizontal' state=${spinnerState} data-testid="spinner"></foxy-spinner>
           </div>
-        </x-group>
+        </div>
+      `;
+    } else {
+      return this.data ?
+        html`<span>${this.data.first_name} ${this.data.last_name}</span> <a class="text-s" href='mailto:${this.data.email}'>${this.data.email}</a>` :
+        html``
+        ;
+    }
+  }
+}
 
-        <x-group frame>
-          <foxy-i18n slot="header" lang=${this.lang} key="client" ns=${this.ns}></foxy-i18n>
+class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Transaction>> {
 
-          <div class="text-s flex flex-col mx-xs p-s">
-            <span class="font-semibold">
-              ${data.ip_address}
-              ${data.ip_country
-                ? html`<span class="text-tertiary"> • </span>${data.ip_country}`
-                : ''}
-            </span>
-
-            ${data.user_agent ? html`<span class="text-secondary">${data.user_agent}</span>` : ''}
-          </div>
-        </x-group>
-
-        ${Object.entries(data._links).map(([curie, link]) => {
-          if (['self', 'fx:store', 'curies'].includes(curie)) return '';
-
-          return html`
-            <x-group frame>
-              <foxy-i18n slot="header" lang=${this.lang} key=${curie.substr(3)} ns=${this.ns}>
-              </foxy-i18n>
-
-              <x-resource-viewer
-                class="p-s mx-xs"
-                href=${link.href}
-                lang=${this.lang}
-                ns=${this.ns}
-              >
-              </x-resource-viewer>
-            </x-group>
-          `;
-        })}
-      </div>
-    `;
+  public static get scopedElements(): ScopedElementsMap {
+    return {
+      'foxy-spinner': customElements.get('foxy-spinner'),
+    };
   }
 
-  private __handleToggle(event: Event) {
-    const details = event.target as HTMLDetailsElement;
+  static get styles(): CSSResult | CSSResultArray {
+    return [Themeable.styles]
+  }
 
-    if (details.open && this.data?.hide_error === false) {
-      this.edit({ hide_error: true });
-      this.submit();
+  render(): TemplateResult {
+    if (this.in({ idle: 'template' }) || !this.in('idle')) {
+      const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
+      return html`
+        <div aria-live="polite" aria-busy=${this.in('busy')} data-testid="wrapper">
+          <div class="h-full bg-contrast-5"></div>
+          <div class="inset-0 flex justify-center w-full">
+            <foxy-spinner layout='horizontal' state=${spinnerState} data-testid="spinner"></foxy-spinner>
+          </div>
+        </div>
+      `;
+    } else {
+      return this.data ?
+        html`<a href='${this.data._links.self.href}'>${this.data.id}</a> ${this.data.currency_symbol}${this.data.total_order}` :
+        html``;
+    }
+  }
+}
+
+class ClientInfoCard extends Themeable {
+
+  public static get scopedElements(): ScopedElementsMap {
+    return {
+      'foxy-custom-keyvalues': KeyValues,
+    };
+  }
+
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles,
+    ];
+  }
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      userAgent: {
+        attribute: 'user-agent',
+        type: String
+      },
+      ipAddress: {
+        attribute: 'ip-address',
+        type: String
+      },
+      ipCountry: {
+        attribute: 'ip-country',
+        type: String
+      },
+    };
+  }
+
+  userAgent = "";
+
+  ipAddress = "";
+
+  ipCountry = "";
+
+  render(): TemplateResult {
+    if (this.userAgent === undefined) {
+      return html``;
+    } else {
+      return html`
+        <foxy-custom-keyvalues .data="${[
+          ['User Agent', this.userAgent],
+          ['IP Address', this.ipAddress],
+          ['IP Country', this.ipCountry],
+        ]}"></foxy-custom-keyvalues>
+      `;
+        }
     }
 
-    this.open = details.open;
+}
+
+class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
+
+  public static get scopedElements(): ScopedElementsMap {
+    return {
+      'foxy-custom-keyvalues': KeyValues,
+    };
   }
 
-  private __decodeHtml(html: string) {
-    const areaElement = document.createElement('textarea');
-    areaElement.innerHTML = html;
-    return areaElement.value;
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles
+    ];
   }
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      method: {
+        type: String
+      },
+      data: {
+        converter: {
+          fromAttribute(value: string): URLSearchParams {
+            return new URLSearchParams(decodeHtml(value));
+          },
+          toAttribute(value: URLSearchParams): string {
+            return value.toString();
+          }
+        },
+        type: Object
+      }
+    };
+  }
+
+  data: URLSearchParams;
+
+  method: 'GET' | 'POST';
+
+  constructor() {
+    super();
+    this.data = new URLSearchParams();
+    this.method = 'GET';
+  }
+
+  render(): TemplateResult {
+    return html`
+      <div class='border-t-2 border-solid border-contrast-10 my-s relative overflow-hidden'>
+        <div class='text-tertiary text-l absolute right-s top-0'>${this.method}</div>
+        <foxy-custom-keyvalues .data="${Array.from(this.data.entries())}"></foxy-custom-keyvalues>
+      </div>
+    `;
+  }
+
+}
+
+function decodeHtml(html: string) {
+  const areaElement = document.createElement('textarea');
+  areaElement.innerHTML = html;
+  return areaElement.value;
+}
+
+
+class Box extends Themeable {
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      title: {
+        type: String
+      }
+    }
+  }
+
+  render(): TemplateResult {
+    return html`
+      <section class='my-s'>
+        <h1 class='text-tertiary text-m m-0 space-0'>${this.title}</h1>
+        <div class='rounded-l border border-contrast-10 p-s'>
+          <slot></slot>
+        </div>
+      </section>`
+      }
+}
+
+class KeyValues extends Themeable {
+
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles,
+      css`
+        dt, dd {
+          display: inline-block;
+          overflow: hidden;
+          vertical-align: top;
+          overflow-wrap: anywhere;
+        }
+        dt:before {
+          display: block;
+          content: ' ';
+        }
+        dt {
+          min-width: 150px;
+          width: calc( 25% - 0.5em);
+          padding-right: 0.5em;
+        }
+        dd {
+          width: 75%;
+        }
+      `
+    ];
+  }
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      data: {
+        converter: {
+          fromAttribute(value: string): [string, unknown][] {
+            const obj = (typeof value === 'string' && JSON.parse(value)) || value;
+            return Object.entries(obj);
+          },
+          toAttribute(value: [string, unknown][]): string {
+            return JSON.stringify(value);
+          }
+        }
+      }
+    }
+  }
+
+  data: [string, unknown][] = [];
+
+  render() {
+    return html`
+      <dl class='mb-s'>
+        ${this.data.map(
+          (e) => html`<dt class='text-secondary mt-s'>${e[0]}</dt><dd class='mt-s'>${e[1]}</dd>`
+          )}
+      </dl>
+    `;
+  }
+
+
 }
