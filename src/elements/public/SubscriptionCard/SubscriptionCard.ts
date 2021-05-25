@@ -32,14 +32,16 @@ export class SubscriptionCard extends Base<Data> {
         >
           <div
             class=${classMap({
-              'min-w-0 flex-shrink-0 rounded-full relative flex items-center justify-center p-s':
-                true,
+              'min-w-0 flex-shrink-0 rounded-full relative flex p-s': true,
               'text-success bg-success-10': isActive && !isFailed,
               'text-body bg-contrast-5': !isActive && !isFailed,
               'text-error bg-error-10': isFailed,
             })}
           >
-            <iron-icon icon=${isFailed ? 'error-outline' : isActive ? 'done' : 'done-all'}>
+            <iron-icon
+              class="m-auto"
+              icon=${isFailed ? 'error-outline' : isActive ? 'done' : 'done-all'}
+            >
             </iron-icon>
           </div>
 
@@ -47,10 +49,11 @@ export class SubscriptionCard extends Base<Data> {
             <div class="order-1 sm-order-0">
               <div class="text-body font-medium origin-top-left text-l">
                 <foxy-i18n
-                  ns=${this.ns}
-                  key="transaction_summary"
-                  lang=${this.lang}
+                  data-testid="summary"
                   options=${JSON.stringify(this.__getSummaryOptions())}
+                  lang=${this.lang}
+                  key="transaction_summary"
+                  ns=${this.ns}
                 >
                 </foxy-i18n>
                 &#8203;
@@ -65,10 +68,11 @@ export class SubscriptionCard extends Base<Data> {
                 })}
               >
                 <foxy-i18n
-                  ns=${this.ns}
-                  key=${this.__getStatusKey()}
-                  lang=${this.lang}
+                  data-testid="status"
                   options=${JSON.stringify(this.__getStatusOptions())}
+                  lang=${this.lang}
+                  key=${this.__getStatusKey()}
+                  ns=${this.ns}
                 >
                 </foxy-i18n>
                 &#8203;
@@ -79,10 +83,11 @@ export class SubscriptionCard extends Base<Data> {
               class="flex-1 font-medium leading-xs mb-xs sm-mb-0 sm-text-right text-xxs sm-text-xl tracking-wide sm-tracking-normal uppercase sm-normal-case order-0 sm-order-1 font-tnum text-secondary sm-text-body"
             >
               <foxy-i18n
+                data-testid="price"
+                options=${JSON.stringify(this.__getPriceOptions())}
                 lang=${this.lang}
                 key="price_${this.data?.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
                 ns=${this.ns}
-                options=${JSON.stringify(this.__getPriceOptions())}
               >
               </foxy-i18n>
               &#8203;
@@ -91,15 +96,17 @@ export class SubscriptionCard extends Base<Data> {
         </div>
 
         <div
+          data-testid="spinner"
           class=${classMap({
-            'pointer-events-none absolute inset-0 flex items-center justify-center transition ease-in-out duration-150':
-              true,
+            'pointer-events-none absolute inset-0 flex transition ease-in-out duration-150': true,
             'opacity-0': this.in({ idle: 'snapshot' }),
           })}
         >
           <foxy-spinner
-            lang=${this.lang}
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            class="m-auto"
+            lang=${this.lang}
+            ns=${this.ns}
           >
           </foxy-spinner>
         </div>
