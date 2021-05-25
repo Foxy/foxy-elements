@@ -4,8 +4,8 @@ import * as FoxySDK from '@foxy.io/sdk';
 import { css, CSSResult, CSSResultArray, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { html } from 'lit-html';
 import { Themeable } from '../../../../mixins/themeable';
-import { type } from 'os';
-
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
+import { ButtonElement } from '@vaadin/vaadin-button';
 
 type Rel = FoxySDK.Backend.Rels.ErrorEntry;
 type Data = FoxySDK.Core.Resource<Rel, undefined>;
@@ -15,13 +15,42 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
   static get styles(): CSSResult | CSSResultArray {
     return [
       Themeable.styles,
+      css`
+        .nohide.fadeout {
+          animation-name: initial;
+        }
+        .fadeout {
+          animation-duration: 0.2s;
+          animation-name: out;
+          animation-fill-mode: forwards;
+          animation-timing-function: ease-in;
+        }
+        @keyframes out {
+          0% {
+            transform: translateX(0);
+            max-height: 120px;
+            opacity: 1;
+          }
+          99% {
+            transform: translateX(-55px);
+            max-height: 40px;
+            opacity: 0;
+            position: relative;
+          }
+          to {
+            left: -100vw;
+            position: absolute;
+          }
+        }
+      `
     ];
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      open: { type: Boolean }
+      open: { type: Boolean },
+      nohide: { type: Boolean },
     };
   }
 
@@ -29,7 +58,8 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'foxy-i18n': customElements.get('foxy-i18n'),
-      'vaadin-button': customElements.get('vaadin-button'),
+      'vaadin-button': ButtonElement,
+      'vaadin-checkbox': CheckboxElement,
       'foxy-custom-box': Box,
       'foxy-customer-info': CustomerInfo,
       'foxy-client-info': ClientInfo,
@@ -39,6 +69,8 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   open: boolean;
+
+  nohide = false;
 
   constructor() {
     super();
@@ -59,71 +91,91 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
       `;
     } else {
       return html`
-        <article class='m-s text-body'>
-          <header class='border-l-2 h-full p-s relative ${this.open ? 'border-error' : 'border-primary'}'>
-            <vaadin-button @click=${this.__toggleOpen}
-                  theme="icon"
-                  class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0'
-                  aria-label='toggle'
-                  >
-                  ${this.open
-                      ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
-                      : html`<iron-icon icon='icons:expand-more'></iron-icon>`
-                      }
-            </vaadin-button>
-            ${this.data.hide_error ? html`<span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">Hidden</span>` : ''}
-            <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
-            <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
-            <div>${this.data.error_message}</div>
-          </header>
-          ${this.open
-              ? html`
-                <main>
-                  ${(this.data._links as any)['fx:customer']?.href
-                      ? html`
-                        <foxy-custom-box title="Customer">
-                          <foxy-customer-info href="${(this.data._links as any)['fx:customer']?.href}"></foxy-customer-info>
+        <div aria-busy=${this.in('busy')}
+             aria-live='polite'
+             class='${this.nohide? 'nohide': ''} ${ this.data.hide_error ? 'fadeout': ''} flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
+          <vaadin-checkbox
+            title="Hide this error"
+            class="pt-s"
+            ?disabled=${!this.in('idle')}
+            .value=${this.data._links.self.href}
+            ?checked=${this.data.hide_error}
+            @change=${this.__handleCheckErrorEntry}
+          ></vaadin-checkbox>
+          <article class='m-s text-body'>
+            <header class='border-l-2 p-s relative ${this.open ? 'border-error' : 'border-primary'}'>
+              <vaadin-button @click=${this.__toggleOpen}
+                    theme="icon"
+                    class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0'
+                    aria-label='toggle'
+                    >
+                    ${this.open
+                        ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
+                        : html`<iron-icon icon='icons:expand-more'></iron-icon>`
+                        }
+              </vaadin-button>
+              ${this.data.hide_error ? html`<span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">Hidden</span>` : ''}
+              <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
+              <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
+              <div>${this.data.error_message}</div>
+            </header>
+            ${this.open ? html`
+                  <main>
+                    ${(this.data._links as any)['fx:customer']?.href
+                        ? html`
+                          <foxy-custom-box title="Customer">
+                            <foxy-customer-info href="${(this.data._links as any)['fx:customer']?.href}"></foxy-customer-info>
+                          </foxy-custom-box>
+                        `
+                        : ''
+                        }
+                        ${(this.data._links as any)['fx:transaction']?.href
+                            ? html`
+                              <foxy-custom-box title="Transaction">
+                                <foxy-transaction-info href="${(this.data._links as any)['fx:transaction']?.href}"></foxy-transaction-info>
+                              </foxy-custom-box>
+                            `
+                            : ''
+                        }
+                        ${this.data.user_agent}
+                        <foxy-custom-box title="Client">
+                          <foxy-client-info user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></foxy-client-info>
                         </foxy-custom-box>
-                      `
-                      : ''
-                      }
-                      ${(this.data._links as any)['fx:transaction']?.href
-                          ? html`
-                            <foxy-custom-box title="Transaction">
-                              <foxy-transaction-info href="${(this.data._links as any)['fx:transaction']?.href}"></foxy-transaction-info>
-                            </foxy-custom-box>
-                          `
-                          : ''
-                      }
-                      ${this.data.user_agent}
-                      <foxy-custom-box title="Client">
-                        <foxy-client-info user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></foxy-client-info>
-                      </foxy-custom-box>
-                      </foxy-custom-box>
-                      <foxy-custom-box title="Request">
-                        <p>${this.data.url}</p>
-                        ${this.data.referrer
-                          ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
-                          : html``
-                        }
-                        ${this.data.get_values
-                          ? html`
-                            <foxy-params-viewer data='${this.data.get_values}' method='GET'></foxy-params-viewer>`
-                          : html``
-                        }
-                        ${this.data.post_values
-                          ? html`<foxy-params-viewer data='${this.data.post_values}' method='POST'></foxy-params-viewer>`
-                          : html``
-                        }
-                      </foxy-custom-box>
-                </main>
-              `
-              : ``
-              }
-        </article>
+                        </foxy-custom-box>
+                        <foxy-custom-box title="Request">
+                          <p>${this.data.url}</p>
+                          ${this.data.referrer
+                            ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
+                            : html``
+                          }
+                          ${this.data.get_values
+                            ? html`
+                              <foxy-params-viewer data='${this.data.get_values}' method='GET'></foxy-params-viewer>`
+                            : html``
+                          }
+                          ${this.data.post_values
+                            ? html`<foxy-params-viewer data='${this.data.post_values}' method='POST'></foxy-params-viewer>`
+                            : html``
+                          }
+                        </foxy-custom-box>
+                  </main>
+                `
+                : ``
+                }
+          </article>
+        </div>
       `;
     }
   }
+
+  private __handleCheckErrorEntry() {
+    this.edit({
+      ...this.data,
+      ...{ hide_error: !this.form?.hide_error }
+    });
+    this.submit();
+  }
+
 
   private __toggleOpen() {
     this.open = !this.open;
