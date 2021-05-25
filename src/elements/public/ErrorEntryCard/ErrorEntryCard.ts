@@ -1,16 +1,16 @@
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { NucleonElement } from '../../NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import * as FoxySDK from '@foxy.io/sdk';
 import { css, CSSResult, CSSResultArray, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { html } from 'lit-html';
-import { Themeable } from '../../../../mixins/themeable';
+import { Themeable } from '../../../mixins/themeable';
 import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ButtonElement } from '@vaadin/vaadin-button';
 
 type Rel = FoxySDK.Backend.Rels.ErrorEntry;
 type Data = FoxySDK.Core.Resource<Rel, undefined>;
 
-export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
+export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
 
   static get styles(): CSSResult | CSSResultArray {
     return [
@@ -60,11 +60,11 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
       'foxy-i18n': customElements.get('foxy-i18n'),
       'vaadin-button': ButtonElement,
       'vaadin-checkbox': CheckboxElement,
-      'foxy-custom-box': Box,
-      'foxy-customer-info': CustomerInfo,
-      'foxy-client-info': ClientInfo,
-      'foxy-transaction-info': TransactionInfo,
-      'foxy-params-viewer': URLSearchParamsViewer,
+      'x-custom-box': Box,
+      'x-customer-info-card': CustomerInfoCard,
+      'x-client-info-card': ClientInfoCard,
+      'x-transaction-info-card': TransactionInfoCard,
+      'x-params-viewer': URLSearchParamsViewer,
     };
   }
 
@@ -123,26 +123,26 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
                   <main>
                     ${(this.data._links as any)['fx:customer']?.href
                         ? html`
-                          <foxy-custom-box title="Customer">
-                            <foxy-customer-info href="${(this.data._links as any)['fx:customer']?.href}"></foxy-customer-info>
-                          </foxy-custom-box>
+                          <x-custom-box title="Customer">
+                            <x-customer-info-card href="${(this.data._links as any)['fx:customer']?.href}"></x-customer-info-card>
+                          </x-custom-box>
                         `
                         : ''
                         }
                         ${(this.data._links as any)['fx:transaction']?.href
                             ? html`
-                              <foxy-custom-box title="Transaction">
-                                <foxy-transaction-info href="${(this.data._links as any)['fx:transaction']?.href}"></foxy-transaction-info>
-                              </foxy-custom-box>
+                              <x-custom-box title="Transaction">
+                                <x-transaction-info-card href="${(this.data._links as any)['fx:transaction']?.href}"></x-transaction-info-card>
+                              </x-custom-box>
                             `
                             : ''
                         }
                         ${this.data.user_agent}
-                        <foxy-custom-box title="Client">
-                          <foxy-client-info user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></foxy-client-info>
-                        </foxy-custom-box>
-                        </foxy-custom-box>
-                        <foxy-custom-box title="Request">
+                        <x-custom-box title="Client">
+                          <x-client-info-card user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
+                        </x-custom-box>
+                        </x-custom-box>
+                        <x-custom-box title="Request">
                           <p>${this.data.url}</p>
                           ${this.data.referrer
                             ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
@@ -150,14 +150,14 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
                           }
                           ${this.data.get_values
                             ? html`
-                              <foxy-params-viewer data='${this.data.get_values}' method='GET'></foxy-params-viewer>`
+                              <x-params-viewer data='${this.data.get_values}' method='GET'></x-params-viewer>`
                             : html``
                           }
                           ${this.data.post_values
-                            ? html`<foxy-params-viewer data='${this.data.post_values}' method='POST'></foxy-params-viewer>`
+                            ? html`<x-params-viewer data='${this.data.post_values}' method='POST'></x-params-viewer>`
                             : html``
                           }
-                        </foxy-custom-box>
+                        </x-custom-box>
                   </main>
                 `
                 : ``
@@ -182,7 +182,7 @@ export class ErrorEntry extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 }
 
-class CustomerInfo extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Customer>> {
+class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Customer>> {
 
   public static get scopedElements(): ScopedElementsMap {
     return {
@@ -214,7 +214,7 @@ class CustomerInfo extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Reso
   }
 }
 
-class TransactionInfo extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Transaction>> {
+class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Transaction>> {
 
   public static get scopedElements(): ScopedElementsMap {
     return {
@@ -245,7 +245,7 @@ class TransactionInfo extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.R
   }
 }
 
-class ClientInfo extends Themeable {
+class ClientInfoCard extends Themeable {
 
   public static get scopedElements(): ScopedElementsMap {
     return {
