@@ -92,76 +92,67 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     } else {
       return html`
         <div aria-busy=${this.in('busy')}
-             aria-live='polite'
+        aria-live='polite'
              class='${this.nohide? 'nohide': ''} ${ this.data.hide_error ? 'fadeout': ''} flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
           <vaadin-checkbox
-            title="Hide this error"
-            class="pt-s"
-            ?disabled=${!this.in('idle')}
-            .value=${this.data._links.self.href}
-            ?checked=${this.data.hide_error}
-            @change=${this.__handleCheckErrorEntry}
-          ></vaadin-checkbox>
-          <article class='m-s text-body'>
-            <header class='border-l-2 p-s relative ${this.open ? 'border-error' : 'border-primary'}'>
-              <vaadin-button @click=${this.__toggleOpen}
-                    theme="icon"
-                    class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0'
-                    aria-label='toggle'
-                    >
-                    ${this.open
-                        ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
-                        : html`<iron-icon icon='icons:expand-more'></iron-icon>`
-                        }
-              </vaadin-button>
+              title="Hide this error"
+              class="pt-s"
+              ?disabled=${!this.in('idle')}
+              .value=${this.data._links.self.href}
+              ?checked=${this.data.hide_error}
+              @change=${this.__handleCheckErrorEntry}
+              ></vaadin-checkbox>
+          <details class='m-s text-body w-full ' @toggle=${this.__toggleOpen}>
+            <summary class='border-l-2 p-s relative ${this.open ? 'border-error' : 'border-primary'}'>
+              <div class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0' >
+              ${this.open
+                  ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
+                  : html`<iron-icon icon='icons:expand-more'></iron-icon>`
+              }
+              </div>
               ${this.data.hide_error ? html`<span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">Hidden</span>` : ''}
               <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
               <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
-              <div>${this.data.error_message}</div>
-            </header>
-            ${this.open ? html`
-                  <main>
-                    ${(this.data._links as any)['fx:customer']?.href
-                        ? html`
-                          <x-custom-box title="Customer">
-                            <x-customer-info-card href="${(this.data._links as any)['fx:customer']?.href}"></x-customer-info-card>
-                          </x-custom-box>
-                        `
-                        : ''
-                        }
-                        ${(this.data._links as any)['fx:transaction']?.href
-                            ? html`
-                              <x-custom-box title="Transaction">
-                                <x-transaction-info-card href="${(this.data._links as any)['fx:transaction']?.href}"></x-transaction-info-card>
-                              </x-custom-box>
-                            `
-                            : ''
-                        }
-                        <x-custom-box title="Client">
-                          <x-client-info-card user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
-                        </x-custom-box>
-                        </x-custom-box>
-                        <x-custom-box title="Request">
-                          <p>${this.data.url}</p>
-                          ${this.data.referrer
-                            ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
-                            : html``
-                          }
-                          ${this.data.get_values
-                            ? html`
-                              <x-params-viewer data='${this.data.get_values}' method='GET'></x-params-viewer>`
-                            : html``
-                          }
-                          ${this.data.post_values
-                            ? html`<x-params-viewer data='${this.data.post_values}' method='POST'></x-params-viewer>`
-                            : html``
-                          }
-                        </x-custom-box>
-                  </main>
-                `
-                : ``
+              <div class="whitespace-nowrap overflow-hidden">${this.data.error_message}</div>
+            </summary>
+              ${(this.data._links as any)['fx:customer']?.href
+                  ? html`
+                    <x-custom-box title="Customer">
+                      <x-customer-info-card href="${(this.data._links as any)['fx:customer']?.href}"></x-customer-info-card>
+                    </x-custom-box>
+                  `
+                  : ''
+              }
+              ${(this.data._links as any)['fx:transaction']?.href
+                  ? html`
+                    <x-custom-box title="Transaction">
+                      <x-transaction-info-card href="${(this.data._links as any)['fx:transaction']?.href}"></x-transaction-info-card>
+                    </x-custom-box>
+                  `
+                  : ''
+              }
+              <x-custom-box title="Client">
+                <x-client-info-card user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
+              </x-custom-box>
+              </x-custom-box>
+              <x-custom-box title="Request">
+                <p>${this.data.url}</p>
+                ${this.data.referrer
+                    ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
+                    : html``
                 }
-          </article>
+                ${this.data.get_values
+                    ? html`
+                      <x-params-viewer data='${this.data.get_values}' method='GET'></x-params-viewer>`
+                    : html``
+                }
+                ${this.data.post_values
+                    ? html`<x-params-viewer data='${this.data.post_values}' method='POST'></x-params-viewer>`
+                    : html``
+                }
+                </x-custom-box>
+            }
+          </details>
         </div>
       `;
     }
