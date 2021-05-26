@@ -113,7 +113,9 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
               ${this.data.hide_error ? html`<span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">Hidden</span>` : ''}
               <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
               <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
-              <div class="whitespace-nowrap overflow-hidden">${this.data.error_message}</div>
+              <div class="${this.open? '' : 'truncate' } overflow-hidden">
+                ${this.data.error_message}
+              </div>
             </summary>
               ${(this.data._links as any)['fx:customer']?.href
                   ? html`
