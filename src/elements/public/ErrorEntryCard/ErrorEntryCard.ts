@@ -58,6 +58,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
       'vaadin-button': ButtonElement,
       'vaadin-checkbox': CheckboxElement,
       'x-custom-box': Box,
@@ -78,32 +79,24 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   render(): TemplateResult {
-    if (!this.data) {
+    if (!this.in('idle') || !this.data) {
       return html`
         <div class="absolute inset-0 flex items-center justify-center">
           <foxy-spinner
               data-testid="spinner"
               class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
               layout="horizontal"
+              state=${this.in('busy') ? 'busy' : 'error'}
               >
           </foxy-spinner>
         </div>
       `;
     } else {
       return html`
-        <div aria-busy=${this.in('busy')}
-        aria-live='polite'
+        <div aria-busy=${this.in('busy')} aria-live='polite'
              class='${this.nohide? 'nohide': ''} ${ this.data.hide_error ? 'fadeout': ''} flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
-          <vaadin-checkbox
-              title="Hide this error"
-              class="pt-s"
-              ?disabled=${!this.in('idle')}
-              .value=${this.data._links.self.href}
-              ?checked=${this.data.hide_error}
-              @change=${this.__handleCheckErrorEntry}
-              ></vaadin-checkbox>
           <details class='m-s text-body w-full ' @toggle=${this.__toggleOpen}>
-            <summary class='border-l-2 p-s relative ${this.open ? 'border-error' : 'border-primary'}'>
+            <summary class='border-l-2 p-s relative cursor-pointer ${this.open ? 'border-error' : 'border-primary'}'>
               <div class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0' >
               ${this.open
                   ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
@@ -153,7 +146,6 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
                     : html``
                 }
                 </x-custom-box>
-            }
           </details>
         </div>
       `;
