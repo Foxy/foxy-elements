@@ -1,29 +1,30 @@
+import { Choice, Group, Skeleton } from '../../private/index';
+import { Data, Item, Settings, Templates } from './types';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { TemplateResult, html } from 'lit-html';
 import {
   getAllowedFrequencies,
   getNextTransactionDateConstraints,
   isNextTransactionDate,
 } from '@foxy.io/sdk/customer';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { ThemeableMixin } from '../../../mixins/themeable';
-import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
-import { parseFrequency } from '../../../utils/parse-frequency';
-import { serializeDate } from '../../../utils/serialize-date';
-import { InternalCalendar } from '../../internal/InternalCalendar';
-import { Choice, Group, Skeleton } from '../../private/index';
-import { PageRendererContext } from '../CollectionPages/types';
-import { FormDialog } from '../FormDialog';
-import { Preview } from '../ItemsForm/private/Preview';
-import { NucleonElement } from '../NucleonElement/index';
 import { CellContext } from '../Table/types';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { FormDialog } from '../FormDialog';
+import { InternalCalendar } from '../../internal/InternalCalendar';
+import { NucleonElement } from '../NucleonElement/index';
+import { PageRendererContext } from '../CollectionPages/types';
+import { Preview } from '../ItemsForm/private/Preview';
+import { PropertyDeclarations } from 'lit-element';
+import { ThemeableMixin } from '../../../mixins/themeable';
 import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 import { Data as TransactionsTableData } from '../TransactionsTable/types';
-import { Data, Item, Settings, Templates } from './types';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { parseFrequency } from '../../../utils/parse-frequency';
+import { serializeDate } from '../../../utils/serialize-date';
 
 const NS = 'subscription-form';
 const Base = ScopedElementsMixin(
@@ -111,8 +112,7 @@ export class SubscriptionForm extends Base<Data> {
 
       const text = html`
         <foxy-i18n
-          data-testclass="i18n"
-          data-testid="status"
+          data-testid="header-subtitle"
           options=${JSON.stringify({ date })}
           class=${color}
           lang=${lang}
@@ -149,8 +149,7 @@ export class SubscriptionForm extends Base<Data> {
 
       return html`
         <foxy-i18n
-          data-testclass="i18n"
-          data-testid="header"
+          data-testid="header-title"
           options=${JSON.stringify({ ...frequency, amount: `${total} ${currency}` })}
           lang=${lang}
           key="price_${data.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
@@ -165,7 +164,7 @@ export class SubscriptionForm extends Base<Data> {
 
   private readonly __renderHeader = () => {
     return html`
-      <div>
+      <div data-testid="header">
         ${this._renderTemplateOrSlot('header:before')}
         <div class="leading-xs text-xxl font-bold">${this.__renderHeaderTitle()}</div>
         <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>
@@ -176,9 +175,18 @@ export class SubscriptionForm extends Base<Data> {
 
   private readonly __renderItemsActions = () => {
     return html`
-      <div class="flex">
+      <div class="flex" data-testid="items:actions">
         ${this._renderTemplateOrSlot('items:actions:before')}
-        <foxy-i18n key="item_plural" ns=${this.ns} lang=${this.lang} class="flex-1"></foxy-i18n>
+
+        <foxy-i18n
+          data-testid="items:actions-label"
+          class="flex-1"
+          lang=${this.lang}
+          key="item_plural"
+          ns=${this.ns}
+        >
+        </foxy-i18n>
+
         ${this._renderTemplateOrSlot('items:actions:after')}
       </div>
     `;
@@ -194,8 +202,11 @@ export class SubscriptionForm extends Base<Data> {
 
     if (item.quantity > 1) {
       quantity = html`
-        <div class="px-s h-xs rounded bg-contrast-5 flex items-center">
-          <span class="font-tnum text-contrast text-s font-bold">${item.quantity}</span>
+        <div
+          data-testclass="item-quantity"
+          class="px-s h-xs rounded bg-contrast-5 flex items-center font-tnum text-contrast text-s font-bold"
+        >
+          ${item.quantity}
         </div>
       `;
     } else {
@@ -203,13 +214,19 @@ export class SubscriptionForm extends Base<Data> {
     }
 
     return html`
-      <figure class="flex items-center space-x-m py-s pr-m">
-        <x-preview class="w-l h-l" .quantity=${item.quantity} .image=${item.image}></x-preview>
+      <figure class="flex items-center space-x-m py-s pr-m" data-testclass="item">
+        <x-preview
+          data-testclass="item-preview"
+          class="w-l h-l"
+          .quantity=${item.quantity}
+          .image=${item.image}
+        >
+        </x-preview>
 
         <figcaption class="leading-s flex-1 flex justify-between items-center">
           <div class="flex flex-col">
-            <span class="font-medium">${item.name}</span>
-            <span class="text-secondary text-s"> ${price} </span>
+            <span class="font-medium" data-testclass="item-name">${item.name}</span>
+            <span class="text-secondary text-s" data-testclass="item-price">${price}</span>
           </div>
 
           ${quantity}
@@ -224,7 +241,7 @@ export class SubscriptionForm extends Base<Data> {
     const label = hiddenSelector.matches('items:actions', true) ? '' : this.__renderItemsActions();
 
     return html`
-      <div>
+      <div data-testid="items">
         ${this._renderTemplateOrSlot('items:before')}
         <x-group frame>
           <div slot="header">${label}</div>
@@ -237,6 +254,7 @@ export class SubscriptionForm extends Base<Data> {
 
   private readonly __renderEndDate = () => {
     const { disabledSelector, lang, ns } = this;
+    const formHiddenSelector = this.hiddenSelector.zoom('end-date:form').toString();
 
     return html`
       <div>
@@ -245,7 +263,8 @@ export class SubscriptionForm extends Base<Data> {
         <foxy-form-dialog
           readonlycontrols=${this.readonlySelector.zoom('end-date:form').toString()}
           disabledcontrols=${disabledSelector.zoom('end-date:form').toString()}
-          hiddencontrols="save-button ${this.hiddenSelector.zoom('end-date:form').toString()}"
+          hiddencontrols="save-button ${formHiddenSelector}"
+          data-testid="cancellation-form"
           parent=${this.parent}
           header="end_subscription"
           alert
@@ -259,6 +278,7 @@ export class SubscriptionForm extends Base<Data> {
         </foxy-form-dialog>
 
         <vaadin-button
+          data-testid="end-date"
           theme="error"
           class="w-full"
           ?disabled=${!this.data || disabledSelector.matches('end-date', true)}
@@ -291,17 +311,17 @@ export class SubscriptionForm extends Base<Data> {
     const isActive = !!data?.is_active;
 
     return html`
-      <div>
+      <div data-testid="next-transaction-date">
         ${this._renderTemplateOrSlot('next-transaction-date:before')}
 
         <x-group frame>
           <foxy-i18n key="next_transaction_date" ns=${ns} lang=${lang} slot="header"></foxy-i18n>
           <foxy-internal-calendar
-            data-testid="nextPaymentDate"
+            start=${ifDefined(data?.next_transaction_date.substr(0, 10))}
             value=${ifDefined(data?.next_transaction_date)}
+            lang=${lang}
             ?readonly=${!isActive || this.readonlySelector.matches('next-transaction-date', true)}
             ?disabled=${!data || this.disabledSelector.matches('next-transaction-date', true)}
-            start=${ifDefined(data?.next_transaction_date.substr(0, 10))}
             .checkAvailability=${this.__checkNextTransactionDateAvailability}
             @change=${(evt: Event) => {
               const target = evt.target as InternalCalendar;
@@ -328,6 +348,7 @@ export class SubscriptionForm extends Base<Data> {
       <vaadin-combo-box
         item-value-path="value"
         item-label-path="label"
+        data-testid="frequency"
         ?disabled=${!data || this.disabledSelector.matches('frequency', true)}
         ?readonly=${data && (!active || this.readonlySelector.matches('frequency', true))}
         class="w-full"
@@ -347,7 +368,7 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <x-group frame>
-        <foxy-i18n key="frequency_label" ns=${ns} lang=${lang} slot="header"> </foxy-i18n>
+        <foxy-i18n key="frequency_label" ns=${ns} lang=${lang} slot="header"></foxy-i18n>
 
         <x-choice
           default-custom-value="1d"
@@ -365,7 +386,6 @@ export class SubscriptionForm extends Base<Data> {
           ${this.__frequencies.map(
             frequency => html`
               <foxy-i18n
-                data-testclass="i18n"
                 options=${JSON.stringify(parseFrequency(frequency))}
                 slot="${frequency}-label"
                 lang=${lang}
@@ -431,7 +451,7 @@ export class SubscriptionForm extends Base<Data> {
     const { lang, ns } = this;
 
     return html`
-      <div>
+      <div data-testid="transactions">
         ${this._renderTemplateOrSlot('transactions:before')}
 
         <x-group frame>
@@ -453,6 +473,7 @@ export class SubscriptionForm extends Base<Data> {
 
   render(): TemplateResult {
     const isBusy = this.in('busy');
+    const isFail = this.in('fail');
 
     return html`
       <div
@@ -469,16 +490,16 @@ export class SubscriptionForm extends Base<Data> {
         ${this.hiddenSelector.matches('transactions', true) ? '' : this.__renderTransactions()}
 
         <div
+          data-testid="spinner"
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
-              true,
-            'opacity-0 pointer-events-none': !isBusy,
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': !isBusy && !isFail,
           })}
         >
           <foxy-spinner
             layout="vertical"
-            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${this.lang}
             ns=${this.ns}
           >

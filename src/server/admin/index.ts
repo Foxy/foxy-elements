@@ -129,6 +129,16 @@ router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
   return new Response(JSON.stringify(body));
 });
 
+router.get('/s/admin/transactions/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const transaction = await db.transactions.get(id);
+  const body = composeTransaction(transaction);
+
+  return new Response(JSON.stringify(body));
+});
+
 // default_payment_method
 
 router.get('/s/admin/customers/:id/default_payment_method', async ({ params }) => {
