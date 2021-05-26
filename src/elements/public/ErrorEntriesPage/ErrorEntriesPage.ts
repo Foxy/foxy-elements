@@ -1,16 +1,16 @@
 import type * as FoxySDK from '@foxy.io/sdk';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { NucleonElement } from '../../NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import { html } from 'lit-html';
 import { CSSResult, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { ErrorEntry } from './ErrorEntry';
+import { ErrorEntryCard } from '../ErrorEntryCard';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { Themeable } from '../../../../mixins/themeable';
+import { Themeable } from '../../../mixins/themeable';
 
 type ErrorEntries = FoxySDK.Backend.Rels.ErrorEntries;
 type Data = FoxySDK.Core.Resource<ErrorEntries>;
 
-export class ErrorLog extends ScopedElementsMixin(NucleonElement)<Data> {
+export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> {
 
   static get properties(): PropertyDeclarations {
     return {
@@ -23,7 +23,7 @@ export class ErrorLog extends ScopedElementsMixin(NucleonElement)<Data> {
 
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-error-entry': ErrorEntry,
+      'foxy-error-entry': ErrorEntryCard,
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': ButtonElement,
