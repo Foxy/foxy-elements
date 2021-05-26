@@ -5,6 +5,8 @@ import { html } from 'lit-html';
 import { CSSResult, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { ErrorEntryCard } from '../ErrorEntryCard';
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { TabsElement } from '@vaadin/vaadin-tabs/vaadin-tabs';
+import { TabElement } from '@vaadin/vaadin-tabs/vaadin-tab';
 import { Themeable } from '../../../mixins/themeable';
 
 type ErrorEntries = FoxySDK.Backend.Rels.ErrorEntries;
@@ -27,6 +29,9 @@ export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> 
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': ButtonElement,
+      'vaadin-tab': TabElement,
+      'vaadin-tabs': TabsElement,
+      'foxy-i18n': customElements.get('foxy-i18n'),
     }
   }
 
@@ -38,41 +43,29 @@ export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> 
 
   showHidden = false;
 
+  private static __ns = 'error-entry';
+
   render(): TemplateResult {
     if (this.in({ idle: 'template' }) || !this.in('idle')) {
       const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
       return html`
         <div aria-live="polite" aria-busy=${this.in('busy')} data-testid="wrapper">
           <div class="inset-0 flex items-center justify-center p-m">
-            <foxy-spinner state=${spinnerState} data-testid="spinner" layout='horizontal'></foxy-spinner>
+            <foxy-spinner
+                state=${spinnerState}
+                data-testid="spinner"
+                layout='horizontal'>
+            </foxy-spinner>
           </div>
         </div>
       `;
     } else {
       return html`
-        <form class='my-m text-tertiary'>
-          ${this.showHidden
-              ? html`
-              <vaadin-button
-                class="px-s rounded text-primary-contrast bg-primary"
-                theme="icon"
-                title="Hide archived errors"
-                @click=${this.__handleToggleShowHidden}
-              ><iron-icon icon="icons:archive"></iron-icon> Hide archived
-              </vaadin-button>
-            `
-              : html`
-              <vaadin-button
-                class="px-s rounded text-tertiary"
-                theme="icon"
-                title="Show archived errors"
-                @click=${this.__handleToggleShowHidden}
-              ><iron-icon icon="icons:archive"></iron-icon> Show archived
-              </vaadin-button>
-            `
-          }
-        </form>
-        <form aria-busy=${this.in('busy')} aria-live='polite' class='${this.showHidden ? 'show': ''}' >
+        <vaadin-tabs>
+          <vaadin-tab><foxy-i18n lang=${this.lang} key='newErrors'></foxy-i18n>new errors</vaadin-tab>
+          <vaadin-tab><foxy-i18n lang=${this.lang} key='allErrors'></foxy-i18n>all errors</vaadin-tab>
+        </vaadin-tabs>
+        <div aria-busy=${this.in('busy')} aria-live='polite' class='${this.showHidden ? 'show': ''}' >
           ${this.data?._embedded['fx:error_entries'].map(i => {
             return html`
                 <foxy-error-entry
@@ -82,7 +75,7 @@ export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> 
                 ></foxy-error-entry>
             `
           })}
-        </form>`;
+        </div>`;
           }
     }
 

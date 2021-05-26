@@ -1,5 +1,5 @@
 import { ErrorEntriesPage } from './ErrorEntriesPage';
 
-customElements.define('foxy-error-entry-page', ErrorEntriesPage);
+customElements.define('foxy-error-entries-page', ErrorEntriesPage);
 
 export { ErrorEntriesPage };
