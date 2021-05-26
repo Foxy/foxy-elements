@@ -265,7 +265,7 @@ router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
 
 router.get('/s/admin/error_entries/:id', async ({ params }) => {
   await whenDbReady;
-  const errorEntry = db.errorEntries.get(parseInt(params.id));
+  const errorEntry = await db.errorEntries.get(parseInt(params.id));
   const body = composeErrorEntry(errorEntry);
   return new Response(JSON.stringify(body));
 });
