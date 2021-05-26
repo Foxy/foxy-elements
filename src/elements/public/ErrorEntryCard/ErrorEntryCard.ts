@@ -137,7 +137,6 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
                             `
                             : ''
                         }
-                        ${this.data.user_agent}
                         <x-custom-box title="Client">
                           <x-client-info-card user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
                         </x-custom-box>
