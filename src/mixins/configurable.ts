@@ -139,12 +139,17 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
 
     connectedCallback(): void {
       super.connectedCallback();
-      this.mode === 'development' ? this.__observe() : this.__onMutation();
+      if (this.mode === 'development') this.__observe();
     }
 
     disconnectedCallback(): void {
       super.disconnectedCallback();
       this.__observer.disconnect();
+    }
+
+    firstUpdated(...args: Parameters<LitElement['firstUpdated']>): void {
+      super.firstUpdated(...args);
+      if (this.mode !== 'development') this.compileTemplates();
     }
 
     updated(changes: Map<keyof this, unknown>): void {
