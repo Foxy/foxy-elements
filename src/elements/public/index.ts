@@ -17,4 +17,4 @@ export { CustomerPortalSettings } from './CustomerPortalSettings/CustomerPortalS
 export { Donation } from './Donation/Donation';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
 export { ErrorEntryCard } from './ErrorEntryCard';
-export { ErrorEntriesPage } from './ErrorEntriesPage';
+export { ErrorEntries } from './ErrorEntries';

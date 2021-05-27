@@ -2,7 +2,7 @@ import { CSSResult, CSSResultArray, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { NucleonElement } from '../NucleonElement/index';
+import { NucleonElement } from '../NucleonElement';
 import { Themeable } from '../../../mixins/themeable';
 
 export class AddressCard extends NucleonElement<Data> {
