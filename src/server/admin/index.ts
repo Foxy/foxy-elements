@@ -208,14 +208,23 @@ router.get('/s/admin/stores/:id/error_entries', async ({ params, request }) => {
   const id = parseInt(params.id);
   const url = request.url;
   const { limit, offset } = getPagination(url);
-  const [count, items] = await Promise.all([
-    db.errorEntries.count(),
-    db.errorEntries.where('store').equals(id).offset(offset).limit(limit).toArray(),
-  ]);
-  const rel = 'fx:error_entries';
-  const composeItem = composeErrorEntry;
-  const body = composeCollection({ composeItem, rel, url, count, items });
-  return new Response(JSON.stringify(body));
+  const getErrorParam = new URL(request.url).searchParams.get('hide_error');
+  const hideError:boolean|undefined = getErrorParam === null ? undefined: JSON.parse(getErrorParam);
+  let count;
+  let items;
+  try {
+    count = await db.errorEntries.count();
+    if (hideError===undefined) {
+      items = await db.errorEntries.where('store').equals(id).offset(offset).limit(limit).toArray();
+    } else {
+      items = await db.errorEntries.where('store').equals(id).and((r) => r.hide_error === hideError).offset(offset).limit(limit).toArray();
+    }
+    const rel = 'fx:error_entries';
+    const composeItem = composeErrorEntry;
+    const body = composeCollection({ composeItem, rel, url, count, items });
+    return new Response(JSON.stringify(body));
+  } catch (e) {
+    console.log('There was an error', e);}
 });
 
 router.get('/s/admin/error_entries/:id', async ({ params }) => {
