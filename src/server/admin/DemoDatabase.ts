@@ -33,12 +33,12 @@ export class DemoDatabase extends Dexie {
   items: Dexie.Table<any, number>;
 
   carts: Dexie.Table<any, number>;
-  
+
 
   constructor() {
     super('foxy_demo_db');
 
-    this.version(3).stores({
+    this.version(1).stores({
       customer_attributes: '++id,customer',
       customer_addresses: '++id,customer',
       error_entries: '++id,store',
