@@ -1,5 +1,9 @@
 {
+  "customer": "Customer",
+  "transaction": "Transaction",
+  "client": "Client",
   "hidden": "Hidden",
+  "request": "Request",
   "tab": {
     "new": "New errors",
     "all": "All errors"
