@@ -15,34 +15,6 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get styles(): CSSResult | CSSResultArray {
     return [
       Themeable.styles,
-      css`
-        .nohide.fadeout {
-          animation-name: initial;
-        }
-        .fadeout {
-          animation-duration: 0.2s;
-          animation-name: out;
-          animation-fill-mode: forwards;
-          animation-timing-function: ease-in;
-        }
-        @keyframes out {
-          0% {
-            transform: translateX(0);
-            max-height: 120px;
-            opacity: 1;
-          }
-          99% {
-            transform: translateX(-55px);
-            max-height: 40px;
-            opacity: 0;
-            position: relative;
-          }
-          to {
-            left: -100vw;
-            position: absolute;
-          }
-        }
-      `
     ];
   }
 
@@ -73,6 +45,8 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
 
   nohide = false;
 
+  private __ns = 'error-entry';
+
   constructor() {
     super();
     this.open = false;
@@ -94,7 +68,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     } else {
       return html`
         <div aria-busy=${this.in('busy')} aria-live='polite'
-             class='${this.nohide? 'nohide': ''} ${ this.data.hide_error ? 'fadeout': ''} flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
+             class='flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
           <details class='m-s text-body w-full ' @toggle=${this.__toggleOpen}>
             <summary class='border-l-2 p-s relative cursor-pointer ${this.open ? 'border-error' : 'border-primary'}'>
               <div class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0' >
@@ -103,7 +77,14 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
                   : html`<iron-icon icon='icons:expand-more'></iron-icon>`
               }
               </div>
-              ${this.data.hide_error ? html`<span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">Hidden</span>` : ''}
+              ${this.data.hide_error
+                ? html`
+                  <span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">
+                    <foxy-i18n key='hidden' .ns=${this.__ns}></foxy-i18n>
+                  </span>
+                `
+                : ''
+              }
               <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
               <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
               <div class="${this.open? '' : 'truncate' } overflow-hidden">
@@ -159,7 +140,6 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     });
     this.submit();
   }
-
 
   private __toggleOpen() {
     this.open = !this.open;
@@ -382,14 +362,15 @@ class KeyValues extends Themeable {
         dt:before {
           display: block;
           content: ' ';
+          width:100%;
         }
         dt {
-          min-width: 150px;
-          width: calc( 25% - 0.5em);
+          min-width: calc(3 * var(--lumo-size-l));
+          width: calc( 33.33% - 0.5em);
           padding-right: 0.5em;
         }
         dd {
-          width: 75%;
+          width: 66.67%
         }
       `
     ];
@@ -418,7 +399,7 @@ class KeyValues extends Themeable {
     return html`
       <dl class='mb-s'>
         ${this.data.map(
-          (e) => html`<dt class='text-secondary mt-s'>${e[0]}</dt><dd class='mt-s'>${e[1]}</dd>`
+          (e) => html`<dt class='text-secondary mt-s truncate'>${e[0]}</dt><dd class='mt-s'>${e[1]}</dd>`
           )}
       </dl>
     `;
