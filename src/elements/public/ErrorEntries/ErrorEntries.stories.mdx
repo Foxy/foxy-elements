@@ -3,7 +3,7 @@ import { html } from 'lit-html';
 import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import './index.ts';
 
-<Meta title="Other / ErrorEntriesPage" />
+<Meta title="Relations / ErrorEntries" />
 
 # Error entries page
 
@@ -11,20 +11,20 @@ import './index.ts';
 
 <Canvas
   mdxSource={dedent`
-  <foxy-error-entries-page
+  <foxy-error-entries
     href="https://demo.foxycart.com/s/admin/stores/0/error_entries"
     class="block px-4 rounded-lg border"
     >
-    </foxy-error-entries-page>
+    </foxy-error-entries>
     `}>
-  <Story name="ErrorEntryPage">
+  <Story name="ErrorEntries">
     {() =>
       html`
-    <foxy-error-entries-page
+    <foxy-error-entries
     href="https://demo.foxycart.com/s/admin/stores/0/error_entries"
     class="block px-4 rounded-lg border"
     >
-    </foxy-error-entries-page>
+    </foxy-error-entries>
     `
     }
   </Story>
@@ -32,7 +32,7 @@ import './index.ts';
 
 ## Reference
 
-<ArgsTable of="foxy-error-entries-page" />
+<ArgsTable of="foxy-error-entries" />
 
 ### hAPI
 
@@ -47,11 +47,11 @@ This element supports the following namespace: `error-entries`.
 <Story name="State: busy" parameters={{ docs: { disable: true } }}>
   {() =>
     html`
-      <foxy-error-entries-page
+      <foxy-error-entries
         href="https://demo.foxycart.com/s/admin/sleep"
         class="container-narrow"
       >
-      </foxy-error-entries-page>
+      </foxy-error-entries>
     `
   }
 </Story>
@@ -59,11 +59,11 @@ This element supports the following namespace: `error-entries`.
 <Story name="State: fail" parameters={{ docs: { disable: true } }}>
   {() =>
     html`
-      <foxy-error-entries-page
+      <foxy-error-entries
         href="https://demo.foxycart.com/s/admin/not-found"
         class="container-narrow"
       >
-      </foxy-error-entries-page>
+      </foxy-error-entries>
     `
   }
 </Story>

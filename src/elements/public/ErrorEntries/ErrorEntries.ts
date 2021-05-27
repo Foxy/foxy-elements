@@ -7,8 +7,9 @@ import { TabsElement } from '@vaadin/vaadin-tabs/vaadin-tabs';
 import { TabElement } from '@vaadin/vaadin-tabs/vaadin-tab';
 import { Themeable } from '../../../mixins/themeable';
 import { CollectionPage } from '../CollectionPage';
+import { CollectionPages } from '../CollectionPages';
 
-export class ErrorEntriesPage extends Themeable {
+export class ErrorEntries extends Themeable {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -31,6 +32,7 @@ export class ErrorEntriesPage extends Themeable {
       'vaadin-tabs': TabsElement,
       'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-collection-page': CollectionPage,
+      'foxy-collection-pages': CollectionPages,
     };
   }
 
@@ -53,20 +55,20 @@ export class ErrorEntriesPage extends Themeable {
         <vaadin-tab><foxy-i18n key="tab.all" ns="error-entry"></foxy-i18n></vaadin-tab>
       </vaadin-tabs>
       <div id="tabbed-content">
-        ${this.showHidden
-          ? html`<foxy-collection-page
-              href="${this.href}"
-              item="foxy-error-entry-card"
-            ></foxy-collection-page>`
-          : html`<foxy-collection-page
-              href="${this.href}?hide_error=${this.showHidden}"
-              item="foxy-error-entry-card"
-            ></foxy-collection-page>`}
+        <foxy-collection-pages
+            first="${this.href}?offset=0${this.showHidden ? '': `&hide_error=${this.showHidden}`}"
+            page="foxy-collection-page foxy-error-entry-card"
+            >
+        </foxy-collection-pages>
       </div>
     `;
   }
 
   private __handleSelectedChanged(e: CustomEvent) {
     this.showHidden = e.detail.value === 1;
+  }
+
+  private get __collection() {
+    return this.renderRoot.querySelector('foxy-collection-pages');
   }
 }
