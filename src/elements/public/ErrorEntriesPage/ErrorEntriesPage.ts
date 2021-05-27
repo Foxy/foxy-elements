@@ -1,6 +1,4 @@
-import type * as FoxySDK from '@foxy.io/sdk';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { NucleonElement } from '../NucleonElement';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { html } from 'lit-html';
 import { CSSResult, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { ErrorEntryCard } from '../ErrorEntryCard';
@@ -8,11 +6,10 @@ import { ButtonElement } from '@vaadin/vaadin-button';
 import { TabsElement } from '@vaadin/vaadin-tabs/vaadin-tabs';
 import { TabElement } from '@vaadin/vaadin-tabs/vaadin-tab';
 import { Themeable } from '../../../mixins/themeable';
+import { CollectionPage } from '../CollectionPage';
 
-type ErrorEntries = FoxySDK.Backend.Rels.ErrorEntries;
-type Data = FoxySDK.Core.Resource<ErrorEntries>;
 
-export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> {
+export class ErrorEntriesPage extends Themeable {
 
   static get properties(): PropertyDeclarations {
     return {
@@ -20,6 +17,9 @@ export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> 
       showHidden: {
         type: Boolean
       },
+      href: {
+        type: String
+      }
     };
   }
 
@@ -32,6 +32,7 @@ export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> 
       'vaadin-tab': TabElement,
       'vaadin-tabs': TabsElement,
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'foxy-collection-page': CollectionPage
     }
   }
 
@@ -43,46 +44,29 @@ export class ErrorEntriesPage extends ScopedElementsMixin(NucleonElement)<Data> 
 
   showHidden = false;
 
+  href = '';
+
   private static __ns = 'error-entry';
 
-  render(): TemplateResult {
-    if (this.in({ idle: 'template' }) || !this.in('idle')) {
-      const spinnerState = this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty';
-      return html`
-        <div aria-live="polite" aria-busy=${this.in('busy')} data-testid="wrapper">
-          <div class="inset-0 flex items-center justify-center p-m">
-            <foxy-spinner
-                state=${spinnerState}
-                data-testid="spinner"
-                layout='horizontal'>
-            </foxy-spinner>
-          </div>
-        </div>
-      `;
-    } else {
-      return html`
-        <vaadin-tabs>
-          <vaadin-tab><foxy-i18n lang=${this.lang} key='newErrors'></foxy-i18n>new errors</vaadin-tab>
-          <vaadin-tab><foxy-i18n lang=${this.lang} key='allErrors'></foxy-i18n>all errors</vaadin-tab>
-        </vaadin-tabs>
-        <div aria-busy=${this.in('busy')} aria-live='polite' class='${this.showHidden ? 'show': ''}' >
-          ${this.data?._embedded['fx:error_entries'].map(i => {
-            return html`
-                <foxy-error-entry
-                  class="w-full"
-                  href="${i._links.self.href}"
-                  .nohide=${this.showHidden}
-                ></foxy-error-entry>
-            `
-          })}
-        </div>`;
-          }
-    }
+  private __searchParams = '?hide_error=false';
 
-  private __handleToggleShowHidden() {
-    this.showHidden = !this.showHidden;
+  render(): TemplateResult {
+    return html`
+      <vaadin-tabs @selected-changed=${this.__handleSelectedChanged}>
+        <vaadin-tab><foxy-i18n key="tab.new" ns='error-entry'></foxy-i18n></vaadin-tab>
+        <vaadin-tab><foxy-i18n key="tab.all" ns='error-entry'></foxy-i18n></vaadin-tab>
+      </vaadin-tabs>
+      <div id="tabbed-content">
+        ${this.showHidden
+          ? html`<foxy-collection-page href="${this.href}" item="foxy-error-entry-card"></foxy-collection-page>`
+          : html`<foxy-collection-page href="${this.href}?hide_error=${this.showHidden}" item="foxy-error-entry-card"></foxy-collection-page>`
+        }
+      </div>
+    `;
+  }
+
+  private __handleSelectedChanged(e: CustomEvent) {
+    this.showHidden = e.detail.value === 1;
   }
 
 }
-
-
