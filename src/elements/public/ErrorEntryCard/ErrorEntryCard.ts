@@ -6,6 +6,7 @@ import { html } from 'lit-html';
 import { Themeable } from '../../../mixins/themeable';
 import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { Group} from '../../private';
 
 type Rel = FoxySDK.Backend.Rels.ErrorEntry;
 type Data = FoxySDK.Core.Resource<Rel, undefined>;
@@ -33,11 +34,11 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
       'foxy-spinner': customElements.get('foxy-spinner'),
       'vaadin-button': ButtonElement,
       'vaadin-checkbox': CheckboxElement,
-      'x-custom-box': Box,
       'x-customer-info-card': CustomerInfoCard,
       'x-client-info-card': ClientInfoCard,
       'x-transaction-info-card': TransactionInfoCard,
       'x-params-viewer': URLSearchParamsViewer,
+      'x-group': Group
     };
   }
 
@@ -57,11 +58,11 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
       return html`
         <div class="absolute inset-0 flex items-center justify-center">
           <foxy-spinner
-              data-testid="spinner"
-              class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-              layout="horizontal"
-              state=${this.in('busy') ? 'busy' : 'error'}
-              >
+            data-testid="spinner"
+            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            layout="horizontal"
+            state=${this.in('busy') ? 'busy' : 'error'}
+          >
           </foxy-spinner>
         </div>
       `;
@@ -70,75 +71,64 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
         <div aria-busy=${this.in('busy')} aria-live='polite'
              class='flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
           <details class='m-s text-body w-full ' @toggle=${this.__toggleOpen}>
-            <summary class='border-l-2 p-s relative cursor-pointer ${this.open ? 'border-error' : 'border-primary'}'>
+            <summary class='border-l-2 p-s relative cursor-pointer ${this.data.hide_error ? 'border-error' : 'border-primary'}'>
               <div class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0' >
-              ${this.open
+                ${this.open
                   ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
                   : html`<iron-icon icon='icons:expand-more'></iron-icon>`
-              }
+                }
               </div>
-              ${this.data.hide_error
-                ? html`
-                  <span class="px-s py-xs text-s font-medium tracking-wide rounded bg-success-10 text-success">
-                    <foxy-i18n key='hidden' .ns=${this.__ns}></foxy-i18n>
-                  </span>
-                `
-                : ''
-              }
-              <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
-              <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.open ? 'text-error' : 'text-primary'}'></foxy-i18n>
+              <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.data.hide_error ? 'text-error' : 'text-primary'}'></foxy-i18n>
+              <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.data.hide_error ? 'text-error' : 'text-primary'}'></foxy-i18n>
               <div class="${this.open? '' : 'truncate' } overflow-hidden">
                 ${this.data.error_message}
               </div>
             </summary>
-              ${(this.data._links as any)['fx:customer']?.href
-                  ? html`
-                    <x-custom-box title="Customer">
-                      <x-customer-info-card href="${(this.data._links as any)['fx:customer']?.href}"></x-customer-info-card>
-                    </x-custom-box>
-                  `
-                  : ''
-              }
-              ${(this.data._links as any)['fx:transaction']?.href
-                  ? html`
-                    <x-custom-box title="Transaction">
-                      <x-transaction-info-card href="${(this.data._links as any)['fx:transaction']?.href}"></x-transaction-info-card>
-                    </x-custom-box>
-                  `
-                  : ''
-              }
-              <x-custom-box title="Client">
-                <x-client-info-card user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
-              </x-custom-box>
-              </x-custom-box>
-              <x-custom-box title="Request">
+            ${(this.data._links as any)['fx:customer']?.href
+              ? html`
+                <x-group class='my-s' frame='true'>
+                  <h1 class='text-tertiary text-m m-0 space-0' slot='header'><foxy-i18n key='customer' .ns=${this.__ns}></foxy-i18n></h1>
+                  <x-customer-info-card class="m-s" href="${(this.data._links as any)['fx:customer']?.href}"></x-customer-info-card>
+                </x-group>
+              `
+              : ''
+            }
+            ${(this.data._links as any)['fx:transaction']?.href
+              ? html`
+                <x-group class='my-s' frame='true'>
+                  <h1 class='text-tertiary text-m m-0 space-0'  slot='header'><foxy-i18n key='transaction' .ns=${this.__ns}></foxy-i18n></h1>
+                  <x-transaction-info-card class="m-s" href="${(this.data._links as any)['fx:transaction']?.href}"></x-transaction-info-card>
+                </x-group>
+              `
+              : ''
+            }
+            <x-group class='my-s' frame='true'>
+              <h1 class='text-tertiary text-m m-0 space-0' slot='header'><foxy-i18n key='client' .ns=${this.__ns}></foxy-i18n></h1>
+              <x-client-info-card class="m-s" user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
+            </x-group>
+            <x-group class='my-s' frame='true'>
+              <h1 class='text-tertiary text-m m-0 space-0' slot='header'><foxy-i18n key='request' .ns=${this.__ns}></foxy-i18n></h1>
+              <div class="p-m">
                 <p>${this.data.url}</p>
                 ${this.data.referrer
-                    ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
-                    : html``
+                  ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
+                  : html``
                 }
                 ${this.data.get_values
-                    ? html`
-                      <x-params-viewer data='${this.data.get_values}' method='GET'></x-params-viewer>`
-                    : html``
+                  ? html`
+                    <x-params-viewer data='${this.data.get_values}' method='GET'></x-params-viewer>`
+                  : html``
                 }
                 ${this.data.post_values
-                    ? html`<x-params-viewer data='${this.data.post_values}' method='POST'></x-params-viewer>`
-                    : html``
+                  ? html`<x-params-viewer data='${this.data.post_values}' method='POST'></x-params-viewer>`
+                  : html``
                 }
-                </x-custom-box>
+              </div>
+            </x-group>
           </details>
         </div>
       `;
     }
-  }
-
-  private __handleCheckErrorEntry() {
-    this.edit({
-      ...this.data,
-      ...{ hide_error: !this.form?.hide_error }
-    });
-    this.submit();
   }
 
   private __toggleOpen() {
@@ -325,34 +315,13 @@ function decodeHtml(html: string) {
 }
 
 
-class Box extends Themeable {
-
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      title: {
-        type: String
-      }
-    }
-  }
-
-  render(): TemplateResult {
-    return html`
-      <section class='my-s'>
-        <h1 class='text-tertiary text-m m-0 space-0'>${this.title}</h1>
-        <div class='rounded-l border border-contrast-10 p-s'>
-          <slot></slot>
-        </div>
-      </section>`
-      }
-}
-
 class KeyValues extends Themeable {
 
   static get styles(): CSSResult | CSSResultArray {
     return [
       Themeable.styles,
       css`
+
         dt, dd {
           display: inline-block;
           overflow: hidden;
