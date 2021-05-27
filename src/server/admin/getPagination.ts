@@ -1,4 +1,4 @@
-export function getPagination(url: string) {
+export function getPagination(url: string): { limit: number; offset: number } {
   const limitInQuery = parseInt(new URL(url).searchParams.get('limit') ?? '');
   const limit = isNaN(limitInQuery) || limitInQuery > 300 || limitInQuery < 0 ? 20 : limitInQuery;
 

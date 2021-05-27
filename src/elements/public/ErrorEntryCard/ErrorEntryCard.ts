@@ -1,22 +1,26 @@
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { NucleonElement } from '../NucleonElement';
 import * as FoxySDK from '@foxy.io/sdk';
-import { css, CSSResult, CSSResultArray, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
+import {
+  css,
+  CSSResult,
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+} from 'lit-element';
 import { html } from 'lit-html';
 import { Themeable } from '../../../mixins/themeable';
 import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { Group} from '../../private';
+import { Group } from '../../private';
 
 type Rel = FoxySDK.Backend.Rels.ErrorEntry;
 type Data = FoxySDK.Core.Resource<Rel, undefined>;
 
 export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
-
   static get styles(): CSSResult | CSSResultArray {
-    return [
-      Themeable.styles,
-    ];
+    return [Themeable.styles];
   }
 
   static get properties(): PropertyDeclarations {
@@ -38,7 +42,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
       'x-client-info-card': ClientInfoCard,
       'x-transaction-info-card': TransactionInfoCard,
       'x-params-viewer': URLSearchParamsViewer,
-      'x-group': Group
+      'x-group': Group,
     };
   }
 
@@ -68,61 +72,97 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
       `;
     } else {
       return html`
-        <div aria-busy=${this.in('busy')} aria-live='polite'
-             class='flex flex-auto content-center w-full ${this.data.hide_error ? 'text-tertiary': ''}'>
-          <details class='m-s text-body w-full ' @toggle=${this.__toggleOpen}>
-            <summary class='border-l-2 p-s relative cursor-pointer ${this.data.hide_error ? 'border-error' : 'border-primary'}'>
-              <div class='text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0' >
+        <div
+          aria-busy=${this.in('busy')}
+          aria-live="polite"
+          class="flex flex-auto content-center w-full ${this.data.hide_error
+            ? 'text-tertiary'
+            : ''}"
+        >
+          <details class="m-s text-body w-full " @toggle=${this.__toggleOpen}>
+            <summary
+              class="border-l-2 p-s relative cursor-pointer ${this.data.hide_error
+                ? 'border-error'
+                : 'border-primary'}"
+            >
+              <div class="text-s absolute right-s top-s rounded-full bg-transparent top-0 m-0 p-0">
                 ${this.open
-                  ? html`<iron-icon icon='icons:expand-less'></iron-icon>`
-                  : html`<iron-icon icon='icons:expand-more'></iron-icon>`
-                }
+                  ? html`<iron-icon icon="icons:expand-less"></iron-icon>`
+                  : html`<iron-icon icon="icons:expand-more"></iron-icon>`}
               </div>
-              <foxy-i18n key='date' options='{"value": "${this.data.date_created}"}' class='text-s ${this.data.hide_error ? 'text-error' : 'text-primary'}'></foxy-i18n>
-              <foxy-i18n key='time' options='{"value": "${this.data.date_created}"}' class='text-s ${this.data.hide_error ? 'text-error' : 'text-primary'}'></foxy-i18n>
-              <div class="${this.open? '' : 'truncate' } overflow-hidden">
+              <foxy-i18n
+                key="date"
+                options='{"value": "${this.data.date_created}"}'
+                class="text-s ${this.data.hide_error ? 'text-error' : 'text-primary'}"
+              ></foxy-i18n>
+              <foxy-i18n
+                key="time"
+                options='{"value": "${this.data.date_created}"}'
+                class="text-s ${this.data.hide_error ? 'text-error' : 'text-primary'}"
+              ></foxy-i18n>
+              <div class="${this.open ? '' : 'truncate'} overflow-hidden">
                 ${this.data.error_message}
               </div>
             </summary>
             ${(this.data._links as any)['fx:customer']?.href
               ? html`
-                <x-group class='my-s' frame='true'>
-                  <h1 class='text-tertiary text-m m-0 space-0' slot='header'><foxy-i18n key='customer' .ns=${this.__ns}></foxy-i18n></h1>
-                  <x-customer-info-card class="m-s" href="${(this.data._links as any)['fx:customer']?.href}"></x-customer-info-card>
-                </x-group>
-              `
-              : ''
-            }
+                  <x-group class="my-s" frame="true">
+                    <h1 class="text-tertiary text-m m-0 space-0" slot="header">
+                      <foxy-i18n key="customer" .ns=${this.__ns}></foxy-i18n>
+                    </h1>
+                    <x-customer-info-card
+                      class="m-s"
+                      href="${(this.data._links as any)['fx:customer']?.href}"
+                    ></x-customer-info-card>
+                  </x-group>
+                `
+              : ''}
             ${(this.data._links as any)['fx:transaction']?.href
               ? html`
-                <x-group class='my-s' frame='true'>
-                  <h1 class='text-tertiary text-m m-0 space-0'  slot='header'><foxy-i18n key='transaction' .ns=${this.__ns}></foxy-i18n></h1>
-                  <x-transaction-info-card class="m-s" href="${(this.data._links as any)['fx:transaction']?.href}"></x-transaction-info-card>
-                </x-group>
-              `
-              : ''
-            }
-            <x-group class='my-s' frame='true'>
-              <h1 class='text-tertiary text-m m-0 space-0' slot='header'><foxy-i18n key='client' .ns=${this.__ns}></foxy-i18n></h1>
-              <x-client-info-card class="m-s" user-agent="${this.data.user_agent}" ip-address="${this.data.ip_address}" ip-country="${this.data.ip_country}"></x-client-info-card>
+                  <x-group class="my-s" frame="true">
+                    <h1 class="text-tertiary text-m m-0 space-0" slot="header">
+                      <foxy-i18n key="transaction" .ns=${this.__ns}></foxy-i18n>
+                    </h1>
+                    <x-transaction-info-card
+                      class="m-s"
+                      href="${(this.data._links as any)['fx:transaction']?.href}"
+                    ></x-transaction-info-card>
+                  </x-group>
+                `
+              : ''}
+            <x-group class="my-s" frame="true">
+              <h1 class="text-tertiary text-m m-0 space-0" slot="header">
+                <foxy-i18n key="client" .ns=${this.__ns}></foxy-i18n>
+              </h1>
+              <x-client-info-card
+                class="m-s"
+                user-agent="${this.data.user_agent}"
+                ip-address="${this.data.ip_address}"
+                ip-country="${this.data.ip_country}"
+              ></x-client-info-card>
             </x-group>
-            <x-group class='my-s' frame='true'>
-              <h1 class='text-tertiary text-m m-0 space-0' slot='header'><foxy-i18n key='request' .ns=${this.__ns}></foxy-i18n></h1>
+            <x-group class="my-s" frame="true">
+              <h1 class="text-tertiary text-m m-0 space-0" slot="header">
+                <foxy-i18n key="request" .ns=${this.__ns}></foxy-i18n>
+              </h1>
               <div class="p-m">
                 <p>${this.data.url}</p>
                 ${this.data.referrer
-                  ? html`<span class='text-secondary'>Navigated from</span> <a href='${this.data.referrer}'>${this.data.referrer}</a>`
-                  : html``
-                }
+                  ? html`<span class="text-secondary">Navigated from</span>
+                      <a href="${this.data.referrer}">${this.data.referrer}</a>`
+                  : html``}
                 ${this.data.get_values
-                  ? html`
-                    <x-params-viewer data='${this.data.get_values}' method='GET'></x-params-viewer>`
-                  : html``
-                }
+                  ? html` <x-params-viewer
+                      data="${this.data.get_values}"
+                      method="GET"
+                    ></x-params-viewer>`
+                  : html``}
                 ${this.data.post_values
-                  ? html`<x-params-viewer data='${this.data.post_values}' method='POST'></x-params-viewer>`
-                  : html``
-                }
+                  ? html`<x-params-viewer
+                      data="${this.data.post_values}"
+                      method="POST"
+                    ></x-params-viewer>`
+                  : html``}
               </div>
             </x-group>
           </details>
@@ -136,8 +176,9 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 }
 
-class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Customer>> {
-
+class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<
+  FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Customer>
+> {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -145,7 +186,7 @@ class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.
   }
 
   static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles]
+    return [Themeable.styles];
   }
 
   render(): TemplateResult {
@@ -155,21 +196,26 @@ class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.
         <div aria-live="polite" aria-busy=${this.in('busy')} data-testid="wrapper">
           <div class="h-full bg-contrast-5"></div>
           <div class="inset-0 flex justify-center">
-            <foxy-spinner layout='horizontal' state=${spinnerState} data-testid="spinner"></foxy-spinner>
+            <foxy-spinner
+              layout="horizontal"
+              state=${spinnerState}
+              data-testid="spinner"
+            ></foxy-spinner>
           </div>
         </div>
       `;
     } else {
-      return this.data ?
-        html`<span>${this.data.first_name} ${this.data.last_name}</span> <a class="text-s" href='mailto:${this.data.email}'>${this.data.email}</a>` :
-        html``
-        ;
+      return this.data
+        ? html`<span>${this.data.first_name} ${this.data.last_name}</span>
+            <a class="text-s" href="mailto:${this.data.email}">${this.data.email}</a>`
+        : html``;
     }
   }
 }
 
-class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Transaction>> {
-
+class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<
+  FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Transaction>
+> {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -177,7 +223,7 @@ class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Co
   }
 
   static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles]
+    return [Themeable.styles];
   }
 
   render(): TemplateResult {
@@ -187,20 +233,24 @@ class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<FoxySDK.Co
         <div aria-live="polite" aria-busy=${this.in('busy')} data-testid="wrapper">
           <div class="h-full bg-contrast-5"></div>
           <div class="inset-0 flex justify-center w-full">
-            <foxy-spinner layout='horizontal' state=${spinnerState} data-testid="spinner"></foxy-spinner>
+            <foxy-spinner
+              layout="horizontal"
+              state=${spinnerState}
+              data-testid="spinner"
+            ></foxy-spinner>
           </div>
         </div>
       `;
     } else {
-      return this.data ?
-        html`<a href='${this.data._links.self.href}'>${this.data.id}</a> ${this.data.currency_symbol}${this.data.total_order}` :
-        html``;
+      return this.data
+        ? html`<a href="${this.data._links.self.href}">${this.data.id}</a> ${this.data
+              .currency_symbol}${this.data.total_order}`
+        : html``;
     }
   }
 }
 
 class ClientInfoCard extends Themeable {
-
   public static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-custom-keyvalues': KeyValues,
@@ -208,9 +258,7 @@ class ClientInfoCard extends Themeable {
   }
 
   static get styles(): CSSResult | CSSResultArray {
-    return [
-      Themeable.styles,
-    ];
+    return [Themeable.styles];
   }
 
   static get properties(): PropertyDeclarations {
@@ -218,43 +266,43 @@ class ClientInfoCard extends Themeable {
       ...super.properties,
       userAgent: {
         attribute: 'user-agent',
-        type: String
+        type: String,
       },
       ipAddress: {
         attribute: 'ip-address',
-        type: String
+        type: String,
       },
       ipCountry: {
         attribute: 'ip-country',
-        type: String
+        type: String,
       },
     };
   }
 
-  userAgent = "";
+  userAgent = '';
 
-  ipAddress = "";
+  ipAddress = '';
 
-  ipCountry = "";
+  ipCountry = '';
 
   render(): TemplateResult {
     if (this.userAgent === undefined) {
       return html``;
     } else {
       return html`
-        <foxy-custom-keyvalues .data="${[
-          ['User Agent', this.userAgent],
-          ['IP Address', this.ipAddress],
-          ['IP Country', this.ipCountry],
-        ]}"></foxy-custom-keyvalues>
+        <foxy-custom-keyvalues
+          .data="${[
+            ['User Agent', this.userAgent],
+            ['IP Address', this.ipAddress],
+            ['IP Country', this.ipCountry],
+          ]}"
+        ></foxy-custom-keyvalues>
       `;
-        }
     }
-
+  }
 }
 
 class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
-
   public static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-custom-keyvalues': KeyValues,
@@ -262,16 +310,14 @@ class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
   }
 
   static get styles(): CSSResult | CSSResultArray {
-    return [
-      Themeable.styles
-    ];
+    return [Themeable.styles];
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       method: {
-        type: String
+        type: String,
       },
       data: {
         converter: {
@@ -280,10 +326,10 @@ class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
           },
           toAttribute(value: URLSearchParams): string {
             return value.toString();
-          }
+          },
         },
-        type: Object
-      }
+        type: Object,
+      },
     };
   }
 
@@ -299,13 +345,12 @@ class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
 
   render(): TemplateResult {
     return html`
-      <div class='border-t-2 border-solid border-contrast-10 my-s relative overflow-hidden'>
-        <div class='text-tertiary text-l absolute right-s top-0'>${this.method}</div>
+      <div class="border-t-2 border-solid border-contrast-10 my-s relative overflow-hidden">
+        <div class="text-tertiary text-l absolute right-s top-0">${this.method}</div>
         <foxy-custom-keyvalues .data="${Array.from(this.data.entries())}"></foxy-custom-keyvalues>
       </div>
     `;
   }
-
 }
 
 function decodeHtml(html: string) {
@@ -314,15 +359,13 @@ function decodeHtml(html: string) {
   return areaElement.value;
 }
 
-
 class KeyValues extends Themeable {
-
   static get styles(): CSSResult | CSSResultArray {
     return [
       Themeable.styles,
       css`
-
-        dt, dd {
+        dt,
+        dd {
           display: inline-block;
           overflow: hidden;
           vertical-align: top;
@@ -331,17 +374,17 @@ class KeyValues extends Themeable {
         dt:before {
           display: block;
           content: ' ';
-          width:100%;
+          width: 100%;
         }
         dt {
           min-width: calc(3 * var(--lumo-size-l));
-          width: calc( 33.33% - 0.5em);
+          width: calc(33.33% - 0.5em);
           padding-right: 0.5em;
         }
         dd {
-          width: 66.67%
+          width: 66.67%;
         }
-      `
+      `,
     ];
   }
 
@@ -356,23 +399,23 @@ class KeyValues extends Themeable {
           },
           toAttribute(value: [string, unknown][]): string {
             return JSON.stringify(value);
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    };
   }
 
   data: [string, unknown][] = [];
 
   render() {
     return html`
-      <dl class='mb-s'>
+      <dl class="mb-s">
         ${this.data.map(
-          (e) => html`<dt class='text-secondary mt-s truncate'>${e[0]}</dt><dd class='mt-s'>${e[1]}</dd>`
-          )}
+          e =>
+            html`<dt class="text-secondary mt-s truncate">${e[0]}</dt>
+              <dd class="mt-s">${e[1]}</dd>`
+        )}
       </dl>
     `;
   }
-
-
 }

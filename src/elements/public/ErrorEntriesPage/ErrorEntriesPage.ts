@@ -8,18 +8,16 @@ import { TabElement } from '@vaadin/vaadin-tabs/vaadin-tab';
 import { Themeable } from '../../../mixins/themeable';
 import { CollectionPage } from '../CollectionPage';
 
-
 export class ErrorEntriesPage extends Themeable {
-
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       showHidden: {
-        type: Boolean
+        type: Boolean,
       },
       href: {
-        type: String
-      }
+        type: String,
+      },
     };
   }
 
@@ -32,14 +30,12 @@ export class ErrorEntriesPage extends Themeable {
       'vaadin-tab': TabElement,
       'vaadin-tabs': TabsElement,
       'foxy-i18n': customElements.get('foxy-i18n'),
-      'foxy-collection-page': CollectionPage
-    }
+      'foxy-collection-page': CollectionPage,
+    };
   }
 
   static get styles(): CSSResult | CSSResultArray {
-    return [
-      Themeable.styles,
-    ];
+    return [Themeable.styles];
   }
 
   showHidden = false;
@@ -53,14 +49,19 @@ export class ErrorEntriesPage extends Themeable {
   render(): TemplateResult {
     return html`
       <vaadin-tabs @selected-changed=${this.__handleSelectedChanged}>
-        <vaadin-tab><foxy-i18n key="tab.new" ns='error-entry'></foxy-i18n></vaadin-tab>
-        <vaadin-tab><foxy-i18n key="tab.all" ns='error-entry'></foxy-i18n></vaadin-tab>
+        <vaadin-tab><foxy-i18n key="tab.new" ns="error-entry"></foxy-i18n></vaadin-tab>
+        <vaadin-tab><foxy-i18n key="tab.all" ns="error-entry"></foxy-i18n></vaadin-tab>
       </vaadin-tabs>
       <div id="tabbed-content">
         ${this.showHidden
-          ? html`<foxy-collection-page href="${this.href}" item="foxy-error-entry-card"></foxy-collection-page>`
-          : html`<foxy-collection-page href="${this.href}?hide_error=${this.showHidden}" item="foxy-error-entry-card"></foxy-collection-page>`
-        }
+          ? html`<foxy-collection-page
+              href="${this.href}"
+              item="foxy-error-entry-card"
+            ></foxy-collection-page>`
+          : html`<foxy-collection-page
+              href="${this.href}?hide_error=${this.showHidden}"
+              item="foxy-error-entry-card"
+            ></foxy-collection-page>`}
       </div>
     `;
   }
@@ -68,5 +69,4 @@ export class ErrorEntriesPage extends Themeable {
   private __handleSelectedChanged(e: CustomEvent) {
     this.showHidden = e.detail.value === 1;
   }
-
 }

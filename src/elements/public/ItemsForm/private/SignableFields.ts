@@ -2,25 +2,6 @@ import { Translatable } from '../../../../mixins/translatable';
 import { PropertyDeclarations } from 'lit-element';
 
 export class SignableFields extends Translatable {
-  /**
-   * Optional open: An Object with key, value pairs where the key is a item
-   * attribute and the value is a previously computed HMAC validation code.
-   *
-   * **Important security information:** this web component does not generate or validates the HMAC validation code.
-   * Please, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.
-   */
-  public signatures?: Record<string, string>;
-
-  /**
-   * Optional open: An Object with key, value pairs where the key is a item
-   * attribute and the value is a boolean indicating that the property is editable by the user.
-   *
-   * **Advanced use only**: this web component does not provide means for the user to alter item attributes.
-   *
-   * See [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.
-   */
-  public open?: Record<string, boolean>;
-
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
@@ -42,6 +23,25 @@ export class SignableFields extends Translatable {
       },
     };
   }
+
+  /**
+   * Optional open: An Object with key, value pairs where the key is a item
+   * attribute and the value is a previously computed HMAC validation code.
+   *
+   * **Important security information:** this web component does not generate or validates the HMAC validation code.
+   * Please, refer to [the Product Verification page](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information and tools for generating the codes.
+   */
+  public signatures?: Record<string, string>;
+
+  /**
+   * Optional open: An Object with key, value pairs where the key is a item
+   * attribute and the value is a boolean indicating that the property is editable by the user.
+   *
+   * **Advanced use only**: this web component does not provide means for the user to alter item attributes.
+   *
+   * See [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.
+   */
+  public open?: Record<string, boolean>;
 
   /**
    * Concatenates the fieldName and it's signature.

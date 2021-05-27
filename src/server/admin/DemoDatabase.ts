@@ -34,7 +34,6 @@ export class DemoDatabase extends Dexie {
 
   carts: Dexie.Table<any, number>;
 
-
   constructor() {
     super('foxy_demo_db');
 
