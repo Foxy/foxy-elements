@@ -56,9 +56,9 @@ export class ErrorEntries extends Themeable {
       </vaadin-tabs>
       <div id="tabbed-content">
         <foxy-collection-pages
-            first="${this.href}?offset=0${this.showHidden ? '': `&hide_error=${this.showHidden}`}"
-            page="foxy-collection-page foxy-error-entry-card"
-            >
+          first="${this.href}?offset=0${this.showHidden ? '' : `&hide_error=${this.showHidden}`}"
+          page="foxy-collection-page foxy-error-entry-card"
+        >
         </foxy-collection-pages>
       </div>
     `;
