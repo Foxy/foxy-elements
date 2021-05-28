@@ -26,7 +26,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      open: { type: Boolean },
+      open: { type: Boolean, reflect: true },
       nohide: { type: Boolean },
     };
   }
@@ -58,7 +58,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   render(): TemplateResult {
-    if (!this.in('idle') || !this.data) {
+    if (!this.data) {
       return html`
         <div class="absolute inset-0 flex items-center justify-center">
           <foxy-spinner
@@ -79,7 +79,7 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
             ? 'text-tertiary'
             : ''}"
         >
-          <details class="m-s text-body w-full " @toggle=${this.__toggleOpen}>
+          <details class="m-s text-body w-full " @toggle=${this.__toggleOpen} ?open=${this.open}>
             <summary
               class="border-l-2 p-s relative cursor-pointer ${this.data.hide_error
                 ? 'border-error'
@@ -106,29 +106,29 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
             </summary>
             ${(this.data._links as any)['fx:customer']?.href
               ? html`
-                  <x-group class="my-s" frame="true">
-                    <h1 class="text-tertiary text-m m-0 space-0" slot="header">
-                      <foxy-i18n key="customer" .ns=${this.__ns}></foxy-i18n>
-                    </h1>
-                    <x-customer-info-card
-                      class="m-s"
-                      href="${(this.data._links as any)['fx:customer']?.href}"
-                    ></x-customer-info-card>
-                  </x-group>
-                `
+                <x-group class="my-s" frame="true">
+                  <h1 class="text-tertiary text-m m-0 space-0" slot="header">
+                    <foxy-i18n key="customer" .ns=${this.__ns}></foxy-i18n>
+                  </h1>
+                  <x-customer-info-card
+                    class="m-s"
+                    href="${(this.data._links as any)['fx:customer']?.href}"
+                  ></x-customer-info-card>
+                </x-group>
+              `
               : ''}
             ${(this.data._links as any)['fx:transaction']?.href
               ? html`
-                  <x-group class="my-s" frame="true">
-                    <h1 class="text-tertiary text-m m-0 space-0" slot="header">
-                      <foxy-i18n key="transaction" .ns=${this.__ns}></foxy-i18n>
-                    </h1>
-                    <x-transaction-info-card
-                      class="m-s"
-                      href="${(this.data._links as any)['fx:transaction']?.href}"
-                    ></x-transaction-info-card>
-                  </x-group>
-                `
+                <x-group class="my-s" frame="true">
+                  <h1 class="text-tertiary text-m m-0 space-0" slot="header">
+                    <foxy-i18n key="transaction" .ns=${this.__ns}></foxy-i18n>
+                  </h1>
+                  <x-transaction-info-card
+                    class="m-s"
+                    href="${(this.data._links as any)['fx:transaction']?.href}"
+                  ></x-transaction-info-card>
+                </x-group>
+              `
               : ''}
             <x-group class="my-s" frame="true">
               <h1 class="text-tertiary text-m m-0 space-0" slot="header">
@@ -149,31 +149,53 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
                 <p>${this.data.url}</p>
                 ${this.data.referrer
                   ? html`<span class="text-secondary">Navigated from</span>
-                      <a href="${this.data.referrer}">${this.data.referrer}</a>`
+                  <a href="${this.data.referrer}">${this.data.referrer}</a>`
                   : html``}
                 ${this.data.get_values
                   ? html` <x-params-viewer
-                      data="${this.data.get_values}"
-                      method="GET"
-                    ></x-params-viewer>`
+                    data="${this.data.get_values}"
+                    method="GET"
+                  ></x-params-viewer>`
                   : html``}
                 ${this.data.post_values
                   ? html`<x-params-viewer
-                      data="${this.data.post_values}"
-                      method="POST"
-                    ></x-params-viewer>`
+                    data="${this.data.post_values}"
+                    method="POST"
+                  ></x-params-viewer>`
                   : html``}
               </div>
             </x-group>
-          </details>
+            ${ this.in('idle') ? '' :
+              html`
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <foxy-spinner
+                    data-testid="spinner"
+                    class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+                    layout="horizontal"
+                    state=${this.in('busy') ? 'busy' : 'error'}
+                  >
+                  </foxy-spinner>
+                </div>
+              `}
+      </details>
         </div>
       `;
     }
   }
 
-  private __toggleOpen() {
-    this.open = !this.open;
+  private __toggleOpen(event: Event) {
+    const details = event.target as HTMLDetailsElement;
+    if (event.type == 'toggle' && details.open) {
+      if (this.data && !this.data.hide_error){
+        const edited: any = {...this.data, hide_error: true};
+        delete edited['_links'];
+        this.edit(edited);
+        this.submit();
+      }
+    }
+    this.open = details.open;
   }
+
 }
 
 class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<
