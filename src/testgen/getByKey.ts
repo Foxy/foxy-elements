@@ -1,9 +1,7 @@
+import { I18n } from '../elements';
 import { LitElement } from 'lit-element';
 
-export async function getByKey<T extends HTMLElement>(
-  element: LitElement,
-  key: string
-): Promise<T | null> {
+export async function getByKey(element: LitElement, key: string): Promise<I18n | null> {
   await element.updateComplete;
-  return element.renderRoot.querySelector(`foxy-i18n[key="${key}"]`) as T | null;
+  return element.renderRoot.querySelector(`foxy-i18n[key="${key}"]`) as I18n | null;
 }
