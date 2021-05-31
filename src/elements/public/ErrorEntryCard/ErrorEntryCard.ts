@@ -18,6 +18,14 @@ import { Group } from '../../private';
 type Rel = FoxySDK.Backend.Rels.ErrorEntry;
 type Data = FoxySDK.Core.Resource<Rel, undefined>;
 
+/**
+ * Displays an ErrorEntry from the Log of FoxyAPI.
+ *
+ * A summary of the Error Entry is presented
+ *
+ * @element foxy-error-entry-card
+ *
+ */
 export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get styles(): CSSResult | CSSResultArray {
     return [Themeable.styles];
@@ -46,9 +54,11 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     };
   }
 
-  open: boolean;
-
-  nohide = false;
+  /**
+   * **Required** Boolean. When first set to true triggers an update to the error entry, marking it
+   * as read.
+   */
+  open = false;
 
   private __ns = 'error-entry';
 
@@ -198,6 +208,9 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 }
 
+/**
+ * A simplified information set from Customer to be used within ErrorEntry.
+ */
 class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<
   FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Customer>
 > {
@@ -235,6 +248,9 @@ class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<
   }
 }
 
+/**
+ * A simplified information set from Transaction to be used within ErrorEntry.
+ */
 class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<
   FoxySDK.Core.Resource<FoxySDK.Backend.Rels.Transaction>
 > {
