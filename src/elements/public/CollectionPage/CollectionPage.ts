@@ -61,10 +61,10 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
             group=\${ctx.group}
             href=\${ctx.href}
             lang=\${ctx.lang}
-            ?disabled=\${this.disabled}
-            ?readonly=\${this.readonly}
-            ?hidden=\${this.hidden}
-            .templates=\${this.templates}
+            ?disabled=\${ctx.disabled}
+            ?readonly=\${ctx.readonly}
+            ?hidden=\${ctx.hidden}
+            .templates=\${ctx.templates}
           >
           </${value}>\``
       ) as ItemRenderer;

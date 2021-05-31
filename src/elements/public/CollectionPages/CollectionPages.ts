@@ -23,6 +23,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      ...super.properties,
       manual: { type: Boolean, reflect: true },
       first: { type: String, noAccessor: true },
       pages: { type: Array, noAccessor: true },
@@ -116,10 +117,10 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
             href=\${ctx.href}
             lang=\${ctx.lang}
             ${itemAttribute}
-            ?disabled=\${this.disabled}
-            ?readonly=\${this.readonly}
-            ?hidden=\${this.hidden}
-            .templates=\${this.templates}
+            ?disabled=\${ctx.disabled}
+            ?readonly=\${ctx.readonly}
+            ?hidden=\${ctx.hidden}
+            .templates=\${ctx.templates}
           >
           </${value}>\``
       ) as PageRenderer<TPage>;

@@ -149,7 +149,7 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
 
     firstUpdated(...args: Parameters<LitElement['firstUpdated']>): void {
       super.firstUpdated(...args);
-      if (this.mode !== 'development') this.compileTemplates();
+      if (this.mode === 'production') this.compileTemplates();
     }
 
     updated(changes: Map<keyof this, unknown>): void {
@@ -161,26 +161,22 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       }
     }
 
-    compileTemplates(): void {
-      this.templates = {};
+    compileTemplates(replace = false): void {
+      const templates = replace ? {} : { ...this.templates };
 
       Array.from(this.children).forEach(child => {
-        if (child.localName !== 'template') return;
-
         const slot = child.getAttribute('slot');
-        if (slot === null) return;
+        if (child.localName !== 'template' || slot === null) return;
 
         try {
           const script = `return html\`${child.innerHTML}\``;
-          const render = new Function('html', 'host', script) as () => TemplateResult;
-
-          this.templates[slot] = render;
+          templates[slot] = new Function('html', 'host', script) as () => TemplateResult;
         } catch (err) {
           console.error(err);
         }
       });
 
-      this.requestUpdate();
+      this.templates = templates;
     }
 
     protected _renderTemplateOrSlot(name: string) {
@@ -226,7 +222,7 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
     }
 
     private __onMutation() {
-      const config = {
+      const config: MutationObserverInit = {
         characterData: true,
         attributes: true,
         childList: true,
@@ -241,7 +237,7 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
         this.__observer.observe((child as HTMLTemplateElement).content, config);
       });
 
-      this.compileTemplates();
+      this.compileTemplates(true);
     }
   };
 };
