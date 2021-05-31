@@ -35,7 +35,6 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
     return {
       ...super.properties,
       open: { type: Boolean, reflect: true },
-      nohide: { type: Boolean },
     };
   }
 
@@ -64,7 +63,6 @@ export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
 
   constructor() {
     super();
-    this.open = false;
   }
 
   render(): TemplateResult {
