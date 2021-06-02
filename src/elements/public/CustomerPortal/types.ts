@@ -1,37 +1,8 @@
-import { State, Context } from './machine';
-import { AnyEventObject, EventObject, Typestate, State as MachineState } from 'xstate';
-import { Templates as CustomerTemplates } from '../Customer/types';
 import { Templates as AccessRecoveryFormTemplates } from '../AccessRecoveryForm/types';
-import { Templates as SignInFormTemplates } from '../SignInForm/types';
-import { Renderer } from '../../../mixins/configurable';
 import { CustomerPortal } from '.';
-
-type ComputedState<
-  TContext,
-  TTypestate extends Typestate<TContext>,
-  TSV extends TTypestate['value'],
-  TEvent extends EventObject,
-  TStateSchema
-> = MachineState<
-  (TTypestate extends any
-    ? {
-        value: TSV;
-        context: any;
-      } extends TTypestate
-      ? TTypestate
-      : never
-    : never)['context'],
-  TEvent,
-  TStateSchema,
-  TTypestate
-> & {
-  value: TSV;
-};
-
-export type ComputedElementProperties<
-  TSV extends State['value'],
-  TContext extends Context = ComputedState<Context, State, TSV, AnyEventObject, any>['context']
-> = { settings: TContext['settings'] };
+import { Templates as CustomerTemplates } from '../Customer/types';
+import { Renderer } from '../../../mixins/configurable';
+import { Templates as SignInFormTemplates } from '../SignInForm/types';
 
 export type Templates = {
   'sign-in:before'?: Renderer<CustomerPortal>;

@@ -7,7 +7,7 @@ import { getStoryCode } from './getStoryCode';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 type Story = ((args: Args) => TemplateResult) & { args: Args };
-type Params = Summary & { code?: boolean; api?: 'customer' | 'admin' };
+type Params = Summary & { code?: boolean };
 type TemplateArgs = {
   readonlyControls: string;
   disabledControls: string;
@@ -18,6 +18,7 @@ type TemplateArgs = {
   hidden: boolean;
   parent: string;
   href: string;
+  base: string;
   lang: string;
   code: TemplateResult;
   html: typeof html;
@@ -31,18 +32,18 @@ export function getStory(params: Params): Story {
   const allControls = [...sections, ...buttons, ...inputs];
   const localName = params.localName;
   const isNarrow = localName.endsWith('-form') || localName.endsWith('-card');
-  const api = params.api ?? 'admin';
 
   const getTemplate = new Function(
     'args',
     `return args.html\`
-      <foxy-internal-demo-${api}-api class="foxy-story ${isNarrow ? 'foxy-story--narrow' : ''}">
+      <div class="foxy-story ${isNarrow ? 'foxy-story--narrow' : ''}">
         <${params.localName}
           ${interactiveControls.length > 0 ? 'disabledcontrols="${args.disabledControls}"' : ''}
           ${inputs.length > 0 ? 'readonlycontrols="${args.readonlyControls}"' : ''}
           ${allControls.length > 0 ? 'hiddencontrols="${args.hiddenControls}"' : ''}
           ${params.parent ? 'parent=${args.parent}' : ''}
           ${params.href ? 'href=${args.href}' : ''}
+          ${params.base ? 'base=${args.base}' : ''}
           ${params.translatable ? 'lang=${args.lang}' : ''}
           ${allControls.length > 0 ? 'mode="development"' : ''}
           ?disabled=\${args.disabled}
@@ -60,7 +61,7 @@ export function getStory(params: Params): Story {
         </${params.localName}>
         
         ${params.code ? '<pre>${args.code}</pre>' : ''}
-      </foxy-internal-demo-${api}-api>
+      </div>
     \`
   `
   ) as (args: TemplateArgs) => TemplateResult;
@@ -76,6 +77,7 @@ export function getStory(params: Params): Story {
       hidden: !!args.hidden,
       parent: args.parent ?? '',
       href: args.href ?? '',
+      base: args.base ?? '',
       lang: args.lang ?? '',
       code: params.code ? getStoryCode(params, args) : html``,
       html,

@@ -18,4 +18,6 @@ export type Summary = {
   parent?: string;
   /** Sample value for element.href property. */
   href?: string;
+  /** Sample value for element.base property. */
+  base?: string;
 };

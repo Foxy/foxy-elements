@@ -22,6 +22,7 @@ export function getStoryCode(summary: Summary, args: Args): TemplateResult {
       ${hiddenControls.length > 0 ? `hiddencontrols="${hiddenControls.join(' ')}"` : ''}
       ${args.parent ? `parent="${encodeURI(args.parent)}"` : ''}
       ${args.href ? `href="${encodeURI(args.href)}"` : ''}
+      ${args.base ? `base="${encodeURI(args.base)}"` : ''}
       ${args.lang ? `lang="${encodeURI(args.lang)}"` : ''}
       ${args.hidden ? 'hidden' : ''}
       ${args.readonly ? 'readonly' : ''}

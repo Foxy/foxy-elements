@@ -6,7 +6,7 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.foxycart.com/s/customer',
+  base: 'https://demo.foxycart.com/s/customer/',
   localName: 'foxy-customer-portal',
   translatable: true,
   configurable: {
@@ -72,4 +72,4 @@ const summary: Summary = {
 
 export default getMeta(summary);
 
-export const Playground = getStory({ ...summary, code: true, api: 'customer' });
+export const Playground = getStory({ ...summary, code: true });

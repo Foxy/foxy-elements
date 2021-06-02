@@ -13,7 +13,7 @@ import { composeCustomer } from './composers/composeCustomer';
 import { db } from '../../DemoDatabase';
 import { router } from '../../router';
 
-router.get('/s/customer', async ({ request }) => {
+router.get('/s/customer/', async ({ request }) => {
   const authResult = await authorize(request);
   if (typeof authResult !== 'number') return authResult;
 
@@ -26,7 +26,7 @@ router.get('/s/customer', async ({ request }) => {
   return new Response(JSON.stringify(body));
 });
 
-router.patch('/s/customer', async ({ request }) => {
+router.patch('/s/customer/', async ({ request }) => {
   const authResult = await authorize(request);
   if (typeof authResult !== 'number') return authResult;
 

@@ -16,6 +16,18 @@ import '../Spinner/index';
 import '../Customer/index';
 
 import { CustomerPortal } from './CustomerPortal';
+import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
+import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
+
+customElements.define(
+  'foxy-internal-customer-portal-logged-in-view',
+  InternalCustomerPortalLoggedInView
+);
+
+customElements.define(
+  'foxy-internal-customer-portal-logged-out-view',
+  InternalCustomerPortalLoggedOutView
+);
 
 customElements.define('foxy-customer-portal', CustomerPortal);
 

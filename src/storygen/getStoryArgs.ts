@@ -27,6 +27,7 @@ export function getStoryArgs(summary: Summary): Args {
 
   if (summary.parent) args.parent = summary.parent;
   if (summary.href) args.href = summary.href;
+  if (summary.base) args.base = summary.base;
 
   return args;
 }

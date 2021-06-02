@@ -7,5 +7,6 @@ export type Args = { [key: string]: string | undefined } & {
   hidden?: boolean;
   parent?: string;
   href?: string;
+  base?: string;
   lang?: string;
 };

@@ -3,6 +3,7 @@ import { Summary } from './Summary';
 export function getMetaArgTypes(summary: Summary): Record<string, unknown> {
   const argTypes: Record<string, unknown> = {};
 
+  if (summary.base) argTypes.base = { control: { type: 'text' } };
   if (summary.href) argTypes.href = { control: { type: 'text' } };
   if (summary.parent) argTypes.parent = { control: { type: 'text' } };
 

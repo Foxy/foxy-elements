@@ -147,12 +147,12 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       this.__observer.disconnect();
     }
 
-    firstUpdated(...args: Parameters<LitElement['firstUpdated']>): void {
+    protected firstUpdated(...args: Parameters<LitElement['firstUpdated']>): void {
       super.firstUpdated(...args);
       if (this.mode === 'production') this.compileTemplates();
     }
 
-    updated(changes: Map<keyof this, unknown>): void {
+    protected updated(changes: Map<keyof this, unknown>): void {
       super.updated(changes);
 
       if (changes.has('mode')) {
