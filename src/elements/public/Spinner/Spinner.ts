@@ -9,7 +9,7 @@ import {
 
 import { ThemeableMixin } from '../../../mixins/themeable';
 
-export type SpinnerLayout = 'vertical' | 'horizontal';
+export type SpinnerLayout = 'vertical' | 'horizontal' | 'no-label';
 export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
 export class Spinner extends ThemeableMixin(LitElement) {
@@ -100,7 +100,14 @@ export class Spinner extends ThemeableMixin(LitElement) {
     return html`
       <div class="font-lumo leading-none text-s ${layout} ${tint}">
         <div class="w-xxs h-xss flex items-center justify-center">${icon}</div>
-        <foxy-i18n data-testid="text" ns=${this.ns} key=${text} lang=${this.lang}> </foxy-i18n>
+        <foxy-i18n
+          data-testid="text"
+          class=${this.layout === 'no-label' ? 'sr-only' : ''}
+          lang=${this.lang}
+          key=${text}
+          ns=${this.ns}
+        >
+        </foxy-i18n>
       </div>
     `;
   }
