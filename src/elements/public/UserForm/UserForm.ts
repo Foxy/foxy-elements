@@ -36,7 +36,7 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   render(): TemplateResult {
     const ns = UserForm.__ns;
-    if (!this.data) {
+    if (!this.in('idle')) {
       return html`
         <div class="absolute inset-0 flex items-center justify-center">
           <foxy-spinner
