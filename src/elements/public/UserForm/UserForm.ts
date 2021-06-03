@@ -1,3 +1,5 @@
+import * as icons from './icons';
+import memoize from 'lodash-es/memoize';
 import {
   CSSResult,
   CSSResultArray,
@@ -6,13 +8,14 @@ import {
   TemplateResult,
   PropertyDeclarations
 } from 'lit-element';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { NucleonElement } from '../NucleonElement';
-import { Themeable } from '../../../mixins/themeable';
-import { Data } from './types';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import * as icons from './icons';
 import { Checkbox } from '../../private/Checkbox/Checkbox';
+import { Data } from './types';
+import { NucleonElement } from '../NucleonElement';
+import { NucleonV8N } from '../NucleonElement/types';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { validate as isEmail } from 'email-validator';
+import { Themeable } from '../../../mixins/themeable';
 import { ifDefined } from 'lit-html/directives/if-defined';
 
 
