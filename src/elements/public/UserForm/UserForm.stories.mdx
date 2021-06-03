@@ -1,0 +1,37 @@
+import dedent from 'dedent';
+import { html } from 'lit-html';
+import {
+  Canvas,
+  Meta,
+  Story,
+  Subtitle,
+} from  '@web/storybook-prebuilt/addon-docs/blocks.js';
+
+import './index.ts';
+
+<Meta title="Forms / UserForm" />
+
+# User Form
+
+<Subtitle>Form element for creating or editing users</Subtitle>
+
+<Canvas
+  mdxSource={dedent`
+    <foxy-user-form
+      href="https://demo.foxycart.com/s/admin/users/0"
+      >
+    </foxy-user-form>
+  `}
+  isExpanded
+  >
+  <Story name="Playground">
+    {() =>
+      html`
+        <foxy-user-form
+          href="https://demo.foxycart.com/s/admin/users/0"
+        >
+        </foxy-user-form>
+      `
+    }
+  </Story>
+</Canvas>
