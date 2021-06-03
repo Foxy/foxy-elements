@@ -1,16 +1,18 @@
 import {
   CSSResult,
   CSSResultArray,
+  css,
   html,
-  TemplateResult
+  TemplateResult,
+  PropertyDeclarations
 } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { NucleonElement } from '../NucleonElement';
 import { Themeable } from '../../../mixins/themeable';
 import { Data } from './types';
-import { GridElement } from '@vaadin/vaadin-grid';
-import { GridColumnElement } from '@vaadin/vaadin-grid/vaadin-grid-column';
-import { GridSelectionColumnElement } from '@vaadin/vaadin-grid/vaadin-grid-selection-column';
+import { ButtonElement } from '@vaadin/vaadin-button';
+import * as icons from './icons';
+import { Checkbox } from '../../private/Checkbox/Checkbox';
 
 
 export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
@@ -18,10 +20,10 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-spinner': customElements.get('foxy-spinner'),
-      'vaadin-grid': GridElement,
-      'vaadin-grid-column': GridColumnElement,
-      'vaadin-grid-selection-column': GridSelectionColumnElement,
+      'vaadin-button': ButtonElement,
       'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'x-user-role': UserRole,
+      'foxy-i18n': customElements.get('foxy-i18n')
     };
   }
 
@@ -29,7 +31,7 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
     return Themeable.styles;
   }
 
-  private static __ns = 'user';
+  private static __ns = 'user-form';
 
   render(): TemplateResult {
     const ns = UserForm.__ns;
@@ -60,30 +62,32 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
             @hide=${this.__handleConfirmHide}
             >
         </x-confirm-dialog>
-          <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
-            <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" .items=${this.__roles} >
-              <vaadin-text-field label='name.first' value="${this.data.first_name}"></vaadin-text-field>
-              <vaadin-text-field label='name.last' value="${this.data.last_name}"></vaadin-text-field>
-              <vaadin-text-field class="col-span2" label='email' value="${this.data.email}"></vaadin-text-field>
-              <vaadin-text-field class="col-span2" label='phone' value="${this.data.phone}"></vaadin-text-field>
-            </div>
+        <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
+          <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" .items=${this.__roles} >
+            <vaadin-text-field label='name.first' value="${this.data.first_name}"></vaadin-text-field>
+            <vaadin-text-field label='name.last' value="${this.data.last_name}"></vaadin-text-field>
+            <vaadin-text-field class="col-span2" label='email' value="${this.data.email}"></vaadin-text-field>
+            <vaadin-text-field class="col-span2" label='phone' value="${this.data.phone}"></vaadin-text-field>
           </div>
-          <vaadin-grid .items=${this.__roles} >
-            <vaadin-grid-selection-column
-                auto-select
-                >
-            </vaadin-grid-selection-column>
-              <vaadin-grid-column
-                  header=""
-                  .renderer=${this.__renderRoleNameDescripiton.bind(this)}
-                  >
-              </vaadin-grid-column>
-              <vaadin-grid-column
-                  path="icon"
-                  header=""
-                  >
-              </vaadin-grid-column>
-          </vaadin-grid>
+        </div>
+        <div class="my-s">
+          <div><foxy-i18n class="text-secondary text-s" key="roles" ns="${ns}"></foxy-i18n></div>
+          <div class="border rounded-l border-contrast-10 mb-s p-s">
+          ${Object.keys(UserRole.roles).map(r => 
+            html`
+            <x-user-role name="${r}"></x-user-role>
+            `
+          )}
+          </div>
+        </div>
+        <vaadin-button
+            class="w-full"
+            theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+            data-testid="action"
+            >
+            <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
+        </vaadin-button>
+
         `;
     }
   }
@@ -92,38 +96,8 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
     if (!this.data) {
       return [];
     } else {
-      return [
-        {
-          "name": "merchant.name",
-          "description": "merchant.description",
-          "icon": 'merchant.icon'
-        },
-        {
-         "name": "programmer.name",
-          "description": "programmer.description",
-          "icon": 'programmer.icon'
-        },
-        {
-          "name": "frontend.name",
-          "description": "frontend.description",
-          "icon": 'frontend.icon'
-        },
-        {
-          "name": "designer.name",
-          "description": "designer.description",
-          "icon": 'designer.icon'
-        },
-      ]
+      return 
     }
-  }
-
-  private __renderRoleNameDescripiton(root: any, column:any, model:any) {
-    root.innerHTML = 
-    `
-      <div class="text-header">${model.item.name}</div>
-      <div class="text-s text-body">${model.item.description}</div>
-    `
-    ;
   }
 
   private __handleConfirmHide(evt: CustomEvent) {
@@ -132,3 +106,88 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
 }
 
+class UserRole extends Themeable {
+
+  public static roles = {
+    merchant: 
+    {
+      "name": "merchant.name",
+      "description": "merchant.description",
+      "icon": icons.merchant
+    },
+    programmer:
+    {
+      "name": "programmer.name",
+      "description": "programmer.description",
+      "icon": icons.backend
+    },
+    frontend:
+    {
+      "name": "frontend.name",
+      "description": "frontend.description",
+      "icon": icons.frontend
+    },
+    designer:
+    {
+      "name": "designer.name",
+      "description": "designer.description",
+      "icon": icons.designer
+    },
+  };
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      name: {
+        type: String
+      }
+    }
+  }
+
+  public static get scopedElements(): ScopedElementsMap {
+    return {
+      'foxy-i18n': customElements.get('foxy-i18n'),
+      'x-checkbox': Checkbox,
+    };
+  }
+
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles,
+      css`
+        :host(:last-child) .border-b {
+          border: none;
+        }
+        div[data-icon] {
+          width: 18px;
+          height: 18px;
+        }
+      `
+    ]
+  }
+
+  public name: 'merchant'|'programmer'|'frontend'|'designer'|'' = '';
+
+  render() {
+    if (!this.name) {
+      return html``;
+    }
+    const data = UserRole.roles[this.name];
+    return html`
+      <div data-user-form-role class="flex w-full py-s">
+        <x-checkbox ></x-checkbox>
+        <div class="flex-grow flex border-b border-contrast-10 p-0">
+          <div class="flex-grow pb-s">
+            <div class="text-header"><foxy-i18n ns="user-form" key="${data.name}"></foxy-i18n></div>
+            <div class="text-s text-body"><foxy-i18n  ns="user-form" key="${data.description}"></foxy-i18n></div>
+          </div>
+          <div data-icon class="text-body">
+            ${data.icon}
+          </div>
+        </div>
+      </div>
+    `
+    ;
+  }
+
+}
