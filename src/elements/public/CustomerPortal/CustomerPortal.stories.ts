@@ -1,4 +1,3 @@
-import '../../internal/InternalDemoCustomerApi/index';
 import './index';
 
 import { Summary } from '../../../storygen/Summary';
