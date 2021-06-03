@@ -13,6 +13,7 @@ import { Data } from './types';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import * as icons from './icons';
 import { Checkbox } from '../../private/Checkbox/Checkbox';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 
 export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
@@ -64,10 +65,24 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
         </x-confirm-dialog>
         <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
           <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" .items=${this.__roles} >
-            <vaadin-text-field label='name.first' value="${this.data.first_name}"></vaadin-text-field>
-            <vaadin-text-field label='name.last' value="${this.data.last_name}"></vaadin-text-field>
-            <vaadin-text-field class="col-span2" label='email' value="${this.data.email}"></vaadin-text-field>
-            <vaadin-text-field class="col-span2" label='phone' value="${this.data.phone}"></vaadin-text-field>
+            <vaadin-text-field
+              label='name.first'
+              value="${ifDefined(this.form?.first_name?.toString())}"
+              ></vaadin-text-field>
+            <vaadin-text-field
+              label='name.last'
+              value="${ifDefined(this.form?.last_name?.toString())}"
+              ></vaadin-text-field>
+            <vaadin-text-field
+              class="col-span2"
+              label='email'
+              value="${ifDefined(this.form?.email?.toString())}"
+              ></vaadin-text-field>
+            <vaadin-text-field
+              class="col-span2"
+              label='phone'
+              value="${ifDefined(this.form?.phone?.toString())}"
+              ></vaadin-text-field>
           </div>
         </div>
         <div class="my-s">
