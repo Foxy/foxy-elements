@@ -4,11 +4,12 @@ import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
-import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
+import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
 import { composeTransaction } from './composers/composeTransaction';
+import { composeUser } from './composers/composeUser';
 import { getPagination } from './getPagination';
 
 const endpoint = 'https://demo.foxycart.com/s/admin';
@@ -449,6 +450,16 @@ router.delete('/s/admin/customers/:id', async ({ params }) => {
   const body = composeCustomer(await db.customers.get(id));
   await db.customers.delete(id);
 
+  return new Response(JSON.stringify(body));
+});
+
+// users
+router.get('/s/admin/users/:id', async ({ params }) => {
+  await whenDbReady;
+
+  console.log(params);
+  const user = await db.users.get(parseInt(params.id));
+  const body = composeUser(user);
   return new Response(JSON.stringify(body));
 });
 
