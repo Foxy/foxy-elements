@@ -1,0 +1,19 @@
+{
+  "roles": "Roles",
+  "merchant": {
+    "name": "Merchant",
+    "description": "Manages available items, finances and this store in general."
+  },
+  "programmer": {
+    "name": "Backend Developer",
+    "description": "Manages server-side code in PHP, .NET, Python, Java, Ruby, etc."
+  },
+  "frontend": {
+    "name": "Frontend Developer",
+    "description": "Manages client-side code in JS, CSS, HTML, etc."
+  },
+  "designer": {
+    "name": "Designer",
+    "description": "Manages appearance, wireframes, art and user interface."
+  }
+}
