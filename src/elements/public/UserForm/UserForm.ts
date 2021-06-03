@@ -62,21 +62,27 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
         </x-confirm-dialog>
           <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
             <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" .items=${this.__roles} >
-              <vaadin-text-field label='name.first' value="João"></vaadin-text-field>
-              <vaadin-text-field label='name.last' value="João"></vaadin-text-field>
-              <vaadin-text-field class="col-span2" label='email' value="João"></vaadin-text-field>
-              <vaadin-text-field class="col-span2" label='phone' value="João"></vaadin-text-field>
+              <vaadin-text-field label='name.first' value="${this.data.first_name}"></vaadin-text-field>
+              <vaadin-text-field label='name.last' value="${this.data.last_name}"></vaadin-text-field>
+              <vaadin-text-field class="col-span2" label='email' value="${this.data.email}"></vaadin-text-field>
+              <vaadin-text-field class="col-span2" label='phone' value="${this.data.phone}"></vaadin-text-field>
             </div>
           </div>
           <vaadin-grid .items=${this.__roles} >
-            <vaadin-grid-selection-column auto-select>
+            <vaadin-grid-selection-column
+                auto-select
+                >
             </vaadin-grid-selection-column>
-            <vaadin-grid-column path="name">
-            </vaadin-grid-column>
-            <vaadin-grid-column path="description">
-            </vaadin-grid-column>
-            <vaadin-grid-column path="icon">
-            </vaadin-grid-column>
+              <vaadin-grid-column
+                  header=""
+                  .renderer=${this.__renderRoleNameDescripiton.bind(this)}
+                  >
+              </vaadin-grid-column>
+              <vaadin-grid-column
+                  path="icon"
+                  header=""
+                  >
+              </vaadin-grid-column>
           </vaadin-grid>
         `;
     }
@@ -109,6 +115,15 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
         },
       ]
     }
+  }
+
+  private __renderRoleNameDescripiton(root: any, column:any, model:any) {
+    root.innerHTML = 
+    `
+      <div class="text-header">${model.item.name}</div>
+      <div class="text-s text-body">${model.item.description}</div>
+    `
+    ;
   }
 
   private __handleConfirmHide(evt: CustomEvent) {
