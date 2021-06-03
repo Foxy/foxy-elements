@@ -23,7 +23,7 @@ export class CustomerPortal extends ThemeableMixin(CustomerApi) {
     return this.api.storage.getItem(API.SESSION)
       ? html`
           <foxy-internal-customer-portal-logged-in-view
-            disabledcontrols=${this.readonlySelector.toString()}
+            disabledcontrols=${this.disabledSelector.toString()}
             readonlycontrols=${this.readonlySelector.toString()}
             hiddencontrols=${this.hiddenSelector.toString()}
             customer=${this.base}
@@ -36,7 +36,7 @@ export class CustomerPortal extends ThemeableMixin(CustomerApi) {
         `
       : html`
           <foxy-internal-customer-portal-logged-out-view
-            disabledcontrols=${this.readonlySelector.toString()}
+            disabledcontrols=${this.disabledSelector.toString()}
             readonlycontrols=${this.readonlySelector.toString()}
             hiddencontrols=${this.hiddenSelector.toString()}
             group=${this.group}
