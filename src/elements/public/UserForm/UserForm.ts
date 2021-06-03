@@ -48,6 +48,18 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private static __ns = 'user-form';
 
+  private __bindField = memoize((key: keyof Data) => {
+    return (evt: CustomEvent) => {
+      const target = evt.target as HTMLInputElement;
+      this.edit({ [key]: target.value });
+    };
+  });
+
+  private __getValidator = memoize((prefix: string) => () => {
+    return !this.errors.some(err => err.startsWith(prefix));
+  });
+
+
   render(): TemplateResult {
     const ns = UserForm.__ns;
     if (!this.in('idle')) {
@@ -63,6 +75,10 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
         </div>
       `;
     } else {
+      const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
+      const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+      const isDisabled = !this.in('idle');
+      const isValid = isTemplateValid || isSnapshotValid;
       return html`
         <x-confirm-dialog
             message="delete_prompt"
@@ -80,22 +96,30 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
         <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
           <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" .items=${this.__roles} >
             <vaadin-text-field
+              error-message=${this.__getErrorMessage('first_name')}
               label='name.first'
               value="${ifDefined(this.form?.first_name?.toString())}"
+              .checkValidity=${this.__getValidator('first_name')}
+              @change=${this.__bindField('first_name')}
               ></vaadin-text-field>
             <vaadin-text-field
               label='name.last'
               value="${ifDefined(this.form?.last_name?.toString())}"
+              .checkValidity=${this.__getValidator('last_name')}
+              @change=${this.__bindField('last_name')}
               ></vaadin-text-field>
             <vaadin-text-field
               class="col-span2"
               label='email'
               value="${ifDefined(this.form?.email?.toString())}"
+              .checkValidity=${this.__getValidator('email')}
+              @change=${this.__bindField('email')}
               ></vaadin-text-field>
             <vaadin-text-field
               class="col-span2"
               label='phone'
               value="${ifDefined(this.form?.phone?.toString())}"
+              @change=${this.__bindField('phone')}
               ></vaadin-text-field>
           </div>
         </div>
@@ -113,12 +137,21 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
             class="w-full"
             theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
             data-testid="action"
+            ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
             >
             <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
         </vaadin-button>
-
         `;
     }
+  }
+
+  private __getErrorMessage(prefix: string) {
+    const error = this.errors.find(err => err.startsWith(prefix));
+    return error ? this.__t(error.replace(prefix, 'v8n')).toString() : '';
+  }
+
+  private get __t() {
+    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, UserForm.__ns);
   }
 
   private get __roles() {
