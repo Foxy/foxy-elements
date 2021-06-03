@@ -27,7 +27,7 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
     };
   }
 
-  private __storage: 'memory' | 'session' | 'local' = 'local';
+  private __storage: 'session' | 'local' = 'local';
 
   private __level = 0;
 
@@ -88,11 +88,11 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
   }
 
   /** Credentials storage implementing Web Storage API. Access tokens and other related info will be stored here. Defaults to in-memory storage. */
-  get storage(): 'memory' | 'session' | 'local' {
+  get storage(): 'session' | 'local' {
     return this.__storage;
   }
 
-  set storage(value: 'memory' | 'session' | 'local') {
+  set storage(value: 'session' | 'local') {
     this.__storage = value;
     this.__api = this.__createAPIInstance();
   }
@@ -115,19 +115,10 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
   }
 
   private __createAPIInstance() {
-    const storage =
-      typeof this.__storage === 'object'
-        ? this.__storage
-        : this.__storage === 'local'
-        ? localStorage
-        : this.__storage === 'session'
-        ? sessionStorage
-        : undefined;
-
     return new API({
-      level: this.__level,
-      base: new URL(this.__base),
-      ...(storage ? { storage } : undefined),
+      storage: this.storage === 'session' ? sessionStorage : localStorage,
+      level: this.level,
+      base: new URL(this.base),
     });
   }
 
