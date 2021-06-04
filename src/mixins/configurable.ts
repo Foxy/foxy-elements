@@ -3,6 +3,7 @@
 import { Constructor, LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
 type TemplateFunction = typeof html;
@@ -165,8 +166,8 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       const templates = replace ? {} : { ...this.templates };
 
       Array.from(this.children).forEach(child => {
-        const slot = child.getAttribute('slot');
-        if (child.localName !== 'template' || slot === null) return;
+        if (child.localName !== 'template') return;
+        const slot = child.getAttribute('slot') ?? 'default';
 
         try {
           const script = `return html\`${child.innerHTML}\``;
@@ -179,21 +180,26 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       this.templates = templates;
     }
 
-    protected _renderTemplateOrSlot(name: string) {
-      if (!this.templates[name]) return html`<slot name=${name}></slot>`;
+    protected _renderTemplateOrSlot(name?: string) {
+      const templateName = name ?? 'default';
+      const template = this.templates[templateName];
 
-      const render = () => {
-        try {
-          const target = {} as unknown as this;
-          const proxy = new Proxy(target, { get: (_, p) => this[p as keyof this] });
-          return this.templates[name]?.(html, proxy);
-        } catch (err) {
-          console.error(err);
-        }
-      };
+      if (!template) return html`<slot name=${ifDefined(name)}></slot>`;
 
       return html`
-        <foxy-internal-sandbox data-testid=${name} .render=${render}></foxy-internal-sandbox>
+        <foxy-internal-sandbox
+          data-testid=${templateName}
+          .render=${() => {
+            try {
+              const target = {} as unknown as this;
+              const proxy = new Proxy(target, { get: (_, p) => this[p as keyof this] });
+              return template?.(html, proxy);
+            } catch (err) {
+              console.error(err);
+            }
+          }}
+        >
+        </foxy-internal-sandbox>
       `;
     }
 

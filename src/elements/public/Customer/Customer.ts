@@ -771,6 +771,7 @@ export class Customer extends Base<Data> {
           })}
         >
           ${hiddenSelector.matches('header', true) ? '' : this.__renderHeader()}
+          ${this._renderTemplateOrSlot()}
           ${hiddenSelector.matches('addresses', true) ? '' : this.__renderAddresses()}
           ${hiddenSelector.matches('payment-methods', true) ? '' : this.__renderPaymentMethods()}
           ${hiddenSelector.matches('attributes', true) ? '' : this.__renderAttributes()}
