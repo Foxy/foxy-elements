@@ -3,6 +3,7 @@ import { TemplateResult, html } from 'lit-html';
 import { API } from '../NucleonElement/API';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Customer } from '../Customer/Customer';
+import { Templates as CustomerTemplates } from '../Customer/types';
 import { FormDialog } from '..';
 import { FormRendererContext } from '../FormDialog/types';
 import { ItemRenderer } from '../CollectionPage/types';
@@ -11,6 +12,7 @@ import { PageRenderer } from '../CollectionPages/types';
 import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/customer';
 import { Resource } from '@foxy.io/sdk/core';
+import { Templates } from './types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
@@ -28,6 +30,8 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       loggingOutStateResetTimeout: { attribute: false },
     };
   }
+
+  templates: Templates = {};
 
   customer = '';
 
@@ -253,11 +257,11 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     };
 
     return html`
-      <div class="ml-m flex">
+      <div style="display: flex; margin-left: var(--lumo-space-m)">
         ${this._renderTemplateOrSlot(`${scope}:before`)}
 
         <vaadin-button
-          class="px-xs rounded-full flex"
+          style="padding: var(--lumo-space-xs); margin: 0; border-radius: 100%; display: flex"
           theme="icon large"
           ?disabled=${this.disabledSelector.matches(scope) || !isCustomerLoaded || state !== 'idle'}
           @click=${handleClick}
@@ -268,7 +272,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
                 <foxy-spinner
                   layout="no-label"
                   state=${state === 'fail' ? 'error' : 'busy'}
-                  class="m-auto"
+                  style="margin: auto"
                   lang=${this.lang}
                   ns=${this.ns}
                 >
@@ -293,32 +297,37 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       'payment-methods:list:card',
     ];
 
-    return html`
-      ${this._renderTemplateOrSlot('customer:before')}
+    const templates: CustomerTemplates = this._getNestedTemplates('customer');
+    const originalHeaderActionsAfterTemplate = templates['header:actions:after'];
 
+    templates['header:actions:after'] = (html, host) => {
+      const isSignOutHidden = host.hiddenSelector.matches('header:actions:sign-out', true);
+      return html`
+        <div style="display:flex">
+          ${isSignOutHidden ? '' : this.__renderHeaderActionsSignOut()}
+          ${originalHeaderActionsAfterTemplate?.(html, host)}
+        </div>
+      `;
+    };
+
+    return html`
       <foxy-customer
         readonlycontrols=${this.readonlySelector.zoom('customer').toString()}
         disabledcontrols=${this.disabledSelector.zoom('customer').toString()}
-        hiddencontrols=${extendedHiddenControlsArray.join(' ')}
+        hiddencontrols=${extendedHiddenControlsArray.join(' ').trim()}
+        data-testid="customer"
+        group=${this.group}
         href=${this.customer}
         lang=${this.lang}
         id="customer"
-        .templates=${this._getNestedTemplates('customer')}
+        .templates=${templates}
         @update=${() => this.requestUpdate()}
       >
-        <div slot="header:actions:after">
-          ${hiddenSelector.matches('header:actions:sign-out', true)
-            ? ''
-            : this.__renderHeaderActionsSignOut()}
-        </div>
-
-        <div slot="header:after" class="space-y-l mt-m">
+        <div class="space-y-l mt-m">
           ${hiddenSelector.matches('subscriptions', true) ? '' : this.__renderSubscriptions()}
           ${hiddenSelector.matches('transactions', true) ? '' : this.__renderTransactions()}
         </div>
       </foxy-customer>
-
-      ${this._renderTemplateOrSlot('customer:after')}
     `;
   }
 
