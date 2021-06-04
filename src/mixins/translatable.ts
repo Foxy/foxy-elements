@@ -182,7 +182,7 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
 type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
 
 export const TranslatableMixin = <T extends Base>(BaseElement: T, ns: string) => {
-  return class LocalizableElement extends BaseElement {
+  return class TranslatableElement extends BaseElement {
     static get properties(): PropertyDeclarations {
       return { ...super.properties, lang: { type: String } };
     }

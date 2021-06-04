@@ -7,7 +7,7 @@ import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 type Base = Constructor<LitElement> & { styles?: CSSResult | CSSResultArray | CSSStyleSheet };
 
 export const ThemeableMixin = <T extends Base>(BaseElement: T) => {
-  return class ResponsiveElement extends BaseElement {
+  return class ThemeableElement extends BaseElement {
     static get styles(): CSSResult | CSSResultArray {
       const originalCSS = super.styles;
 
