@@ -165,10 +165,10 @@ export class SubscriptionForm extends Base<Data> {
   private readonly __renderHeader = () => {
     return html`
       <div data-testid="header">
-        ${this._renderTemplateOrSlot('header:before')}
+        ${this.renderTemplateOrSlot('header:before')}
         <div class="leading-xs text-xxl font-bold">${this.__renderHeaderTitle()}</div>
         <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>
-        ${this._renderTemplateOrSlot('header:after')}
+        ${this.renderTemplateOrSlot('header:after')}
       </div>
     `;
   };
@@ -176,7 +176,7 @@ export class SubscriptionForm extends Base<Data> {
   private readonly __renderItemsActions = () => {
     return html`
       <div class="flex" data-testid="items:actions">
-        ${this._renderTemplateOrSlot('items:actions:before')}
+        ${this.renderTemplateOrSlot('items:actions:before')}
 
         <foxy-i18n
           data-testid="items:actions-label"
@@ -187,7 +187,7 @@ export class SubscriptionForm extends Base<Data> {
         >
         </foxy-i18n>
 
-        ${this._renderTemplateOrSlot('items:actions:after')}
+        ${this.renderTemplateOrSlot('items:actions:after')}
       </div>
     `;
   };
@@ -242,12 +242,12 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div data-testid="items">
-        ${this._renderTemplateOrSlot('items:before')}
+        ${this.renderTemplateOrSlot('items:before')}
         <x-group frame>
           <div slot="header">${label}</div>
           <div class="divide-y divide-contrast-10 pl-s">${items.map(this.__renderItemsItem)}</div>
         </x-group>
-        ${this._renderTemplateOrSlot('items:after')}
+        ${this.renderTemplateOrSlot('items:after')}
       </div>
     `;
   };
@@ -258,7 +258,7 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('end-date:before')}
+        ${this.renderTemplateOrSlot('end-date:before')}
 
         <foxy-form-dialog
           readonlycontrols=${this.readonlySelector.zoom('end-date:form').toString()}
@@ -273,7 +273,7 @@ export class SubscriptionForm extends Base<Data> {
           lang=${lang}
           id="end-date-form"
           ns=${ns}
-          .templates=${this._getNestedTemplates('end-date:form')}
+          .templates=${this.getNestedTemplates('end-date:form')}
         >
         </foxy-form-dialog>
 
@@ -290,7 +290,7 @@ export class SubscriptionForm extends Base<Data> {
           <foxy-i18n key="end_subscription" ns=${ns} lang=${lang}></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('end-date:after')}
+        ${this.renderTemplateOrSlot('end-date:after')}
       </div>
     `;
   };
@@ -312,7 +312,7 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div data-testid="next-transaction-date">
-        ${this._renderTemplateOrSlot('next-transaction-date:before')}
+        ${this.renderTemplateOrSlot('next-transaction-date:before')}
 
         <x-group frame>
           <foxy-i18n key="next_transaction_date" ns=${ns} lang=${lang} slot="header"></foxy-i18n>
@@ -331,7 +331,7 @@ export class SubscriptionForm extends Base<Data> {
           </foxy-internal-calendar>
         </x-group>
 
-        ${this._renderTemplateOrSlot('next-transaction-date:after')}
+        ${this.renderTemplateOrSlot('next-transaction-date:after')}
       </div>
     `;
   };
@@ -403,11 +403,11 @@ export class SubscriptionForm extends Base<Data> {
   private readonly __renderFrequency = () => {
     return html`
       <div>
-        ${this._renderTemplateOrSlot('frequency:before')}
+        ${this.renderTemplateOrSlot('frequency:before')}
         ${this.settings && this.__frequencies.length > 4
           ? this.__renderFrequencyAsDropdown()
           : this.__renderFrequencyAsRadioList()}
-        ${this._renderTemplateOrSlot('frequency:after')}
+        ${this.renderTemplateOrSlot('frequency:after')}
       </div>
     `;
   };
@@ -452,7 +452,7 @@ export class SubscriptionForm extends Base<Data> {
 
     return html`
       <div data-testid="transactions">
-        ${this._renderTemplateOrSlot('transactions:before')}
+        ${this.renderTemplateOrSlot('transactions:before')}
 
         <x-group frame>
           <foxy-i18n lang=${lang} slot="header" key="transaction_plural" ns=${ns}></foxy-i18n>
@@ -466,7 +466,7 @@ export class SubscriptionForm extends Base<Data> {
           </foxy-collection-pages>
         </x-group>
 
-        ${this._renderTemplateOrSlot('transactions:after')}
+        ${this.renderTemplateOrSlot('transactions:after')}
       </div>
     `;
   };

@@ -63,7 +63,7 @@ export class AccessRecoveryForm extends Base<Data> {
     };
 
     return html`
-      ${this._renderTemplateOrSlot('email:before')}
+      ${this.renderTemplateOrSlot('email:before')}
 
       <vaadin-email-field
         error-message=${emailErrorMessage}
@@ -79,7 +79,7 @@ export class AccessRecoveryForm extends Base<Data> {
       >
       </vaadin-email-field>
 
-      ${this._renderTemplateOrSlot('email:after')}
+      ${this.renderTemplateOrSlot('email:after')}
     `;
   };
 
@@ -90,14 +90,14 @@ export class AccessRecoveryForm extends Base<Data> {
     const key = isFailed ? 'unknown_error' : 'recover_access_success';
 
     return html`
-      ${this._renderTemplateOrSlot('message:before')}
+      ${this.renderTemplateOrSlot('message:before')}
 
       <p class="leading-s flex items-start text-s rounded p-s ${color}">
         <iron-icon class="flex-shrink-0 mr-s" icon=${icon}></iron-icon>
         <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns} data-testid="message"></foxy-i18n>
       </p>
 
-      ${this._renderTemplateOrSlot('message:after')}
+      ${this.renderTemplateOrSlot('message:after')}
     `;
   };
 
@@ -107,7 +107,7 @@ export class AccessRecoveryForm extends Base<Data> {
     const isBusy = this.in('busy');
 
     return html`
-      ${this._renderTemplateOrSlot('submit:before')}
+      ${this.renderTemplateOrSlot('submit:before')}
 
       <vaadin-button
         data-testid="submit"
@@ -119,7 +119,7 @@ export class AccessRecoveryForm extends Base<Data> {
         <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
       </vaadin-button>
 
-      ${this._renderTemplateOrSlot('submit:after')}
+      ${this.renderTemplateOrSlot('submit:after')}
     `;
   };
 

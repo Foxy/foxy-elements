@@ -25,12 +25,15 @@ export class FormDialog extends Dialog {
       ...super.properties,
       href: { type: String },
       form: { type: String, noAccessor: true },
+      group: { type: String },
       parent: { type: String },
     };
   }
 
   /** Optional URL of the collection this resource belongs to (passed to form). */
   parent = '';
+
+  group = '';
 
   /** Optional URL of the resource to load (passed to form). */
   href = '';
@@ -86,6 +89,7 @@ export class FormDialog extends Dialog {
             id="form"
             href=\${options.dialog.href}
             lang=\${options.dialog.lang}
+            group=\${options.dialog.group}
             parent=\${options.dialog.parent}
             disabledcontrols=\${options.dialog.disabledControls.toString()}
             readonlycontrols=\${options.dialog.readonlyControls.toString()}

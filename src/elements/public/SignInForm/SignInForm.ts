@@ -56,7 +56,7 @@ export class SignInForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('email:before')}
+        ${this.renderTemplateOrSlot('email:before')}
 
         <vaadin-email-field
           error-message=${emailErrorMessage}
@@ -76,7 +76,7 @@ export class SignInForm extends Base<Data> {
         >
         </vaadin-email-field>
 
-        ${this._renderTemplateOrSlot('email:after')}
+        ${this.renderTemplateOrSlot('email:after')}
       </div>
     `;
   };
@@ -92,7 +92,7 @@ export class SignInForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('password:before')}
+        ${this.renderTemplateOrSlot('password:before')}
 
         <vaadin-password-field
           error-message=${passwordErrorMessage}
@@ -112,7 +112,7 @@ export class SignInForm extends Base<Data> {
         >
         </vaadin-password-field>
 
-        ${this._renderTemplateOrSlot('password:after')}
+        ${this.renderTemplateOrSlot('password:after')}
       </div>
     `;
   };
@@ -120,7 +120,7 @@ export class SignInForm extends Base<Data> {
   private readonly __renderError = () => {
     return html`
       <div>
-        ${this._renderTemplateOrSlot('error:before')}
+        ${this.renderTemplateOrSlot('error:before')}
 
         <p class="leading-s flex items-start text-s rounded p-s bg-error-10 text-error">
           <iron-icon class="flex-shrink-0 mr-s" icon="lumo:error"></iron-icon>
@@ -128,7 +128,7 @@ export class SignInForm extends Base<Data> {
           </foxy-i18n>
         </p>
 
-        ${this._renderTemplateOrSlot('error:after')}
+        ${this.renderTemplateOrSlot('error:after')}
       </div>
     `;
   };
@@ -142,7 +142,7 @@ export class SignInForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('submit:before')}
+        ${this.renderTemplateOrSlot('submit:before')}
 
         <vaadin-button
           data-testid="submit"
@@ -154,7 +154,7 @@ export class SignInForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="sign_in"></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('submit:after')}
+        ${this.renderTemplateOrSlot('submit:after')}
       </div>
     `;
   };

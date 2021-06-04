@@ -28,7 +28,7 @@ export class AttributeCard extends Base<Data> {
     const { data } = this;
 
     return html`
-      ${this._renderTemplateOrSlot('name:before')}
+      ${this.renderTemplateOrSlot('name:before')}
 
       <div class="flex items-center space-x-xs text-xxs text-secondary">
         <div
@@ -44,7 +44,7 @@ export class AttributeCard extends Base<Data> {
           : ''}
       </div>
 
-      ${this._renderTemplateOrSlot('name:after')}
+      ${this.renderTemplateOrSlot('name:after')}
     `;
   };
 
@@ -52,11 +52,11 @@ export class AttributeCard extends Base<Data> {
     const { data } = this;
 
     return html`
-      ${this._renderTemplateOrSlot('value:before')}
+      ${this.renderTemplateOrSlot('value:before')}
       <div class="truncate" title=${data?.value ?? ''} data-testid="value">
         ${data?.value ?? html`&nbsp;`}
       </div>
-      ${this._renderTemplateOrSlot('value:after')}
+      ${this.renderTemplateOrSlot('value:after')}
     `;
   };
 

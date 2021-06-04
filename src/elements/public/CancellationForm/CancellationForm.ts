@@ -56,7 +56,7 @@ export class CancellationForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('warning:before')}
+        ${this.renderTemplateOrSlot('warning:before')}
 
         <x-warning>
           <foxy-i18n
@@ -69,7 +69,7 @@ export class CancellationForm extends Base<Data> {
           </foxy-i18n>
         </x-warning>
 
-        ${this._renderTemplateOrSlot('warning:after')}
+        ${this.renderTemplateOrSlot('warning:after')}
       </div>
     `;
   };
@@ -81,7 +81,7 @@ export class CancellationForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('end-date:before')}
+        ${this.renderTemplateOrSlot('end-date:before')}
 
         <x-group frame>
           <foxy-i18n
@@ -108,7 +108,7 @@ export class CancellationForm extends Base<Data> {
           </foxy-internal-calendar>
         </x-group>
 
-        ${this._renderTemplateOrSlot('end-date:after')}
+        ${this.renderTemplateOrSlot('end-date:after')}
       </div>
     `;
   };
@@ -120,7 +120,7 @@ export class CancellationForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('submit:before')}
+        ${this.renderTemplateOrSlot('submit:before')}
 
         <vaadin-button
           data-testid="submit"
@@ -132,7 +132,7 @@ export class CancellationForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="end_subscription"></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('submit:after')}
+        ${this.renderTemplateOrSlot('submit:after')}
       </div>
     `;
   };

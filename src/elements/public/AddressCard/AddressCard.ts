@@ -40,7 +40,7 @@ export class AddressCard extends Base<Data> {
 
     return html`
       <div class="mb-s leading-none">
-        ${this._renderTemplateOrSlot('address-name:before')}
+        ${this.renderTemplateOrSlot('address-name:before')}
 
         <span class="uppercase text-xxs font-medium text-secondary tracking-wider">
           ${isDefaultBilling || isDefaultShipping
@@ -57,7 +57,7 @@ export class AddressCard extends Base<Data> {
           &ZeroWidthSpace;
         </span>
 
-        ${this._renderTemplateOrSlot('address-name:after')}
+        ${this.renderTemplateOrSlot('address-name:after')}
       </div>
     `;
   };
@@ -65,7 +65,7 @@ export class AddressCard extends Base<Data> {
   private readonly __renderLine = (id: string, icon: string, text: TemplateResult) => {
     return html`
       <p>
-        ${this._renderTemplateOrSlot(`${id}:before`)}
+        ${this.renderTemplateOrSlot(`${id}:before`)}
 
         <span class="flex items-center text-m space-x-s">
           <iron-icon icon=${icon} class="icon-inline flex-shrink-0"></iron-icon>
@@ -73,7 +73,7 @@ export class AddressCard extends Base<Data> {
           &ZeroWidthSpace;
         </span>
 
-        ${this._renderTemplateOrSlot(`${id}:after`)}
+        ${this.renderTemplateOrSlot(`${id}:after`)}
       </p>
     `;
   };

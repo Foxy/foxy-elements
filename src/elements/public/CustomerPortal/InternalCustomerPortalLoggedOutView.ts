@@ -30,7 +30,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
 
     return html`
       <div class="flex flex-col leading-m font-lumo" data-testid="access-recovery:header">
-        ${this._renderTemplateOrSlot('access-recovery:header:before')}
+        ${this.renderTemplateOrSlot('access-recovery:header:before')}
 
         <foxy-i18n
           class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
@@ -48,7 +48,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
         >
         </foxy-i18n>
 
-        ${this._renderTemplateOrSlot('access-recovery:header:after')}
+        ${this.renderTemplateOrSlot('access-recovery:header:after')}
       </div>
     `;
   };
@@ -60,7 +60,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('access-recovery:back:before')}
+        ${this.renderTemplateOrSlot('access-recovery:back:before')}
 
         <vaadin-button
           data-testid="access-recovery:back"
@@ -72,7 +72,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="cancel"></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('access-recovery:back:after')}
+        ${this.renderTemplateOrSlot('access-recovery:back:after')}
       </div>
     `;
   };
@@ -83,7 +83,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot(`${scope}:before`)}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <foxy-access-recovery-form
           readonlycontrols=${this.readonlySelector.zoom(scope).toString()}
@@ -94,12 +94,12 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           group=${this.group}
           lang=${this.lang}
           id="access-recovery-form"
-          .templates=${this._getNestedTemplates(scope)}
+          .templates=${this.getNestedTemplates(scope)}
           @update=${() => this.requestUpdate()}
         >
         </foxy-access-recovery-form>
 
-        ${this._renderTemplateOrSlot(`${scope}:after`)}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -113,7 +113,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
         data-testid="access-recovery"
         class="mx-auto max-w-20rem flex items-center justify-center"
       >
-        ${this._renderTemplateOrSlot(`${scope}:before`)}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
         <div class="space-y-l">
           ${hiddenSelector.matches('header', true) ? '' : this.__renderAccessRecoveryHeader()}
           <div class="space-y-s">
@@ -121,7 +121,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
             ${hiddenSelector.matches('back', true) ? '' : this.__renderAccessRecoveryBack()}
           </div>
         </div>
-        ${this._renderTemplateOrSlot(`${scope}:after`)}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -134,7 +134,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
 
     return html`
       <div class="flex flex-col leading-m font-lumo" data-testid="sign-in:header">
-        ${this._renderTemplateOrSlot('sign-in:header:before')}
+        ${this.renderTemplateOrSlot('sign-in:header:before')}
 
         <foxy-i18n
           class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
@@ -152,7 +152,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
         >
         </foxy-i18n>
 
-        ${this._renderTemplateOrSlot('sign-in:header:after')}
+        ${this.renderTemplateOrSlot('sign-in:header:after')}
       </div>
     `;
   };
@@ -163,7 +163,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('sign-in:recover:before')}
+        ${this.renderTemplateOrSlot('sign-in:recover:before')}
 
         <vaadin-button
           data-testid="sign-in:recover"
@@ -175,7 +175,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="recover_access"></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('sign-in:recover:after')}
+        ${this.renderTemplateOrSlot('sign-in:recover:after')}
       </div>
     `;
   };
@@ -186,7 +186,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot(`${scope}:before`)}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <foxy-sign-in-form
           readonlycontrols=${this.readonlySelector.zoom(scope).toString()}
@@ -197,12 +197,12 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           group=${this.group}
           lang=${this.lang}
           id="sign-in-form"
-          .templates=${this._getNestedTemplates('sign-in:form')}
+          .templates=${this.getNestedTemplates('sign-in:form')}
           @update=${() => this.requestUpdate()}
         >
         </foxy-sign-in-form>
 
-        ${this._renderTemplateOrSlot(`${scope}:after`)}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -213,7 +213,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
 
     return html`
       <div class="mx-auto max-w-20rem flex items-center justify-center" data-testid="sign-in">
-        ${this._renderTemplateOrSlot(`${scope}:before`)}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
         <div class="space-y-l">
           ${hiddenSelector.matches('header', true) ? '' : this.__renderSignInHeader()}
           <div class="space-y-s">
@@ -221,7 +221,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
             ${hiddenSelector.matches('recover', true) ? '' : this.__renderSignInRecover()}
           </div>
         </div>
-        ${this._renderTemplateOrSlot(`${scope}:after`)}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };

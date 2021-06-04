@@ -56,7 +56,7 @@ export class PaymentMethodCard extends Base<Data> {
   private readonly __renderActionsDelete = () => {
     return html`
       <div class="flex">
-        ${this._renderTemplateOrSlot('actions:delete:before')}
+        ${this.renderTemplateOrSlot('actions:delete:before')}
 
         <vaadin-button
           class="px-xs rounded"
@@ -70,7 +70,7 @@ export class PaymentMethodCard extends Base<Data> {
           <iron-icon icon="icons:delete"></iron-icon>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('actions:delete:after')}
+        ${this.renderTemplateOrSlot('actions:delete:after')}
       </div>
     `;
   };
@@ -78,9 +78,9 @@ export class PaymentMethodCard extends Base<Data> {
   private readonly __renderActions = () => {
     return html`
       <div class="flex" data-testid="actions">
-        ${this._renderTemplateOrSlot('actions:before')}
+        ${this.renderTemplateOrSlot('actions:before')}
         ${this.hiddenSelector.matches('actions:delete', true) ? '' : this.__renderActionsDelete()}
-        ${this._renderTemplateOrSlot('actions:after')}
+        ${this.renderTemplateOrSlot('actions:after')}
       </div>
     `;
   };

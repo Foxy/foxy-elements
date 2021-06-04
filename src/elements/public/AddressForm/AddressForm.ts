@@ -124,7 +124,7 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot(`${bsid}:before`)}
+        ${this.renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-combo-box
           class="w-full"
@@ -143,7 +143,7 @@ export class AddressForm extends Base<Data> {
         >
         </vaadin-combo-box>
 
-        ${this._renderTemplateOrSlot(`${bsid}:after`)}
+        ${this.renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -155,7 +155,7 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div class=${classMap({ 'col-span-2': wide })}>
-        ${this._renderTemplateOrSlot(`${bsid}:before`)}
+        ${this.renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-text-field
           class="w-full"
@@ -172,7 +172,7 @@ export class AddressForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        ${this._renderTemplateOrSlot(`${bsid}:after`)}
+        ${this.renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -185,9 +185,9 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('timestamps:before')}
+        ${this.renderTemplateOrSlot('timestamps:before')}
         <x-property-table .items=${items} data-testid="timestamps"></x-property-table>
-        ${this._renderTemplateOrSlot('timestamps:after')}
+        ${this.renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
   };
@@ -203,7 +203,7 @@ export class AddressForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot(`${action}:before`)}
+        ${this.renderTemplateOrSlot(`${action}:before`)}
 
         <vaadin-button
           class="w-full"
@@ -215,7 +215,7 @@ export class AddressForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} key=${action} lang=${this.lang}></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot(`${action}:after`)}
+        ${this.renderTemplateOrSlot(`${action}:after`)}
       </div>
     `;
   };

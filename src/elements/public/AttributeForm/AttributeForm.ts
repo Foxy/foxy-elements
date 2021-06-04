@@ -86,7 +86,7 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot(`${bsid}:before`)}
+        ${this.renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-text-field
           class="w-full"
@@ -102,7 +102,7 @@ export class AttributeForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        ${this._renderTemplateOrSlot(`${bsid}:after`)}
+        ${this.renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -114,7 +114,7 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('visibility:before')}
+        ${this.renderTemplateOrSlot('visibility:before')}
 
         <x-group frame>
           <foxy-i18n
@@ -148,7 +148,7 @@ export class AttributeForm extends Base<Data> {
           </x-choice>
         </x-group>
 
-        ${this._renderTemplateOrSlot('visibility:after')}
+        ${this.renderTemplateOrSlot('visibility:after')}
       </div>
     `;
   };
@@ -161,9 +161,9 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('timestamps:before')}
+        ${this.renderTemplateOrSlot('timestamps:before')}
         <x-property-table .items=${items} data-testid="timestamps"></x-property-table>
-        ${this._renderTemplateOrSlot('timestamps:after')}
+        ${this.renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
   };
@@ -171,7 +171,7 @@ export class AttributeForm extends Base<Data> {
   private readonly __renderDelete = () => {
     return html`
       <div>
-        ${this._renderTemplateOrSlot('delete:before')}
+        ${this.renderTemplateOrSlot('delete:before')}
 
         <vaadin-button
           class="w-full"
@@ -183,7 +183,7 @@ export class AttributeForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="delete"></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('delete:after')}
+        ${this.renderTemplateOrSlot('delete:after')}
       </div>
     `;
   };
@@ -195,7 +195,7 @@ export class AttributeForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('create:before')}
+        ${this.renderTemplateOrSlot('create:before')}
 
         <vaadin-button
           data-testid="create"
@@ -207,7 +207,7 @@ export class AttributeForm extends Base<Data> {
           <foxy-i18n ns=${this.ns} lang=${this.lang} key="create"></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot('create:after')}
+        ${this.renderTemplateOrSlot('create:after')}
       </div>
     `;
   };

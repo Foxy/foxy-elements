@@ -104,7 +104,7 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
 
   render(): TemplateResult {
     return html`
-      ${this._renderTemplateOrSlot(this.isLoggedIn ? 'logged-in' : 'logged-out')}
+      ${this.renderTemplateOrSlot(this.isLoggedIn ? 'logged-in' : 'logged-out')}
       <slot></slot>
     `;
   }

@@ -180,30 +180,38 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       this.templates = templates;
     }
 
-    protected _renderTemplateOrSlot(name?: string) {
+    /**
+     * Renders a template with the given name if available and a slot otherwise.
+     * For empty name looks for a "default" template first and renders it if found – otherwise renders a default slot.
+     *
+     * @param name Name of the template/slot to render.
+     * @param __noSandbox INTERNAL - if true, doesn't isolate template content in a sandbox.
+     */
+    renderTemplateOrSlot(name?: string, __noSandbox = false) {
       const templateName = name ?? 'default';
       const template = this.templates[templateName];
 
       if (!template) return html`<slot name=${ifDefined(name)}></slot>`;
 
+      const renderer = () => {
+        try {
+          const target = {} as unknown as this;
+          const proxy = new Proxy(target, { get: (_, p) => this[p as keyof this] });
+          return template?.(html, proxy);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+
+      if (__noSandbox) return renderer();
+
       return html`
-        <foxy-internal-sandbox
-          data-testid=${templateName}
-          .render=${() => {
-            try {
-              const target = {} as unknown as this;
-              const proxy = new Proxy(target, { get: (_, p) => this[p as keyof this] });
-              return template?.(html, proxy);
-            } catch (err) {
-              console.error(err);
-            }
-          }}
-        >
+        <foxy-internal-sandbox data-testid=${templateName} .render=${renderer}>
         </foxy-internal-sandbox>
       `;
     }
 
-    protected _getNestedTemplates<T extends Partial<Record<string, Renderer<any>>>>(id: string): T {
+    getNestedTemplates<T extends Partial<Record<string, Renderer<any>>>>(id: string): T {
       const nestedTemplates = {} as T;
 
       Object.entries(this.templates).forEach(([key, value]) => {

@@ -86,7 +86,7 @@ export class CustomerForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot(`${bsid}:before`)}
+        ${this.renderTemplateOrSlot(`${bsid}:before`)}
 
         <vaadin-text-field
           class="w-full"
@@ -102,7 +102,7 @@ export class CustomerForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        ${this._renderTemplateOrSlot(`${bsid}:after`)}
+        ${this.renderTemplateOrSlot(`${bsid}:after`)}
       </div>
     `;
   };
@@ -110,7 +110,7 @@ export class CustomerForm extends Base<Data> {
   private __renderTimestamps = () => {
     return html`
       <div>
-        ${this._renderTemplateOrSlot('timestamps:before')}
+        ${this.renderTemplateOrSlot('timestamps:before')}
 
         <x-property-table
           data-testid="timestamps"
@@ -121,7 +121,7 @@ export class CustomerForm extends Base<Data> {
         >
         </x-property-table>
 
-        ${this._renderTemplateOrSlot('timestamps:after')}
+        ${this.renderTemplateOrSlot('timestamps:after')}
       </div>
     `;
   };
@@ -145,7 +145,7 @@ export class CustomerForm extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot(`${action}:before`)}
+        ${this.renderTemplateOrSlot(`${action}:before`)}
 
         <vaadin-button
           class="w-full"
@@ -157,7 +157,7 @@ export class CustomerForm extends Base<Data> {
           <foxy-i18n ns=${ns} key=${action} lang=${lang}></foxy-i18n>
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot(`${action}:after`)}
+        ${this.renderTemplateOrSlot(`${action}:after`)}
       </div>
     `;
   };
