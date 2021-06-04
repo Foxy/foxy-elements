@@ -36,8 +36,12 @@ const summary: Summary = {
       'customer:subscriptions:header',
       'customer:subscriptions:list',
       'customer:subscriptions:list:form:header',
+      'customer:subscriptions:list:form:header:actions',
+      'customer:subscriptions:list:form:header:actions:update',
+      'customer:subscriptions:list:form:header:actions:end',
       'customer:subscriptions:list:form:items',
       'customer:subscriptions:list:form:items:actions',
+      'customer:subscriptions:list:form:items:actions:update',
       'customer:subscriptions:list:form:transactions',
     ],
     buttons: [

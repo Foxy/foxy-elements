@@ -1,7 +1,7 @@
+import { ConfigurableMixin, Renderer } from '../../../mixins/configurable';
 import { TemplateResult, html } from 'lit-html';
 
 import { API } from '../NucleonElement/API';
-import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Customer } from '../Customer/Customer';
 import { Templates as CustomerTemplates } from '../Customer/types';
 import { FormDialog } from '..';
@@ -12,10 +12,12 @@ import { PageRenderer } from '../CollectionPages/types';
 import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/customer';
 import { Resource } from '@foxy.io/sdk/core';
+import { SubscriptionForm } from '../SubscriptionForm';
 import { Templates } from './types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 const NS = 'customer-portal';
 const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
@@ -39,72 +41,148 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
   loggingOutStateResetTimeout: NodeJS.Timeout | null = null;
 
-  private readonly __renderSubscriptionsForm = (ctx: FormRendererContext) => {
+  private readonly __renderSubscriptionsFormHeaderActionsUpdate: Renderer<SubscriptionForm> = (
+    html,
+    host
+  ) => {
     const customer = this.__customerElement;
+    let billingLink = '';
 
-    let updateBillingLink = '';
-    let updateItemsLink = '';
+    if (customer?.in({ idle: 'snapshot' })) {
+      const link = (customer.data._links['fx:sub_token_url'] as any).href as string;
+
+      const updateBillingURL = new URL(link);
+
+      updateBillingURL.searchParams.set('cart', 'checkout');
+      updateBillingURL.searchParams.set('sub_restart', 'auto');
+      billingLink = updateBillingURL.toString();
+    }
+
+    return html`
+      ${host.renderTemplateOrSlot('header:actions:update:before')}
+
+      <foxy-internal-customer-portal-link href=${billingLink} icon="icons:credit-card">
+        <foxy-i18n lang=${host.lang} key="update_billing"></foxy-i18n>
+      </foxy-internal-customer-portal-link>
+
+      ${host.renderTemplateOrSlot('header:actions:update:after')}
+    `;
+  };
+
+  private readonly __renderSubscriptionsFormHeaderActionsEnd: Renderer<SubscriptionForm> = (
+    html,
+    host
+  ) => {
+    const customer = this.__customerElement;
     let cancelLink = '';
 
     if (customer?.in({ idle: 'snapshot' })) {
       const link = (customer.data._links['fx:sub_token_url'] as any).href as string;
       const cancelURL = new URL(link);
-      const updateBillingURL = new URL(link);
 
       cancelURL.searchParams.set('sub_cancel', 'true');
       cancelLink = cancelURL.toString();
-
-      updateBillingURL.searchParams.set('cart', 'checkout');
-      updateBillingURL.searchParams.set('sub_restart', 'auto');
-      updateBillingLink = updateBillingURL.toString();
-
-      updateItemsLink = (customer.data._links['fx:sub_modification_url'] as any).href as string;
     }
+
+    return html`
+      ${host.renderTemplateOrSlot('header:actions:end:before')}
+
+      <foxy-internal-customer-portal-link href=${cancelLink} icon="icons:block">
+        <foxy-i18n lang=${host.lang} key="end_subscription"></foxy-i18n>
+      </foxy-internal-customer-portal-link>
+
+      ${host.renderTemplateOrSlot('header:actions:end:after')}
+    `;
+  };
+
+  private readonly __renderSubscriptionsFormHeaderActions: Renderer<SubscriptionForm> = (
+    html,
+    host
+  ) => {
+    const isUpdateActionHidden = host.hiddenSelector.matches('header:actions:update');
+    const isEndActionHidden = host.hiddenSelector.matches('header:actions:end');
+
+    return html`
+      <style>
+        main {
+          display: flex;
+          justify-content: space-between;
+          padding-top: var(--lumo-space-xs);
+          margin-top: var(--lumo-space-s);
+          border-top: 1px solid var(--lumo-contrast-10pct);
+          color: var(--lumo-secondary-color);
+        }
+      </style>
+
+      ${host.renderTemplateOrSlot('header:actions:before')}
+
+      <main>
+        ${isUpdateActionHidden ? '' : this.__renderSubscriptionsFormHeaderActionsUpdate(html, host)}
+        ${isEndActionHidden ? '' : this.__renderSubscriptionsFormHeaderActionsEnd(html, host)}
+      </main>
+
+      ${host.renderTemplateOrSlot('header:actions:after')}
+    `;
+  };
+
+  private readonly __renderSubscriptionsFormItemsActionsUpdate: Renderer<SubscriptionForm> = (
+    html,
+    host
+  ) => {
+    const customer = this.__customerElement;
+    let itemsLink = '';
+
+    if (customer?.in({ idle: 'snapshot' })) {
+      itemsLink = customer.data._links['fx:sub_modification_url'].href;
+    }
+
+    return html`
+      ${host.renderTemplateOrSlot('items:actions:update:before')}
+
+      <foxy-internal-customer-portal-link class="text-primary" href=${itemsLink}>
+        <foxy-i18n lang=${host.lang} key="update_items"></foxy-i18n>
+      </foxy-internal-customer-portal-link>
+
+      ${host.renderTemplateOrSlot('items:actions:update:after')}
+    `;
+  };
+
+  private readonly __renderSubscriptionsForm = (ctx: FormRendererContext) => {
+    const templates = { ...ctx.dialog.templates };
+    const originalHeaderAfterRenderer = templates['header:after'];
+    const originalItemsActionsAfterRenderer = templates['items:actions:after'];
+
+    templates['header:after'] = (html, host) => {
+      const actionsHidden = host.hiddenSelector.matches('header:actions', true);
+      return html`
+        ${actionsHidden ? '' : this.__renderSubscriptionsFormHeaderActions(html, host)}
+        ${originalHeaderAfterRenderer?.(html, host)}
+      `;
+    };
+
+    templates['items:actions:after'] = (html, host) => {
+      const updateHidden = host.hiddenSelector.matches('items:actions:update', true);
+      return html`
+        ${updateHidden ? '' : this.__renderSubscriptionsFormItemsActionsUpdate(html, host)}
+        ${originalItemsActionsAfterRenderer?.(html, host)}
+      `;
+    };
 
     return html`
       <foxy-subscription-form
         disabledcontrols=${ctx.dialog.disabledControls.toString()}
         readonlycontrols=${ctx.dialog.readonlyControls.toString()}
-        hiddencontrols="end-button ${ctx.dialog.hiddenControls.toString()}"
+        hiddencontrols=${ctx.dialog.hiddenControls.toString()}
         settings=${JSON.stringify(this.data)}
         parent=${ctx.dialog.parent}
+        group=${ctx.dialog.group}
         lang=${ctx.dialog.lang}
         href=${ctx.dialog.href}
         id="form"
-        ?disabled=${ctx.dialog.disabled}
-        ?readonly=${ctx.dialog.readonly}
-        ?hidden=${ctx.dialog.hidden}
+        .templates=${templates}
         @update=${ctx.handleUpdate}
         @fetch=${ctx.handleFetch}
       >
-        <div slot="header:after" class="space-x-s flex mt-s pt-xs border-t border-contrast-10">
-          <a
-            class="flex-auto font-medium tracking-wide cursor-pointer text-secondary text-s rounded-s hover-text-primary focus-text-primary focus-outline-none focus-ring-2 focus-ring-primary-50 focus-ring-offset-2"
-            href=${updateBillingLink}
-            rel="nofollow noopener"
-          >
-            <iron-icon icon="icons:credit-card" class="icon-inline"></iron-icon>
-            <foxy-i18n key="update_billing" lang=${ctx.dialog.lang}></foxy-i18n>
-          </a>
-
-          <a
-            class="flex-auto text-right font-medium tracking-wide cursor-pointer text-secondary text-s rounded-s hover-text-primary focus-text-primary focus-outline-none focus-ring-2 focus-ring-tertiary-50 focus-ring-offset-2"
-            href=${cancelLink}
-            rel="nofollow noopener"
-          >
-            <iron-icon icon="icons:block" class="icon-inline"></iron-icon>
-            <foxy-i18n lang=${ctx.dialog.lang} key="end_subscription"></foxy-i18n>
-          </a>
-        </div>
-
-        <a
-          class="flex-auto text-right font-medium tracking-wide cursor-pointer text-primary text-s rounded-s hover-text-primary-50 focus-outline-none focus-ring-2 focus-ring-tertiary-50 focus-ring-offset-2"
-          slot="items:actions:after"
-          href=${updateItemsLink}
-          rel="nofollow noopener"
-        >
-          <foxy-i18n key="update_items" lang=${ctx.dialog.lang}></foxy-i18n>
-        </a>
       </foxy-subscription-form>
     `;
   };
@@ -113,8 +191,8 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     return html`
       <button
         class=${classMap({
-          'block w-full border border-contrast-10 p-m rounded-t-l rounded-b-l focus-outline-none focus-border-primary':
-            true,
+          'block w-full border border-contrast-10 p-m rounded-t-l rounded-b-l': true,
+          'focus-outline-none focus-border-primary': true,
           'hover-border-contrast-30': ctx.data !== null,
         })}
         ?disabled=${ctx.data === null}
@@ -151,7 +229,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
   private readonly __renderSubscriptionsHeader = () => {
     return html`
-      ${this._renderTemplateOrSlot('customer:subscriptions:header:before')}
+      ${this.renderTemplateOrSlot('customer:subscriptions:header:before')}
 
       <foxy-i18n
         class="block text-l font-medium tracking-wide"
@@ -161,7 +239,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       >
       </foxy-i18n>
 
-      ${this._renderTemplateOrSlot('customer:subscriptions:header:after')}
+      ${this.renderTemplateOrSlot('customer:subscriptions:header:after')}
     `;
   };
 
@@ -172,18 +250,20 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     const extendedHiddenControlsArray = [hiddenSelector.zoom('form').toString(), 'end-date'];
 
     return html`
-      ${this._renderTemplateOrSlot('customer:subscriptions:list:before')}
+      ${this.renderTemplateOrSlot('customer:subscriptions:list:before')}
 
       <foxy-form-dialog
         readonlycontrols=${readonlySelector.zoom('form').toString()}
         disabledcontrols=${disabledSelector.zoom('form').toString()}
         hiddencontrols=${extendedHiddenControlsArray.join(' ').trim()}
         header="update"
+        parent=${ifDefined(this.__customerElement?.data?._links['fx:subscriptions'].href)}
         group=${this.group}
         lang=${this.lang}
         ns=${this.ns}
         id="subscription-dialog"
         .form=${this.__renderSubscriptionsForm}
+        .templates=${this.getNestedTemplates('customer:subscriptions:list:form')}
       >
       </foxy-form-dialog>
 
@@ -197,7 +277,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       >
       </foxy-collection-pages>
 
-      ${this._renderTemplateOrSlot('customer:subscriptions:list:after')}
+      ${this.renderTemplateOrSlot('customer:subscriptions:list:after')}
     `;
   };
 
@@ -205,21 +285,21 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('customer:subscriptions');
 
     return html`
-      ${this._renderTemplateOrSlot('customer:subscriptions:before')}
+      ${this.renderTemplateOrSlot('customer:subscriptions:before')}
 
       <div class="space-y-m pt-m border-t-4 border-contrast-5" data-testid="subscriptions">
         ${hiddenSelector.matches('header', true) ? '' : this.__renderSubscriptionsHeader()}
         ${hiddenSelector.matches('list', true) ? '' : this.__renderSubscriptionsList()}
       </div>
 
-      ${this._renderTemplateOrSlot('customer:subscriptions:after')}
+      ${this.renderTemplateOrSlot('customer:subscriptions:after')}
     `;
   };
 
   private readonly __renderTransactionsHeader = () => {
     return html`
       <div>
-        ${this._renderTemplateOrSlot('customer:transactions:header:before')}
+        ${this.renderTemplateOrSlot('customer:transactions:header:before')}
 
         <foxy-i18n
           class="text-l font-medium tracking-wide"
@@ -229,7 +309,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         >
         </foxy-i18n>
 
-        ${this._renderTemplateOrSlot('customer:transactions:header:after')}
+        ${this.renderTemplateOrSlot('customer:transactions:header:after')}
       </div>
     `;
   };
@@ -247,7 +327,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
     return html`
       <div>
-        ${this._renderTemplateOrSlot('customer:transactions:list:before')}
+        ${this.renderTemplateOrSlot('customer:transactions:list:before')}
 
         <foxy-collection-pages
           spinner="foxy-spinner"
@@ -260,7 +340,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         >
         </foxy-collection-pages>
 
-        ${this._renderTemplateOrSlot('customer:transactions:list:after')}
+        ${this.renderTemplateOrSlot('customer:transactions:list:after')}
       </div>
     `;
   };
@@ -269,14 +349,14 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     const hiddenSelector = this.hiddenSelector.zoom('customer:transactions');
 
     return html`
-      ${this._renderTemplateOrSlot('customer:transactions:before')}
+      ${this.renderTemplateOrSlot('customer:transactions:before')}
 
       <div class="space-y-m pt-m border-t-4 border-contrast-5" data-testid="transactions">
         ${hiddenSelector.matches('header') ? '' : this.__renderTransactionsHeader()}
         ${hiddenSelector.matches('list') ? '' : this.__renderTransactionsList()}
       </div>
 
-      ${this._renderTemplateOrSlot('customer:transactions:after')}
+      ${this.renderTemplateOrSlot('customer:transactions:after')}
     `;
   };
 
@@ -300,7 +380,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
     return html`
       <div style="display: flex; margin-left: var(--lumo-space-m)">
-        ${this._renderTemplateOrSlot(`${scope}:before`)}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <vaadin-button
           data-testid="sign-out"
@@ -324,7 +404,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
               `}
         </vaadin-button>
 
-        ${this._renderTemplateOrSlot(`${scope}:after`)}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -341,7 +421,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       'payment-methods:list:card',
     ];
 
-    const templates: CustomerTemplates = this._getNestedTemplates('customer');
+    const templates: CustomerTemplates = this.getNestedTemplates('customer');
     const originalHeaderActionsAfterTemplate = templates['header:actions:after'];
 
     templates['header:actions:after'] = (html, host) => {
