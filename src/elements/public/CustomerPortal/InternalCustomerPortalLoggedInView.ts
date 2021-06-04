@@ -149,18 +149,37 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     `;
   };
 
-  private readonly __renderSubscriptions = () => {
-    const extendedHiddenControlsArray = [
-      this.hiddenSelector.zoom('customer:subscriptions:form').toString(),
-      'end-date',
-    ];
+  private readonly __renderSubscriptionsHeader = () => {
+    return html`
+      ${this._renderTemplateOrSlot('customer:subscriptions:header:before')}
+
+      <foxy-i18n
+        class="block text-l font-medium tracking-wide"
+        lang=${this.lang}
+        key="subscription_plural"
+        ns=${this.ns}
+      >
+      </foxy-i18n>
+
+      ${this._renderTemplateOrSlot('customer:subscriptions:header:after')}
+    `;
+  };
+
+  private readonly __renderSubscriptionsList = () => {
+    const disabledSelector = this.disabledSelector.zoom('customer:subscriptions:list');
+    const readonlySelector = this.readonlySelector.zoom('customer:subscriptions:list');
+    const hiddenSelector = this.hiddenSelector.zoom('customer:subscriptions:list');
+    const extendedHiddenControlsArray = [hiddenSelector.zoom('form').toString(), 'end-date'];
 
     return html`
+      ${this._renderTemplateOrSlot('customer:subscriptions:list:before')}
+
       <foxy-form-dialog
-        readonlycontrols=${this.readonlySelector.zoom('customer:subscriptions:form').toString()}
-        disabledcontrols=${this.disabledSelector.zoom('customer:subscriptions:form').toString()}
-        hiddencontrols=${extendedHiddenControlsArray.join(' ')}
+        readonlycontrols=${readonlySelector.zoom('form').toString()}
+        disabledcontrols=${disabledSelector.zoom('form').toString()}
+        hiddencontrols=${extendedHiddenControlsArray.join(' ').trim()}
         header="update"
+        group=${this.group}
         lang=${this.lang}
         ns=${this.ns}
         id="subscription-dialog"
@@ -168,70 +187,93 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       >
       </foxy-form-dialog>
 
+      <foxy-collection-pages
+        class="block space-y-m"
+        first=${this.__activeSubscriptionsLink}
+        group=${this.group}
+        lang=${this.lang}
+        manual
+        .page=${this.__renderSubscriptionsPage}
+      >
+      </foxy-collection-pages>
+
+      ${this._renderTemplateOrSlot('customer:subscriptions:list:after')}
+    `;
+  };
+
+  private readonly __renderSubscriptions = () => {
+    const hiddenSelector = this.hiddenSelector.zoom('customer:subscriptions');
+
+    return html`
       ${this._renderTemplateOrSlot('customer:subscriptions:before')}
 
-      <div class="space-y-m pt-m border-t-4 border-contrast-5">
-        <foxy-i18n
-          class="block text-l font-medium tracking-wide"
-          lang=${this.lang}
-          key="subscription_plural"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
-
-        <foxy-collection-pages
-          class="block space-y-m"
-          first=${this.__activeSubscriptionsLink}
-          group=${this.group}
-          lang=${this.lang}
-          manual
-          .page=${this.__renderSubscriptionsPage}
-        >
-        </foxy-collection-pages>
+      <div class="space-y-m pt-m border-t-4 border-contrast-5" data-testid="subscriptions">
+        ${hiddenSelector.matches('header', true) ? '' : this.__renderSubscriptionsHeader()}
+        ${hiddenSelector.matches('list', true) ? '' : this.__renderSubscriptionsList()}
       </div>
 
       ${this._renderTemplateOrSlot('customer:subscriptions:after')}
     `;
   };
 
-  private readonly __renderTransactions = () => {
-    const customer = this.__customerElement;
-
-    let transactionsLink = '';
-
-    if (customer?.in({ idle: 'snapshot' })) {
-      const transactionsURL = new URL(customer.data._links['fx:transactions'].href);
-      transactionsURL.searchParams.set('zoom', 'items');
-      transactionsLink = transactionsURL.toString();
-
-      if ('fx:sub_token_url' in customer.data._links) {
-        const link = customer.data._links['fx:sub_token_url'].href;
-        const cancelURL = new URL(link);
-        cancelURL.searchParams.set('sub_cancel', 'true');
-      }
-    }
-
+  private readonly __renderTransactionsHeader = () => {
     return html`
-      ${this._renderTemplateOrSlot('customer:transactions:before')}
+      <div>
+        ${this._renderTemplateOrSlot('customer:transactions:header:before')}
 
-      <div class="space-y-m pt-m border-t-4 border-contrast-5">
         <foxy-i18n
           class="text-l font-medium tracking-wide"
-          ns=${this.ns}
-          key="transaction_plural"
           lang=${this.lang}
+          key="transaction_plural"
+          ns=${this.ns}
         >
         </foxy-i18n>
 
+        ${this._renderTemplateOrSlot('customer:transactions:header:after')}
+      </div>
+    `;
+  };
+
+  private readonly __renderTransactionsList = () => {
+    const customer = this.__customerElement;
+
+    let first = '';
+
+    if (customer?.in({ idle: 'snapshot' })) {
+      const firstURL = new URL(customer.data._links['fx:transactions'].href);
+      firstURL.searchParams.set('zoom', 'items');
+      first = firstURL.toString();
+    }
+
+    return html`
+      <div>
+        ${this._renderTemplateOrSlot('customer:transactions:list:before')}
+
         <foxy-collection-pages
           spinner="foxy-spinner"
-          first=${transactionsLink}
+          group=${this.group}
+          first=${first}
           class="block divide-y divide-contrast-10 px-m border border-contrast-10 rounded-t-l rounded-b-l"
           page="foxy-transactions-table"
           lang=${this.lang}
           manual
         >
         </foxy-collection-pages>
+
+        ${this._renderTemplateOrSlot('customer:transactions:list:after')}
+      </div>
+    `;
+  };
+
+  private readonly __renderTransactions = () => {
+    const hiddenSelector = this.hiddenSelector.zoom('customer:transactions');
+
+    return html`
+      ${this._renderTemplateOrSlot('customer:transactions:before')}
+
+      <div class="space-y-m pt-m border-t-4 border-contrast-5" data-testid="transactions">
+        ${hiddenSelector.matches('header') ? '' : this.__renderTransactionsHeader()}
+        ${hiddenSelector.matches('list') ? '' : this.__renderTransactionsList()}
       </div>
 
       ${this._renderTemplateOrSlot('customer:transactions:after')}
@@ -261,6 +303,8 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         ${this._renderTemplateOrSlot(`${scope}:before`)}
 
         <vaadin-button
+          data-testid="sign-out"
+          aria-label=${this.t('sign_out').toString()}
           style="padding: var(--lumo-space-xs); margin: 0; border-radius: 100%; display: flex"
           theme="icon large"
           ?disabled=${this.disabledSelector.matches(scope) || !isCustomerLoaded || state !== 'idle'}
