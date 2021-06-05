@@ -116,7 +116,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
       ${host.renderTemplateOrSlot('header:actions:before')}
 
-      <main>
+      <main data-testid="header:actions">
         ${isUpdateActionHidden ? '' : this.__renderSubscriptionsFormHeaderActionsUpdate(html, host)}
         ${isEndActionHidden ? '' : this.__renderSubscriptionsFormHeaderActionsEnd(html, host)}
       </main>

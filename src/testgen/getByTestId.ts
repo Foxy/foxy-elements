@@ -1,9 +1,15 @@
 import { LitElement } from 'lit-element';
 
 export async function getByTestId<T extends HTMLElement>(
-  element: LitElement,
+  element: Element,
   testId: string
 ): Promise<T | null> {
-  await element.updateComplete;
-  return element.renderRoot.querySelector(`[data-testid="${testId}"]`) as T | null;
+  let root: Element | DocumentFragment = element;
+
+  if (element instanceof LitElement) {
+    await element.updateComplete;
+    root = element.renderRoot;
+  }
+
+  return root.querySelector(`[data-testid="${testId}"]`) as T | null;
 }
