@@ -81,6 +81,8 @@ export class FormDialog extends Dialog {
   }
 
   set form(value: string | null | FormRenderer) {
+    this.__form = value;
+
     if (typeof value === 'string') {
       this.__renderForm = new Function(
         'options',
