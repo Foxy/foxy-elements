@@ -29,27 +29,11 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
 
   lang = '';
 
-  get valueAsDate(): Date | null {
-    return parseDate(this.value);
-  }
-
-  set valueAsDate(value: Date | null) {
-    this.value = value ? serializeDate(value) : '';
-  }
-
-  get startAsDate(): Date | null {
-    return parseDate(this.start);
-  }
-
-  set startAsDate(value: Date | null) {
-    this.start = value ? serializeDate(value) : '';
-  }
-
   render(): TemplateResult {
-    const thisMonth = new Date(this.startAsDate ?? Date.now());
+    const thisMonth = new Date(this.__startAsDate ?? this.__valueAsDate ?? Date.now());
     const prevMonth = new Date(thisMonth);
     const nextMonth = new Date(thisMonth);
-    const lang = this.lang || 'en';
+    const lang = this.lang || navigator.language;
 
     prevMonth.setMonth(prevMonth.getMonth() - 1);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
@@ -58,6 +42,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
       <div class="text-m text-body font-lumo leading-m">
         <div class="grid p-xs" style="grid-template: auto / max-content auto max-content">
           <vaadin-button
+            data-testid="prev"
             aria-label=${prevMonth.toLocaleString(lang, { year: 'numeric', month: 'long' })}
             theme="icon tertiary"
             class="px-xs"
@@ -68,15 +53,17 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
           </vaadin-button>
 
           <span
+            data-testid="month"
             class=${classMap({
               'text-center self-center font-medium': true,
               'text-disabled': this.disabled,
             })}
           >
-            ${this.startAsDate?.toLocaleDateString(lang, { month: 'long', year: 'numeric' })}
+            ${thisMonth.toLocaleDateString(lang, { month: 'long', year: 'numeric' })}
           </span>
 
           <vaadin-button
+            data-testid="next"
             aria-label=${nextMonth.toLocaleString(lang, { year: 'numeric', month: 'long' })}
             theme="icon tertiary"
             class="px-xs"
@@ -92,8 +79,24 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
     `;
   }
 
+  private get __valueAsDate(): Date | null {
+    return parseDate(this.value);
+  }
+
+  private set __valueAsDate(value: Date | null) {
+    this.value = value ? serializeDate(value) : '';
+  }
+
+  private get __startAsDate(): Date | null {
+    return parseDate(this.start);
+  }
+
+  private set __startAsDate(value: Date | null) {
+    this.start = value ? serializeDate(value) : '';
+  }
+
   private __renderMonth(month: number, year: number) {
-    const lang = this.lang || 'en';
+    const lang = this.lang || navigator.language;
     const date = new Date(year, month, 1, 0, 0, 0, 0);
     const items: TemplateResult[] = [];
 
@@ -116,12 +119,12 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
 
     while (date.getMonth() === month) {
       const checked =
-        date.getFullYear() === this.valueAsDate?.getFullYear() &&
-        date.getMonth() === this.valueAsDate?.getMonth() &&
-        date.getDate() === this.valueAsDate?.getDate();
+        date.getFullYear() === this.__valueAsDate?.getFullYear() &&
+        date.getMonth() === this.__valueAsDate?.getMonth() &&
+        date.getDate() === this.__valueAsDate?.getDate();
 
       items.push(html`
-        <div style="grid-column: ${date.getDay() + 1}">
+        <div style="grid-column: ${date.getDay() + 1}" data-testclass="day-of-month">
           ${this.__renderDate(date.getDate(), month, year, checked)}
         </div>
       `);
@@ -130,7 +133,11 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
     }
 
     return html`
-      <form class="grid gap-s p-s text-center" style="grid-template: auto / repeat(7, 1fr);">
+      <form
+        data-testid="grid"
+        class="grid gap-s p-s text-center"
+        style="grid-template: auto / repeat(7, 1fr);"
+      >
         ${items}
       </form>
     `;
@@ -158,7 +165,7 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
           class="sr-only"
           ?disabled=${this.readonly || this.disabled || disabled}
           @change=${() => {
-            this.valueAsDate = new Date(year, month, date);
+            this.__valueAsDate = new Date(year, month, date);
             this.dispatchEvent(new CustomEvent('change'));
           }}
         />
@@ -170,11 +177,11 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
 
   private __handlePrevButtonClick() {
     const currentStart = new Date(this.start ?? Date.now());
-    this.startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() - 1));
+    this.__startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() - 1));
   }
 
   private __handleNextButtonClick() {
     const currentStart = new Date(this.start ?? Date.now());
-    this.startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() + 1));
+    this.__startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() + 1));
   }
 }
