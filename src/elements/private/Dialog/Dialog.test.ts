@@ -101,7 +101,7 @@ describe('Dialog', () => {
     (root.querySelector('#close-button') as HTMLButtonElement).click();
     const hideEvent = (await oneEvent(dialog, 'hide')) as DialogHideEvent;
 
-    expect(hideEvent.detail).to.have.property('cancelled', true);
+    expect(hideEvent.detail).to.have.property('cancelled', false);
     expect(dialog).to.have.property('open', false);
   });
 
