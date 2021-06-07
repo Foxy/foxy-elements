@@ -5,9 +5,11 @@ import { NucleonElement } from '../NucleonElement/index';
 import { PropertyDeclarations } from 'lit-element';
 import { ResponsiveMixin } from '../../../mixins/responsive';
 import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 
-const Base = ResponsiveMixin(ThemeableMixin(NucleonElement));
+const NS = 'table';
+const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)));
 
 /**
  * Configurable table element for HAL+JSON collections.
@@ -72,10 +74,12 @@ export class Table<TData extends Collection> extends Base<TData> {
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
-                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${this.in('busy') ? 'busy' : this.in('idle') ? 'empty' : 'error'}
-                  layout="vertical"
                   data-testid="spinner"
+                  layout="vertical"
+                  state=${this.in('busy') ? 'busy' : this.in('idle') ? 'empty' : 'error'}
+                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+                  lang=${this.lang}
+                  ns=${this.ns}
                 >
                 </foxy-spinner>
               </div>
