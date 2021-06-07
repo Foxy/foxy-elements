@@ -61,8 +61,12 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     return html`
       ${host.renderTemplateOrSlot('header:actions:update:before')}
 
-      <foxy-internal-customer-portal-link href=${billingLink} icon="icons:credit-card">
-        <foxy-i18n lang=${host.lang} key="update_billing"></foxy-i18n>
+      <foxy-internal-customer-portal-link
+        data-testid="header:actions:update"
+        href=${billingLink}
+        icon="icons:credit-card"
+      >
+        <foxy-i18n lang=${host.lang} key="update_billing" ns=${NS}></foxy-i18n>
       </foxy-internal-customer-portal-link>
 
       ${host.renderTemplateOrSlot('header:actions:update:after')}
@@ -87,8 +91,12 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     return html`
       ${host.renderTemplateOrSlot('header:actions:end:before')}
 
-      <foxy-internal-customer-portal-link href=${cancelLink} icon="icons:block">
-        <foxy-i18n lang=${host.lang} key="end_subscription"></foxy-i18n>
+      <foxy-internal-customer-portal-link
+        data-testid="header:actions:end"
+        href=${cancelLink}
+        icon="icons:block"
+      >
+        <foxy-i18n lang=${host.lang} key="end_subscription" ns=${NS}></foxy-i18n>
       </foxy-internal-customer-portal-link>
 
       ${host.renderTemplateOrSlot('header:actions:end:after')}
@@ -139,8 +147,12 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     return html`
       ${host.renderTemplateOrSlot('items:actions:update:before')}
 
-      <foxy-internal-customer-portal-link class="text-primary" href=${itemsLink}>
-        <foxy-i18n lang=${host.lang} key="update_items"></foxy-i18n>
+      <foxy-internal-customer-portal-link
+        data-testid="items:actions:update"
+        class="text-primary"
+        href=${itemsLink}
+      >
+        <foxy-i18n lang=${host.lang} key="update_items" ns=${NS}></foxy-i18n>
       </foxy-internal-customer-portal-link>
 
       ${host.renderTemplateOrSlot('items:actions:update:after')}

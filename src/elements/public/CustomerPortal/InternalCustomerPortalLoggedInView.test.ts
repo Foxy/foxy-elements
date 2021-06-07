@@ -8,6 +8,7 @@ import { CollectionPages } from '../CollectionPages';
 import { Customer } from '../Customer/Customer';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog';
+import { InternalCustomerPortalLink } from './InternalCustomerPortalLink';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
@@ -414,70 +415,424 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
           expect(form.templates).to.have.any.keys('frequency:after');
         });
 
-        it('renders header:actions:before template in the subscription form', async () => {
-          const view = await fixture<InternalCustomerPortalLoggedInView>(html`
-            <foxy-internal-customer-portal-logged-in-view
-              .templates=${{
-                'customer:subscriptions:list:form:header:actions:before': () => html`Test`,
-              }}
-            >
-            </foxy-internal-customer-portal-logged-in-view>
-          `);
+        describe('header', () => {
+          describe('actions', () => {
+            it('renders header:actions:before template in the subscription form', async () => {
+              const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                <foxy-internal-customer-portal-logged-in-view
+                  .templates=${{
+                    'customer:subscriptions:list:form:header:actions:before': () => html`Test`,
+                  }}
+                >
+                </foxy-internal-customer-portal-logged-in-view>
+              `);
 
-          const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
-          const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+              const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+              const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
-          dialog.open = true;
+              dialog.open = true;
 
-          const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-          const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
-          const customSandbox = await getByTestId(builtInSandbox, 'header:actions:before');
+              const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+              const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+              const customSandbox = await getByTestId(builtInSandbox, 'header:actions:before');
 
-          expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+              expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+            });
+
+            it('renders header:actions:after template in the subscription form', async () => {
+              const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                <foxy-internal-customer-portal-logged-in-view
+                  .templates=${{
+                    'customer:subscriptions:list:form:header:actions:after': () => html`Test`,
+                  }}
+                >
+                </foxy-internal-customer-portal-logged-in-view>
+              `);
+
+              const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+              const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+              dialog.open = true;
+
+              const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+              const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+              const customSandbox = await getByTestId(builtInSandbox, 'header:actions:after');
+
+              expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+            });
+
+            it('hides header:actions if hiddencontrols matches "customer:subscriptions:list:form:header:actions"', async () => {
+              const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                <foxy-internal-customer-portal-logged-in-view
+                  hiddencontrols="customer:subscriptions:list:form:header:actions"
+                >
+                </foxy-internal-customer-portal-logged-in-view>
+              `);
+
+              const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+              const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+              dialog.open = true;
+
+              const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+              const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+
+              expect(await getByTestId(sandbox, 'header:actions')).to.not.exist;
+            });
+
+            describe('update', () => {
+              it('renders header:actions:update:before template in the subscription form', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    .templates=${{
+                      'customer:subscriptions:list:form:header:actions:update:before': () =>
+                        html`Test`,
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+                const customSandbox = await getByTestId(
+                  builtInSandbox,
+                  'header:actions:update:before'
+                );
+
+                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+              });
+
+              it('renders header:actions:update:after template in the subscription form', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    .templates=${{
+                      'customer:subscriptions:list:form:header:actions:update:after': () =>
+                        html`Test`,
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+                const customSandbox = await getByTestId(
+                  builtInSandbox,
+                  'header:actions:update:after'
+                );
+
+                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+              });
+
+              it('renders fx:sub_token_url link with ?cart=checkout&sub_restart=auto', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    customer="https://demo.foxycart.com/s/customer/"
+                    href="https://demo.foxycart.com/s/customer/customer_portal_settings"
+                    lang="es"
+                    @fetch=${(evt: FetchEvent) => {
+                      const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                      evt.request.headers.set('Authorization', `Bearer ${token}`);
+                      router.handleEvent(evt);
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const customer = (await getByTestId(view, 'customer')) as Customer;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+                dialog.href =
+                  'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+
+                await waitUntil(() => form.in({ idle: 'snapshot' }));
+                await waitUntil(() => customer.in({ idle: 'snapshot' }));
+
+                const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+                const link = await getByTestId(sandbox, 'header:actions:update');
+                const text = link!.querySelector('foxy-i18n[key="update_billing"]');
+                const url = new URL(customer.data!._links['fx:sub_token_url'].href);
+
+                url.searchParams.set('cart', 'checkout');
+                url.searchParams.set('sub_restart', 'auto');
+
+                expect(link).to.be.instanceOf(InternalCustomerPortalLink);
+                expect(link).to.have.attribute('href', url.toString());
+
+                expect(text).to.have.attribute('lang', 'es');
+                expect(text).to.have.attribute('ns', 'customer-portal');
+              });
+
+              it('hides header:actions:update if hiddencontrols matches "customer:subscriptions:list:form:header:actions:update"', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    hiddencontrols="customer:subscriptions:list:form:header:actions:update"
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+
+                expect(await getByTestId(sandbox, 'header:actions:update')).to.not.exist;
+              });
+            });
+
+            describe('end', () => {
+              it('renders header:actions:end:before template in the subscription form', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    .templates=${{
+                      'customer:subscriptions:list:form:header:actions:end:before': () =>
+                        html`Test`,
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+                const customSandbox = await getByTestId(
+                  builtInSandbox,
+                  'header:actions:end:before'
+                );
+
+                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+              });
+
+              it('renders header:actions:end:after template in the subscription form', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    .templates=${{
+                      'customer:subscriptions:list:form:header:actions:end:after': () => html`Test`,
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+                const customSandbox = await getByTestId(builtInSandbox, 'header:actions:end:after');
+
+                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+              });
+
+              it('renders fx:sub_token_url link with ?sub_cancel=true', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    customer="https://demo.foxycart.com/s/customer/"
+                    href="https://demo.foxycart.com/s/customer/customer_portal_settings"
+                    lang="es"
+                    @fetch=${(evt: FetchEvent) => {
+                      const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                      evt.request.headers.set('Authorization', `Bearer ${token}`);
+                      router.handleEvent(evt);
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const customer = (await getByTestId(view, 'customer')) as Customer;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+                dialog.href =
+                  'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+
+                await waitUntil(() => form.in({ idle: 'snapshot' }));
+                await waitUntil(() => customer.in({ idle: 'snapshot' }));
+
+                const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+                const link = await getByTestId(sandbox, 'header:actions:end');
+                const text = link!.querySelector('foxy-i18n[key="end_subscription"]');
+                const url = new URL(customer.data!._links['fx:sub_token_url'].href);
+
+                url.searchParams.set('sub_cancel', 'true');
+
+                expect(link).to.be.instanceOf(InternalCustomerPortalLink);
+                expect(link).to.have.attribute('href', url.toString());
+
+                expect(text).to.have.attribute('lang', 'es');
+                expect(text).to.have.attribute('ns', 'customer-portal');
+              });
+
+              it('hides header:actions:end if hiddencontrols matches "customer:subscriptions:list:form:header:actions:end"', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    hiddencontrols="customer:subscriptions:list:form:header:actions:end"
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+
+                expect(await getByTestId(sandbox, 'header:actions:end')).to.not.exist;
+              });
+            });
+          });
         });
 
-        it('renders header:actions:after template in the subscription form', async () => {
-          const view = await fixture<InternalCustomerPortalLoggedInView>(html`
-            <foxy-internal-customer-portal-logged-in-view
-              .templates=${{
-                'customer:subscriptions:list:form:header:actions:after': () => html`Test`,
-              }}
-            >
-            </foxy-internal-customer-portal-logged-in-view>
-          `);
+        describe('items', () => {
+          describe('actions', () => {
+            describe('update', () => {
+              it('renders items:actions:update:before template in the subscription form', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    .templates=${{
+                      'customer:subscriptions:list:form:items:actions:update:before': () =>
+                        html`Test`,
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
 
-          const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
-          const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
-          dialog.open = true;
+                dialog.open = true;
 
-          const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-          const builtInSandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
-          const customSandbox = await getByTestId(builtInSandbox, 'header:actions:after');
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const builtInSandbox = (await getByTestId(
+                  form,
+                  'items:actions:after'
+                )) as InternalSandbox;
+                const customSandbox = await getByTestId(
+                  builtInSandbox,
+                  'items:actions:update:before'
+                );
 
-          expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+              });
+
+              it('renders items:actions:update:after template in the subscription form', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    .templates=${{
+                      'customer:subscriptions:list:form:items:actions:update:after': () =>
+                        html`Test`,
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const builtInSandbox = (await getByTestId(
+                  form,
+                  'items:actions:after'
+                )) as InternalSandbox;
+                const customSandbox = await getByTestId(
+                  builtInSandbox,
+                  'items:actions:update:after'
+                );
+
+                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+              });
+
+              it('renders fx:sub_modification_url link', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    customer="https://demo.foxycart.com/s/customer/"
+                    href="https://demo.foxycart.com/s/customer/customer_portal_settings"
+                    lang="es"
+                    @fetch=${(evt: FetchEvent) => {
+                      const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                      evt.request.headers.set('Authorization', `Bearer ${token}`);
+                      router.handleEvent(evt);
+                    }}
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const customer = (await getByTestId(view, 'customer')) as Customer;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+                dialog.href =
+                  'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+
+                await waitUntil(() => form.in({ idle: 'snapshot' }));
+                await waitUntil(() => customer.in({ idle: 'snapshot' }));
+
+                const sandbox = (await getByTestId(form, 'items:actions:after')) as InternalSandbox;
+                const link = await getByTestId(sandbox, 'items:actions:update');
+                const text = link!.querySelector('foxy-i18n[key="update_items"]');
+
+                expect(link).to.be.instanceOf(InternalCustomerPortalLink);
+                expect(link).to.have.attribute(
+                  'href',
+                  customer.data!._links['fx:sub_modification_url'].href
+                );
+
+                expect(text).to.have.attribute('lang', 'es');
+                expect(text).to.have.attribute('ns', 'customer-portal');
+              });
+
+              it('hides items:actions:update if hiddencontrols matches "customer:subscriptions:list:form:items:actions:update"', async () => {
+                const view = await fixture<InternalCustomerPortalLoggedInView>(html`
+                  <foxy-internal-customer-portal-logged-in-view
+                    hiddencontrols="customer:subscriptions:list:form:items:actions:update"
+                  >
+                  </foxy-internal-customer-portal-logged-in-view>
+                `);
+
+                const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
+                const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+                dialog.open = true;
+
+                const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+                const sandbox = (await getByTestId(form, 'items:actions:after')) as InternalSandbox;
+
+                expect(await getByTestId(sandbox, 'items:actions:update')).to.not.exist;
+              });
+            });
+          });
         });
-
-        it('hides header:actions if hiddencontrols matches "customer:subscriptions:list:form:header:actions"', async () => {
-          const view = await fixture<InternalCustomerPortalLoggedInView>(html`
-            <foxy-internal-customer-portal-logged-in-view
-              hiddencontrols="customer:subscriptions:list:form:header:actions"
-            >
-            </foxy-internal-customer-portal-logged-in-view>
-          `);
-
-          const subscriptions = (await getByTestId(view, 'subscriptions')) as Element;
-          const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
-
-          dialog.open = true;
-
-          const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-          const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
-
-          expect(await getByTestId(sandbox, 'header:actions')).to.not.exist;
-        });
-
-        // TODO: header:actions:update, header:actions:end, items:actions:update
       });
     });
   });
