@@ -15,8 +15,8 @@ describe('FrequencyInput', () => {
 
     expect(element).to.have.property('label', '');
     expect(element).to.have.property('value', '');
-    expect(element).to.have.property('disabled', false);
-    expect(element).to.have.property('readonly', false);
+    expect(element).not.to.have.attribute('disabled');
+    expect(element).not.to.have.attribute('readonly');
     expect(element).to.have.property('errorMessage', '');
     expect(element.checkValidity(), 'must be valid by default').to.be.true;
 
@@ -26,8 +26,8 @@ describe('FrequencyInput', () => {
 
     expect(field).to.have.property('label', '');
     expect(field).to.have.property('value', '');
-    expect(field).to.have.property('disabled', false);
-    expect(field).to.have.property('readonly', false);
+    expect(field).not.to.have.attribute('disabled');
+    expect(field).not.to.have.attribute('readonly');
     expect(field).to.have.property('errorMessage', '');
     expect(field.checkValidity(), 'must be valid by default').to.be.true;
 
@@ -61,8 +61,8 @@ describe('FrequencyInput', () => {
     const root = element.renderRoot;
     const field = root.querySelector('[data-testid="field"]') as CustomFieldElement;
 
-    expect(element).to.have.property('disabled', true);
-    expect(field).to.have.property('disabled', true);
+    expect(element).to.have.attribute('disabled');
+    expect(field).to.have.attribute('disabled');
   });
 
   it('can be readonly', async () => {
@@ -71,8 +71,8 @@ describe('FrequencyInput', () => {
     const root = element.renderRoot;
     const field = root.querySelector('[data-testid="field"]') as CustomFieldElement;
 
-    expect(element).to.have.property('readonly', true);
-    expect(field).to.have.property('readonly', true);
+    expect(element).to.have.attribute('readonly');
+    expect(field).to.have.attribute('readonly');
   });
 
   it('can have custom error message', async () => {
