@@ -456,8 +456,6 @@ router.delete('/s/admin/customers/:id', async ({ params }) => {
 // users
 router.get('/s/admin/users/:id', async ({ params }) => {
   await whenDbReady;
-
-  console.log(params);
   const user = await db.users.get(parseInt(params.id));
   const body = composeUser(user);
   return new Response(JSON.stringify(body));
