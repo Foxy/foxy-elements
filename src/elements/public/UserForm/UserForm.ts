@@ -97,27 +97,27 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
           <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" .items=${this.__roles} >
             <vaadin-text-field
               error-message=${this.__getErrorMessage('first_name')}
-              label='name.first'
+              label=${this.__t('name.first').toString()}
               value="${ifDefined(this.form?.first_name?.toString())}"
               .checkValidity=${this.__getValidator('first_name')}
               @change=${this.__bindField('first_name')}
               ></vaadin-text-field>
             <vaadin-text-field
-              label='name.last'
+              label=${this.__t('name.last').toString()}
               value="${ifDefined(this.form?.last_name?.toString())}"
               .checkValidity=${this.__getValidator('last_name')}
               @change=${this.__bindField('last_name')}
               ></vaadin-text-field>
             <vaadin-text-field
               class="col-span2"
-              label='email'
+              label=${this.__t('email').toString()}
               value="${ifDefined(this.form?.email?.toString())}"
               .checkValidity=${this.__getValidator('email')}
               @change=${this.__bindField('email')}
               ></vaadin-text-field>
             <vaadin-text-field
               class="col-span2"
-              label='phone'
+              label=${this.__t('phone').toString()}
               value="${ifDefined(this.form?.phone?.toString())}"
               @change=${this.__bindField('phone')}
               ></vaadin-text-field>
