@@ -10,14 +10,15 @@ import {
 } from 'lit-element';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Checkbox } from '../../private/Checkbox/Checkbox';
+import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { I18n } from '../I18n';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { validate as isEmail } from 'email-validator';
 import { Themeable } from '../../../mixins/themeable';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { validate as isEmail } from 'email-validator';
 
 
 export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
@@ -28,7 +29,8 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
       'vaadin-button': ButtonElement,
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-user-role': UserRole,
-      'foxy-i18n': customElements.get('foxy-i18n')
+      'x-confirm-dialog': ConfirmDialog,
+      'foxy-i18n': I18n
     };
   }
 
@@ -95,33 +97,23 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
             >
         </x-confirm-dialog>
         <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
-          <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" .items=${this.__roles} >
-            <vaadin-text-field
-              error-message=${this.__getErrorMessage('first_name')}
-              label=${this.__t('name.first').toString()}
-              value="${ifDefined(this.form?.first_name?.toString())}"
-              .checkValidity=${this.__getValidator('first_name')}
-              @change=${this.__bindField('first_name')}
-              ></vaadin-text-field>
-            <vaadin-text-field
-              label=${this.__t('name.last').toString()}
-              value="${ifDefined(this.form?.last_name?.toString())}"
-              .checkValidity=${this.__getValidator('last_name')}
-              @change=${this.__bindField('last_name')}
-              ></vaadin-text-field>
-            <vaadin-text-field
-              class="col-span2"
-              label=${this.__t('email').toString()}
-              value="${ifDefined(this.form?.email?.toString())}"
-              .checkValidity=${this.__getValidator('email')}
-              @change=${this.__bindField('email')}
-              ></vaadin-text-field>
-            <vaadin-text-field
-              class="col-span2"
-              label=${this.__t('phone').toString()}
-              value="${ifDefined(this.form?.phone?.toString())}"
-              @change=${this.__bindField('phone')}
-              ></vaadin-text-field>
+          <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" >
+            ${[
+                ['first_name', 'name.first', ''],
+                ['last_name', 'name.last', ''],
+                ['email', 'email', 'col-span2'],
+                ['phone', 'phoe', 'col-span2']
+              ].map(f => html`
+                <vaadin-text-field
+                    data-testid="${f[0]}"
+                    class="${f[2]}"
+                    error-message=${this.__getErrorMessage(f[0])}
+                    label=${this.__t(f[1]).toString()}
+                    value="${ifDefined((this.form as any)[f[0]])}"
+                    .checkValidity=${this.__getValidator(f[0])}
+                    @change=${this.__bindField(f[0] as keyof Data)}>
+                </vaadin-text-field>`
+            )}
           </div>
         </div>
         <div class="my-s">
@@ -139,6 +131,7 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
             theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
             data-testid="action"
             ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
+            @click=${this.__handleActionClick}
             >
             <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
         </vaadin-button>
@@ -155,11 +148,17 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
     return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, UserForm.__ns);
   }
 
-  private get __roles() {
-    if (!this.data) {
-      return [];
+  /**
+   * Either creates a new resource if it does not exist (snapshot state
+   * indicates it is an existing resource) or deletes the resource (after
+   * confirmation) if it exists.
+   */
+  private __handleActionClick(evt: Event) {
+    if (this.in({ idle: 'snapshot' })) {
+      const confirm = this.renderRoot.querySelector('#confirm');
+      (confirm as ConfirmDialog).show(evt.currentTarget as HTMLElement);
     } else {
-      return 
+      this.submit();
     }
   }
 
