@@ -1,4 +1,10 @@
 {
+  "name": {
+    "first": "First name",
+    "last": "Last name"
+  },
+  "email": "Email",
+  "phone": "Phone",
   "roles": "Roles",
   "merchant": {
     "name": "Merchant",
