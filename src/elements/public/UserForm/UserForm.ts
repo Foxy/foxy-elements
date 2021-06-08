@@ -11,6 +11,7 @@ import {
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Checkbox } from '../../private/Checkbox/Checkbox';
 import { Data } from './types';
+import { I18n } from '../I18n';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
