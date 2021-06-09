@@ -133,22 +133,28 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
 
   private async __handleVirtualAuthSessionPost(request: Request) {
     const payload = await request.clone().json();
+    let status = 200;
 
     if (payload.type === 'password') {
-      await this.api.signIn(payload.credential);
+      try {
+        await this.api.signIn(payload.credential);
+        this.dispatchEvent(new CustomerApi.SignInEvent('signin'));
+        this.requestUpdate();
+      } catch (err) {
+        if (!(err instanceof API.AuthError)) throw err;
+        if (!(err.code === 'UNAUTHORIZED')) throw err;
+        status = 401;
+      }
     } else {
       throw new Error(`Unknown payload type ${payload.type}`);
     }
 
-    this.dispatchEvent(new CustomerApi.SignInEvent('signin'));
-    this.requestUpdate();
+    const body = JSON.stringify({
+      _links: { self: { href: request.url } },
+      ...payload,
+    });
 
-    return new Response(
-      JSON.stringify({
-        _links: { self: { href: request.url } },
-        ...payload,
-      })
-    );
+    return new Response(body, { status });
   }
 
   private async __handleVirtualAuthRecoverPost(request: Request) {
