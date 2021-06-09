@@ -564,7 +564,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
                 const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
                 const link = await getByTestId(sandbox, 'header:actions:update');
                 const text = link!.querySelector('foxy-i18n[key="update_billing"]');
-                const url = new URL(customer.data!._links['fx:sub_token_url'].href);
+                const url = new URL(form.data!._links['fx:sub_token_url'].href);
 
                 url.searchParams.set('cart', 'checkout');
                 url.searchParams.set('sub_restart', 'auto');
@@ -676,7 +676,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
                 const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
                 const link = await getByTestId(sandbox, 'header:actions:end');
                 const text = link!.querySelector('foxy-i18n[key="end_subscription"]');
-                const url = new URL(customer.data!._links['fx:sub_token_url'].href);
+                const url = new URL(form.data!._links['fx:sub_token_url'].href);
 
                 url.searchParams.set('sub_cancel', 'true');
 
@@ -715,9 +715,16 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
               it('renders items:actions:update:before template in the subscription form', async () => {
                 const view = await fixture<InternalCustomerPortalLoggedInView>(html`
                   <foxy-internal-customer-portal-logged-in-view
+                    customer="https://demo.foxycart.com/s/customer/"
+                    href="https://demo.foxycart.com/s/customer/customer_portal_settings"
                     .templates=${{
                       'customer:subscriptions:list:form:items:actions:update:before': () =>
                         html`Test`,
+                    }}
+                    @fetch=${(evt: FetchEvent) => {
+                      const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                      evt.request.headers.set('Authorization', `Bearer ${token}`);
+                      router.handleEvent(evt);
                     }}
                   >
                   </foxy-internal-customer-portal-logged-in-view>
@@ -727,26 +734,33 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
                 const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
                 dialog.open = true;
+                dialog.href =
+                  'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
                 const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-                const builtInSandbox = (await getByTestId(
-                  form,
-                  'items:actions:after'
-                )) as InternalSandbox;
-                const customSandbox = await getByTestId(
-                  builtInSandbox,
-                  'items:actions:update:before'
-                );
 
-                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+                await waitUntil(() => form.in({ idle: 'snapshot' }));
+                await waitUntil(() => view.in({ idle: 'snapshot' }));
+
+                const sandbox1 = (await getByTestId(form, 'items:actions:after'))!;
+                const sandbox2 = await getByTestId(sandbox1, 'items:actions:update:before');
+
+                expect((sandbox2 as InternalSandbox).renderRoot).to.have.text('Test');
               });
 
               it('renders items:actions:update:after template in the subscription form', async () => {
                 const view = await fixture<InternalCustomerPortalLoggedInView>(html`
                   <foxy-internal-customer-portal-logged-in-view
+                    customer="https://demo.foxycart.com/s/customer/"
+                    href="https://demo.foxycart.com/s/customer/customer_portal_settings"
                     .templates=${{
                       'customer:subscriptions:list:form:items:actions:update:after': () =>
                         html`Test`,
+                    }}
+                    @fetch=${(evt: FetchEvent) => {
+                      const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                      evt.request.headers.set('Authorization', `Bearer ${token}`);
+                      router.handleEvent(evt);
                     }}
                   >
                   </foxy-internal-customer-portal-logged-in-view>
@@ -756,18 +770,18 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
                 const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
 
                 dialog.open = true;
+                dialog.href =
+                  'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
                 const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-                const builtInSandbox = (await getByTestId(
-                  form,
-                  'items:actions:after'
-                )) as InternalSandbox;
-                const customSandbox = await getByTestId(
-                  builtInSandbox,
-                  'items:actions:update:after'
-                );
 
-                expect((customSandbox as InternalSandbox).renderRoot).to.have.text('Test');
+                await waitUntil(() => form.in({ idle: 'snapshot' }));
+                await waitUntil(() => view.in({ idle: 'snapshot' }));
+
+                const sandbox1 = (await getByTestId(form, 'items:actions:after'))!;
+                const sandbox2 = await getByTestId(sandbox1, 'items:actions:update:after');
+
+                expect((sandbox2 as InternalSandbox).renderRoot).to.have.text('Test');
               });
 
               it('renders fx:sub_modification_url link', async () => {
@@ -805,7 +819,8 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
                 expect(link).to.be.instanceOf(InternalCustomerPortalLink);
                 expect(link).to.have.attribute(
                   'href',
-                  customer.data!._links['fx:sub_modification_url'].href
+                  // @ts-expect-error SDK types are missing this link
+                  form.data!._links['fx:sub_modification_url'].href
                 );
 
                 expect(text).to.have.attribute('lang', 'es');
