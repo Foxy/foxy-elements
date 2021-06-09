@@ -25,6 +25,7 @@ export function composeSubscription(
     .addLink('fx:transactions', `${endpoint}/transactions?subscription_id=${id}`)
     .addLink('fx:last_transaction', `${endpoint}/transactions/${last_transaction}`)
     .addLink('fx:transaction_template', `${endpoint}/transaction_templates/0`)
+    .addLink('fx:sub_modification_url', `about:blank`)
     .addLink('fx:sub_token_url', `about:blank`);
 
   if (lastTransaction) {

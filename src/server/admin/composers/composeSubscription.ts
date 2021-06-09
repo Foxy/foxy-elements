@@ -19,6 +19,7 @@ export function composeSubscription(
     .addLink('fx:transactions', `${endpoint}/stores/${store}/transactions?subscription_id=${id}`)
     .addLink('fx:last_transaction', `${endpoint}/transactions/${last_transaction}`)
     .addLink('fx:transaction_template', `${endpoint}/carts/0`)
+    .addLink('fx:sub_modification_url', `about:blank`)
     .addLink('fx:sub_token_url', `about:blank`);
 
   if (lastTransaction) {
