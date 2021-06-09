@@ -1,0 +1,114 @@
+import { Meta, Story, Title, Canvas, Subtitle } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import { html } from 'lit-html';
+import '../index.ts';
+
+<Meta title="Other / CustomerPortal / Guide: adding pages" />
+
+<Title>Guide: adding pages</Title>
+
+<Subtitle>
+  This guide will walk you through a recommended way to extend Customer Portal with new pages that
+  only authenticated customers can see.
+</Subtitle>
+
+<img
+  style={{ margin: '-2% -4.5% -4%', maxWidth: '109%' }}
+  alt="Final result: customer portal with custom navigation at the top. See the link at the end of this guide for a demo."
+  src="./images/portal-with-pages.png"
+/>
+
+## Setup
+
+To get started, make sure you've got your basic setup ready on the main page – in our guide that'd be `index.html`. If you're building a single page application, you'll need to include the JS portion only once.
+
+```html
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/"></foxy-customer-portal>
+
+<script type="module">
+  import 'https://unpkg.com/@foxy.io/elements/dist/cdn/foxy-customer-portal.js';
+
+  const I18nElement = customElements.get('foxy-i18n');
+  const i18nBase = 'https://unpkg.com/@foxy.io/elements/dist/cdn/translations';
+  I18nElement.onResourceFetch((ns, lang) => fetch(`${i18nBase}/${ns}/${lang}.json`));
+</script>
+```
+
+## Adding navigation
+
+Let's add a `<nav>` element with `<a>` links. We can't use slots since their content is rendered for everyone regardless of auth status, but we can use a special feature that comes with every configurable element from Foxy – **templates**. Just like slots, templates allow developers to inject custom markup in predefined positions, except that it won't be rendered if template host is hidden. Let's add our navigation right **before the header**:
+
+```html
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+  <template slot="customer:header:before">
+    <nav>
+      <a href="./index.html">My Profile</a>
+      <a href="./orders.html">My Orders</a>
+      <a href="mailto:hello@foxy.io">Contact Us</a>
+    </nav>
+  </template>
+</foxy-customer-portal>
+```
+
+If you run this code, you'll need to log in to see the links. It works!
+
+## Styling
+
+Let's add some CSS to make it look a bit better. Every template is rendered in an isolated Shadow DOM, so you'll need to link or define your styles **inside of the template**. Quick tip: use [Lumo](https://demo.vaadin.com/lumo-editor/) to make your custom content look native to the portal.
+
+```html
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+  <template slot="customer:header:before">
+    <style>
+      a {
+        color: var(--lumo-primary-color);
+        margin-right: var(--lumo-space-m);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+
+    <nav>...</nav>
+  </template>
+</foxy-customer-portal>
+```
+
+Now our navigation uses the primary theme color, medium spacing and font weight and displays underline on hover. You can apply as much CSS as you need, but we'll stop here for the purposes of this demo and move on to adding another page.
+
+## Adding custom page
+
+For our orders page, let's copy the contents of `index.html` and paste them into a new page – for example, `orders.html`. On that page, we'll want to replace the default portal content (transactions, addresses, etc) with our own. Customer portal comes with a handy feature that can help us with that: **configurable controls**. Almost every section, input or button in the portal can be hidden with [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) in the `hiddencontrols` attribute. Let's write one and keep only customer name with the logout button:
+
+```html
+<foxy-customer-portal
+  hiddencontrols="customer:header:actions:edit customer:subscriptions customer:transactions customer:addresses customer:payment-methods"
+  base="https://foxy-demo.foxycart.com/s/customer/"
+>
+  <template slot="customer:header:before">...</template>
+</foxy-customer-portal>
+```
+
+That's our custom page. To fill it with content, we can **use the `customer:default` template** the same way as we did for the navigation:
+
+```html
+<foxy-customer-portal
+  hiddencontrols="customer:header:actions:edit customer:subscriptions customer:transactions customer:addresses customer:payment-methods"
+  base="https://foxy-demo.foxycart.com/s/customer/"
+>
+  <template slot="customer:header:before">...</template>
+  <template slot="customer:default">
+    <p>Hello from the orders page!</p>
+  </template>
+</foxy-customer-portal>
+```
+
+And it's done! Authenticated customers will see our custom page while everyone else will be presented with a standard sign in screen built into the portal. Check it out in action here: <a href="./iframe.html?id=other-customerportal--adding-pages-guide-profile-demo&viewMode=story" target="_blank">see the demo</a>.
+
+## Next steps
+
+The rest is up to you: continue adding markup to the template or create custom elements for navigation and page content to keep things [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself). We recommend the latter for scenarios that involve data fetching or conditional rendering. Move transactions to a new page, display active subscriptions separately, have a dedicated tab for everything related to shipping – you name it.
+
+Happy coding!

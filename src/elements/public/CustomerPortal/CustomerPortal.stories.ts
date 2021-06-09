@@ -80,3 +80,7 @@ const summary: Summary = {
 export default getMeta(summary);
 
 export const Playground = getStory({ ...summary, code: true });
+
+export { AddingPagesGuideProfileDemo } from './demos/AddingPagesGuideProfileDemo';
+export { AddingPagesGuideOrdersDemo } from './demos/AddingPagesGuideOrdersDemo';
+export { DynamicContentGuideDemo } from './demos/DynamicContentGuideDemo';

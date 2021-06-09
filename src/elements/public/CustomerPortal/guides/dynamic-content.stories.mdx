@@ -1,0 +1,227 @@
+import { Meta, Story, Title, Canvas, Subtitle } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import { html } from 'lit-html';
+import '../index.ts';
+
+<Meta title="Other / CustomerPortal / Guide: dynamic content" />
+
+<Title>Guide: dynamic content</Title>
+
+<Subtitle>
+  This guide will show you how to use portal templates with custom elements to pull dynamic content
+  from 3rd-party sources.
+</Subtitle>
+
+<img
+  style={{ margin: '-2% -4.5% -4%', maxWidth: '109%' }}
+  alt="Final result: customer portal with a template displaying a promo. See the link at the end of this guide for a demo."
+  src="./images/portal-with-template.png"
+/>
+
+Most elements in `@foxy.io/elements` come with support for templates – small code snippets that accept some sort of context and output HTML to be rendered in a predefined location. For example, a template named `customer:header:after` will render your custom markup right after the header in `<foxy-customer>` that `<foxy-customer-portal>` is built upon – of course, as long as the customer element is visible.
+
+Parent elements pass templates to their children and keep them updated, allowing you to reach to the deepest corners of the portal such as `customer:subscriptions:list:form:header:actions:update:before` _(a space before the "Update billing" button in the subscription form that opens if customer clicks on a subscription card on the main page)_. Each template is rendered in its own Shadow DOM so that your markup and styles stay isolated from our elements. You can take a look at the available templates at the bottom of the Storybook page for an element you're interested in.
+
+## Setup
+
+To get started, make sure you've got your basic setup ready. We'll need to write a bit of JS in this guide, so feel free to also create a dedicated file for your code – but we'll be using an inline script for simplicity.
+
+```html
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/"></foxy-customer-portal>
+
+<script type="module">
+  import 'https://unpkg.com/@foxy.io/elements/dist/cdn/foxy-customer-portal.js';
+
+  const I18nElement = customElements.get('foxy-i18n');
+  const i18nBase = 'https://unpkg.com/@foxy.io/elements/dist/cdn/translations';
+  I18nElement.onResourceFetch((ns, lang) => fetch(`${i18nBase}/${ns}/${lang}.json`));
+</script>
+```
+
+## Adding Templates
+
+There are two ways to define templates: in HTML (for simple embeds) and using JS (for complex scenarios).
+
+HTML templates are defined with the `<template>` tag and identified by the `slot` attribute. Template content is parsed as a regular lit-html template, which means it supports dynamic data binding with the familiar JS literal syntax. **Warning: templates can be vulnerable to XSS if used with unsafe data sources. If you're in doubt, consider using JS templates instead.**
+
+```html
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+  <template slot="customer:header:after">
+    Welcome back, ${host.data.first_name}! This content is rendered with an HTML template.
+  </template>
+</foxy-customer-portal>
+```
+
+Note that the HTML templates are evaluated only once, so changing their content afterwards as well as nesting templates won't work. However, you can enable live reload during development by adding `mode="development"` attribute to the template host. You can also call `.compileTemplates()` on any element that supports templates to reload them once.
+
+JS templates can be defined in the `.templates` property on any element that supports them. Each template is a render function that accepts the `html` tag function from lit-html as the first argument and the `host` element as the second. The function _should_ return the output of the `html` tag function – a `TemplateResult` instance – but our elements can also work with any other value that can be converted to a string.
+
+```js
+document.querySelector('foxy-customer-portal').templates = {
+  'customer:header:after': (html, host) => html`
+    Welcome back, ${host.data?.first_name}! This content is rendered with a JS template.
+  `,
+};
+```
+
+The `.templates` property is reactive, so assigning a new value to it will automatically launch the lit-element update sequence and render your templates. Nested properties (e.g. `.templates['customer:header:after']`) are static – don't forget to call `.requestUpdate()` on your element after assigning to them.
+
+## Templates + Custom Elements = 💜
+
+Templates really shine when used together with the custom elements that bring support for internal state, advanced layout management and a freedom of choosing your own framework or not using one at all. For example, you can create a React component using the tooling you're familiar with, wrap it in a custom element and embed it right into the portal via templates. Or if your design system is in Vue, you can take the same approach and use your own design tokens while extending the portal – the possibilies are endless.
+
+For this guide we'll use [Lit](https://lit.dev) to create a web component loading a promo product from the [Fake Store API](https://fakestoreapi.com) project. Lit is a great starting point if it's your first time working with custom elements, plus you can play with it right in your browser – no compilation step needed.
+
+### Defining an element
+
+Let's extend our default setup with an HTML template rendering `<demo-promo>` element, and a corresponding custom element definition registering `PromoElement`:
+
+```html
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+  <template slot="customer:header:after">
+    <demo-promo></demo-promo>
+  </template>
+</foxy-customer-portal>
+
+<script type="module">
+  import { LitElement, css, html } from 'https://cdn.skypack.dev/lit';
+  import 'https://cdn.skypack.dev/@foxy.io/elements/dist/cdn/foxy-customer-portal.js';
+
+  const I18nElement = customElements.get('foxy-i18n');
+  const i18nBase = 'https://unpkg.com/@foxy.io/elements/dist/cdn/translations';
+  I18nElement.onResourceFetch((ns, lang) => fetch(`${i18nBase}/${ns}/${lang}.json`));
+
+  class PromoElement extends LitElement {
+    // TODO
+  }
+
+  customElements.define('demo-promo', PromoElement);
+</script>
+```
+
+### Rendering
+
+At this point, the code above will render an empty custom element once a customer logs in. Not very useful, right? Let's add some markup. In LitElement you can do so in the `.render()` method ([see docs](https://lit.dev/docs/components/rendering/)). We want an image, name, description and a link to the cart:
+
+```js
+class PromoElement extends LitElement {
+  render() {
+    return html`
+      <figure>
+        <img src="https://picsum.photos/64" alt="Product image" />
+        <figcaption>
+          <a href="https://cutt.ly/MnYFptp">Test product</a>
+          <span>Test product description.</span>
+        </figcaption>
+      </figure>
+    `;
+  }
+}
+```
+
+Much better! We've used a shortened link to a real cart for the purposes of this demo, but if you want to construct your own, you can how in [our wiki](https://wiki.foxycart.com/v/2.0/products).
+
+### Styling
+
+We want our element to look native to the portal, so we'll use [Lumo](https://demo.vaadin.com/lumo-editor/) theme for font, color and spacing. Note how we have to explicitly specify `display: block` for our `:host` since custom elements are `inline` by default. All styles are scoped to the element, so we don't have to worry about collisions and specificity:
+
+```js
+class PromoElement extends LitElement {
+  static get styles() {
+    return css`
+      :host {
+        font: normal var(--lumo-font-size-s) var(--lumo-font-family);
+        color: var(--lumo-body-text-color);
+        display: block;
+      }
+
+      figure {
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      img {
+        width: var(--lumo-size-m);
+        height: var(--lumo-size-m);
+        border: thin solid var(--lumo-contrast-10pct);
+        padding: var(--lumo-space-xs);
+        margin-right: var(--lumo-space-s);
+        border-radius: var(--lumo-border-radius-m);
+      }
+
+      a {
+        color: inherit;
+        display: block;
+        font-weight: bold;
+        margin-bottom: var(--lumo-space-xs);
+      }
+    `;
+  }
+
+  render() {...}
+}
+```
+
+Now that we've got the UI sorted out, it's time to make it dynamic. For the purposes of this demo we'll be loading a resource from Fake Cart API at `https://fakestoreapi.com/products/1`. The URL doesn't need any auth data, but let's pretend that it does because most of the time you'll be fetching something customer-specific anyway: `https://fakestoreapi.com/products/1?email=sally.sims@example.com`. And just like that, we've created more work for ourselves by needing to pass customer email down to our element and to the API.
+
+### Accessing customer info
+
+Attributes are a standard way of passing data to the elements and they work perfectly with HTML templates. Let's add an attribute named `email`, link it to a property with the same name in `<demo-promo>` and bind it to host data:
+
+```html
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+  <template slot="customer:header:after">
+    <demo-promo email="${host.data.email}"></demo-promo>
+  </template>
+</foxy-customer-portal>
+
+<script type="module">
+  import {...} from '...';
+
+  class PromoElement extends LitElement {
+    static get styles() {...}
+    static get properties() { return { email: { type: String } } }
+    render() {...}
+  }
+
+  customElements.define('demo-promo', PromoElement);
+</script>
+```
+
+Every time `data.email` changes in `<foxy-customer>` (part of `<foxy-customer-portal>`), our template will re-render, passing the new value into the `email` attribute on `<demo-promo>`. LitElement will pick up that change and update the `<demo-promo>` automatically.
+
+### Fetching data
+
+With the customer email stored in the attribute, we can finally load and render our promo with a regular `fetch()` call. Handling this in the `updated` [lifecycle hook](https://lit.dev/docs/components/lifecycle/#reactive-update-cycle-completing) ensures that personalized suggestions are loaded every time `this.email` changes.
+
+```js
+class PromoElement extends LitElement {
+  static get styles() {...}
+  static get properties() {...}
+
+  render() {
+    const { image, title, description } = this.product ?? {};
+    return html`
+      <figure aria-busy=${!!this.product} aria-live="polite">
+        <img src=${image} alt=${title} />
+        <figcaption>
+          <a href="https://cutt.ly/MnYFptp">${title}</a>
+          <span>Top pick for you. ${description}</span>
+        </figcaption>
+      </figure>
+    `;
+  }
+
+  async updated(changes) {
+    if (changes.has('email') && this.email) {
+      const response = await fetch(`https://fakestoreapi.com/products/1?email=${this.email}`);
+      this.product = await response.json();
+      this.requestUpdate();
+    }
+  }
+}
+```
+
+Misson completed: we have a custom promo widget right below the header that accepts customer email and uses it to fetch data from a 3rd-party service. Feel free to play around with it <a href="./iframe.html?id=other-customerportal--dynamic-content-guide-demo&viewMode=story" target="_blank">in this demo</a> or use it as a starting point for your own.
+
+Happy coding!
