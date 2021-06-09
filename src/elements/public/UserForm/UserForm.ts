@@ -6,7 +6,7 @@ import {
   css,
   html,
   TemplateResult,
-  PropertyDeclarations
+  PropertyDeclarations,
 } from 'lit-element';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Checkbox } from '../../private/Checkbox/Checkbox';
@@ -20,9 +20,7 @@ import { Themeable } from '../../../mixins/themeable';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { validate as isEmail } from 'email-validator';
 
-
 export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
-
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -30,7 +28,7 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-user-role': UserRole,
       'x-confirm-dialog': ConfirmDialog,
-      'foxy-i18n': I18n
+      'foxy-i18n': I18n,
     };
   }
 
@@ -62,18 +60,17 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
     return !this.errors.some(err => err.startsWith(prefix));
   });
 
-
   render(): TemplateResult {
     const ns = UserForm.__ns;
     if (!this.in('idle')) {
       return html`
         <div class="absolute inset-0 flex items-center justify-center">
           <foxy-spinner
-              data-testid="spinner"
-              class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-              layout="horizontal"
-              state=${this.in('busy') ? 'busy' : 'error'}
-              >
+            data-testid="spinner"
+            class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            layout="horizontal"
+            state=${this.in('busy') ? 'busy' : 'error'}
+          >
           </foxy-spinner>
         </div>
       `;
@@ -84,58 +81,60 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
       const isValid = isTemplateValid || isSnapshotValid;
       return html`
         <x-confirm-dialog
-            message="delete_prompt"
-            confirm="delete"
-            cancel="cancel"
-            header="delete"
-            theme="primary error"
-            lang=${this.lang}
-            ns=${ns}
-            id="confirm"
-            data-testid="confirm"
-            @hide=${this.__handleConfirmHide}
-            >
+          message="delete_prompt"
+          confirm="delete"
+          cancel="cancel"
+          header="delete"
+          theme="primary error"
+          lang=${this.lang}
+          ns=${ns}
+          id="confirm"
+          data-testid="confirm"
+          @hide=${this.__handleConfirmHide}
+        >
         </x-confirm-dialog>
-        <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
-          <div class="grid grid-cols-1 sm-grid-cols-2 gap-m" >
+        <div
+          class="space-y-l"
+          data-testid="wrapper"
+          aria-busy=${this.in('busy')}
+          aria-live="polite"
+        >
+          <div class="grid grid-cols-1 sm-grid-cols-2 gap-m">
             ${[
-                ['first_name', 'name.first', ''],
-                ['last_name', 'name.last', ''],
-                ['email', 'email', 'col-span2'],
-                ['phone', 'phoe', 'col-span2']
-              ].map(f => html`
-                <vaadin-text-field
-                    data-testid="${f[0]}"
-                    class="${f[2]}"
-                    error-message=${this.__getErrorMessage(f[0])}
-                    label=${this.__t(f[1]).toString()}
-                    value="${ifDefined((this.form as any)[f[0]])}"
-                    .checkValidity=${this.__getValidator(f[0])}
-                    @change=${this.__bindField(f[0] as keyof Data)}>
-                </vaadin-text-field>`
+              ['first_name', 'name.first', ''],
+              ['last_name', 'name.last', ''],
+              ['email', 'email', 'col-span2'],
+              ['phone', 'phoe', 'col-span2'],
+            ].map(
+              f => html` <vaadin-text-field
+                data-testid="${f[0]}"
+                class="${f[2]}"
+                error-message=${this.__getErrorMessage(f[0])}
+                label=${this.__t(f[1]).toString()}
+                value="${ifDefined((this.form as any)[f[0]])}"
+                .checkValidity=${this.__getValidator(f[0])}
+                @change=${this.__bindField(f[0] as keyof Data)}
+              >
+              </vaadin-text-field>`
             )}
           </div>
         </div>
         <div class="my-s">
           <div><foxy-i18n class="text-secondary text-s" key="roles" ns="${ns}"></foxy-i18n></div>
           <div class="border rounded-l border-contrast-10 mb-s p-s">
-          ${Object.keys(UserRole.roles).map(r => 
-            html`
-            <x-user-role name="${r}"></x-user-role>
-            `
-          )}
+            ${Object.keys(UserRole.roles).map(r => html` <x-user-role name="${r}"></x-user-role> `)}
           </div>
         </div>
         <vaadin-button
-            class="w-full"
-            theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-            data-testid="action"
-            ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
-            @click=${this.__handleActionClick}
-            >
-            <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
+          class="w-full"
+          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          data-testid="action"
+          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
+          @click=${this.__handleActionClick}
+        >
+          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
         </vaadin-button>
-        `;
+      `;
     }
   }
 
@@ -165,35 +164,29 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
   private __handleConfirmHide(evt: CustomEvent) {
     if (!evt.detail.cancelled) this.delete();
   }
-
 }
 
 class UserRole extends Themeable {
-
   public static roles = {
-    merchant: 
-    {
-      "name": "merchant.name",
-      "description": "merchant.description",
-      "icon": icons.merchant
+    merchant: {
+      name: 'merchant.name',
+      description: 'merchant.description',
+      icon: icons.merchant,
     },
-    programmer:
-    {
-      "name": "programmer.name",
-      "description": "programmer.description",
-      "icon": icons.backend
+    programmer: {
+      name: 'programmer.name',
+      description: 'programmer.description',
+      icon: icons.backend,
     },
-    frontend:
-    {
-      "name": "frontend.name",
-      "description": "frontend.description",
-      "icon": icons.frontend
+    frontend: {
+      name: 'frontend.name',
+      description: 'frontend.description',
+      icon: icons.frontend,
     },
-    designer:
-    {
-      "name": "designer.name",
-      "description": "designer.description",
-      "icon": icons.designer
+    designer: {
+      name: 'designer.name',
+      description: 'designer.description',
+      icon: icons.designer,
     },
   };
 
@@ -201,9 +194,9 @@ class UserRole extends Themeable {
     return {
       ...super.properties,
       name: {
-        type: String
-      }
-    }
+        type: String,
+      },
+    };
   }
 
   public static get scopedElements(): ScopedElementsMap {
@@ -224,11 +217,11 @@ class UserRole extends Themeable {
           width: 18px;
           height: 18px;
         }
-      `
-    ]
+      `,
+    ];
   }
 
-  public name: 'merchant'|'programmer'|'frontend'|'designer'|'' = '';
+  public name: 'merchant' | 'programmer' | 'frontend' | 'designer' | '' = '';
 
   render() {
     if (!this.name) {
@@ -237,19 +230,17 @@ class UserRole extends Themeable {
     const data = UserRole.roles[this.name];
     return html`
       <div data-user-form-role class="flex w-full py-s">
-        <x-checkbox ></x-checkbox>
+        <x-checkbox></x-checkbox>
         <div class="flex-grow flex border-b border-contrast-10 p-0">
           <div class="flex-grow pb-s">
             <div class="text-header"><foxy-i18n ns="user-form" key="${data.name}"></foxy-i18n></div>
-            <div class="text-s text-body"><foxy-i18n  ns="user-form" key="${data.description}"></foxy-i18n></div>
+            <div class="text-s text-body">
+              <foxy-i18n ns="user-form" key="${data.description}"></foxy-i18n>
+            </div>
           </div>
-          <div data-icon class="text-body">
-            ${data.icon}
-          </div>
+          <div data-icon class="text-body">${data.icon}</div>
         </div>
       </div>
-    `
-    ;
+    `;
   }
-
 }

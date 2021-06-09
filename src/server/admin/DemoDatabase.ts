@@ -50,7 +50,7 @@ export class DemoDatabase extends Dexie {
       stores: '++id',
       subscriptions: '++id,store,customer',
       transactions: '++id,store,customer,subscription',
-      users: '++id,store'
+      users: '++id,store',
     });
 
     this.customerAttributes = this.table('customer_attributes');
