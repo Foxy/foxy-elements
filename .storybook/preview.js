@@ -30,14 +30,18 @@ addEventListener('fetch', async evt => {
         const apiResponse = await router.handleRequest(request).handlerPromise;
         const apiToken = (await apiResponse.clone().json()).session_token;
 
-        localStorage.setItem(API.SESSION, apiToken);
-        response = new Response(
-          JSON.stringify({
-            _links: { self: { href: evt.request.url } },
-            credential,
-            type,
-          })
-        );
+        if (apiResponse.ok) {
+          localStorage.setItem(API.SESSION, apiToken);
+          response = new Response(
+            JSON.stringify({
+              _links: { self: { href: evt.request.url } },
+              credential,
+              type,
+            })
+          );
+        } else {
+          response = new Response(null, { status: apiResponse.status });
+        }
       }
 
       if (evt.request.method === 'DELETE') {
