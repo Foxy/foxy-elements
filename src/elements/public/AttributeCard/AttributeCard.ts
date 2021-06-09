@@ -30,9 +30,9 @@ export class AttributeCard extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('name:before')}
 
-      <div class="flex items-center space-x-xs text-xxs text-secondary">
+      <div class="flex items-center space-x-xs text-xxs text-primary">
         <div
-          class="truncate uppercase font-medium  tracking-wider"
+          class="truncate uppercase font-semibold tracking-wider"
           title=${data?.name ?? ''}
           data-testid="name"
         >
@@ -67,7 +67,7 @@ export class AttributeCard extends Base<Data> {
 
     return html`
       <div
-        class="relative text-body text-l font-lumo leading-m focus-outline-none"
+        class="relative text-body text-s font-lumo leading-m focus-outline-none"
         aria-live="polite"
         aria-busy=${this.in('busy')}
       >

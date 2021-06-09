@@ -8,6 +8,7 @@ import { Column } from '../Table/types';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data as CustomerAddress } from '../AddressCard/types';
 import { FormDialog } from '../FormDialog/FormDialog';
+import { Group } from '../../private';
 import { ItemRenderer } from '../CollectionPage/types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PageRenderer } from '../CollectionPages/types';
@@ -84,6 +85,7 @@ export class Customer extends Base<Data> {
       'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'x-group': Group,
       'x-tabs': Tabs,
     };
   }
@@ -130,7 +132,7 @@ export class Customer extends Base<Data> {
         data-testid="header:actions:edit"
         aria-label=${this.t('update').toString()}
         class="px-xs rounded-full"
-        theme="icon large"
+        theme="icon"
         ?disabled=${isEditActionDisabled}
         @click=${(evt: Event) => {
           const dialog = this.renderRoot.querySelector(`#${dialogId}`) as FormDialog;
@@ -162,20 +164,15 @@ export class Customer extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('header:before')}
 
-      <header class="flex items-center justify-between space-x-m" data-testid="header">
-        <div class="leading-s min-w-0 flex-1">
-          <h1 class="tracking-wide text-xl font-medium truncate">
-            ${this.in({ idle: 'snapshot' })
-              ? html`${this.data.first_name} ${this.data.last_name}`
-              : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
-          </h1>
-
-          <p class="text-l text-secondary truncate">
-            ${this.in({ idle: 'snapshot' })
-              ? html`${this.data.email}`
-              : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
-          </p>
-        </div>
+      <header
+        class="flex items-center justify-between space-x-m pb-s border-b border-contrast-10"
+        data-testid="header"
+      >
+        <h1 class="text-xxl font-bold truncate min-w-0 flex-1">
+          ${this.in({ idle: 'snapshot' })
+            ? html`${this.data.first_name} ${this.data.last_name}`
+            : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
+        </h1>
 
         ${this.hiddenSelector.matches('header:actions', true) ? '' : this.__renderHeaderActions()}
       </header>
@@ -203,7 +200,9 @@ export class Customer extends Base<Data> {
 
       <vaadin-button
         data-testid="addresses:actions:create"
-        theme="small"
+        aria-label=${this.t('create').toString()}
+        class="px-xs rounded-full"
+        theme="small icon"
         ?disabled=${isDisabled}
         @click=${(evt: Event) => {
           if (data === null) return;
@@ -228,7 +227,6 @@ export class Customer extends Base<Data> {
         >
         </foxy-form-dialog>
 
-        <foxy-i18n lang=${this.lang} ns=${this.ns} key="create"></foxy-i18n>
         <iron-icon slot="suffix" icon="icons:add"></iron-icon>
       </vaadin-button>
 
@@ -351,9 +349,9 @@ export class Customer extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('addresses:before')}
 
-      <section class="pt-m border-t-4 border-contrast-5" data-testid="addresses">
-        <header class="space-x-m flex items-center mb-m">
-          <h2 class="tracking-wide text-l font-medium flex-1">
+      <section class="pt-m" data-testid="addresses">
+        <header class="space-x-m flex items-center mb-s">
+          <h2 class="text-m font-semibold">
             <foxy-i18n ns=${ns} lang=${lang} key="address_plural"></foxy-i18n>
           </h2>
 
@@ -402,8 +400,8 @@ export class Customer extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('payment-methods:before')}
 
-      <div class="pt-m border-t-4 border-contrast-5" data-testid="payment-methods">
-        <h2 class="tracking-wide text-l font-medium mb-m">
+      <div class="pt-m" data-testid="payment-methods">
+        <h2 class="text-m font-semibold mb-s">
           <foxy-i18n
             data-testclass="i18n"
             lang=${this.lang}
@@ -439,8 +437,9 @@ export class Customer extends Base<Data> {
 
       <vaadin-button
         data-testid="attributes:actions:create"
-        class="w-full"
-        theme="small"
+        aria-label=${this.t('create').toString()}
+        class="px-xs rounded-full"
+        theme="small icon"
         ?disabled=${isDisabled}
         @click=${(evt: Event) => {
           if (data === null) return;
@@ -464,7 +463,6 @@ export class Customer extends Base<Data> {
         >
         </foxy-form-dialog>
 
-        <foxy-i18n lang=${this.lang} ns=${this.ns} key="create"></foxy-i18n>
         <iron-icon slot="suffix" icon="icons:add"></iron-icon>
       </vaadin-button>
 
@@ -585,9 +583,9 @@ export class Customer extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('attributes:before')}
 
-      <section class="pt-m border-t-4 border-contrast-5" data-testid="attributes">
-        <header class="space-x-m flex items-center mb-m">
-          <h2 class="tracking-wide text-l font-medium flex-1">
+      <section class="pt-m" data-testid="attributes">
+        <header class="space-x-m flex items-center mb-s">
+          <h2 class="text-m font-semibold">
             <foxy-i18n ns=${ns} lang=${lang} key="attribute_plural"></foxy-i18n>
           </h2>
 
@@ -617,16 +615,18 @@ export class Customer extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('transactions:before')}
 
-      <foxy-collection-pages
-        data-testid="transactions"
-        spinner="foxy-spinner"
-        first=${transactionsLink}
-        class="divide-y divide-contrast-10"
-        group=${this.group}
-        page="foxy-transactions-table"
-        lang=${this.lang}
-      >
-      </foxy-collection-pages>
+      <x-group frame>
+        <foxy-collection-pages
+          data-testid="transactions"
+          spinner="foxy-spinner"
+          first=${transactionsLink}
+          class="divide-y divide-contrast-10 block mx-m"
+          group=${this.group}
+          page="foxy-transactions-table"
+          lang=${this.lang}
+        >
+        </foxy-collection-pages>
+      </x-group>
 
       ${this.renderTemplateOrSlot('transactions:after')}
     `;
@@ -703,16 +703,18 @@ export class Customer extends Base<Data> {
         >
         </foxy-form-dialog>
 
-        <foxy-collection-pages
-          data-testid="subscriptions:pages"
-          spinner="foxy-spinner"
-          first=${subscriptionsLink}
-          class="divide-y divide-contrast-10"
-          group=${this.group}
-          lang=${this.lang}
-          .page=${this.__renderSubscriptionsPage}
-        >
-        </foxy-collection-pages>
+        <x-group frame>
+          <foxy-collection-pages
+            data-testid="subscriptions:pages"
+            spinner="foxy-spinner"
+            first=${subscriptionsLink}
+            class="divide-y divide-contrast-10 block mx-m"
+            group=${this.group}
+            lang=${this.lang}
+            .page=${this.__renderSubscriptionsPage}
+          >
+          </foxy-collection-pages>
+        </x-group>
 
         ${this.renderTemplateOrSlot('subscriptions:after')}
       </div>
@@ -725,7 +727,7 @@ export class Customer extends Base<Data> {
 
   private readonly __renderTabs = (tabs: Tab[]) => {
     return html`
-      <div class="pt-m border-t-4 border-contrast-5">
+      <div class="pt-m">
         <x-tabs size=${tabs.length} ?disabled=${!this.in({ idle: 'snapshot' })}>
           ${tabs.map(
             (tab, index) => html`
@@ -766,7 +768,7 @@ export class Customer extends Base<Data> {
       <div class="relative" data-testid="wrapper" aria-busy=${isBusy} aria-live="polite">
         <div
           class=${classMap({
-            'font-lumo text-body text-m leading-m space-y-l': true,
+            'font-lumo text-body text-m leading-m space-y-s': true,
             'opacity-50': !isLoaded,
           })}
         >

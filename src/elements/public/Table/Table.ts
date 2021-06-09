@@ -44,7 +44,7 @@ export class Table<TData extends Collection> extends Base<TData> {
             </tr>
           </thead>
 
-          <tbody class="divide-y divide-contrast-10 ">
+          <tbody class="divide-y divide-contrast-10">
             ${this.__rows.map(resource => {
               return html`
                 <tr class="h-l">

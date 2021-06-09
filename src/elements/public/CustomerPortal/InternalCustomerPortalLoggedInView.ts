@@ -45,12 +45,10 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     html,
     host
   ) => {
-    const customer = this.__customerElement;
     let billingLink = '';
 
-    if (customer?.in({ idle: 'snapshot' })) {
-      const link = (customer.data._links['fx:sub_token_url'] as any).href as string;
-
+    if (host.in({ idle: 'snapshot' })) {
+      const link = host.data._links['fx:sub_token_url'].href;
       const updateBillingURL = new URL(link);
 
       updateBillingURL.searchParams.set('cart', 'checkout');
@@ -77,12 +75,10 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     html,
     host
   ) => {
-    const customer = this.__customerElement;
     let cancelLink = '';
 
-    if (customer?.in({ idle: 'snapshot' })) {
-      const link = (customer.data._links['fx:sub_token_url'] as any).href as string;
-      const cancelURL = new URL(link);
+    if (host.in({ idle: 'snapshot' })) {
+      const cancelURL = new URL(host.data._links['fx:sub_token_url'].href);
 
       cancelURL.searchParams.set('sub_cancel', 'true');
       cancelLink = cancelURL.toString();
@@ -137,12 +133,8 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     html,
     host
   ) => {
-    const customer = this.__customerElement;
-    let itemsLink = '';
-
-    if (customer?.in({ idle: 'snapshot' })) {
-      itemsLink = customer.data._links['fx:sub_modification_url'].href;
-    }
+    // @ts-expect-error missing typedef in SDK
+    const itemsLink = host.data?._links['fx:sub_modification_url']?.href ?? '';
 
     return html`
       ${host.renderTemplateOrSlot('items:actions:update:before')}
@@ -173,9 +165,12 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     };
 
     templates['items:actions:after'] = (html, host) => {
-      const updateHidden = host.hiddenSelector.matches('items:actions:update', true);
+      const hasUpdateLink = !!host.data?._links['fx:sub_modification_url'];
+      const isUpdateHidden = host.hiddenSelector.matches('items:actions:update', true);
+      const isUpdateRendered = hasUpdateLink && !isUpdateHidden;
+
       return html`
-        ${updateHidden ? '' : this.__renderSubscriptionsFormItemsActionsUpdate(html, host)}
+        ${isUpdateRendered ? this.__renderSubscriptionsFormItemsActionsUpdate(html, host) : ''}
         ${originalItemsActionsAfterRenderer?.(html, host)}
       `;
     };
@@ -244,7 +239,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       ${this.renderTemplateOrSlot('customer:subscriptions:header:before')}
 
       <foxy-i18n
-        class="block text-l font-medium tracking-wide"
+        class="block text-m font-semibold"
         lang=${this.lang}
         key="subscription_plural"
         ns=${this.ns}
@@ -299,7 +294,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('customer:subscriptions:before')}
 
-      <div class="space-y-m pt-m border-t-4 border-contrast-5" data-testid="subscriptions">
+      <div class="space-y-s" data-testid="subscriptions">
         ${hiddenSelector.matches('header', true) ? '' : this.__renderSubscriptionsHeader()}
         ${hiddenSelector.matches('list', true) ? '' : this.__renderSubscriptionsList()}
       </div>
@@ -314,7 +309,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         ${this.renderTemplateOrSlot('customer:transactions:header:before')}
 
         <foxy-i18n
-          class="text-l font-medium tracking-wide"
+          class="text-m font-semibold"
           lang=${this.lang}
           key="transaction_plural"
           ns=${this.ns}
@@ -363,7 +358,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('customer:transactions:before')}
 
-      <div class="space-y-m pt-m border-t-4 border-contrast-5" data-testid="transactions">
+      <div class="space-y-s" data-testid="transactions">
         ${hiddenSelector.matches('header') ? '' : this.__renderTransactionsHeader()}
         ${hiddenSelector.matches('list') ? '' : this.__renderTransactionsList()}
       </div>
@@ -398,7 +393,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
           data-testid="sign-out"
           aria-label=${this.t('sign_out').toString()}
           style="padding: var(--lumo-space-xs); margin: 0; border-radius: 100%; display: flex"
-          theme="icon large"
+          theme="icon"
           ?disabled=${this.disabledSelector.matches(scope) || !isCustomerLoaded || state !== 'idle'}
           @click=${handleClick}
         >
@@ -459,7 +454,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         .templates=${templates}
         @update=${() => this.requestUpdate()}
       >
-        <div class="space-y-l mt-m">
+        <div class="space-y-m">
           ${hiddenSelector.matches('subscriptions', true) ? '' : this.__renderSubscriptions()}
           ${hiddenSelector.matches('transactions', true) ? '' : this.__renderTransactions()}
         </div>

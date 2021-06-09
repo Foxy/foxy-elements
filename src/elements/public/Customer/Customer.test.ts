@@ -100,19 +100,17 @@ describe('Customer', () => {
       expect(sandbox).to.contain.html(value);
     });
 
-    it('once loaded, renders full name and email in header', async () => {
+    it('once loaded, renders full name in header', async () => {
       const data = await getTestData<Data>('./s/admin/customers/0');
 
       data.first_name = 'Justice';
       data.last_name = 'Witt';
-      data.email = 'justice.witt@example.com';
 
       const layout = html`<foxy-customer .data=${data}></foxy-customer>`;
       const element = await fixture<Customer>(layout);
       const header = await getByTestId(element, 'header');
 
       expect(header).to.contain.text('Justice Witt');
-      expect(header).to.contain.text('justice.witt@example.com');
     });
 
     describe('actions', () => {

@@ -28,6 +28,7 @@ export class CustomerPortal extends ThemeableMixin(CustomerApi) {
             hiddencontrols=${this.hiddenSelector.toString()}
             customer=${this.base}
             group=${this.group}
+            class="h-full"
             lang=${this.lang}
             href=${new URL('./customer_portal_settings', this.base).toString()}
             .templates=${this.templates}
@@ -40,6 +41,7 @@ export class CustomerPortal extends ThemeableMixin(CustomerApi) {
             readonlycontrols=${this.readonlySelector.toString()}
             hiddencontrols=${this.hiddenSelector.toString()}
             group=${this.group}
+            class="h-full"
             lang=${this.lang}
             .templates=${this.templates}
           >

@@ -1,4 +1,12 @@
-import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
+import {
+  CSSResult,
+  CSSResultArray,
+  LitElement,
+  PropertyDeclarations,
+  TemplateResult,
+  css,
+  html,
+} from 'lit-element';
 
 import { AccessRecoveryForm } from '..';
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -16,6 +24,17 @@ export class InternalCustomerPortalLoggedOutView extends Base {
       group: { type: String },
       page: { type: String },
     };
+  }
+
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      super.styles,
+      css`
+        .max-w-20rem {
+          max-width: 20rem;
+        }
+      `,
+    ];
   }
 
   group = '';
@@ -109,19 +128,20 @@ export class InternalCustomerPortalLoggedOutView extends Base {
     const hiddenSelector = this.hiddenSelector.zoom(scope);
 
     return html`
-      <div
-        data-testid="access-recovery"
-        class="mx-auto max-w-20rem flex items-center justify-center"
-      >
-        ${this.renderTemplateOrSlot(`${scope}:before`)}
-        <div class="space-y-l">
-          ${hiddenSelector.matches('header', true) ? '' : this.__renderAccessRecoveryHeader()}
-          <div class="space-y-s">
-            ${hiddenSelector.matches('form', true) ? '' : this.__renderAccessRecoveryForm()}
-            ${hiddenSelector.matches('back', true) ? '' : this.__renderAccessRecoveryBack()}
+      <div class="h-full flex" data-testid="access-recovery">
+        <div class="m-auto max-w-20rem flex-1">
+          ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+          <div class="space-y-l">
+            ${hiddenSelector.matches('header', true) ? '' : this.__renderAccessRecoveryHeader()}
+            <div class="space-y-s">
+              ${hiddenSelector.matches('form', true) ? '' : this.__renderAccessRecoveryForm()}
+              ${hiddenSelector.matches('back', true) ? '' : this.__renderAccessRecoveryBack()}
+            </div>
           </div>
+
+          ${this.renderTemplateOrSlot(`${scope}:after`)}
         </div>
-        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -212,16 +232,20 @@ export class InternalCustomerPortalLoggedOutView extends Base {
     const hiddenSelector = this.hiddenSelector.zoom(scope);
 
     return html`
-      <div class="mx-auto max-w-20rem flex items-center justify-center" data-testid="sign-in">
-        ${this.renderTemplateOrSlot(`${scope}:before`)}
-        <div class="space-y-l">
-          ${hiddenSelector.matches('header', true) ? '' : this.__renderSignInHeader()}
-          <div class="space-y-s">
-            ${hiddenSelector.matches('form', true) ? '' : this.__renderSignInForm()}
-            ${hiddenSelector.matches('recover', true) ? '' : this.__renderSignInRecover()}
+      <div class="h-full flex" data-testid="sign-in">
+        <div class="m-auto max-w-20rem flex-1">
+          ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+          <div class="space-y-l">
+            ${hiddenSelector.matches('header', true) ? '' : this.__renderSignInHeader()}
+            <div class="space-y-s">
+              ${hiddenSelector.matches('form', true) ? '' : this.__renderSignInForm()}
+              ${hiddenSelector.matches('recover', true) ? '' : this.__renderSignInRecover()}
+            </div>
           </div>
+
+          ${this.renderTemplateOrSlot(`${scope}:after`)}
         </div>
-        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
