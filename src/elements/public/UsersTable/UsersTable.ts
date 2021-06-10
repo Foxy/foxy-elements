@@ -13,7 +13,7 @@ export class UsersTable extends Table<Data> {
     return {
       'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-form-dialog': FormDialog,
-      'foxy-user-form': UserForm
+      'foxy-user-form': UserForm,
     };
   }
 
@@ -41,7 +41,7 @@ export class UsersTable extends Table<Data> {
     cell: ctx => html`
       <span data-testclass="email" class="text-s text-secondary font-tnum">${ctx.data.email}</span>
     `,
-    hideBelow: 'md'
+    hideBelow: 'md',
   };
 
   static rolesColumn: Column<Data> = {
@@ -70,19 +70,20 @@ export class UsersTable extends Table<Data> {
         <foxy-i18n key="time" options='{"value": "${ctx.data.date_modified}"}'></foxy-i18n>
       </span>
     `,
-    hideBelow: 'lg'
+    hideBelow: 'lg',
   };
 
   static actionsColumn: Column<Data> = {
     cell: ctx => html`
       <span data-testclass="lastUpdated" class="text-s text-secondary font-tnum">
-        <button onclick="((el) => {
-          console.log(el.nextElementSibling);
+        <button
+          onclick="((el) => {
           el.nextElementSibling.show();
-        })(this)" ><foxy-i18n key="remove"></foxy-i18n></button>
-        <foxy-form-dialog 
-           href="${ctx.data._links.self.href}"
-           form="foxy-user-form">
+        })(this)"
+        >
+          <foxy-i18n key="remove"></foxy-i18n>
+        </button>
+        <foxy-form-dialog href="${ctx.data._links.self.href}" form="foxy-user-form">
         </foxy-form-dialog>
       </span>
     `,
@@ -97,4 +98,5 @@ export class UsersTable extends Table<Data> {
   ];
 
   private static __ns = 'users-table';
+
 }
