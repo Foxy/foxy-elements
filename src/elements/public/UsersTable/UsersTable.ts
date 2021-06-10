@@ -5,11 +5,15 @@ import { CSSResult, CSSResultArray, css, html } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import * as icons from '../UserForm/icons';
 import { Themeable } from '../../../mixins/themeable';
+import { FormDialog } from '../FormDialog';
+import { UserForm } from '../UserForm';
 
 export class UsersTable extends Table<Data> {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'foxy-form-dialog': FormDialog,
+      'foxy-user-form': UserForm
     };
   }
 
@@ -69,7 +73,16 @@ export class UsersTable extends Table<Data> {
 
   static actionsColumn: Column<Data> = {
     cell: ctx => html`
-      <span data-testclass="actions" class="text-s text-secondary font-tnum">delete</span>
+      <span data-testclass="lastUpdated" class="text-s text-secondary font-tnum">
+        <button onclick="((el) => {
+          console.log(el.nextElementSibling);
+          el.nextElementSibling.show();
+        })(this)" ><foxy-i18n key="remove"></foxy-i18n></button>
+        <foxy-form-dialog 
+           href="${ctx.data._links.self.href}"
+           form="foxy-user-form">
+        </foxy-form-dialog>
+      </span>
     `,
   };
 
