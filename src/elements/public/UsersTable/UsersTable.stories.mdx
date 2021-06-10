@@ -1,0 +1,119 @@
+import dedent from 'dedent';
+import { html } from 'lit-html';
+import {
+  Canvas,
+  Meta,
+  Story,
+  Subtitle,
+} from  '@web/storybook-prebuilt/addon-docs/blocks.js';
+
+import './index.ts';
+
+<Meta title="Tables / UsersTable" />
+
+# Users Table
+
+<Subtitle>Table element displaying users</Subtitle>
+
+<Canvas
+  mdxSource={dedent`
+    <foxy-users-table
+        href="https://demo.foxycart.com/s/admin/stores/0/users"
+      >
+    </foxy-users-table>
+  `}
+  isExpanded
+  >
+  <Story name="Playground">
+    {() =>
+      html`
+        <foxy-users-table
+        href="https://demo.foxycart.com/s/admin/stores/0/users"
+        >
+        </foxy-users-table>
+      `
+    }
+  </Story>
+</Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-users-table" />
+
+### hAPI
+
+This element supports the following resources: [user](https://api.foxycart.com/rels/user).
+
+### i18next
+
+This element supports the following namespaces: `user-form`, `shared`.
+
+### Theming
+
+Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.template.clean.invalid" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-users-table
+        href="https://demo.foxycart.com/s/admin/stores/0/users"
+        class="container-narrow"
+      >
+      </foxy-users-table>
+    `
+  }
+</Story>
+
+<Story name="State: idle.template.dirty.valid" parameters={{ docs: { disable: true } }}>
+  {() => html`
+    <foxy-users-table
+      href="https://demo.foxycart.com/s/admin/stores/0/users"
+      class="container-narrow"
+      @update=${((isUpdating = false) => evt => {
+        if (!isUpdating && !evt.target.in({ idle: { template: { dirty: 'valid' } } })) {
+          isUpdating = true;
+          evt.target.data = null;
+          evt.target.edit({ first_name: 'Ann', last_name: 'Doe', email: 'ann.doe@example.com', phone: '444-444-4444', "is_programmer": true, "is_merchant": true });
+          evt.target.updateComplete.then(() => (isUpdating = false));
+        }
+      })()}
+    >
+    </foxy-users-table>
+  `}
+</Story>
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-users-table
+        href="https://demo.foxycart.com/s/admin/stores/0/users"
+        class="container-narrow"
+      >
+      </foxy-users-table>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-users-table
+        href="https://demo.foxycart.com/s/admin/stores/0/users"
+        class="container-narrow"
+      >
+      </foxy-users-table>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-users-table
+        href="https://demo.foxycart.com/s/admin/stores/0/users"
+        class="container-narrow"
+      >
+      </foxy-users-table>
+    `
+  }
+</Story>
