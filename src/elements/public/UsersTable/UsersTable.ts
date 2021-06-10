@@ -41,6 +41,7 @@ export class UsersTable extends Table<Data> {
     cell: ctx => html`
       <span data-testclass="email" class="text-s text-secondary font-tnum">${ctx.data.email}</span>
     `,
+    hideBelow: 'md'
   };
 
   static rolesColumn: Column<Data> = {
@@ -69,6 +70,7 @@ export class UsersTable extends Table<Data> {
         <foxy-i18n key="time" options='{"value": "${ctx.data.date_modified}"}'></foxy-i18n>
       </span>
     `,
+    hideBelow: 'lg'
   };
 
   static actionsColumn: Column<Data> = {
