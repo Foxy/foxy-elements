@@ -2,6 +2,7 @@ import { Column } from '../Table/types';
 import { Data } from './types';
 import { Table } from '../Table/Table';
 import { CSSResult, CSSResultArray, css, html } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import * as icons from '../UserForm/icons';
 import { Themeable } from '../../../mixins/themeable';
 
@@ -41,13 +42,18 @@ export class UsersTable extends Table<Data> {
   static rolesColumn: Column<Data> = {
     cell: ctx => html`
       <span data-testclass="roles" class="flex">
-        ${UsersTable.__roles.map(
-          r => html`
-            <div data-icon class="${ctx.data[r[0]] ? '' : 'text-disabled'} mx-xs">
-              ${icons[r[1]]}
-            </div>
-          `
-        )}
+        <div data-icon class="${ctx.data.is_merchant ? '' : 'text-disabled'} mx-xs">
+          ${icons.merchant}
+        </div>
+        <div data-icon class="${ctx.data.is_programmer ? '' : 'text-disabled'} mx-xs">
+          ${icons.backend}
+        </div>
+        <div data-icon class="${ctx.data.is_front_end_developer ? '' : 'text-disabled'} mx-xs">
+          ${icons.frontend}
+        </div>
+        <div data-icon class="${ctx.data.is_designer ? '' : 'text-disabled'} mx-xs">
+          ${icons.designer}
+        </div>
       </span>
     `,
   };
@@ -66,15 +72,6 @@ export class UsersTable extends Table<Data> {
       <span data-testclass="actions" class="text-s text-secondary font-tnum">delete</span>
     `,
   };
-
-  private static get __roles() {
-    return [
-      ['is_merchant', 'merchant'],
-      ['is_programmer', 'backend'],
-      ['is_front_end', 'frontend'],
-      ['is_designer', 'designer'],
-    ];
-  }
 
   columns = [
     UsersTable.nameColumn,
