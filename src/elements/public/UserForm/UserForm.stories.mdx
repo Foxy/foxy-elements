@@ -56,7 +56,7 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
   {() =>
     html`
       <foxy-user-form
-        parent="https://demo.foxycart.com/s/admin/users"
+        parent="https://demo.foxycart.com/s/admin/stores/0/users"
         class="container-narrow"
       >
       </foxy-user-form>
@@ -67,7 +67,7 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
 <Story name="State: idle.template.dirty.valid" parameters={{ docs: { disable: true } }}>
   {() => html`
     <foxy-user-form
-      parent="https://demo.foxycart.com/s/admin/users"
+      parent="https://demo.foxycart.com/s/admin/stores/0/users"
       class="container-narrow"
       @update=${((isUpdating = false) => evt => {
         if (!isUpdating && !evt.target.in({ idle: { template: { dirty: 'valid' } } })) {
@@ -86,7 +86,7 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
   {() =>
     html`
       <foxy-user-form
-        parent="https://demo.foxycart.com/s/admin/users"
+        parent="https://demo.foxycart.com/s/admin/stores/0/users"
         class="container-narrow"
       >
       </foxy-user-form>
@@ -98,7 +98,7 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
   {() =>
     html`
       <foxy-user-form
-        parent="https://demo.foxycart.com/s/admin/users"
+        parent="https://demo.foxycart.com/s/admin/stores/0/users"
         href="https://demo.foxycart.com/s/admin/sleep"
         class="container-narrow"
       >
@@ -111,7 +111,7 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
   {() =>
     html`
       <foxy-user-form
-        parent="https://demo.foxycart.com/s/admin/users"
+        parent="https://demo.foxycart.com/s/admin/stores/0/users"
         href="https://demo.foxycart.com/s/admin/not-found"
         class="container-narrow"
       >

@@ -454,6 +454,20 @@ router.delete('/s/admin/customers/:id', async ({ params }) => {
 });
 
 // users
+router.get('/s/admin/stores/:id/users', async ({ params, request }) => {
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+  const [count, items] = await Promise.all([
+    db.users.count(),
+    db.users.where('store').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+  await whenDbReady;
+  const rel = 'fx:users';
+  const body = composeCollection({ composeItem: composeUser, rel, url, count, items });
+  return new Response(JSON.stringify(body));
+});
+
 router.get('/s/admin/users/:id', async ({ params }) => {
   await whenDbReady;
   const user = await db.users.get(parseInt(params.id));
