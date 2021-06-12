@@ -122,7 +122,17 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
         <div class="my-s">
           <div><foxy-i18n class="text-secondary text-s" key="roles" ns="${ns}"></foxy-i18n></div>
           <div class="border rounded-l border-contrast-10 mb-s p-s">
-            ${Object.keys(UserRole.roles).map(r => html` <x-user-role name="${r}"></x-user-role> `)}
+            ${Object.entries(UserRole.roles).map(
+              ([k, v]) => html`
+                <x-user-role
+                  name="${k}"
+                  .value=${ifDefined((this.form as any)[v.roleName])}
+                  .disabled=${this.in({ idle: 'snapshot' })}
+                  @change=${this.__bindField(v.roleName as keyof Data)}
+                >
+                </x-user-role>
+              `
+            )}
           </div>
         </div>
         <vaadin-button
@@ -172,21 +182,25 @@ class UserRole extends Themeable {
       name: 'merchant.name',
       description: 'merchant.description',
       icon: icons.merchant,
+      roleName: 'is_merchant',
     },
     programmer: {
       name: 'programmer.name',
       description: 'programmer.description',
       icon: icons.backend,
+      roleName: 'is_programmer',
     },
     frontend: {
       name: 'frontend.name',
       description: 'frontend.description',
       icon: icons.frontend,
+      roleName: 'is_front_end_developer',
     },
     designer: {
       name: 'designer.name',
       description: 'designer.description',
       icon: icons.designer,
+      roleName: 'is_designer',
     },
   };
 
@@ -196,6 +210,8 @@ class UserRole extends Themeable {
       name: {
         type: String,
       },
+      value: { type: Boolean, noAccessor: true },
+      disabled: { type: Boolean, noAccessor: true },
     };
   }
 
@@ -221,6 +237,10 @@ class UserRole extends Themeable {
     ];
   }
 
+  value = false;
+
+  disabled = false;
+
   public name: 'merchant' | 'programmer' | 'frontend' | 'designer' | '' = '';
 
   render() {
@@ -230,7 +250,11 @@ class UserRole extends Themeable {
     const data = UserRole.roles[this.name];
     return html`
       <div data-user-form-role class="flex w-full py-s">
-        <x-checkbox></x-checkbox>
+        <x-checkbox
+          ?disabled=${this.disabled}
+          ?checked=${this.value}
+          @change=${this.__handleCheckboxChange}
+        ></x-checkbox>
         <div class="flex-grow flex border-b border-contrast-10 p-0">
           <div class="flex-grow pb-s">
             <div class="text-header"><foxy-i18n ns="user-form" key="${data.name}"></foxy-i18n></div>
@@ -242,5 +266,11 @@ class UserRole extends Themeable {
         </div>
       </div>
     `;
+  }
+
+  private __handleCheckboxChange(evt: CustomEvent) {
+    evt.stopPropagation();
+    this.value = evt.detail;
+    this.dispatchEvent(new CustomEvent('change', { detail: this.value }));
   }
 }
