@@ -9,26 +9,6 @@ import { FormDialog } from '../FormDialog';
 import { UserForm } from '../UserForm';
 
 export class UsersTable extends Table<Data> {
-  public static get scopedElements(): ScopedElementsMap {
-    return {
-      'foxy-i18n': customElements.get('foxy-i18n'),
-      'foxy-form-dialog': FormDialog,
-      'foxy-user-form': UserForm,
-    };
-  }
-
-  static get styles(): CSSResult | CSSResultArray {
-    return [
-      Themeable.styles,
-      css`
-        div[data-icon] svg {
-          width: 18px;
-          height: 18px;
-        }
-      `,
-    ];
-  }
-
   static nameColumn: Column<Data> = {
     cell: ctx => html`
       <span data-testclass="name" class="text-s text-secondary font-tnum"
@@ -75,7 +55,7 @@ export class UsersTable extends Table<Data> {
 
   static actionsColumn: Column<Data> = {
     cell: ctx => html`
-      <span data-testclass="lastUpdated" class="text-s text-secondary font-tnum">
+      <span data-testclass="actions" class="text-s text-secondary font-tnum">
         <button
           onclick="((el) => {
           el.nextElementSibling.show();
@@ -89,6 +69,26 @@ export class UsersTable extends Table<Data> {
     `,
   };
 
+  public static get scopedElements(): ScopedElementsMap {
+    return {
+      'foxy-i18n': customElements.get('foxy-i18n'),
+      'foxy-form-dialog': FormDialog,
+      'foxy-user-form': UserForm,
+    };
+  }
+
+  static get styles(): CSSResult | CSSResultArray {
+    return [
+      Themeable.styles,
+      css`
+        div[data-icon] svg {
+          width: 18px;
+          height: 18px;
+        }
+      `,
+    ];
+  }
+
   columns = [
     UsersTable.nameColumn,
     UsersTable.emailColumn,
@@ -98,5 +98,4 @@ export class UsersTable extends Table<Data> {
   ];
 
   private static __ns = 'users-table';
-
 }
