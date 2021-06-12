@@ -96,9 +96,8 @@ describe('Creating a new user', function () {
       `);
       const mockEl = sinon.mock(el);
       (mockEl.expects(c.method) as any)[c.expectation]();
-      const button: ButtonElement | null | undefined = el.shadowRoot?.querySelector(
-        '[data-testid="action"]'
-      );
+      const button: ButtonElement | null | undefined =
+        el.shadowRoot?.querySelector('[data-testid="action"]');
       const inputEl = el.shadowRoot?.querySelector(`[data-testid="phone"]`);
       el.edit(c.data);
       await elementUpdated(inputEl as HTMLInputElement);
