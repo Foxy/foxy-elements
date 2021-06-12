@@ -104,7 +104,7 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
               ['first_name', 'name.first', ''],
               ['last_name', 'name.last', ''],
               ['email', 'email', 'col-span2'],
-              ['phone', 'phoe', 'col-span2'],
+              ['phone', 'phone', 'col-span2'],
             ].map(
               f => html` <vaadin-text-field
                 data-testid="${f[0]}"
