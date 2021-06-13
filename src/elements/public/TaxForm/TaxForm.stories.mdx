@@ -1,6 +1,7 @@
 import dedent from 'dedent';
 import { html } from 'lit-html';
 import {
+  ArgsTable,
   Canvas,
   Meta,
   Story,
@@ -19,7 +20,7 @@ import './index.ts';
   mdxSource={dedent`
     <foxy-tax-form
       href="https://demo.foxycart.com/s/admin/taxes/0"
-      >
+    >
     </foxy-tax-form>
   `}
   isExpanded
@@ -38,7 +39,7 @@ import './index.ts';
 
 ## Reference
 
-<ArgsTable of="foxy-tax-form>
+<ArgsTable of="foxy-tax-form" />
 
 ### hAPI
 
@@ -50,15 +51,12 @@ This element supports the following namespaces: `tax-form`, `shared`.
 
 ### Theming
 
-Our elements are built with Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
 
 <Story name="State: idle.template.clean.invalid" parameters={{ docs: { disable: true } }}>
   {() =>
     html`
-      <foxy-tax-form
-        parent="https://demo.foxycart.com/s/admin/stores/0/taxes"
-        class="container-narrow"
-      >
+      <foxy-tax-form parent="https:/demo.foxycart.com/s/admin/stores/0/taxes" class="container-narrow">
       </foxy-tax-form>
     `
   }
@@ -69,10 +67,6 @@ Our elements are built with Vaadin Lumo theme and therefore share the list of CS
     <foxy-tax-form
       parent="https://demo.foxycart.com/s/admin/stores/0/taxes"
       class="container-narrow"
-      @update=${((isUpdating = false) => evt => {
-        if (!isUpdating && !evt.target.in({ idle: { template: { dirty: 'valid' } } })) {
-        }
-      })()}
     >
     </foxy-tax-form>
   `}
