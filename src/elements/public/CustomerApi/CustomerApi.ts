@@ -133,28 +133,34 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
 
   private async __handleVirtualAuthSessionPost(request: Request) {
     const payload = await request.clone().json();
-    let status = 200;
+    if (payload.type !== 'password') throw new Error(`Unknown payload type ${payload.type}`);
 
-    if (payload.type === 'password') {
-      try {
-        await this.api.signIn(payload.credential);
-        this.dispatchEvent(new CustomerApi.SignInEvent('signin'));
-        this.requestUpdate();
-      } catch (err) {
-        if (!(err instanceof API.AuthError)) throw err;
-        if (!(err.code === 'UNAUTHORIZED')) throw err;
-        status = 401;
-      }
-    } else {
-      throw new Error(`Unknown payload type ${payload.type}`);
+    let status: number;
+    let body: unknown;
+
+    try {
+      await this.api.signIn(payload.credential);
+
+      this.dispatchEvent(new CustomerApi.SignInEvent('signin'));
+      this.requestUpdate();
+
+      status = 200;
+      body = { _links: { self: { href: request.url } }, ...payload };
+    } catch (err) {
+      if (!(err instanceof API.AuthError)) throw err;
+      if (!(err.code === 'UNAUTHORIZED')) throw err;
+
+      const virtualAuthError = {
+        message: err.message,
+        logref: 'unavailable',
+        code: 'invalid_credential_error',
+      };
+
+      status = 401;
+      body = { total: 1, _embedded: { 'fx:errors': [virtualAuthError] } };
     }
 
-    const body = JSON.stringify({
-      _links: { self: { href: request.url } },
-      ...payload,
-    });
-
-    return new Response(body, { status });
+    return new Response(JSON.stringify(body), { status });
   }
 
   private async __handleVirtualAuthRecoverPost(request: Request) {

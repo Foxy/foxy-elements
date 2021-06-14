@@ -22,6 +22,8 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
  * @slot email:after
  * @slot password:before
  * @slot password:after
+ * @slot new-password:before
+ * @slot new-password:after
  * @slot error:before
  * @slot error:after
  * @slot submit:before
@@ -36,6 +38,7 @@ export class SignInForm extends Base<Data> {
       ({ credential: c }) => !!c?.email || 'email_required',
       ({ credential: c }) => isEmail(c?.email ?? '') || 'email_invalid_email',
       ({ credential: c }) => !!c?.password || 'password_required',
+      ({ credential: c }) => (c?.new_password?.length === 0 ? 'new_password_required' : true),
     ];
   }
 
@@ -44,6 +47,10 @@ export class SignInForm extends Base<Data> {
   private readonly __emailValidator = () => !this.errors.some(err => err.startsWith('email'));
 
   private readonly __passwordValidator = () => !this.errors.some(err => err.startsWith('password'));
+
+  private readonly __newPasswordValidator = () => {
+    return !this.errors.some(err => err.startsWith('new_password') && !err.endsWith('_error'));
+  };
 
   private readonly __renderEmail = () => {
     const { disabledSelector, readonlySelector, errors } = this;
@@ -117,6 +124,47 @@ export class SignInForm extends Base<Data> {
     `;
   };
 
+  private readonly __renderNewPassword = () => {
+    const { disabledSelector, readonlySelector, errors } = this;
+
+    const error = errors.find(err => err.startsWith('new_password') && !err.endsWith('_error'));
+    const errorKey = error?.replace('new_password', 'v8n');
+    const errorMessage = errorKey ? this.t(errorKey).toString() : '';
+
+    const isBusy = this.in('busy');
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('new-password:before')}
+
+        <vaadin-password-field
+          error-message=${errorMessage}
+          data-testid="new-password"
+          class="w-full mb-m"
+          label=${this.t('new_password').toString()}
+          value=${ifDefined(this.form.credential?.new_password)}
+          ?disabled=${isBusy || disabledSelector.matches('new-password', true)}
+          ?readonly=${readonlySelector.matches('new-password', true)}
+          .checkValidity=${this.__newPasswordValidator}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+          @input=${(evt: InputEvent) => {
+            this.edit({
+              type: 'password',
+              credential: {
+                email: this.form.credential?.email ?? '',
+                password: this.form.credential?.password ?? '',
+                new_password: (evt.target as PasswordFieldElement).value,
+              },
+            });
+          }}
+        >
+        </vaadin-password-field>
+
+        ${this.renderTemplateOrSlot('new-password:after')}
+      </div>
+    `;
+  };
+
   private readonly __renderError = () => {
     return html`
       <div>
@@ -146,7 +194,7 @@ export class SignInForm extends Base<Data> {
 
         <vaadin-button
           data-testid="submit"
-          class=${classMap({ 'w-full': true, 'mt-l': !this.in('fail') })}
+          class="w-full mt-m"
           theme="primary"
           ?disabled=${!isValid || this.in('busy') || this.disabledSelector.matches('submit', true)}
           @click=${() => this.submit()}
@@ -162,15 +210,19 @@ export class SignInForm extends Base<Data> {
   render(): TemplateResult {
     const { hiddenSelector, errors, lang, ns } = this;
 
-    const isCredentialUnknown = errors.includes('invalid_email_or_password_error');
-    const isErrorUnknown = errors.includes('unknown_error');
-    const isFailed = isErrorUnknown || isCredentialUnknown;
+    const isNewPasswordRequired =
+      typeof this.form.credential?.new_password === 'string' ||
+      errors.some(error => error.startsWith('new_password_'));
+
+    const isNewPasswordHidden = hiddenSelector.matches('new-password', true);
+    const isFailed = errors.some(error => error.endsWith('_error'));
     const isBusy = this.in('busy');
 
     return html`
       <main aria-live="polite" aria-busy=${isBusy} class="relative font-lumo text-m leading-m">
         ${hiddenSelector.matches('email', true) ? '' : this.__renderEmail()}
         ${hiddenSelector.matches('password', true) ? '' : this.__renderPassword()}
+        ${!isNewPasswordRequired || isNewPasswordHidden ? '' : this.__renderNewPassword()}
         ${hiddenSelector.matches('error', true) || !isFailed ? '' : this.__renderError()}
         ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
 
@@ -198,8 +250,16 @@ export class SignInForm extends Base<Data> {
     try {
       return await super._fetch(...args);
     } catch (err) {
-      const status = (err as Response).status;
-      throw [status === 401 ? 'invalid_email_or_password_error' : 'unknown_error'];
+      let v8nError = 'unknown_error';
+
+      try {
+        const code = (await (err as Response).json())._embedded['fx:errors'][0].code;
+        if (typeof code === 'string') v8nError = code;
+      } catch {
+        // Unknown error format, ignoring.
+      }
+
+      throw [v8nError];
     }
   }
 }

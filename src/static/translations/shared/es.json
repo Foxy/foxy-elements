@@ -28,7 +28,7 @@
   "frequency": "$t({{units}}, { \"count\": {{count}} })",
   "frequency_plural": "{{count}} $t({{units}}, { \"count\": {{count}} })",
   "full_address": "{{first_name}} {{last_name}}\n{{address1}} {{address2}}\n{{city}} {{region}} {{postal_code}}",
-  "invalid_email_or_password_error": "Correo electrónico o contraseña incorrectos. Verifique sus credenciales y vuelva a intentarlo.",
+  "invalid_credential_error": "Correo electrónico o contraseña incorrectos. Verifique sus credenciales y vuelva a intentarlo.",
   "last_4_digits": "Últimos 4 dígitos",
   "last_login_date": "Último inicio de sesión",
   "last_name": "Apellido",

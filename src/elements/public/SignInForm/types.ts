@@ -9,6 +9,7 @@ export type Rel = {
     credential: {
       email: string;
       password: string;
+      new_password?: string;
     };
   };
 };

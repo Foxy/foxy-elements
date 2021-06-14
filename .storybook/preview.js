@@ -40,7 +40,9 @@ addEventListener('fetch', async evt => {
             })
           );
         } else {
-          response = new Response(null, { status: apiResponse.status });
+          const code = apiResponse.status === 401 ? 'invalid_credential_error' : 'unknown_error';
+          const url = `https://demo.foxycart.com/s/virtual/session?code=${code}`;
+          response = await router.handleRequest(new Request(url)).handlerPromise;
         }
       }
 

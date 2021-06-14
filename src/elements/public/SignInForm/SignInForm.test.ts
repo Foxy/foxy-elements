@@ -7,12 +7,14 @@ import { ButtonElement } from '@vaadin/vaadin-button';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
+import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { SignInForm } from './SignInForm';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
+import { router } from '../../../server';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
@@ -380,6 +382,209 @@ describe('SignInForm', () => {
     });
   });
 
+  describe('new-password', () => {
+    it('is visible if form.credential.new_password exists', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).to.exist;
+    });
+
+    ['new_password_required_error', 'new_password_format_error'].forEach(error => {
+      it(`is visible if form.errors includes "${error}"`, async () => {
+        const element = await fixture<SignInForm>(
+          html`
+            <foxy-sign-in-form
+              parent="https://demo.foxycart.com/s/virtual/session?code=${error}"
+              @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+            >
+            </foxy-sign-in-form>
+          `
+        );
+
+        element.edit({
+          type: 'password',
+          credential: { email: 'foo@example.com', password: 'bar' },
+        });
+
+        element.submit();
+        await waitUntil(() => element.in({ idle: { template: { dirty: 'invalid' } } }));
+
+        expect(await getByTestId(element, 'new-password')).to.exist;
+      });
+    });
+
+    it('is hidden by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      expect(await getByTestId(element, 'new-password')).to.not.exist;
+    });
+
+    it('is hidden when the form is hidden', async () => {
+      const layout = html`<foxy-sign-in-form hidden></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols matches "new-password"', async () => {
+      const layout = html`<foxy-sign-in-form hiddencontrols="new-password"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).to.not.exist;
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).not.to.have.attribute('readonly');
+    });
+
+    it('is readonly when the form is readonly', async () => {
+      const layout = html`<foxy-sign-in-form readonly></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols matches "new-password"', async () => {
+      const layout = html`<foxy-sign-in-form readonlycontrols="new-password"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).to.have.attribute('readonly');
+    });
+
+    it('is interactive by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).not.to.have.attribute('disabled');
+    });
+
+    it('is disabled when the form is disabled', async () => {
+      const layout = html`<foxy-sign-in-form disabled></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols matches "new-password"', async () => {
+      const layout = html`<foxy-sign-in-form disabledcontrols="new-password"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByTestId(element, 'new-password')).to.have.attribute('disabled');
+    });
+
+    it('has the value of form.credential.new_password', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: 'Test' } });
+
+      expect(await getByTestId(element, 'new-password')).to.have.property('value', 'Test');
+    });
+
+    it('writes to form.credential.new_password on input', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+      const field = (await getByTestId(element, 'new-password')) as PasswordFieldElement;
+      field.value = 'Test';
+      field.dispatchEvent(new CustomEvent('input'));
+
+      expect(await getByTestId(element, 'new-password')).to.have.property('value', 'Test');
+    });
+
+    it('invalidates the form when empty', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        type: 'password',
+        credential: { email: 'foo@example.com', password: 'bar', new_password: '' },
+      });
+
+      expect(element.in({ idle: { template: { dirty: 'invalid' } } })).to.be.true;
+      expect(element.errors).to.include('new_password_required');
+    });
+
+    it('submits valid form on enter', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const submitMethod = stub(element, 'submit');
+
+      element.edit({
+        type: 'password',
+        credential: { email: 'foo@example.com', password: 'bar', new_password: 'baz' },
+      });
+
+      const field = (await getByTestId(element, 'password')) as PasswordFieldElement;
+      field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+      expect(submitMethod).to.have.been.called;
+    });
+
+    it('renders "new-password:before" slot when visible', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByName(element, 'new-password:before')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "new-password:before" slot with template "new-password:before" if available', async () => {
+      const name = 'new-password:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "new-password:after" slot by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+
+      expect(await getByName(element, 'new-password:after')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "new-password:after" slot with template "new-password:after" if available', async () => {
+      const name = 'new-password:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({ credential: { email: '', password: '', new_password: '' } });
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+  });
+
   describe('error', () => {
     it('is hidden by default', async () => {
       const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
@@ -429,28 +634,36 @@ describe('SignInForm', () => {
       expect(error).to.have.attribute('ns', 'sign-in-form');
     });
 
-    it('is visible with i18n key "invalid_email_or_password_error" if request fails with 401 status code', async () => {
-      const handleFetch = (evt: FetchEvent) => {
-        evt.respondWith(Promise.resolve(new Response(null, { status: 401 })));
-      };
+    [
+      'invalid_credential_error',
+      'new_password_required_error',
+      'new_password_format_error',
+    ].forEach(code => {
+      it(`is visible with i18n key "${code}" if request fails with code "${code}"`, async () => {
+        const element = await fixture<SignInForm>(
+          html` <foxy-sign-in-form
+            parent="https://demo.foxycart.com/s/virtual/session?code=${code}"
+            lang="es"
+            @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+          >
+          </foxy-sign-in-form>`
+        );
 
-      const layout = html`<foxy-sign-in-form lang="es" @fetch=${handleFetch}></foxy-sign-in-form>`;
-      const element = await fixture<SignInForm>(layout);
+        element.edit({
+          type: 'password',
+          credential: { email: 'justice.witt@example.com', password: '74ylbsXd47ybOa_3!' },
+        });
 
-      element.edit({
-        type: 'password',
-        credential: { email: 'justice.witt@example.com', password: '74ylbsXd47ybOa_3!' },
+        element.submit();
+        await waitUntil(() => element.in('idle'));
+
+        const error = await getByTestId(element, 'error');
+
+        expect(error).to.exist;
+        expect(error).to.have.attribute('lang', 'es');
+        expect(error).to.have.attribute('key', code);
+        expect(error).to.have.attribute('ns', 'sign-in-form');
       });
-
-      element.submit();
-      await waitUntil(() => element.in('idle'));
-
-      const error = await getByTestId(element, 'error');
-
-      expect(error).to.exist;
-      expect(error).to.have.attribute('lang', 'es');
-      expect(error).to.have.attribute('key', 'invalid_email_or_password_error');
-      expect(error).to.have.attribute('ns', 'sign-in-form');
     });
 
     it('renders with "error:before" slot when visible', async () => {
