@@ -32,6 +32,8 @@ export class DemoDatabase extends Dexie {
 
   subscriptions: Dexie.Table<any, number>;
 
+  taxes: Dexie.Table<any, number>;
+
   transactions: Dexie.Table<any, number>;
 
   users: Dexie.Table<any, number>;
@@ -49,20 +51,22 @@ export class DemoDatabase extends Dexie {
       payment_methods: '++id,customer',
       stores: '++id',
       subscriptions: '++id,store,customer',
+      taxes: '++id,store',
       transactions: '++id,store,customer,subscription',
       users: '++id,store',
     });
 
-    this.customerAttributes = this.table('customer_attributes');
-    this.customerAddresses = this.table('customer_addresses');
-    this.errorEntries = this.table('error_entries');
-    this.paymentMethods = this.table('payment_methods');
-    this.subscriptions = this.table('subscriptions');
-    this.transactions = this.table('transactions');
-    this.customers = this.table('customers');
-    this.stores = this.table('stores');
-    this.items = this.table('items');
     this.carts = this.table('carts');
+    this.customerAddresses = this.table('customer_addresses');
+    this.customerAttributes = this.table('customer_attributes');
+    this.customers = this.table('customers');
+    this.errorEntries = this.table('error_entries');
+    this.items = this.table('items');
+    this.paymentMethods = this.table('payment_methods');
+    this.stores = this.table('stores');
+    this.subscriptions = this.table('subscriptions');
+    this.taxes = this.table('taxes');
+    this.transactions = this.table('transactions');
     this.users = this.table('users');
   }
 }
