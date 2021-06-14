@@ -12,10 +12,10 @@ import { PropertyTable } from '../../private/PropertyTable/PropertyTable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
-import { countries } from './countries';
+import { countries } from '../../../utils/countries';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
-import { regions } from './regions';
+import { regions } from '../../../utils/regions';
 
 const NS = 'address-form';
 const Base = ScopedElementsMixin(
