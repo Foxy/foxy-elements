@@ -10,10 +10,10 @@ import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTable } from '../../private/index';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { countries } from './countries';
+import { countries } from '../../../utils/countries';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
-import { regions } from './regions';
+import { regions } from '../../../utils/regions';
 
 export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
