@@ -5,6 +5,9 @@ export interface Frequency {
   units: string;
 }
 
+/**
+ * @param value
+ */
 export function parseFrequency(value: string): Frequency {
   const duration = parseDuration(value);
   const unitsMap = { y: 'yearly', m: 'monthly', w: 'weekly', d: 'daily' };

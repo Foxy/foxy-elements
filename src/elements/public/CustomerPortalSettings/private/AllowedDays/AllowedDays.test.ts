@@ -1,9 +1,9 @@
 import { createMachine } from 'xstate';
 import { createModel } from '@xstate/test';
 import { AllowedDays } from './AllowedDays';
-import { fixture, expect } from '@open-wc/testing';
-import { Choice, WeekdayPicker, MonthdayPicker } from '../../../../private/index';
-import { WeekdayPickerChangeEvent, MonthdayPickerChangeEvent } from '../../../../private/events';
+import { expect, fixture } from '@open-wc/testing';
+import { Choice, MonthdayPicker, WeekdayPicker } from '../../../../private/index';
+import { MonthdayPickerChangeEvent, WeekdayPickerChangeEvent } from '../../../../private/events';
 import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 
 class TestAllowedDays extends AllowedDays {
@@ -22,6 +22,9 @@ const samples = {
   },
 };
 
+/**
+ * @param element
+ */
 function getRefs(element: TestAllowedDays) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
@@ -32,6 +35,9 @@ function getRefs(element: TestAllowedDays) {
   };
 }
 
+/**
+ * @param element
+ */
 function testEnabled(element: TestAllowedDays) {
   const refs = getRefs(element);
 
@@ -40,6 +46,9 @@ function testEnabled(element: TestAllowedDays) {
   expect(refs.monthdayPicker?.disabled).to.be.oneOf([false, undefined]);
 }
 
+/**
+ * @param element
+ */
 function testDisabled(element: TestAllowedDays) {
   const refs = getRefs(element);
 
@@ -48,6 +57,9 @@ function testDisabled(element: TestAllowedDays) {
   expect(refs.monthdayPicker?.disabled).to.be.oneOf([true, undefined]);
 }
 
+/**
+ * @param element
+ */
 function testAll(element: TestAllowedDays) {
   const refs = getRefs(element);
 
@@ -56,6 +68,9 @@ function testAll(element: TestAllowedDays) {
   expect(refs.monthdayPicker).to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function testDay(element: TestAllowedDays) {
   const refs = getRefs(element);
 
@@ -75,6 +90,9 @@ async function testDay(element: TestAllowedDays) {
   }
 }
 
+/**
+ * @param element
+ */
 async function testMonth(element: TestAllowedDays) {
   const refs = getRefs(element);
 

@@ -25,12 +25,18 @@ interface Refs {
   end: DatePickerElement;
 }
 
+/**
+ * @param {...any} tests
+ */
 function all<TElement extends HTMLElement>(...tests: ((element: TElement) => Promise<void>)[]) {
   return async (element: TElement) => {
     for (const test of tests) await test(element);
   };
 }
 
+/**
+ * @param ref
+ */
 function off(ref: keyof Refs) {
   return async (element: TestDisallowedDates) => {
     await element.updateComplete;
@@ -38,6 +44,9 @@ function off(ref: keyof Refs) {
   };
 }
 
+/**
+ * @param ref
+ */
 function on(ref: keyof Refs) {
   return async (element: TestDisallowedDates) => {
     await element.updateComplete;
@@ -45,6 +54,9 @@ function on(ref: keyof Refs) {
   };
 }
 
+/**
+ * @param element
+ */
 async function setsValue(element: TestDisallowedDates) {
   await element.updateComplete;
   expect(getRefs<Refs>(element).list).to.have.deep.property('value', element.value);

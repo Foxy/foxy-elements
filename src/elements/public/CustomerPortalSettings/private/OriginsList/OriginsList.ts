@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { ListChangeEvent } from '../../../../private/events';

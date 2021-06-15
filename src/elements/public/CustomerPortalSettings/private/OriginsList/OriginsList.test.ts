@@ -2,7 +2,7 @@ import { expect, fixture } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { createModel } from '@xstate/test';
-import { createMachine, EventObject } from 'xstate';
+import { EventObject, createMachine } from 'xstate';
 import { getRefs } from '../../../../../utils/test-utils';
 import { ListChangeEvent } from '../../../../private/events';
 import { List } from '../../../../private/index';
@@ -22,6 +22,9 @@ interface Refs {
   button: ButtonElement;
 }
 
+/**
+ * @param disabled
+ */
 function testDisabled(disabled: boolean) {
   return async (element: TestOriginsList) => {
     await element.updateComplete;
@@ -32,6 +35,9 @@ function testDisabled(disabled: boolean) {
   };
 }
 
+/**
+ * @param invalid
+ */
 function testInvalid(invalid: boolean) {
   return async (element: TestOriginsList) => {
     await element.updateComplete;
@@ -42,6 +48,9 @@ function testInvalid(invalid: boolean) {
   };
 }
 
+/**
+ * @param element
+ */
 async function testValue(element: TestOriginsList) {
   await element.updateComplete;
   const refs = getRefs<Refs>(element);

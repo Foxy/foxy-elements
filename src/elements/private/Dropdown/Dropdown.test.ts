@@ -6,26 +6,41 @@ import { DropdownChangeEvent } from './DropdownChangeEvent';
 
 customElements.define('x-dropdown', Dropdown);
 
+/**
+ * @param elm
+ */
 function getSelect(elm: Dropdown) {
   const select = elm.shadowRoot!.querySelector('[data-testid=select]');
   return select as HTMLSelectElement & { render: () => void };
 }
 
+/**
+ * @param elm
+ */
 function getItems(elm: Dropdown) {
   const selector = 'vaadin-list-box > vaadin-item';
   const vaadinShadow = getSelect(elm).shadowRoot!;
   return vaadinShadow.querySelectorAll(selector) as NodeListOf<HTMLOptionElement>;
 }
 
+/**
+ * @param elm
+ */
 async function testDisabled(elm: Dropdown) {
   expect(getSelect(elm).disabled).to.be.true;
 }
 
+/**
+ * @param elm
+ */
 async function testEnabled(elm: Dropdown) {
   await elementUpdated(elm);
   expect(getSelect(elm).disabled).to.be.false;
 }
 
+/**
+ * @param elm
+ */
 async function testContentLength(elm: Dropdown) {
   let total = 0;
   if (elm.items) {
@@ -40,6 +55,9 @@ async function testContentLength(elm: Dropdown) {
   }
 }
 
+/**
+ * @param elm
+ */
 function testContent(elm: Dropdown) {
   expect(getSelect(elm)).to.have.property('label', elm.label);
 
@@ -74,6 +92,9 @@ function testContent(elm: Dropdown) {
   }
 }
 
+/**
+ * @param elm
+ */
 async function testSelection(elm: Dropdown) {
   const whenFired = new Promise(resolve => elm.addEventListener('change', resolve));
   const select = getSelect(elm);

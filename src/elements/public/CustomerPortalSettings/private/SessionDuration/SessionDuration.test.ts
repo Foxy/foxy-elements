@@ -3,7 +3,7 @@ import { CustomFieldElement } from '@vaadin/vaadin-custom-field';
 import { SelectElement } from '@vaadin/vaadin-select';
 import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { createModel } from '@xstate/test';
-import { createMachine, Event, EventObject } from 'xstate';
+import { Event, EventObject, createMachine } from 'xstate';
 import { getRefs } from '../../../../../utils/test-utils';
 import { I18N } from '../../../../private';
 import { SessionDuration } from './SessionDuration';
@@ -32,6 +32,9 @@ const valuesMap = {
   0: ['0', 'm'],
 } as const;
 
+/**
+ * @param disabled
+ */
 function testDisabled(disabled: boolean) {
   return async (element: TestSessionDuration) => {
     await element.updateComplete;
@@ -43,6 +46,9 @@ function testDisabled(disabled: boolean) {
   };
 }
 
+/**
+ * @param invalid
+ */
 function testInvalid(invalid: boolean) {
   return async (element: TestSessionDuration) => {
     await element.updateComplete;
@@ -52,6 +58,9 @@ function testInvalid(invalid: boolean) {
   };
 }
 
+/**
+ * @param element
+ */
 async function testValue(element: TestSessionDuration) {
   await element.updateComplete;
 
@@ -63,6 +72,10 @@ async function testValue(element: TestSessionDuration) {
   expect(refs.units).to.have.property('value', units);
 }
 
+/**
+ * @param element
+ * @param event
+ */
 async function execEnter(element: TestSessionDuration, event: EventObject) {
   await element.updateComplete;
 
@@ -78,6 +91,10 @@ async function execEnter(element: TestSessionDuration, event: EventObject) {
   refs.units.dispatchEvent(new CustomEvent('change', { bubbles: true }));
 }
 
+/**
+ * @param element
+ * @param event
+ */
 async function execSet(element: TestSessionDuration, event: EventObject) {
   element.value = (event as EventObject & { value: number }).value;
 }

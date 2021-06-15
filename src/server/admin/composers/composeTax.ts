@@ -2,6 +2,9 @@ import { endpoint } from '..';
 import halson from 'halson';
 import { HALJSONResource } from '../../../elements/public/NucleonElement/types';
 
+/**
+ * @param doc
+ */
 export function composeTax(doc: any): HALJSONResource {
   const { id, store, ...publicData } = doc;
   const result = halson({ ...publicData, id })

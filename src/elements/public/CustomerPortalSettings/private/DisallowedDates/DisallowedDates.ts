@@ -4,7 +4,7 @@ import '@polymer/iron-icon';
 import '@polymer/iron-icons';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { parseDate } from '../../../../../utils/parse-date';

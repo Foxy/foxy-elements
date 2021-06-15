@@ -34,6 +34,9 @@ const samples = {
   },
 };
 
+/**
+ * @param ns
+ */
 function testNs(ns: 'global' | 'custom') {
   return async (element: I18N) => {
     await element.whenReady;
@@ -41,6 +44,9 @@ function testNs(ns: 'global' | 'custom') {
   };
 }
 
+/**
+ * @param key
+ */
 function testKey(key: '' | 'test') {
   return async (element: I18N) => {
     await element.whenReady;
@@ -48,6 +54,10 @@ function testKey(key: '' | 'test') {
   };
 }
 
+/**
+ * @param opts
+ * @param opts.value
+ */
 function testOpts(opts?: { value: string }) {
   return async (element: I18N) => {
     await element.whenReady;
@@ -55,6 +65,9 @@ function testOpts(opts?: { value: string }) {
   };
 }
 
+/**
+ * @param lang
+ */
 function testLang(lang: 'en' | 'fr') {
   return async (element: I18N) => {
     await element.whenReady;
@@ -62,6 +75,9 @@ function testLang(lang: 'en' | 'fr') {
   };
 }
 
+/**
+ * @param element
+ */
 async function testText(element: I18N) {
   await element.whenReady;
 

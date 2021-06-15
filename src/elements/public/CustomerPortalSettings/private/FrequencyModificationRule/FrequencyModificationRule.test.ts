@@ -22,6 +22,9 @@ const samples = {
   custom: { jsonataQuery: '$contains(frequency, "w")', values: ['.5m', '1y'] },
 };
 
+/**
+ * @param element
+ */
 function getRefs(element: TestFrequencyModificationRule) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
@@ -33,6 +36,9 @@ function getRefs(element: TestFrequencyModificationRule) {
   };
 }
 
+/**
+ * @param value
+ */
 function testDisabled(value: boolean) {
   return async (element: TestFrequencyModificationRule) => {
     await element.updateComplete;
@@ -51,6 +57,9 @@ function testDisabled(value: boolean) {
   };
 }
 
+/**
+ * @param value
+ */
 function testOpen(value: boolean) {
   return async (element: TestFrequencyModificationRule) => {
     await element.updateComplete;
@@ -61,6 +70,9 @@ function testOpen(value: boolean) {
   };
 }
 
+/**
+ * @param value
+ */
 function testContent(value: Rule) {
   return async (element: TestFrequencyModificationRule) => {
     await element.updateComplete;

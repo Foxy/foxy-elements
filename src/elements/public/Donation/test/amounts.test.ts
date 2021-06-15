@@ -14,12 +14,18 @@ const samples = {
   amounts: [25, 50, 75],
 };
 
+/**
+ * @param element
+ */
 async function expectNoErrorScreen(element: Donation) {
   await element.updateComplete;
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
+/**
+ * @param element
+ */
 async function expectAmountChoice(element: Donation) {
   await element.updateComplete;
 
@@ -31,12 +37,18 @@ async function expectAmountChoice(element: Donation) {
   expect(element.amounts, 'sample amounts must be set').to.deep.equal(samples.amounts);
 }
 
+/**
+ * @param element
+ */
 async function expectNoAmountChoice(element: Donation) {
   await element.updateComplete;
   const { amount } = getRefs<Refs>(element);
   expect(amount, 'amount choice must not be rendered').to.be.undefined;
 }
 
+/**
+ * @param element
+ */
 async function expectPredefinedAmount(element: Donation) {
   await element.updateComplete;
 
@@ -47,6 +59,9 @@ async function expectPredefinedAmount(element: Donation) {
   expect(element.amount, 'predefined amount must be set').to.equal(value);
 }
 
+/**
+ * @param element
+ */
 async function expectCustomAmount(element: Donation) {
   await element.updateComplete;
 
@@ -57,6 +72,9 @@ async function expectCustomAmount(element: Donation) {
   expect(element.amount, 'custom amount must be set').to.equal(value);
 }
 
+/**
+ * @param element
+ */
 async function expectCustomAmountToBeAvailable(element: Donation) {
   await element.updateComplete;
   const { amount } = getRefs<Refs>(element);

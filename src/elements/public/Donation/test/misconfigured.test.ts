@@ -1,6 +1,6 @@
 import { expect } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
-import { createMachine, State } from 'xstate';
+import { State, createMachine } from 'xstate';
 import { exec, getRefs } from '../../../../utils/test-utils';
 import { Donation } from '../../index';
 import { Refs } from './types';
@@ -12,6 +12,9 @@ const samples = {
   amount: 25,
 };
 
+/**
+ * @param element
+ */
 async function expectErrorScreen(element: Donation) {
   await element.updateComplete;
   const { error } = getRefs<Refs>(element);
@@ -19,41 +22,65 @@ async function expectErrorScreen(element: Donation) {
   expect(error, 'error screen must be visible').to.be.visible;
 }
 
+/**
+ * @param element
+ */
 async function expectCurrency(element: Donation) {
   await element.updateComplete;
   expect(element.currency, 'currency must equal sample').to.equal(samples.currency);
 }
 
+/**
+ * @param element
+ */
 async function expectNoCurrency(element: Donation) {
   await element.updateComplete;
   expect(element.currency, 'currency must equal null').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectAmount(element: Donation) {
   await element.updateComplete;
   expect(element.amount, 'amount must equal sample').to.equal(samples.amount);
 }
 
+/**
+ * @param element
+ */
 async function expectNoAmount(element: Donation) {
   await element.updateComplete;
   expect(element.amount, 'amount must equal null').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectStore(element: Donation) {
   await element.updateComplete;
   expect(element.store, 'store must equal sample').to.equal(samples.store);
 }
 
+/**
+ * @param element
+ */
 async function expectNoStore(element: Donation) {
   await element.updateComplete;
   expect(element.store, 'store must equal null').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectName(element: Donation) {
   await element.updateComplete;
   expect(element.name, 'name must equal sample').to.equal(samples.name);
 }
 
+/**
+ * @param element
+ */
 async function expectNoName(element: Donation) {
   await element.updateComplete;
   expect(element.name, 'name must equal null').to.be.null;
@@ -98,6 +125,9 @@ const machine = createMachine({
   },
 });
 
+/**
+ * @param state
+ */
 function filterStates(state: State<any>) {
   return !['currency', 'amount', 'store', 'name'].every(key => state.matches(`${key}.set`));
 }

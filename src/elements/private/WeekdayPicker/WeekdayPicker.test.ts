@@ -17,6 +17,9 @@ const samples = {
   value: [1, 4, 6],
 };
 
+/**
+ * @param element
+ */
 function testItems(element: TestWeekdayPicker) {
   const items = new Array(7).fill(0).map((_, i) => i);
   const labels = element.shadowRoot!.querySelectorAll('label');
@@ -32,18 +35,27 @@ function testItems(element: TestWeekdayPicker) {
   });
 }
 
+/**
+ * @param element
+ */
 function testEnabled(element: TestWeekdayPicker) {
   expect(element).to.have.property('disabled', false);
   const inputs = element.shadowRoot!.querySelectorAll('input');
   Array.from(inputs).every(input => expect(input).to.have.property('disabled', false));
 }
 
+/**
+ * @param element
+ */
 function testDisabled(element: TestWeekdayPicker) {
   expect(element).to.have.property('disabled', true);
   const inputs = element.shadowRoot!.querySelectorAll('input');
   Array.from(inputs).every(input => expect(input).to.have.property('disabled', true));
 }
 
+/**
+ * @param element
+ */
 async function testToggling(element: TestWeekdayPicker) {
   const input = element.shadowRoot!.querySelector('input');
 

@@ -1,4 +1,4 @@
-import { expect, fixture, html, elementUpdated } from '@open-wc/testing';
+import { elementUpdated, expect, fixture, html } from '@open-wc/testing';
 import { ItemInterface } from '../types';
 import { Item } from './Item';
 import * as sinon from 'sinon';
@@ -365,6 +365,9 @@ describe('Item displays price and total amount', async () => {
 
 /** Helper functions */
 
+/**
+ * @param el
+ */
 function qtyField(el: Element): HTMLInputElement {
   const qtyWidget = el.shadowRoot!.querySelector('[name=quantity]');
   expect(qtyWidget).to.exist;
@@ -372,6 +375,12 @@ function qtyField(el: Element): HTMLInputElement {
   return xNumber;
 }
 
+/**
+ * @param elementWith
+ * @param elementWithOut
+ * @param selector
+ * @param shadow
+ */
 async function expectSelectorToExist(
   elementWith: Element,
   elementWithOut: Element,

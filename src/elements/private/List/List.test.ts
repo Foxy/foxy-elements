@@ -12,6 +12,9 @@ const samples = {
   innerHTML: '<div>Lorem ipsum</div>',
 };
 
+/**
+ * @param element
+ */
 function testItems(element: List) {
   const renderedItems = element.shadowRoot!.querySelectorAll('li');
   expect(renderedItems.length).to.equal(samples.value.length);
@@ -22,10 +25,16 @@ function testItems(element: List) {
   });
 }
 
+/**
+ * @param element
+ */
 function testContent(element: List) {
   expect(element).lightDom.to.equal(samples.innerHTML);
 }
 
+/**
+ * @param element
+ */
 function testGetText(element: List) {
   const renderedItems = element.shadowRoot!.querySelectorAll('li');
   expect(renderedItems.length).to.equal(samples.value.length);
@@ -36,18 +45,27 @@ function testGetText(element: List) {
   });
 }
 
+/**
+ * @param element
+ */
 function testEnabled(element: List) {
   expect(element.disabled).to.be.false;
   const buttons = element.shadowRoot!.querySelectorAll('button');
   Array.from(buttons).every(button => expect(button.disabled).to.be.false);
 }
 
+/**
+ * @param element
+ */
 function testDisabled(element: List) {
   expect(element.disabled).to.be.true;
   const buttons = element.shadowRoot!.querySelectorAll('button');
   Array.from(buttons).every(button => expect(button.disabled).to.be.true);
 }
 
+/**
+ * @param element
+ */
 async function testItemRemoval(element: List) {
   const button = element.shadowRoot!.querySelector('li button') as HTMLButtonElement;
 

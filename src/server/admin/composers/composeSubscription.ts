@@ -3,6 +3,12 @@ import { composeTransaction } from './composeTransaction';
 import { endpoint } from '..';
 import halson from 'halson';
 
+/**
+ * @param doc
+ * @param lastTransaction
+ * @param transactionTemplate
+ * @param items
+ */
 export function composeSubscription(
   doc: any,
   lastTransaction?: any,

@@ -10,15 +10,15 @@ export const setError = assign<Context, DoneInvokeEvent<Response>>({
 });
 
 export const setFirst = assign<Context, SetFirstEvent>({
+  error: null,
   first: (_, evt) => evt.data,
   pages: [],
-  error: null,
 });
 
 export const setPages = assign<Context, SetPagesEvent>({
+  error: null,
   first: (_, evt) => evt.data[0]?._links.self.href ?? '',
   pages: (_, evt) => evt.data,
-  error: null,
 });
 
 export const addPage = assign<Context, DoneInvokeEvent<Page>>({

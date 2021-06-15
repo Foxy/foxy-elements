@@ -11,22 +11,34 @@ const samples = {
   frequencies: [' ', '.5m', '6m', '12y'],
 };
 
+/**
+ * @param element
+ */
 async function expectNoErrorScreen(element: Donation) {
   await element.updateComplete;
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
+/**
+ * @param element
+ */
 async function expectFrequency(element: Donation) {
   await element.updateComplete;
   expect(element.frequency, 'sample frequency must be set').to.equal(samples.frequency);
 }
 
+/**
+ * @param element
+ */
 async function expectNoFrequency(element: Donation) {
   await element.updateComplete;
   expect(element.frequency, 'frequency must be null').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectFrequencyPicker(element: Donation) {
   await element.updateComplete;
 
@@ -37,6 +49,9 @@ async function expectFrequencyPicker(element: Donation) {
   expect(frequency?.items, 'sample frequencies must be rendered').to.deep.equal(frequencies);
 }
 
+/**
+ * @param element
+ */
 async function expectNoFrequencyPicker(element: Donation) {
   await element.updateComplete;
   const { frequency } = getRefs<Refs>(element);

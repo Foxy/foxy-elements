@@ -27,6 +27,9 @@ const samples = {
   },
 };
 
+/**
+ * @param element
+ */
 function getRefs(element: FrequencyInput) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
@@ -36,6 +39,9 @@ function getRefs(element: FrequencyInput) {
   };
 }
 
+/**
+ * @param element
+ */
 async function testEnabled(element: TestFrequencyInput) {
   await element.whenI18nReady;
   const refs = getRefs(element);
@@ -44,6 +50,9 @@ async function testEnabled(element: TestFrequencyInput) {
   expect(refs.units.disabled).to.be.false;
 }
 
+/**
+ * @param element
+ */
 async function testDisabled(element: TestFrequencyInput) {
   await element.whenI18nReady;
   const refs = getRefs(element);
@@ -52,6 +61,9 @@ async function testDisabled(element: TestFrequencyInput) {
   expect(refs.units.disabled).to.be.true;
 }
 
+/**
+ * @param element
+ */
 async function testEmpty(element: TestFrequencyInput) {
   await element.whenI18nReady;
   const { units, value } = getRefs(element);
@@ -61,6 +73,9 @@ async function testEmpty(element: TestFrequencyInput) {
   expect(value.value).to.equal('1');
 }
 
+/**
+ * @param element
+ */
 async function testWithValue(element: TestFrequencyInput) {
   await element.whenI18nReady;
   const { units, value } = getRefs(element);

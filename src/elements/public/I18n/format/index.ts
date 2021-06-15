@@ -5,6 +5,8 @@ import { time } from './time';
 
 /**
  * Chooses the right i18next formatter for the given template.
+ *
+ * @param {...any} args
  * @see https://www.i18next.com/translation-function/formatting
  */
 export const format: FormatFunction = (...args): string => {

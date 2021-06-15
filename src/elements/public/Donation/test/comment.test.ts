@@ -10,12 +10,18 @@ const samples = {
   enteredComment: 'Entered comment',
 };
 
+/**
+ * @param element
+ */
 async function expectNoErrorScreen(element: Donation) {
   await element.updateComplete;
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
+/**
+ * @param element
+ */
 async function expectNoComment(element: Donation) {
   await element.updateComplete;
 
@@ -27,6 +33,9 @@ async function expectNoComment(element: Donation) {
   expect(field, 'comment must not be in the form data').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectEmptyComment(element: Donation) {
   await element.updateComplete;
 
@@ -38,6 +47,9 @@ async function expectEmptyComment(element: Donation) {
   expect(field.value, 'comment must be in the form data').to.equal('');
 }
 
+/**
+ * @param element
+ */
 async function expectEnteredComment(element: Donation) {
   await element.updateComplete;
 
@@ -50,6 +62,9 @@ async function expectEnteredComment(element: Donation) {
   expect(field.value, 'comment must be in the form data').to.equal(sample);
 }
 
+/**
+ * @param element
+ */
 async function expectPrefilledComment(element: Donation) {
   await element.updateComplete;
 

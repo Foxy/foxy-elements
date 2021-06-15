@@ -11,6 +11,9 @@ const samples = {
   url: 'https://foxy.io',
 };
 
+/**
+ * @param element
+ */
 async function expectImage(element: Donation) {
   await element.updateComplete;
 
@@ -21,6 +24,9 @@ async function expectImage(element: Donation) {
   expect(field.value, 'form data must include image').to.equal(samples.image);
 }
 
+/**
+ * @param element
+ */
 async function expectNoImage(element: Donation) {
   await element.updateComplete;
 
@@ -31,6 +37,9 @@ async function expectNoImage(element: Donation) {
   expect(field, 'form data must not include image').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectCode(element: Donation) {
   await element.updateComplete;
 
@@ -41,6 +50,9 @@ async function expectCode(element: Donation) {
   expect(field.value, 'form data must include code').to.equal(samples.code);
 }
 
+/**
+ * @param element
+ */
 async function expectNoCode(element: Donation) {
   await element.updateComplete;
 
@@ -51,6 +63,9 @@ async function expectNoCode(element: Donation) {
   expect(field, 'form data must not include code').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectUrl(element: Donation) {
   await element.updateComplete;
 
@@ -61,6 +76,9 @@ async function expectUrl(element: Donation) {
   expect(field.value, 'form data must include url').to.equal(samples.url);
 }
 
+/**
+ * @param element
+ */
 async function expectNoUrl(element: Donation) {
   await element.updateComplete;
 

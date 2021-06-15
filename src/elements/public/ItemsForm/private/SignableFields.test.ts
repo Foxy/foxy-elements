@@ -1,8 +1,12 @@
-import { fixture, expect, html, elementUpdated, oneEvent, aTimeout } from '@open-wc/testing';
+import { aTimeout, elementUpdated, expect, fixture, html, oneEvent } from '@open-wc/testing';
 import { SignableFields } from './SignableFields';
 
 customElements.define('x-signable', SignableFields);
 
+/**
+ * @param signed
+ * @param open
+ */
 function createSignable(signed: boolean, open: boolean) {
   const signedField = signed ? 'foo' : 'bar';
   const openField = open ? 'foo' : 'bar';

@@ -5,18 +5,32 @@ import { Machine } from 'xstate';
 import { Checkbox } from './Checkbox';
 import { CheckboxMachine } from './CheckboxMachine';
 
+/**
+ * @param element
+ */
 function getInput(element: Checkbox) {
   return element.shadowRoot!.querySelector('[data-testid=input]') as HTMLInputElement;
 }
 
+/**
+ * @param element
+ * @param value
+ */
 function testChecked(element: Checkbox, value: boolean) {
   expect(getInput(element).checked).to.equal(value);
 }
 
+/**
+ * @param element
+ * @param value
+ */
 function testDisabled(element: Checkbox, value: boolean) {
   expect(getInput(element).disabled).to.equal(value);
 }
 
+/**
+ *
+ */
 function createCheckboxModel() {
   const config = cloneDeep(CheckboxMachine.config);
 

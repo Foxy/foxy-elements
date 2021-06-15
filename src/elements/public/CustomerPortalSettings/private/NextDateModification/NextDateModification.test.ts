@@ -23,6 +23,9 @@ const samples = {
   modifiedRule: { jsonataQuery: '$contains(frequency, "w")', max: '1y' },
 };
 
+/**
+ * @param element
+ */
 function getRefs(element: TestNextDateModification) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector) as unknown;
   const $$ = (selector: string) => element.shadowRoot!.querySelectorAll(selector) as unknown;
@@ -34,6 +37,9 @@ function getRefs(element: TestNextDateModification) {
   };
 }
 
+/**
+ * @param disabled
+ */
 function testInteractivity(disabled: boolean) {
   return async (element: TestNextDateModification) => {
     await element.updateComplete;
@@ -46,6 +52,9 @@ function testInteractivity(disabled: boolean) {
   };
 }
 
+/**
+ * @param value
+ */
 function testContent(value: Rule[] | boolean) {
   return async (element: TestNextDateModification) => {
     await element.updateComplete;

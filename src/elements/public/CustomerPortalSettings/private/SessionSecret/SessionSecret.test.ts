@@ -19,6 +19,9 @@ interface Refs {
   button: ButtonElement;
 }
 
+/**
+ * @param disabled
+ */
 function testDisabled(disabled: boolean) {
   return async (element: TestSessionSecret) => {
     await element.updateComplete;
@@ -28,6 +31,9 @@ function testDisabled(disabled: boolean) {
   };
 }
 
+/**
+ * @param invalid
+ */
 function testInvalid(invalid: boolean) {
   return async (element: TestSessionSecret) => {
     await element.updateComplete;
@@ -36,6 +42,9 @@ function testInvalid(invalid: boolean) {
   };
 }
 
+/**
+ * @param element
+ */
 async function testValue(element: TestSessionSecret) {
   await element.updateComplete;
   const refs = getRefs<Refs>(element);

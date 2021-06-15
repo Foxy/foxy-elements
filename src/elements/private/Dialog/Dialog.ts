@@ -133,7 +133,10 @@ export abstract class Dialog extends TranslatableMixin(
     return dialogWindow.shadowRoot!;
   }
 
-  /** @readonly */
+  /**
+   * @param content
+   * @readonly
+   */
   render(content?: () => TemplateResult): TemplateResult {
     if (!this.__connected) return html``;
 

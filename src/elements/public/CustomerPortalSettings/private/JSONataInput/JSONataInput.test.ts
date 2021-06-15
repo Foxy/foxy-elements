@@ -23,6 +23,9 @@ const samples = {
   },
 };
 
+/**
+ * @param element
+ */
 function getRefs(element: TestJSONataInput) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
@@ -32,24 +35,36 @@ function getRefs(element: TestJSONataInput) {
   };
 }
 
+/**
+ * @param element
+ */
 function testEnabled(element: TestJSONataInput) {
   const refs = getRefs(element);
   expect(refs.choice.disabled).to.be.false;
   expect(refs.input?.disabled).to.be.oneOf([false, undefined]);
 }
 
+/**
+ * @param element
+ */
 function testDisabled(element: TestJSONataInput) {
   const refs = getRefs(element);
   expect(refs.choice.disabled).to.be.true;
   expect(refs.input?.disabled).to.be.oneOf([true, undefined]);
 }
 
+/**
+ * @param element
+ */
 function testWildcard(element: TestJSONataInput) {
   const { choice, input } = getRefs(element);
   expect(choice.value).to.equal('all');
   expect(input).to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function testCustom(element: TestJSONataInput) {
   const { choice, input } = getRefs(element);
 

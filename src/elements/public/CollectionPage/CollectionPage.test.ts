@@ -62,6 +62,10 @@ describe('CollectionPage', () => {
   });
 });
 
+/**
+ * @param refs
+ * @param element
+ */
 async function testItemProperty(refs: Refs, element: CollectionPage<Data>) {
   const items = element.form?._embedded?.['fx:attributes'] ?? [];
   let itemElements = refs.items;

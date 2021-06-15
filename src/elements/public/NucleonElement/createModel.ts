@@ -11,6 +11,10 @@ type NucleonTestModelOptions<TTestContext> = TestMachineOptions &
     tests?: Record<string, EventExecutor<TTestContext> | TestEventConfig<TTestContext>>;
   };
 
+/**
+ * @param machine
+ * @param options
+ */
 export function createModel<TTestContext, TContext = any>(
   machine: StateMachine<TContext, any, any>,
   options?: NucleonTestModelOptions<TTestContext>

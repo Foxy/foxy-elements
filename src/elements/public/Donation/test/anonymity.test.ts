@@ -6,12 +6,18 @@ import { exec, getRefs } from '../../../../utils/test-utils';
 import { Refs } from './types';
 import { CheckboxChangeEvent } from '../../../private/events';
 
+/**
+ * @param element
+ */
 async function expectNoErrorScreen(element: Donation) {
   await element.updateComplete;
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
+/**
+ * @param element
+ */
 async function expectNoAnonymityCheckbox(element: Donation) {
   await element.updateComplete;
   const { anonymity } = getRefs<Refs>(element);
@@ -19,6 +25,9 @@ async function expectNoAnonymityCheckbox(element: Donation) {
   expect(element.anonymity, 'anonymity must be disabled').to.be.false;
 }
 
+/**
+ * @param element
+ */
 async function expectAnonymityCheckbox(element: Donation) {
   await element.updateComplete;
   const { anonymity } = getRefs<Refs>(element);
@@ -26,6 +35,9 @@ async function expectAnonymityCheckbox(element: Donation) {
   expect(element.anonymity, 'anonymity must be enabled').to.be.true;
 }
 
+/**
+ * @param element
+ */
 async function expectPublicDonation(element: Donation) {
   await element.updateComplete;
   const field = getRefs<Refs>(element).form?.elements.namedItem('Anonymous') as HTMLInputElement;
@@ -33,6 +45,9 @@ async function expectPublicDonation(element: Donation) {
   expect(element.anonymous, 'anonymous must be set to false').to.be.false;
 }
 
+/**
+ * @param element
+ */
 async function expectAnonymousDonation(element: Donation) {
   await element.updateComplete;
   const field = getRefs<Refs>(element).form?.elements.namedItem('Anonymous') as HTMLInputElement;
@@ -40,6 +55,9 @@ async function expectAnonymousDonation(element: Donation) {
   expect(element.anonymous, 'anonymous must be set to true').to.be.true;
 }
 
+/**
+ * @param element
+ */
 async function expectConfigurablePublicDonation(element: Donation) {
   await expectPublicDonation(element);
   const { anonymity } = getRefs<Refs>(element);
@@ -47,6 +65,9 @@ async function expectConfigurablePublicDonation(element: Donation) {
   expect(anonymity?.checked, 'anonymity box must not be checked').to.be.false;
 }
 
+/**
+ * @param element
+ */
 async function expectConfigurableAnonymousDonation(element: Donation) {
   await expectAnonymousDonation(element);
   const { anonymity } = getRefs<Refs>(element);

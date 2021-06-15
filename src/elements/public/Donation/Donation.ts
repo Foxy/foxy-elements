@@ -2,7 +2,7 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { TemplateResult, html } from 'lit-html';
 import { Translatable } from '../../../mixins/translatable';
 import { parseDuration } from '../../../utils/parse-duration';
 import { CheckboxChangeEvent, ChoiceChangeEvent, DropdownChangeEvent } from '../../private/events';

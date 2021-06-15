@@ -2,7 +2,7 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-lumo-styles/icons';
 import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { TemplateResult, html } from 'lit-html';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { parseDuration } from '../../../../../utils/parse-duration';

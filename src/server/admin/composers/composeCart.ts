@@ -2,6 +2,10 @@ import { composeItem } from './composeItem';
 import { endpoint } from '..';
 import halson from 'halson';
 
+/**
+ * @param doc
+ * @param items
+ */
 export function composeCart(doc: any, items?: any[]) {
   const { id, store, customer, template_set, ...publicData } = doc;
 

@@ -1,4 +1,4 @@
-import { fixture, expect } from '@open-wc/testing';
+import { expect, fixture } from '@open-wc/testing';
 import { Donation } from './Donation';
 import * as amounts from './test/amounts.test';
 import * as anonymity from './test/anonymity.test';
