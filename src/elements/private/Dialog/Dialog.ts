@@ -136,7 +136,10 @@ export abstract class Dialog extends LitElement {
     return dialogWindow.shadowRoot!;
   }
 
-  /** @readonly */
+  /**
+   * @param content
+   * @readonly
+   */
   render(content?: () => TemplateResult): TemplateResult {
     if (!this.__connected) return html``;
 
@@ -152,7 +155,8 @@ export abstract class Dialog extends LitElement {
         <div
           id="backdrop"
           class=${classMap({
-            'select-none ease-in-out transition duration-500 absolute inset-0 bg-contrast-50 focus-outline-none': true,
+            'select-none ease-in-out transition duration-500 absolute inset-0 bg-contrast-50 focus-outline-none':
+              true,
             'opacity-100': this.__visible,
             'opacity-0': !this.__visible,
           })}
@@ -164,7 +168,8 @@ export abstract class Dialog extends LitElement {
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center sm-max-w-modal': true,
+            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center sm-max-w-modal':
+              true,
             'flex justify-center items-end sm-items-center mr-auto': this.alert,
             'translate-y-full sm-translate-y-0': !this.__visible,
             'sm-translate-x-full': !this.alert && !this.__visible,

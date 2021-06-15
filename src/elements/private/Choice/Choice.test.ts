@@ -10,11 +10,17 @@ import { machine } from './machine';
 const config = cloneDeep(machine.config);
 customElements.define('x-choice', Choice);
 
+/**
+ * @param element
+ */
 function getInputs(element: Choice) {
   const inputs = element.shadowRoot!.querySelectorAll('input');
   return Array.from(inputs) as HTMLInputElement[];
 }
 
+/**
+ * @param exec
+ */
 function whenIdle(exec: Required<TestEventConfig<Choice>>['exec']) {
   return async (...args: Parameters<Required<TestEventConfig<Choice>>['exec']>) => {
     await args[0].updateComplete;
@@ -22,6 +28,9 @@ function whenIdle(exec: Required<TestEventConfig<Choice>>['exec']) {
   };
 }
 
+/**
+ *
+ */
 function createMemo() {
   const cache = new Set<string>();
   return (value: any) => {
@@ -32,6 +41,9 @@ function createMemo() {
   };
 }
 
+/**
+ * @param model
+ */
 function getPlans(model: TestModel<any, any>) {
   const wasStateTested = createMemo();
   const wasChoiceTested = createMemo();
@@ -205,37 +217,41 @@ config!.states!.extension.states!.present.states!.selected.states!.integer.meta 
   },
 };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.none.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.min).to.be.undefined;
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.none.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.be.undefined;
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.custom.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.min).to.equal(element.min);
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.custom.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.equal(element.min);
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.none.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.max).to.be.undefined;
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.none.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.be.undefined;
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.custom.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.max).to.equal(element.max);
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.custom.meta =
+  {
+    async test(element: Choice) {
+      await element.updateComplete;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.equal(element.max);
+    },
+  };
 
 const model = createModel<Choice>(createMachine(config, machine.options)).withEvents({
   SET_DISABLED: {

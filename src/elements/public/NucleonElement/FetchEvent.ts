@@ -21,6 +21,8 @@ export class FetchEvent extends Event {
 
   /**
    * Prevent the `EventTarget`'s default fetch handling, and provide a promise for a response yourself.
+   *
+   * @param whenResponseReady
    * @example event.respondWith(Promise.resolve(new Response(null, { status: 500 })))
    */
   respondWith(whenResponseReady: Promise<Response>): void {

@@ -11,18 +11,27 @@ const samples = {
   designation: 'Designation one',
 };
 
+/**
+ * @param element
+ */
 async function expectNoErrorScreen(element: Donation) {
   await element.updateComplete;
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
+/**
+ * @param element
+ */
 async function expectNoDesignationPicker(element: Donation) {
   await element.updateComplete;
   const designation = getRefs<Refs>(element).designation;
   expect(designation, 'designations must not be rendered').to.be.undefined;
 }
 
+/**
+ * @param element
+ */
 async function expectNullDesignation(element: Donation) {
   await element.updateComplete;
   const field = getRefs<Refs>(element).form?.elements.namedItem('Designation');
@@ -30,6 +39,9 @@ async function expectNullDesignation(element: Donation) {
   expect(element.designation, 'designation must be null').to.be.null;
 }
 
+/**
+ * @param element
+ */
 async function expectStringDesignation(element: Donation) {
   await element.updateComplete;
 
@@ -41,6 +53,9 @@ async function expectStringDesignation(element: Donation) {
   expect(element.designation, 'designation must equal sample').to.equal(sample);
 }
 
+/**
+ * @param element
+ */
 async function expectDesignationPicker(element: Donation) {
   await element.updateComplete;
 

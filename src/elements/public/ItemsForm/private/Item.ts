@@ -1,5 +1,5 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 import { ErrorScreen, I18N } from '../../../private/index';
 import { ImageDescription, ItemInterface } from '../types';
 import { SignableFields } from './SignableFields';
@@ -470,8 +470,7 @@ export class Item extends SignableFields {
   /**
    * Items have their signed names prefixed with their id.
    *
-   * @argument fieldName the name of the field to get the signed version.
-   * @argument open whether this field is editable by the user.
+   * @param fieldName the name of the field to get the signed version.
    * @returns signed version of the name, prefixed with the item id.
    */
   public signedName(fieldName: string): string {
@@ -486,7 +485,7 @@ export class Item extends SignableFields {
    * Ids are prepended to fields names to allow Foxy Cart to know to what
    * item a particular field relates.
    *
-   * @return number the newly created id
+   * @returns number the newly created id
    */
   private static __newId(): number {
     // Get the maximum value
@@ -512,6 +511,8 @@ export class Item extends SignableFields {
 
   /**
    * Add an element to the default slot
+   *
+   * @param el
    */
   private __addSlottedEl(el: HTMLElement) {
     const slot = this.shadowRoot!.querySelector('article');
@@ -531,6 +532,8 @@ export class Item extends SignableFields {
 
   /**
    * Create child items from items field.
+   *
+   * @param valuesArray
    */
   private __createItems(valuesArray: ItemInterface[]): void {
     valuesArray.forEach(p => {
@@ -661,7 +664,11 @@ export class Item extends SignableFields {
     this.__setTotalPrice();
   }
 
-  /** Execute a list of actions against all child items */
+  /**
+   * Execute a list of actions against all child items
+   *
+   * @param actions
+   */
   private __onEachChildItem(actions: ((c: Item) => void)[]) {
     const myChildItems = this.querySelectorAll('[data-bundled]');
     for (const c of myChildItems) {

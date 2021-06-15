@@ -88,7 +88,10 @@ export class I18n extends LitElement {
     return I18n.i18next.getFixedT(this.lang, this.ns.split(' '))(this.key, this.options);
   }
 
-  /** @readonly */
+  /**
+   * @param changedProperties
+   * @readonly
+   */
   updated(changedProperties: Map<keyof I18n, unknown>): void {
     super.updated(changedProperties);
 

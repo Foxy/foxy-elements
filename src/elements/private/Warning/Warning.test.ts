@@ -1,7 +1,7 @@
 import { createMachine } from 'xstate';
 import { createModel } from '@xstate/test';
 import { Warning } from './Warning';
-import { fixture, expect } from '@open-wc/testing';
+import { expect, fixture } from '@open-wc/testing';
 
 customElements.define('x-warning', Warning);
 
@@ -9,11 +9,17 @@ const samples = {
   innerHTML: '<div>Lorem ipsum</div>',
 };
 
+/**
+ * @param element
+ */
 function testEmpty(element: Warning) {
   expect(element.innerHTML).to.equal('');
   expect(element.shadowRoot!.textContent?.trim()).to.equal('');
 }
 
+/**
+ * @param element
+ */
 function testContent(element: Warning) {
   expect(element).lightDom.to.equal(samples.innerHTML);
   Array.from(element.children).every(child => expect(child).to.be.visible);

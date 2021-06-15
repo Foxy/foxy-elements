@@ -15,6 +15,9 @@ class TestFrequencyModification extends FrequencyModification {
 
 customElements.define('x-ruleset', TestFrequencyModification);
 
+/**
+ * @param element
+ */
 function getRefs(element: TestFrequencyModification) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector) as unknown;
   const $$ = (selector: string) => element.shadowRoot!.querySelectorAll(selector) as unknown;
@@ -25,6 +28,9 @@ function getRefs(element: TestFrequencyModification) {
   };
 }
 
+/**
+ * @param disabled
+ */
 function testDisabled(disabled: boolean) {
   return async (element: TestFrequencyModification) => {
     await element.updateComplete;
@@ -37,6 +43,9 @@ function testDisabled(disabled: boolean) {
   };
 }
 
+/**
+ * @param element
+ */
 async function testValue(element: TestFrequencyModification) {
   await element.updateComplete;
   getRefs(element).rules.every((rule, index) => {

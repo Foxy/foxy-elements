@@ -4,7 +4,7 @@ import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { Data } from './types';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { html, CSSResult, CSSResultArray, TemplateResult } from 'lit-element';
+import { CSSResult, CSSResultArray, TemplateResult, html } from 'lit-element';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { countries } from '../../../utils/countries';
 import { regions } from '../../../utils/regions';

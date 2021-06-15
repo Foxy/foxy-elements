@@ -79,6 +79,7 @@ export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data>
     }
 
     const type = data!.cc_type.toLowerCase();
+    // eslint-disable-next-line import/namespace
     const logo = logos[type as keyof typeof logos] ?? logos.unknown;
     const last4Digits = data!.cc_number_masked.substring(data!.cc_number_masked.length - 4);
 

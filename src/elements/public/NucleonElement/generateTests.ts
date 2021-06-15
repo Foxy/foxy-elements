@@ -12,6 +12,9 @@ import { createTestMachine } from './createTestMachine';
 import get from 'lodash-es/get';
 import { html } from 'lit-html';
 
+/**
+ * @param element
+ */
 export function getRefs<TRefs extends Record<string, Element | Element[]>>(
   element: LitElement
 ): TRefs {
@@ -36,6 +39,12 @@ export function getRefs<TRefs extends Record<string, Element | Element[]>>(
   return { ...classes, ...ids } as TRefs;
 }
 
+/**
+ * @param tests
+ * @param state
+ * @param context
+ * @param event
+ */
 function runCustomTests<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,
@@ -91,6 +100,9 @@ type ElementConfig<
   };
 };
 
+/**
+ * @param maxTimes
+ */
 function testDeepestAtMost(maxTimes: number) {
   const seenStates = new Map<string, number>();
 
@@ -116,6 +128,9 @@ function testDeepestAtMost(maxTimes: number) {
   };
 }
 
+/**
+ * @param config
+ */
 export function generateTests<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,

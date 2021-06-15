@@ -2,6 +2,10 @@ import { composeItem } from './composeItem';
 import { endpoint } from '..';
 import halson from 'halson';
 
+/**
+ * @param doc
+ * @param items
+ */
 export function composeTransaction(doc: any, items?: any[]) {
   const { id, store, customer, subscription, ...publicData } = doc;
 

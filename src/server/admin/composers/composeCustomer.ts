@@ -2,6 +2,10 @@ import { composeCustomerAttribute } from './composeCustomerAttribute';
 import { endpoint } from '..';
 import halson from 'halson';
 
+/**
+ * @param doc
+ * @param attributes
+ */
 export function composeCustomer(doc: any, attributes?: any[]) {
   const { id, store, ...publicData } = doc;
 

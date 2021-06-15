@@ -1,7 +1,11 @@
 import { endpoint } from '..';
 import halson from 'halson';
+import { HALJSONResource } from '../../../elements/public/NucleonElement/types';
 
-export function composeItem(doc: any) {
+/**
+ * @param doc
+ */
+export function composeItem(doc: any): HALJSONResource {
   const { id, store, transaction, ...publicData } = doc;
 
   return halson(publicData)
@@ -15,3 +19,4 @@ export function composeItem(doc: any) {
     .addLink('fx:discount_details', `${endpoint}/items/${id}/discount_details`)
     .addLink('fx:coupon_details', `${endpoint}/items/${id}/coupon_details`);
 }
+1;

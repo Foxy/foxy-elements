@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { ChoiceChangeEvent } from '../../../../private/events';

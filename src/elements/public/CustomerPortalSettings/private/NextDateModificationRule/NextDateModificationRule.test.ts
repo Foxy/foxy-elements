@@ -22,6 +22,9 @@ class TestNextDateModificationRule extends NextDateModificationRule {
 
 customElements.define('x-next-date-modification-rule', TestNextDateModificationRule);
 
+/**
+ * @param element
+ */
 function getRefs(element: TestNextDateModificationRule) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
@@ -37,6 +40,9 @@ function getRefs(element: TestNextDateModificationRule) {
   };
 }
 
+/**
+ * @param disabled
+ */
 function testInteractivity(disabled: boolean) {
   return async (element: TestNextDateModificationRule) => {
     await element.updateComplete;
@@ -47,6 +53,9 @@ function testInteractivity(disabled: boolean) {
   };
 }
 
+/**
+ * @param open
+ */
 function testDisplay(open: boolean) {
   return async (element: TestNextDateModificationRule) => {
     await element.updateComplete;
@@ -64,6 +73,9 @@ function testDisplay(open: boolean) {
   };
 }
 
+/**
+ * @param element
+ */
 async function testContent(element: TestNextDateModificationRule) {
   await element.updateComplete;
 

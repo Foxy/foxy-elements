@@ -2,7 +2,7 @@ import { expect } from '@open-wc/testing';
 import { fixture, oneEvent } from '@open-wc/testing-helpers';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { createModel } from '@xstate/test';
-import { createMachine, EventObject } from 'xstate';
+import { EventObject, createMachine } from 'xstate';
 import { I18N } from '../I18N/I18N';
 import { ErrorScreen, ErrorScreenReloadEvent, FriendlyError } from './ErrorScreen';
 
@@ -14,6 +14,9 @@ class TestErrorScreen extends ErrorScreen {
 
 customElements.define('x-error-screen', TestErrorScreen);
 
+/**
+ * @param type
+ */
 function testType(type: TestErrorScreen['type']) {
   return async (element: TestErrorScreen) => {
     await element.updateComplete;
@@ -29,6 +32,9 @@ function testType(type: TestErrorScreen['type']) {
   };
 }
 
+/**
+ * @param reload
+ */
 function testReload(reload: TestErrorScreen['reload']) {
   return async (element: TestErrorScreen) => {
     await element.updateComplete;

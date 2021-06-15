@@ -238,6 +238,10 @@ router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
   return new Response(JSON.stringify(body));
 });
 
+/**
+ * @param url
+ * @param id
+ */
 async function getLastTransaction(url: string, id: number) {
   const zoom = new URL(url).searchParams.get('zoom') ?? '';
   return zoom.includes('last_transaction')
@@ -507,6 +511,12 @@ async function respondItems(
   return new Response(JSON.stringify(body));
 }
 
+/**
+ * @param table
+ * @param field
+ * @param value
+ * @param pagination
+ */
 function queryCountAndWhere(
   table: Table,
   field: string,
@@ -516,6 +526,10 @@ function queryCountAndWhere(
   return Promise.all([table.count(), paginateQuery(table.where(field).equals(value), pagination)]);
 }
 
+/**
+ * @param query
+ * @param pagination
+ */
 function paginateQuery(query: Collection<any, any>, pagination = { limit: 20, offset: 0 }) {
   return query.offset(pagination.offset).limit(pagination.limit).toArray();
 }

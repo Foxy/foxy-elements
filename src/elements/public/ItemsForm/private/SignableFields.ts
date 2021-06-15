@@ -10,7 +10,7 @@ export class SignableFields extends Translatable {
       signatures: {
         type: Object,
         converter: value => {
-          const v = (JSON.parse(value!) as unknown) as Record<string, string>;
+          const v = JSON.parse(value!) as unknown as Record<string, string>;
           for (const k of Object.keys(v)) {
             if ((v[k] as string).length != 64) {
               console.error(
@@ -51,7 +51,8 @@ export class SignableFields extends Translatable {
    *
    * The unaltered field name is returned if there is no available signature.
    *
-   * @argument fieldName the name of the field to get the signed version.
+   * @param fieldName
+   * @param fieldName the name of the field to get the signed version.
    */
   public signedName(fieldName: string): string {
     if (this.signatures && this.signatures[fieldName]) {
@@ -64,7 +65,8 @@ export class SignableFields extends Translatable {
   /**
    * Checks if a given field is user editable.
    *
-   * @argument fieldName the name of the field to check if it is user editable.
+   * @param fieldName
+   * @param fieldName the name of the field to check if it is user editable.
    * @returns editable true if it is editable, false otherwise.
    */
   public isOpen(fieldName: string): boolean {

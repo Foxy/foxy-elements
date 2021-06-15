@@ -6,18 +6,32 @@ import { Switch } from './Switch';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { createModel } from '@xstate/test';
 
+/**
+ * @param element
+ */
 function getInput(element: Switch) {
   return element.shadowRoot!.querySelector('input')!;
 }
 
+/**
+ * @param element
+ * @param value
+ */
 function testChecked(element: Switch, value: boolean) {
   expect(getInput(element).checked).to.equal(value);
 }
 
+/**
+ * @param element
+ * @param value
+ */
 function testDisabled(element: Switch, value: boolean) {
   expect(getInput(element).disabled).to.equal(value);
 }
 
+/**
+ *
+ */
 function createSwitchModel() {
   const config = cloneDeep(CheckboxMachine.config);
 

@@ -1,6 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { I18N, Section } from '../../../../private/index';
@@ -108,7 +108,8 @@ export class NextDateModification extends Translatable {
             .ns=${this.ns}
             key="ndmod.add_hint"
             class=${classMap({
-              'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m': true,
+              'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
+                true,
               'text-tertiary': Array.isArray(this.value) && this.value.length < 10,
               'text-primary': Array.isArray(this.value) && this.value.length >= 10,
               hidden: !Array.isArray(this.value) || this.value.length === 0,

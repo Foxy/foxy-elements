@@ -1,7 +1,7 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { ListChangeEvent } from '../../../../private/events';
@@ -98,7 +98,8 @@ export class OriginsList extends Translatable {
                 .ns=${this.ns}
                 key="origins.add_hint"
                 class=${classMap({
-                  'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m': true,
+                  'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
+                    true,
                   'text-tertiary': this.value.length < 10,
                   'text-primary': this.value.length >= 10,
                   hidden: this.value.length === 0,

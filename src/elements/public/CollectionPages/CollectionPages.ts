@@ -44,7 +44,7 @@ export class CollectionPages<TPage extends Page> extends LitElement {
   private __fetchEventHandler = (evt: unknown) => this.__handleFetchEvent(evt);
 
   private __service = interpret(
-    ((machine as unknown) as StateMachine<Context<TPage>, any, Event<TPage>>).withConfig({
+    (machine as unknown as StateMachine<Context<TPage>, any, Event<TPage>>).withConfig({
       services: {
         observeChildren: () => callback => {
           const observer = new IntersectionObserver(entries => {
@@ -147,10 +147,11 @@ export class CollectionPages<TPage extends Page> extends LitElement {
    * - `busy` when loading a page;
    * - `fail` when page load fails;
    * - `idle` when not loading anything for one of the reasons below:
-   *   - `paused` if waiting for user to scroll further;
-   *   - `empty` if collection is empty;
-   *   - `end` if there are no more items in a collection.
+   * - `paused` if waiting for user to scroll further;
+   * - `empty` if collection is empty;
+   * - `end` if there are no more items in a collection.
    *
+   * @param stateValue
    * @example element.in({ idle: 'empty' })
    */
   in(stateValue: State<Context, Event>['value']): boolean {
@@ -205,7 +206,10 @@ export class CollectionPages<TPage extends Page> extends LitElement {
     `;
   }
 
-  /** @readonly */
+  /**
+   * @param changes
+   * @readonly
+   */
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
     this.dispatchEvent(new NucleonElement.UpdateEvent());

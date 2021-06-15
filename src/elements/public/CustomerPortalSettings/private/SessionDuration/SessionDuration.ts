@@ -8,7 +8,7 @@ import {
 import { SelectElement } from '@vaadin/vaadin-select/vaadin-select';
 import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
+import { TemplateResult, html } from 'lit-html';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { I18N } from '../../../../private/index';

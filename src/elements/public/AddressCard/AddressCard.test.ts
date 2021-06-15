@@ -15,11 +15,6 @@ type Refs = {
 
 describe('AddressCard', () => {
   generateTests<Data, AddressCard, Refs>({
-    tag: 'foxy-address-card',
-    href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
-    parent: 'https://demo.foxycart.com/s/admin/customers/0/addresses',
-    maxTestsPerState: 5,
-    isEmptyValid: true,
     assertions: {
       async busy({ refs, element }) {
         expect(refs.wrapper).to.have.attribute('aria-busy', 'true');
@@ -54,5 +49,10 @@ describe('AddressCard', () => {
         expect(refs.fullAddress).to.be.undefined;
       },
     },
+    href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
+    isEmptyValid: true,
+    maxTestsPerState: 5,
+    parent: 'https://demo.foxycart.com/s/admin/customers/0/addresses',
+    tag: 'foxy-address-card',
   });
 });

@@ -1,6 +1,9 @@
 import { endpoint } from '..';
 import halson from 'halson';
 
+/**
+ * @param doc
+ */
 export function composeDefaultPaymentMethod(doc: any) {
   const { store, customer, ...publicData } = doc;
 

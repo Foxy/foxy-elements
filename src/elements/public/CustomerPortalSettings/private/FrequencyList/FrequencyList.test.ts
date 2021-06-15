@@ -21,6 +21,9 @@ const samples = {
   newValue: '4d',
 };
 
+/**
+ * @param element
+ */
 function getRefs(element: TestFrequencyList) {
   const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
 
@@ -31,6 +34,9 @@ function getRefs(element: TestFrequencyList) {
   };
 }
 
+/**
+ * @param element
+ */
 function testEnabled(element: TestFrequencyList) {
   const refs = getRefs(element);
 
@@ -39,6 +45,9 @@ function testEnabled(element: TestFrequencyList) {
   expect(refs.button.disabled).to.be.false;
 }
 
+/**
+ * @param element
+ */
 function testDisabled(element: TestFrequencyList) {
   const refs = getRefs(element);
 
@@ -47,10 +56,16 @@ function testDisabled(element: TestFrequencyList) {
   expect(refs.button.disabled).to.be.true;
 }
 
+/**
+ * @param element
+ */
 function testEmpty(element: TestFrequencyList) {
   expect(getRefs(element).list.value).to.be.empty;
 }
 
+/**
+ * @param element
+ */
 async function testItems(element: TestFrequencyList) {
   const { list, input, button } = getRefs(element);
 

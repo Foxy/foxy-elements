@@ -22,7 +22,7 @@ describe('NucleonElement', () => {
       });
 
       new API(window).fetch(request);
-      const event = ((await whenGotEvent) as unknown) as FetchEvent;
+      const event = (await whenGotEvent) as unknown as FetchEvent;
 
       expect(event).to.be.instanceOf(FetchEvent);
       expect(event).to.have.property('cancelable', true);

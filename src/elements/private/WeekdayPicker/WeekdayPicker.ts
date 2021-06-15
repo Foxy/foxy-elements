@@ -1,4 +1,4 @@
-import { html, TemplateResult } from 'lit-element';
+import { TemplateResult, html } from 'lit-element';
 import { concatTruthy } from '../../../utils/concat-truthy';
 import { translateWeekday } from '../../../utils/translate-weekday';
 import { MonthdayPicker } from '../MonthdayPicker/MonthdayPicker';

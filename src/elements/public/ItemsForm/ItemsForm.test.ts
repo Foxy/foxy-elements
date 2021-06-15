@@ -1,4 +1,4 @@
-import { fixture, expect, html, elementUpdated, oneEvent, aTimeout } from '@open-wc/testing';
+import { aTimeout, elementUpdated, expect, fixture, html, oneEvent } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { ItemsForm } from './ItemsForm';
 import { MockItem } from '../../../mocks/FxItem';
@@ -216,7 +216,7 @@ describe('The form should remain valid', async function () {
     xhr = sinon.useFakeXMLHttpRequest();
     requests = [];
     xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
-      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      sinon.stub(xhr as unknown as XMLHttpRequest, 'send');
       requests.push(xhr);
     };
     logSpy = sinon.stub(console, 'error');
@@ -442,7 +442,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     xhr = sinon.useFakeXMLHttpRequest();
     requests = [];
     xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
-      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      sinon.stub(xhr as unknown as XMLHttpRequest, 'send');
       requests.push(xhr);
     };
     logSpy = sinon.stub(console, 'error');
@@ -728,7 +728,7 @@ describe('The form reveals its state to the user', async function () {
     xhr = sinon.useFakeXMLHttpRequest();
     requests = [];
     xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
-      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      sinon.stub(xhr as unknown as XMLHttpRequest, 'send');
       requests.push(xhr);
     };
     logSpy = sinon.stub(console, 'error');
@@ -752,6 +752,10 @@ describe('The form reveals its state to the user', async function () {
 
 /** Helper functions **/
 
+/**
+ * @param price1
+ * @param price2
+ */
 async function formWith2items(price1: number, price2: number) {
   const el = await fixture(html`
     <test-items-form currency="usd" store="test.foxycart.com">
@@ -766,6 +770,9 @@ async function formWith2items(price1: number, price2: number) {
 /**
  * Returns FormDataEntryValues for fields with a particular name, following
  * FoxyCart convention
+ *
+ * @param formData
+ * @param name
  */
 function valuesFromField(formData: FormData, name: string): FormDataEntryValue[] {
   const re = new RegExp(`\\d+:${name}(||.*)?`);

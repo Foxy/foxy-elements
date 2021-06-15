@@ -9,11 +9,17 @@ const samples = {
   innerHTML: '<div>Lorem ipsum</div>',
 };
 
+/**
+ * @param element
+ */
 async function testEmpty(element: Skeleton) {
   await element.updateComplete;
   expect(element.innerHTML).to.equal('');
 }
 
+/**
+ * @param element
+ */
 async function testWithContent(element: Skeleton) {
   await element.updateComplete;
   expect(element.innerHTML).to.equal(samples.innerHTML);

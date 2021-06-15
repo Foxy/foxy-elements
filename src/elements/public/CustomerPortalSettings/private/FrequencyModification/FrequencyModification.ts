@@ -2,7 +2,7 @@ import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-lumo-styles/icons';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { Group, I18N, Section } from '../../../../private/index';
@@ -81,7 +81,8 @@ export class FrequencyModification extends Translatable {
             .ns=${this.ns}
             key="fmod.add_rule_hint"
             class=${classMap({
-              'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m': true,
+              'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
+                true,
               'text-tertiary': this.value.length < 10,
               'text-primary': this.value.length >= 10,
               hidden: this.value.length === 0,

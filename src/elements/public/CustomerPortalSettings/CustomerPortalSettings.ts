@@ -27,6 +27,9 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import { interpret } from 'xstate';
 import { machine } from './machine';
 
+/**
+ * @param response
+ */
 function throwIfNotOk(response: Response) {
   if (response.ok) return;
   throw new FriendlyError(response.status === 401 ? 'unauthorized' : 'unknown');

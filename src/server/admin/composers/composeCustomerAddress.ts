@@ -1,6 +1,9 @@
 import { endpoint } from '..';
 import halson from 'halson';
 
+/**
+ * @param doc
+ */
 export function composeCustomerAddress(doc: any) {
   const { id, store, customer, ...publicData } = doc;
 

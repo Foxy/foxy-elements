@@ -5,6 +5,11 @@ import { html } from 'lit-html';
 
 customElements.define('x-tabs', Tabs);
 
+/**
+ * @param element
+ * @param size
+ * @param value
+ */
 async function testLayout(element: Tabs, size: number, value: number) {
   expect(element).to.have.property('value', value);
   expect(element).to.have.property('size', size);

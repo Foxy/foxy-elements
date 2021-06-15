@@ -9,11 +9,17 @@ const samples = {
   innerHTML: '<div>Lorem ipsum</div>',
 };
 
+/**
+ * @param element
+ */
 function testSlots(element: Section) {
   expect(element.shadowRoot!.querySelector('slot[name=title]')).to.exist;
   expect(element.shadowRoot!.querySelector('slot[name=subtitle]')).to.exist;
 }
 
+/**
+ * @param element
+ */
 function testContent(element: Section) {
   expect(element).lightDom.to.equal(samples.innerHTML);
   Array.from(element.children).every(child => expect(child).to.be.visible);

@@ -6,13 +6,7 @@ module.exports = {
     browser: true,
     node: true,
   },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:import/errors',
-    'plugin:import/warnings',
-  ],
+  extends: '@foxy.io',
   settings: {
     'import/resolver': {
       node: {

@@ -17,6 +17,12 @@ import { spread } from '@open-wc/lit-helpers/src/spread';
 
 const VALUE_OTHER = `@foxy.io/elements::other[${(Math.pow(10, 10) * Math.random()).toFixed(0)}]`;
 
+/**
+ * @param disabled
+ * @param checked
+ * @param attrs
+ * @param label
+ */
 function radio(
   disabled: boolean,
   checked: boolean,
@@ -44,6 +50,12 @@ function radio(
   `;
 }
 
+/**
+ * @param disabled
+ * @param checked
+ * @param attrs
+ * @param label
+ */
 function check(
   disabled: boolean,
   checked: boolean,

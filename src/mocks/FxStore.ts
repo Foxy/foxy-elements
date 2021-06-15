@@ -138,15 +138,13 @@ export const store: FxStore = {
       title: 'Third party integrations which require credentials and configuration.',
     },
     'fx:activate_store_monthly_url': {
-      href:
-        'https://signup.foxycart.com/cart?cart=checkout&empty=true&quantity_max=1||28cd178a22214aea11be7b1b179f8542bbc1a4652b5b8fa1512bf77cd4ea8a4f&name=FoxyCart.com+Store+Subscription||12f4d3d5b3eba79880ede3a0ec6c518ea64e550399c2a30c3620a097e0d4404e&price=20||43a9144ce94b8588467487d26a90815654a0db78af18946d4d2c80822be86452&sub_frequency=1m||992962b8d334adb5e339013e9e61c79183f34dcbc5f5c5949fc1468a6f720a08&code=8||d50fff6c64f14bd7ab0cf4a1b4e9d0cfd5072c2920757539aef667387d8bd652&user_id=2||79d57442231387ab7ab0f1fc46a07e4f1691e9ece111d9ef3e9b82cec50db3e8&Store_Name=yooo||1fc827a6ca712269d36070f18a03c3d6b556c1e6f4d40b79dad1b5a319bb427d&plan=standard||f2b1c88914701e09092f54a19631cf2e68706702ee66a43f74fa9666fbd56d0f',
+      href: 'https://signup.foxycart.com/cart?cart=checkout&empty=true&quantity_max=1||28cd178a22214aea11be7b1b179f8542bbc1a4652b5b8fa1512bf77cd4ea8a4f&name=FoxyCart.com+Store+Subscription||12f4d3d5b3eba79880ede3a0ec6c518ea64e550399c2a30c3620a097e0d4404e&price=20||43a9144ce94b8588467487d26a90815654a0db78af18946d4d2c80822be86452&sub_frequency=1m||992962b8d334adb5e339013e9e61c79183f34dcbc5f5c5949fc1468a6f720a08&code=8||d50fff6c64f14bd7ab0cf4a1b4e9d0cfd5072c2920757539aef667387d8bd652&user_id=2||79d57442231387ab7ab0f1fc46a07e4f1691e9ece111d9ef3e9b82cec50db3e8&Store_Name=yooo||1fc827a6ca712269d36070f18a03c3d6b556c1e6f4d40b79dad1b5a319bb427d&plan=standard||f2b1c88914701e09092f54a19631cf2e68706702ee66a43f74fa9666fbd56d0f',
       title:
         'Follow this link in your browser to pay for your monthly subscription and activate this store',
       type: 'text/html',
     },
     'fx:activate_store_yearly_url': {
-      href:
-        'https://signup.foxycart.com/cart?cart=checkout&empty=true&quantity_max=1||28cd178a22214aea11be7b1b179f8542bbc1a4652b5b8fa1512bf77cd4ea8a4f&name=FoxyCart.com+Store+Subscription||12f4d3d5b3eba79880ede3a0ec6c518ea64e550399c2a30c3620a097e0d4404e&price=180||476b25284b0acfe4fc9282922d5c6764aea0cfa46ccc3eecfb3fafe7be63297e&sub_frequency=1y||21ed9850a02c7aeb584cafa3a1367c82869f7a709d6036bca4d4fa19e98814c1&code=8||d50fff6c64f14bd7ab0cf4a1b4e9d0cfd5072c2920757539aef667387d8bd652&user_id=2||79d57442231387ab7ab0f1fc46a07e4f1691e9ece111d9ef3e9b82cec50db3e8&Store_Name=yooo||1fc827a6ca712269d36070f18a03c3d6b556c1e6f4d40b79dad1b5a319bb427d&plan=standard||f2b1c88914701e09092f54a19631cf2e68706702ee66a43f74fa9666fbd56d0f',
+      href: 'https://signup.foxycart.com/cart?cart=checkout&empty=true&quantity_max=1||28cd178a22214aea11be7b1b179f8542bbc1a4652b5b8fa1512bf77cd4ea8a4f&name=FoxyCart.com+Store+Subscription||12f4d3d5b3eba79880ede3a0ec6c518ea64e550399c2a30c3620a097e0d4404e&price=180||476b25284b0acfe4fc9282922d5c6764aea0cfa46ccc3eecfb3fafe7be63297e&sub_frequency=1y||21ed9850a02c7aeb584cafa3a1367c82869f7a709d6036bca4d4fa19e98814c1&code=8||d50fff6c64f14bd7ab0cf4a1b4e9d0cfd5072c2920757539aef667387d8bd652&user_id=2||79d57442231387ab7ab0f1fc46a07e4f1691e9ece111d9ef3e9b82cec50db3e8&Store_Name=yooo||1fc827a6ca712269d36070f18a03c3d6b556c1e6f4d40b79dad1b5a319bb427d&plan=standard||f2b1c88914701e09092f54a19631cf2e68706702ee66a43f74fa9666fbd56d0f',
       title:
         'Follow this link in your browser to pay for your yearly subscription and activate this store',
       type: 'text/html',

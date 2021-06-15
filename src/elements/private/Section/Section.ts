@@ -1,4 +1,4 @@
-import { html, css, CSSResultArray, TemplateResult } from 'lit-element';
+import { CSSResultArray, TemplateResult, css, html } from 'lit-element';
 import { Page } from '../Page/Page';
 
 export class Section extends Page {

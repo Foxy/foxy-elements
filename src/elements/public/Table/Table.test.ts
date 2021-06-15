@@ -1,4 +1,4 @@
-import { Core, Backend } from '@foxy.io/sdk';
+import { Backend, Core } from '@foxy.io/sdk';
 import { expect, html } from '@open-wc/testing';
 
 import { CellContext } from './types';

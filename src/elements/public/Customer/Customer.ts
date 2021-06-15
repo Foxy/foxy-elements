@@ -1,5 +1,5 @@
 import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { Core, Backend } from '@foxy.io/sdk';
+import { Backend, Core } from '@foxy.io/sdk';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Skeleton, Tabs } from '../../private/index';
 

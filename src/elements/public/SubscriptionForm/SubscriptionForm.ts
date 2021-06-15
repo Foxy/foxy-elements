@@ -161,7 +161,8 @@ export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> 
         <div
           data-testid="spinnerWrapper"
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center': true,
+            'transition duration-500 ease-in-out absolute inset-0 flex items-center justify-center':
+              true,
             'pointer-events-none opacity-0': this.in({ idle: 'snapshot' }),
             'opacity-100': !this.in({ idle: 'snapshot' }),
           })}

@@ -55,7 +55,7 @@ describe('FormDialog', () => {
     await dialog.show();
 
     const formElement = dialog.renderRoot.querySelector('#form');
-    const whenGotFetchEvent = (oneEvent(dialog, 'fetch') as unknown) as Promise<FetchEvent>;
+    const whenGotFetchEvent = oneEvent(dialog, 'fetch') as unknown as Promise<FetchEvent>;
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
@@ -86,7 +86,7 @@ describe('FormDialog', () => {
     await dialog.show();
 
     const formElement = dialog.renderRoot.querySelector('#form');
-    const whenGotFetchEvent = (oneEvent(dialog, 'fetch') as unknown) as Promise<FetchEvent>;
+    const whenGotFetchEvent = oneEvent(dialog, 'fetch') as unknown as Promise<FetchEvent>;
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
