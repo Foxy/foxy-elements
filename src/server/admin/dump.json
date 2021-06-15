@@ -395,7 +395,7 @@
       "store_name": "Acme Corporation",
       "store_domain": "acme",
       "use_remote_domain": false,
-      "store_url": "http://example.com/",
+      "store_url": "https://example.com/",
       "receipt_continue_url": "",
       "store_email": "example@example.com",
       "from_email": "nelson@murphy.com",
@@ -455,7 +455,7 @@
       "date_modified": "2013-08-19T10:58:39-0700"
     }
   ],
-  "tax": [
+  "taxes": [
     {
       "id": 0,
       "store": 0,
@@ -464,17 +464,17 @@
       "country": "US",
       "region": "TN",
       "city": "",
-      "is_live": false,
+      "is_live": true,
       "service_provider": "avalara",
       "apply_to_shipping": true,
-      "use_origin_rates": false,
-      "exempt_all_customer_tax_ids": false,
+      "use_origin_rates": true,
+      "exempt_all_customer_tax_ids": true,
       "rate": 1,
-      "date_created": null,
-      "date_modified": null
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
     },
     {
-      "id": 0,
+      "id": 1,
       "store": 0,
       "name": "TX",
       "type": "region",
@@ -487,8 +487,8 @@
       "use_origin_rates": true,
       "exempt_all_customer_tax_ids": false,
       "rate": 3,
-      "date_created": null,
-      "date_modified": null
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
     }
   ],
   "transactions": [
