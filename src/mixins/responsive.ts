@@ -2,7 +2,9 @@
 
 import { Constructor, LitElement } from 'lit-element';
 
-export const ResponsiveMixin = <T extends Constructor<LitElement>>(BaseElement: T) => {
+export const ResponsiveMixin = <TBase extends Constructor<LitElement>>(
+  BaseElement: TBase
+): TBase => {
   return class ResponsiveElement extends BaseElement {
     private __removeBreakpoints?: () => void;
 

@@ -5,11 +5,131 @@ import { Constructor, LitElement, PropertyDeclarations, TemplateResult, html } f
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ifDefined } from 'lit-html/directives/if-defined';
 
+export declare class ConfigurableMixinHost {
+  /** Template render functions mapped to their name. */
+  templates: Partial<Record<string, Renderer<any>>>;
+
+  /**
+   * Toggles additional functionality for developers on and off. In particular,
+   * setting this property (or attribute with the same name) to "development" will
+   * start tracking changes in templates, allowing developers to edit HTML in the browser
+   * and see results without having to refresh the page every time.
+   */
+  mode: 'development' | 'production';
+
+  /**
+   * If true, makes every editable control inside of this element read-only.
+   * This property is reflected to the `readonly` boolean attribute.
+   *
+   * @since 1.4.0
+   */
+  readonly: boolean;
+
+  /**
+   * [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting
+   * controls to render as read-only. Parsed version of the `readonlycontrols` attribute value.
+   *
+   * @type {BooleanSelector}
+   * @since 1.4.0
+   * @default BooleanSelector.False
+   */
+  readonlyControls: BooleanSelector;
+
+  /**
+   * If true, disables every interactive control inside of this element.
+   * This property is reflected to the `disabled` boolean attribute.
+   *
+   * @since 1.4.0
+   */
+  disabled: boolean;
+
+  /**
+   * [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting
+   * controls to render as disabled.  Parsed version of the `disabledcontrols` attribute value.
+   *
+   * @type {BooleanSelector}
+   * @since 1.4.0
+   * @default BooleanSelector.False
+   */
+  disabledControls: BooleanSelector;
+
+  /**
+   * If true, hides every configurable control inside of this element.
+   * This property is reflected to the `hidden` boolean attribute.
+   *
+   * @since 1.4.0
+   */
+  hidden: boolean;
+
+  /**
+   * [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting
+   * controls to hide.  Parsed version of the `hiddencontrols` attribute value.
+   *
+   * @type {BooleanSelector}
+   * @since 1.4.0
+   * @default BooleanSelector.False
+   */
+  hiddenControls: BooleanSelector;
+
+  /**
+   * Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`
+   * and `readonly` properties. If `readonly` is true, this selector will match any control,
+   * otherwise it will match the same controls as in `readonlyControls`.
+   *
+   * @since 1.4.0
+   */
+  get readonlySelector(): BooleanSelector;
+
+  /**
+   * Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`
+   * and `disabled` properties. If `disabled` is true, this selector will match any control,
+   * otherwise it will match the same controls as in `disabledControls`.
+   *
+   * @since 1.4.0
+   */
+  get disabledSelector(): BooleanSelector;
+
+  /**
+   * Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`
+   * and `hidden` properties. If `hidden` is true, this selector will match any control,
+   * otherwise it will match the same controls as in `hiddenControls`.
+   *
+   * @since 1.4.0
+   */
+  get hiddenSelector(): BooleanSelector;
+
+  /**
+   * Looks for templates in element's children and compiles them to render functions.
+   *
+   * @param replace If true, all existing templates will be removed.
+   */
+  compileTemplates(replace?: boolean): void;
+
+  /**
+   * Renders a template with the given name if available and a slot otherwise.
+   * For empty name looks for a "default" template first and renders it if found – otherwise renders a default slot.
+   *
+   * @param name Name of the template/slot to render.
+   * @param __noSandbox INTERNAL - if true, doesn't isolate template content in a sandbox.
+   */
+  renderTemplateOrSlot(name?: string, __noSandbox?: boolean): void;
+
+  /**
+   * Zooms into templates with complex names. For example, zooming on `customer` in `customer:header:before`
+   * will return `header:before`.
+   *
+   * @param id Name to zoom on.
+   */
+  getNestedTemplates<T extends Partial<Record<string, Renderer<any>>>>(id: string): T;
+}
+
 type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
 type TemplateFunction = typeof html;
 export type Renderer<THost> = (html: TemplateFunction, host: THost) => TemplateResult;
 
-export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
+export const ConfigurableMixin = <TBase extends Base>(
+  BaseElement: TBase
+): TBase & Constructor<ConfigurableMixinHost> => {
   return class ConfigurableElement extends BaseElement {
     static get properties(): PropertyDeclarations {
       return {
@@ -38,102 +158,32 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       };
     }
 
-    /** Template render functions mapped to their name. */
     templates = {} as Partial<Record<string, Renderer<any>>>;
 
-    /**
-     * Toggles additional functionality for developers on and off. In particular,
-     * setting this property (or attribute with the same name) to "development" will
-     * start tracking changes in templates, allowing developers to edit HTML in the browser
-     * and see results without having to refresh the page every time.
-     */
     mode: 'development' | 'production' = 'production';
 
-    /**
-     * If true, makes every editable control inside of this element read-only.
-     * This property is reflected to the `readonly` boolean attribute.
-     *
-     * @since 1.4.0
-     */
     readonly = false;
 
-    /**
-     * [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting
-     * controls to render as read-only. Parsed version of the `readonlycontrols` attribute value.
-     *
-     * @type {BooleanSelector}
-     * @since 1.4.0
-     * @default BooleanSelector.False
-     */
     readonlyControls: BooleanSelector = BooleanSelector.False;
 
-    /**
-     * If true, disables every interactive control inside of this element.
-     * This property is reflected to the `disabled` boolean attribute.
-     *
-     * @since 1.4.0
-     */
     disabled = false;
 
-    /**
-     * [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting
-     * controls to render as disabled.  Parsed version of the `disabledcontrols` attribute value.
-     *
-     * @type {BooleanSelector}
-     * @since 1.4.0
-     * @default BooleanSelector.False
-     */
     disabledControls: BooleanSelector = BooleanSelector.False;
 
-    /**
-     * If true, hides every configurable control inside of this element.
-     * This property is reflected to the `hidden` boolean attribute.
-     *
-     * @since 1.4.0
-     */
     hidden = false;
 
-    /**
-     * [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) selecting
-     * controls to hide.  Parsed version of the `hiddencontrols` attribute value.
-     *
-     * @type {BooleanSelector}
-     * @since 1.4.0
-     * @default BooleanSelector.False
-     */
     hiddenControls: BooleanSelector = BooleanSelector.False;
 
     private readonly __observer = new MutationObserver(() => this.__onMutation());
 
-    /**
-     * Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `readonlyControls`
-     * and `readonly` properties. If `readonly` is true, this selector will match any control,
-     * otherwise it will match the same controls as in `readonlyControls`.
-     *
-     * @since 1.4.0
-     */
     get readonlySelector(): BooleanSelector {
       return this.readonly ? BooleanSelector.True : this.readonlyControls;
     }
 
-    /**
-     * Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `disabledControls`
-     * and `disabled` properties. If `disabled` is true, this selector will match any control,
-     * otherwise it will match the same controls as in `disabledControls`.
-     *
-     * @since 1.4.0
-     */
     get disabledSelector(): BooleanSelector {
       return this.disabled ? BooleanSelector.True : this.disabledControls;
     }
 
-    /**
-     * Combined [BooleanSelector](https://sdk.foxy.dev/classes/_core_index_.booleanselector.html) for `hiddenControls`
-     * and `hidden` properties. If `hidden` is true, this selector will match any control,
-     * otherwise it will match the same controls as in `hiddenControls`.
-     *
-     * @since 1.4.0
-     */
     get hiddenSelector(): BooleanSelector {
       return this.hidden ? BooleanSelector.True : this.hiddenControls;
     }
@@ -180,13 +230,6 @@ export const ConfigurableMixin = <TBase extends Base>(BaseElement: TBase) => {
       this.templates = templates;
     }
 
-    /**
-     * Renders a template with the given name if available and a slot otherwise.
-     * For empty name looks for a "default" template first and renders it if found – otherwise renders a default slot.
-     *
-     * @param name Name of the template/slot to render.
-     * @param __noSandbox INTERNAL - if true, doesn't isolate template content in a sandbox.
-     */
     renderTemplateOrSlot(name?: string, __noSandbox = false) {
       const templateName = name ?? 'default';
       const template = this.templates[templateName];

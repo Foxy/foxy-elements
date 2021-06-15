@@ -26,7 +26,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
+  static get styles(): CSSResultArray {
     return [
       super.styles,
       css`

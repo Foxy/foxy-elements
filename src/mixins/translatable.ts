@@ -29,7 +29,7 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
     };
   }
 
-  public static get styles(): CSSResult | CSSResultArray {
+  public static get styles(): CSSResult | CSSResultArray | CSSStyleSheet {
     return Themeable.styles;
   }
 
@@ -181,29 +181,40 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
 
 type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
 
-export const TranslatableMixin = <T extends Base>(BaseElement: T, ns: string) => {
+export declare class TranslatableMixinHost {
+  /** Optional ISO 639-1 code describing the language element content is written in. */
+  lang: string;
+
+  /**
+   * Namespace used by this element.
+   * @since 1.4.0
+   */
+  get ns(): string;
+
+  /**
+   * Translation function from i18next fixed to the current language and element namespace.
+   * @since 1.4.0
+   */
+  get t(): TFunction;
+}
+
+export const TranslatableMixin = <T extends Base>(
+  BaseElement: T,
+  ns: string
+): T & Constructor<TranslatableMixinHost> => {
   return class TranslatableElement extends BaseElement {
     static get properties(): PropertyDeclarations {
       return { ...super.properties, lang: { type: String } };
     }
 
-    /** Optional ISO 639-1 code describing the language element content is written in. */
     lang = '';
 
     private __untrackTranslations?: () => void;
 
-    /**
-     * Namespace used by this element.
-     * @since 1.4.0
-     */
     get ns(): string {
       return ns;
     }
 
-    /**
-     * Translation function from i18next fixed to the current language and element namespace.
-     * @since 1.4.0
-     */
     get t(): TFunction {
       const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
       return I18nElement?.i18next.getFixedT(this.lang, this.ns) ?? ((key: string) => key);
