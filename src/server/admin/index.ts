@@ -1,5 +1,7 @@
 import { DemoDatabase } from './DemoDatabase';
+import { HALJSONResource } from '../../elements/public/NucleonElement/types';
 import { Router } from 'service-worker-router';
+import { Collection, Table } from 'dexie';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
@@ -8,6 +10,7 @@ import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMe
 import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
+import { composeTax } from './composers/composeTax';
 import { composeTransaction } from './composers/composeTransaction';
 import { composeUser } from './composers/composeUser';
 import { getPagination } from './getPagination';
@@ -101,8 +104,6 @@ router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
   const id = parseInt(params.id);
   const url = request.url;
   const searchParams = new URL(request.url).searchParams;
-  const { limit, offset } = getPagination(url);
-
   let query = db.transactions.where('store').equals(id);
 
   const customer = parseInt(searchParams.get('customer_id') ?? '');
@@ -110,7 +111,7 @@ router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
 
   const [count, transactions] = await Promise.all([
     db.customerAttributes.count(),
-    query.offset(offset).limit(limit).toArray(),
+    paginateQuery(query, getPagination(url)),
   ]);
 
   const embeddedItemsByTransaction = await Promise.all(
@@ -164,12 +165,7 @@ router.delete('/s/admin/customers/:id/default_payment_method', async ({ params }
 // items
 
 router.get('/s/admin/items/:id', async ({ params }) => {
-  await whenDbReady;
-
-  const id = parseInt(params.id);
-  const body = composeItem(await db.items.get(id));
-
-  return new Response(JSON.stringify(body));
+  return respondItemById(db.items, parseInt(params.id), composeItem);
 });
 
 // subscriptions
@@ -178,26 +174,17 @@ router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   await whenDbReady;
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
-  const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
-  const lastTransaction = zoom.includes('last_transaction')
-    ? await db.transactions.where('subscription').equals(id).last()
-    : null;
+  const lastTransaction = await getLastTransaction(request.url, id);
   const body = composeSubscription(doc, lastTransaction);
   return new Response(JSON.stringify(body));
 });
 
 router.patch('/s/admin/subscriptions/:id', async ({ params, request }) => {
   await whenDbReady;
-
   const id = parseInt(params.id);
   await db.subscriptions.update(id, await request.json());
-
   const doc = await db.subscriptions.get(id);
-  const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
-  const lastTransaction = zoom.includes('last_transaction')
-    ? await db.transactions.where('subscription').equals(id).last()
-    : null;
-
+  const lastTransaction = await getLastTransaction(request.url, id);
   const body = composeSubscription(doc, lastTransaction);
   return new Response(JSON.stringify(body));
 });
@@ -251,16 +238,22 @@ router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
   return new Response(JSON.stringify(body));
 });
 
+async function getLastTransaction(url: string, id: number) {
+  const zoom = new URL(url).searchParams.get('zoom') ?? '';
+  return zoom.includes('last_transaction')
+    ? await db.transactions.where('subscription').equals(id).last()
+    : null;
+}
+
 // customer_attributes
 
 router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
   await whenDbReady;
   const id = parseInt(params.id);
   const url = request.url;
-  const { limit, offset } = getPagination(url);
   const [count, items] = await Promise.all([
     db.customerAttributes.count(),
-    db.customerAttributes.where('customer').equals(id).offset(offset).limit(limit).toArray(),
+    paginateQuery(db.customerAttributes.where('customer').equals(id), getPagination(url)),
   ]);
   const rel = 'fx:attributes';
   const composeItem = composeCustomerAttribute;
@@ -270,12 +263,7 @@ router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
 });
 
 router.get('/s/admin/customer_attributes/:id', async ({ params }) => {
-  await whenDbReady;
-
-  const id = parseInt(params.id);
-  const body = composeCustomerAttribute(await db.customerAttributes.get(id));
-
-  return new Response(JSON.stringify(body));
+  return respondItemById(db.customerAttributes, parseInt(params.id), composeCustomerAttribute);
 });
 
 router.post('/s/admin/customers/:id/attributes', async ({ params, request }) => {
@@ -324,12 +312,12 @@ router.get('/s/admin/customers/:id/addresses', async ({ params, request }) => {
 
   const id = parseInt(params.id);
   const url = request.url;
-  const { limit, offset } = getPagination(url);
-
-  const [count, items] = await Promise.all([
-    db.customerAddresses.count(),
-    db.customerAddresses.where('customer').equals(id).offset(offset).limit(limit).toArray(),
-  ]);
+  const [count, items] = await queryCountAndWhere(
+    db.customerAddresses,
+    'customer',
+    id,
+    getPagination(url)
+  );
 
   const rel = 'fx:customer_addresses';
   const composeItem = composeCustomerAddress;
@@ -371,12 +359,7 @@ router.post('/s/admin/customers/:id/addresses', async ({ params, request }) => {
 });
 
 router.get('/s/admin/customer_addresses/:id', async ({ params }) => {
-  await whenDbReady;
-
-  const id = parseInt(params.id);
-  const body = composeCustomerAddress(await db.customerAddresses.get(id));
-
-  return new Response(JSON.stringify(body));
+  return respondItemById(db.customerAddresses, parseInt(params.id), composeCustomerAddress);
 });
 
 router.patch('/s/admin/customer_addresses/:id', async ({ params, request }) => {
@@ -406,12 +389,7 @@ router.get('/s/admin/stores/:id/customers', async ({ params, request }) => {
 
   const id = parseInt(params.id);
   const url = request.url;
-  const { limit, offset } = getPagination(url);
-  const [count, items] = await Promise.all([
-    db.customers.count(),
-    db.customers.where('store').equals(id).offset(offset).limit(limit).toArray(),
-  ]);
-
+  const [count, items] = await queryCountAndWhere(db.customers, 'store', id, getPagination(url));
   const rel = 'fx:customers';
   const composeItem = composeCustomer;
   const body = composeCollection({ composeItem, rel, url, count, items });
@@ -474,6 +452,73 @@ router.get('/s/admin/users/:id', async ({ params }) => {
   const body = composeUser(user);
   return new Response(JSON.stringify(body));
 });
+
+// taxes
+
+router.get('/s/admin/stores/:storeId/taxes/:id', async ({ params }) => {
+  return respondItemById(db.taxes, parseInt(params.id), composeTax);
+});
+
+router.get('/s/admin/stores/:id/taxes', async ({ request }) => {
+  return respondItems(db.taxes, composeTax, request.url, 'fx:taxes');
+});
+
+/**
+ * Returns a response object with the composed entry for the given id in the given table.
+ *
+ * @param table the Dixie table storing the data
+ * @param id the id number to be fetched
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @returns response promise
+ */
+async function respondItemById(
+  table: Table,
+  id: number,
+  composer: (d: any) => HALJSONResource
+): Promise<Response> {
+  await whenDbReady;
+  const body = composer(await table.get(id));
+  console.debug('body', body);
+  return new Response(JSON.stringify(body));
+}
+
+/**
+ * Creates a response with the composed entries for the given
+ * table.
+ *
+ * @param table the Dixie table storing the data
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @param url the requested url
+ * @param rel the rel string
+ * @param parent the field to use to filter the items by parentID
+ * @param parentId the id number to be fetched
+ * @returns response promise
+ */
+async function respondItems(
+  table: Table,
+  composer: (d: any) => HALJSONResource,
+  url: string,
+  rel: string,
+  parent = 'store',
+  parentId = '0'
+) {
+  const [count, items] = await queryCountAndWhere(table, parent, parentId, getPagination(url));
+  const body = composeCollection({ composeItem: composer, rel, url, count, items });
+  return new Response(JSON.stringify(body));
+}
+
+function queryCountAndWhere(
+  table: Table,
+  field: string,
+  value: string | number,
+  pagination = { limit: 10, offset: 0 }
+) {
+  return Promise.all([table.count(), paginateQuery(table.where(field).equals(value), pagination)]);
+}
+
+function paginateQuery(query: Collection<any, any>, pagination = { limit: 20, offset: 0 }) {
+  return query.offset(pagination.offset).limit(pagination.limit).toArray();
+}
 
 // special routes
 
