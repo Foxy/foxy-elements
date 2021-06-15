@@ -19,7 +19,7 @@ import './index.ts';
 <Canvas
   mdxSource={dedent`
     <foxy-tax-form
-      href="https://demo.foxycart.com/s/admin/taxes/0"
+      href="https://demo.foxycart.com/s/admin/stores/0/taxes/0"
     >
     </foxy-tax-form>
   `}
@@ -29,7 +29,7 @@ import './index.ts';
     {() =>
       html`
         <foxy-tax-form
-          href="https://demo.foxycart.com/s/admin/tax/0"
+          href="https://demo.foxycart.com/s/admin/stores/0/taxes/0"
         >
         </foxy-tax-form>
       `
@@ -56,7 +56,7 @@ Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Pr
 <Story name="State: idle.template.clean.invalid" parameters={{ docs: { disable: true } }}>
   {() =>
     html`
-      <foxy-tax-form parent="https:/demo.foxycart.com/s/admin/stores/0/taxes" class="container-narrow">
+      <foxy-tax-form href="https://demo.foxycart.com/s/admin/stores/0/taxes/0" class="container-narrow">
       </foxy-tax-form>
     `
   }
@@ -65,7 +65,7 @@ Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Pr
 <Story name="State: idle.template.dirty.valid" parameters={{ docs: { disable: true } }}>
   {() => html`
     <foxy-tax-form
-      parent="https://demo.foxycart.com/s/admin/stores/0/taxes"
+      href="https://demo.foxycart.com/s/admin/stores/0/taxes/0"
       class="container-narrow"
     >
     </foxy-tax-form>
@@ -76,7 +76,7 @@ Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Pr
   {() =>
     html`
       <foxy-tax-form
-        parent="https://demo.foxycart.com/s/admin/stores/0/taxes"
+        href="https://demo.foxycart.com/s/admin/stores/0/taxes/0"
         class="container-narrow"
       >
       </foxy-tax-form>
@@ -88,7 +88,6 @@ Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Pr
   {() =>
     html`
       <foxy-tax-form
-        parent="https://demo.foxycart.com/s/admin/stores/0/taxes"
         href="https://demo.foxycart.com/s/admin/sleep"
         class="container-narrow"
       >
