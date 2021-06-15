@@ -18,6 +18,7 @@ export { I18n } from './I18n/I18n';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
 export { NucleonElement } from './NucleonElement/NucleonElement';
 export { PaymentMethodCard } from './PaymentMethodCard/PaymentMethodCard';
+export { SignInForm } from './SignInForm/SignInForm';
 export { Spinner } from './Spinner/Spinner';
 export { SubscriptionCard } from './SubscriptionCard/SubscriptionCard';
 export { SubscriptionForm } from './SubscriptionForm/SubscriptionForm';
