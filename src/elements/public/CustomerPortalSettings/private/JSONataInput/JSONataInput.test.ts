@@ -31,7 +31,7 @@ function getRefs(element: TestJSONataInput) {
 
   return {
     input: $('[data-testid=input]') as TextFieldElement | null,
-    choice: $('[data-testid=choice') as Choice,
+    choice: $('[data-testid=choice]') as Choice,
   };
 }
 

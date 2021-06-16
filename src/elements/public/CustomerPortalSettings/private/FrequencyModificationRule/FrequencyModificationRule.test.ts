@@ -31,8 +31,8 @@ function getRefs(element: TestFrequencyModificationRule) {
   return {
     remove: $('[data-testid=remove]') as HTMLButtonElement,
     details: $('[data-testid=details]') as HTMLDetailsElement,
-    jsonata: $('[data-testid=jsonata') as JSONataInput,
-    frequency: $('[data-testid=frequency') as FrequencyList,
+    jsonata: $('[data-testid=jsonata]') as JSONataInput,
+    frequency: $('[data-testid=frequency]') as FrequencyList,
   };
 }
 

@@ -33,7 +33,7 @@ function getRefs(element: TestNextDateModification) {
   return {
     toggle: $('[data-testid=toggle]') as Switch,
     rules: Array.from($$('[data-testid=rule]') as NextDateModificationRule[]),
-    add: $('[data-testid=add') as HTMLButtonElement,
+    add: $('[data-testid=add]') as HTMLButtonElement,
   };
 }
 

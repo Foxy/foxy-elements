@@ -30,7 +30,7 @@ function getRefs(element: TestFrequencyList) {
   return {
     list: $('[data-testid=list]') as List,
     input: $('[data-testid=input]') as FrequencyInput,
-    button: $('[data-testid=button') as HTMLButtonElement,
+    button: $('[data-testid=button]') as HTMLButtonElement,
   };
 }
 

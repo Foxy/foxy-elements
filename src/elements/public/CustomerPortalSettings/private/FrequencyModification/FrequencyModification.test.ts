@@ -24,7 +24,7 @@ function getRefs(element: TestFrequencyModification) {
 
   return {
     rules: Array.from($$('[data-testid=rule]') as FrequencyModificationRule[]),
-    add: $('[data-testid=add') as HTMLButtonElement,
+    add: $('[data-testid=add]') as HTMLButtonElement,
   };
 }
 
