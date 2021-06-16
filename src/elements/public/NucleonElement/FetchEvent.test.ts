@@ -5,7 +5,7 @@ import sinon from 'sinon';
 
 describe('NucleonElement', () => {
   describe('FetchEvent', () => {
-    it('sucessfully constructs an instance of FetchEvent extending Event', () => {
+    it('successfully constructs an instance of FetchEvent extending Event', () => {
       const createEvent = () => {
         return new FetchEvent('fetch', {
           request: new API.WHATWGRequest('./test'),

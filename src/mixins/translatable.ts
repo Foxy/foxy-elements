@@ -34,7 +34,7 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
   }
 
   /**
-   * i18next formatter that converts given value to lowecase.
+   * i18next formatter that converts given value to lowercase.
    *
    * @param value
    * @see https://www.i18next.com/translation-function/formatting

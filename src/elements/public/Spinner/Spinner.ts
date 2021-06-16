@@ -40,7 +40,7 @@ export class Spinner extends TranslatableMixin(ThemeableMixin(LitElement), 'spin
   }
 
   /**
-   * Optional spinner layout: horizonal (default) or vertical. First puts icon next
+   * Optional spinner layout: horizontal (default) or vertical. First puts icon next
    * to the label, second puts it above the text.
    */
   layout: SpinnerLayout = 'horizontal';

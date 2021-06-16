@@ -733,7 +733,7 @@ export class ItemsForm extends SignableFields {
     this.__total = Number(total.toFixed(2));
   }
 
-  /** Go through all pcroduct elements and executes acknoledges each one */
+  /** Go through all product elements and executes acknowledges each one */
   private __acknowledgeItemElements(): void {
     this.__itemElements.forEach((e: Element) => {
       const i = e as Item;
