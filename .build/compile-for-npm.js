@@ -22,8 +22,10 @@ for await (const file of getMatchingFiles(SRC_DIR, /\.ts$/)) {
   }
 }
 
+const sharedProgramOptions = await getCompilerOptions(TSCONFIG_PATH);
+const programOptions = { ...sharedProgramOptions, declaration: true, declarationDir: 'dist' };
 const result = ts
-  .createProgram({ rootNames: [ENTRY_PATH], options: await getCompilerOptions(TSCONFIG_PATH) })
+  .createProgram({ rootNames: [ENTRY_PATH], options: programOptions })
   .emit(undefined, ts.sys.writeFile, undefined, undefined, { before: [injectCSS(cssSnippets)] });
 
 process.exit(result.emitSkipped ? 1 : 0);
