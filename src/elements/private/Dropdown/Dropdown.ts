@@ -29,7 +29,7 @@ registerStyles(
 
 /**
  * According to Vaadin docs: if you do not want to select any item by default, you can set
- * the vaadin-select value to an inexistent value in the items list. This function
+ * the vaadin-select value to a nonexistent value in the items list. This function
  * generates such value.
  */
 function getUnexistentValue() {

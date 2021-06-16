@@ -2,7 +2,7 @@
   "checkout": {
     "buy": "Buy for {{value}}",
     "subscribe_single_unit": "Subscribe for {{value}}/{{period}}",
-    "subscribe_muiltiple_units": "Subscribe for {{value}} {{period}}"
+    "subscribe_multiple_units": "Subscribe for {{value}} {{period}}"
   },
   "freq": {
     "just_this_once": "Just this once",

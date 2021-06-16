@@ -15,7 +15,7 @@ export const bookmark: FxBookmark = {
     },
     'fx:property_helpers': {
       href: 'https://api.foxy.test/property_helpers',
-      title: 'Various helpers used for determing valid property values.',
+      title: 'Various helpers used for determining valid property values.',
     },
     'fx:reporting': {
       href: 'https://api.foxy.test/reporting',

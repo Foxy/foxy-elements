@@ -55,14 +55,14 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __untrackTranslations?: () => void;
 
-  private __removeBreakpoins?: () => void;
+  private __removeBreakpoints?: () => void;
 
   connectedCallback(): void {
     super.connectedCallback();
     this.__untrackTranslations = customElements
       .get('foxy-i18n')
       .onTranslationChange(() => this.requestUpdate());
-    this.__removeBreakpoins = addBreakpoints(this);
+    this.__removeBreakpoints = addBreakpoints(this);
   }
 
   render(): TemplateResult {
@@ -128,7 +128,7 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     this.__untrackTranslations?.();
-    this.__removeBreakpoins?.();
+    this.__removeBreakpoints?.();
     this.__getValidator.cache.clear?.();
   }
 

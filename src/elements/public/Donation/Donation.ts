@@ -210,7 +210,7 @@ export class Donation extends Translatable {
 
   /**
    * Optional product URL for this donation. Accepts a full URL to the product page, starting
-   * with `http://` or `https://`, or a relative path to the produt from the store's
+   * with `http://` or `https://`, or a relative path to the product from the store's
    * domain (as configured in the store settings). This property affects cart UI only.
    * See [Products](https://wiki.foxycart.com/v/2.0/products) wiki for more details.
    *

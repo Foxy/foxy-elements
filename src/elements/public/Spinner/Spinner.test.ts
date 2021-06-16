@@ -117,7 +117,7 @@ describe('Spinner', () => {
     expect(icon).to.have.property('localName', 'iron-icon');
   });
 
-  it('renders horizonal layout', async () => {
+  it('renders horizontal layout', async () => {
     const template = html`<foxy-spinner layout="horizontal"></foxy-spinner>`;
     const element = await fixture<Spinner>(template);
 
