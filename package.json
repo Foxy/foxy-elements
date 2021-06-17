@@ -72,6 +72,7 @@
     "@web/dev-server-esbuild": "0.2.11",
     "@web/dev-server-rollup": "^0.3.2",
     "@web/dev-server-storybook": "^0.3.5",
+    "@web/storybook-prebuilt": "^0.1.20",
     "@web/test-runner": "0.12.14",
     "@web/test-runner-playwright": "^0.8.4",
     "@xstate/test": "^0.4.1",
