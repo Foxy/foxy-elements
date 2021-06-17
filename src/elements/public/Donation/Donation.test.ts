@@ -1,5 +1,3 @@
-import { expect, fixture } from '@open-wc/testing';
-import { Donation } from './Donation';
 import * as amounts from './test/amounts.test';
 import * as anonymity from './test/anonymity.test';
 import * as comment from './test/comment.test';
@@ -7,9 +5,11 @@ import * as designations from './test/designations.test';
 import * as frequencies from './test/frequencies.test';
 import * as metadata from './test/metadata.test';
 import * as misconfigured from './test/misconfigured.test';
+import { expect, fixture } from '@open-wc/testing';
+import { Donation } from './Donation';
 import { DonationSubmitEvent } from './DonationSubmitEvent';
-import { getRefs } from '../../../utils/test-utils';
 import { Refs } from './test/types';
+import { getRefs } from '../../../utils/test-utils';
 
 customElements.define('foxy-donation', Donation);
 
