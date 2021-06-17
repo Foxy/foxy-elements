@@ -39,10 +39,10 @@ export function composeCollection({ url, rel, count, items, composeItem }: Param
   last.searchParams.set('offset', Math.max(count - limit, 0).toString());
 
   return halson({
-    total_items: count,
-    returned_items: items.length,
-    offset,
     limit,
+    offset,
+    returned_items: items.length,
+    total_items: count,
   })
     .addLink('first', first.toString())
     .addLink('self', url)

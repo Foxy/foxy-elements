@@ -23,14 +23,14 @@ import { translateWeekday } from '../../../../../utils/translate-weekday';
 export class NextDateModificationRule extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'x-disallowed-dates': DisallowedDates,
-      'x-jsonata-input': JSONataInput,
-      'x-offset-input': OffsetInput,
-      'x-allowed-days': AllowedDays,
       'iron-icon': customElements.get('iron-icon'),
-      'x-warning': Warning,
+      'x-allowed-days': AllowedDays,
+      'x-disallowed-dates': DisallowedDates,
       'x-group': Group,
       'x-i18n': I18N,
+      'x-jsonata-input': JSONataInput,
+      'x-offset-input': OffsetInput,
+      'x-warning': Warning,
     };
   }
 
@@ -38,8 +38,8 @@ export class NextDateModificationRule extends Translatable {
     return {
       ...super.properties,
       disabled: { type: Boolean },
-      value: { type: Object },
       open: { type: Boolean },
+      value: { type: Object },
     };
   }
 

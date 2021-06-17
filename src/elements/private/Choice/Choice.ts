@@ -85,11 +85,11 @@ function check(
 export class Choice extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
+      'iron-icon': customElements.get('iron-icon'),
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
+      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-frequency-input': FrequencyInput,
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
-      'iron-icon': customElements.get('iron-icon'),
     };
   }
 
@@ -131,15 +131,15 @@ export class Choice extends Translatable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      defaultCustomValue: { type: String, attribute: 'default-custom-value' },
-      disabled: { type: Boolean },
       custom: { type: Boolean },
-      type: { type: String },
-      min: { type: Number },
-      max: { type: Number },
-      value: { type: Array },
-      items: { type: Array },
+      defaultCustomValue: { attribute: 'default-custom-value', type: String },
+      disabled: { type: Boolean },
       getText: { attribute: false },
+      items: { type: Array },
+      max: { type: Number },
+      min: { type: Number },
+      type: { type: String },
+      value: { type: Array },
     };
   }
 
@@ -232,10 +232,10 @@ export class Choice extends Translatable {
         const disabled = this.disabled || !this._isI18nReady;
 
         const attributes = spread({
-          value: other ? VALUE_OTHER : item,
-          name: multiple ? item : 'choice',
-          'data-testid': `item-${item}`,
           '?disabled': this.disabled,
+          'data-testid': `item-${item}`,
+          name: multiple ? item : 'choice',
+          value: other ? VALUE_OTHER : item,
           '@change': (evt: Event) => {
             const checked = (evt.target as HTMLInputElement).checked;
             const newItem = item === VALUE_OTHER ? this.defaultCustomValue : item;
@@ -296,14 +296,14 @@ export class Choice extends Translatable {
     };
 
     const attributes = spread({
-      placeholder: this._t('choice.other').toString(),
+      '@change': handleInput,
+      '@input': handleInput,
       class: 'w-full mb-m',
-      value: this.__service.state.context.customValue,
+      'data-testid': 'field',
       max: this.max,
       min: this.min,
-      'data-testid': 'field',
-      '@input': handleInput,
-      '@change': handleInput,
+      placeholder: this._t('choice.other').toString(),
+      value: this.__service.state.context.customValue,
     });
 
     if (this.type === 'frequency') {

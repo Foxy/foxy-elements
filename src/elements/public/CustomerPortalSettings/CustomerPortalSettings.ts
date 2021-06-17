@@ -61,25 +61,25 @@ export class CustomerPortalSettings extends Translatable {
     return {
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'x-error-screen': ErrorScreen,
       'x-frequency-modification': FrequencyModification,
+      'x-i18n': I18N,
+      'x-loading-screen': LoadingScreen,
       'x-next-date-modification': NextDateModification,
+      'x-origins-list': OriginsList,
+      'x-page': Page,
+      'x-section': Section,
       'x-session-duration': SessionDuration,
       'x-session-secret': SessionSecret,
-      'x-loading-screen': LoadingScreen,
-      'x-error-screen': ErrorScreen,
-      'x-origins-list': OriginsList,
       'x-skeleton': Skeleton,
-      'x-section': Section,
       'x-switch': Switch,
-      'x-i18n': I18N,
-      'x-page': Page,
     };
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      href: { type: String, noAccessor: true },
+      href: { noAccessor: true, type: String },
     };
   }
 
@@ -106,7 +106,7 @@ export class CustomerPortalSettings extends Translatable {
   }
 
   public set href(data: string | null) {
-    this.__service.send({ type: 'SET_HREF', data });
+    this.__service.send({ data, type: 'SET_HREF' });
   }
 
   public render(): TemplateResult {
@@ -295,7 +295,7 @@ export class CustomerPortalSettings extends Translatable {
 
         const bookmark = (await bookmarkResponse.json()) as FxBookmark;
         const storeHref = bookmark._links['fx:store'].href;
-        const storeResponse = await RequestEvent.emit({ source: this, init: [storeHref] });
+        const storeResponse = await RequestEvent.emit({ init: [storeHref], source: this });
         throwIfNotOk(storeResponse);
 
         store = (await storeResponse.json()) as FxStore;
@@ -310,7 +310,7 @@ export class CustomerPortalSettings extends Translatable {
         store = (await storeResponse.json()) as FxStore;
       }
 
-      return { store, resource };
+      return { resource, store };
     } catch (err) {
       if (err instanceof FriendlyError) throw err;
       if (err instanceof UnhandledRequestError) throw new FriendlyError('setup_needed');
@@ -333,8 +333,8 @@ export class CustomerPortalSettings extends Translatable {
         delete payload.date_modified;
       }
 
-      const options: RequestInit = { method, body: payload ? JSON.stringify(payload) : undefined };
-      const response = await RequestEvent.emit({ source: this, init: [this.href!, options] });
+      const options: RequestInit = { body: payload ? JSON.stringify(payload) : undefined, method };
+      const response = await RequestEvent.emit({ init: [this.href!, options], source: this });
 
       throwIfNotOk(response);
     } catch (err) {

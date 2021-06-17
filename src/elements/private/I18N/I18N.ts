@@ -17,7 +17,7 @@ export class I18N extends Translatable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      key: { type: String, reflect: true },
+      key: { reflect: true, type: String },
       opts: { type: Object },
     };
   }

@@ -7,8 +7,8 @@ import { classMap } from '../../../utils/class-map';
 export class Tabs extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
-      value: { type: Number },
       size: { type: Number },
+      value: { type: Number },
     };
   }
 

@@ -41,14 +41,14 @@ export abstract class Dialog extends LitElement {
       ...super.properties,
       __connected: { attribute: false },
       __visible: { attribute: false },
+      alert: { type: Boolean },
       centered: { type: Boolean },
       closable: { type: Boolean },
       editable: { type: Boolean },
       header: { type: String },
-      alert: { type: Boolean },
-      open: { type: Boolean, noAccessor: true },
       lang: { type: String },
       ns: { type: String },
+      open: { type: Boolean, noAccessor: true },
     };
   }
 
@@ -150,15 +150,15 @@ export abstract class Dialog extends LitElement {
 
     return html`
       <div
-        class=${classMap({ 'z-50 fixed inset-0': true, 'pointer-events-none': !this.__visible })}
+        class=${classMap({ 'pointer-events-none': !this.__visible, 'z-50 fixed inset-0': true })}
       >
         <div
           id="backdrop"
           class=${classMap({
+            'opacity-0': !this.__visible,
+            'opacity-100': this.__visible,
             'select-none ease-in-out transition duration-500 absolute inset-0 bg-contrast-50 focus-outline-none':
               true,
-            'opacity-100': this.__visible,
-            'opacity-0': !this.__visible,
           })}
           tabindex="-1"
           @click=${() => (this.open = this.closable ? false : this.open)}
@@ -168,23 +168,23 @@ export abstract class Dialog extends LitElement {
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center sm-max-w-modal':
-              true,
             'flex justify-center items-end sm-items-center mr-auto': this.alert,
-            'translate-y-full sm-translate-y-0': !this.__visible,
-            'sm-translate-x-full': !this.alert && !this.__visible,
-            'sm-opacity-0 sm-scale-110': this.alert && !this.__visible,
-            'translate-y-0 translate-x-0': isFirst && this.__visible,
-            'scale-95 -translate-y-s sm-translate-y-0': isSecond && this.__visible,
-            'scale-90 -translate-y-m sm-translate-y-0': isThird && this.__visible,
             'opacity-0 scale-85 -translate-y-l sm-translate-y-0':
               isForthAndGreater && this.__visible,
+            'scale-90 -translate-y-m sm-translate-y-0': isThird && this.__visible,
+            'scale-95 -translate-y-s sm-translate-y-0': isSecond && this.__visible,
+            'sm-opacity-0 sm-scale-110': this.alert && !this.__visible,
+            'sm-translate-x-full': !this.alert && !this.__visible,
+            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center sm-max-w-modal':
+              true,
+            'translate-y-0 translate-x-0': isFirst && this.__visible,
+            'translate-y-full sm-translate-y-0': !this.__visible,
           })}
         >
           <div
             class=${classMap({
-              'overflow-hidden flex flex-col bg-base rounded-t-l sm-rounded-b-l': true,
               'absolute inset-0 mt-xl sm-m-xl': !this.alert,
+              'overflow-hidden flex flex-col bg-base rounded-t-l sm-rounded-b-l': true,
               'shadow-xxl': this.__visible,
             })}
           >

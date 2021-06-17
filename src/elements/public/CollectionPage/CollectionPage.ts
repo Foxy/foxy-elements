@@ -75,17 +75,17 @@ export class CollectionPage<TPage extends Page> extends NucleonElement<TPage> {
   render(): TemplateResult {
     type RepeatItem = { key: string; href: string; data: ExtractItem<TPage> | null };
     const items: RepeatItem[] = this.__items.map(item => ({
-      key: item._links.self.href,
-      href: item._links.self.href,
       data: item,
+      href: item._links.self.href,
+      key: item._links.self.href,
     }));
 
     if (this.in('busy')) {
-      items.push({ key: 'stalled', href: 'foxy://collection-page/stall', data: null });
+      items.push({ data: null, href: 'foxy://collection-page/stall', key: 'stalled' });
     } else if (this.in('fail')) {
-      items.push({ key: 'failed', href: 'foxy://collection-page/fail', data: null });
+      items.push({ data: null, href: 'foxy://collection-page/fail', key: 'failed' });
     } else if (this.in({ idle: 'template' }) || this.__items.length === 0) {
-      items.push({ key: 'empty', href: '', data: null });
+      items.push({ data: null, href: '', key: 'empty' });
     }
 
     return html`${repeat(
@@ -93,12 +93,12 @@ export class CollectionPage<TPage extends Page> extends NucleonElement<TPage> {
       item => item.key,
       item =>
         this.__renderItem?.({
-          parent: this.href,
-          group: this.group,
-          lang: this.lang,
           data: item.data,
+          group: this.group,
           href: item.href,
           html,
+          lang: this.lang,
+          parent: this.href,
         })
     )}`;
   }

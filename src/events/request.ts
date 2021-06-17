@@ -28,16 +28,16 @@ export class RequestEvent<TSource extends HTMLElement = HTMLElement> extends Cus
     params: RequestSendInit<TSource>
   ): Promise<Response> {
     return new Promise<Response>((resolve, reject) => {
-      const event = new RequestEvent<HTMLElement>({ resolve, reject, ...params });
+      const event = new RequestEvent<HTMLElement>({ reject, resolve, ...params });
       if (params.source.dispatchEvent(event)) reject(new UnhandledRequestError());
     });
   }
 
   public constructor({ source, resolve, reject, init }: RequestEventInit<TSource>) {
     super('request', {
+      bubbles: true,
       cancelable: true,
       composed: true,
-      bubbles: true,
       detail: {
         source,
         handle: async (fetch: Window['fetch']): Promise<void> => {

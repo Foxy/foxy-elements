@@ -14,11 +14,11 @@ import { backgrounds } from './backgrounds';
 export class PaymentMethodCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-confirm-dialog': ConfirmDialog,
-      'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'x-confirm-dialog': ConfirmDialog,
     };
   }
 

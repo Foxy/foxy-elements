@@ -6,7 +6,7 @@ import { Themeable } from '../../../mixins/themeable';
 export class PropertyTable extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
-      disabled: { type: Boolean, reflect: true },
+      disabled: { reflect: true, type: Boolean },
       items: { attribute: false },
     };
   }

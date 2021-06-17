@@ -30,27 +30,11 @@ type Refs = {
 
 describe('AddressForm', () => {
   generateTests<Data, AddressForm, Refs>({
-    tag: 'foxy-address-form',
     href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
-    parent: 'https://demo.foxycart.com/s/admin/customers/0/addresses',
     isEmptyValid: false,
     maxTestsPerState: 3,
-
-    invalidate(form) {
-      return {
-        ...form,
-        address_name: '',
-        address1: '',
-        first_name: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
-        last_name: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
-        region: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
-        city: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
-        phone: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
-        company: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
-        address2: `More than 100 characters: ${new Array(100).fill(0).join('')}`,
-        postal_code: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
-      };
-    },
+    parent: 'https://demo.foxycart.com/s/admin/customers/0/addresses',
+    tag: 'foxy-address-form',
 
     actions: {
       async edit({ refs, form }) {
@@ -286,6 +270,22 @@ describe('AddressForm', () => {
           },
         },
       },
+    },
+
+    invalidate(form) {
+      return {
+        ...form,
+        address1: '',
+        address_name: '',
+        first_name: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
+        last_name: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
+        region: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
+        city: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
+        phone: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
+        company: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
+        address2: `More than 100 characters: ${new Array(100).fill(0).join('')}`,
+        postal_code: `More than 50 characters: ${new Array(50).fill(0).join('')}`,
+      };
     },
   });
 });

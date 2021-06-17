@@ -22,11 +22,11 @@ export class CollectionPages<TPage extends Page> extends LitElement {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
-      first: { type: String, noAccessor: true },
-      pages: { type: Array, noAccessor: true },
+      first: { noAccessor: true, type: String },
       group: { type: String },
       lang: { type: String },
       page: { type: String },
+      pages: { noAccessor: true, type: Array },
     };
   }
 
@@ -64,9 +64,9 @@ export class CollectionPages<TPage extends Page> extends LitElement {
           const json = await response.json();
 
           NucleonElement.Rumour(this.group).share({
+            data: json,
             related: this.pages.map(page => page._links.self.href),
             source: json._links.self.href,
-            data: json,
           });
 
           return json;
@@ -127,7 +127,7 @@ export class CollectionPages<TPage extends Page> extends LitElement {
   }
 
   set pages(data: TPage[]) {
-    this.__service.send({ type: 'SET_PAGES', data });
+    this.__service.send({ data, type: 'SET_PAGES' });
   }
 
   /** Rumour group. Elements in different groups will not share updates. Empty by default. */
@@ -174,16 +174,16 @@ export class CollectionPages<TPage extends Page> extends LitElement {
   /** @readonly */
   render(): TemplateResult {
     const items = this.pages.map(page => ({
-      key: page._links.self.href,
       href: page._links.self.href,
+      key: page._links.self.href,
     }));
 
     if (this.__service.state.matches('busy')) {
-      items.push({ key: 'stalled', href: 'foxy://collection-pages/stall' });
+      items.push({ href: 'foxy://collection-pages/stall', key: 'stalled' });
     } else if (this.__service.state.matches('fail')) {
-      items.push({ key: 'failed', href: 'foxy://collection-pages/fail' });
+      items.push({ href: 'foxy://collection-pages/fail', key: 'failed' });
     } else if (this.__service.state.matches({ idle: 'empty' })) {
-      items.push({ key: 'empty', href: '' });
+      items.push({ href: '', key: 'empty' });
     }
 
     return html`
@@ -193,11 +193,11 @@ export class CollectionPages<TPage extends Page> extends LitElement {
         page => page.key,
         (page, pageIndex) => {
           return this.__renderPage({
-            group: this.group,
             data: this.pages[pageIndex] ?? null,
+            group: this.group,
             href: page.href,
-            lang: this.lang,
             html,
+            lang: this.lang,
           });
         }
       )}
@@ -229,7 +229,7 @@ export class CollectionPages<TPage extends Page> extends LitElement {
         this.pages.map(page => update(page));
       } catch (err) {
         if (err instanceof Rumour.UpdateError) {
-          this.__service.send({ type: 'SET_FIRST', data: this.first });
+          this.__service.send({ data: this.first, type: 'SET_FIRST' });
         } else {
           throw err;
         }

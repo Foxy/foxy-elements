@@ -41,7 +41,7 @@ export class Dropdown extends LitElement {
     return {
       ...super.properties,
       disabled: { type: Boolean },
-      getText: { type: Object, attribute: false },
+      getText: { attribute: false, type: Object },
       items: { type: Array },
       label: { type: String },
       value: { type: String },

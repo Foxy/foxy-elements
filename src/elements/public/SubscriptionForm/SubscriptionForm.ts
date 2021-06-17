@@ -15,13 +15,13 @@ import { parseFrequency } from '../../../utils/parse-frequency';
 export class SubscriptionForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-date-picker': customElements.get('vaadin-date-picker'),
-      'x-property-table': PropertyTable,
-      'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
-      'x-skeleton': Skeleton,
+      'foxy-spinner': customElements.get('foxy-spinner'),
+      'vaadin-date-picker': customElements.get('vaadin-date-picker'),
       'x-choice': Choice,
       'x-group': Group,
+      'x-property-table': PropertyTable,
+      'x-skeleton': Skeleton,
     };
   }
 

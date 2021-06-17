@@ -133,8 +133,6 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   private __shouldAskUseOrigin(): boolean {
-    return (
-      this.form && this.form.type == 'union' && this.form.service_provider == 'thomson_reuters'
-    );
+    return false; //this.form && this.form.type == 'union' && this.form.service_provider == 'thomson_reuters'
   }
 }

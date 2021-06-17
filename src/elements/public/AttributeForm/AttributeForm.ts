@@ -16,15 +16,15 @@ import memoize from 'lodash-es/memoize';
 export class AttributeForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
-      'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
-      'vaadin-button': customElements.get('vaadin-button'),
-      'x-choice': Choice,
-      'x-group': Group,
       'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'vaadin-text-area': customElements.get('vaadin-text-area'),
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'x-choice': Choice,
+      'x-confirm-dialog': ConfirmDialog,
+      'x-group': Group,
+      'x-property-table': PropertyTable,
     };
   }
 

@@ -12,12 +12,12 @@ import { classMap } from '../../../../../utils/class-map';
 export class NextDateModification extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'x-next-date-modification-rule': NextDateModificationRule,
-      'vaadin-button': customElements.get('vaadin-button'),
-      'x-section': Section,
       'iron-icon': customElements.get('iron-icon'),
-      'x-switch': Switch,
+      'vaadin-button': customElements.get('vaadin-button'),
       'x-i18n': I18N,
+      'x-next-date-modification-rule': NextDateModificationRule,
+      'x-section': Section,
+      'x-switch': Switch,
     };
   }
 
@@ -107,11 +107,11 @@ export class NextDateModification extends Translatable {
             .ns=${this.ns}
             key="ndmod.add_hint"
             class=${classMap({
+              hidden: !Array.isArray(this.value) || this.value.length === 0,
+              'text-primary': Array.isArray(this.value) && this.value.length >= 10,
+              'text-tertiary': Array.isArray(this.value) && this.value.length < 10,
               'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
                 true,
-              'text-tertiary': Array.isArray(this.value) && this.value.length < 10,
-              'text-primary': Array.isArray(this.value) && this.value.length >= 10,
-              hidden: !Array.isArray(this.value) || this.value.length === 0,
             })}
           >
           </x-i18n>

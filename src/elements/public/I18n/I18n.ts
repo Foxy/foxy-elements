@@ -44,10 +44,10 @@ export class I18n extends LitElement {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
-      options: { type: Object },
-      lang: { type: String },
       key: { type: String },
+      lang: { type: String },
       ns: { type: String },
+      options: { type: Object },
     };
   }
 
@@ -107,9 +107,9 @@ export class I18n extends LitElement {
 }
 
 I18n.i18next.init({
-  interpolation: { format },
+  defaultNS: 'shared',
   fallbackLng: 'en',
   fallbackNS: 'shared',
-  defaultNS: 'shared',
+  interpolation: { format },
   ns: ['shared'],
 });

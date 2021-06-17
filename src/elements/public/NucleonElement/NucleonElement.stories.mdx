@@ -172,7 +172,7 @@ addEventListener('fetch', (event: Event) => {
 
           if (event.request.url === 'foxy://mocks/attribute') {
             if (event.request.method === 'GET') {
-              text = JSON.stringify(MY_MOCK_ATTRIBUTE));
+              text = JSON.stringify(MY_MOCK_ATTRIBUTE);
             } else if (event.request.method === 'PATCH') {
               text = JSON.stringify({ ...MY_MOCK_ATTRIBUTE, ...(await event.request.json()) });
             }

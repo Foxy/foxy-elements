@@ -6,6 +6,6 @@ export class ItemsFormChangeEvent extends CustomEvent<FormData> {
 
 export class ItemsFormSubmitEvent extends CustomEvent<FormData> {
   constructor(detail: FormData) {
-    super('submit', { detail, cancelable: true });
+    super('submit', { cancelable: true, detail });
   }
 }

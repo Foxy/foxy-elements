@@ -19,20 +19,20 @@ import { prevent } from '../../../../../utils/prevent';
 export class FrequencyModificationRule extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'x-frequency-list': FrequencyList,
-      'x-jsonata-input': JSONataInput,
       'iron-icon': customElements.get('iron-icon'),
+      'x-frequency-list': FrequencyList,
       'x-group': Group,
       'x-i18n': I18N,
+      'x-jsonata-input': JSONataInput,
     };
   }
 
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      disabled: { attribute: false },
       open: { attribute: false },
       value: { attribute: false },
-      disabled: { attribute: false },
     };
   }
 
@@ -132,8 +132,8 @@ export class FrequencyModificationRule extends Translatable {
     if (frequency === '.5m') return this._t('frequency_0_5m');
     const { count, units } = parseDuration(frequency);
     return this._t('frequency', {
-      units: this._t(units, { count }),
       count,
+      units: this._t(units, { count }),
     });
   }
 

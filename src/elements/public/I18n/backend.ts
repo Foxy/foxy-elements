@@ -19,12 +19,12 @@ export const backend: BackendModule = {
     };
 
     const event = new FetchEvent('fetch', {
+      bubbles: true,
       cancelable: true,
       composed: true,
-      bubbles: true,
+      reject,
       request: new Request(`foxy://i18n/${namespace}/${language}`),
       resolve,
-      reject,
     });
 
     dispatchEvent(event);

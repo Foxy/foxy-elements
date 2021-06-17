@@ -50,7 +50,6 @@ function testReload(reload: TestErrorScreen['reload']) {
 }
 
 const machine = createMachine({
-  type: 'parallel',
   states: {
     reload: {
       initial: 'off',
@@ -77,13 +76,16 @@ const machine = createMachine({
       },
     },
   },
+  type: 'parallel',
 });
 
 const model = createModel<TestErrorScreen>(machine).withEvents({
-  ENABLE_RELOAD: {
-    exec: element => {
-      element.reload = true;
-      expect(element).to.have.property('reload', true);
+  CUSTOMIZE_TYPE: {
+    cases: [{ data: 'unauthorized' }, { data: 'setup_needed' }],
+    exec: (element, evt) => {
+      const type = (evt as EventObject & { data: TestErrorScreen['type'] }).data;
+      element.type = type;
+      expect(element).to.have.property('type', type);
     },
   },
   DISABLE_RELOAD: {
@@ -92,12 +94,10 @@ const model = createModel<TestErrorScreen>(machine).withEvents({
       expect(element).to.have.property('reload', false);
     },
   },
-  CUSTOMIZE_TYPE: {
-    cases: [{ data: 'unauthorized' }, { data: 'setup_needed' }],
-    exec: (element, evt) => {
-      const type = (evt as EventObject & { data: TestErrorScreen['type'] }).data;
-      element.type = type;
-      expect(element).to.have.property('type', type);
+  ENABLE_RELOAD: {
+    exec: element => {
+      element.reload = true;
+      expect(element).to.have.property('reload', true);
     },
   },
 });

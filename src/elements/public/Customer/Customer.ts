@@ -25,18 +25,18 @@ type Attributes = Core.Resource<Backend.Rels.Attributes>;
 export class Customer extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-address-card': customElements.get('foxy-address-card'),
+      'foxy-attribute-card': customElements.get('foxy-attribute-card'),
+      'foxy-collection-pages': customElements.get('foxy-collection-pages'),
+      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
+      'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-payment-method-card': customElements.get('foxy-payment-method-card'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-subscriptions-table': customElements.get('foxy-subscriptions-table'),
       'foxy-transactions-table': customElements.get('foxy-transactions-table'),
-      'foxy-collection-pages': customElements.get('foxy-collection-pages'),
-      'foxy-attribute-card': customElements.get('foxy-attribute-card'),
-      'foxy-address-card': customElements.get('foxy-address-card'),
-      'foxy-form-dialog': customElements.get('foxy-form-dialog'),
-      'vaadin-button': customElements.get('vaadin-button'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'x-skeleton': Skeleton,
       'x-tabs': Tabs,
     };
   }

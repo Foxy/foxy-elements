@@ -1,3 +1,4 @@
+// eslint-disable-next-line sort-keys
 const breakpoints = Object.entries({ sm: 640, md: 768, lg: 1024, xl: 1280 });
 
 /**

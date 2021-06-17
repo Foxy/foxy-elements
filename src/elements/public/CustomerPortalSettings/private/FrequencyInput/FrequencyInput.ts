@@ -13,8 +13,8 @@ export class FrequencyInput extends Translatable {
 
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-button': customElements.get('vaadin-button'),
+      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'x-dropdown': Dropdown,
     };
   }

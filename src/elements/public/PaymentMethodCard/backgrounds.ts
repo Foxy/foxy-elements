@@ -9,7 +9,6 @@ const pattern = unsafeCSS(`
 `);
 
 const colors = {
-  unknown: '#797c85',
   amex: '#2557d6',
   diners: '#0079be',
   discover: '#4d4d4d',
@@ -17,6 +16,7 @@ const colors = {
   maestro: '#181818',
   mastercard: '#16366f',
   unionpay: '#0dadb5',
+  unknown: '#797c85',
   visa: '#0e4595',
 };
 

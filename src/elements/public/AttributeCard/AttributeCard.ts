@@ -11,8 +11,8 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
+      'x-skeleton': Skeleton,
     };
   }
 

@@ -14,20 +14,20 @@ import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeE
 export class FrequencyModification extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'x-frequency-modification-rule': FrequencyModificationRule,
-      'vaadin-button': customElements.get('vaadin-button'),
-      'x-section': Section,
       'iron-icon': customElements.get('iron-icon'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'x-frequency-modification-rule': FrequencyModificationRule,
       'x-group': Group,
       'x-i18n': I18N,
+      'x-section': Section,
     };
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      value: { type: Array },
       disabled: { type: Boolean },
+      value: { type: Array },
     };
   }
 
@@ -81,11 +81,11 @@ export class FrequencyModification extends Translatable {
             .ns=${this.ns}
             key="fmod.add_rule_hint"
             class=${classMap({
+              hidden: this.value.length === 0,
+              'text-primary': this.value.length >= 10,
+              'text-tertiary': this.value.length < 10,
               'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
                 true,
-              'text-tertiary': this.value.length < 10,
-              'text-primary': this.value.length >= 10,
-              hidden: this.value.length === 0,
             })}
           >
           </x-i18n>

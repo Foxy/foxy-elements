@@ -26,28 +26,28 @@ export const createTestMachine = (options?: TestMachineOptions): TestMachine =>
           }
         : {}),
 
-      /** `element.data =validValue` always triggers this transition */
-      SET_VALID_DATA_VIA_PROPERTY: 'idle.snapshot.clean.valid',
+      /** `element.setAttribute('group', value)` switches FoxySDK.Core.Rumour instances, but doesn't change state */
+      SET_GROUP_VIA_ATTRIBUTE: { internal: true },
+      /** `element.group = value` switches FoxySDK.Core.Rumour instances, but doesn't change state */
+      SET_GROUP_VIA_PROPERTY: { internal: true },
+      /** `element.setAttribute('href', value)` always triggers resource (re)loading */
+      SET_HREF_VIA_ATTRIBUTE: 'busy.fetching',
+      /** `element.href = value` always triggers resource (re)loading */
+      SET_HREF_VIA_PROPERTY: 'busy.fetching',
+      /** `element.setAttribute('lang', value)` loads translations and triggers update, but doesn't change state */
+      SET_LANG_VIA_ATTRIBUTE: { internal: true },
+      /** `element.lang = value` loads translations and triggers update, but doesn't change state */
+      SET_LANG_VIA_PROPERTY: { internal: true },
       /** `element.data =null` always triggers this transition */
       SET_NULL_DATA_VIA_PROPERTY: `idle.template.clean.${
         options?.isEmptyValid ? 'valid' : 'invalid'
       }`,
-      /** `element.lang = value` loads translations and triggers update, but doesn't change state */
-      SET_LANG_VIA_PROPERTY: { internal: true },
-      /** `element.setAttribute('lang', value)` loads translations and triggers update, but doesn't change state */
-      SET_LANG_VIA_ATTRIBUTE: { internal: true },
-      /** `element.href = value` always triggers resource (re)loading */
-      SET_HREF_VIA_PROPERTY: 'busy.fetching',
-      /** `element.setAttribute('href', value)` always triggers resource (re)loading */
-      SET_HREF_VIA_ATTRIBUTE: 'busy.fetching',
-      /** `element.group = value` switches FoxySDK.Core.Rumour instances, but doesn't change state */
-      SET_GROUP_VIA_PROPERTY: { internal: true },
-      /** `element.setAttribute('group', value)` switches FoxySDK.Core.Rumour instances, but doesn't change state */
-      SET_GROUP_VIA_ATTRIBUTE: { internal: true },
-      /** `element.parent = value` sets collection URI, but doesn't change state */
-      SET_PARENT_VIA_PROPERTY: { internal: true },
       /** `element.setAttribute('parent', value)` sets collection URI, but doesn't change state */
       SET_PARENT_VIA_ATTRIBUTE: { internal: true },
+      /** `element.parent = value` sets collection URI, but doesn't change state */
+      SET_PARENT_VIA_PROPERTY: { internal: true },
+      /** `element.data =validValue` always triggers this transition */
+      SET_VALID_DATA_VIA_PROPERTY: 'idle.snapshot.clean.valid',
     },
 
     initial: 'idle',

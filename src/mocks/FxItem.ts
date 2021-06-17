@@ -71,7 +71,7 @@ export class MockItem extends HTMLElement {
     return this.price * this.quantity;
   }
 
-  public signedName(fieldName: string) {
+  public signedName(fieldName: string): string {
     if (this.pid) {
       return `${this.pid}:${fieldName}||signed`;
     } else {

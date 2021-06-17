@@ -18,9 +18,9 @@ class TestNextDateModification extends NextDateModification {
 customElements.define('x-next-date-modification', TestNextDateModification);
 
 const samples = {
-  value: [{ jsonataQuery: '*' }, { jsonataQuery: '*', min: '2m' }],
   basicValue: [{ jsonataQuery: '*' }],
   modifiedRule: { jsonataQuery: '$contains(frequency, "w")', max: '1y' },
+  value: [{ jsonataQuery: '*' }, { jsonataQuery: '*', min: '2m' }],
 };
 
 /**
@@ -31,9 +31,9 @@ function getRefs(element: TestNextDateModification) {
   const $$ = (selector: string) => element.shadowRoot!.querySelectorAll(selector) as unknown;
 
   return {
-    toggle: $('[data-testid=toggle]') as Switch,
-    rules: Array.from($$('[data-testid=rule]') as NextDateModificationRule[]),
     add: $('[data-testid=add]') as HTMLButtonElement,
+    rules: Array.from($$('[data-testid=rule]') as NextDateModificationRule[]),
+    toggle: $('[data-testid=toggle]') as Switch,
   };
 }
 

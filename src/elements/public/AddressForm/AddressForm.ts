@@ -17,13 +17,13 @@ import { regions } from '../../../utils/regions';
 export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-combo-box': customElements.get('vaadin-combo-box'),
-      'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
-      'vaadin-button': customElements.get('vaadin-button'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'vaadin-combo-box': customElements.get('vaadin-combo-box'),
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'x-confirm-dialog': ConfirmDialog,
+      'x-property-table': PropertyTable,
     };
   }
 
@@ -106,18 +106,18 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         <div class="grid grid-cols-2 gap-m">
           ${this.__renderTextField({
             field: 'address_name',
-            wide: true,
             readonly: isDefault,
             required: true,
+            wide: true,
           })}
           ${this.__renderTextField({ field: 'first_name' })}
           ${this.__renderTextField({ field: 'last_name' })}
           ${this.__renderTextField({ field: 'company' })}
           ${this.__renderTextField({ field: 'phone' })}
-          ${this.__renderTextField({ field: 'address1', wide: true, required: true })}
+          ${this.__renderTextField({ field: 'address1', required: true, wide: true })}
           ${this.__renderTextField({ field: 'address2', wide: true })}
           ${this.__renderComboBox({ field: 'country', source: countries })}
-          ${this.__renderComboBox({ field: 'region', source: regions, custom: true })}
+          ${this.__renderComboBox({ custom: true, field: 'region', source: regions })}
           ${this.__renderTextField({ field: 'city' })}
           ${this.__renderTextField({ field: 'postal_code' })}
         </div>
@@ -195,7 +195,7 @@ export class AddressForm extends ScopedElementsMixin(NucleonElement)<Data> {
         item-value-path="code"
         item-label-path="text"
         .checkValidity=${this.__getValidator(field)}
-        .items=${source.map(code => ({ text: t(code).toString(), code }))}
+        .items=${source.map(code => ({ code, text: t(code).toString() }))}
         ?allow-custom-value=${custom}
         ?disabled=${!this.in('idle')}
         @change=${this.__bindField(field)}

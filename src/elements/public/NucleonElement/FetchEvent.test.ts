@@ -7,9 +7,9 @@ describe('NucleonElement', () => {
     it('successfully constructs an instance of FetchEvent extending Event', () => {
       const createEvent = () => {
         return new FetchEvent('fetch', {
+          reject: err => void err,
           request: new Request('./test'),
           resolve: response => void response,
-          reject: err => void err,
         });
       };
 
@@ -20,9 +20,9 @@ describe('NucleonElement', () => {
     it('exposes input Request as event.request', () => {
       const request = new Request('./test');
       const event = new FetchEvent('fetch', {
-        resolve: response => void response,
         reject: err => void err,
         request,
+        resolve: response => void response,
       });
 
       expect(event).to.have.property('request', request);

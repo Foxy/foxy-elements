@@ -11,15 +11,14 @@ export class CustomersTable extends Table<Data> {
   };
 
   static idColumn: Column<Data> = {
-    hideBelow: 'md',
     cell: ctx => html`
       <span role="presentation" class="text-s text-tertiary">ID&nbsp;</span>
       <span data-testclass="ids" class="text-s text-secondary font-tnum">${ctx.data.id}</span>
     `,
+    hideBelow: 'md',
   };
 
   static dateColumn: Column<Data> = {
-    hideBelow: 'md',
     cell: ctx => html`
       <span class="text-s text-secondary font-tnum">
         <foxy-i18n
@@ -40,6 +39,7 @@ export class CustomersTable extends Table<Data> {
         </foxy-i18n>
       </span>
     `,
+    hideBelow: 'md',
   };
 
   static emailColumn: Column<Data> = {

@@ -89,35 +89,35 @@ export class Item extends SignableFields {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      __childPrices: {},
+      __childrenCount: {},
+      __images: {},
       __modified: {},
-      currency: { type: String },
+      alt: { type: String },
       category: { type: String },
-      code: { type: String, reflect: true },
+      code: { reflect: true, type: String },
+      currency: { type: String },
       expires: { type: String },
       height: { type: Number },
       image: { type: String },
+      isChildItem: { attribute: 'data-bundled', reflect: true, type: Boolean },
+      isItem: { attribute: 'data-item', reflect: true, type: Boolean },
+      items: { type: Array },
       length: { type: Number },
       name: { type: String },
+      open: { type: Object },
       parent_code: { type: String },
+      pid: { reflect: true, type: Number },
       price: { type: Number },
-      quantity: { type: Number, reflect: true },
+      quantity: { reflect: true, type: Number },
       quantity_max: { type: Number },
       quantity_min: { type: String },
       shipto: { type: String },
-      total: { type: Number, reflect: true, attribute: 'total' },
+      total: { attribute: 'total', reflect: true, type: Number },
       url: { type: String },
       value: { type: Object },
       weight: { type: Number },
       width: { type: Number },
-      __childPrices: {},
-      __childrenCount: {},
-      __images: {},
-      alt: { type: String },
-      isChildItem: { type: Boolean, reflect: true, attribute: 'data-bundled' },
-      isItem: { type: Boolean, reflect: true, attribute: 'data-item' },
-      open: { type: Object },
-      pid: { type: Number, reflect: true },
-      items: { type: Array },
     };
   }
 
@@ -279,8 +279,7 @@ export class Item extends SignableFields {
 
   private __handleQuantity = {
     handleEvent: (ev: Event) => {
-      const newValue = Number((ev.target as HTMLInputElement).value);
-      this.quantity = newValue;
+      this.quantity = Number((ev.target as HTMLInputElement).value);
       this.__modified = true;
       this.__images = ([this.getImageDescription()] as ImageDescription[]).concat(
         this.__images.slice(1, this.__images.length)

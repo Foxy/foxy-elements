@@ -43,10 +43,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      parent: { type: String },
       group: { type: String, noAccessor: true },
       href: { type: String, noAccessor: true },
       lang: { type: String },
+      parent: { type: String },
     };
   }
 
@@ -75,13 +75,6 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   private readonly __service = interpret(
     (Nucleon.machine as NucleonMachine<TData>).withConfig({
-      services: {
-        sendDelete: () => this._sendDelete(),
-        sendPatch: ({ edits }) => this._sendPatch(edits!),
-        sendPost: ({ edits }) => this._sendPost(edits!),
-        sendGet: () => this._sendGet(),
-      },
-
       actions: {
         validate: assign<Nucleon.Context<TData, string>, Nucleon.Event<TData>>({
           errors: context => {
@@ -94,6 +87,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
               .filter((err, errIndex, errs) => errs.indexOf(err) === errIndex) as string[];
           },
         }),
+      },
+      services: {
+        sendDelete: () => this._sendDelete(),
+        sendGet: () => this._sendGet(),
+        sendPatch: ({ edits }) => this._sendPatch(edits!),
+        sendPost: ({ edits }) => this._sendPost(edits!),
       },
     })
   );
@@ -198,7 +197,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
    * @example element.edit({ first_name: 'Alex' })
    */
   edit(data: Partial<TData>): void {
-    this.__service.send({ type: 'EDIT', data });
+    this.__service.send({ data, type: 'EDIT' });
   }
 
   /**

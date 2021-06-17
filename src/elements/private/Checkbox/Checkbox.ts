@@ -35,8 +35,8 @@ export class Checkbox extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      checked: { type: Boolean, noAccessor: true },
-      disabled: { type: Boolean, noAccessor: true },
+      checked: { noAccessor: true, type: Boolean },
+      disabled: { noAccessor: true, type: Boolean },
     };
   }
 

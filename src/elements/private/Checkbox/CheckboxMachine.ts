@@ -28,17 +28,17 @@ export const CheckboxMachine = Machine<void, CheckboxStateSchema, CheckboxEvent>
     checked: {
       initial: 'enabled',
       states: {
-        enabled: {
-          on: {
-            DISABLE: 'disabled',
-            TOGGLE: { target: '#checkbox.unchecked.enabled', actions: 'sendChange' },
-            FORCE_TOGGLE: '#checkbox.unchecked.enabled',
-          },
-        },
         disabled: {
           on: {
             ENABLE: 'enabled',
             FORCE_TOGGLE: '#checkbox.unchecked.disabled',
+          },
+        },
+        enabled: {
+          on: {
+            DISABLE: 'disabled',
+            FORCE_TOGGLE: '#checkbox.unchecked.enabled',
+            TOGGLE: { actions: 'sendChange', target: '#checkbox.unchecked.enabled' },
           },
         },
       },
@@ -46,17 +46,17 @@ export const CheckboxMachine = Machine<void, CheckboxStateSchema, CheckboxEvent>
     unchecked: {
       initial: 'enabled',
       states: {
-        enabled: {
-          on: {
-            DISABLE: 'disabled',
-            TOGGLE: { target: '#checkbox.checked.enabled', actions: 'sendChange' },
-            FORCE_TOGGLE: '#checkbox.checked.enabled',
-          },
-        },
         disabled: {
           on: {
             DISABLE: 'enabled',
             FORCE_TOGGLE: '#checkbox.checked.disabled',
+          },
+        },
+        enabled: {
+          on: {
+            DISABLE: 'disabled',
+            FORCE_TOGGLE: '#checkbox.checked.enabled',
+            TOGGLE: { actions: 'sendChange', target: '#checkbox.checked.enabled' },
           },
         },
       },

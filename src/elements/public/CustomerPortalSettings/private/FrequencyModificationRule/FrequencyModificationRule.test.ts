@@ -18,8 +18,8 @@ class TestFrequencyModificationRule extends FrequencyModificationRule {
 customElements.define('x-rule', TestFrequencyModificationRule);
 
 const samples = {
-  default: { jsonataQuery: '*', values: [] },
   custom: { jsonataQuery: '$contains(frequency, "w")', values: ['.5m', '1y'] },
+  default: { jsonataQuery: '*', values: [] },
 };
 
 /**

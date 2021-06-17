@@ -9,21 +9,21 @@ export const machine = createMachine<Context, Event>({
   initial: 'idle',
 
   context: {
+    error: null,
     first: '',
     pages: [],
-    error: null,
   },
 
   states: {
     busy: {
       invoke: {
-        src: 'sendGet',
-        onError: { target: 'fail', actions: setError },
         onDone: [
-          { target: 'idle.empty', cond: isCollectionEmpty },
-          { target: 'idle.end', cond: isLastPage, actions: addPage },
-          { target: 'idle.paused', actions: addPage },
+          { cond: isCollectionEmpty, target: 'idle.empty' },
+          { actions: addPage, cond: isLastPage, target: 'idle.end' },
+          { actions: addPage, target: 'idle.paused' },
         ],
+        onError: { actions: setError, target: 'fail' },
+        src: 'sendGet',
       },
     },
 
@@ -32,25 +32,25 @@ export const machine = createMachine<Context, Event>({
     idle: {
       initial: 'empty',
       states: {
+        empty: {},
+        end: {},
         paused: {
           invoke: { src: 'observeChildren' },
           on: { INTERSECTION: '#pages.busy' },
         },
-        empty: {},
-        end: {},
       },
     },
   },
 
   on: {
     SET_FIRST: [
-      { cond: isEmptyString, target: 'idle.empty', actions: setFirst },
-      { target: 'busy', actions: setFirst },
+      { actions: setFirst, cond: isEmptyString, target: 'idle.empty' },
+      { actions: setFirst, target: 'busy' },
     ],
 
     SET_PAGES: [
-      { cond: isEmptyArray, target: 'idle.empty', actions: setPages },
-      { target: 'idle.paused', actions: setPages },
+      { actions: setPages, cond: isEmptyArray, target: 'idle.empty' },
+      { actions: setPages, target: 'idle.paused' },
     ],
   },
 });

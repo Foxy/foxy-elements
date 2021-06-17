@@ -98,12 +98,12 @@ export class FormDialog extends Dialog {
   render(): TemplateResult {
     return super.render(
       this.__renderForm?.bind(null, {
-        handleUpdate: this.__handleUpdate,
         handleFetch: this.__handleFetch,
-        parent: this.parent,
+        handleUpdate: this.__handleUpdate,
         href: this.href,
-        lang: this.lang,
         html,
+        lang: this.lang,
+        parent: this.parent,
       })
     );
   }

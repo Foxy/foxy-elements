@@ -23,6 +23,13 @@ describe('AddressCard', () => {
         expect(refs.fullAddress).to.be.undefined;
       },
 
+      async fail({ element, refs }) {
+        expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
+        expect(refs.spinner).to.have.attribute('lang', element.lang);
+        expect(refs.spinner).to.have.attribute('state', 'error');
+        expect(refs.fullAddress).to.be.undefined;
+      },
+
       idle: {
         async snapshot({ refs, element }) {
           expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
@@ -34,19 +41,12 @@ describe('AddressCard', () => {
           expect(refs.fullAddress).to.have.deep.property('options', element.form);
         },
 
-        async template({ refs, element }) {
+        async template({ element, refs }) {
           expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
           expect(refs.spinner).to.have.attribute('lang', element.lang);
           expect(refs.spinner).to.have.attribute('state', 'empty');
           expect(refs.fullAddress).to.be.undefined;
         },
-      },
-
-      async fail({ refs, element }) {
-        expect(refs.wrapper).to.have.attribute('aria-busy', 'false');
-        expect(refs.spinner).to.have.attribute('lang', element.lang);
-        expect(refs.spinner).to.have.attribute('state', 'error');
-        expect(refs.fullAddress).to.be.undefined;
       },
     },
     href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',

@@ -11,22 +11,22 @@ import { classMap } from '../../../../../utils/class-map';
 export class OriginsList extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-button': customElements.get('vaadin-button'),
-      'x-skeleton': Skeleton,
       'iron-icon': customElements.get('iron-icon'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-group': Group,
-      'x-list': List,
       'x-i18n': I18N,
+      'x-list': List,
+      'x-skeleton': Skeleton,
     };
   }
 
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      value: { type: Array },
-      invalid: { type: Boolean },
       disabled: { type: Boolean },
+      invalid: { type: Boolean },
+      value: { type: Array },
     };
   }
 
@@ -98,11 +98,11 @@ export class OriginsList extends Translatable {
                 .ns=${this.ns}
                 key="origins.add_hint"
                 class=${classMap({
+                  hidden: this.value.length === 0,
+                  'text-primary': this.value.length >= 10,
+                  'text-tertiary': this.value.length < 10,
                   'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
                     true,
-                  'text-tertiary': this.value.length < 10,
-                  'text-primary': this.value.length >= 10,
-                  hidden: this.value.length === 0,
                 })}
               >
               </x-i18n>

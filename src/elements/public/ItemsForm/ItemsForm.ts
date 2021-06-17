@@ -265,20 +265,20 @@ export class ItemsForm extends SignableFields {
   private __total = 0;
 
   /**
-   * Handles the user input for frequenty field
+   * Handles the user input for frequency field
    * - converts week, year, day and month into first letter only
    * - removes spaces
    * - removes leading zeroes
-   * - validates input as propper frequency option
+   * - validates input as proper frequency option
    **/
   private __handleFrequency = {
     handleEvent: (ev: CustomEvent) => {
-      const newfrequency = (ev as CustomEvent).detail
+      const newFrequency = (ev as CustomEvent).detail
         .replace(/([wydm])\w*/, '$1')
         .replace(/ /g, '')
         .replace(/^0/, '');
-      if (ItemsForm.__validFrequency(newfrequency)) {
-        this.sub_frequency = newfrequency;
+      if (ItemsForm.__validFrequency(newFrequency)) {
+        this.sub_frequency = newFrequency;
       } else {
         this.sub_frequency = '';
       }
@@ -454,7 +454,7 @@ export class ItemsForm extends SignableFields {
           value,
         });
       } else {
-        return this._t('checkout.subscribe_muiltiple_units', {
+        return this._t('checkout.subscribe_multiple_units', {
           period: this.__translateFrequency(this.sub_frequency).toLowerCase(),
           value,
         });
@@ -559,7 +559,7 @@ export class ItemsForm extends SignableFields {
     let added = 0;
     if (this.__validItem(itemEl)) {
       if (!itemEl.value['pid']) {
-        throw new Error('Attempt to convert a item without a propper ID');
+        throw new Error('Attempt to convert a item without a proper ID');
       }
       if (parent && parent.getAttribute('code')) {
         itemEl.setAttribute('parent_code', parent.getAttribute('code')!);
@@ -654,10 +654,7 @@ export class ItemsForm extends SignableFields {
       }
       return true;
     }
-    if (!strDate.match(/^\.5m/) && ItemsForm.__validFrequency(strDate)) {
-      return true;
-    }
-    return false;
+    return !strDate.match(/^\.5m/) && ItemsForm.__validFrequency(strDate);
   }
 
   /**
@@ -754,8 +751,7 @@ export class ItemsForm extends SignableFields {
   /**
    * Checks if item has quantity and price
    *
-   * @param item
-   * @param Item the item to be validated
+   * @param item the item to be validated
    * @returns boolean the item is valid
    */
   private __validItem(item: Item): boolean {
@@ -768,8 +764,7 @@ export class ItemsForm extends SignableFields {
   /**
    * Translates a frequency string
    *
-   * @param frequency
-   * @param string the frequency string to be translated
+   * @param frequency string to be translated
    * @returns string the translated string
    */
   private __translateFrequency(frequency: string) {

@@ -14,9 +14,9 @@ export class List extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      value: { type: Array },
       disabled: { type: Boolean },
       getText: { type: Object },
+      value: { type: Array },
     };
   }
 

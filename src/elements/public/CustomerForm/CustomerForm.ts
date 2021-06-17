@@ -17,12 +17,12 @@ import memoize from 'lodash-es/memoize';
 export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
-      'vaadin-button': customElements.get('vaadin-button'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
+      'foxy-spinner': customElements.get('foxy-spinner'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'x-confirm-dialog': ConfirmDialog,
+      'x-property-table': PropertyTable,
     };
   }
 

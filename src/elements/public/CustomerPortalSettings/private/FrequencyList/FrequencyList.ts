@@ -14,17 +14,17 @@ export class FrequencyList extends Translatable {
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': customElements.get('vaadin-button'),
       'x-frequency-input': FrequencyInput,
-      'x-skeleton': Skeleton,
-      'x-list': List,
       'x-i18n': I18N,
+      'x-list': List,
+      'x-skeleton': Skeleton,
     };
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      value: { type: Array },
       disabled: { type: Boolean },
+      value: { type: Array },
     };
   }
 
@@ -83,8 +83,8 @@ export class FrequencyList extends Translatable {
                 key="fmod.add_option_hint"
                 class=${classMap({
                   'block text-xs mt-xs': true,
-                  'text-tertiary': this.value.length < 20,
                   'text-primary': this.value.length >= 20,
+                  'text-tertiary': this.value.length < 20,
                 })}
               >
               </x-i18n>
