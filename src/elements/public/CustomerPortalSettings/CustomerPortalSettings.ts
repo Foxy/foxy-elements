@@ -1,9 +1,19 @@
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-button';
 
-import { ErrorScreen, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
+import {
+  ErrorScreen,
+  FriendlyError,
+  I18N,
+  LoadingScreen,
+  Page,
+  Section,
+  Skeleton,
+  Switch,
+  SwitchChangeEvent,
+} from '../../private';
 import { FxBookmark, FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
-import { I18N, Page, Section, Skeleton } from '../../private/index';
+
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { RequestEvent, UnhandledRequestError } from '../../../events/request';
 import {
@@ -11,12 +21,11 @@ import {
   SessionDurationChangeEvent,
 } from './private/SessionDuration/SessionDuration';
 import { SessionSecret, SessionSecretChangeEvent } from './private/SessionSecret/SessionSecret';
-import { Switch, SwitchChangeEvent } from '../../private/Switch/Switch';
 
 import { CustomerPortalSettingsLoadSuccessEvent } from './types';
 import { FrequencyModification } from './private/FrequencyModification/FrequencyModification';
 import { FrequencyModificationChangeEvent } from './private/FrequencyModification/FrequencyModificationChangeEvent';
-import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
+
 import { NextDateModification } from './private/NextDateModification/NextDateModification';
 import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
 import { OriginsList } from './private/OriginsList/OriginsList';

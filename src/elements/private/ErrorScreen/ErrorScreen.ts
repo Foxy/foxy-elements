@@ -1,9 +1,9 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { ButtonElement } from '@vaadin/vaadin-button';
 import { CSSResultArray, PropertyDeclarations, css } from 'lit-element';
 import { TemplateResult, html } from 'lit-html';
-import { Translatable } from '../../../mixins/translatable';
+import { ButtonElement } from '@vaadin/vaadin-button';
 import { I18N } from '../I18N/I18N';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../mixins/translatable';
 
 export type ErrorType = 'unknown' | 'setup_needed' | 'unauthorized';
 

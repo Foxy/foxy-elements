@@ -3,7 +3,7 @@ import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
 import { ChoiceChangeEvent } from '../../../../private/events';
-import { Choice } from '../../../../private/index';
+import { Choice } from '../../../../private';
 import { JSONataInput } from './JSONataInput';
 import { JSONataInputChangeEvent } from './JSONataInputChangeEvent';
 

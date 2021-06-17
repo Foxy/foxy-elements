@@ -7,7 +7,7 @@ import { API } from '@foxy.io/sdk/core';
 import { Dialog } from '../../private';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from './FormDialog';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { html } from 'lit-html';
 import isEqual from 'lodash-es/isEqual';

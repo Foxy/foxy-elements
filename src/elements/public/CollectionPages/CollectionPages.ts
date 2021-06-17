@@ -4,7 +4,7 @@ import { State, StateMachine, interpret } from 'xstate';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import { Rumour } from '@foxy.io/sdk/core';
 import { machine } from './machine';
 import { repeat } from 'lit-html/directives/repeat';

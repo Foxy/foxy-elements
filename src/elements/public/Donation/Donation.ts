@@ -1,14 +1,14 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
-import { PropertyDeclarations } from 'lit-element';
-import { TemplateResult, html } from 'lit-html';
-import { Translatable } from '../../../mixins/translatable';
-import { parseDuration } from '../../../utils/parse-duration';
+import { Checkbox, Choice, Dropdown, ErrorScreen, Group, I18N } from '../../private';
 import { CheckboxChangeEvent, ChoiceChangeEvent, DropdownChangeEvent } from '../../private/events';
-import { Checkbox, Choice, Dropdown, ErrorScreen, Group, I18N } from '../../private/index';
+import { TemplateResult, html } from 'lit-html';
 import { DonationChangeEvent } from './DonationChangeEvent';
 import { DonationSubmitEvent } from './DonationSubmitEvent';
+import { PropertyDeclarations } from 'lit-element';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../mixins/translatable';
+import { parseDuration } from '../../../utils/parse-duration';
 
 interface DonationEventsMap {
   change: typeof DonationChangeEvent;

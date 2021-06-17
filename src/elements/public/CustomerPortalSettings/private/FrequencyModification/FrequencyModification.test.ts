@@ -1,11 +1,11 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
+import { FrequencyModification } from './FrequencyModification';
+import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
 import { FrequencyModificationRule } from '../FrequencyModificationRule/FrequencyModificationRule';
 import { FrequencyModificationRuleChangeEvent } from '../FrequencyModificationRule/FrequencyModificationRuleChangeEvent';
 import { FrequencyModificationRuleRemoveEvent } from '../FrequencyModificationRule/FrequencyModificationRuleRemoveEvent';
-import { FrequencyModification } from './FrequencyModification';
-import { FrequencyModificationChangeEvent } from './FrequencyModificationChangeEvent';
+import { createMachine } from 'xstate';
+import { createModel } from '@xstate/test';
 
 class TestFrequencyModification extends FrequencyModification {
   get whenReady() {

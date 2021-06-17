@@ -1,6 +1,6 @@
+import { HALJSONResource } from '../../../elements/public/NucleonElement/types';
 import { endpoint } from '..';
 import halson from 'halson';
-import { HALJSONResource } from '../../../elements/public/NucleonElement/types';
 
 /**
  * @param doc

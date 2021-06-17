@@ -3,7 +3,7 @@ import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import { repeat } from 'lit-html/directives/repeat';
 
 /**

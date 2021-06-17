@@ -4,7 +4,7 @@ import '@polymer/iron-icons';
 import { TemplateResult, html } from 'lit-html';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { I18N } from '../../../../private/index';
+import { I18N } from '../../../../private';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { PropertyDeclarations } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';

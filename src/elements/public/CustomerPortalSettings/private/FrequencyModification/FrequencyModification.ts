@@ -5,7 +5,7 @@ import '@vaadin/vaadin-lumo-styles/icons';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
-import { Group, I18N, Section } from '../../../../private/index';
+import { Group, I18N, Section } from '../../../../private';
 import { FrequencyModificationRule } from '../FrequencyModificationRule/FrequencyModificationRule';
 import { FrequencyModificationRuleChangeEvent } from '../FrequencyModificationRule/FrequencyModificationRuleChangeEvent';
 import { Rule } from '../FrequencyModificationRule/types';

@@ -1,10 +1,10 @@
+import { Choice, MonthdayPicker, WeekdayPicker } from '../../../../private';
+import { MonthdayPickerChangeEvent, WeekdayPickerChangeEvent } from '../../../../private/events';
+import { expect, fixture } from '@open-wc/testing';
+import { AllowedDays } from './AllowedDays';
+import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 import { createMachine } from 'xstate';
 import { createModel } from '@xstate/test';
-import { AllowedDays } from './AllowedDays';
-import { expect, fixture } from '@open-wc/testing';
-import { Choice, MonthdayPicker, WeekdayPicker } from '../../../../private/index';
-import { MonthdayPickerChangeEvent, WeekdayPickerChangeEvent } from '../../../../private/events';
-import { AllowedDaysChangeEvent } from './AllowedDaysChangeEvent';
 
 class TestAllowedDays extends AllowedDays {
   get whenReady() {

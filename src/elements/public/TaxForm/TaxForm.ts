@@ -1,16 +1,16 @@
-import { Checkbox, PropertyTable } from '../../private';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { CSSResult, CSSResultArray, TemplateResult, html } from 'lit-element';
+import { Checkbox, PropertyTable } from '../../private';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { Data } from './types';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { CSSResult, CSSResultArray, TemplateResult, html } from 'lit-element';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { countries } from '../../../utils/countries';
-import { regions } from '../../../utils/regions';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { taxProviders } from './providers';
 import { Themeable } from '../../../mixins/themeable';
+import { countries } from '../../../utils/countries';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { regions } from '../../../utils/regions';
+import { taxProviders } from './providers';
 
 export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {

@@ -1,12 +1,12 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
+import { Group, I18N, List, Skeleton } from '../../../../private';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+import { ListChangeEvent } from '../../../../private/events';
+import { OriginsListChangeEvent } from './OriginsListChangeEvent';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
-import { ListChangeEvent } from '../../../../private/events';
-import { Group, I18N, List, Skeleton } from '../../../../private/index';
-import { OriginsListChangeEvent } from './OriginsListChangeEvent';
 
 export class OriginsList extends Translatable {
   public static get scopedElements(): ScopedElementsMap {

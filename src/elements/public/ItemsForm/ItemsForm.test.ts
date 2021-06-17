@@ -2,7 +2,7 @@ import { aTimeout, elementUpdated, expect, fixture, html, oneEvent } from '@open
 import * as sinon from 'sinon';
 import { ItemsForm } from './ItemsForm';
 import { MockItem } from '../../../mocks/FxItem';
-import { Dropdown, ErrorScreen } from '../../private/index';
+import { Dropdown, ErrorScreen } from '../../private';
 
 const cartWideFields = ['sub_token', 'sub_modify', 'sub_restart', 'sub_cancel'];
 

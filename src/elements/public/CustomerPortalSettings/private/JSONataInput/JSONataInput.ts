@@ -2,7 +2,7 @@ import '@polymer/iron-icon';
 import '@polymer/iron-icons';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 
-import { Choice, I18N } from '../../../../private/index';
+import { Choice, I18N } from '../../../../private';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { ChoiceChangeEvent } from '../../../../private/events';

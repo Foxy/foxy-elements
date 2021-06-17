@@ -1,14 +1,14 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
-import { parseDate } from '../../../../../utils/parse-date';
-import { getRefs } from '../../../../../utils/test-utils';
-import { ListChangeEvent } from '../../../../private/events';
-import { List } from '../../../../private/index';
 import { DisallowedDates } from './DisallowedDates';
 import { DisallowedDatesChangeEvent } from './DisallowedDatesChangeEvent';
+import { List } from '../../../../private';
+import { ListChangeEvent } from '../../../../private/events';
+import { createMachine } from 'xstate';
+import { createModel } from '@xstate/test';
+import { getRefs } from '../../../../../utils/test-utils';
+import { parseDate } from '../../../../../utils/parse-date';
 
 class TestDisallowedDates extends DisallowedDates {
   get whenReady() {

@@ -5,7 +5,7 @@ import { createModel } from '@xstate/test';
 import { EventObject, createMachine } from 'xstate';
 import { getRefs } from '../../../../../utils/test-utils';
 import { ListChangeEvent } from '../../../../private/events';
-import { List } from '../../../../private/index';
+import { List } from '../../../../private';
 import { OriginsList } from './OriginsList';
 
 class TestOriginsList extends OriginsList {

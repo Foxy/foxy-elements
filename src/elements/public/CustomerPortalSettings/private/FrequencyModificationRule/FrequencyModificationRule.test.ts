@@ -1,13 +1,13 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
 import { FrequencyList } from '../FrequencyList/FrequencyList';
 import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';
-import { JSONataInput } from '../JSONataInput/JSONataInput';
-import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
 import { FrequencyModificationRule } from './FrequencyModificationRule';
 import { FrequencyModificationRuleRemoveEvent } from './FrequencyModificationRuleRemoveEvent';
+import { JSONataInput } from '../JSONataInput/JSONataInput';
+import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
 import { Rule } from './types';
+import { createMachine } from 'xstate';
+import { createModel } from '@xstate/test';
 
 class TestFrequencyModificationRule extends FrequencyModificationRule {
   get whenReady() {
