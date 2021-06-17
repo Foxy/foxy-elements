@@ -181,7 +181,7 @@ export class ItemsForm extends SignableFields {
   /**
    * Optional subscription start date encoded as four integer for the year, two
    * for the month and two for the day. If only two or one digits are provided,
-   * it is assumed to be next occurence of that day of the month, from the
+   * it is assumed to be next occurrence of that day of the month, from the
    * current date.
    *
    * See [Products wiki for more details](https://wiki.foxycart.com/v/2.0/products#a_complete_list_of_product_parameters)
@@ -209,7 +209,7 @@ export class ItemsForm extends SignableFields {
    * this case, will be "".
    *
    * Using "replace" results in replacing the existing subscription with the
-   * current itmes.
+   * current items.
    * See [Products subscription options](https://wiki.foxycart.com/v/2.0/products/subscriptions#subscription-related_product_options)
    */
   public sub_modify = 'replace';

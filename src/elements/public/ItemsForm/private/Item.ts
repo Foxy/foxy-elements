@@ -270,7 +270,7 @@ export class Item extends SignableFields {
    */
   public readonly pid: number = Item.__newId();
 
-  // A list of all existing ids to guarantee unicity
+  // A list of all existing ids to guarantee uniqueness
   private static __existingIds: number[] = [];
 
   private __childItemsObserver?: MutationObserver;
