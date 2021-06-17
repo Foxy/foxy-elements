@@ -66,7 +66,7 @@ export class Dropdown extends LitElement {
 
   private __renderedItems: Record<string, Element> = {};
 
-  private __list: HTMLElement;
+  private readonly __list: HTMLElement;
 
   constructor() {
     super();

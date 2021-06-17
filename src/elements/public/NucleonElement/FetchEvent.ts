@@ -10,7 +10,7 @@ export class FetchEvent extends Event {
 
   private __resolve: (response: Response) => void;
 
-  private __reject: (err: unknown) => void;
+  private readonly __reject: (err: unknown) => void;
 
   constructor(type: 'fetch', init: FetchEventInit) {
     super(type, init);
