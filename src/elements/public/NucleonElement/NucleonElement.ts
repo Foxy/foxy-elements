@@ -273,7 +273,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   }
 
   /**
-   * PATCHes `element.href`, shares response with the Rumour group and returns parsed JSON.
+   * Patches `element.href`, shares response with the Rumour group and returns parsed JSON.
    *
    * @param edits
    */
@@ -286,12 +286,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     return data;
   }
 
-  /** DELETEs `element.href`, shares response with the Rumour group and returns parsed JSON. */
+  /** Deletes `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendDelete(): Promise<TData> {
     const data = await this._fetch(this.href, { method: 'DELETE' });
     const rumour = NucleonElement.Rumour(this.group);
 
-    rumour.share({ data: null, source: this.href, related: [this.parent] });
+    rumour.share({ data: null, related: [this.parent], source: this.href });
     return data;
   }
 
