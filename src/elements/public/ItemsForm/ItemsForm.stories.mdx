@@ -614,9 +614,9 @@ You may add your custom inputs to be submitted with the form by adding child ele
         <label>How was your experience today?</label>
         <textarea id="feedback" name="feedback" ></textarea>
         <label>Rate us</label>
-        <input name="rate-us" type="number" min="1" max="5" placeholder="1 - 5">
+        <input name="rate-us" type="number" min="1" max="5" placeholder="1 - 5"></input>
         <div >
-        <label>Where did you hear from us? <input type="radio" name="hear" value="streets">Streets</input> <input type="radio" name="hear" value="internet">Internet</input>
+        <label>Where did you hear from us? <input type="radio" name="hear" value="streets">Streets</input> <input type="radio" name="hear" value="internet">Internet</input></label>
         </div>
         <label>Would you like to subscribe to our newsletter?</label>
         <select name="newsletter">
@@ -634,7 +634,8 @@ You may add your custom inputs to be submitted with the form by adding child ele
       currency: 'usd',
     }}
   >
-    {args => html`${getTemplate(
+    {args =>
+      html`${getTemplate(
         args,
         html`
           <foxy-item name="Bundle Package" quantity="1" price="10.00" image="https://picsum.photos/200/300"></foxy-item>
@@ -643,8 +644,9 @@ You may add your custom inputs to be submitted with the form by adding child ele
             <textarea id="feedback" name="feedback" style="width: 100%; border: solid thin silver "></textarea>
             <label style="width: 100%">Rate us</label>
             <input name="rate-us" type="number" min="1" max="5" placeholder="1 - 5" style="width: 100%; border: solid thin silver ">
+            </input>
             <div>
-              <label>Where did you hear from us? <input type="radio" name="hear" value="streets">Streets</input> <input type="radio" name="hear" value="internet">Internet</input>
+              <label>Where did you hear from us? <input type="radio" name="hear" value="streets">Streets</input> <input type="radio" name="hear" value="internet">Internet</input></label>
             </div>
             <label>Would you like to subscribe to our newsletter?</label>
             <select name="newsletter">
@@ -657,7 +659,6 @@ You may add your custom inputs to be submitted with the form by adding child ele
     }
   </Story>
 </Canvas>
-
 
 ## Changing items list
 
@@ -700,13 +701,13 @@ myForm.addItems([
 
 ### By removing an array of items
 
-Custumers may remove items from the form using the quantity button or the remove checkbox. There may be circumstances, however, where the application itself must remove an item from the form. You may simply remove the item directly:
+Customers may remove items from the form using the quantity button or the remove checkbox. There may be circumstances, however, where the application itself must remove an item from the form. You may simply remove the item directly:
 
 ```javascript
 myForm.querySelector('[name="Green Tea of the Month"]').remove();
 ```
 
-You can also achieve this by providing a new items array or you may choose to remove an item. You will need to use the item id called `pid`, like so: Consider the following code:
+You can also achieve this by providing a new items array or you may choose to remove an item. You will need to use the item id called `pid`, like so:
 
 ```javascript
 var itemToRemove = myForm.querySelector('SomePropertyUniqueToItemToRemove');
