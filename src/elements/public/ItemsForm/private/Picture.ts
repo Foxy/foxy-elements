@@ -22,8 +22,8 @@ export class Picture extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      quantity: { attribute: false },
       image: { attribute: false },
+      quantity: { attribute: false },
     };
   }
 

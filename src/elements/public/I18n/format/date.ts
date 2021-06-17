@@ -11,8 +11,8 @@ import { FormatFunction } from 'i18next';
 export const date: FormatFunction = (value, format, lang): string => {
   const valueAsDate = new Date(value);
   return valueAsDate.toLocaleDateString(lang, {
+    day: 'numeric',
     month: 'long',
     year: new Date().getFullYear() === valueAsDate.getFullYear() ? undefined : 'numeric',
-    day: 'numeric',
   });
 };

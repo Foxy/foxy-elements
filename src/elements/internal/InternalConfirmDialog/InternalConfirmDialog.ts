@@ -7,9 +7,9 @@ export class InternalConfirmDialog extends Dialog {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      cancel: { type: String },
       confirm: { type: String },
       message: { type: String },
-      cancel: { type: String },
       theme: { type: String },
     };
   }

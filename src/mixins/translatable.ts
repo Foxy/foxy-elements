@@ -24,8 +24,8 @@ import { cdn } from '../env';
 export abstract class Translatable extends ScopedElementsMixin(LitElement) {
   static get properties(): PropertyDeclarations {
     return {
-      lang: { type: String, noAccessor: true },
-      ns: { type: String, noAccessor: true },
+      lang: { noAccessor: true, type: String },
+      ns: { noAccessor: true, type: String },
     };
   }
 
@@ -147,19 +147,17 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
     this.__i18n.use(HttpApi);
 
     this.__whenI18NReady = this.__i18n.init({
-      ns: ['global'],
-      supportedLngs: ['nl', 'en', 'es', 'sv', 'fi', 'fr', 'de', 'zh', 'no', 'it'],
-      interpolation: { format: Translatable.__f },
-      fallbackLng: 'en',
-      fallbackNS: 'global',
+      backend: { loadPath: `${cdn}/translations/{{ns}}/{{lng}}.json` },
       defaultNS: 'global',
       detection: {
-        order: ['querystring', 'navigator', 'htmlTag', 'path', 'subdomain'],
         caches: [],
+        order: ['querystring', 'navigator', 'htmlTag', 'path', 'subdomain'],
       },
-      backend: {
-        loadPath: `${cdn}/translations/{{ns}}/{{lng}}.json`,
-      },
+      fallbackLng: 'en',
+      fallbackNS: 'global',
+      interpolation: { format: Translatable.__f },
+      ns: ['global'],
+      supportedLngs: ['nl', 'en', 'es', 'sv', 'fi', 'fr', 'de', 'zh', 'no', 'it'],
     });
 
     this.__whenI18NReady.then(() => (this.__isI18NReady = true));

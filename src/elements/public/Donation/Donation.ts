@@ -32,12 +32,12 @@ export class Donation extends Translatable {
   /** @readonly */
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
-      'x-error-screen': ErrorScreen,
       'vaadin-button': customElements.get('vaadin-button'),
-      'x-dropdown': Dropdown,
+      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'x-checkbox': Checkbox,
       'x-choice': Choice,
+      'x-dropdown': Dropdown,
+      'x-error-screen': ErrorScreen,
       'x-group': Group,
       'x-i18n': I18N,
     };
@@ -47,25 +47,25 @@ export class Donation extends Translatable {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      currency: { type: String },
-      custom: { type: Array },
       amount: { type: Number },
       amounts: { type: Array },
-      frequency: { type: String },
-      frequencies: { type: Array },
-      designation: { type: Array },
-      designations: { type: Array },
-      comment: { type: String },
       anonymity: { reflect: true, type: Boolean },
       anonymous: { reflect: true, type: Boolean },
-      image: { type: String },
-      store: { type: String },
-      name: { type: String },
-      code: { type: String },
-      url: { type: String },
       cart: { type: String },
-      target: { type: String },
+      code: { type: String },
+      comment: { type: String },
+      currency: { type: String },
+      custom: { type: Array },
+      designation: { type: Array },
+      designations: { type: Array },
       empty: { type: String },
+      frequencies: { type: Array },
+      frequency: { type: String },
+      image: { type: String },
+      name: { type: String },
+      store: { type: String },
+      target: { type: String },
+      url: { type: String },
     };
   }
 

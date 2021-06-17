@@ -22,9 +22,9 @@ export class FrequencyInput extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
       checkValidity: { attribute: false },
-      errorMessage: { type: String, attribute: 'error-message' },
-      disabled: { type: Boolean, reflect: true },
-      readonly: { type: Boolean, reflect: true },
+      errorMessage: { attribute: 'error-message', type: String },
+      disabled: { reflect: true, type: Boolean },
+      readonly: { reflect: true, type: Boolean },
       label: { type: String },
       value: { type: String },
       lang: { type: String },
@@ -89,10 +89,10 @@ export class FrequencyInput extends LitElement {
     const count = parseDuration(value).count;
 
     return [
-      { value: 'd', label: this.__t('day', { count }) },
-      { value: 'w', label: this.__t('week', { count }) },
-      { value: 'm', label: this.__t('month', { count }) },
-      { value: 'y', label: this.__t('year', { count }) },
+      { label: this.__t('day', { count }), value: 'd' },
+      { label: this.__t('week', { count }), value: 'w' },
+      { label: this.__t('month', { count }), value: 'm' },
+      { label: this.__t('year', { count }), value: 'y' },
     ];
   });
 

@@ -28,8 +28,8 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
     cell: ctx => {
       const items = ctx.data._embedded['fx:transaction_template']._embedded['fx:items'];
       const options = {
-        most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
         count: items.length,
+        most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
       };
 
       return ctx.html`

@@ -20,8 +20,8 @@ export class SessionDurationChangeEvent extends CustomEvent<{ value: number; inv
 export class SessionDuration extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-integer-field': IntegerFieldElement,
       'vaadin-custom-field': CustomFieldElement,
+      'vaadin-integer-field': IntegerFieldElement,
       'vaadin-select': SelectElement,
       'x-i18n': I18N,
     };

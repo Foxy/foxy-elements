@@ -23,12 +23,12 @@ export class API extends CoreAPI<any> {
           request.headers.set('FOXY-API-VERSION', '1');
 
           const event = new FetchEvent('fetch', {
+            bubbles: true,
             cancelable: true,
             composed: true,
-            bubbles: true,
+            reject,
             request,
             resolve,
-            reject,
           });
 
           target.dispatchEvent(event);

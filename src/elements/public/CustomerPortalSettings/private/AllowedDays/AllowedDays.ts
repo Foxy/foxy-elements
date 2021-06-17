@@ -18,10 +18,10 @@ export interface Rule {
 export class AllowedDays extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'x-monthday-picker': MonthdayPicker,
-      'x-weekday-picker': WeekdayPicker,
       'x-choice': Choice,
       'x-i18n': I18N,
+      'x-monthday-picker': MonthdayPicker,
+      'x-weekday-picker': WeekdayPicker,
     };
   }
 
@@ -97,8 +97,8 @@ export class AllowedDays extends Translatable {
       evt.detail === this.__items[0]
         ? undefined
         : evt.detail === this.__items[1]
-        ? { type: 'month', days: [] }
-        : { type: 'day', days: [] };
+        ? { days: [], type: 'month' }
+        : { days: [], type: 'day' };
 
     this.__sendChange();
   }

@@ -371,24 +371,24 @@ router.post('/s/admin/customers/:id/addresses', async ({ params, request }) => {
   const customer = await db.customers.get(parseInt(params.id));
   const requestBody = await request.json();
   const newID = await db.customerAddresses.add({
-    store: customer.store,
-    customer: customer.id,
-    address_name: requestBody.address_name ?? '',
-    first_name: requestBody.first_name ?? '',
-    last_name: requestBody.last_name ?? '',
-    company: requestBody.company ?? '',
     address1: requestBody.address1,
     address2: requestBody.address2 ?? '',
+    address_name: requestBody.address_name ?? '',
     city: requestBody.city ?? '',
-    region: requestBody.region ?? '',
-    postal_code: requestBody.postal_code ?? '',
+    company: requestBody.company ?? '',
     country: requestBody.country ?? '',
-    phone: requestBody.phone ?? '',
-    is_default_billing: requestBody.is_default_billing ?? false,
-    is_default_shipping: requestBody.is_default_shipping ?? false,
-    ignore_address_restrictions: requestBody.ignore_address_restrictions ?? false,
+    customer: customer.id,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
+    first_name: requestBody.first_name ?? '',
+    ignore_address_restrictions: requestBody.ignore_address_restrictions ?? false,
+    is_default_billing: requestBody.is_default_billing ?? false,
+    is_default_shipping: requestBody.is_default_shipping ?? false,
+    last_name: requestBody.last_name ?? '',
+    phone: requestBody.phone ?? '',
+    postal_code: requestBody.postal_code ?? '',
+    region: requestBody.region ?? '',
+    store: customer.store,
   });
 
   const newDoc = await db.customerAddresses.get(newID);

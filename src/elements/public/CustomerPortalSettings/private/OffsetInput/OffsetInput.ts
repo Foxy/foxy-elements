@@ -13,8 +13,8 @@ export class OffsetInput extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'x-frequency-input': FrequencyInput,
       'x-choice': Choice,
+      'x-frequency-input': FrequencyInput,
       'x-group': Group,
       'x-i18n': I18N,
     };
@@ -24,8 +24,8 @@ export class OffsetInput extends Translatable {
     return {
       ...super.properties,
       disabled: { type: Boolean },
-      value: { type: String },
       type: { type: String },
+      value: { type: String },
     };
   }
 

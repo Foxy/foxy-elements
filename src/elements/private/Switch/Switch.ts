@@ -14,8 +14,8 @@ export class Switch extends LitElement {
   public static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      disabled: { attribute: false },
       checked: { attribute: false },
+      disabled: { attribute: false },
     };
   }
 
@@ -42,10 +42,10 @@ export class Switch extends LitElement {
         <span
           style="border-radius: var(--lumo-size-xl); width: calc((var(--lumo-space-l) * 2) + (var(--lumo-space-xs) * 2))"
           class=${classMap({
-            'transition duration-150 relative flex flex-shrink-0 items-center': true,
-            'bg-success focus-within-shadow-outline-success': !this.disabled && this.checked,
             'bg-contrast-10 focus-within-shadow-outline': this.disabled || !this.checked,
             'bg-contrast-20': !this.disabled && !this.checked,
+            'bg-success focus-within-shadow-outline-success': !this.disabled && this.checked,
+            'transition duration-150 relative flex flex-shrink-0 items-center': true,
           })}
         >
           <span
