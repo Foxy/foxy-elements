@@ -1,7 +1,7 @@
 import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
-import { Choice } from '../../../../private/index';
+import { Choice } from '../../../../private';
 import { ChoiceChangeEvent } from '../../../../private/events';
 import { FrequencyInput } from '../FrequencyInput/FrequencyInput';
 import { OffsetInput } from './OffsetInput';

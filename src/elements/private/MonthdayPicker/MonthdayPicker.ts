@@ -1,9 +1,9 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
-import { Translatable } from '../../../mixins/translatable';
-import { concatTruthy } from '../../../utils/concat-truthy';
 import { I18N } from '../I18N/I18N';
 import { MonthdayPickerChangeEvent } from './MonthdayPickerChangeEvent';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../mixins/translatable';
+import { concatTruthy } from '../../../utils/concat-truthy';
 
 export class MonthdayPicker extends Translatable {
   public static get scopedElements(): ScopedElementsMap {

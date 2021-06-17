@@ -1,10 +1,10 @@
 import './index';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
+import { ConfirmDialog, Dialog } from '../../private';
 import { CustomerForm } from './CustomerForm';
 import { Data } from '../Customer/types';
-import { Dialog } from '../../private/Dialog/Dialog';
+
 import { Spinner } from '../Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';

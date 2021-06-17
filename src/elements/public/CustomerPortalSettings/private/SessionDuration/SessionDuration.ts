@@ -1,17 +1,15 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-
 import {
   CustomFieldElement,
   CustomFieldI18n,
 } from '@vaadin/vaadin-custom-field/vaadin-custom-field';
-
-import { SelectElement } from '@vaadin/vaadin-select/vaadin-select';
+import { TemplateResult, html } from 'lit-html';
+import { I18N } from '../../../../private';
 import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { PropertyDeclarations } from 'lit-element';
-import { TemplateResult, html } from 'lit-html';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { SelectElement } from '@vaadin/vaadin-select/vaadin-select';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
-import { I18N } from '../../../../private/index';
 
 export class SessionDurationChangeEvent extends CustomEvent<{ value: number; invalid: boolean }> {
   constructor(detail: SessionDurationChangeEvent['detail']) {

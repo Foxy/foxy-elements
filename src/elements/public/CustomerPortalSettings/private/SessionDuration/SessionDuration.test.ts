@@ -3,7 +3,7 @@ import { CustomFieldElement } from '@vaadin/vaadin-custom-field';
 import { SelectElement } from '@vaadin/vaadin-select';
 import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { createModel } from '@xstate/test';
-import { Event, EventObject, createMachine } from 'xstate';
+import { EventObject, createMachine } from 'xstate';
 import { getRefs } from '../../../../../utils/test-utils';
 import { I18N } from '../../../../private';
 import { SessionDuration } from './SessionDuration';

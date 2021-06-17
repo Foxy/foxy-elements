@@ -1,13 +1,12 @@
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { Choice, Group, PropertyTable } from '../../private/index';
+import { Choice, ConfirmDialog, Group, PropertyTable } from '../../private';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';

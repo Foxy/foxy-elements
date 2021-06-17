@@ -1,10 +1,10 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
-import { Dialog } from '../../private/Dialog/Dialog';
+import { Dialog } from '../../private';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormRenderer } from './types';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 
 /**

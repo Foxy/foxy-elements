@@ -2,7 +2,7 @@ import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { Collection, Column } from './types';
 import { TemplateResult, html } from 'lit-html';
 
-import { NucleonElement } from '../NucleonElement/index';
+import { NucleonElement } from '../NucleonElement';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';

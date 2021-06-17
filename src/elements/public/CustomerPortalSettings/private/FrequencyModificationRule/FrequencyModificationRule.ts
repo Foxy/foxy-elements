@@ -1,20 +1,20 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-lumo-styles/icons';
-import { PropertyDeclarations } from 'lit-element';
+import { Group, I18N } from '../../../../private';
 import { TemplateResult, html } from 'lit-html';
+import { FrequencyList } from '../FrequencyList/FrequencyList';
+import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';
+import { FrequencyModificationRuleChangeEvent } from './FrequencyModificationRuleChangeEvent';
+import { FrequencyModificationRuleRemoveEvent } from './FrequencyModificationRuleRemoveEvent';
+import { JSONataInput } from '../JSONataInput/JSONataInput';
+import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
+import { PropertyDeclarations } from 'lit-element';
+import { Rule } from './types';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
-import { Group, I18N } from '../../../../private/index';
-import { FrequencyList } from '../FrequencyList/FrequencyList';
-import { FrequencyListChangeEvent } from '../FrequencyList/FrequencyListChangeEvent';
-import { JSONataInput } from '../JSONataInput/JSONataInput';
-import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
-import { FrequencyModificationRuleChangeEvent } from './FrequencyModificationRuleChangeEvent';
-import { FrequencyModificationRuleRemoveEvent } from './FrequencyModificationRuleRemoveEvent';
-import { Rule } from './types';
 
 export class FrequencyModificationRule extends Translatable {
   public static get scopedElements(): ScopedElementsMap {

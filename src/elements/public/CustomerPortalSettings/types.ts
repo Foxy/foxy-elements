@@ -1,5 +1,5 @@
+import { ErrorType, FriendlyError } from '../../private';
 import { FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
-import { ErrorType, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
 
 export interface CustomerPortalSettingsContext {
   oldResource: FxCustomerPortalSettings | null;

@@ -2,7 +2,7 @@ import { ExtractItem, ItemRenderer, Page } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonElement } from '../NucleonElement';
 import { repeat } from 'lit-html/directives/repeat';
 
 /**

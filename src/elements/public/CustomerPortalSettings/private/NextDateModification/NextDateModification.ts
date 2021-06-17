@@ -1,14 +1,13 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import '@vaadin/vaadin-button';
+import { I18N, Section, Switch } from '../../../../private';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
-import { Translatable } from '../../../../../mixins/translatable';
-import { classMap } from '../../../../../utils/class-map';
-import { I18N, Section } from '../../../../private/index';
-import { Switch } from '../../../../private/Switch/Switch';
+import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
 import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
 import { NextDateModificationRuleChangeEvent } from '../NextDateModificationRule/NextDateModificationRuleChangeEvent';
-import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
 import { Rule } from './Rule';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Translatable } from '../../../../../mixins/translatable';
+import { classMap } from '../../../../../utils/class-map';
 
 export class NextDateModification extends Translatable {
   public static get scopedElements(): ScopedElementsMap {

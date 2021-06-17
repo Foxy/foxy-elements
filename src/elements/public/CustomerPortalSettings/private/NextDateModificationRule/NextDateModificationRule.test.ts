@@ -1,7 +1,7 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
-import { Warning } from '../../../../private/index';
+import { Warning } from '../../../../private';
 import { AllowedDays } from '../AllowedDays/AllowedDays';
 import { AllowedDaysChangeEvent } from '../AllowedDays/AllowedDaysChangeEvent';
 import { DisallowedDates } from '../DisallowedDates/DisallowedDates';

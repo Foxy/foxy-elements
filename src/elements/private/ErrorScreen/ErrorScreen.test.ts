@@ -1,10 +1,10 @@
-import { expect } from '@open-wc/testing';
+import { ErrorScreen, ErrorScreenReloadEvent, FriendlyError } from './ErrorScreen';
+import { EventObject, createMachine } from 'xstate';
 import { fixture, oneEvent } from '@open-wc/testing-helpers';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { createModel } from '@xstate/test';
-import { EventObject, createMachine } from 'xstate';
 import { I18N } from '../I18N/I18N';
-import { ErrorScreen, ErrorScreenReloadEvent, FriendlyError } from './ErrorScreen';
+import { createModel } from '@xstate/test';
+import { expect } from '@open-wc/testing';
 
 class TestErrorScreen extends ErrorScreen {
   public get whenReady() {

@@ -6,14 +6,14 @@ import { generateTests, getRefs } from '../NucleonElement/generateTests';
 import { AddressCard } from '../AddressCard';
 import { AttributeCard } from '../AttributeCard';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CollectionPages } from '../CollectionPages/CollectionPages';
+import { CollectionPages } from '../CollectionPages';
 import { Customer } from './Customer';
 import { Data } from './types';
-import { FormDialog } from '../FormDialog/FormDialog';
-import { PaymentMethodCard } from '../PaymentMethodCard/PaymentMethodCard';
-import { Spinner } from '../Spinner/index';
-import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
-import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
+import { FormDialog } from '../FormDialog';
+import { PaymentMethodCard } from '../PaymentMethodCard';
+import { Spinner } from '../Spinner';
+import { SubscriptionsTable } from '../SubscriptionsTable';
+import { TransactionsTable } from '../TransactionsTable';
 import sinon from 'sinon';
 
 type Refs = {

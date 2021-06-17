@@ -1,5 +1,5 @@
-import { Translatable } from '../../../../mixins/translatable';
 import { PropertyDeclarations } from 'lit-element';
+import { Translatable } from '../../../../mixins/translatable';
 
 export class SignableFields extends Translatable {
   /** @readonly */

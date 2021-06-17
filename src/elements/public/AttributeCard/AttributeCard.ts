@@ -3,8 +3,8 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
-import { NucleonElement } from '../NucleonElement/index';
-import { Skeleton } from '../../private/index';
+import { NucleonElement } from '../NucleonElement';
+import { Skeleton } from '../../private';
 import { Themeable } from '../../../mixins/themeable';
 import { ifDefined } from 'lit-html/directives/if-defined';
 

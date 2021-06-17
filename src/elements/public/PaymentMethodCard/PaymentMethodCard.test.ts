@@ -3,11 +3,11 @@ import './index';
 import { expect, oneEvent } from '@open-wc/testing';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
+import { ConfirmDialog, Dialog } from '../../private';
 import { Data } from './types';
-import { Dialog } from '../../private/Dialog/Dialog';
+
 import { PaymentMethodCard } from './PaymentMethodCard';
-import { Spinner } from '../Spinner/Spinner';
+import { Spinner } from '../Spinner';
 import { generateTests } from '../NucleonElement/generateTests';
 
 type Refs = {

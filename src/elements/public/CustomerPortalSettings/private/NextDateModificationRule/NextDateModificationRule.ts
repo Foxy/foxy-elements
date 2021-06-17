@@ -1,5 +1,17 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Group, I18N, Warning } from '../../../../private';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
+import { AllowedDays } from '../AllowedDays/AllowedDays';
+import { AllowedDaysChangeEvent } from '../AllowedDays/AllowedDaysChangeEvent';
+import { DisallowedDates } from '../DisallowedDates/DisallowedDates';
+import { DisallowedDatesChangeEvent } from '../DisallowedDates/DisallowedDatesChangeEvent';
+import { JSONataInput } from '../JSONataInput/JSONataInput';
+import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
+import { NextDateModificationRuleChangeEvent } from './NextDateModificationRuleChangeEvent';
+import { NextDateModificationRuleRemoveEvent } from './NextDateModificationRuleRemoveEvent';
+import { OffsetInput } from '../OffsetInput/OffsetInput';
+import { OffsetInputChangeEvent } from '../OffsetInput/OffsetInputChangeEvent';
+import { Rule } from './Rule';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../../../mixins/translatable';
 import { classMap } from '../../../../../utils/class-map';
 import { concatTruthy } from '../../../../../utils/concat-truthy';
@@ -7,18 +19,6 @@ import { parseDuration } from '../../../../../utils/parse-duration';
 import { prevent } from '../../../../../utils/prevent';
 import { translateDate } from '../../../../../utils/translate-date';
 import { translateWeekday } from '../../../../../utils/translate-weekday';
-import { Group, I18N, Warning } from '../../../../private/index';
-import { AllowedDays } from '../AllowedDays/AllowedDays';
-import { AllowedDaysChangeEvent } from '../AllowedDays/AllowedDaysChangeEvent';
-import { DisallowedDates } from '../DisallowedDates/DisallowedDates';
-import { DisallowedDatesChangeEvent } from '../DisallowedDates/DisallowedDatesChangeEvent';
-import { JSONataInput } from '../JSONataInput/JSONataInput';
-import { JSONataInputChangeEvent } from '../JSONataInput/JSONataInputChangeEvent';
-import { OffsetInput } from '../OffsetInput/OffsetInput';
-import { OffsetInputChangeEvent } from '../OffsetInput/OffsetInputChangeEvent';
-import { NextDateModificationRuleChangeEvent } from './NextDateModificationRuleChangeEvent';
-import { NextDateModificationRuleRemoveEvent } from './NextDateModificationRuleRemoveEvent';
-import { Rule } from './Rule';
 
 export class NextDateModificationRule extends Translatable {
   public static get scopedElements(): ScopedElementsMap {

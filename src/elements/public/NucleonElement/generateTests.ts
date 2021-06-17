@@ -1,4 +1,4 @@
-import { DemoDatabase, db, router, whenDbReady } from '../../../server/admin/index';
+import { DemoDatabase, db, router, whenDbReady } from '../../../server/admin';
 import { EventObject, State } from 'xstate';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 

@@ -1,7 +1,7 @@
+import { expect, fixture } from '@open-wc/testing';
+import { Warning } from './Warning';
 import { createMachine } from 'xstate';
 import { createModel } from '@xstate/test';
-import { Warning } from './Warning';
-import { expect, fixture } from '@open-wc/testing';
 
 customElements.define('x-warning', Warning);
 

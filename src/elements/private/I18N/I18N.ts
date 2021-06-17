@@ -1,15 +1,8 @@
+import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { TOptions } from 'i18next';
-import {
-  CSSResultArray,
-  PropertyDeclarations,
-  TemplateResult,
-  css,
-  html,
-  property,
-} from 'lit-element';
-import { Translatable } from '../../../mixins/translatable';
 import { Skeleton } from '../Skeleton/Skeleton';
+import { TOptions } from 'i18next';
+import { Translatable } from '../../../mixins/translatable';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type I18NOptions = TOptions<any>;

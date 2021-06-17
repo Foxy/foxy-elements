@@ -1,6 +1,6 @@
 import { Column } from '../Table/types';
 import { Data } from './types';
-import { Table } from '../Table/Table';
+import { Table } from '../Table';
 import { html } from 'lit-html';
 
 export class CustomersTable extends Table<Data> {

@@ -1,18 +1,18 @@
-import { CSSResultArray, TemplateResult, html } from 'lit-element';
 import { Backend, Core } from '@foxy.io/sdk';
+import { CSSResultArray, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { Skeleton, Tabs } from '../../private/index';
+import { Skeleton, Tabs } from '../../private';
 
 import { Data as Attribute } from '../AttributeCard/types';
 import { Column } from '../Table/types';
 import { Data as CustomerAddress } from '../AddressCard/types';
 import { Data } from './types';
-import { FormDialog } from '../FormDialog/FormDialog';
-import { ItemRenderer } from '../CollectionPage/CollectionPage';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { FormDialog } from '../FormDialog';
+import { ItemRenderer } from '../CollectionPage/types';
+import { NucleonElement } from '../NucleonElement';
 import { PageRenderer } from '../CollectionPages/types';
 import { Data as Subscriptions } from '../SubscriptionsTable/types';
-import { SubscriptionsTable } from '../SubscriptionsTable/SubscriptionsTable';
+import { SubscriptionsTable } from '../SubscriptionsTable';
 import { Themeable } from '../../../mixins/themeable';
 import { addBreakpoints } from '../../../utils/add-breakpoints';
 import { classMap } from '../../../utils/class-map';

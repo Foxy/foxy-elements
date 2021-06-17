@@ -2,7 +2,7 @@ import './index';
 
 import { AddressCard } from './AddressCard';
 import { Data } from './types';
-import { I18n } from '../I18n/I18n';
+import { I18n } from '../I18n';
 import { Spinner } from '../Spinner';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';

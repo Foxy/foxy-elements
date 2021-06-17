@@ -1,10 +1,10 @@
-import { expect } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
-import { Donation } from '../..';
 import { exec, getRefs } from '../../../../utils/test-utils';
-import { Refs } from './types';
 import { ChoiceChangeEvent } from '../../../private/events';
+import { Donation } from '../..';
+import { Refs } from './types';
+import { createMachine } from 'xstate';
+import { createModel } from '@xstate/test';
+import { expect } from '@open-wc/testing';
 
 const samples = {
   designations: ['Designation one', 'Designation two', 'Designation three'],

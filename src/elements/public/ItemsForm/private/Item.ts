@@ -1,9 +1,9 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
-import { ErrorScreen, I18N } from '../../../private/index';
+import { ErrorScreen, I18N } from '../../../private';
 import { ImageDescription, ItemInterface } from '../types';
-import { SignableFields } from './SignableFields';
 import { Preview } from './Preview';
+import { SignableFields } from './SignableFields';
 
 /**
  * This component allows a user to configure an item.

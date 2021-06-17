@@ -1,11 +1,11 @@
 import './index';
 
-import { Choice } from '../../private/Choice/Choice';
+import { Choice } from '../../private';
 import { ChoiceChangeEvent } from '../../private/events';
 import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
 import { I18n } from '../I18n';
-import { Spinner } from '../Spinner/Spinner';
+import { Spinner } from '../Spinner';
 import { SubscriptionForm } from './SubscriptionForm';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';

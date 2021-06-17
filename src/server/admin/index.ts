@@ -1,7 +1,7 @@
+import { Collection, Table } from 'dexie';
 import { DemoDatabase } from './DemoDatabase';
 import { HALJSONResource } from '../../elements/public/NucleonElement/types';
 import { Router } from 'service-worker-router';
-import { Collection, Table } from 'dexie';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';

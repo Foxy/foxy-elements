@@ -1,12 +1,12 @@
 import { CSSResult, CSSResultArray } from 'lit-element';
-import { Choice, Group, PropertyTable, Skeleton } from '../../private/index';
+import { Choice, Group, PropertyTable, Skeleton } from '../../private';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ChoiceChangeEvent } from '../../private/events';
 import { Data } from './types';
 import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { NucleonElement } from '../NucleonElement/index';
+import { NucleonElement } from '../NucleonElement';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 import memoize from 'lodash-es/memoize';

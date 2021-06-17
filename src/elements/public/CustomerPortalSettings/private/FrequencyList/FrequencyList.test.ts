@@ -2,7 +2,7 @@ import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { createMachine } from 'xstate';
 import { FrequencyList } from './FrequencyList';
-import { List } from '../../../../private/index';
+import { List } from '../../../../private';
 import { ListChangeEvent } from '../../../../private/events';
 import { FrequencyListChangeEvent } from './FrequencyListChangeEvent';
 import { FrequencyInput } from '../FrequencyInput/FrequencyInput';

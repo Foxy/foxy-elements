@@ -1,6 +1,6 @@
 import { Column } from '../Table/types';
 import { Data } from './types';
-import { Table } from '../Table/Table';
+import { Table } from '../Table';
 
 export class TransactionsTable extends Table<Data> {
   static priceColumn: Column<Data> = {

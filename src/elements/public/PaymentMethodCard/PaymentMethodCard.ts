@@ -4,10 +4,10 @@ import { CSSResultArray, css } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
+import { ConfirmDialog } from '../../private';
 import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { NucleonElement } from '../NucleonElement/index';
+import { NucleonElement } from '../NucleonElement';
 import { Themeable } from '../../../mixins/themeable';
 import { backgrounds } from './backgrounds';
 

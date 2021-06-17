@@ -1,4 +1,4 @@
-import { endpoint, router } from '../src/server/admin/index.ts';
+import { endpoint, router } from '../src/server/admin';
 
 import { FetchEvent } from '../src/elements/public/NucleonElement/FetchEvent.ts';
 import customElements from '../custom-elements.json';

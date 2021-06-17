@@ -1,13 +1,13 @@
+import { Switch, SwitchChangeEvent } from '../../../../private';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
-import { createModel } from '@xstate/test';
-import { createMachine } from 'xstate';
-import { Switch, SwitchChangeEvent } from '../../../../private/Switch/Switch';
+import { NextDateModification } from './NextDateModification';
+import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
 import { NextDateModificationRule } from '../NextDateModificationRule/NextDateModificationRule';
 import { NextDateModificationRuleChangeEvent } from '../NextDateModificationRule/NextDateModificationRuleChangeEvent';
 import { NextDateModificationRuleRemoveEvent } from '../NextDateModificationRule/NextDateModificationRuleRemoveEvent';
-import { NextDateModification } from './NextDateModification';
-import { NextDateModificationChangeEvent } from './NextDateModificationChangeEvent';
 import { Rule } from './Rule';
+import { createMachine } from 'xstate';
+import { createModel } from '@xstate/test';
 
 class TestNextDateModification extends NextDateModification {
   get whenReady() {

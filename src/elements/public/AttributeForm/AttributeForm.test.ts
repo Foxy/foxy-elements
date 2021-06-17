@@ -5,7 +5,7 @@ import { Choice, ConfirmDialog, Dialog } from '../../private';
 import { AttributeForm } from './AttributeForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Data } from './types';
-import { Spinner } from '../Spinner/Spinner';
+import { Spinner } from '../Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';

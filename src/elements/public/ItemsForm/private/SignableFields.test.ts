@@ -1,4 +1,4 @@
-import { aTimeout, elementUpdated, expect, fixture, html, oneEvent } from '@open-wc/testing';
+import { expect, fixture, html } from '@open-wc/testing';
 import { SignableFields } from './SignableFields';
 
 customElements.define('x-signable', SignableFields);

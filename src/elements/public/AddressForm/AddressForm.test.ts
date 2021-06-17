@@ -1,12 +1,11 @@
 import './index';
 
+import { ConfirmDialog, Dialog } from '../../private';
 import { AddressForm } from './AddressForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
-import { Dialog } from '../../private/Dialog/Dialog';
-import { Spinner } from '../Spinner/Spinner';
+import { Spinner } from '../Spinner';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { expect } from '@open-wc/testing';
 import { generateTests } from '../NucleonElement/generateTests';
