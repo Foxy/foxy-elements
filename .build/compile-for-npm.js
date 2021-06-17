@@ -9,7 +9,8 @@ import ts from 'ttypescript';
 import url from 'url';
 
 const TSCONFIG_PATH = url.fileURLToPath(new URL('../tsconfig.json', import.meta.url));
-const ENTRY_PATH = url.fileURLToPath(new URL('../src/index.ts', import.meta.url));
+const DEFINED_ENTRY = url.fileURLToPath(new URL('../src/index.defined.ts', import.meta.url));
+const MAIN_ENTRY = url.fileURLToPath(new URL('../src/index.ts', import.meta.url));
 const SRC_DIR = url.fileURLToPath(new URL('../src', import.meta.url));
 
 const cssProcessor = postcss([tailwind(tailwindConfig), discardComments(), discardEmpty()]);
@@ -25,7 +26,7 @@ for await (const file of getMatchingFiles(SRC_DIR, /\.ts$/)) {
 const sharedProgramOptions = await getCompilerOptions(TSCONFIG_PATH);
 const programOptions = { ...sharedProgramOptions, declaration: true, declarationDir: 'dist' };
 const result = ts
-  .createProgram({ rootNames: [ENTRY_PATH], options: programOptions })
+  .createProgram({ rootNames: [DEFINED_ENTRY, MAIN_ENTRY], options: programOptions })
   .emit(undefined, ts.sys.writeFile, undefined, undefined, { before: [injectCSS(cssSnippets)] });
 
 process.exit(result.emitSkipped ? 1 : 0);
