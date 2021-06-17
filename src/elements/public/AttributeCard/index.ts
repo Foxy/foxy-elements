@@ -1,7 +1,7 @@
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 import '../../internal/InternalSandbox/index';
-import '../Spinner';
+import '../Spinner/index';
 
 import { AttributeCard } from './AttributeCard';
 

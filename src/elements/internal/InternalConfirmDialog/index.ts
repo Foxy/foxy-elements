@@ -1,5 +1,5 @@
 import '@vaadin/vaadin-button';
-import '../../public/I18n';
+import '../../public/I18n/index';
 
 import { InternalConfirmDialog } from './InternalConfirmDialog';
 

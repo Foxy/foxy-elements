@@ -8,7 +8,7 @@ import { Column } from '../Table/types';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data as CustomerAddress } from '../AddressCard/types';
 import { FormDialog } from '../FormDialog/FormDialog';
-import { Group } from '../../private';
+import { Group } from '../../private/index';
 import { ItemRenderer } from '../CollectionPage/types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PageRenderer } from '../CollectionPages/types';

@@ -1,5 +1,5 @@
 import { Data, Templates } from './types';
-import { Group, Warning } from '../../private';
+import { Group, Warning } from '../../private/index';
 import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
