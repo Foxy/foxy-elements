@@ -24,7 +24,6 @@ Turning a NucleonElement-powered form into a dialog is as easy as this:
       href="https://demo.foxycart.com/s/admin/customer_attributes/0"
     >
     </foxy-attribute-form>
-
     <!-- After (call dialog.show() or set dialog.open = true to open) -->
     <foxy-form-dialog
       parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
@@ -43,7 +42,7 @@ Turning a NucleonElement-powered form into a dialog is as easy as this:
         id="dialog-0"
       >
       </foxy-form-dialog>
-      <vaadin-button @click=${() => document.getElementById('dialog-0').show()}>
+      <vaadin-button @click="${() => document.getElementById('dialog-0').show()}">
         Open dialog
       </vaadin-button>
     `}
@@ -76,7 +75,7 @@ We can also add a header if we like (the value of `header` can also be an i18nex
         id="dialog-1"
       >
       </foxy-form-dialog>
-      <vaadin-button @click=${() => document.getElementById('dialog-1').show()}>
+      <vaadin-button @click="${() => document.getElementById('dialog-1').show()}">
         Open dialog
       </vaadin-button>
     `}
@@ -107,7 +106,7 @@ Finally, we can change how our dialog is positioned and animated by setting the 
         id="dialog-2"
       >
       </foxy-form-dialog>
-      <vaadin-button @click=${() => document.getElementById('dialog-2').show()}>
+      <vaadin-button @click="${() => document.getElementById('dialog-2').show()}">
         Open dialog
       </vaadin-button>
     `}
