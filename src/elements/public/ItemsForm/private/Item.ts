@@ -156,7 +156,7 @@ export class Item extends SignableFields {
   public alt?: string;
 
   /**
-   * Optional an image url to be displayed in the foxy cart once the custumer reaches the cart.
+   * Optional an image url to be displayed in the foxy cart once the customer reaches the cart.
    */
   public url?: string;
 

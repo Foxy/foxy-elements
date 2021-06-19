@@ -135,7 +135,7 @@ describe('The form should allow new items to be added and removed', async functi
   });
 
   it('Should provide new items its currency', async function () {
-    // Create the ItemsForm instance directly to avoid overrwriting createItem
+    // Create the ItemsForm instance directly to avoid overwriting createItem
     const el = await fixture(
       html`<test-items-form-regular currency="usd"></test-items-form-regular>`
     );
