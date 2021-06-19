@@ -1,6 +1,9 @@
 import { endpoint } from '..';
 import halson from 'halson';
 
+/**
+ * @param doc
+ */
 export function composeErrorEntry(doc: any) {
   const { id, store, transaction, ...publicData } = doc;
 

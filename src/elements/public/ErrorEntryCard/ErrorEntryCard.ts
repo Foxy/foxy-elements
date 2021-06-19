@@ -2,12 +2,12 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { NucleonElement } from '../NucleonElement';
 import * as FoxySDK from '@foxy.io/sdk';
 import {
-  css,
   CSSResult,
   CSSResultArray,
   LitElement,
   PropertyDeclarations,
   TemplateResult,
+  css,
 } from 'lit-element';
 import { html } from 'lit-html';
 import { Themeable } from '../../../mixins/themeable';
@@ -389,6 +389,9 @@ class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
   }
 }
 
+/**
+ * @param html
+ */
 function decodeHtml(html: string) {
   const areaElement = document.createElement('textarea');
   areaElement.innerHTML = html;
