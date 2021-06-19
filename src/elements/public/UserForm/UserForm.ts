@@ -3,10 +3,10 @@ import memoize from 'lodash-es/memoize';
 import {
   CSSResult,
   CSSResultArray,
+  PropertyDeclarations,
+  TemplateResult,
   css,
   html,
-  TemplateResult,
-  PropertyDeclarations,
 } from 'lit-element';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Checkbox } from '../../private/Checkbox/Checkbox';
@@ -161,6 +161,8 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
    * Either creates a new resource if it does not exist (snapshot state
    * indicates it is an existing resource) or deletes the resource (after
    * confirmation) if it exists.
+   *
+   * @param evt
    */
   private __handleActionClick(evt: Event) {
     if (this.in({ idle: 'snapshot' })) {

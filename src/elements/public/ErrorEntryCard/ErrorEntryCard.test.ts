@@ -1,4 +1,4 @@
-import { fixture, expect, html, oneEvent } from '@open-wc/testing';
+import { expect, fixture, html, oneEvent } from '@open-wc/testing';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { router } from '../../../server/admin';
 import './index';
