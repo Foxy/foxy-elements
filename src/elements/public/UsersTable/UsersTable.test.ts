@@ -1,11 +1,8 @@
-import { elementUpdated, expect, fixture, html, waitUntil } from '@open-wc/testing';
+import './index';
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { UsersTable } from './UsersTable';
 import { router } from '../../../server/admin';
-import './index';
-
-const a51 = Array(52).join('a');
-const a101 = Array(102).join('a');
 
 const usersURL = 'https://demo.foxycart.com/s/admin/stores/0/users';
 

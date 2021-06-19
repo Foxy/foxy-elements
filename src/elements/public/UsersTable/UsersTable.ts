@@ -1,11 +1,11 @@
+import * as icons from '../UserForm/icons';
+import { CSSResult, CSSResultArray, css, html } from 'lit-element';
 import { Column } from '../Table/types';
 import { Data } from './types';
-import { Table } from '../Table/Table';
-import { CSSResult, CSSResultArray, css, html } from 'lit-element';
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import * as icons from '../UserForm/icons';
-import { Themeable } from '../../../mixins/themeable';
 import { FormDialog } from '../FormDialog';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { Table } from '../Table';
+import { Themeable } from '../../../mixins/themeable';
 import { UserForm } from '../UserForm';
 
 export class UsersTable extends Table<Data> {
@@ -71,8 +71,8 @@ export class UsersTable extends Table<Data> {
 
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-form-dialog': FormDialog,
+      'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-user-form': UserForm,
     };
   }

@@ -30,9 +30,9 @@ export class Tabs extends LitElement {
           id="tab-${index}"
           role="tab"
           class=${classMap({
+            'text-tertiary hover-text-body focus-text-body': this.value !== index,
             'tracking-wide text-l font-medium px-s rounded focus-outline-none focus-shadow-outline':
               true,
-            'text-tertiary hover-text-body focus-text-body': this.value !== index,
           })}
           aria-controls="panel-${index}"
           aria-selected=${this.value === index}

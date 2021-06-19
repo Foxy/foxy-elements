@@ -55,7 +55,7 @@ addEventListener('fetch', (event: Event) => {
 });
 ```
 
-Whenever I18n element needs to load translations for a language or a namespace, it dispatches the `fetch` event on `window`, requesting a resource at a special URL formatted as `foxy://i18n/NAMESPACE/LANGUAGE` (e.g. `foxy://i18n/shared/en`). We can then rewrite that URL, use mock data or get translations from a local cache if we like. Once loaded, i18next will make those translations avaialable to every `<foxy-i18n>` element on the page. Let's render something from the shared i18n file that comes with Foxy Elements:
+Whenever I18n element needs to load translations for a language or a namespace, it dispatches the `fetch` event on `window`, requesting a resource at a special URL formatted as `foxy://i18n/NAMESPACE/LANGUAGE` (e.g. `foxy://i18n/shared/en`). We can then rewrite that URL, use mock data or get translations from a local cache if we like. Once loaded, i18next will make those translations available to every `<foxy-i18n>` element on the page. Let's render something from the shared i18n file that comes with Foxy Elements:
 
 <Canvas mdxSource='<foxy-i18n key="first_name"></foxy-i18n>' isExpanded>
   <Story name="With key">{() => html`<foxy-i18n key="first_name"></foxy-i18n>`}</Story>
@@ -67,7 +67,7 @@ Cool! Let's see what it looks like in Spanish by setting the [lang attribute](ht
   <Story name="With lang">{() => html`<foxy-i18n key="first_name" lang="es"></foxy-i18n>`}</Story>
 </Canvas>
 
-How about some country names? We don't always need them, so placing them in the main translation file is a bit uneffective. A separate namespace works much better for such use cases:
+How about some country names? We don't always need them, so placing them in the main translation file is a bit ineffective. A separate namespace works much better for such use cases:
 
 <Canvas mdxSource='<foxy-i18n key="GB" ns="country"></foxy-i18n>' isExpanded>
   <Story name="With ns">{() => html`<foxy-i18n key="GB" ns="country"></foxy-i18n>`}</Story>

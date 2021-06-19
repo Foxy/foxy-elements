@@ -47,7 +47,7 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
             <tr>
               ${this.columns.map(column => {
                 return html`
-                  <th>${column.header?.({ html, lang: this.lang, data: this.data })}</th>
+                  <th>${column.header?.({ data: this.data, html, lang: this.lang })}</th>
                 `;
               })}
             </tr>

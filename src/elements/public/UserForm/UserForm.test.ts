@@ -131,7 +131,7 @@ describe('Deleting a user', function () {
     mockEl.verify();
   });
 
-  it('should not delete after cancelation', async function () {
+  it('should not delete after cancellation', async function () {
     mockEl.expects('delete').never();
     const button = el.shadowRoot!.querySelector('[data-testid="action"]') as ButtonElement;
     button!.click();

@@ -24,15 +24,15 @@ export class ErrorEntries extends Themeable {
 
   public static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-collection-page': CollectionPage,
+      'foxy-collection-pages': CollectionPages,
       'foxy-error-entry': ErrorEntryCard,
+      'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': ButtonElement,
       'vaadin-tab': TabElement,
       'vaadin-tabs': TabsElement,
-      'foxy-i18n': customElements.get('foxy-i18n'),
-      'foxy-collection-page': CollectionPage,
-      'foxy-collection-pages': CollectionPages,
     };
   }
 
@@ -45,8 +45,6 @@ export class ErrorEntries extends Themeable {
   href = '';
 
   private static __ns = 'error-entry';
-
-  private __searchParams = '?hide_error=false';
 
   render(): TemplateResult {
     return html`
@@ -66,9 +64,5 @@ export class ErrorEntries extends Themeable {
 
   private __handleSelectedChanged(e: CustomEvent) {
     this.showHidden = e.detail.value === 1;
-  }
-
-  private get __collection() {
-    return this.renderRoot.querySelector('foxy-collection-pages');
   }
 }

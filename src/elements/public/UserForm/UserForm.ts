@@ -1,5 +1,4 @@
 import * as icons from './icons';
-import memoize from 'lodash-es/memoize';
 import {
   CSSResult,
   CSSResultArray,
@@ -8,27 +7,27 @@ import {
   css,
   html,
 } from 'lit-element';
+import { Checkbox, ConfirmDialog } from '../../private';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { Checkbox } from '../../private/Checkbox/Checkbox';
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
 import { Data } from './types';
 import { I18n } from '../I18n';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable } from '../../../mixins/themeable';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { validate as isEmail } from 'email-validator';
+import memoize from 'lodash-es/memoize';
 
 export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-i18n': I18n,
       'foxy-spinner': customElements.get('foxy-spinner'),
       'vaadin-button': ButtonElement,
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'x-user-role': UserRole,
       'x-confirm-dialog': ConfirmDialog,
-      'foxy-i18n': I18n,
+      'x-user-role': UserRole,
     };
   }
 
@@ -162,7 +161,7 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
    * indicates it is an existing resource) or deletes the resource (after
    * confirmation) if it exists.
    *
-   * @param evt
+   * @param evt the click event
    */
   private __handleActionClick(evt: Event) {
     if (this.in({ idle: 'snapshot' })) {
@@ -180,40 +179,40 @@ export class UserForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
 class UserRole extends Themeable {
   public static roles = {
+    designer: {
+      description: 'designer.description',
+      icon: icons.designer,
+      name: 'designer.name',
+      roleName: 'is_designer',
+    },
+    frontend: {
+      description: 'frontend.description',
+      icon: icons.frontend,
+      name: 'frontend.name',
+      roleName: 'is_front_end_developer',
+    },
     merchant: {
-      name: 'merchant.name',
       description: 'merchant.description',
       icon: icons.merchant,
+      name: 'merchant.name',
       roleName: 'is_merchant',
     },
     programmer: {
-      name: 'programmer.name',
       description: 'programmer.description',
       icon: icons.backend,
+      name: 'programmer.name',
       roleName: 'is_programmer',
-    },
-    frontend: {
-      name: 'frontend.name',
-      description: 'frontend.description',
-      icon: icons.frontend,
-      roleName: 'is_front_end_developer',
-    },
-    designer: {
-      name: 'designer.name',
-      description: 'designer.description',
-      icon: icons.designer,
-      roleName: 'is_designer',
     },
   };
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      disabled: { noAccessor: true, type: Boolean },
       name: {
         type: String,
       },
-      value: { type: Boolean, noAccessor: true },
-      disabled: { type: Boolean, noAccessor: true },
+      value: { noAccessor: true, type: Boolean },
     };
   }
 
