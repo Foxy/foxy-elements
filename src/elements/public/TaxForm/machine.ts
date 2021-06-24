@@ -168,7 +168,7 @@ const countryStates = {
   },
 };
 
-export const taxMachine = createMachine({
+export const taxMachine = {
   context: {
     auto: false,
     city: false,
@@ -193,7 +193,7 @@ export const taxMachine = createMachine({
     scope: scopeStates,
   },
   type: 'parallel',
-});
+};
 
 /**
  * Create a simple action that sets a value to a context attribute.
