@@ -482,7 +482,6 @@ async function respondItemById(
 ): Promise<Response> {
   await whenDbReady;
   const body = composer(await table.get(id));
-  console.debug('body', body);
   return new Response(JSON.stringify(body));
 }
 
