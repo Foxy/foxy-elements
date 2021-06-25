@@ -1,0 +1,11 @@
+{
+  "apply-to-shipping": "Apply to Shipping and Handling",
+  "exempt-customers-with-tax-id": "exempt customers with a tax id",
+  "is-live": "tax is calculated automatically",
+  "provider": "tax service provider",
+  "providers": {
+    "avalara": "Avalara AvaTax 15",
+    "taxjar": "Tax Jar",
+
+  }
+}
