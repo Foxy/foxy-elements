@@ -1,39 +1,18 @@
-import {
-  CSSResult,
-  CSSResultArray,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  html,
-} from 'lit-element';
+import { CSSResult, CSSResultArray, TemplateResult, html } from 'lit-element';
 import { Checkbox, I18N, PropertyTable } from '../../private';
-import { Data, Rel } from './types';
+import { Interpreter, createMachine, interpret } from 'xstate';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
+import { Data } from './types';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { Themeable } from '../../../mixins/themeable';
 import { countries } from '../../../utils/countries';
-import { Interpreter, createMachine, interpret } from 'xstate';
+import { globalRegions } from '../../../utils/regions';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { regions } from '../../../utils/regions';
 import { taxMachine } from './machine';
 import { taxProviders } from './providers';
-
-interface TaxType {
-  name: string;
-  supportedFeatures: (
-    | 'city'
-    | 'country'
-    | 'exempt'
-    | 'liveTaxes'
-    | 'originRates'
-    | 'rate'
-    | 'region'
-    | 'shipping'
-  )[];
-}
 
 export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -77,12 +56,23 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
   connectedCallback(): void {
     super.connectedCallback();
     this.__taxService = interpret(this.__taxMachine);
-    this.__taxService.onTransition(e => console.log(e.context));
     this.__taxService.start();
     this.__untrackTranslations = customElements
       .get('foxy-i18n')
       .onTranslationChange(() => this.requestUpdate());
-    customElements.get('foxy-i18n').i18next.loadNamespaces(['country', 'region']);
+    customElements.get('foxy-i18n').i18next.loadNamespaces(['country']);
+  }
+
+  requestUpdate(name?: string | number | symbol | undefined, oldValue?: unknown): Promise<unknown> {
+    const r = super.requestUpdate(name, oldValue);
+    this.updateFields();
+    return r;
+  }
+
+  updateFields(): void {
+    this.__updateScope();
+    this.__updateMode();
+    this.__updateCountries();
   }
 
   render(): TemplateResult {
@@ -103,15 +93,17 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
       return html`
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
           <x-text-field
+            data-testid="name"
             class="flex-1"
             label=${this.__t('name').toString()}
             value="${ifDefined(this.form.name)}"
           ></x-text-field>
           <x-combo-box
+            data-testid="type"
             class="flex-1"
             label=${this.__t('type').toString()}
             .items=${TaxForm.__types.map(this.__tLabelValue)}
-            value=${this.form.type}
+            value=${ifDefined(this.form.type)}
             @value-changed="${this.__handleTypeChange}"
           ></x-combo-box>
         </div>
@@ -119,6 +111,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
           ${this.__taxMachine.context.country
             ? html`
                 <x-combo-box
+                  data-testid="country"
                   class="flex-1"
                   label=${this.__tSource('country')('country')}
                   .items=${countries.map(this.__tSourceLabelValue('country'))}
@@ -132,8 +125,11 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                 <x-combo-box
                   class="flex-1"
                   label=${this.__tSource('region')('region')}
-                  .items=${regions.map(this.__tSourceLabelValue('region'))}
-                  value="${this.form.region}"
+                  .items=${this.__getRegions().map(
+                    this.__tSourceLabelValue(`region-${this.form.country?.toLowerCase()}`)
+                  )}
+                  value="${ifDefined(this.form.region)}"
+                  @value-changed="${this.__handleRegionChange}"
                 ></x-combo-box>
               `
             : ''}
@@ -143,19 +139,18 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                   class="flex-1"
                   label=${this.__t('city').toString()}
                   value="${this.form.city ?? ''}"
+                  @change=${this.__handleCityChange}
                 >
                 </x-text-field>
               `
             : ''}
         </div>
-        ${this.__taxMachine.context.auto
+        ${this.__taxMachine.context.isLiveShow
           ? html`
               <x-checkbox
                 class="my-s"
                 ?checked=${ifDefined(this.form.is_live)}
-                @change=${(e: CustomEvent) => {
-                  this.edit({ is_live: e.detail });
-                }}
+                @change=${this.__handleIsLive}
               >
                 <foxy-i18n lang=${this.lang} ns=${ns} key="is-live"></foxy-i18n>
               </x-checkbox>
@@ -167,15 +162,16 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                 class="flex-1"
                 label=${this.__t('provider')}
                 value="${ifDefined(this.form.service_provider)}"
-                .items=${taxProviders.map(this.__tLabelValue)}
+                .items=${taxProviders
+                  .filter(i => this.__taxMachine.context.providerValues[i])
+                  .map(this.__tLabelValue)}
+                @value-changed=${this.__handleProviderChange}
               >
               </x-combo-box>`
-            : ''}
-          ${this.__taxMachine.context.auto
-            ? ''
-            : html` <x-text-field
+            : html`<x-text-field
                 label=${this.__t('rate').toString()}
                 .value="${ifDefined(this.form.rate)}"
+                @change=${console.log}
               >
               </x-text-field>`}
           ${this.__taxMachine.context.exemptShow
@@ -183,6 +179,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                 <x-checkbox
                   class="my-s"
                   ?checked=${ifDefined(this.form.exempt_all_customer_tax_ids)}
+                  @change=${console.log}
                 >
                   <foxy-i18n
                     ns="${ns}"
@@ -195,13 +192,17 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
         </div>
         ${this.__taxMachine.context.originShow
           ? html`
-              <x-checkbox ?checked=${ifDefined(this.form.use_origin_rates)}>
+              <x-checkbox ?checked=${ifDefined(this.form.use_origin_rates)} @change=${console.log}>
                 <foxy-i18n ns=${ns} lang=${this.lang} key="use-origin-rates"></foxy-i18n>
               </x-checkbox>
             `
           : ''}
         ${this.__taxMachine.context.apply
-          ? html` <x-checkbox class="my-s" ?checked=${ifDefined(this.form.apply_to_shipping)}>
+          ? html` <x-checkbox
+              @change=${console.log}
+              class="my-s"
+              ?checked=${ifDefined(this.form.apply_to_shipping)}
+            >
               <foxy-i18n lang=${this.lang} ns=${ns} key="apply-to-shipping"></foxy-i18n>
             </x-checkbox>`
           : ''}
@@ -255,15 +256,54 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
     };
   }
 
-  private __handleTypeChange(ev: CustomEvent) {
-    this.edit({ type: ev.detail.value });
-    this.__taxService!.send('SET' + ev.detail.value?.toUpperCase());
+  private __handleCityChange(ev: CustomEvent) {
+    const city = ev.detail?.explicitOriginalTarget?.value;
+    this.edit({ city });
   }
 
   private __handleCountryChange(ev: CustomEvent) {
     const chosen = ev.detail.value;
-    this.edit({ country: chosen });
-    console.log(ev.detail.value);
+    this.edit({ country: chosen, region: '' });
+    customElements.get('foxy-i18n').i18next.loadNamespaces([`region-${chosen?.toLowerCase()}`]);
+    this.__updateCountries();
+  }
+
+  private __handleIsLive(ev: CustomEvent) {
+    this.edit({ is_live: ev.detail });
+    this.__updateMode();
+  }
+
+  private __handleProviderChange(ev: CustomEvent) {
+    if (ev.detail && ev.detail.value) {
+      this.edit({ service_provider: ev.detail.value });
+      this.__updateCountries();
+    }
+  }
+
+  private __handleTypeChange(ev: CustomEvent) {
+    this.edit({
+      is_live: ev.detail.value == 'global' ? false : this.form.is_live,
+      type: ev.detail.value,
+    });
+    this.__updateScope();
+    this.__updateMode();
+  }
+
+  private __handleRegionChange(ev: CustomEvent) {
+    this.edit({ region: ev.detail.value });
+  }
+
+  private __getRegions(): string[] {
+    if (this.form && this.form.country) {
+      const regions = (globalRegions as any)[this.form.country];
+      if (regions && regions.length) {
+        return regions;
+      }
+    }
+    return [];
+  }
+
+  private __updateCountries(): void {
     const unionCountries = [
       'AT',
       'BE',
@@ -300,12 +340,27 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
     const taxJarSupportedCountries = unionCountries
       .concat(liveRateSupportedCountries)
       .concat(['AU']);
-    if (liveRateSupportedCountries.includes(chosen)) {
-      this.__taxService!.send('CHOOSEEUA');
-    } else if (unionCountries.includes(chosen)) {
-      this.__taxService!.send('CHOOSEEUROPE');
-    } else {
-      this.__taxService!.send('CHOOSEANY');
+    const chosen = this.form.country;
+    if (chosen) {
+      if (liveRateSupportedCountries.includes(chosen)) {
+        this.__taxService!.send('CHOOSEEUA');
+      } else if (unionCountries.includes(chosen)) {
+        this.__taxService!.send('CHOOSEEUROPE');
+      } else {
+        this.__taxService!.send('CHOOSEANY');
+      }
+    }
+  }
+
+  private __updateMode() {
+    if (this.form) {
+      this.__taxService?.send(this.form.is_live ? 'LIVE' : 'RATE');
+    }
+  }
+
+  private __updateScope(): void {
+    if (this.form.type) {
+      this.__taxService?.send('SET' + this.form.type.toUpperCase());
     }
   }
 }
