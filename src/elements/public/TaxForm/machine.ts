@@ -1,7 +1,7 @@
 import { createMachine } from 'xstate';
 
 interface TaxContext {
-  auto: boolean;
+  isLiveShow: boolean;
   city: boolean;
   country: boolean;
   exemptShow: boolean;
@@ -20,7 +20,7 @@ interface TaxContext {
 
 const type2scope = (type: string) => type.replace('SET', '').toLowerCase();
 
-const setLocal = (ctx: TaxContext, ev: CustomEvent) => {
+const setLocal = (ctx: TaxContext, ev: CustomEvent): void => {
   const scope = type2scope(ev.type);
   ctx.scope = scope;
   ctx.country = ['country', 'region', 'local'].includes(scope);
@@ -28,23 +28,26 @@ const setLocal = (ctx: TaxContext, ev: CustomEvent) => {
   ctx.city = ['local'].includes(scope);
 };
 
-const setAuto = (ctx: TaxContext, ev: { type: string }) => {
+const setIsLive = (ctx: TaxContext, ev: { type: string }): void => {
   const scope = type2scope(ev.type);
-  ctx.auto = ['union', 'country', 'region'].includes(scope);
+  ctx.isLiveShow = ['union', 'country', 'region'].includes(scope);
 };
 
-const setProviders = (ctx: TaxContext, ev: { type: string }) => {
+const setProviders = (ctx: TaxContext, ev: { type: string }): void => {
   const eur = ['CHOOSEEUROPE', 'SETUNION'];
   const eua = 'CHOOSEEUA';
-  ctx.providerValues = {
-    avalara: [...eur, eua].includes(ev.type),
-    onesource: true,
-    taxjar: [...eur, eua].includes(ev.type),
-    thomsonreuters: [...eur, eua].includes(ev.type),
-  };
+  const relevant = ['CHOOSEANY', ...eur, eua];
+  if (relevant.includes(ev.type)) {
+    ctx.providerValues = {
+      avalara: true,
+      onesource: true,
+      taxjar: [...eur, eua].includes(ev.type),
+      thomsonreuters: [...eur, eua].includes(ev.type),
+    };
+  }
 };
 
-const setProvider = (ctx: TaxContext, ev: CustomEvent) => {
+const setProvider = (ctx: TaxContext, ev: CustomEvent): void => {
   const providerMap = {
     CHOOSETAXJAR: 'taxJar',
     CHOOSETHOMSONREUTERS: 'thomsonReuters',
@@ -57,9 +60,9 @@ const setExempt = (ctx: TaxContext, ev: CustomEvent) => {
   ctx.exemptShow = ['SETTAXJAR', 'SETFOXY'].includes(ev.type);
 };
 
-const autoActions = [setProvider];
+const isLiveActions = [setProvider];
 
-const scopeActions = [setAuto, setLocal, setProviders];
+const scopeActions = [setIsLive, setLocal, setProviders];
 
 const providerActions = [setExempt];
 
@@ -68,9 +71,9 @@ const scopeConfig = {
   target: 'scope',
 };
 
-const autoConfig = {
-  actions: autoActions,
-  target: 'auto',
+const isLiveConfig = {
+  actions: isLiveActions,
+  target: 'isLive',
 };
 
 const scopeStates = {
@@ -91,12 +94,12 @@ const scopeStates = {
 const modeStates = {
   initial: 'rate',
   states: {
-    auto: {
+    isLive: {
       on: {
-        CHOOSEAVALARA: autoConfig,
-        CHOOSEONESOURCE: autoConfig,
-        CHOOSETAXJAR: autoConfig,
-        CHOOSETHOMSONREUTERS: autoConfig,
+        CHOOSEAVALARA: isLiveConfig,
+        CHOOSEONESOURCE: isLiveConfig,
+        CHOOSETAXJAR: isLiveConfig,
+        CHOOSETHOMSONREUTERS: isLiveConfig,
         RATE: {
           actions: [
             ...providerActions,
@@ -109,10 +112,10 @@ const modeStates = {
     },
     rate: {
       on: {
-        AUTOMATIC: {
+        LIVE: {
           actions: [createAction('shipping', false), createAction('provider', true)],
-          cond: (ctx: TaxContext) => ctx.auto,
-          target: 'auto',
+          cond: (ctx: TaxContext): boolean => ctx.isLiveShow,
+          target: 'isLive',
         },
       },
     },
@@ -126,12 +129,12 @@ const countryStates = {
       on: {
         CHOOSEEUA: {
           actions: setProviders,
-          cond: (ctx: TaxContext) => ctx.country,
+          cond: (ctx: TaxContext): boolean => ctx.country,
           target: 'northWest.euaCan',
         },
         CHOOSEEUROPE: {
           actions: setProviders,
-          cond: (ctx: TaxContext) => ctx.country,
+          cond: (ctx: TaxContext): boolean => ctx.country,
           target: 'northWest.europe',
         },
       },
@@ -140,7 +143,7 @@ const countryStates = {
       on: {
         CHOOSEANY: {
           actions: setProviders,
-          cond: (ctx: TaxContext) => ctx.country,
+          cond: (ctx: TaxContext): boolean => ctx.country,
           target: 'any',
         },
       },
@@ -149,7 +152,7 @@ const countryStates = {
           on: {
             CHOOSEEUROPE: {
               actions: setProviders,
-              cond: (ctx: TaxContext) => ctx.country,
+              cond: (ctx: TaxContext): boolean => ctx.country,
               target: 'europe',
             },
           },
@@ -158,7 +161,7 @@ const countryStates = {
           on: {
             CHOOSEEUA: {
               actions: setProviders,
-              cond: (ctx: TaxContext) => ctx.country,
+              cond: (ctx: TaxContext): boolean => ctx.country,
               target: 'euaCan',
             },
           },
@@ -170,10 +173,10 @@ const countryStates = {
 
 export const taxMachine = {
   context: {
-    auto: false,
     city: false,
     country: false,
     exemptShow: false,
+    isLiveShow: false,
     originShow: false,
     provider: false,
     providerValues: {
