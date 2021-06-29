@@ -271,16 +271,16 @@ export class Choice extends Translatable {
 
   private get __field() {
     const handleInput = (evt: Event) => {
-      evt.stopPropagation();
-      const customValue = (evt.target as HTMLInputElement).value;
-
-      if (Array.isArray(this.value)) {
-        this.value = this.value.slice(0, this.value.length - 1).concat(customValue);
-      } else {
-        this.value = customValue;
+      if (evt.type === 'change') {
+        evt.stopPropagation();
+        const customValue = (evt.target as HTMLInputElement).value;
+        if (Array.isArray(this.value)) {
+          this.value = this.value.slice(0, this.value.length - 1).concat(customValue);
+        } else {
+          this.value = customValue;
+        }
+        this.dispatchEvent(new ChoiceChangeEvent(this.value));
       }
-
-      this.dispatchEvent(new ChoiceChangeEvent(this.value));
     };
 
     const attributes = spread({
