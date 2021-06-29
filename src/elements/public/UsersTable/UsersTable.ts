@@ -11,7 +11,7 @@ import { UserForm } from '../UserForm';
 export class UsersTable extends Table<Data> {
   static nameColumn: Column<Data> = {
     cell: ctx => html`
-      <span data-testclass="name" class="text-s text-secondary font-tnum"
+      <span data-testclass="name" class="text-s text-secondary"
         >${ctx.data.first_name} ${ctx.data.last_name}</span
       >
     `,
@@ -19,7 +19,7 @@ export class UsersTable extends Table<Data> {
 
   static emailColumn: Column<Data> = {
     cell: ctx => html`
-      <span data-testclass="email" class="text-s text-secondary font-tnum">${ctx.data.email}</span>
+      <span data-testclass="email" class="text-s text-secondary">${ctx.data.email}</span>
     `,
     hideBelow: 'md',
   };
@@ -45,7 +45,7 @@ export class UsersTable extends Table<Data> {
 
   static lastUpdatedColumn: Column<Data> = {
     cell: ctx => html`
-      <span data-testclass="lastUpdated" class="text-s text-secondary font-tnum">
+      <span data-testclass="lastUpdated" class="text-s text-secondary">
         <foxy-i18n key="date" options='{"value": "${ctx.data.date_modified}"}'></foxy-i18n>
         <foxy-i18n key="time" options='{"value": "${ctx.data.date_modified}"}'></foxy-i18n>
       </span>
@@ -55,7 +55,7 @@ export class UsersTable extends Table<Data> {
 
   static actionsColumn: Column<Data> = {
     cell: ctx => html`
-      <span data-testclass="actions" class="text-s text-secondary font-tnum">
+      <span data-testclass="actions" class="text-s text-secondary">
         <button
           onclick="((el) => {
           el.nextElementSibling.show();
