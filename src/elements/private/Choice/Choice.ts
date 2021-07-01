@@ -290,7 +290,6 @@ export class Choice extends Translatable {
       max: this.max,
       min: this.min,
       'data-testid': 'field',
-      '@input': handleInput,
       '@change': handleInput,
     });
 
