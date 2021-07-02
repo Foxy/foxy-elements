@@ -1,16 +1,16 @@
 import { Graph, Rels } from '@foxy.io/sdk/customer';
 
-import { Resource } from '@foxy.io/sdk/core';
-import { TemplateResult } from 'lit-html';
-import { Renderer } from '../../../mixins/configurable';
-import { Customer } from './Customer';
-import { Templates as CustomerFormTemplates } from '../CustomerForm/types';
-import { Templates as AddressFormTemplates } from '../AddressForm/types';
 import { Templates as AddressCardTemplates } from '../AddressCard/types';
+import { Templates as AddressFormTemplates } from '../AddressForm/types';
 import { Templates as AttributeCardTemplates } from '../AttributeCard/types';
 import { Templates as AttributeFormTemplates } from '../AttributeForm/types';
-import { Templates as SubscriptionFormTemplates } from '../SubscriptionForm/types';
+import { Customer } from './Customer';
+import { Templates as CustomerFormTemplates } from '../CustomerForm/types';
 import { Templates as PaymentMethodCardTemplates } from '../PaymentMethodCard/types';
+import { Renderer } from '../../../mixins/configurable';
+import { Resource } from '@foxy.io/sdk/core';
+import { Templates as SubscriptionFormTemplates } from '../SubscriptionForm/types';
+import { TemplateResult } from 'lit-html';
 
 export type CustomerAddresses = Resource<Rels.CustomerAddresses>;
 export type Attributes = Resource<Rels.Attributes>;
@@ -38,6 +38,7 @@ export type Templates = {
   'header:actions:edit:form:delete:after'?: CustomerFormTemplates['delete:after'];
   'header:actions:edit:form:create:before'?: CustomerFormTemplates['create:before'];
   'header:actions:edit:form:create:after'?: CustomerFormTemplates['create:after'];
+  'default'?: Renderer<Customer>;
   'addresses:before'?: Renderer<Customer>;
   'addresses:after'?: Renderer<Customer>;
   'addresses:actions:before'?: Renderer<Customer>;

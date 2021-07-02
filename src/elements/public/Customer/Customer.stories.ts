@@ -15,6 +15,7 @@ const summary: Summary = {
       'header',
       'header:actions',
       'header:actions:edit:form:timestamps',
+      'default',
       'addresses',
       'addresses:actions',
       'addresses:list',
