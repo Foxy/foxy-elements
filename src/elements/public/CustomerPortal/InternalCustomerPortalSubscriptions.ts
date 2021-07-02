@@ -284,7 +284,6 @@ export class InternalCustomerPortalSubscriptions extends Base {
     try {
       const url = new URL(this.customer!._links['fx:subscriptions'].href);
       url.searchParams.set('zoom', 'last_transaction,transaction_template:items');
-      url.searchParams.set('is_active', 'true');
       return url.toString();
     } catch {
       return '';

@@ -150,7 +150,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
       expect(pages).to.have.attribute(
         'first',
-        'https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&zoom=last_transaction%2Ctransaction_template%3Aitems&is_active=true'
+        'https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&zoom=last_transaction%2Ctransaction_template%3Aitems'
       );
 
       await waitUntil(async () => (pages as CollectionPages<any>).in('idle'));
