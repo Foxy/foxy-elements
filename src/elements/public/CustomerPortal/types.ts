@@ -53,6 +53,7 @@ export type Templates = {
   'customer:header:actions:edit:form:delete:after'?: CustomerTemplates['header:actions:edit:form:delete:after'];
   'customer:header:actions:edit:form:create:before'?: CustomerTemplates['header:actions:edit:form:create:before'];
   'customer:header:actions:edit:form:create:after'?: CustomerTemplates['header:actions:edit:form:create:after'];
+  'customer:default'?: CustomerTemplates['default'];
   'customer:addresses:before'?: CustomerTemplates['addresses:before'];
   'customer:addresses:after'?: CustomerTemplates['addresses:after'];
   'customer:addresses:actions:before'?: CustomerTemplates['addresses:actions:before'];

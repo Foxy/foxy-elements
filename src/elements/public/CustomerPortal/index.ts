@@ -19,6 +19,8 @@ import { CustomerPortal } from './CustomerPortal';
 import { InternalCustomerPortalLink } from './InternalCustomerPortalLink';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
+import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSubscriptions';
+import { InternalCustomerPortalTransactions } from './InternalCustomerPortalTransactions';
 
 customElements.define(
   'foxy-internal-customer-portal-logged-in-view',
@@ -28,6 +30,16 @@ customElements.define(
 customElements.define(
   'foxy-internal-customer-portal-logged-out-view',
   InternalCustomerPortalLoggedOutView
+);
+
+customElements.define(
+  'foxy-internal-customer-portal-subscriptions',
+  InternalCustomerPortalSubscriptions
+);
+
+customElements.define(
+  'foxy-internal-customer-portal-transactions',
+  InternalCustomerPortalTransactions
 );
 
 customElements.define('foxy-internal-customer-portal-link', InternalCustomerPortalLink);

@@ -17,6 +17,7 @@ const summary: Summary = {
       'customer:header',
       'customer:header:actions',
       'customer:header:actions:edit:form:timestamps',
+      'customer:default',
       'customer:addresses',
       'customer:addresses:actions',
       'customer:addresses:list',
