@@ -29,14 +29,13 @@ export function getStoryCode(summary: Summary, args: Args): TemplateResult {
       ${args.disabled ? 'disabled' : ''}
     >
       ${[...sections, ...buttons, ...inputs]
-        .reduce<string[]>((slots, name) => [...slots, `${name}:before`, `${name}:after`], [])
+        .reduce<string[]>((slots, name) => {
+          if (name.endsWith('default')) return [...slots, name];
+          return [...slots, `${name}:before`, `${name}:after`];
+        }, [])
         .reduce<string>((result, slot) => {
           const html = args[slot];
-          const isTemplate = html && (slot.split(':').length > 2 || html.includes('${'));
-
-          if (isTemplate) return `${result}<template slot="${slot}"><div>${html}</div></template>`;
-          if (html) return `${result}<div slot="${slot}">${args[slot]}</div>`;
-          return result;
+          return html ? `${result}<template slot="${slot}"><div>${html}</div></template>` : result;
         }, '')}
     </${summary.localName}>
   `;

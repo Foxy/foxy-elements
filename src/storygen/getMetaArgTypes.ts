@@ -29,8 +29,12 @@ export function getMetaArgTypes(summary: Summary): Record<string, unknown> {
     argTypes.mode = { control: false };
 
     allControls.forEach(control => {
-      argTypes[`${control}:before`] = { type: 'string', table: { category: 'Slots' } };
-      argTypes[`${control}:after`] = { type: 'string', table: { category: 'Slots' } };
+      if (control.endsWith('default')) {
+        argTypes[control] = { type: 'string', table: { category: 'Slots' } };
+      } else {
+        argTypes[`${control}:before`] = { type: 'string', table: { category: 'Slots' } };
+        argTypes[`${control}:after`] = { type: 'string', table: { category: 'Slots' } };
+      }
     });
   }
 

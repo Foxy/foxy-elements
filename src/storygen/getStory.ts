@@ -52,7 +52,10 @@ export function getStory(params: Params): Story {
           class="foxy-story__preview"
         >
           ${allControls
-            .reduce<string[]>((slots, name) => [...slots, `${name}:before`, `${name}:after`], [])
+            .reduce<string[]>((slots, name) => {
+              if (name.endsWith('default')) return [...slots, name];
+              return [...slots, `${name}:before`, `${name}:after`];
+            }, [])
             .reduce<string>((innerHTML, slot) => {
               const content = `args.storyArgs["${slot}"]`;
               const template = `args.html\`<template slot="${slot}"><div>\${args.unsafeHTML(${content})}</div></template>\``;
