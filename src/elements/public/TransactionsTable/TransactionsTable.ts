@@ -1,8 +1,9 @@
 import { Column } from '../Table/types';
 import { Data } from './types';
 import { Table } from '../Table/Table';
+import { TranslatableMixin } from '../../../mixins/translatable';
 
-export class TransactionsTable extends Table<Data> {
+export class TransactionsTable extends TranslatableMixin(Table, 'transactions-table')<Data> {
   static priceColumn: Column<Data> = {
     cell: ctx => ctx.html`
       <foxy-i18n
@@ -10,7 +11,7 @@ export class TransactionsTable extends Table<Data> {
         class="text-s font-semibold font-tnum"
         lang=${ctx.lang}
         key="price"
-        ns=${TransactionsTable.__ns}
+        ns=${ctx.ns}
         .options=${{ amount: `${ctx.data.total_order} ${ctx.data.currency_code}` }}
       >
       </foxy-i18n>
@@ -33,7 +34,7 @@ export class TransactionsTable extends Table<Data> {
           class="text-s"
           lang=${ctx.lang}
           key="transaction_summary"
-          ns=${TransactionsTable.__ns}
+          ns=${ctx.ns}
           .options=${options}
         >
         </foxy-i18n>
@@ -60,7 +61,7 @@ export class TransactionsTable extends Table<Data> {
           class="px-s py-xs text-s font-medium rounded ${color}"
           lang=${ctx.lang}
           key=${`transaction_${status}`}
-          ns=${TransactionsTable.__ns}
+          ns=${ctx.ns}
         >
         </foxy-i18n>
       `;
@@ -87,7 +88,7 @@ export class TransactionsTable extends Table<Data> {
           class="text-s text-secondary font-tnum"
           lang=${ctx.lang}
           key="date"
-          ns=${TransactionsTable.__ns}
+          ns=${ctx.ns}
           .options=${{ value: ctx.data.transaction_date }}
         >
         </foxy-i18n>
@@ -106,7 +107,7 @@ export class TransactionsTable extends Table<Data> {
         >
           <foxy-i18n
             data-testclass="i18n"
-            ns=${TransactionsTable.__ns}
+            ns=${ctx.ns}
             lang=${ctx.lang}
             key="receipt"
           >

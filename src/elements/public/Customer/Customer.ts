@@ -281,6 +281,7 @@ export class Customer extends Base<Data> {
           group=${ctx.group}
           lang=${ctx.lang}
           href=${ctx.href}
+          ns="${ctx.ns} ${customElements.get('foxy-address-card')?.defaultNS ?? ''}"
           .templates=${ctx.templates}
         >
         </foxy-address-card>
@@ -296,6 +297,7 @@ export class Customer extends Base<Data> {
         group=${ctx.group}
         lang=${ctx.lang}
         href=${ctx.href}
+        ns=${ctx.ns}
         .item=${this.__renderAddressesListCard}
         .templates=${ctx.templates}
       >
@@ -333,6 +335,7 @@ export class Customer extends Base<Data> {
         class="snap-x-mandatory flex items-center space-x-m overflow-auto"
         group=${this.group}
         lang=${this.lang}
+        ns=${this.ns}
         .page=${this.__renderAddressesListPage}
         .templates=${this.getNestedTemplates(cardId)}
       >
@@ -385,6 +388,7 @@ export class Customer extends Base<Data> {
           class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
           href=${this.data?._links['fx:default_payment_method'].href ?? ''}
           lang=${this.lang}
+          ns="${this.ns} ${customElements.get('foxy-payment-method-card')?.defaultNS ?? ''}"
           .templates=${this.getNestedTemplates(cardId)}
         >
         </foxy-payment-method-card>
@@ -514,6 +518,7 @@ export class Customer extends Base<Data> {
           class="w-tile"
           lang=${ctx.lang}
           href=${ctx.href}
+          ns="${ctx.ns} ${customElements.get('foxy-attribute-card')?.defaultNS ?? ''}"
           .templates=${ctx.templates}
         >
         </foxy-attribute-card>
@@ -529,6 +534,7 @@ export class Customer extends Base<Data> {
         group=${ctx.group}
         lang=${ctx.lang}
         href=${ctx.href}
+        ns=${ctx.ns}
         .item=${this.__renderAttributesListCard}
         .templates=${ctx.templates}
       >
@@ -567,6 +573,7 @@ export class Customer extends Base<Data> {
         class="snap-x-mandatory flex items-center space-x-m overflow-auto"
         group=${this.group}
         lang=${this.lang}
+        ns=${this.ns}
         .page=${this.__renderAttributesListPage}
         .templates=${this.getNestedTemplates(cardId)}
       >
@@ -624,6 +631,7 @@ export class Customer extends Base<Data> {
           group=${this.group}
           page="foxy-transactions-table"
           lang=${this.lang}
+          ns=${this.ns}
         >
         </foxy-collection-pages>
       </x-group>
@@ -668,6 +676,7 @@ export class Customer extends Base<Data> {
         group=${ctx.group}
         href=${ctx.href}
         lang=${ctx.lang}
+        ns=${ctx.ns}
         .columns=${this.__subscriptionsTableColumns}
       >
       </foxy-table>
@@ -711,6 +720,7 @@ export class Customer extends Base<Data> {
             class="divide-y divide-contrast-10 block mx-m"
             group=${this.group}
             lang=${this.lang}
+            ns=${this.ns}
             .page=${this.__renderSubscriptionsPage}
           >
           </foxy-collection-pages>
@@ -792,7 +802,7 @@ export class Customer extends Base<Data> {
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${this.in('fail') ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${lang}
-            ns=${ns}
+            ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
           </foxy-spinner>
         </div>

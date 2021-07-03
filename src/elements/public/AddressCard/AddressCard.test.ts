@@ -397,7 +397,7 @@ describe('AddressCard', () => {
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'empty');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'address-card');
+      expect(spinner).to.have.attribute('ns', 'address-card spinner');
     });
 
     it('renders "busy" foxy-spinner while loading', async () => {
@@ -409,7 +409,7 @@ describe('AddressCard', () => {
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'busy');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'address-card');
+      expect(spinner).to.have.attribute('ns', 'address-card spinner');
     });
 
     it('renders "error" foxy-spinner if loading fails', async () => {
@@ -423,7 +423,7 @@ describe('AddressCard', () => {
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'address-card');
+      expect(spinner).to.have.attribute('ns', 'address-card spinner');
     });
 
     it('hides the spinner once loaded', async () => {

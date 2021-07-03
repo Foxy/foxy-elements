@@ -12,8 +12,7 @@ import { Templates } from './types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 
-const NS = 'customer-portal';
-const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
+const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement)));
 type Data = Resource<Rels.CustomerPortalSettings>;
 
 export class InternalCustomerPortalLoggedInView extends Base<Data> {
@@ -72,7 +71,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
                   state=${state === 'fail' ? 'error' : 'busy'}
                   style="margin: auto"
                   lang=${this.lang}
-                  ns=${this.ns}
+                  ns="${this.ns} ${customElements.get('foxy-customer')?.defaultNS ?? ''}"
                 >
                 </foxy-spinner>
               `}
@@ -95,6 +94,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         hiddencontrols=${this.hiddenSelector.zoom(scope).toString()}
         group=${host.group}
         lang=${host.lang}
+        ns=${host.ns}
         .templates=${this.getNestedTemplates(scope)}
         .settings=${this.data}
         .customer=${host.data}
@@ -117,6 +117,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         hiddencontrols=${this.hiddenSelector.zoom(scope).toString()}
         group=${host.group}
         lang=${host.lang}
+        ns=${host.ns}
         .templates=${this.getNestedTemplates(scope)}
         .customer=${host.data}
       >
@@ -183,6 +184,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         group=${this.group}
         href=${this.customer}
         lang=${this.lang}
+        ns="${this.ns} ${customElements.get('foxy-customer')?.defaultNS ?? ''}"
         id="customer"
         .templates=${templates}
         @update=${() => this.requestUpdate()}

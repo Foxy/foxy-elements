@@ -374,6 +374,7 @@ export class SubscriptionForm extends Base<Data> {
           default-custom-value="1d"
           data-testid="frequency"
           type="frequency"
+          ns=${SubscriptionForm.defaultNS}
           ?custom=${this.settings === null}
           .items=${this.__frequencies}
           .value=${this.form.frequency ?? null}
@@ -441,6 +442,7 @@ export class SubscriptionForm extends Base<Data> {
         group=${ctx.group}
         lang=${ctx.lang}
         href=${ctx.href}
+        ns="${ctx.ns} ${customElements.get('foxy-transactions-table')?.defaultNS ?? ''}"
         .columns=${this.__transactionsTableColumns}
       >
       </foxy-table>
@@ -461,6 +463,7 @@ export class SubscriptionForm extends Base<Data> {
             class="block divide-y divide-contrast-10 px-m"
             first=${this.data?._links['fx:transactions'].href ?? ''}
             lang=${lang}
+            ns=${ns}
             .page=${this.__renderTransactionsPage}
           >
           </foxy-collection-pages>
@@ -501,7 +504,7 @@ export class SubscriptionForm extends Base<Data> {
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${this.lang}
-            ns=${this.ns}
+            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
           </foxy-spinner>
         </div>

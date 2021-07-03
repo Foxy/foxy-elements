@@ -158,7 +158,7 @@ export class AddressCard extends Base<Data> {
             state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
             class="m-auto"
             lang=${this.lang}
-            ns=${this.ns}
+            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
           </foxy-spinner>
         </div>

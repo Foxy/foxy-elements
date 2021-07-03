@@ -303,7 +303,7 @@ describe('PaymentMethodCard', () => {
 
       expect(spinner).to.have.attribute('state', 'empty');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'payment-method-card');
+      expect(spinner).to.have.attribute('ns', 'payment-method-card spinner');
     });
 
     it('renders "busy" foxy-spinner while loading', async () => {
@@ -313,7 +313,7 @@ describe('PaymentMethodCard', () => {
 
       expect(spinner).to.have.attribute('state', 'busy');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'payment-method-card');
+      expect(spinner).to.have.attribute('ns', 'payment-method-card spinner');
     });
 
     it('renders "error" foxy-spinner if loading fails', async () => {
@@ -325,7 +325,7 @@ describe('PaymentMethodCard', () => {
 
       expect(spinner).to.have.attribute('state', 'error');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'payment-method-card');
+      expect(spinner).to.have.attribute('ns', 'payment-method-card spinner');
     });
 
     it('hides the spinner once loaded', async () => {

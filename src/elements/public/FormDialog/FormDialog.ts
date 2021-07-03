@@ -89,6 +89,7 @@ export class FormDialog extends Dialog {
         `return options.html\`
           <${value}
             id="form"
+            ns="$\{options.dialog.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
             href=\${options.dialog.href}
             lang=\${options.dialog.lang}
             group=\${options.dialog.group}
@@ -122,6 +123,7 @@ export class FormDialog extends Dialog {
         header="undo_header"
         theme="error"
         lang=${this.lang}
+        ns=${this.ns}
         id="confirm"
         @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && super.hide(true)}
       >

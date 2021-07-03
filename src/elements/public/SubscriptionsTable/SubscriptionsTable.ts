@@ -1,9 +1,10 @@
 import { Column } from '../Table/types';
 import { Data } from './types';
 import { Table } from '../Table/Table';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { parseFrequency } from '../../../utils/parse-frequency';
 
-export class SubscriptionsTable extends Table<Data> {
+export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-table')<Data> {
   static priceColumn: Column<Data> = {
     cell: ctx => {
       const transaction = ctx.data._embedded['fx:last_transaction'];
@@ -15,7 +16,7 @@ export class SubscriptionsTable extends Table<Data> {
           class="font-semibold text-s font-tnum"
           lang=${ctx.lang}
           key="price_${ctx.data.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
-          ns=${SubscriptionsTable.__ns}
+          ns=${ctx.ns}
           .options=${{ ...parseFrequency(ctx.data.frequency), amount }}
         >
         </foxy-i18n>
@@ -37,7 +38,7 @@ export class SubscriptionsTable extends Table<Data> {
           class="text-s"
           lang=${ctx.lang}
           key="transaction_summary"
-          ns=${SubscriptionsTable.__ns}
+          ns=${ctx.ns}
           .options=${options}
         >
         </foxy-i18n>
@@ -74,7 +75,7 @@ export class SubscriptionsTable extends Table<Data> {
           class="px-s py-xs text-s font-semibold rounded ${color}"
           lang=${ctx.lang}
           key=${key}
-          ns=${SubscriptionsTable.__ns}
+          ns=${ctx.ns}
           .options=${{ date }}
         >
         </foxy-i18n>
@@ -93,9 +94,9 @@ export class SubscriptionsTable extends Table<Data> {
         >
           <foxy-i18n
             data-testclass="i18n"
-            ns=${SubscriptionsTable.__ns}
             lang=${ctx.lang}
             key="update"
+            ns=${ctx.ns}
           >
           </foxy-i18n>
         </a>
@@ -109,6 +110,4 @@ export class SubscriptionsTable extends Table<Data> {
     SubscriptionsTable.statusColumn,
     SubscriptionsTable.subTokenURLColumn,
   ];
-
-  private static __ns = 'subscriptions-table';
 }

@@ -992,7 +992,7 @@ describe('CustomerForm', () => {
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'busy');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'customer-form');
+      expect(spinner).to.have.attribute('ns', 'customer-form spinner');
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
@@ -1007,7 +1007,7 @@ describe('CustomerForm', () => {
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
       expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'customer-form');
+      expect(spinner).to.have.attribute('ns', 'customer-form spinner');
     });
 
     it('hides spinner once loaded', async () => {

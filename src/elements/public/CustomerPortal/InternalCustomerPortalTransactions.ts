@@ -31,7 +31,7 @@ export class InternalCustomerPortalTransactions extends Base {
           class="text-m font-semibold"
           lang=${this.lang}
           key="transaction_plural"
-          ns="${this.ns}"
+          ns=${this.ns}
         >
         </foxy-i18n>
 
@@ -60,6 +60,7 @@ export class InternalCustomerPortalTransactions extends Base {
           class="block divide-y divide-contrast-10 px-m border border-contrast-10 rounded-t-l rounded-b-l"
           page="foxy-transactions-table"
           lang=${this.lang}
+          ns=${this.ns}
           manual
         >
         </foxy-collection-pages>

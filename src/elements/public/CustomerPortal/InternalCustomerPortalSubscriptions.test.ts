@@ -68,6 +68,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
       const element = await fixture<InternalCustomerPortalSubscriptions>(html`
         <foxy-internal-customer-portal-subscriptions
           lang="es"
+          ns="customer-portal"
           .customer=${customer}
           .settings=${settings}
         >
@@ -365,6 +366,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const element = await fixture<InternalCustomerPortalSubscriptions>(html`
                 <foxy-internal-customer-portal-subscriptions
                   lang="es"
+                  ns="customer-portal"
                   .customer=${customer}
                   .settings=${settings}
                   @fetch=${(evt: FetchEvent) => {
@@ -480,6 +482,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const element = await fixture<InternalCustomerPortalSubscriptions>(html`
                 <foxy-internal-customer-portal-subscriptions
                   lang="es"
+                  ns="customer-portal"
                   .customer=${customer}
                   .settings=${settings}
                   @fetch=${(evt: FetchEvent) => {
@@ -616,6 +619,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               const element = await fixture<InternalCustomerPortalSubscriptions>(html`
                 <foxy-internal-customer-portal-subscriptions
                   lang="es"
+                  ns="customer-portal"
                   .customer=${customer}
                   .settings=${settings}
                   @fetch=${(evt: FetchEvent) => {

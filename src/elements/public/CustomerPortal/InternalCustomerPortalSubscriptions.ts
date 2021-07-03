@@ -13,8 +13,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 
-const NS = 'customer-portal';
-const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(LitElement)), NS);
+const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(LitElement)));
 
 export class InternalCustomerPortalSubscriptions extends Base {
   static get properties(): PropertyDeclarations {
@@ -52,7 +51,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         href=${billingLink}
         icon="icons:credit-card"
       >
-        <foxy-i18n lang=${host.lang} key="update_billing" ns=${NS}></foxy-i18n>
+        <foxy-i18n lang=${host.lang} key="update_billing" ns=${host.ns}></foxy-i18n>
       </foxy-internal-customer-portal-link>
 
       ${host.renderTemplateOrSlot('header:actions:update:after')}
@@ -77,7 +76,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         href=${cancelLink}
         icon="icons:block"
       >
-        <foxy-i18n lang=${host.lang} key="end_subscription" ns=${NS}></foxy-i18n>
+        <foxy-i18n lang=${host.lang} key="end_subscription" ns=${host.ns}></foxy-i18n>
       </foxy-internal-customer-portal-link>
 
       ${host.renderTemplateOrSlot('header:actions:end:after')}
@@ -123,7 +122,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         class="text-primary"
         href=${itemsLink}
       >
-        <foxy-i18n lang=${host.lang} key="update_items" ns=${NS}></foxy-i18n>
+        <foxy-i18n lang=${host.lang} key="update_items" ns=${host.ns}></foxy-i18n>
       </foxy-internal-customer-portal-link>
 
       ${host.renderTemplateOrSlot('items:actions:update:after')}
@@ -164,6 +163,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         group=${ctx.dialog.group}
         lang=${ctx.dialog.lang}
         href=${ctx.dialog.href}
+        ns=${ctx.dialog.ns}
         id="form"
         .templates=${templates}
         @update=${ctx.handleUpdate}
@@ -194,6 +194,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
           group=${ctx.group}
           lang=${ctx.lang}
           href=${ctx.href}
+          ns="${ctx.ns} ${customElements.get('foxy-subscription-card')?.defaultNS ?? ''}"
         >
         </foxy-subscription-card>
       </button>
@@ -203,6 +204,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
   private readonly __renderPage: PageRenderer<any> = ({ html, ...ctx }) => {
     return html`
       <foxy-collection-page
+        ns=${ctx.ns}
         href=${ctx.href}
         lang=${ctx.lang}
         group=${ctx.group}
@@ -258,6 +260,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         first=${this.__activeSubscriptionsLink}
         group=${this.group}
         lang=${this.lang}
+        ns=${this.ns}
         manual
         .page=${this.__renderPage}
       >

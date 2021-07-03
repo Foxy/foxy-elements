@@ -30,11 +30,14 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
       group: { type: String },
       lang: { type: String },
       page: { type: String },
+      ns: { type: String },
     };
   }
 
   /** Optional ISO 639-1 code describing the language element content is written in. */
   lang = '';
+
+  ns = '';
 
   private __renderPage!: PageRenderer<TPage>;
 
@@ -78,8 +81,6 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
     })
   );
 
-  private static __ns = 'collection-pages';
-
   constructor() {
     super();
     this.page = 'foxy-collection-page foxy-null';
@@ -116,6 +117,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
             group=\${ctx.group}
             href=\${ctx.href}
             lang=\${ctx.lang}
+            ns="$\{ctx.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
             ${itemAttribute}
             ?disabled=\${ctx.disabled}
             ?readonly=\${ctx.readonly}
@@ -202,7 +204,6 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
 
   /** @readonly */
   render(): TemplateResult {
-    const ns = (this.constructor as typeof CollectionPages).__ns;
     const items = this.pages.map(page => ({
       key: page._links.self.href,
       href: page._links.self.href,
@@ -234,6 +235,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
             data: this.pages[pageIndex] ?? null,
             href: page.href,
             lang: this.lang,
+            ns: this.ns,
             html,
           });
         }
@@ -243,7 +245,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
           ? html`
               <!-- manual trigger -->
               <vaadin-button theme="small contrast" @click=${() => this.__service.send('RESUME')}>
-                <foxy-i18n lang=${this.lang} key="load_more" ns=${ns}></foxy-i18n>
+                <foxy-i18n lang=${this.lang} key="load_more" ns=${this.ns}></foxy-i18n>
               </vaadin-button>
             `
           : ''

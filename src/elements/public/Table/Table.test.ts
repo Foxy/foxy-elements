@@ -20,11 +20,11 @@ describe('Table', () => {
   });
 
   it('passes lang and ns to foxy-spinner', async () => {
-    const element = await fixture<Table<any>>(html`<foxy-table lang="es"></foxy-table>`);
+    const element = await fixture<Table<any>>(html`<foxy-table lang="es" ns="foo"></foxy-table>`);
     const spinner = (await getByTestId(element, 'spinner')) as Spinner;
 
     expect(spinner).to.have.attribute('lang', 'es');
-    expect(spinner).to.have.attribute('ns', 'table');
+    expect(spinner).to.have.attribute('ns', 'foo spinner');
   });
 
   it('passes context and data to columns[number].header renderer', async () => {

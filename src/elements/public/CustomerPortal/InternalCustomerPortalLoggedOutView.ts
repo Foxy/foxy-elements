@@ -1,5 +1,4 @@
 import {
-  CSSResult,
   CSSResultArray,
   LitElement,
   PropertyDeclarations,
@@ -14,8 +13,7 @@ import { SignInForm } from '../SignInForm';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 
-const NS = 'customer-portal';
-const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(LitElement, NS)));
+const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(LitElement)));
 
 export class InternalCustomerPortalLoggedOutView extends Base {
   static get properties(): PropertyDeclarations {
@@ -112,6 +110,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           parent="foxy://customer-api/recover"
           group=${this.group}
           lang=${this.lang}
+          ns="${this.ns} ${customElements.get('foxy-access-recovery-form')?.defaultNS ?? ''}"
           id="access-recovery-form"
           .templates=${this.getNestedTemplates(scope)}
           @update=${() => this.requestUpdate()}
@@ -217,6 +216,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           group=${this.group}
           lang=${this.lang}
           id="sign-in-form"
+          ns="${this.ns} ${customElements.get('foxy-sign-in-form')?.defaultNS ?? ''}"
           .templates=${this.getNestedTemplates('sign-in:form')}
           @update=${() => this.requestUpdate()}
         >

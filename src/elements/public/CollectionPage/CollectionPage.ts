@@ -18,8 +18,11 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
     return {
       ...super.properties,
       item: { type: String },
+      ns: { type: String },
     };
   }
+
+  ns = '';
 
   private __pageFetchEventHandler = (evt: unknown) => this.__handlePageFetchEvent(evt);
 
@@ -61,6 +64,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
             group=\${ctx.group}
             href=\${ctx.href}
             lang=\${ctx.lang}
+            ns="\${ctx.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
             ?disabled=\${ctx.disabled}
             ?readonly=\${ctx.readonly}
             ?hidden=\${ctx.hidden}
@@ -121,6 +125,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
           lang: this.lang,
           data: item.data,
           href: item.href,
+          ns: this.ns,
           html,
         })
     )}`;

@@ -8,18 +8,18 @@ import {
 } from 'lit-element';
 
 import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 
 export type SpinnerLayout = 'vertical' | 'horizontal' | 'no-label';
 export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
-export class Spinner extends ThemeableMixin(LitElement) {
+export class Spinner extends TranslatableMixin(ThemeableMixin(LitElement), 'spinner') {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       layout: { type: String },
       state: { type: String },
-      ns: { type: String },
     };
   }
 
@@ -55,12 +55,6 @@ export class Spinner extends ThemeableMixin(LitElement) {
    * - `end` for when there's no more data;
    */
   state: SpinnerState = 'busy';
-
-  /**
-   * Optional i18next namespace to use for translations.
-   * Default: `spinner` with fallback to `shared`.
-   */
-  ns = 'spinner';
 
   /** @readonly */
   render(): TemplateResult {

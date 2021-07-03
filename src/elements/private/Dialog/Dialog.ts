@@ -8,9 +8,12 @@ import { DialogShowEvent } from './DialogShowEvent';
 import { DialogWindow } from './DialogWindow';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 
-export abstract class Dialog extends ConfigurableMixin(ThemeableMixin(LitElement)) {
+export abstract class Dialog extends TranslatableMixin(
+  ConfigurableMixin(ThemeableMixin(LitElement))
+) {
   /**
    * Selector of an element that will serve as a mounting point to all dialog windows.
    * It's `<body>` by default, but you can add your own element with `id="foxy-dialog-windows-host"`
@@ -48,8 +51,6 @@ export abstract class Dialog extends ConfigurableMixin(ThemeableMixin(LitElement
       header: { type: String },
       alert: { type: Boolean },
       open: { type: Boolean, noAccessor: true },
-      lang: { type: String },
-      ns: { type: String },
     };
   }
 
@@ -77,12 +78,6 @@ export abstract class Dialog extends ConfigurableMixin(ThemeableMixin(LitElement
 
   /** When true, centers a dialog on the screen and does not animate the stack under. */
   alert = false;
-
-  /** Optional ISO 639-1 code describing the language element content is written in. */
-  lang = '';
-
-  /** Optional i18next namespace to use translations from. */
-  ns = '';
 
   private __returnFocusTo?: HTMLElement;
 

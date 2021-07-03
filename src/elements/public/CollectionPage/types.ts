@@ -21,6 +21,7 @@ export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource>
   lang: string;
   href: string;
   data: TItem | null;
+  ns: string;
 };
 
 export type ItemRenderer<TItem extends HALJSONResource = HALJSONResource> = (

@@ -153,7 +153,7 @@ describe('SubscriptionCard', () => {
     expect(control!.firstElementChild).to.have.property('localName', 'foxy-spinner');
     expect(control!.firstElementChild).to.have.attribute('state', 'empty');
     expect(control!.firstElementChild).to.have.attribute('lang', 'es');
-    expect(control!.firstElementChild).to.have.attribute('ns', 'subscription-card');
+    expect(control!.firstElementChild).to.have.attribute('ns', 'subscription-card spinner');
   });
 
   it('renders busy foxy-spinner while loading data', async () => {
@@ -165,7 +165,7 @@ describe('SubscriptionCard', () => {
     expect(control!.firstElementChild).to.have.property('localName', 'foxy-spinner');
     expect(control!.firstElementChild).to.have.attribute('state', 'busy');
     expect(control!.firstElementChild).to.have.attribute('lang', 'es');
-    expect(control!.firstElementChild).to.have.attribute('ns', 'subscription-card');
+    expect(control!.firstElementChild).to.have.attribute('ns', 'subscription-card spinner');
   });
 
   it('renders error foxy-spinner if loading data fails', async () => {
@@ -179,7 +179,7 @@ describe('SubscriptionCard', () => {
     expect(control!.firstElementChild).to.have.property('localName', 'foxy-spinner');
     expect(control!.firstElementChild).to.have.attribute('state', 'error');
     expect(control!.firstElementChild).to.have.attribute('lang', 'es');
-    expect(control!.firstElementChild).to.have.attribute('ns', 'subscription-card');
+    expect(control!.firstElementChild).to.have.attribute('ns', 'subscription-card spinner');
   });
 
   it('hides foxy-spinner once loaded', async () => {

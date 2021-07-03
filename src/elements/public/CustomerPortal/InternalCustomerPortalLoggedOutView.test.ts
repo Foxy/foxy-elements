@@ -165,7 +165,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
       it('renders foxy-i18n title with key "sign_in"', async () => {
         const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
-          <foxy-internal-customer-portal-logged-out-view lang="es">
+          <foxy-internal-customer-portal-logged-out-view lang="es" ns="customer-portal">
           </foxy-internal-customer-portal-logged-out-view>
         `);
 
@@ -179,7 +179,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
       it('renders foxy-i18n hint with key "sign_in_hint"', async () => {
         const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
-          <foxy-internal-customer-portal-logged-out-view lang="es">
+          <foxy-internal-customer-portal-logged-out-view lang="es" ns="customer-portal">
           </foxy-internal-customer-portal-logged-out-view>
         `);
 
@@ -400,7 +400,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
       it('renders foxy-i18n caption with key "recover_access"', async () => {
         const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
-          <foxy-internal-customer-portal-logged-out-view lang="es">
+          <foxy-internal-customer-portal-logged-out-view lang="es" ns="customer-portal">
           </foxy-internal-customer-portal-logged-out-view>
         `);
 
@@ -591,7 +591,11 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
       it('renders foxy-i18n title with key "recover_access"', async () => {
         const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
-          <foxy-internal-customer-portal-logged-out-view page="access-recovery" lang="es">
+          <foxy-internal-customer-portal-logged-out-view
+            page="access-recovery"
+            lang="es"
+            ns="customer-portal"
+          >
           </foxy-internal-customer-portal-logged-out-view>
         `);
 
@@ -605,7 +609,11 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
       it('renders foxy-i18n hint with key "recover_access_hint"', async () => {
         const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
-          <foxy-internal-customer-portal-logged-out-view page="access-recovery" lang="es">
+          <foxy-internal-customer-portal-logged-out-view
+            page="access-recovery"
+            lang="es"
+            ns="customer-portal"
+          >
           </foxy-internal-customer-portal-logged-out-view>
         `);
 
@@ -853,7 +861,11 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
       it('renders foxy-i18n caption with key "cancel"', async () => {
         const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
-          <foxy-internal-customer-portal-logged-out-view page="access-recovery" lang="es">
+          <foxy-internal-customer-portal-logged-out-view
+            page="access-recovery"
+            lang="es"
+            ns="customer-portal"
+          >
           </foxy-internal-customer-portal-logged-out-view>
         `);
 

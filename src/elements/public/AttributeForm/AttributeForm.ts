@@ -130,7 +130,7 @@ export class AttributeForm extends Base<Data> {
           <x-choice
             data-testid="visibility"
             lang=${lang}
-            ns=${ns}
+            ns=${AttributeForm.defaultNS}
             .items=${AttributeForm.__visibilityOptions}
             .value=${(form?.visibility ?? 'private') as any}
             ?disabled=${isBusyOrFailed || disabledSelector.matches('visibility', true)}

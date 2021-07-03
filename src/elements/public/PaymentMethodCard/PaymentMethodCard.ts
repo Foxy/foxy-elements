@@ -104,7 +104,7 @@ export class PaymentMethodCard extends Base<Data> {
               data-testid="spinner"
               state=${spinnerState}
               lang=${this.lang}
-              ns=${this.ns}
+              ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
             >
             </foxy-spinner>
           </div>

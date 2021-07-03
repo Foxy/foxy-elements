@@ -55,6 +55,7 @@ export type PageRendererContext<TPage extends Page = Page> = {
   href: string;
   lang: string;
   data: TPage | null;
+  ns: string;
 };
 
 export type PageRenderer<TPage extends Page = Page> = (

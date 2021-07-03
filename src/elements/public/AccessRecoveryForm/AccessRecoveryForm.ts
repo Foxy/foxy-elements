@@ -151,7 +151,7 @@ export class AccessRecoveryForm extends Base<Data> {
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state="busy"
             lang=${this.lang}
-            ns=${this.ns}
+            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
           </foxy-spinner>
         </div>

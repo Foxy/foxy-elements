@@ -8,8 +8,7 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 
-const NS = 'table';
-const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)));
+const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
 
 /**
  * Configurable table element for HAL+JSON collections.
@@ -38,7 +37,9 @@ export class Table<TData extends Collection> extends Base<TData> {
             <tr>
               ${this.columns.map(column => {
                 return html`
-                  <th>${column.header?.({ html, lang: this.lang, data: this.data })}</th>
+                  <th>
+                    ${column.header?.({ html, lang: this.lang, data: this.data, ns: this.ns })}
+                  </th>
                 `;
               })}
             </tr>
@@ -60,7 +61,9 @@ export class Table<TData extends Collection> extends Base<TData> {
                           'truncate h-l font-lumo text-body text-m': true,
                         })}
                       >
-                        ${resource ? column.cell?.({ html, lang: this.lang, data: resource }) : ''}
+                        ${resource
+                          ? column.cell?.({ html, lang: this.lang, data: resource, ns: this.ns })
+                          : ''}
                       </td>
                     `;
                   })}
@@ -79,7 +82,7 @@ export class Table<TData extends Collection> extends Base<TData> {
                   state=${this.in('busy') ? 'busy' : this.in('idle') ? 'empty' : 'error'}
                   class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
                   lang=${this.lang}
-                  ns=${this.ns}
+                  ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
                 >
                 </foxy-spinner>
               </div>
