@@ -1,6 +1,7 @@
 import { FormatFunction } from 'i18next';
 import { date } from './date';
 import { price } from './price';
+import { time } from './time';
 
 /**
  * Chooses the right i18next formatter for the given template.
@@ -14,6 +15,7 @@ export const format: FormatFunction = (...args): string => {
   return formats.reduce((result, format) => {
     if (format === 'price') return price(result, format, language);
     if (format === 'date') return date(result, format, language);
+    if (format === 'time') return time(result, format, language);
 
     return result;
   }, value);
