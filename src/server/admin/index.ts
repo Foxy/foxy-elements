@@ -5,6 +5,7 @@ import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
+import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
 import { composeTransaction } from './composers/composeTransaction';
@@ -407,6 +408,17 @@ router.delete('/s/admin/customers/:id', async ({ params }) => {
   const id = parseInt(params.id);
   const body = composeCustomer(await db.customers.get(id));
   await db.customers.delete(id);
+
+  return new Response(JSON.stringify(body));
+});
+
+// error_entries
+
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeErrorEntry(await db.errorEntries.get(id));
 
   return new Response(JSON.stringify(body));
 });
