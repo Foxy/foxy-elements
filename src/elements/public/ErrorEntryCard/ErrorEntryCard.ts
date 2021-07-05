@@ -160,7 +160,7 @@ export class ErrorEntryCard extends Base<Data> {
     return html`
       <div class="space-y-m pt-m">
         <x-group frame>
-          <foxy-i18n slot="header" key="request" ns=${this.ns}></foxy-i18n>
+          <foxy-i18n slot="header" lang=${this.lang} key="request" ns=${this.ns}></foxy-i18n>
 
           <div class="mx-xs p-s text-s divide-y divide-contrast-10 space-y-s">
             <p>
@@ -175,7 +175,7 @@ export class ErrorEntryCard extends Base<Data> {
         </x-group>
 
         <x-group frame>
-          <foxy-i18n slot="header" key="client" ns=${this.ns}></foxy-i18n>
+          <foxy-i18n slot="header" lang=${this.lang} key="client" ns=${this.ns}></foxy-i18n>
 
           <div class="text-s flex flex-col mx-xs p-s">
             <span class="font-semibold">
