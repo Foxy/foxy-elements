@@ -1,11 +1,11 @@
 import '@vaadin/vaadin-button';
 import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Translatable } from '../../../mixins/translatable';
 import { parseDuration } from '../../../utils/parse-duration';
 import { Dropdown, ErrorScreen } from '../../private/index';
 import { ItemsFormChangeEvent, ItemsFormSubmitEvent } from './events';
 import { Item } from './private/Item';
 import { ItemInterface } from './types';
+import { SignableFields } from './private/SignableFields';
 
 export { Item };
 
@@ -21,7 +21,7 @@ export { Item };
  * @element foxy-items-form
  *
  */
-export class ItemsForm extends Translatable {
+export class ItemsForm extends SignableFields {
   /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
@@ -308,7 +308,23 @@ export class ItemsForm extends Translatable {
 
   public get items(): ItemInterface[] {
     const temp: ItemInterface[] = [];
-    this.__itemElements.forEach(e => temp.push(e.value));
+    this.__itemElements.forEach(e => {
+      const proxy = new Proxy(e, {
+        set: function (target: Item, property: string | number | symbol, value) {
+          const allowedAttributes = Object.keys(target.value);
+          if (typeof property === 'string' && allowedAttributes.includes(property)) {
+            (target as unknown as ItemInterface)[property] = value;
+            return true;
+          } else {
+            return false;
+          }
+        },
+        get: function (target: Item, property: string | number) {
+          return target.value[property];
+        },
+      });
+      temp.push(proxy as unknown as ItemInterface);
+    });
     return temp;
   }
 
@@ -497,6 +513,7 @@ export class ItemsForm extends Translatable {
     this.__itemElements.forEach(e => {
       added += this.__formDataAddItem(fd, e);
     });
+    this.__formDataAddCartWideSubscriptionFields(fd);
     return added;
   }
 
@@ -518,6 +535,25 @@ export class ItemsForm extends Translatable {
     });
   }
 
+  // Reserved attributes are not to be submitted
+  // other attributes, included custom attributes added by the user, will be submitted
+  private __isAttributeReserved(attribute: string): boolean {
+    const reservedAttributes = [
+      'alt',
+      'currency',
+      'description',
+      'isChildren',
+      'isItem',
+      'items',
+      'open',
+      'pid',
+      'signatures',
+      'slot',
+      'total',
+    ];
+    return reservedAttributes.includes(attribute);
+  }
+
   /**
    * Adds a item to a form data
    *
@@ -525,26 +561,9 @@ export class ItemsForm extends Translatable {
    * @argument {Item} the item to add
    **/
   private __formDataAddItem(fd: FormData, itemEl: Item, parent: Item | null = null): number {
-    const idKey = 'pid';
-    // Reserved attributes are not to be submitted
-    // other attributes, included custom attributes added by the user, will be submitted
-    const reservedAttributes = [
-      idKey,
-      'signatures',
-      'currency',
-      'total',
-      'slot',
-      'alt',
-      'description',
-      'isChildren',
-      'isItem',
-      'open',
-      'items',
-      'signatures',
-    ];
     let added = 0;
     if (this.__validItem(itemEl)) {
-      if (!itemEl.value[idKey]) {
+      if (!itemEl.value['pid']) {
         throw new Error('Attempt to convert a item without a propper ID');
       }
       if (parent && parent.getAttribute('code')) {
@@ -552,15 +571,14 @@ export class ItemsForm extends Translatable {
       }
       for (let i = 0; i < itemEl.attributes.length; i++) {
         const field = itemEl.attributes[i];
-        if (!reservedAttributes.includes(field.name) && !field.name.startsWith('data-')) {
+        if (!this.__isAttributeReserved(field.name) && !field.name.startsWith('data-')) {
           let fieldValue: unknown = (itemEl as any)[field.name];
           // Adds a signature if possible
           if (itemEl.code && ['string', 'number'].includes(typeof fieldValue)) {
             if (parent && field.name == 'quantity') {
               fieldValue = Number(field.value) * parent.quantity;
             }
-            const key = this.__buildKeyFromItem(field.name, itemEl);
-            fd.set(key, (fieldValue as string | number).toString());
+            fd.set(itemEl.signedName(field.name), (fieldValue as string | number).toString());
           }
         }
       }
@@ -576,24 +594,6 @@ export class ItemsForm extends Translatable {
     return added;
   }
 
-  // build a key with prepended id and appended signature and |open given an item
-  private __buildKeyFromItem(key: string, item: Item) {
-    return this.__buildKey(
-      item.pid!.toString(),
-      key,
-      item.signatures ? (item.signatures[key] as string) : '',
-      !!item.open && item.open[key]
-    );
-  }
-
-  // builds a id prepended signature and |open appended key
-  private __buildKey(id: string, key: string, signature: string, open: boolean) {
-    if (signature) {
-      key = this.__addSignature(key, signature, open);
-    }
-    return `${id}:${key}`;
-  }
-
   /**
    * Adds subscription fields to a FormData
    *
@@ -604,22 +604,24 @@ export class ItemsForm extends Translatable {
     if (this.sub_frequency) {
       for (const s of ['sub_frequency', 'sub_startdate', 'sub_enddate']) {
         if ((this as any)[s]) {
-          const subKey = this.__buildKeyFromItem(s, itemEl);
-          fd.set(subKey, (this as any)[s]);
+          fd.set(itemEl.signedName(s), (this as any)[s]);
         }
       }
     }
-    // added if themselves are set
-    for (const s of ['sub_token']) {
-      if ((this as any)[s]) {
-        const subKey = this.__buildKeyFromItem(s, itemEl);
-        fd.set(subKey, (this as any)[s]);
-      }
-    }
-    // added regardless
-    for (const s of ['sub_modify', 'sub_restart']) {
-      const subKey = this.__buildKeyFromItem(s, itemEl);
-      fd.set(subKey, (this as any)[s]);
+  }
+
+  /**
+   * Adds cart wide subscription fields to a FormData
+   *
+   * @argument {FormData} fd the FormData to which subscription fields will be added
+   */
+  private __formDataAddCartWideSubscriptionFields(fd: FormData): void {
+    if (this.sub_frequency) {
+      // added if itself is set
+      if (this.sub_token) fd.set(this.signedName('sub_token'), this.sub_token);
+      // added regardless
+      fd.set(this.signedName('sub_modify'), this.sub_modify);
+      fd.set(this.signedName('sub_restart'), this.sub_restart);
     }
   }
 

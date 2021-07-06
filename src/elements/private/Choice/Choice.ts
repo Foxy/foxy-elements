@@ -307,7 +307,6 @@ export class Choice extends Translatable {
       '?disabled': this.disabled,
       '?readonly': this.readonly,
       'data-testid': 'field',
-      '@input': handleInput,
       '@change': handleInput,
     });
 

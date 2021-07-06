@@ -54,7 +54,7 @@ export class MockItem extends HTMLElement {
     if (this.code) (result as any).code = this.code;
     if (this.color) (result as any).color = this.color;
     if (this.open) (result as any).open = this.open;
-    return result;
+    return { ...result };
   }
 
   set value(p: ItemInterface) {
@@ -69,6 +69,14 @@ export class MockItem extends HTMLElement {
 
   get total(): number {
     return this.price * this.quantity;
+  }
+
+  public signedName(fieldName: string) {
+    if (this.pid) {
+      return `${this.pid}:${fieldName}||signed`;
+    } else {
+      return `${fieldName}||signed`;
+    }
   }
 
   private __fromAttr(key: string) {
