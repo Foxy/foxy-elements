@@ -471,6 +471,42 @@
       "date_modified": "2020-04-13T08:46:03-0700"
     }
   ],
+  "taxes": [
+    {
+      "id": 0,
+      "store": 0,
+      "name": "TN",
+      "type": "region",
+      "country": "US",
+      "region": "TN",
+      "city": "",
+      "is_live": true,
+      "service_provider": "avalara",
+      "apply_to_shipping": true,
+      "use_origin_rates": true,
+      "exempt_all_customer_tax_ids": true,
+      "rate": 1,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
+    },
+    {
+      "id": 1,
+      "store": 0,
+      "name": "TX",
+      "type": "region",
+      "country": "US",
+      "region": "TX",
+      "city": "",
+      "is_live": false,
+      "service_provider": "",
+      "apply_to_shipping": false,
+      "use_origin_rates": true,
+      "exempt_all_customer_tax_ids": false,
+      "rate": 3,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
+    }
+  ],
   "users": [
     {
       "id": 0,
