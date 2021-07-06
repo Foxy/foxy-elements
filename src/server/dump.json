@@ -417,5 +417,67 @@
       "date_created": "2020-04-13T08:44:09-0700",
       "date_modified": "2020-04-13T08:46:03-0700"
     }
+  ],
+  "users": [
+    {
+      "id": 0,
+      "store": 0,
+      "first_name": "Ann",
+      "last_name": "Doe",
+      "email": "ann.doe@example.com",
+      "phone": "444-444-4444",
+      "affiliate_id": 0,
+      "is_programmer": true,
+      "is_front_end_developer": false,
+      "is_designer": false,
+      "is_merchant": true,
+      "date_created": "2007-05-23T16:09:12-0700",
+      "date_modified": "2013-07-10T22:37:49-0700"
+    },
+    {
+      "id": 1,
+      "store": 0,
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "john.doe@example.com",
+      "phone": "666-666-6666",
+      "affiliate_id": 0,
+      "is_programmer": true,
+      "is_front_end_developer": false,
+      "is_designer": false,
+      "is_merchant": true,
+      "date_created": "2007-05-23T16:09:12-0700",
+      "date_modified": "2013-07-10T22:37:49-0700"
+    },
+    {
+      "id": 2,
+      "store": 0,
+      "first_name": "Jacob",
+      "last_name": "Doe",
+      "email": "jacob.doe@example.com",
+      "phone": "333-333-3333",
+      "affiliate_id": 0,
+      "is_programmer": false,
+      "is_front_end_developer": false,
+      "is_designer": true,
+      "is_merchant": false,
+      "date_created": "2007-05-23T16:09:12-0700",
+      "date_modified": "2013-07-10T22:37:49-0700"
+    },
+    {
+      "id": 3,
+      "store": 0,
+      "first_name": "Mary",
+      "last_name": "Doe",
+      "email": "mary.doe@example.com",
+      "phone": "555-555-5555",
+      "affiliate_id": 0,
+      "is_programmer": true,
+      "is_front_end_developer": true,
+      "is_designer": true,
+      "is_merchant": false,
+      "date_created": "2007-05-23T16:09:12-0700",
+      "date_modified": "2013-07-10T22:37:49-0700"
+    }
   ]
 }
