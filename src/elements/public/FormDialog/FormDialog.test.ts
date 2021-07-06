@@ -3,6 +3,7 @@ import '../AttributeForm/index';
 
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
+import { API } from '@foxy.io/sdk/core';
 import { Dialog } from '../../private';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from './FormDialog';
@@ -55,7 +56,7 @@ describe('FormDialog', () => {
     await dialog.show();
 
     const formElement = dialog.renderRoot.querySelector('#form');
-    const whenGotFetchEvent = (oneEvent(dialog, 'fetch') as unknown) as Promise<FetchEvent>;
+    const whenGotFetchEvent = oneEvent(dialog, 'fetch') as unknown as Promise<FetchEvent>;
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
@@ -63,7 +64,7 @@ describe('FormDialog', () => {
         cancelable: true,
         composed: true,
         bubbles: true,
-        request: new Request(href, { method: 'DELETE' }),
+        request: new API.WHATWGRequest(href, { method: 'DELETE' }),
         resolve: r => void r,
         reject: e => void e,
       })
@@ -86,7 +87,7 @@ describe('FormDialog', () => {
     await dialog.show();
 
     const formElement = dialog.renderRoot.querySelector('#form');
-    const whenGotFetchEvent = (oneEvent(dialog, 'fetch') as unknown) as Promise<FetchEvent>;
+    const whenGotFetchEvent = oneEvent(dialog, 'fetch') as unknown as Promise<FetchEvent>;
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
@@ -94,7 +95,7 @@ describe('FormDialog', () => {
         cancelable: true,
         composed: true,
         bubbles: true,
-        request: new Request(parent, { method: 'POST' }),
+        request: new API.WHATWGRequest(parent, { method: 'POST' }),
         resolve: r => void r,
         reject: e => void e,
       })

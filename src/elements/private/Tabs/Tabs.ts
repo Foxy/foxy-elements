@@ -30,7 +30,7 @@ export class Tabs extends LitElement {
           id="tab-${index}"
           role="tab"
           class=${classMap({
-            'tracking-wide text-l font-medium px-s rounded focus-outline-none focus-shadow-outline': true,
+            'text-m font-semibold px-s rounded focus-outline-none focus-shadow-outline': true,
             'text-tertiary hover-text-body focus-text-body': this.value !== index,
           })}
           aria-controls="panel-${index}"
@@ -56,7 +56,7 @@ export class Tabs extends LitElement {
     }
 
     return html`
-      <div role="tablist" aria-orientation="horizontal" class="-mx-s mb-m">${tabs}</div>
+      <div role="tablist" aria-orientation="horizontal" class="-mx-s mb-s">${tabs}</div>
       ${panels}
     `;
   }

@@ -130,4 +130,12 @@ describe('Spinner', () => {
 
     expect(element.renderRoot.firstElementChild).to.have.class('flex-col');
   });
+
+  it('renders no-label layout', async () => {
+    const template = html`<foxy-spinner layout="no-label"></foxy-spinner>`;
+    const element = await fixture<Spinner>(template);
+    const text = element.renderRoot.querySelector('[data-testid="text"]');
+
+    expect(text).to.have.class('sr-only');
+  });
 });

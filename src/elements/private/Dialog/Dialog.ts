@@ -2,14 +2,18 @@ import { CSSResultArray, LitElement, PropertyDeclarations, css } from 'lit-eleme
 import { TemplateResult, html } from 'lit-html';
 
 import { API } from '../../public/NucleonElement/API';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from './DialogHideEvent';
 import { DialogShowEvent } from './DialogShowEvent';
 import { DialogWindow } from './DialogWindow';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
-import { Themeable } from '../../../mixins/themeable';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 
-export abstract class Dialog extends LitElement {
+export abstract class Dialog extends TranslatableMixin(
+  ConfigurableMixin(ThemeableMixin(LitElement))
+) {
   /**
    * Selector of an element that will serve as a mounting point to all dialog windows.
    * It's `<body>` by default, but you can add your own element with `id="foxy-dialog-windows-host"`
@@ -47,15 +51,13 @@ export abstract class Dialog extends LitElement {
       header: { type: String },
       alert: { type: Boolean },
       open: { type: Boolean, noAccessor: true },
-      lang: { type: String },
-      ns: { type: String },
     };
   }
 
   /** @readonly */
   static get styles(): CSSResultArray {
     return [
-      Themeable.styles,
+      super.styles,
       css`
         .scale-85 {
           --tw-scale-x: 0.85;
@@ -77,16 +79,11 @@ export abstract class Dialog extends LitElement {
   /** When true, centers a dialog on the screen and does not animate the stack under. */
   alert = false;
 
-  /** Optional ISO 639-1 code describing the language element content is written in. */
-  lang = '';
-
-  /** Optional i18next namespace to use translations from. */
-  ns = '';
-
   private __returnFocusTo?: HTMLElement;
 
   private __handleKeyDown = (evt: KeyboardEvent) => {
-    if (evt.key === 'Escape' && Dialog.openDialogs[0] === this && this.closable) this.hide();
+    if (evt.key === 'Escape' && Dialog.openDialogs[0] === this && this.closable)
+      this.hide(this.editable);
   };
 
   private __connected = false;
@@ -99,7 +96,7 @@ export abstract class Dialog extends LitElement {
   }
 
   set open(newValue: boolean) {
-    newValue === this.open ? void 0 : newValue ? this.show() : this.hide();
+    newValue === this.open ? void 0 : newValue ? this.show() : this.hide(this.editable);
   }
 
   /** @readonly */
@@ -152,19 +149,21 @@ export abstract class Dialog extends LitElement {
         <div
           id="backdrop"
           class=${classMap({
-            'select-none ease-in-out transition duration-500 absolute inset-0 bg-contrast-50 focus-outline-none': true,
+            'select-none ease-in-out transition duration-500 absolute inset-0 bg-contrast-50 focus-outline-none':
+              true,
             'opacity-100': this.__visible,
             'opacity-0': !this.__visible,
           })}
           tabindex="-1"
-          @click=${() => (this.open = this.closable ? false : this.open)}
+          @click=${() => this.hide(this.editable)}
         ></div>
 
         <div
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center sm-max-w-modal': true,
+            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center sm-max-w-modal':
+              true,
             'flex justify-center items-end sm-items-center mr-auto': this.alert,
             'translate-y-full sm-translate-y-0': !this.__visible,
             'sm-translate-x-full': !this.alert && !this.__visible,
@@ -186,13 +185,14 @@ export abstract class Dialog extends LitElement {
             <div
               class="h-l grid grid-cols-3 text-m font-lumo font-medium border-b border-contrast-10"
             >
-              ${this.closable
+              ${this.closable && !this.hiddenSelector.matches('close-button', true)
                 ? html`
                     <vaadin-button
                       id="close-button"
                       theme="tertiary-inline"
                       class="mr-auto m-s px-s"
-                      @click=${this.hide}
+                      ?disabled=${this.disabledSelector.matches('close-button', true)}
+                      @click=${() => this.hide(this.editable)}
                     >
                       <foxy-i18n
                         lang=${this.lang}
@@ -208,12 +208,13 @@ export abstract class Dialog extends LitElement {
                 <foxy-i18n ns=${this.ns} lang=${this.lang} key=${this.header}></foxy-i18n>
               </h1>
 
-              ${this.editable
+              ${this.editable && !this.hiddenSelector.matches('save-button', true)
                 ? html`
                     <vaadin-button
                       data-testid="save-button"
-                      theme="tertiary-inline"
-                      class="ml-auto m-s px-s"
+                      ?disabled=${this.disabledSelector.matches('save-button', true)}
+                      theme="primary"
+                      class="ml-auto h-auto min-h-0 min-w-0 m-xs px-m"
                       @click=${this.save}
                     >
                       <foxy-i18n ns=${this.ns} lang=${this.lang} key="save"></foxy-i18n>

@@ -2,8 +2,10 @@ import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
 import { API } from '../NucleonElement/API';
 import { Dialog } from '../../private/Dialog/Dialog';
+import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormRenderer } from './types';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 
@@ -23,6 +25,7 @@ export class FormDialog extends Dialog {
       ...super.properties,
       href: { type: String },
       form: { type: String, noAccessor: true },
+      group: { type: String },
       parent: { type: String },
     };
   }
@@ -30,10 +33,12 @@ export class FormDialog extends Dialog {
   /** Optional URL of the collection this resource belongs to (passed to form). */
   parent = '';
 
+  group = '';
+
   /** Optional URL of the resource to load (passed to form). */
   href = '';
 
-  private __form: string | null = null;
+  private __form: string | null | FormRenderer = null;
 
   private __renderForm: FormRenderer | null = null;
 
@@ -71,44 +76,80 @@ export class FormDialog extends Dialog {
    * - `href` – same as `foxy-form-dialog[href]`;
    * - `lang` – same as `foxy-form-dialog[lang]`;
    */
-  get form(): string | null {
+  get form(): string | null | FormRenderer {
     return this.__form;
   }
 
-  set form(tagName: string | null) {
-    this.__renderForm = new Function(
-      'options',
-      `return options.html\`
-        <${tagName}
-          id="form"
-          href=\${options.href}
-          lang=\${options.lang}
-          parent=\${options.parent}
-          @fetch=\${options.handleFetch}
-          @update=\${options.handleUpdate}
-        >
-        </${tagName}>\``
-    ) as FormRenderer;
+  set form(value: string | null | FormRenderer) {
+    this.__form = value;
 
-    this.__form = tagName;
+    if (typeof value === 'string') {
+      this.__renderForm = new Function(
+        'options',
+        `return options.html\`
+          <${value}
+            id="form"
+            ns="$\{options.dialog.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
+            href=\${options.dialog.href}
+            lang=\${options.dialog.lang}
+            group=\${options.dialog.group}
+            parent=\${options.dialog.parent}
+            disabledcontrols=\${options.dialog.disabledControls.toString()}
+            readonlycontrols=\${options.dialog.readonlyControls.toString()}
+            hiddencontrols=\${options.dialog.hiddenControls.toString()}
+            ?disabled=\${options.dialog.disabled}
+            ?readonly=\${options.dialog.readonly}
+            ?hidden=\${options.dialog.hidden}
+            .templates=\${options.dialog.templates}
+            @fetch=\${options.handleFetch}
+            @update=\${options.handleUpdate}
+          >
+          </${value}>\``
+      ) as FormRenderer;
+    } else {
+      this.__renderForm = value;
+    }
+
     this.requestUpdate();
   }
 
   /** @readonly */
   render(): TemplateResult {
-    return super.render(
-      this.__renderForm?.bind(null, {
-        handleUpdate: this.__handleUpdate,
-        handleFetch: this.__handleFetch,
-        parent: this.parent,
-        href: this.href,
-        lang: this.lang,
-        html,
-      })
-    );
+    return html`
+      <foxy-internal-confirm-dialog
+        message="undo_message"
+        confirm="undo_confirm"
+        cancel="undo_cancel"
+        header="undo_header"
+        theme="error"
+        lang=${this.lang}
+        ns=${this.ns}
+        id="confirm"
+        @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && super.hide(true)}
+      >
+      </foxy-internal-confirm-dialog>
+
+      ${super.render(
+        this.__renderForm?.bind(null, {
+          handleUpdate: this.__handleUpdate,
+          handleFetch: this.__handleFetch,
+          dialog: this,
+          html,
+        })
+      )}
+    `;
   }
 
-  /** Submits the form and closes the dialog. */
+  async hide(cancelled = false): Promise<void> {
+    if (cancelled) {
+      const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
+      confirm.show();
+    } else {
+      return super.hide(cancelled);
+    }
+  }
+
+  /** Submits the form. */
   async save(): Promise<void> {
     (this.renderRoot.querySelector('#form') as NucleonElement<never>).submit();
   }

@@ -1,7 +1,8 @@
-import { DemoDatabase, db, router, whenDbReady } from '../../../server/admin/index';
+import { DemoDatabase, db, router, whenDbReady } from '../../../server/index';
 import { EventObject, State } from 'xstate';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
+import { API } from '@foxy.io/sdk/core';
 import { EventExecutor } from '@xstate/test/lib/types';
 import { FetchEvent } from './FetchEvent';
 import { HALJSONResource } from './types';
@@ -36,7 +37,7 @@ export function getRefs<TRefs extends Record<string, Element | Element[]>>(
   return { ...classes, ...ids } as TRefs;
 }
 
-function runCustomTests<
+async function runCustomTests<
   TData extends HALJSONResource,
   TElement extends NucleonElement<TData>,
   TRefs extends Record<string, Element | Element[]>,
@@ -47,13 +48,13 @@ function runCustomTests<
   context: TestContext<TElement>,
   event: TEvent
 ) {
+  const commonTest = tests.test;
+  const refs = getRefs<TRefs>(context.element);
+  if (typeof commonTest === 'function') await commonTest({ ...context, refs }, event);
+
   let test = get(tests, `${state}.test`);
   if (typeof test !== 'function') test = get(tests, state);
-
-  if (typeof test === 'function') {
-    const refs = getRefs<TRefs>(context.element);
-    return test({ ...context, refs }, event);
-  }
+  if (typeof test === 'function') await test({ ...context, refs }, event);
 }
 
 type TestContext<TElement extends HTMLElement> = {
@@ -150,7 +151,7 @@ export function generateTests<
           const lastRequest = lastEvent.request;
           const method = lastRequest.method;
           const headers = lastRequest.headers;
-          const request = new Request(config.href, { method, headers });
+          const request = new API.WHATWGRequest(config.href, { method, headers });
 
           lastEvent.respondWith(router.handleRequest(request)!.handlerPromise);
           await oneEvent(element, 'update');
@@ -177,7 +178,7 @@ export function generateTests<
           const body = await lastRequest.clone().text();
           const method = lastRequest.method;
           const headers = lastRequest.headers;
-          const request = new Request(config.parent, { body, method, headers });
+          const request = new API.WHATWGRequest(config.parent, { body, method, headers });
 
           lastEvent.respondWith(router.handleRequest(request)!.handlerPromise);
           await oneEvent(element, 'update');
@@ -197,7 +198,7 @@ export function generateTests<
           const body = await lastRequest.clone().text();
           const method = lastRequest.method;
           const headers = lastRequest.headers;
-          const request = new Request(config.href, { body, method, headers });
+          const request = new API.WHATWGRequest(config.href, { body, method, headers });
 
           lastEvent.respondWith(router.handleRequest(request)!.handlerPromise);
           await oneEvent(element, 'update');
@@ -213,7 +214,7 @@ export function generateTests<
 
         async DONE_DELETING({ element, events }) {
           const lastEvent = events[events.length - 1];
-          const mockHandler = router.handleRequest(new Request(lastEvent.request.url))!; // don't actually delete, just send GET
+          const mockHandler = router.handleRequest(new API.WHATWGRequest(lastEvent.request.url))!; // don't actually delete, just send GET
 
           lastEvent.respondWith(mockHandler.handlerPromise);
           await oneEvent(element, 'update');
@@ -221,7 +222,8 @@ export function generateTests<
         },
 
         async EDIT_INVALID_VIA_UI({ element, events }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
 
           await config.actions?.edit?.({
@@ -235,7 +237,8 @@ export function generateTests<
         },
 
         async EDIT_VALID_VIA_UI({ element, events }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
 
           await config.actions?.edit?.({
             form: (await response.json()) as TData,
@@ -268,7 +271,8 @@ export function generateTests<
         },
 
         async SET_INVALID_DATA_VIA_PROPERTY({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
           const invalidForm = config.invalidate!(validForm);
 
@@ -279,7 +283,8 @@ export function generateTests<
         },
 
         async SET_VALID_DATA_VIA_PROPERTY({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
 
           element.data = validForm;
@@ -335,7 +340,8 @@ export function generateTests<
         },
 
         async EDIT_INVALID_VIA_API({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
           const invalidForm = config.invalidate!(validForm);
 
@@ -345,7 +351,8 @@ export function generateTests<
         },
 
         async EDIT_VALID_VIA_API({ element }) {
-          const response = await router.handleRequest(new Request(config.href))!.handlerPromise;
+          const response = await router.handleRequest(new API.WHATWGRequest(config.href))!
+            .handlerPromise;
           const validForm = (await response.json()) as TData;
 
           element.edit(validForm);
@@ -365,7 +372,7 @@ export function generateTests<
       },
 
       tests: {
-        async busy(context, event) {
+        async 'busy'(context, event) {
           const match = context.element.in('busy');
           expect(match, 'matches state: busy').to.be.true;
 
@@ -410,7 +417,7 @@ export function generateTests<
           }
         },
 
-        async idle(context, event) {
+        async 'idle'(context, event) {
           const match = context.element.in('idle');
           expect(match, 'matches state: idle').to.be.true;
 
@@ -545,7 +552,7 @@ export function generateTests<
           }
         },
 
-        async fail(context, event) {
+        async 'fail'(context, event) {
           const match = context.element.in('fail');
           expect(match, 'matches state: fail').to.be.true;
 

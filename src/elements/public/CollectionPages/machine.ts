@@ -1,6 +1,6 @@
 import { Context, Event } from './types';
-import { addPage, setError, setFirst, setPages } from './actions';
-import { isCollectionEmpty, isEmptyArray, isEmptyString, isLastPage } from './guards';
+import { addPage, setError, setFirst, setManual, setPages } from './actions';
+import { isCollectionEmpty, isEmptyArray, isEmptyString, isLastPage, isManual } from './guards';
 
 import { createMachine } from 'xstate';
 
@@ -12,6 +12,7 @@ export const machine = createMachine<Context, Event>({
     first: '',
     pages: [],
     error: null,
+    manual: false,
   },
 
   states: {
@@ -22,22 +23,37 @@ export const machine = createMachine<Context, Event>({
         onDone: [
           { target: 'idle.empty', cond: isCollectionEmpty },
           { target: 'idle.end', cond: isLastPage, actions: addPage },
-          { target: 'idle.paused', actions: addPage },
+          { target: 'idle.paused.manual', cond: isManual, actions: addPage },
+          { target: 'idle.paused.auto', actions: addPage },
         ],
       },
+
+      on: { SET_MANUAL: { actions: setManual } },
     },
 
-    fail: {},
+    fail: {
+      on: { SET_MANUAL: { actions: setManual } },
+    },
 
     idle: {
       initial: 'empty',
       states: {
         paused: {
-          invoke: { src: 'observeChildren' },
-          on: { INTERSECTION: '#pages.busy' },
+          states: {
+            auto: { invoke: { src: 'observeChildren' } },
+            manual: {},
+          },
+
+          on: {
+            RESUME: '#pages.busy',
+            SET_MANUAL: [
+              { cond: isManual, actions: setManual, target: '.manual' },
+              { actions: setManual, target: '.auto' },
+            ],
+          },
         },
-        empty: {},
-        end: {},
+        empty: { on: { SET_MANUAL: { actions: setManual } } },
+        end: { on: { SET_MANUAL: { actions: setManual } } },
       },
     },
   },

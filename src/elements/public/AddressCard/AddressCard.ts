@@ -1,75 +1,168 @@
-import { CSSResult, CSSResultArray, css } from 'lit-element';
+import { Data, Templates } from './types';
 import { TemplateResult, html } from 'lit-html';
 
-import { Data } from './types';
-import { NucleonElement } from '../NucleonElement/index';
-import { Themeable } from '../../../mixins/themeable';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
 
-export class AddressCard extends NucleonElement<Data> {
-  static get styles(): CSSResult | CSSResultArray {
-    return [
-      Themeable.styles,
-      css`
-        :host {
-          --content: calc(var(--lumo-line-height-m) * var(--lumo-font-size-m) * 3);
-          --space: var(--lumo-space-s);
-          --label: calc(var(--lumo-line-height-m) * var(--lumo-font-size-xxs));
+const NS = 'address-card';
+const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)));
 
-          height: calc(var(--label) + var(--space) + var(--content));
-        }
-      `,
-    ];
-  }
+/**
+ * Card element displaying a customer address.
+ *
+ * @slot address-name:before - **new in v1.4.0**
+ * @slot address-name:after - **new in v1.4.0**
+ *
+ * @slot full-name:before - **new in v1.4.0**
+ * @slot full-name:after - **new in v1.4.0**
+ *
+ * @slot full-address:before - **new in v1.4.0**
+ * @slot full-address:after - **new in v1.4.0**
+ *
+ * @slot company:before - **new in v1.4.0**
+ * @slot company:after - **new in v1.4.0**
+ *
+ * @slot phone:before - **new in v1.4.0**
+ * @slot phone:after - **new in v1.4.0**
+ *
+ * @element foxy-address-card
+ * @since 1.2.0
+ */
+export class AddressCard extends Base<Data> {
+  templates: Templates = {};
+
+  private readonly __renderAddressName = () => {
+    const isDefaultBilling = !!this.data?.is_default_billing;
+    const isDefaultShipping = !!this.data?.is_default_shipping;
+
+    return html`
+      <div class="mb-s leading-none">
+        ${this.renderTemplateOrSlot('address-name:before')}
+
+        <span class="uppercase text-xxs font-semibold text-primary tracking-wider">
+          ${isDefaultBilling || isDefaultShipping
+            ? html`
+                <foxy-i18n
+                  data-testid="address-name"
+                  lang=${this.lang}
+                  key="default_${isDefaultBilling ? 'billing' : 'shipping'}_address"
+                  ns=${this.ns}
+                >
+                </foxy-i18n>
+              `
+            : html`<span data-testid="address-name">${this.data?.address_name}</span>`}
+          &ZeroWidthSpace;
+        </span>
+
+        ${this.renderTemplateOrSlot('address-name:after')}
+      </div>
+    `;
+  };
+
+  private readonly __renderLine = (id: string, icon: string, text: TemplateResult) => {
+    return html`
+      <p>
+        ${this.renderTemplateOrSlot(`${id}:before`)}
+
+        <span class="flex items-center text-s space-x-s">
+          <iron-icon icon=${icon} class="icon-inline flex-shrink-0"></iron-icon>
+          <span class="truncate" data-testid=${id}>${text}</span>
+          &ZeroWidthSpace;
+        </span>
+
+        ${this.renderTemplateOrSlot(`${id}:after`)}
+      </p>
+    `;
+  };
+
+  private readonly __renderFullName = () => {
+    const text = this.data
+      ? html`
+          <foxy-i18n
+            options=${JSON.stringify(this.data)}
+            lang=${this.lang}
+            key="full_name"
+            ns=${this.ns}
+          >
+          </foxy-i18n>
+        `
+      : html`–`;
+
+    return this.__renderLine('full-name', 'social:person', text);
+  };
+
+  private readonly __renderFullAddress = () => {
+    const text = this.data
+      ? html`
+          <foxy-i18n
+            data-testid="full-address"
+            options=${JSON.stringify(this.data)}
+            lang=${this.lang}
+            key="full_address"
+            ns=${this.ns}
+          >
+          </foxy-i18n>
+        `
+      : html`–`;
+
+    return this.__renderLine('full-address', 'maps:place', text);
+  };
+
+  private readonly __renderCompany = () => {
+    const text = html`${this.data?.company || '–'}`;
+    return this.__renderLine('company', 'icons:work', text);
+  };
+
+  private readonly __renderPhone = () => {
+    const text = html`${this.data?.phone || '–'}`;
+    return this.__renderLine('phone', 'maps:local-phone', text);
+  };
 
   render(): TemplateResult {
-    const ns = 'address-card';
+    const hiddenSelector = this.hiddenSelector;
+    const isLoaded = this.in({ idle: 'snapshot' });
+    const isEmpty = this.in({ idle: 'template' });
+    const isBusy = this.in('busy');
 
-    return this.in({ idle: 'snapshot' })
-      ? html`
-          <figure
-            class="h-full text-left text-m leading-m font-lumo space-y-s text-body"
-            aria-live="polite"
-            aria-busy="false"
-            data-testid="wrapper"
-          >
-            <figcaption class="uppercase text-xxs font-medium text-secondary tracking-wider">
-              <foxy-i18n
-                lang=${this.lang}
-                ns=${ns}
-                key=${this.data.is_default_billing
-                  ? 'default_billing_address'
-                  : this.data.is_default_shipping
-                  ? 'default_shipping_address'
-                  : this.data.address_name}
-              >
-              </foxy-i18n>
-            </figcaption>
+    return html`
+      <div
+        class="relative h-full text-left text-s leading-m font-lumo text-body"
+        aria-live="polite"
+        aria-busy=${isBusy}
+        data-testid="wrapper"
+      >
+        <div
+          class=${classMap({
+            'transition duration-250 ease-in-out': true,
+            'opacity-0 pointer-events-none': !isLoaded,
+          })}
+        >
+          ${hiddenSelector.matches('address-name', true) ? '' : this.__renderAddressName()}
+          ${hiddenSelector.matches('full-name', true) ? '' : this.__renderFullName()}
+          ${hiddenSelector.matches('full-address', true) ? '' : this.__renderFullAddress()}
+          ${hiddenSelector.matches('company', true) ? '' : this.__renderCompany()}
+          ${hiddenSelector.matches('phone', true) ? '' : this.__renderPhone()}
+        </div>
 
-            <foxy-i18n
-              ns=${ns}
-              key="full_address"
-              lang=${this.lang}
-              class="whitespace-pre-line block text-m flex-1"
-              data-testid="fullAddress"
-              .options=${this.form}
-            >
-            </foxy-i18n>
-          </figure>
-        `
-      : html`
-          <figure
-            aria-live="polite"
-            aria-busy=${this.in('busy')}
-            data-testid="wrapper"
-            class="w-full h-full flex items-center justify-center"
+        <div
+          class=${classMap({
+            'transition duration-250 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': isLoaded,
+          })}
+        >
+          <foxy-spinner
+            data-testid="spinner"
+            state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
+            class="m-auto"
+            lang=${this.lang}
+            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
-            <foxy-spinner
-              lang=${this.lang}
-              state=${this.in('fail') ? 'error' : this.in('busy') ? 'busy' : 'empty'}
-              data-testid="spinner"
-            >
-            </foxy-spinner>
-          </figure>
-        `;
+          </foxy-spinner>
+        </div>
+      </div>
+    `;
   }
 }

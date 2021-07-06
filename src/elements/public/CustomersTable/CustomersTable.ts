@@ -1,9 +1,10 @@
 import { Column } from '../Table/types';
 import { Data } from './types';
 import { Table } from '../Table/Table';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { html } from 'lit-html';
 
-export class CustomersTable extends Table<Data> {
+export class CustomersTable extends TranslatableMixin(Table, 'customers-table')<Data> {
   static nameColumn: Column<Data> = {
     cell: ctx => html`
       <span data-testclass="names">${ctx.data.first_name} ${ctx.data.last_name}</span>
@@ -22,19 +23,14 @@ export class CustomersTable extends Table<Data> {
     hideBelow: 'md',
     cell: ctx => html`
       <span class="text-s text-secondary font-tnum">
-        <foxy-i18n
-          data-testclass="i18n"
-          lang=${ctx.lang}
-          key="date_created"
-          ns=${CustomersTable.__ns}
-        >
+        <foxy-i18n data-testclass="i18n" lang=${ctx.lang} key="date_created" ns=${ctx.ns}>
         </foxy-i18n>
 
         <foxy-i18n
           data-testclass="dates i18n"
           lang=${ctx.lang}
           key="date"
-          ns=${CustomersTable.__ns}
+          ns=${ctx.ns}
           .options=${{ value: ctx.data.date_created }}
         >
         </foxy-i18n>

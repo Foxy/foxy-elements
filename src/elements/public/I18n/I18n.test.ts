@@ -38,9 +38,9 @@ describe('I18n', () => {
     const element = await fixture<I18n>(template);
 
     expect(element).to.have.deep.property('options', {});
-    expect(element).to.have.property('lang', 'en');
+    expect(element).to.have.property('lang', '');
     expect(element).to.have.property('key', '');
-    expect(element).to.have.property('ns', 'shared');
+    expect(element).to.have.property('ns', '');
     expect(element).shadowDom.to.equal('');
   });
 
@@ -59,7 +59,7 @@ describe('I18n', () => {
     expect(element).shadowDom.to.equal('foo');
 
     element.ns = 'foo';
-    const event = ((await oneEvent(window, 'fetch')) as unknown) as FetchEvent;
+    const event = (await oneEvent(window, 'fetch')) as unknown as FetchEvent;
 
     expect(event.request).to.have.property('url', 'foxy://i18n/foo/en');
 
@@ -79,7 +79,7 @@ describe('I18n', () => {
     expect(element).shadowDom.to.equal('foo');
 
     element.lang = 'es';
-    const event = ((await oneEvent(window, 'fetch')) as unknown) as FetchEvent;
+    const event = (await oneEvent(window, 'fetch')) as unknown as FetchEvent;
 
     expect(event.request).to.have.property('url', 'foxy://i18n/shared/es');
 

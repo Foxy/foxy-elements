@@ -1,3 +1,4 @@
+import { API } from '@foxy.io/sdk/core';
 import { FetchEvent } from './FetchEvent';
 import { expect } from '@open-wc/testing';
 import sinon from 'sinon';
@@ -7,7 +8,7 @@ describe('NucleonElement', () => {
     it('sucessfully constructs an instance of FetchEvent extending Event', () => {
       const createEvent = () => {
         return new FetchEvent('fetch', {
-          request: new Request('./test'),
+          request: new API.WHATWGRequest('./test'),
           resolve: response => void response,
           reject: err => void err,
         });
@@ -18,7 +19,7 @@ describe('NucleonElement', () => {
     });
 
     it('exposes input Request as event.request', () => {
-      const request = new Request('./test');
+      const request = new API.WHATWGRequest('./test');
       const event = new FetchEvent('fetch', {
         resolve: response => void response,
         reject: err => void err,
@@ -30,7 +31,7 @@ describe('NucleonElement', () => {
 
     it('provides a way of handling successful requests with event.respondWith()', async () => {
       const response = new Response();
-      const request = new Request('./test');
+      const request = new API.WHATWGRequest('./test');
       const resolve = sinon.stub();
       const reject = sinon.stub();
       const event = new FetchEvent('fetch', { request, resolve, reject });
@@ -42,7 +43,7 @@ describe('NucleonElement', () => {
     });
 
     it('calls a way of handling failed requests with event.respondWith()', async () => {
-      const request = new Request('./test');
+      const request = new API.WHATWGRequest('./test');
       const resolve = sinon.stub();
       const reject = sinon.stub();
       const error = new Error();

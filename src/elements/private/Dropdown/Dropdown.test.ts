@@ -58,9 +58,8 @@ function testContent(elm: Dropdown) {
         } else {
           // Other items in item array
           const parentItem = elm.items![i - subItemCount][0];
-          const subitem = elm.items![i - subItemCount][1][
-            elm.items![i - subItemCount].length - pendingSubitems
-          ];
+          const subitem =
+            elm.items![i - subItemCount][1][elm.items![i - subItemCount].length - pendingSubitems];
           expect(e.value).to.equal(`${parentItem}: ${subitem}`);
           expect(e.textContent).to.equal(elm.getText(subitem));
           pendingSubitems -= 1;

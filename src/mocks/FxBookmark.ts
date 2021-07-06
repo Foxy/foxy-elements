@@ -2,14 +2,14 @@ import { FxBookmark } from '../types/hapi';
 
 export const bookmark: FxBookmark = {
   _links: {
-    curies: [
+    'curies': [
       {
         name: 'fx',
         href: 'https://api.foxycart.com/rels/{rel}',
         templated: true,
       },
     ],
-    self: {
+    'self': {
       href: 'https://api.foxy.test/',
       title: 'Your API starting point.',
     },

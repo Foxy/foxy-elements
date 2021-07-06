@@ -1,33 +1,64 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
-import { Data, TextFieldParams } from './types';
+import { Data, Templates, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
-import { ConfirmDialog } from '../../private/ConfirmDialog/ConfirmDialog';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/index';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyTable } from '../../private/index';
-import { Themeable } from '../../../mixins/themeable';
-import { addBreakpoints } from '../../../utils/add-breakpoints';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { validate as isEmail } from 'email-validator';
 import memoize from 'lodash-es/memoize';
 
-export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
+const NS = 'customer-form';
+const Base = ResponsiveMixin(
+  ConfigurableMixin(ThemeableMixin(ScopedElementsMixin(TranslatableMixin(NucleonElement, NS))))
+);
+
+/**
+ * Form element for creating or editing customers.
+ *
+ * @slot first-name:before - **new in v1.4.0**
+ * @slot first-name:after - **new in v1.4.0**
+ *
+ * @slot last-name:before - **new in v1.4.0**
+ * @slot last-name:after - **new in v1.4.0**
+ *
+ * @slot email:before - **new in v1.4.0**
+ * @slot email:after - **new in v1.4.0**
+ *
+ * @slot tax-id:before - **new in v1.4.0**
+ * @slot tax-id:after - **new in v1.4.0**
+ *
+ * @slot timestamps:before - **new in v1.4.0**
+ * @slot timestamps:after - **new in v1.4.0**
+ *
+ * @slot create:before - **new in v1.4.0**
+ * @slot create:after - **new in v1.4.0**
+ *
+ * @slot delete:before - **new in v1.4.0**
+ * @slot delete:after - **new in v1.4.0**
+ *
+ * @element foxy-customer-form
+ * @since 1.2.0
+ */
+export class CustomerForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-property-table': PropertyTable,
-      'x-confirm-dialog': ConfirmDialog,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
     };
-  }
-
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
   }
 
   static get v8n(): NucleonV8N<Data> {
@@ -41,149 +72,152 @@ export class CustomerForm extends ScopedElementsMixin(NucleonElement)<Data> {
     ];
   }
 
-  private static __ns = 'customer-form';
+  templates: Templates = {};
 
   private __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
   });
 
-  private __bindField = memoize((key: keyof Data) => {
-    return (evt: CustomEvent) => {
-      this.edit({ [key]: (evt.target as HTMLInputElement).value });
-    };
-  });
+  private __maybeRenderTextField = ({ field }: TextFieldParams) => {
+    const bsid = field.replace(/_/, '-');
+    const error = this.errors.find(err => err.startsWith(field));
 
-  private __untrackTranslations?: () => void;
+    if (this.hiddenSelector.matches(bsid, true)) return '';
 
-  private __removeBreakpoins?: () => void;
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${bsid}:before`)}
 
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__untrackTranslations = customElements
-      .get('foxy-i18n')
-      .onTranslationChange(() => this.requestUpdate());
-    this.__removeBreakpoins = addBreakpoints(this);
-  }
+        <vaadin-text-field
+          class="w-full"
+          label=${this.t(field).toString()}
+          value=${ifDefined(this.form?.[field]?.toString())}
+          error-message=${error ? this.t(error.replace(field, 'v8n')).toString() : ''}
+          data-testid=${bsid}
+          .checkValidity=${this.__getValidator(field)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid, true)}
+          ?readonly=${this.readonlySelector.matches(bsid, true)}
+          @input=${(evt: Event) => this.edit({ [field]: (evt.target as HTMLInputElement).value })}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+        >
+        </vaadin-text-field>
 
-  render(): TemplateResult {
-    const ns = CustomerForm.__ns;
+        ${this.renderTemplateOrSlot(`${bsid}:after`)}
+      </div>
+    `;
+  };
+
+  private __renderTimestamps = () => {
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('timestamps:before')}
+
+        <x-property-table
+          data-testid="timestamps"
+          .items=${(['date_modified', 'date_created'] as const).map(field => ({
+            name: this.t(field),
+            value: this.data ? this.t('date', { value: new Date(this.data[field]) }) : '',
+          }))}
+        >
+        </x-property-table>
+
+        ${this.renderTemplateOrSlot('timestamps:after')}
+      </div>
+    `;
+  };
+
+  private __renderAction = (action: string) => {
+    const { disabledSelector, href, lang, ns } = this;
 
     const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
     const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !this.in('idle');
+    const isDisabled = !this.in('idle') || disabledSelector.matches(action, true);
     const isValid = isTemplateValid || isSnapshotValid;
 
+    const handleClick = (evt: Event) => {
+      if (action === 'delete') {
+        const confirm = this.renderRoot.querySelector('#confirm');
+        (confirm as InternalConfirmDialog).show(evt.currentTarget as HTMLElement);
+      } else {
+        this.submit();
+      }
+    };
+
     return html`
-      <x-confirm-dialog
+      <div>
+        ${this.renderTemplateOrSlot(`${action}:before`)}
+
+        <vaadin-button
+          class="w-full"
+          theme=${this.in('idle') ? `primary ${href ? 'error' : 'success'}` : ''}
+          data-testid=${action}
+          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
+          @click=${handleClick}
+        >
+          <foxy-i18n ns=${ns} key=${action} lang=${lang}></foxy-i18n>
+        </vaadin-button>
+
+        ${this.renderTemplateOrSlot(`${action}:after`)}
+      </div>
+    `;
+  };
+
+  render(): TemplateResult {
+    const { hiddenSelector, href, lang, ns } = this;
+    const action = href ? 'delete' : 'create';
+    const isBusy = this.in('busy');
+    const isFail = this.in('fail');
+
+    return html`
+      <foxy-internal-confirm-dialog
         message="delete_prompt"
         confirm="delete"
         cancel="cancel"
         header="delete"
         theme="primary error"
-        lang=${this.lang}
+        lang=${lang}
         ns=${ns}
         id="confirm"
         data-testid="confirm"
-        @hide=${this.__handleConfirmHide}
+        @hide=${(evt: DialogHideEvent) => {
+          if (!evt.detail.cancelled) this.delete();
+        }}
       >
-      </x-confirm-dialog>
+      </foxy-internal-confirm-dialog>
 
-      <div class="space-y-l" data-testid="wrapper" aria-busy=${this.in('busy')} aria-live="polite">
+      <div data-testid="wrapper" aria-busy=${isBusy} aria-live="polite" class="space-y-l relative">
         <div class="grid grid-cols-1 sm-grid-cols-2 gap-m">
-          ${this.__renderTextField({ field: 'first_name' })}
-          ${this.__renderTextField({ field: 'last_name' })}
-          ${this.__renderTextField({ field: 'email', required: true })}
-          ${this.__renderTextField({ field: 'tax_id' })}
+          ${this.__maybeRenderTextField({ field: 'first_name' })}
+          ${this.__maybeRenderTextField({ field: 'last_name' })}
+          ${this.__maybeRenderTextField({ field: 'email' })}
+          ${this.__maybeRenderTextField({ field: 'tax_id' })}
         </div>
 
-        ${this.href ? this.__renderPropertyTable() : undefined}
+        ${hiddenSelector.matches('timestamps', true) || !href ? '' : this.__renderTimestamps()}
+        ${hiddenSelector.matches(action) ? '' : this.__renderAction(action)}
 
-        <vaadin-button
-          class="w-full"
-          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-          data-testid="action"
-          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
-          @click=${this.__handleActionClick}
+        <div
+          data-testid="spinner"
+          class=${classMap({
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': !isBusy && !isFail,
+          })}
         >
-          <foxy-i18n ns=${ns} key=${this.href ? 'delete' : 'create'} lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
-
-        ${!this.in('idle')
-          ? html`
-              <div class="absolute inset-0 flex items-center justify-center">
-                <foxy-spinner
-                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${this.in('busy') ? 'busy' : 'error'}
-                  layout="vertical"
-                  data-testid="spinner"
-                >
-                </foxy-spinner>
-              </div>
-            `
-          : ''}
+          <foxy-spinner
+            layout="vertical"
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
+            lang=${lang}
+            ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
+          >
+          </foxy-spinner>
+        </div>
       </div>
     `;
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    this.__untrackTranslations?.();
-    this.__removeBreakpoins?.();
     this.__getValidator.cache.clear?.();
-  }
-
-  private get __t() {
-    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, CustomerForm.__ns);
-  }
-
-  private __renderPropertyTable() {
-    return html`
-      <x-property-table
-        .items=${(['date_modified', 'date_created'] as const).map(field => ({
-          name: this.__t(field),
-          value: this.data ? this.__t('date', { value: new Date(this.data[field]) }) : '',
-        }))}
-      >
-      </x-property-table>
-    `;
-  }
-
-  private __getErrorMessage(prefix: string) {
-    const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.__t(error.replace(prefix, 'v8n')).toString() : '';
-  }
-
-  private __renderTextField({ field, required = false }: TextFieldParams) {
-    return html`
-      <vaadin-text-field
-        label=${this.__t(field).toString()}
-        value=${ifDefined(this.form?.[field]?.toString())}
-        error-message=${this.__getErrorMessage(field)}
-        data-testid=${field}
-        .checkValidity=${this.__getValidator(field)}
-        ?disabled=${!this.in('idle')}
-        ?required=${required}
-        @input=${this.__bindField(field)}
-        @keydown=${this.__handleKeyDown}
-      >
-      </vaadin-text-field>
-    `;
-  }
-
-  private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.submit();
-  }
-
-  private __handleActionClick(evt: Event) {
-    if (this.in({ idle: 'snapshot' })) {
-      const confirm = this.renderRoot.querySelector('#confirm');
-      (confirm as ConfirmDialog).show(evt.currentTarget as HTMLElement);
-    } else {
-      this.submit();
-    }
-  }
-
-  private __handleConfirmHide(evt: DialogHideEvent) {
-    if (!evt.detail.cancelled) this.delete();
   }
 }

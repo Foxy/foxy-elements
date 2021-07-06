@@ -1,5 +1,5 @@
 import { EventExecutor, TestEventConfig, TestModelOptions } from '@xstate/test/lib/types';
-import { StateMachine, createMachine } from 'xstate';
+import { MachineConfig, StateMachine, createMachine } from 'xstate';
 import { TestModel, createModel as createXStateModel } from '@xstate/test';
 
 import { TestMachineOptions } from './createTestMachine';
@@ -15,7 +15,7 @@ export function createModel<TTestContext, TContext = any>(
   machine: StateMachine<TContext, any, any>,
   options?: NucleonTestModelOptions<TTestContext>
 ): TestModel<TTestContext, TContext> {
-  const config = clone(machine.config);
+  const config = clone(machine.config) as MachineConfig<TContext, any, any> & { context: TContext };
 
   Object.entries(options?.tests ?? {}).forEach(([state, test]) => {
     set(config, `states.${state.split('.').join('.states.')}.meta.test`, test);

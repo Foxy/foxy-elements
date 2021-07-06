@@ -5,11 +5,15 @@ import { FormatFunction } from 'i18next';
  * @see https://www.i18next.com/translation-function/formatting
  */
 export const price: FormatFunction = (value, format, lang): string => {
-  const [amount, currency] = value.split(' ');
-  return parseFloat(amount).toLocaleString(lang, {
-    maximumFractionDigits: 2,
-    minimumFractionDigits: 2,
-    style: 'currency',
-    currency,
-  });
+  try {
+    const [amount, currency] = value.split(' ');
+    return parseFloat(amount).toLocaleString(lang, {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 2,
+      style: 'currency',
+      currency,
+    });
+  } catch {
+    return value;
+  }
 };

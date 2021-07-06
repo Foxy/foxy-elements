@@ -2,6 +2,7 @@ import { Context, Event, Page, PageRenderer } from './types';
 import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { State, StateMachine, interpret } from 'xstate';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Rumour } from '@foxy.io/sdk/core';
@@ -18,20 +19,25 @@ import traverse from 'traverse';
  * @element foxy-collection-pages
  * @since 1.1.0
  */
-export class CollectionPages<TPage extends Page> extends LitElement {
+export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitElement) {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      ...super.properties,
+      manual: { type: Boolean, reflect: true },
       first: { type: String, noAccessor: true },
       pages: { type: Array, noAccessor: true },
       group: { type: String },
       lang: { type: String },
       page: { type: String },
+      ns: { type: String },
     };
   }
 
   /** Optional ISO 639-1 code describing the language element content is written in. */
   lang = '';
+
+  ns = '';
 
   private __renderPage!: PageRenderer<TPage>;
 
@@ -44,11 +50,11 @@ export class CollectionPages<TPage extends Page> extends LitElement {
   private __fetchEventHandler = (evt: unknown) => this.__handleFetchEvent(evt);
 
   private __service = interpret(
-    ((machine as unknown) as StateMachine<Context<TPage>, any, Event<TPage>>).withConfig({
+    (machine as unknown as StateMachine<Context<TPage>, any, Event<TPage>>).withConfig({
       services: {
         observeChildren: () => callback => {
           const observer = new IntersectionObserver(entries => {
-            if (entries.some(entry => entry.isIntersecting)) callback('INTERSECTION');
+            if (entries.some(entry => entry.isIntersecting)) callback('RESUME');
           });
 
           observer.observe(this.renderRoot.children[this.renderRoot.children.length - 1]);
@@ -103,7 +109,22 @@ export class CollectionPages<TPage extends Page> extends LitElement {
 
       this.__renderPage = new Function(
         'ctx',
-        `return ctx.html\`<${value} ${itemAttribute} group=\${ctx.group} href=\${ctx.href} lang=\${ctx.lang}></${value}>\``
+        `return ctx.html\`
+          <${value}
+            disabledcontrols=\${ctx.disabledControls.toString()}
+            readonlycontrols=\${ctx.readonlyControls.toString()}
+            hiddencontrols=\${ctx.hiddenControls.toString()}
+            group=\${ctx.group}
+            href=\${ctx.href}
+            lang=\${ctx.lang}
+            ns="$\{ctx.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
+            ${itemAttribute}
+            ?disabled=\${ctx.disabled}
+            ?readonly=\${ctx.readonly}
+            ?hidden=\${ctx.hidden}
+            .templates=\${ctx.templates}
+          >
+          </${value}>\``
       ) as PageRenderer<TPage>;
     } else {
       this.__renderPage = value;
@@ -141,6 +162,15 @@ export class CollectionPages<TPage extends Page> extends LitElement {
     this.__trackRumour();
   }
 
+  /** If false, will load pages on scroll. If true, will display a button triggering the process. */
+  get manual(): boolean {
+    return this.__service.state.context.manual;
+  }
+
+  set manual(data: boolean) {
+    this.__service.send({ type: 'SET_MANUAL', data });
+  }
+
   /**
    * Checks if this element is in the given state. Available states:
    *
@@ -148,6 +178,8 @@ export class CollectionPages<TPage extends Page> extends LitElement {
    * - `fail` when page load fails;
    * - `idle` when not loading anything for one of the reasons below:
    *   - `paused` if waiting for user to scroll further;
+   *     - `manual` when next page load will be triggered by clicking a button;
+   *     - `auto` when next page load will be triggered by scrolling to the observer target;
    *   - `empty` if collection is empty;
    *   - `end` if there are no more items in a collection.
    *
@@ -192,16 +224,35 @@ export class CollectionPages<TPage extends Page> extends LitElement {
         page => page.key,
         (page, pageIndex) => {
           return this.__renderPage({
+            disabledControls: this.disabledControls,
+            readonlyControls: this.readonlyControls,
+            hiddenControls: this.hiddenControls,
+            templates: this.templates,
+            disabled: this.disabled,
+            readonly: this.readonly,
+            hidden: this.hidden,
             group: this.group,
             data: this.pages[pageIndex] ?? null,
             href: page.href,
             lang: this.lang,
+            ns: this.ns,
             html,
           });
         }
       )}
-      <!-- intersection observer target -->
-      <span></span>
+      ${this.manual
+        ? this.in({ idle: 'paused' })
+          ? html`
+              <!-- manual trigger -->
+              <vaadin-button theme="small contrast" @click=${() => this.__service.send('RESUME')}>
+                <foxy-i18n lang=${this.lang} key="load_more" ns=${this.ns}></foxy-i18n>
+              </vaadin-button>
+            `
+          : ''
+        : html`
+            <!-- intersection observer target -->
+            <span></span>
+          `}
     `;
   }
 

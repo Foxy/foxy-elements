@@ -1,7 +1,14 @@
-import { CSSResult, CSSResultArray, LitElement, PropertyDeclarations } from 'lit-element';
-import i18next, { FormatFunction, TFunction, i18n } from 'i18next';
+import {
+  CSSResult,
+  CSSResultArray,
+  Constructor,
+  LitElement,
+  PropertyDeclarations,
+} from 'lit-element';
+import i18next, { FormatFunction, StringMap, TFunction, i18n } from 'i18next';
 
 import HttpApi from 'i18next-http-backend';
+import { I18n } from '../elements/public/I18n/I18n';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable } from './themeable';
 import { cdn } from '../env';
@@ -11,6 +18,8 @@ import { cdn } from '../env';
  * providing internationalization capabilities to the derived components.
  * This class MUST NOT be used on its own (hence the `abstract` keyword) or
  * referenced externally (outside of the package).
+ *
+ * @deprecated
  */
 export abstract class Translatable extends ScopedElementsMixin(LitElement) {
   static get properties(): PropertyDeclarations {
@@ -20,7 +29,7 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
     };
   }
 
-  public static get styles(): CSSResult | CSSResultArray {
+  public static get styles(): CSSResult | CSSResultArray | CSSStyleSheet {
     return Themeable.styles;
   }
 
@@ -169,3 +178,87 @@ export abstract class Translatable extends ScopedElementsMixin(LitElement) {
     return this._i18n.getFixedT(this.__lang, ns);
   }
 }
+
+type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
+type Translator = (key: string, options?: StringMap) => string;
+
+export declare class TranslatableMixinHost {
+  /** Optional ISO 639-1 code describing the language element content is written in. */
+  lang: string;
+
+  /**
+   * Namespace used by this element.
+   * @since 1.4.0
+   */
+  ns: string;
+
+  /**
+   * Translation function from i18next fixed to the current language and element namespace.
+   * @since 1.4.0
+   */
+  get t(): Translator;
+}
+
+export const TranslatableMixin = <T extends Base>(
+  BaseElement: T,
+  defaultNS = ''
+): T & Constructor<TranslatableMixinHost> & { defaultNS: string } => {
+  return class TranslatableElement extends BaseElement {
+    static get properties(): PropertyDeclarations {
+      return {
+        ...super.properties,
+        lang: { type: String },
+        ns: { type: String },
+      };
+    }
+
+    static get defaultNS(): string {
+      return defaultNS;
+    }
+
+    lang = '';
+
+    ns = defaultNS;
+
+    t: Translator = (key, options) => {
+      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
+
+      if (!I18nElement) return key;
+
+      const keys = [
+        ...[defaultNS, ...this.ns.split(' ').reverse()]
+          .map(v => v.trim())
+          .filter((v, i, a) => a.indexOf(v) === i && v.length > 0)
+          .reverse()
+          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),
+        `shared:${key}`,
+      ];
+
+      return I18nElement.i18next.t(keys, options).toString();
+    };
+
+    private __untrackTranslations?: () => void;
+
+    connectedCallback(): void {
+      super.connectedCallback();
+      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
+      this.__untrackTranslations = I18nElement?.onTranslationChange(() => this.requestUpdate());
+    }
+
+    /** @readonly */
+    updated(changedProperties: Map<keyof I18n, unknown>): void {
+      super.updated(changedProperties);
+
+      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;
+      if (!I18nElement) return;
+
+      if (changedProperties.has('lang')) I18nElement.i18next.loadLanguages(this.lang);
+      if (changedProperties.has('ns')) I18nElement.i18next.loadNamespaces(this.ns.split(' '));
+    }
+
+    disconnectedCallback(): void {
+      super.disconnectedCallback();
+      this.__untrackTranslations?.();
+    }
+  };
+};

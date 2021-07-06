@@ -1,22 +1,5 @@
-import { CSSResult, CSSResultArray, LitElement } from 'lit-element';
+import { LitElement } from 'lit-element';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { ThemeableMixin } from '../../../mixins/themeable';
 
-import { Themeable } from '../../../mixins/themeable';
-import { addBreakpoints } from '../../../utils/add-breakpoints';
-
-export class DialogWindow extends LitElement {
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
-  }
-
-  private __removeBreakpoints?: () => void;
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__removeBreakpoints = addBreakpoints(this);
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__removeBreakpoints?.();
-  }
-}
+export class DialogWindow extends ThemeableMixin(ResponsiveMixin(LitElement)) {}

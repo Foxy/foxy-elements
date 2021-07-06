@@ -1,9 +1,11 @@
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
-import { css, CSSResultArray, html, PropertyDeclarations, TemplateResult } from 'lit-element';
+
+import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 import { ErrorScreen, I18N } from '../../../private/index';
 import { ImageDescription, ItemInterface } from '../types';
-import { SignableFields } from './SignableFields';
+
 import { Preview } from './Preview';
+import { SignableFields } from './SignableFields';
 
 /**
  * This component allows a user to configure an item.
@@ -90,6 +92,7 @@ export class Item extends SignableFields {
     return {
       ...super.properties,
       __modified: {},
+      readonly: { type: Boolean, reflect: true },
       currency: { type: String },
       category: { type: String },
       code: { type: String, reflect: true },
@@ -136,6 +139,11 @@ export class Item extends SignableFields {
    * **Example:** `10`
    */
   public price?: number;
+
+  /**
+   * Makes quantity input readonly.
+   */
+  public readonly = false;
 
   /**
    * Optional an image url to be displayed in the form.
@@ -438,6 +446,7 @@ export class Item extends SignableFields {
               value="${this.quantity}"
               min="0"
               has-controls
+              ?readonly=${this.readonly}
             >
             </vaadin-integer-field>
 

@@ -22,6 +22,20 @@ export const machine = createMachine<Context>(
       max: null,
     },
     states: {
+      mutability: {
+        initial: 'editable',
+        states: {
+          editable: {},
+          readonly: {},
+        },
+        on: {
+          SET_READONLY: [
+            { target: '.editable', cond: 'isPayloadFalsey' },
+            { target: '.readonly', cond: 'isPayloadTruthy' },
+          ],
+        },
+      },
+
       interactivity: {
         initial: 'enabled',
         states: {

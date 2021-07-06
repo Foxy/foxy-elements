@@ -1,64 +1,95 @@
-import { CSSResult, CSSResultArray } from 'lit-element';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { Data, Templates } from './types';
 import { TemplateResult, html } from 'lit-html';
 
-import { Data } from './types';
-import { NucleonElement } from '../NucleonElement/index';
-import { Skeleton } from '../../private/index';
-import { Themeable } from '../../../mixins/themeable';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
 
-export class AttributeCard extends ScopedElementsMixin(NucleonElement)<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'x-skeleton': Skeleton,
-      'iron-icon': customElements.get('iron-icon'),
-    };
-  }
+const NS = 'attribute-card';
+const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(NucleonElement)), NS);
 
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
-  }
+/**
+ * Basic card displaying an attribute.
+ *
+ * @slot name:before - **new in v1.4.0**
+ * @slot name:after - **new in v1.4.0**
+ * @slot value:before - **new in v1.4.0**
+ * @slot value:after - **new in v1.4.0**
+ *
+ * @element foxy-attribute-card
+ * @since 1.2.0
+ */
+export class AttributeCard extends Base<Data> {
+  templates: Templates = {};
 
-  render(): TemplateResult {
-    const variant = ifDefined(this.in('busy') ? undefined : 'error');
+  private readonly __renderName = () => {
+    const { data } = this;
 
     return html`
-      <figure
-        class="text-body text-l font-lumo leading-m focus-outline-none"
+      ${this.renderTemplateOrSlot('name:before')}
+
+      <div class="flex items-center space-x-xs text-xxs text-primary">
+        <div
+          class="truncate uppercase font-semibold tracking-wider"
+          title=${data?.name ?? ''}
+          data-testid="name"
+        >
+          ${data?.name ?? html`&nbsp;`}
+        </div>
+
+        ${data && data.visibility !== 'public'
+          ? html`<iron-icon icon="icons:lock" class="icon-inline"></iron-icon>`
+          : ''}
+      </div>
+
+      ${this.renderTemplateOrSlot('name:after')}
+    `;
+  };
+
+  private readonly __renderValue = () => {
+    const { data } = this;
+
+    return html`
+      ${this.renderTemplateOrSlot('value:before')}
+      <div class="truncate" title=${data?.value ?? ''} data-testid="value">
+        ${data?.value ?? html`&nbsp;`}
+      </div>
+      ${this.renderTemplateOrSlot('value:after')}
+    `;
+  };
+
+  render(): TemplateResult {
+    const hiddenSelector = this.hiddenSelector;
+    const isLoaded = this.in({ idle: 'snapshot' });
+    const isEmpty = this.in({ idle: 'template' });
+
+    return html`
+      <div
+        class="relative text-body text-s font-lumo leading-m focus-outline-none"
         aria-live="polite"
         aria-busy=${this.in('busy')}
       >
-        <figcaption
-          class="flex items-center space-x-xs uppercase text-xxs font-medium text-secondary tracking-wider"
+        ${hiddenSelector.matches('name', true) ? '' : this.__renderName()}
+        ${hiddenSelector.matches('value', true) ? '' : this.__renderValue()}
+
+        <div
+          class=${classMap({
+            'transition duration-250 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': isLoaded,
+          })}
         >
-          ${this.in({ idle: 'snapshot' })
-            ? html`
-                <span class="block truncate" title=${this.data.name} data-testid="name">
-                  ${this.data.name}
-                </span>
-
-                ${this.data.visibility !== 'public'
-                  ? html`
-                      <iron-icon
-                        icon="icons:lock"
-                        style="--iron-icon-width: 1em; --iron-icon-height: 1em"
-                      >
-                      </iron-icon>
-                    `
-                  : ''}
-              `
-            : html`<x-skeleton variant=${variant} class="w-full">&nbsp;</x-skeleton>`}
-        </figcaption>
-
-        ${this.in({ idle: 'snapshot' })
-          ? html`
-              <span class="block truncate" title=${this.data.value} data-testid="value">
-                ${this.data.value}
-              </span>
-            `
-          : html`<x-skeleton variant=${variant} class="w-full">&nbsp;</x-skeleton>`}
-      </figure>
+          <foxy-spinner
+            data-testid="spinner"
+            class="m-auto"
+            state=${this.in('fail') ? 'error' : isEmpty ? 'empty' : 'busy'}
+            lang=${this.lang}
+            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
+          >
+          </foxy-spinner>
+        </div>
+      </div>
     `;
   }
 }

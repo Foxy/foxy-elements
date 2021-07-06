@@ -1,7 +1,8 @@
-import { LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import i18next, { StringMap, TOptions } from 'i18next';
 
 import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { backend } from './backend';
 import { format } from './format/index';
 
@@ -13,7 +14,7 @@ import { format } from './format/index';
  * @element foxy-i18n
  * @since 1.1.0
  */
-export class I18n extends LitElement {
+export class I18n extends TranslatableMixin(LitElement, '') {
   /** Instances of this event are dispatched on an element before each translation request. */
   static readonly FetchEvent = FetchEvent;
 
@@ -41,13 +42,32 @@ export class I18n extends LitElement {
     };
   }
 
+  /**
+   * Registers a global event listener that calls `handler` every time an i18next resource
+   * is downloaded by `foxy-i18n`. Allows devs to specify resource location and/or fetch it
+   * via a different channel (e.g. web sockets or using a localization SaaS).
+   *
+   * @param handler Callback to invoke on resource fetch.
+   * @example const unsubscribe = I18n.onResourceFetch((ns, lang) => fetch(`path/to/${ns}/${lang}`));
+   */
+  static onResourceFetch(handler: (ns: string, lang: string) => Promise<Response>): () => void {
+    const handleFetch = (evt: unknown) => {
+      if (evt instanceof FetchEvent && evt.request.url.startsWith('foxy://i18n/')) {
+        const [lang, ns] = evt.request.url.split('/').reverse();
+        evt.respondWith(handler(ns, lang));
+      }
+    };
+
+    addEventListener('fetch', handleFetch);
+    return () => removeEventListener('fetch', handleFetch);
+  }
+
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      ...super.properties,
       options: { type: Object },
-      lang: { type: String },
       key: { type: String },
-      ns: { type: String },
     };
   }
 
@@ -58,22 +78,10 @@ export class I18n extends LitElement {
   options: TOptions<StringMap> = {};
 
   /**
-   * Optional language to translate `element.key` into (ISO 639-1).
-   * Default and fallback: `en`.
-   */
-  lang = 'en';
-
-  /**
    * Optional key to translate. Empty by default (renders nothing).
    * See [i18next docs](https://www.i18next.com/translation-function/essentials#accessing-keys) for more info.
    */
   key = '';
-
-  /**
-   * Optional namespace to use translations from. Default and fallback: `shared`.
-   * To provide multiple namespaces, separate them with a space.
-   */
-  ns = 'shared';
 
   private __unsubscribe?: () => void;
 
@@ -85,15 +93,7 @@ export class I18n extends LitElement {
 
   /** @readonly */
   render(): TemplateResult {
-    return I18n.i18next.getFixedT(this.lang, this.ns.split(' '))(this.key, this.options);
-  }
-
-  /** @readonly */
-  updated(changedProperties: Map<keyof I18n, unknown>): void {
-    super.updated(changedProperties);
-
-    if (changedProperties.has('lang')) I18n.i18next.loadLanguages(this.lang);
-    if (changedProperties.has('ns')) I18n.i18next.loadNamespaces(this.ns);
+    return html`${this.t(this.key, { ...this.options, lng: this.lang })}`;
   }
 
   /** @readonly */

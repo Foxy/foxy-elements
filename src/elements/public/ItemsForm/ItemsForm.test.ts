@@ -216,7 +216,7 @@ describe('The form should remain valid', async function () {
     xhr = sinon.useFakeXMLHttpRequest();
     requests = [];
     xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
-      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      sinon.stub(xhr as unknown as XMLHttpRequest, 'send');
       requests.push(xhr);
     };
     logSpy = sinon.stub(console, 'error');
@@ -442,7 +442,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     xhr = sinon.useFakeXMLHttpRequest();
     requests = [];
     xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
-      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      sinon.stub(xhr as unknown as XMLHttpRequest, 'send');
       requests.push(xhr);
     };
     logSpy = sinon.stub(console, 'error');
@@ -728,7 +728,7 @@ describe('The form reveals its state to the user', async function () {
     xhr = sinon.useFakeXMLHttpRequest();
     requests = [];
     xhr.onCreate = (xhr: sinon.SinonFakeXMLHttpRequest) => {
-      sinon.stub((xhr as unknown) as XMLHttpRequest, 'send');
+      sinon.stub(xhr as unknown as XMLHttpRequest, 'send');
       requests.push(xhr);
     };
     logSpy = sinon.stub(console, 'error');

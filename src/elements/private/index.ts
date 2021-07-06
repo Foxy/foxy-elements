@@ -1,6 +1,5 @@
 export * from './Checkbox/Checkbox';
 export * from './Choice/Choice';
-export * from './ConfirmDialog/ConfirmDialog';
 export * from './Dialog/Dialog';
 export * from './Dropdown/Dropdown';
 export * from './ErrorScreen/ErrorScreen';

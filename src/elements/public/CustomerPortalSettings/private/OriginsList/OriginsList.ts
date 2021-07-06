@@ -98,10 +98,11 @@ export class OriginsList extends Translatable {
                 .ns=${this.ns}
                 key="origins.add_hint"
                 class=${classMap({
-                  'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m': true,
+                  'text-xs text-center block font-lumo mt-xs transition duration-200 sm-mt-0 sm-ml-m':
+                    true,
                   'text-tertiary': this.value.length < 10,
                   'text-primary': this.value.length >= 10,
-                  hidden: this.value.length === 0,
+                  'hidden': this.value.length === 0,
                 })}
               >
               </x-i18n>

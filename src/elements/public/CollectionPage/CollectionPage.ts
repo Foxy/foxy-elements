@@ -1,6 +1,7 @@
 import { ExtractItem, ItemRenderer, Page } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { repeat } from 'lit-html/directives/repeat';
@@ -11,14 +12,17 @@ import { repeat } from 'lit-html/directives/repeat';
  * @element foxy-collection-page
  * @since 1.1.0
  */
-export class CollectionPage<TPage extends Page> extends NucleonElement<TPage> {
+export class CollectionPage<TPage extends Page> extends ConfigurableMixin(NucleonElement)<TPage> {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       item: { type: String },
+      ns: { type: String },
     };
   }
+
+  ns = '';
 
   private __pageFetchEventHandler = (evt: unknown) => this.__handlePageFetchEvent(evt);
 
@@ -50,7 +54,23 @@ export class CollectionPage<TPage extends Page> extends NucleonElement<TPage> {
     if (typeof value === 'string') {
       this.__renderItem = new Function(
         'ctx',
-        `return ctx.html\`<${value} data-testclass="items" parent=\${ctx.parent} group=\${ctx.group} href=\${ctx.href} lang=\${ctx.lang}></${value}>\``
+        `return ctx.html\`
+          <${value}
+            disabledcontrols=\${ctx.disabledControls.toString()}
+            readonlycontrols=\${ctx.readonlyControls.toString()}
+            hiddencontrols=\${ctx.hiddenControls.toString()}
+            data-testclass="items"
+            parent=\${ctx.parent}
+            group=\${ctx.group}
+            href=\${ctx.href}
+            lang=\${ctx.lang}
+            ns="\${ctx.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
+            ?disabled=\${ctx.disabled}
+            ?readonly=\${ctx.readonly}
+            ?hidden=\${ctx.hidden}
+            .templates=\${ctx.templates}
+          >
+          </${value}>\``
       ) as ItemRenderer;
     } else {
       this.__renderItem = value;
@@ -93,11 +113,19 @@ export class CollectionPage<TPage extends Page> extends NucleonElement<TPage> {
       item => item.key,
       item =>
         this.__renderItem?.({
+          disabledControls: this.disabledControls,
+          readonlyControls: this.readonlyControls,
+          hiddenControls: this.hiddenControls,
+          templates: this.templates,
+          disabled: this.disabled,
+          readonly: this.readonly,
+          hidden: this.hidden,
           parent: this.href,
           group: this.group,
           lang: this.lang,
           data: item.data,
           href: item.href,
+          ns: this.ns,
           html,
         })
     )}`;

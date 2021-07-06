@@ -7,26 +7,26 @@ import {
   html,
 } from 'lit-element';
 
-import { Themeable } from '../../../mixins/themeable';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 
-export type SpinnerLayout = 'vertical' | 'horizontal';
+export type SpinnerLayout = 'vertical' | 'horizontal' | 'no-label';
 export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
-export class Spinner extends LitElement {
+export class Spinner extends TranslatableMixin(ThemeableMixin(LitElement), 'spinner') {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       layout: { type: String },
       state: { type: String },
-      ns: { type: String },
     };
   }
 
   /** @readonly */
   static get styles(): CSSResultArray {
     return [
-      Themeable.styles,
+      super.styles,
       css`
         paper-spinner-lite {
           --paper-spinner-stroke-width: 2px;
@@ -55,12 +55,6 @@ export class Spinner extends LitElement {
    * - `end` for when there's no more data;
    */
   state: SpinnerState = 'busy';
-
-  /**
-   * Optional i18next namespace to use for translations.
-   * Default: `spinner` with fallback to `shared`.
-   */
-  ns = 'spinner';
 
   /** @readonly */
   render(): TemplateResult {
@@ -100,7 +94,14 @@ export class Spinner extends LitElement {
     return html`
       <div class="font-lumo leading-none text-s ${layout} ${tint}">
         <div class="w-xxs h-xss flex items-center justify-center">${icon}</div>
-        <foxy-i18n data-testid="text" ns=${this.ns} key=${text} lang=${this.lang}> </foxy-i18n>
+        <foxy-i18n
+          data-testid="text"
+          class=${this.layout === 'no-label' ? 'sr-only' : ''}
+          lang=${this.lang}
+          key=${text}
+          ns=${this.ns}
+        >
+        </foxy-i18n>
       </div>
     `;
   }

@@ -28,7 +28,8 @@ export default {
     (context, next) => {
       const url = context.url;
       const prefix = '/src/static';
-      if (url.startsWith('/translations') || url === '/logo.png') context.url = `${prefix}${url}`;
+      const staticPaths = ['/translations', '/images', '/logo.png'];
+      if (staticPaths.some(path => url.startsWith(path))) context.url = `${prefix}${url}`;
       return next();
     },
   ],
@@ -43,6 +44,7 @@ export default {
       include: [
         '**/indexeddb-export-import/**/*',
         '**/email-validator/**/*',
+        '**/highlight.js/**/*',
         '**/url-pattern/**/*',
         '**/traverse/**/*',
         '**/consola/**/*',
@@ -69,7 +71,7 @@ export default {
           {
             alias: {
               'cross-fetch': 'cross-fetch/dist/browser-ponyfill.js',
-              consola: 'consola/dist/consola.browser.js',
+              'consola': 'consola/dist/consola.browser.js',
             },
           },
         ],

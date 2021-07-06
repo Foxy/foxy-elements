@@ -1,20 +1,19 @@
-import { DemoDatabase } from './DemoDatabase';
-import { Router } from 'service-worker-router';
+import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
+
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
+import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
 import { composeTransaction } from './composers/composeTransaction';
-import { getPagination } from './getPagination';
+import { composeUser } from './composers/composeUser';
+import { getPagination } from '../getPagination';
+import { router } from '../router';
 
 const endpoint = 'https://demo.foxycart.com/s/admin';
-const router = new Router();
-const db = new DemoDatabase();
-const whenDbReady = db.open().then(() => DemoDatabase.fill(db.backendDB()));
-
 export { endpoint, router, db, whenDbReady, DemoDatabase };
 
 // subscriptions
@@ -85,6 +84,13 @@ router.get('/s/admin/stores/:id/subscriptions', async ({ params, request }) => {
 });
 
 // transactions
+router.get('/s/admin/transactions/:id', async ({ params }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const doc = await db.transactions.get(id);
+  const body = composeTransaction(doc);
+  return new Response(JSON.stringify(body));
+});
 
 router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
   await whenDbReady;
@@ -98,6 +104,9 @@ router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
 
   const customer = parseInt(searchParams.get('customer_id') ?? '');
   if (!isNaN(customer)) query = db.transactions.where('customer').equals(customer);
+
+  const subscription = parseInt(searchParams.get('subscription_id') ?? '');
+  if (!isNaN(subscription)) query = db.transactions.where('subscription').equals(subscription);
 
   const [count, transactions] = await Promise.all([
     db.customerAttributes.count(),
@@ -125,6 +134,16 @@ router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
 
   const rel = 'fx:transactions';
   const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/transactions/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const transaction = await db.transactions.get(id);
+  const body = composeTransaction(transaction);
 
   return new Response(JSON.stringify(body));
 });
@@ -167,31 +186,81 @@ router.get('/s/admin/items/:id', async ({ params }) => {
 
 router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   await whenDbReady;
-
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
+
   const lastTransaction = zoom.includes('last_transaction')
     ? await db.transactions.where('subscription').equals(id).last()
-    : null;
+    : undefined;
 
-  const body = composeSubscription(doc, lastTransaction);
+  const transactionTemplate = zoom.includes('transaction_template')
+    ? await db.carts.get(doc.transaction_template)
+    : undefined;
+
+  const items = zoom.includes('items')
+    ? await db.items.where('cart').equals(doc.transaction_template).limit(20).toArray()
+    : undefined;
+
+  const body = composeSubscription(doc, lastTransaction, transactionTemplate, items);
+
   return new Response(JSON.stringify(body));
 });
 
 router.patch('/s/admin/subscriptions/:id', async ({ params, request }) => {
   await whenDbReady;
+  await db.subscriptions.update(parseInt(params.id), await request.json());
 
+  const { url, headers } = request;
+  return router.handleRequest(new Request(url, { headers }))!.handlerPromise;
+});
+
+// error_entries
+
+router.get('/s/admin/stores/:id/error_entries', async ({ params, request }) => {
+  await whenDbReady;
   const id = parseInt(params.id);
-  await db.subscriptions.update(id, await request.json());
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+  const getErrorParam = new URL(request.url).searchParams.get('hide_error');
+  const hideError: boolean | undefined =
+    getErrorParam === null ? undefined : JSON.parse(getErrorParam);
+  let count;
+  let items;
+  try {
+    count = await db.errorEntries.count();
+    if (hideError === undefined) {
+      items = await db.errorEntries.where('store').equals(id).offset(offset).limit(limit).toArray();
+    } else {
+      items = await db.errorEntries
+        .where('store')
+        .equals(id)
+        .and(r => r.hide_error === hideError)
+        .offset(offset)
+        .limit(limit)
+        .toArray();
+    }
+    const rel = 'fx:error_entries';
+    const composeItem = composeErrorEntry;
+    const body = composeCollection({ composeItem, rel, url, count, items });
+    return new Response(JSON.stringify(body));
+  } catch (e) {
+    console.log('There was an error', e);
+  }
+});
 
-  const doc = await db.subscriptions.get(id);
-  const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
-  const lastTransaction = zoom.includes('last_transaction')
-    ? await db.transactions.where('subscription').equals(id).last()
-    : null;
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+  const errorEntry = await db.errorEntries.get(parseInt(params.id));
+  const body = composeErrorEntry(errorEntry);
+  return new Response(JSON.stringify(body));
+});
 
-  const body = composeSubscription(doc, lastTransaction);
+router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  await db.errorEntries.update(id, await request.json());
+  const body = composeErrorEntry(await db.errorEntries.get(id));
   return new Response(JSON.stringify(body));
 });
 
@@ -199,7 +268,6 @@ router.patch('/s/admin/subscriptions/:id', async ({ params, request }) => {
 
 router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
   await whenDbReady;
-
   const id = parseInt(params.id);
   const url = request.url;
   const { limit, offset } = getPagination(url);
@@ -207,7 +275,6 @@ router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
     db.customerAttributes.count(),
     db.customerAttributes.where('customer').equals(id).offset(offset).limit(limit).toArray(),
   ]);
-
   const rel = 'fx:attributes';
   const composeItem = composeCustomerAttribute;
   const body = composeCollection({ composeItem, rel, url, count, items });
@@ -399,12 +466,88 @@ router.delete('/s/admin/customers/:id', async ({ params }) => {
   return new Response(JSON.stringify(body));
 });
 
+// error_entries
+
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeErrorEntry(await db.errorEntries.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+// users
+
+router.get('/s/admin/stores/:id/users', async ({ params, request }) => {
+  await whenDbReady;
+
+  const store = parseInt(params.id);
+  const url = request.url;
+  const rel = 'fx:users';
+
+  const { limit, offset } = getPagination(url);
+  const [count, items] = await Promise.all([
+    db.users.count(),
+    db.users.where('store').equals(store).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const body = composeCollection({ composeItem: composeUser, rel, url, count, items });
+  return new Response(JSON.stringify(body));
+});
+
+router.post('/s/admin/stores/:id/users', async ({ params, request }) => {
+  await whenDbReady;
+
+  const body = await request.json();
+  const id = await db.users.add({
+    store: parseInt(params.id),
+    first_name: body.first_name ?? '',
+    last_name: body.last_name ?? '',
+    email: body.email ?? '',
+    phone: body.phone ?? '',
+    affiliate_id: body.affiliate_id ?? 0,
+    is_programmer: body.is_programmer ?? false,
+    is_front_end_developer: body.is_front_end_developer ?? false,
+    is_designer: body.is_designer ?? false,
+    is_merchant: body.is_merchant ?? false,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  });
+
+  return router.handle(`/s/admin/users/${id}`, 'GET')!.handlerPromise;
+});
+
+router.get('/s/admin/users/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const user = await db.users.get(parseInt(params.id));
+  const body = composeUser(user);
+
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/users/:id', async ({ params, request }) => {
+  await whenDbReady;
+
+  const user = await db.users.get(parseInt(params.id));
+  const body = await request.json();
+  await db.users.update(parseInt(params.id), { ...user, ...body });
+
+  return router.handle(request.url, 'GET')!.handlerPromise;
+});
+
+router.delete('/s/admin/users/:id', async ({ params, request }) => {
+  await whenDbReady;
+
+  const user = await router.handle(request.url, 'GET')!.handlerPromise;
+  await db.users.delete(parseInt(params.id));
+
+  return user;
+});
+
 // special routes
 
 router.get('/s/admin/not-found', async () => new Response(null, { status: 404 }));
 
 router.get('/s/admin/sleep', () => new Promise(() => void 0));
-
-// catch-all
-
-router.all('*', async () => new Response(null, { status: 500 }));

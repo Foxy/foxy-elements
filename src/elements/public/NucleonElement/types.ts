@@ -3,10 +3,10 @@ import { EventObject, State, StateMachine, Typestate } from 'xstate';
 import { Nucleon } from '@foxy.io/sdk/core';
 
 export type NucleonMachine<TData extends HALJSONResource> = StateMachine<
-  Nucleon.Context<TData, string>,
+  Nucleon.Context<TData, string, Response>,
   any,
   Nucleon.Event<TData>,
-  Nucleon.State<TData, string>
+  Nucleon.State<TData, string, Response>
 >;
 
 export type NucleonState<TData extends HALJSONResource> = Pick<

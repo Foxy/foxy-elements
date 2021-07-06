@@ -1,10 +1,12 @@
 import { TemplateResult, html } from 'lit-html';
 
-export type FormRenderer = (context: {
+import { FormDialog } from '.';
+
+export type FormRendererContext = {
   html: typeof html;
-  href: string;
-  lang: string;
-  parent: string;
+  dialog: FormDialog;
   handleFetch: (evt: Event) => void;
   handleUpdate: (evt: Event) => void;
-}) => TemplateResult;
+};
+
+export type FormRenderer = (context: FormRendererContext) => TemplateResult;

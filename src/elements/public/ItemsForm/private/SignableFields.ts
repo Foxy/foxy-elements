@@ -2,6 +2,28 @@ import { Translatable } from '../../../../mixins/translatable';
 import { PropertyDeclarations } from 'lit-element';
 
 export class SignableFields extends Translatable {
+  /** @readonly */
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      open: { type: Object },
+      signatures: {
+        type: Object,
+        converter: value => {
+          const v = JSON.parse(value!) as unknown as Record<string, string>;
+          for (const k of Object.keys(v)) {
+            if ((v[k] as string).length != 64) {
+              console.error(
+                'There is something wrong with the signature. It should have 64 characters.'
+              );
+            }
+          }
+          return v;
+        },
+      },
+    };
+  }
+
   /**
    * Optional open: An Object with key, value pairs where the key is a item
    * attribute and the value is a previously computed HMAC validation code.
@@ -20,28 +42,6 @@ export class SignableFields extends Translatable {
    * See [Product Verification](https://wiki.foxycart.com/v/2.0/hmac_validation) for more information.
    */
   public open?: Record<string, boolean>;
-
-  /** @readonly */
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      open: { type: Object },
-      signatures: {
-        type: Object,
-        converter: value => {
-          const v = (JSON.parse(value!) as unknown) as Record<string, string>;
-          for (const k of Object.keys(v)) {
-            if ((v[k] as string).length != 64) {
-              console.error(
-                'There is something wrong with the signature. It should have 64 characters.'
-              );
-            }
-          }
-          return v;
-        },
-      },
-    };
-  }
 
   /**
    * Concatenates the fieldName and it's signature.

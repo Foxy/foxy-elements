@@ -1,4 +1,6 @@
+import '@vaadin/vaadin-button';
 import '../CollectionPage/index';
+import '../I18n/index';
 
 import { CollectionPages } from './CollectionPages';
 

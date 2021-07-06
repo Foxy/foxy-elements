@@ -122,7 +122,7 @@ const model = createModel<TestSessionSecret>(machine).withEvents({
     exec: async function execEnterInvalid(element, event) {
       await element.updateComplete;
 
-      const value = ((event as unknown) as { value: string }).value;
+      const value = (event as unknown as { value: string }).value;
       const input = getRefs<Refs>(element).input;
 
       input.value = value;

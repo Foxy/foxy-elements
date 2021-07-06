@@ -8,15 +8,22 @@ import cloneDeep from 'lodash-es/cloneDeep';
 import { machine } from './machine';
 
 const config = cloneDeep(machine.config);
-customElements.define('x-choice', Choice);
 
-function getInputs(element: Choice) {
+class TestChoice extends Choice {
+  get whenReady(): Promise<unknown> {
+    return this._whenI18nReady.then(() => this.updateComplete);
+  }
+}
+
+customElements.define('x-choice', TestChoice);
+
+function getInputs(element: TestChoice) {
   const inputs = element.shadowRoot!.querySelectorAll('input');
   return Array.from(inputs) as HTMLInputElement[];
 }
 
-function whenIdle(exec: Required<TestEventConfig<Choice>>['exec']) {
-  return async (...args: Parameters<Required<TestEventConfig<Choice>>['exec']>) => {
+function whenIdle(exec: Required<TestEventConfig<TestChoice>>['exec']) {
+  return async (...args: Parameters<Required<TestEventConfig<TestChoice>>['exec']>) => {
     await args[0].updateComplete;
     return exec(...args);
   };
@@ -46,24 +53,25 @@ function getPlans(model: TestModel<any, any>) {
 }
 
 config!.states!.interactivity!.states!.enabled.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     expect(element).to.have.property('disabled', false);
     getInputs(element).forEach(input => expect(input).to.have.property('disabled', false));
   },
 };
 
 config!.states!.interactivity!.states!.disabled.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     expect(element).to.have.property('disabled', true);
     getInputs(element).forEach(input => expect(input).to.have.property('disabled', true));
   },
 };
 
 config!.states!.selection.states!.single.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
+
     const inputs = getInputs(element);
 
     element.items.forEach((item, index) => {
@@ -96,8 +104,8 @@ config!.states!.selection.states!.single.meta = {
 };
 
 config!.states!.selection.states!.multiple.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
 
     let inputs = getInputs(element);
 
@@ -133,8 +141,8 @@ config!.states!.selection.states!.multiple.meta = {
 };
 
 config!.states!.extension.states!.absent.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
     expect(field).to.be.null;
     expect(getInputs(element)).to.have.length(element.items.length);
@@ -142,23 +150,23 @@ config!.states!.extension.states!.absent.meta = {
 };
 
 config!.states!.extension.states!.present.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     expect(getInputs(element)).to.have.length(element.items.length + 1);
   },
 };
 
 config!.states!.extension.states!.present.states!.available.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
     expect(field).to.be.null;
   },
 };
 
 config!.states!.extension.states!.present.states!.selected.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
 
     const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
     expect(field).to.be.visible;
@@ -182,62 +190,66 @@ config!.states!.extension.states!.present.states!.selected.meta = {
 };
 
 config!.states!.extension.states!.present.states!.selected.states!.text.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
     expect(field.localName).to.equal('vaadin-text-field');
   },
 };
 
 config!.states!.extension.states!.present.states!.selected.states!.textarea.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
     expect(field.localName).to.equal('vaadin-text-area');
   },
 };
 
 config!.states!.extension.states!.present.states!.selected.states!.integer.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
+  async test(element: TestChoice) {
+    await element.whenReady;
     const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
     expect(field.localName).to.equal('vaadin-integer-field');
   },
 };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.none.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.min).to.be.undefined;
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.none.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.be.undefined;
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.custom.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.min).to.equal(element.min);
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.min.states!.custom.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.equal(element.min);
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.none.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.max).to.be.undefined;
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.none.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.be.undefined;
+    },
+  };
 
-config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.custom.meta = {
-  async test(element: Choice) {
-    await element.updateComplete;
-    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
-    expect(field.max).to.equal(element.max);
-  },
-};
+config!.states!.extension.states!.present.states!.selected.states!.integer.states!.max.states!.custom.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.equal(element.max);
+    },
+  };
 
-const model = createModel<Choice>(createMachine(config, machine.options)).withEvents({
+const model = createModel<TestChoice>(createMachine(config, machine.options)).withEvents({
   SET_DISABLED: {
     exec: whenIdle((element, evt) => (element.disabled = (evt as AnyEventObject).data)),
     cases: [{ data: true }, { data: false }],

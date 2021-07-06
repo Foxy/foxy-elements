@@ -1,0 +1,24 @@
+{
+  "customer": {
+    "subscription-card": {
+      "spinner": {
+        "loading_empty": "No subscriptions"
+      }
+    },
+    "transactions-table": {
+      "spinner": {
+        "loading_empty": "No transactions"
+      }
+    },
+    "address-card": {
+      "spinner": {
+        "loading_empty": "No addresses"
+      }
+    },
+    "payment-method-card": {
+      "spinner": {
+        "loading_empty": "No payment methods"
+      }
+    }
+  }
+}

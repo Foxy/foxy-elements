@@ -17,12 +17,14 @@ export type HeaderContext<TData extends Collection> = {
   html: TemplateFunction;
   data: TData | null;
   lang: string;
+  ns: string;
 };
 
 export type CellContext<TData extends Collection> = {
   html: TemplateFunction;
   data: TData['_embedded'][keyof TData['_embedded']][number];
   lang: string;
+  ns: string;
 };
 
 export type Column<TData extends Collection> = {

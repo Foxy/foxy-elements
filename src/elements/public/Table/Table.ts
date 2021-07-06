@@ -1,11 +1,14 @@
-import { CSSResult, CSSResultArray, PropertyDeclarations } from 'lit-element';
 import { Collection, Column } from './types';
 import { TemplateResult, html } from 'lit-html';
 
 import { NucleonElement } from '../NucleonElement/index';
-import { Themeable } from '../../../mixins/themeable';
-import { addBreakpoints } from '../../../utils/add-breakpoints';
+import { PropertyDeclarations } from 'lit-element';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
+
+const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
 
 /**
  * Configurable table element for HAL+JSON collections.
@@ -13,7 +16,7 @@ import { classMap } from '../../../utils/class-map';
  * @element foxy-table
  * @since 1.1.0
  */
-export class Table<TData extends Collection> extends NucleonElement<TData> {
+export class Table<TData extends Collection> extends Base<TData> {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
@@ -22,21 +25,8 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
     };
   }
 
-  /** @readonly */
-  static get styles(): CSSResult | CSSResultArray {
-    return Themeable.styles;
-  }
-
   /** Array of column templates. See `Column` type for more details. */
   columns: Column<TData>[] = [];
-
-  private __removeBreakpoints?: () => void;
-
-  /** @readonly */
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__removeBreakpoints = addBreakpoints(this);
-  }
 
   /** @readonly */
   render(): TemplateResult {
@@ -47,13 +37,15 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
             <tr>
               ${this.columns.map(column => {
                 return html`
-                  <th>${column.header?.({ html, lang: this.lang, data: this.data })}</th>
+                  <th>
+                    ${column.header?.({ html, lang: this.lang, data: this.data, ns: this.ns })}
+                  </th>
                 `;
               })}
             </tr>
           </thead>
 
-          <tbody class="divide-y divide-contrast-10 ">
+          <tbody class="divide-y divide-contrast-10">
             ${this.__rows.map(resource => {
               return html`
                 <tr class="h-l">
@@ -69,7 +61,9 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
                           'truncate h-l font-lumo text-body text-m': true,
                         })}
                       >
-                        ${resource ? column.cell?.({ html, lang: this.lang, data: resource }) : ''}
+                        ${resource
+                          ? column.cell?.({ html, lang: this.lang, data: resource, ns: this.ns })
+                          : ''}
                       </td>
                     `;
                   })}
@@ -83,10 +77,12 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
           ? html`
               <div class="absolute inset-0 flex items-center justify-center">
                 <foxy-spinner
-                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-                  state=${this.in('busy') ? 'busy' : this.in('idle') ? 'empty' : 'error'}
-                  layout="vertical"
                   data-testid="spinner"
+                  layout="vertical"
+                  state=${this.in('busy') ? 'busy' : this.in('idle') ? 'empty' : 'error'}
+                  class="p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+                  lang=${this.lang}
+                  ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
                 >
                 </foxy-spinner>
               </div>
@@ -96,24 +92,22 @@ export class Table<TData extends Collection> extends NucleonElement<TData> {
     `;
   }
 
-  /** @readonly */
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__removeBreakpoints?.();
-  }
-
   private get __rows() {
     const defaultLimit = 20;
     const items = Object.values(this.data?._embedded ?? {}).reduce((p, c) => [...p, ...c], []);
 
     let rowCount: number;
 
-    try {
-      const strLimit = new URL(this.href ?? '').searchParams.get('limit');
-      const intLimit = strLimit ? parseInt(strLimit) : defaultLimit;
-      rowCount = Math.max(isNaN(intLimit) ? defaultLimit : intLimit, items.length);
-    } catch {
-      rowCount = defaultLimit;
+    if (items.length === 0) {
+      try {
+        const strLimit = new URL(this.href ?? '').searchParams.get('limit');
+        const intLimit = parseInt(strLimit ?? '');
+        rowCount = isNaN(intLimit) ? defaultLimit : intLimit;
+      } catch {
+        rowCount = defaultLimit;
+      }
+    } else {
+      rowCount = items.length;
     }
 
     return new Array(rowCount).fill(null).map((v, i) => items[i] ?? v);

@@ -2,14 +2,14 @@ import { FxUser } from '../types/hapi';
 
 export const user: FxUser = {
   _links: {
-    curies: [
+    'curies': [
       {
         name: 'fx',
         href: 'https://api.foxycart.com/rels/{rel}',
         templated: true,
       },
     ],
-    self: {
+    'self': {
       href: 'https://api.foxy.test/users/2',
       title: 'This User',
     },
@@ -30,14 +30,14 @@ export const user: FxUser = {
     'fx:attributes': [
       {
         _links: {
-          curies: [
+          'curies': [
             {
               name: 'fx',
               href: 'https://api.foxycart.com/rels/{rel}',
               templated: true,
             },
           ],
-          self: {
+          'self': {
             href: 'https://api.foxy.test/user_attributes/2',
             title: 'This user attribute',
           },
@@ -54,14 +54,14 @@ export const user: FxUser = {
       },
       {
         _links: {
-          curies: [
+          'curies': [
             {
               name: 'fx',
               href: 'https://api.foxycart.com/rels/{rel}',
               templated: true,
             },
           ],
-          self: {
+          'self': {
             href: 'https://api.foxy.test/user_attributes/4',
             title: 'This user attribute',
           },
@@ -78,14 +78,14 @@ export const user: FxUser = {
       },
       {
         _links: {
-          curies: [
+          'curies': [
             {
               name: 'fx',
               href: 'https://api.foxycart.com/rels/{rel}',
               templated: true,
             },
           ],
-          self: {
+          'self': {
             href: 'https://api.foxy.test/user_attributes/28',
             title: 'This user attribute',
           },
