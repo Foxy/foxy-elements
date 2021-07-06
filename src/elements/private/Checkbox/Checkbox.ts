@@ -11,14 +11,20 @@ import {
 } from 'lit-element';
 
 import { CheckboxChangeEvent } from './CheckboxChangeEvent';
-import { CheckboxMachine } from './CheckboxMachine';
-import { Themeable } from '../../../mixins/themeable';
-import { interpret } from 'xstate';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { ThemeableMixin } from '../../../mixins/themeable';
 
-export class Checkbox extends LitElement {
-  public static get styles(): CSSResultArray {
+export class Checkbox extends ConfigurableMixin(ThemeableMixin(LitElement)) {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      checked: { type: Boolean },
+    };
+  }
+
+  static get styles(): CSSResultArray {
     return [
-      Themeable.styles,
+      super.styles,
       css`
         .ml-xxl {
           margin-left: calc(var(--lumo-space-m) + 1.125rem);
@@ -32,46 +38,11 @@ export class Checkbox extends LitElement {
     ];
   }
 
-  public static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      checked: { type: Boolean, noAccessor: true },
-      disabled: { type: Boolean, noAccessor: true },
-    };
-  }
+  checked = false;
 
-  private readonly __machine = CheckboxMachine.withConfig({
-    actions: {
-      sendChange: () => {
-        this.dispatchEvent(new CheckboxChangeEvent(this.checked));
-      },
-    },
-  });
-
-  private readonly __service = interpret(this.__machine)
-    .onTransition(state => state.changed && this.requestUpdate())
-    .start();
-
-  public get checked(): boolean {
-    return this.__service.state.matches('checked');
-  }
-
-  public set checked(value: boolean) {
-    if (value !== this.checked) this.__service.send('FORCE_TOGGLE');
-  }
-
-  public get disabled(): boolean {
-    const states = ['checked.disabled', 'unchecked.disabled'];
-    return states.some(state => this.__service.state.matches(state));
-  }
-
-  public set disabled(value: boolean) {
-    this.__service.send(value ? 'DISABLE' : 'ENABLE');
-  }
-
-  public render(): TemplateResult {
+  render(): TemplateResult {
     const checked = this.checked;
-    const ease = 'transition ease-in-out duration-200';
+    const ease = 'transition-colors ease-in-out duration-200';
     const box = `${ease} ${checked ? 'bg-primary' : 'bg-contrast-20 group-hover-bg-contrast-30'}`;
     const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
 
@@ -87,10 +58,15 @@ export class Checkbox extends LitElement {
             .checked=${checked}
             ?disabled=${this.disabled}
             data-testid="input"
-            @change=${(evt: Event) => [evt.stopPropagation(), this.__service.send('TOGGLE')]}
+            @change=${(evt: Event) => {
+              evt.stopPropagation();
+              this.checked = !this.checked;
+              this.dispatchEvent(new CheckboxChangeEvent(this.checked));
+            }}
           />
         </div>
-        <div class="font-lumo text-body leading-m -mt-xs ml-m">
+
+        <div class="flex-1 font-lumo text-body leading-m -mt-xs ml-m">
           <slot></slot>
         </div>
       </label>

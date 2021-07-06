@@ -9,6 +9,7 @@ import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
 import { composeTransaction } from './composers/composeTransaction';
+import { composeUser } from './composers/composeUser';
 import { getPagination } from '../getPagination';
 import { router } from '../router';
 
@@ -83,6 +84,13 @@ router.get('/s/admin/stores/:id/subscriptions', async ({ params, request }) => {
 });
 
 // transactions
+router.get('/s/admin/transactions/:id', async ({ params }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const doc = await db.transactions.get(id);
+  const body = composeTransaction(doc);
+  return new Response(JSON.stringify(body));
+});
 
 router.get('/s/admin/stores/:id/transactions', async ({ params, request }) => {
   await whenDbReady;
@@ -178,7 +186,6 @@ router.get('/s/admin/items/:id', async ({ params }) => {
 
 router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   await whenDbReady;
-
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
@@ -208,11 +215,59 @@ router.patch('/s/admin/subscriptions/:id', async ({ params, request }) => {
   return router.handleRequest(new Request(url, { headers }))!.handlerPromise;
 });
 
+// error_entries
+
+router.get('/s/admin/stores/:id/error_entries', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+  const getErrorParam = new URL(request.url).searchParams.get('hide_error');
+  const hideError: boolean | undefined =
+    getErrorParam === null ? undefined : JSON.parse(getErrorParam);
+  let count;
+  let items;
+  try {
+    count = await db.errorEntries.count();
+    if (hideError === undefined) {
+      items = await db.errorEntries.where('store').equals(id).offset(offset).limit(limit).toArray();
+    } else {
+      items = await db.errorEntries
+        .where('store')
+        .equals(id)
+        .and(r => r.hide_error === hideError)
+        .offset(offset)
+        .limit(limit)
+        .toArray();
+    }
+    const rel = 'fx:error_entries';
+    const composeItem = composeErrorEntry;
+    const body = composeCollection({ composeItem, rel, url, count, items });
+    return new Response(JSON.stringify(body));
+  } catch (e) {
+    console.log('There was an error', e);
+  }
+});
+
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+  const errorEntry = await db.errorEntries.get(parseInt(params.id));
+  const body = composeErrorEntry(errorEntry);
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  await db.errorEntries.update(id, await request.json());
+  const body = composeErrorEntry(await db.errorEntries.get(id));
+  return new Response(JSON.stringify(body));
+});
+
 // customer_attributes
 
 router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
   await whenDbReady;
-
   const id = parseInt(params.id);
   const url = request.url;
   const { limit, offset } = getPagination(url);
@@ -220,7 +275,6 @@ router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
     db.customerAttributes.count(),
     db.customerAttributes.where('customer').equals(id).offset(offset).limit(limit).toArray(),
   ]);
-
   const rel = 'fx:attributes';
   const composeItem = composeCustomerAttribute;
   const body = composeCollection({ composeItem, rel, url, count, items });
@@ -421,6 +475,75 @@ router.get('/s/admin/error_entries/:id', async ({ params }) => {
   const body = composeErrorEntry(await db.errorEntries.get(id));
 
   return new Response(JSON.stringify(body));
+});
+
+// users
+
+router.get('/s/admin/stores/:id/users', async ({ params, request }) => {
+  await whenDbReady;
+
+  const store = parseInt(params.id);
+  const url = request.url;
+  const rel = 'fx:users';
+
+  const { limit, offset } = getPagination(url);
+  const [count, items] = await Promise.all([
+    db.users.count(),
+    db.users.where('store').equals(store).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const body = composeCollection({ composeItem: composeUser, rel, url, count, items });
+  return new Response(JSON.stringify(body));
+});
+
+router.post('/s/admin/stores/:id/users', async ({ params, request }) => {
+  await whenDbReady;
+
+  const body = await request.json();
+  const id = await db.users.add({
+    store: parseInt(params.id),
+    first_name: body.first_name ?? '',
+    last_name: body.last_name ?? '',
+    email: body.email ?? '',
+    phone: body.phone ?? '',
+    affiliate_id: body.affiliate_id ?? 0,
+    is_programmer: body.is_programmer ?? false,
+    is_front_end_developer: body.is_front_end_developer ?? false,
+    is_designer: body.is_designer ?? false,
+    is_merchant: body.is_merchant ?? false,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  });
+
+  return router.handle(`/s/admin/users/${id}`, 'GET')!.handlerPromise;
+});
+
+router.get('/s/admin/users/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const user = await db.users.get(parseInt(params.id));
+  const body = composeUser(user);
+
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/users/:id', async ({ params, request }) => {
+  await whenDbReady;
+
+  const user = await db.users.get(parseInt(params.id));
+  const body = await request.json();
+  await db.users.update(parseInt(params.id), { ...user, ...body });
+
+  return router.handle(request.url, 'GET')!.handlerPromise;
+});
+
+router.delete('/s/admin/users/:id', async ({ params, request }) => {
+  await whenDbReady;
+
+  const user = await router.handle(request.url, 'GET')!.handlerPromise;
+  await db.users.delete(parseInt(params.id));
+
+  return user;
 });
 
 // special routes
