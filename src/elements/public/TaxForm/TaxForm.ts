@@ -3,6 +3,7 @@ import { Checkbox, I18N, PropertyTable } from '../../private';
 import { Interpreter, createMachine, interpret } from 'xstate';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { countries, countryDetails } from '../../../utils/countries';
+import { ButtonElement } from '@vaadin/vaadin-button';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { Data } from './types';
 import { NucleonElement } from '../NucleonElement';
@@ -19,6 +20,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
     return {
       'foxy-i18n': I18N,
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'x-button': ButtonElement,
       'x-checkbox': Checkbox,
       'x-combo-box': ComboBoxElement,
       'x-property-table': PropertyTable,
@@ -230,6 +232,31 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
           }))}
         >
         </x-property-table>
+        <div class="flex gap-x-s">
+          ${this.href
+            ? html`
+                <x-button
+                  class="w-full"
+                  theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+                  data-testid='"action'
+                  ?disabled="${!this.in('idle')}"
+                  @click=${this.__handleActionClick}
+                >
+                  <foxy-i18n ns="${ns}" key="delete" lang="${this.lang}"> </foxy-i18n>
+                </x-button>
+              `
+            : ''}
+          <x-button
+            class="w-full"
+            theme="primary"
+            data-testid='"action'
+            ?disabled="${!this.in('idle')}"
+            @click=${this.__handleActionClick}
+          >
+            <foxy-i18n ns="${ns}" key="${this.href ? 'save' : 'create'}" lang="${this.lang}">
+            </foxy-i18n>
+          </x-button>
+        </div>
       `;
     }
   }
@@ -258,6 +285,12 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
         value: s,
       };
     };
+  }
+
+  private __handleActionClick() {
+    if (this.in('idle')) {
+      this.submit();
+    }
   }
 
   private __handleCityChange(ev: CustomEvent) {
