@@ -119,7 +119,9 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                   data-testid="country"
                   class="flex-1"
                   label=${this.__tSource('country')('country')}
-                  .items=${this.__getCountries().map(this.__tSourceLabelValue('country'))}
+                  .items=${this.__getCountries()
+                    .map(this.__tSourceLabelValue('country'))
+                    .sort((a, b) => (a.label > b.label ? 1 : -1))}
                   value="${this.__getCountries().includes(this.form.country)
                     ? this.form.country
                     : ''}"
@@ -133,9 +135,9 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                   data-testid="region"
                   class="flex-1"
                   label=${this.__tSource('region')('region')}
-                  .items=${this.__getRegions().map(
-                    this.__tSourceLabelValue(`region-${this.form.country?.toLowerCase()}`)
-                  )}
+                  .items=${this.__getRegions()
+                    .map(this.__tSourceLabelValue(`region-${this.form.country?.toLowerCase()}`))
+                    .sort((a, b) => (a.label > b.label ? 1 : -1))}
                   value="${ifDefined(this.form.region)}"
                   @value-changed="${this.__handleRegionChange}"
                 ></x-combo-box>
