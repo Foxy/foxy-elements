@@ -107,7 +107,7 @@ const setProviders = (ctx: TaxContext, ev: { type: string }): void => {
 };
 
 const setExempt = (ctx: TaxContext): void => {
-  ctx.supportExempt = ['taxjar', 'thomsonreuters'].includes(ctx.provider);
+  ctx.supportExempt = ctx.provider == 'taxjar' || ctx.mode == 'rate';
 };
 
 const providerActions = [
