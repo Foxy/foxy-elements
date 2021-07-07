@@ -17,6 +17,7 @@ interface TaxContext {
   scope: string;
   mode: string;
   provider: string;
+  country: string;
 }
 
 type Scope = 'global' | 'union' | 'country' | 'region' | 'local' | null;
@@ -53,15 +54,21 @@ function setSupportAutomatic(ctx: TaxContext, ev: { type: string }): void {
 }
 
 /**
- * @param ctx
+ * Sets the value of supportShipping in the provided context.
+ *
+ * This function does not rely on any particular event, allowing it to be
+ * triggered by any event.
+ *
+ * @param ctx the context to be modified to make supportShipping consistent.
  */
 function setSupportShipping(ctx: TaxContext): void {
   let result = true;
   if (ctx.provider == 'taxjar') {
     result = false;
-  }
-  if (ctx.scope != 'union' && ctx.providerOptions.taxjar) {
-    result = false;
+  } else {
+    if (ctx.scope != 'union' && ['USCA', 'EU'].includes(ctx.country)) {
+      result = false;
+    }
   }
   ctx.supportShipping = result;
 }
@@ -189,6 +196,7 @@ const countryStates = {
   initial: 'any',
   states: {
     any: {
+      entry: [createAction('country', 'any')],
       on: {
         CHOOSEAU: {
           actions: countryActions,
@@ -208,6 +216,7 @@ const countryStates = {
       },
     },
     australia: {
+      entry: [createAction('country', 'AU')],
       on: {
         CHOOSEANY: {
           actions: countryActions,
@@ -241,6 +250,7 @@ const countryStates = {
       },
       states: {
         euaCan: {
+          entry: [createAction('country', 'USCA')],
           on: {
             CHOOSEEUROPE: {
               actions: countryActions,
@@ -250,6 +260,7 @@ const countryStates = {
           },
         },
         europe: {
+          entry: [createAction('country', 'EU')],
           on: {
             CHOOSEEUA: {
               actions: countryActions,
@@ -265,6 +276,7 @@ const countryStates = {
 
 export const taxMachine = {
   context: {
+    country: '',
     mode: '',
     provider: '',
     providerOptions: {
