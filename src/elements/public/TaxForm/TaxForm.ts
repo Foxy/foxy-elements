@@ -98,7 +98,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
           <x-text-field
             data-testid="name"
             class="flex-1"
-            label=${this.__tSource('tax-form')('taxName').toString()}
+            label=${this.__t('taxName').toString()}
             value="${ifDefined(this.form.name)}"
           ></x-text-field>
           <x-combo-box
