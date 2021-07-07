@@ -8,10 +8,13 @@ import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMe
 import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
+import { composeTax } from './composers/composeTax';
 import { composeTransaction } from './composers/composeTransaction';
 import { composeUser } from './composers/composeUser';
 import { getPagination } from '../getPagination';
 import { router } from '../router';
+import { HALJSONResource } from '../../elements/public/NucleonElement/types';
+import { Collection, Table } from 'dexie';
 
 const endpoint = 'https://demo.foxycart.com/s/admin';
 export { endpoint, router, db, whenDbReady, DemoDatabase };
@@ -559,6 +562,86 @@ router.delete('/s/admin/users/:id', async ({ params, request }) => {
 
   return user;
 });
+
+// taxes
+
+router.get('/s/admin/stores/:storeId/taxes/:id', async ({ params }) => {
+  return respondItemById(db.taxes, parseInt(params.id), composeTax);
+});
+
+router.get('/s/admin/stores/:id/taxes', async ({ request }) => {
+  return respondItems(db.taxes, composeTax, request.url, 'fx:taxes');
+});
+
+/**
+ * Returns a response object with the composed entry for the given id in the given table.
+ *
+ * @param table the Dixie table storing the data
+ * @param id the id number to be fetched
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @returns response object with the item requested.
+ */
+async function respondItemById(
+  table: Table,
+  id: number,
+  composer: (d: any) => HALJSONResource
+): Promise<Response> {
+  await whenDbReady;
+  const body = composer(await table.get(id));
+  return new Response(JSON.stringify(body));
+}
+
+/**
+ * Creates a response with the composed entries for the given
+ * table.
+ *
+ * @param table the Dixie table storing the data
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @param url the requested url
+ * @param rel the rel string
+ * @param parent the field to use to filter the items by parentID
+ * @param parentId the id number to be fetched
+ * @returns response promise
+ */
+async function respondItems(
+  table: Table,
+  composer: (d: any) => HALJSONResource,
+  url: string,
+  rel: string,
+  parent = 'store',
+  parentId = '0'
+) {
+  const [count, items] = await queryCountAndWhere(table, parent, parentId, getPagination(url));
+  const body = composeCollection({ composeItem: composer, count, items, rel, url });
+  return new Response(JSON.stringify(body));
+}
+
+/**
+ * Performs a simple query by a single field and return the results and count.
+ *
+ * @param table of the database to be queried.
+ * @param field the specific field that must match the value.
+ * @param value the value that must be matched.
+ * @param pagination the pagination object.
+ *
+ * @returns promise that resolves to an array with the number of ocurrences and the paginated result.
+ */
+function queryCountAndWhere(
+  table: Table,
+  field: string,
+  value: string | number,
+  pagination = { limit: 10, offset: 0 }
+) {
+  return Promise.all([table.count(), paginateQuery(table.where(field).equals(value), pagination)]);
+}
+
+/**
+ * @param query
+ * @param pagination
+ */
+function paginateQuery(query: Collection<any, any>, pagination = { limit: 20, offset: 0 }) {
+  return query.offset(pagination.offset).limit(pagination.limit).toArray();
+}
 
 // special routes
 
