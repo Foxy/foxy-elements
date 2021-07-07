@@ -60,7 +60,7 @@ function setSupportShipping(ctx: TaxContext): void {
   if (ctx.provider == 'taxjar') {
     result = false;
   }
-  if (ctx.provider == 'thomsonreuters' && ctx.scope != 'union' && ctx.providerOptions.taxjar) {
+  if (ctx.scope != 'union' && ctx.providerOptions.taxjar) {
     result = false;
   }
   ctx.supportShipping = result;
