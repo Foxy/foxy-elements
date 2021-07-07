@@ -121,7 +121,7 @@ const providerActions = [
 const countryActions = [setProviders, setSupportShipping];
 
 const scopeConfig = {
-  actions: [setSupportAutomatic, setLocal],
+  actions: [setSupportAutomatic, setLocal, setExempt],
   target: 'scope',
 };
 
