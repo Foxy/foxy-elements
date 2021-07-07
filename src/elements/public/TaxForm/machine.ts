@@ -80,6 +80,7 @@ const setLocal = (ctx: TaxContext, ev: CustomEvent): void => {
     ctx.supportCity = ['local'].includes(scope);
     ctx.scope = scope;
     setSupportCountry(ctx);
+    setSupportProvider(ctx);
   }
 };
 
