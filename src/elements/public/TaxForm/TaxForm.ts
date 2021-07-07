@@ -6,6 +6,7 @@ import { countries, countryDetails } from '../../../utils/countries';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { Data } from './types';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
@@ -19,6 +20,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-i18n': I18N,
+      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'x-button': ButtonElement,
       'x-checkbox': Checkbox,
@@ -96,6 +98,19 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
       `;
     } else {
       return html`
+        <foxy-internal-confirm-dialog
+          data-testid="confirm"
+          message="delete_prompt"
+          confirm="delete"
+          cancel="cancel"
+          header="delete"
+          theme="primary error"
+          lang=${this.lang}
+          ns=${TaxForm.__ns}
+          id="confirm"
+          @hide=${this.__handleConfirmHide}
+        >
+        </foxy-internal-confirm-dialog>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
           <x-text-field
             data-testid="name"
@@ -234,22 +249,22 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
           }))}
         >
         </x-property-table>
-        <div class="flex gap-x-s">
+        <div class="flex flex-wrap gap-x-s">
           ${this.href
             ? html`
                 <x-button
-                  class="w-full"
+                  class="flex-1"
                   theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
                   data-testid='"action'
                   ?disabled="${!this.in('idle')}"
-                  @click=${this.__handleActionClick}
+                  @click=${this.__handleDeleteClick}
                 >
                   <foxy-i18n ns="${ns}" key="delete" lang="${this.lang}"> </foxy-i18n>
                 </x-button>
               `
             : ''}
           <x-button
-            class="w-full"
+            class="flex-1"
             theme="primary"
             data-testid='"action'
             ?disabled="${!this.in('idle')}"
@@ -293,6 +308,15 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
     if (this.in('idle')) {
       this.submit();
     }
+  }
+
+  private __handleDeleteClick(evt: CustomEvent) {
+    const confirm = this.renderRoot.querySelector('#confirm');
+    (confirm as InternalConfirmDialog).show(evt.currentTarget as HTMLElement);
+  }
+
+  private __handleConfirmHide(evt: CustomEvent) {
+    if (!evt.detail.cancelled) this.delete();
   }
 
   private __handleCityChange(ev: CustomEvent) {
