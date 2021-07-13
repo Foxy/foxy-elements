@@ -42,9 +42,11 @@ function setSupportCountry(ctx: TaxContext): void {
 }
 
 /**
- * @param ctx
- * @param ev
- * @param ev.type
+ * Sets the value of supportAutomatic in the provided context.
+ *
+ * @param ctx the current context to be used to evaluate the support for automatic.
+ * @param ev the event that has triggered a state change
+ * @param ev.type the type of the event
  */
 function setSupportAutomatic(ctx: TaxContext, ev: { type: string }): void {
   const scope = type2scope(ev.type);
@@ -116,6 +118,7 @@ const providerActions = [
   (ctx: TaxContext, ev: CustomEvent): void => {
     ctx.provider = ev.type.replace('CHOOSE', '').toLowerCase();
   },
+  setSupportCountry,
 ];
 
 const countryActions = [setProviders, setSupportShipping];
@@ -172,8 +175,8 @@ const modeStates = {
           },
         },
         useOrigin: {
-          entry: [createAction('supportOriginCountry', true)],
-          exit: [createAction('supportOriginCountry', false)],
+          entry: [createAction('supportOriginCountry', true), setSupportCountry],
+          exit: [createAction('supportOriginCountry', false), setSupportCountry],
           on: {
             CHOOSEREGULARRATES: 'regular',
           },

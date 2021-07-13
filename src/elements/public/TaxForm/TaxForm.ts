@@ -1,53 +1,65 @@
-import { CSSResult, CSSResultArray, TemplateResult, html } from 'lit-element';
+import { CSSResultArray, TemplateResult, html } from 'lit-element';
 import { Checkbox, I18N, PropertyTable } from '../../private';
 import { Interpreter, createMachine, interpret } from 'xstate';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { Themeable, ThemeableMixin } from '../../../mixins/themeable';
 import { countries, countryDetails } from '../../../utils/countries';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { Themeable } from '../../../mixins/themeable';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { globalRegions } from '../../../utils/regions';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import memoize from 'lodash-es/memoize';
 import { taxMachine } from './machine';
 import { taxProviders } from './providers';
 
-export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
+const Base = ScopedElementsMixin(
+  ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 'tax-form')))
+);
+
+export class TaxForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-i18n': I18N,
-      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-confirm-dialog': InternalConfirmDialog,
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'vaadin-text-field': TextFieldElement,
       'x-button': ButtonElement,
       'x-checkbox': Checkbox,
       'x-combo-box': ComboBoxElement,
       'x-property-table': PropertyTable,
-      'x-text-field': TextFieldElement,
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
+  static get styles(): CSSResultArray {
     return Themeable.styles;
   }
 
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ name: v }) => (v && v.length <= 30) || 'name_too_long',
+      ({ name: v }) => !!v || 'name_required',
+      ({ name: v }) => !v || v.length <= 30 || 'name_too_long',
+      ({ type: v }) => !!v || 'type_required',
       ({ type: v }) => (v && TaxForm.__types.includes(v)) || 'type_unknown',
+      ({ country: c, type: t }) => t != 'country' || !!c || 'country_required',
+      ({ country: c, use_origin_rates: r }) => !r || !!c || 'country_required',
       ({ country: v }) => !v || !!v.match(/[A-Z]{2}/) || 'country_unknown',
-      ({ region: v }) => !v || v.length <= 20 || 'region_too_long',
+      ({ region: v, type: t }) => t != 'region' || !!v || 'region_required',
+      ({ region: v }) => !v || v.length <= 20 || 'region_unknown',
       ({ city: v }) => !v || v.length <= 20 || 'city_too_long',
-      ({ city: c, type: t }) => (t == 'local' && c) || t != 'local' || 'city_too_long',
-      ({ service_provider: v }) => !v || taxProviders.includes(v) || 'unknown_provider',
-      ({ rate: v }) => (v && v <= 100) || 'invalid_percentage',
+      ({ city: c, type: t }) => t != 'local' || !!c || 'city_required',
+      ({ service_provider: v }) => !v || taxProviders.includes(v) || 'service_provider_unknown',
+      ({ is_live: l, service_provider: v }) => !l || !!v || 'service_provider_required',
+      ({ rate: v }) => !v || v <= 100 || 'rate_unknown',
+      ({ is_live: l, rate: v }) => !!l || !!v || 'rate_required',
     ];
   }
-
-  private static __ns = 'tax-form';
 
   private static __types = ['global', 'country', 'region', 'local', 'union'];
 
@@ -59,6 +71,17 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __untrackTranslations?: () => void;
 
+  private readonly __bindField = memoize((key: keyof Data) => {
+    return (evt: CustomEvent) => {
+      const target = evt.target as HTMLInputElement;
+      this.edit({ [key]: target.value });
+    };
+  });
+
+  private readonly __getValidator = memoize((prefix: string) => () => {
+    return !this.errors.some(err => err.startsWith(prefix));
+  });
+
   connectedCallback(): void {
     super.connectedCallback();
     this.__taxService = interpret(this.__taxMachine);
@@ -66,7 +89,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
     this.__untrackTranslations = customElements
       .get('foxy-i18n')
       .onTranslationChange(() => this.requestUpdate());
-    this.__namespaces.push(TaxForm.__ns, 'country');
+    this.__namespaces.push(this.ns, 'country');
     customElements.get('foxy-i18n').i18next.loadNamespaces(this.__namespaces);
   }
 
@@ -83,7 +106,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
   }
 
   render(): TemplateResult {
-    const ns = TaxForm.__ns;
+    const ns = this.ns;
     if (!this.in('idle')) {
       return html`
         <div class="absolute inset-0 flex items-center justify-center">
@@ -106,26 +129,14 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
           header="delete"
           theme="primary error"
           lang=${this.lang}
-          ns=${TaxForm.__ns}
+          ns=${this.ns}
           id="confirm"
           @hide=${this.__handleConfirmHide}
         >
         </foxy-internal-confirm-dialog>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
-          <x-text-field
-            data-testid="name"
-            class="flex-1"
-            label=${this.__t('taxName').toString()}
-            value="${ifDefined(this.form.name)}"
-          ></x-text-field>
-          <x-combo-box
-            data-testid="type"
-            class="flex-1"
-            label=${this.__t('taxType').toString()}
-            .items=${TaxForm.__types.map(this.__tLabelValue)}
-            value=${ifDefined(this.form.type)}
-            @value-changed="${this.__handleTypeChange}"
-          ></x-combo-box>
+          ${this.__textField('name', 'flex-1')}
+          ${this.__comboBoxField('type', 'flex-1', TaxForm.__types.map(this.__tLabelValue))}
         </div>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
           ${this.__taxMachine.context.supportCountry
@@ -141,6 +152,7 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                     ? this.form.country
                     : ''}"
                   @value-changed="${this.__handleCountryChange}"
+                  error-message=${this.__getErrorMessage('country')}
                 ></x-combo-box>
               `
             : ''}
@@ -155,31 +167,34 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
                     .sort((a, b) => (a.label > b.label ? 1 : -1))}
                   value="${ifDefined(this.form.region)}"
                   @value-changed="${this.__handleRegionChange}"
+                  error-message=${this.__getErrorMessage('region')}
                 ></x-combo-box>
               `
             : ''}
           ${this.__taxMachine.context.supportCity
             ? html`
-                <x-text-field
+                <vaadin-text-field
                   data-testid="city"
                   class="flex-1"
                   label=${this.__t('city').toString()}
                   value="${this.form.city ?? ''}"
                   @change=${this.__handleCityChange}
+                  error-message=${this.__getErrorMessage('city')}
                 >
-                </x-text-field>
+                </vaadin-text-field>
               `
             : ''}
         </div>
         ${this.__taxMachine.context.supportAutomatic
           ? html`
               <x-checkbox
-                data-testid="automatic"
+                data-testid="is_live"
                 class="my-s"
                 ?checked=${ifDefined(this.form.is_live)}
                 @change=${this.__handleAutomatic}
+                error-message=${this.__getErrorMessage('is_live')}
               >
-                <foxy-i18n lang=${this.lang} ns=${ns} key="automatic"></foxy-i18n>
+                <foxy-i18n lang=${this.lang} ns=${ns} key="is_live"></foxy-i18n>
               </x-checkbox>
             `
           : ''}
@@ -187,32 +202,38 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
           ${this.__taxMachine.context.supportProvider
             ? html` <x-combo-box
                 class="flex-1"
+                data-testid="service_provider"
                 label=${this.__t('provider')}
                 value="${ifDefined(this.form.service_provider)}"
                 .items=${taxProviders
                   .filter(i => this.__taxMachine.context.providerOptions[i])
                   .map(this.__tLabelValue)}
-                @value-changed=${this.__handleProviderChange}
+                @value-changed=${this.__bindField('service_provider')}
+                error-message="${this.__getErrorMessage('service_provider')}"
               >
               </x-combo-box>`
-            : html`<x-text-field
+            : html`<vaadin-text-field
+                data-testid="rate"
                 label=${this.__t('taxRate').toString()}
                 .value="${ifDefined(this.form.rate)}"
-                @value-changed=${this.__handleRateChange}
+                @value-changed=${this.__bindField('rate')}
+                error-message=${this.__getErrorMessage('rate')}
               >
-              </x-text-field>`}
+              </vaadin-text-field>`}
           ${this.__taxMachine.context.supportExempt
             ? html`
                 <x-checkbox
-                  data-testid="exempt"
+                  data-testid="exempt_all_customer_tax_ids"
                   class="my-s"
                   ?checked=${ifDefined(this.form.exempt_all_customer_tax_ids)}
+                  .value="${ifDefined(this.form.exempt_all_customer_tax_ids)}"
                   @change=${this.__handleExemptChange}
+                  error-message=${this.__getErrorMessage('exempt_all_customer_tax_ids')}
                 >
                   <foxy-i18n
                     ns="${ns}"
                     lang="${this.lang}"
-                    key="exemptCustomersWithTaxId"
+                    key="exempt_all_customer_tax_ids"
                   ></foxy-i18n>
                 </x-checkbox>
               `
@@ -223,6 +244,9 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
               <x-checkbox
                 ?checked=${ifDefined(this.form.use_origin_rates)}
                 @change=${this.__handleUseOriginRatesChange}
+                error-message=${this.__getErrorMessage('use_origin_rates')}
+                .value="${ifDefined(this.form.use_origin_rates)}"
+                data-testid="use_origin_rates"
               >
                 <foxy-i18n ns=${ns} lang=${this.lang} key="useOriginRates"></foxy-i18n>
               </x-checkbox>
@@ -233,6 +257,8 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
               @change=${this.__handleApplyToShipping}
               class="my-s"
               ?checked=${ifDefined(this.form.apply_to_shipping)}
+              error-message=${this.__getErrorMessage('apply_to_shipping')}
+              data-testid="apply_to_shipping"
             >
               <foxy-i18n lang=${this.lang} ns=${ns} key="applyToShipping"></foxy-i18n>
             </x-checkbox>`
@@ -253,20 +279,24 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
           ${this.href
             ? html`
                 <x-button
+                  aria-label="delete"
+                  role="button"
                   class="flex-1"
                   theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-                  data-testid='"action'
+                  data-testid="action"
                   ?disabled="${!this.in('idle')}"
                   @click=${this.__handleDeleteClick}
                 >
-                  <foxy-i18n ns="${ns}" key="delete" lang="${this.lang}"> </foxy-i18n>
+                  <foxy-i18n ns="${ns}" key="delete" lang="${this.lang}"></foxy-i18n>
                 </x-button>
               `
             : ''}
           <x-button
+            role="button"
+            aria-label="${this.href ? 'save' : 'create'}"
             class="flex-1"
             theme="primary"
-            data-testid='"action'
+            data-testid='"action-save'
             ?disabled="${!this.in('idle')}"
             @click=${this.__handleActionClick}
           >
@@ -278,13 +308,54 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
     }
   }
 
+  private __textField(field: keyof Data, classString: string, label = undefined): TemplateResult {
+    return html`
+      <vaadin-text-field
+        @change=${this.__bindField(field)}
+        class="${classString}"
+        data-testid="${field}"
+        error-message=${this.__getErrorMessage(field)}
+        label=${this.__t(label ? label! : field).toString()}
+        value="${ifDefined(this.form[field])}"
+      ></vaadin-text-field>
+    `;
+  }
+
+  private __comboBoxField(
+    field: keyof Data,
+    classString: string,
+    items: string[] | { label: string; value: string }[],
+    label = undefined
+  ): TemplateResult {
+    return html` <x-combo-box
+      .items=${items}
+      @value-changed="${this.__bindField(field)}"
+      class="flex-1"
+      data-testid="${field}"
+      error-message=${this.__getErrorMessage(field)}
+      label=${this.__t(label ? label! : field).toString()}
+      value="${ifDefined(this.form[field])}"
+    >
+      <style>
+        [part='text-field'] {
+          padding-top: 0;
+        }
+      </style>
+    </x-combo-box>`;
+  }
+
+  private __getErrorMessage(prefix: string) {
+    const error = this.errors.find(err => err.startsWith(prefix));
+    return error ? this.t(error.replace(prefix, 'v8n')) : '';
+  }
+
   private get __t(): (s: string) => string {
     return s => this.__tSource(undefined)(s);
   }
 
   private __tSource(source: undefined | string | string[]): (s: string) => string {
     if (source === undefined) {
-      source = TaxForm.__ns;
+      source = this.ns;
     }
     return customElements.get('foxy-i18n').i18next.getFixedT(this.lang, source);
   }
@@ -333,25 +404,6 @@ export class TaxForm extends ScopedElementsMixin(NucleonElement)<Data> {
 
   private __handleAutomatic(ev: CustomEvent) {
     this.edit({ is_live: ev.detail });
-  }
-
-  private __handleProviderChange(ev: CustomEvent) {
-    if (ev.detail && ev.detail.value) {
-      const service_provider = ev.detail.value;
-      this.edit({ service_provider: service_provider });
-    }
-  }
-
-  private __handleRateChange(ev: CustomEvent) {
-    const rate = ev.detail?.value;
-    this.edit({ rate });
-  }
-
-  private __handleTypeChange(ev: CustomEvent) {
-    this.edit({
-      is_live: ev.detail.value == 'global' ? false : this.form.is_live,
-      type: ev.detail.value,
-    });
   }
 
   private __handleUseOriginRatesChange(ev: CustomEvent) {
