@@ -1,27 +1,32 @@
-interface TaxContext {
-  supportAutomatic: boolean;
-  supportCity: boolean;
-  supportCountry: boolean;
-  supportExempt: boolean;
-  supportOrigin: boolean;
-  supportOriginCountry: boolean;
-  supportProvider: boolean;
-  providerOptions: {
-    avalara: boolean;
-    onesource: boolean;
-    taxjar: boolean;
-    thomsonreuters: boolean;
-  };
-  supportRegion: boolean;
-  supportShipping: boolean;
-  scope: string;
-  mode: string;
-  provider: string;
-  country: string;
-}
-
 type Scope = 'global' | 'union' | 'country' | 'region' | 'local' | null;
+
 type Provider = 'avalara' | 'onesource' | 'taxjar' | 'thomsonreuters' | '';
+
+interface TaxContext {
+  support: {
+    automatic: boolean;
+    city: boolean;
+    country: boolean;
+    exempt: boolean;
+    origin: boolean;
+    originCountry: boolean;
+    provider: boolean;
+    providerOptions: {
+      avalara: boolean;
+      onesource: boolean;
+      taxjar: boolean;
+      thomsonreuters: boolean;
+    };
+    region: boolean;
+    shipping: boolean;
+  };
+  value: {
+    scope: Scope;
+    mode: string;
+    provider: Provider;
+    country: string;
+  };
+}
 
 const type2scope = (type: string): Scope => {
   const candidate = type.replace('SET', '').toLowerCase();
@@ -35,102 +40,98 @@ const type2scope = (type: string): Scope => {
 /**
  * @param ctx
  */
-function setSupportCountry(ctx: TaxContext): void {
-  ctx.supportCountry =
-    ['country', 'region', 'local'].includes(ctx.scope) ||
-    (ctx.scope === 'union' && ctx.supportOriginCountry);
+function updateSupport(ctx: TaxContext): void {
+  setSupportScope(ctx);
+  setSupportCountry(ctx);
+  setSupportAutomatic(ctx);
+  setSupportProvider(ctx);
+  setSupportProviderOptions(ctx);
+  setSupportExempt(ctx);
+  setSupportShipping(ctx);
+  setSupportCountry(ctx);
 }
 
 /**
- * Sets the value of supportAutomatic in the provided context.
+ * @param ctx
+ */
+function setSupportScope(ctx: TaxContext): void {
+  ctx.support.region = ['region', 'local'].includes(ctx.value.scope!);
+  ctx.support.city = ['local'].includes(ctx.value.scope!);
+}
+
+/**
+ * @param ctx
+ */
+function setSupportCountry(ctx: TaxContext): void {
+  ctx.support.country =
+    ['country', 'region', 'local'].includes(ctx.value.scope!) ||
+    (ctx.value.scope === 'union' && ctx.support.originCountry);
+}
+
+/**
+ * Sets the value of support.automatic in the provided context.
  *
  * @param ctx the current context to be used to evaluate the support for automatic.
  * @param ev the event that has triggered a state change
  * @param ev.type the type of the event
  */
-function setSupportAutomatic(ctx: TaxContext, ev: { type: string }): void {
-  const scope = type2scope(ev.type);
-  if (scope) {
-    ctx.supportAutomatic = ['union', 'country', 'region'].includes(scope);
-  }
-}
-
-/**
- * Sets the value of supportShipping in the provided context.
- *
- * This function does not rely on any particular event, allowing it to be
- * triggered by any event.
- *
- * @param ctx the context to be modified to make supportShipping consistent.
- */
-function setSupportShipping(ctx: TaxContext): void {
-  let result = true;
-  if (ctx.provider == 'taxjar') {
-    result = false;
-  } else {
-    if (ctx.scope != 'union' && ['USCA', 'EU'].includes(ctx.country)) {
-      result = false;
-    }
-  }
-  ctx.supportShipping = result;
+function setSupportAutomatic(ctx: TaxContext): void {
+  ctx.support.automatic = ['union', 'country', 'region'].includes(ctx.value.scope!);
 }
 
 /**
  * @param ctx
  */
 function setSupportProvider(ctx: TaxContext): void {
-  ctx.supportProvider = ctx.supportAutomatic && ctx.mode === 'auto';
+  ctx.support.provider = ctx.support.automatic && ctx.value.mode === 'auto';
+}
+
+/**
+ * @param ctx
+ */
+function setSupportExempt(ctx: TaxContext): void {
+  ctx.support.exempt = ctx.value.provider == 'taxjar' || ctx.value.mode == 'rate';
+}
+
+/**
+ * Sets the value of support.shipping in the provided context.
+ *
+ * This function does not rely on any particular event, allowing it to be
+ * triggered by any event.
+ *
+ * @param ctx the context to be modified to make support.shipping consistent.
+ */
+function setSupportShipping(ctx: TaxContext): void {
+  let result = true;
+  if (ctx.value.provider == 'taxjar') {
+    result = false;
+  } else {
+    if (ctx.value.scope != 'union' && ['usa', 'eur'].includes(ctx.value.country)) {
+      result = false;
+    }
+  }
+  ctx.support.shipping = result;
 }
 
 const setLocal = (ctx: TaxContext, ev: CustomEvent): void => {
   const scope = type2scope(ev.type);
   if (scope !== null) {
-    ctx.supportRegion = ['region', 'local'].includes(scope);
-    ctx.supportCity = ['local'].includes(scope);
-    ctx.scope = scope;
-    setSupportCountry(ctx);
-    setSupportProvider(ctx);
+    ctx.value.scope = scope;
   }
 };
 
-const setProviders = (ctx: TaxContext, ev: { type: string }): void => {
-  const eur = ['CHOOSEEUROPE', 'SETUNION'];
-  const eua = 'CHOOSEEUA';
-  const aus = 'CHOOSEAUS';
-  const relevant = ['CHOOSEANY', ...eur, eua];
-  if (relevant.includes(ev.type)) {
-    ctx.providerOptions = {
-      avalara: true,
-      onesource: true,
-      taxjar: [...eur, eua, aus].includes(ev.type),
-      thomsonreuters: [...eur, eua].includes(ev.type),
-    };
-  }
+const setSupportProviderOptions = (ctx: TaxContext): void => {
+  ctx.support.providerOptions = {
+    avalara: true,
+    onesource: true,
+    taxjar: ['eur', 'usa', 'aus'].includes(ctx.value.country),
+    thomsonreuters: ['eur', 'usa'].includes(ctx.value.country),
+  };
 };
-
-const setExempt = (ctx: TaxContext): void => {
-  ctx.supportExempt = ctx.provider == 'taxjar' || ctx.mode == 'rate';
-};
-
-const providerActions = [
-  setExempt,
-  setSupportShipping,
-  (ctx: TaxContext, ev: CustomEvent): void => {
-    ctx.provider = ev.type.replace('CHOOSE', '').toLowerCase();
-  },
-  setSupportCountry,
-];
-
-const countryActions = [setProviders, setSupportShipping];
 
 const scopeConfig = {
-  actions: [setSupportAutomatic, setLocal, setExempt],
+  actions: [setLocal, updateSupport],
   target: 'scope',
-};
-
-const automaticConfig = {
-  actions: providerActions,
-  target: 'automatic',
 };
 
 const scopeStates = {
@@ -148,12 +149,22 @@ const scopeStates = {
   },
 };
 
+const providerActions = [
+  (ctx: TaxContext, ev: CustomEvent): void => {
+    ctx.value.provider = ev.type.replace('CHOOSE', '').toLowerCase() as Provider;
+  },
+];
+
+const automaticConfig = {
+  actions: providerActions,
+  target: 'automatic',
+};
+
 const modeStates = {
   initial: 'rate',
   states: {
     automatic: {
-      entry: [setSupportProvider, createAction('mode', 'auto')],
-      exit: [setSupportProvider],
+      entry: [(ctx: TaxContext): string => (ctx.value.mode = 'auto'), updateSupport],
       initial: 'regular',
       on: {
         CHOOSEAVALARA: automaticConfig,
@@ -175,8 +186,8 @@ const modeStates = {
           },
         },
         useOrigin: {
-          entry: [createAction('supportOriginCountry', true), setSupportCountry],
-          exit: [createAction('supportOriginCountry', false), setSupportCountry],
+          entry: [(ctx: TaxContext): boolean => (ctx.support.originCountry = true)],
+          exit: [(ctx: TaxContext): boolean => (ctx.support.originCountry = false)],
           on: {
             CHOOSEREGULARRATES: 'regular',
           },
@@ -184,10 +195,10 @@ const modeStates = {
       },
     },
     rate: {
-      entry: [createAction('supportShipping', true), createAction('mode', 'rate')],
+      entry: [(ctx: TaxContext): string => (ctx.value.mode = 'rate'), updateSupport],
       on: {
         LIVE: {
-          cond: (ctx: TaxContext): boolean => ctx.supportAutomatic,
+          cond: (ctx: TaxContext): boolean => ctx.support.automatic,
           target: 'automatic',
         },
       },
@@ -195,79 +206,81 @@ const modeStates = {
   },
 };
 
+const countryActions = [
+  (ctx: TaxContext, ev: { type: string }): void => {
+    const countryAction = {
+      CHOOSEANY: 'any',
+      CHOOSEAU: 'aus',
+      CHOOSEEUROPE: 'eur',
+      CHOOSEUSA: 'usa',
+      SETUNION: 'eur',
+    };
+    ctx.value.country = (countryAction as any)[ev.type];
+  },
+];
+
 const countryStates = {
   initial: 'any',
   states: {
     any: {
-      entry: [createAction('country', 'any')],
+      entry: [...countryActions, updateSupport],
       on: {
         CHOOSEAU: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
           target: 'australia',
         },
-        CHOOSEEUA: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
-          target: 'northWest.euaCan',
-        },
         CHOOSEEUROPE: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
           target: 'northWest.europe',
+        },
+        CHOOSEUSA: {
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
+          target: 'northWest.euaCan',
         },
       },
     },
     australia: {
-      entry: [createAction('country', 'AU')],
+      entry: [...countryActions, updateSupport],
       on: {
         CHOOSEANY: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
           target: 'any',
         },
-        CHOOSEEUA: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
-          target: 'northWest.euaCan',
-        },
         CHOOSEEUROPE: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
           target: 'northWest.europe',
+        },
+        CHOOSEUSA: {
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
+          target: 'northWest.euaCan',
         },
       },
     },
     northWest: {
+      entry: [...countryActions, updateSupport],
       on: {
         CHOOSEANY: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
           target: 'any',
         },
         CHOOSEAU: {
-          actions: countryActions,
-          cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+          cond: (ctx: TaxContext): boolean => ctx.support.country,
           target: 'australia',
         },
       },
       states: {
         euaCan: {
-          entry: [createAction('country', 'USCA')],
           on: {
             CHOOSEEUROPE: {
-              actions: countryActions,
-              cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+              cond: (ctx: TaxContext): boolean => ctx.support.country,
               target: 'europe',
             },
           },
         },
         europe: {
-          entry: [createAction('country', 'EU')],
           on: {
-            CHOOSEEUA: {
-              actions: countryActions,
-              cond: (ctx: TaxContext): boolean => ctx.supportCountry,
+            CHOOSEUSA: {
+              cond: (ctx: TaxContext): boolean => ctx.support.country,
               target: 'euaCan',
             },
           },
@@ -279,25 +292,29 @@ const countryStates = {
 
 export const taxMachine = {
   context: {
-    country: '',
-    mode: '',
-    provider: '',
-    providerOptions: {
-      avalara: false,
-      onesource: false,
-      taxjar: false,
-      thomsonreuters: false,
+    support: {
+      automatic: false,
+      city: false,
+      country: false,
+      exempt: false,
+      origin: false,
+      originCountry: false,
+      provider: false,
+      providerOptions: {
+        avalara: false,
+        onesource: false,
+        taxjar: false,
+        thomsonreuters: false,
+      },
+      region: false,
+      shipping: false,
     },
-    scope: 'global',
-    supportAutomatic: false,
-    supportCity: false,
-    supportCountry: false,
-    supportExempt: false,
-    supportOrigin: false,
-    supportOriginCountry: false,
-    supportProvider: false,
-    supportRegion: false,
-    supportShipping: false,
+    value: {
+      country: '',
+      mode: '',
+      provider: '',
+      scope: 'global',
+    },
   },
   id: 'taxMachine',
   states: {
@@ -307,14 +324,3 @@ export const taxMachine = {
   },
   type: 'parallel',
 };
-
-/**
- * Create a simple action that sets a value to a context attribute.
- *
- * @param field to have the value set.
- * @param value the value the field should assume.
- * @returns function that changes the context.
- */
-function createAction(field: keyof TaxContext, value: string | boolean): (ctx: TaxContext) => void {
-  return (ctx: TaxContext) => ((ctx[field] as any) = value);
-}
