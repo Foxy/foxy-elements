@@ -13,21 +13,8 @@ const taxFormHtml = html`
     @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
   ></foxy-tax-form>
 `;
+
 /**
- * ``` * ``` * ``` * * @param charNumber
- * ``` * ``` * ``` * ```
- * ``` * ``` * ``` * @param charNumber
- * ``` * ``` * ``` * ```
- * ``` * ``` * ``` * @param charNumber
- * ``` * ``` * ``` ```
- * ``` * ``` * @param charNumber
- * ``` * ``` * ```
- * ``` * ``` * @param charNumber
- * ``` * ``` ```
- * ``` * @param charNumber
- * ``` * ```
- * ``` * @param charNumber
- * ``` ```
  * @param charNumber
  */
 function longText(charNumber: number) {

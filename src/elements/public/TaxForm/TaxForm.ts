@@ -139,7 +139,7 @@ export class TaxForm extends Base<Data> {
           ${this.__comboBoxField('type', 'flex-1', TaxForm.__types.map(this.__tLabelValue))}
         </div>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
-          ${this.__taxMachine.context.supportCountry
+          ${this.__taxMachine.context.support.country
             ? html`
                 <x-combo-box
                   data-testid="country"
@@ -156,7 +156,7 @@ export class TaxForm extends Base<Data> {
                 ></x-combo-box>
               `
             : ''}
-          ${this.__taxMachine.context.supportRegion
+          ${this.__taxMachine.context.support.region
             ? html`
                 <x-combo-box
                   data-testid="region"
@@ -171,7 +171,7 @@ export class TaxForm extends Base<Data> {
                 ></x-combo-box>
               `
             : ''}
-          ${this.__taxMachine.context.supportCity
+          ${this.__taxMachine.context.support.city
             ? html`
                 <vaadin-text-field
                   data-testid="city"
@@ -185,7 +185,7 @@ export class TaxForm extends Base<Data> {
               `
             : ''}
         </div>
-        ${this.__taxMachine.context.supportAutomatic
+        ${this.__taxMachine.context.support.automatic
           ? html`
               <x-checkbox
                 data-testid="is_live"
@@ -199,14 +199,14 @@ export class TaxForm extends Base<Data> {
             `
           : ''}
         <div class="max-w-full border rounded-l border-contrast-10 p-s">
-          ${this.__taxMachine.context.supportProvider
+          ${this.__taxMachine.context.support.provider
             ? html` <x-combo-box
                 class="flex-1"
                 data-testid="service_provider"
                 label=${this.__t('provider')}
                 value="${ifDefined(this.form.service_provider)}"
                 .items=${taxProviders
-                  .filter(i => this.__taxMachine.context.providerOptions[i])
+                  .filter(i => this.__taxMachine.context.support.providerOptions[i])
                   .map(this.__tLabelValue)}
                 @value-changed=${this.__bindField('service_provider')}
                 error-message="${this.__getErrorMessage('service_provider')}"
@@ -220,7 +220,7 @@ export class TaxForm extends Base<Data> {
                 error-message=${this.__getErrorMessage('rate')}
               >
               </vaadin-text-field>`}
-          ${this.__taxMachine.context.supportExempt
+          ${this.__taxMachine.context.support.exempt
             ? html`
                 <x-checkbox
                   data-testid="exempt_all_customer_tax_ids"
@@ -239,7 +239,7 @@ export class TaxForm extends Base<Data> {
               `
             : ''}
         </div>
-        ${this.__taxMachine.context.supportOrigin
+        ${this.__taxMachine.context.support.origin
           ? html`
               <x-checkbox
                 ?checked=${ifDefined(this.form.use_origin_rates)}
@@ -252,7 +252,7 @@ export class TaxForm extends Base<Data> {
               </x-checkbox>
             `
           : ''}
-        ${this.__taxMachine.context.supportShipping
+        ${this.__taxMachine.context.support.shipping
           ? html` <x-checkbox
               @change=${this.__handleApplyToShipping}
               class="my-s"
@@ -423,9 +423,12 @@ export class TaxForm extends Base<Data> {
   }
 
   private __getCountries(): string[] {
-    if (this.form && ['country', 'region', 'local'].includes(this.__taxMachine.context.scope)) {
+    if (
+      this.form &&
+      ['country', 'region', 'local'].includes(this.__taxMachine.context.value.scope)
+    ) {
       return countries;
-    } else if (this.form && this.__taxMachine.context.scope === 'union') {
+    } else if (this.form && this.__taxMachine.context.value.scope === 'union') {
       return countryDetails.filter(c => typeof c === 'object' && c.union).map(c => (c as any).code);
     }
     return [];
@@ -449,7 +452,7 @@ export class TaxForm extends Base<Data> {
     const chosen = this.form.country;
     if (chosen) {
       if (usCa.includes(chosen)) {
-        this.__taxService!.send('CHOOSEEUA');
+        this.__taxService!.send('CHOOSEUSA');
       } else if (unionCountries.includes(chosen)) {
         this.__taxService!.send('CHOOSEEUROPE');
       } else if (chosen == 'AU') {
