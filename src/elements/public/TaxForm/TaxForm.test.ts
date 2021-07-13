@@ -13,8 +13,21 @@ const taxFormHtml = html`
     @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
   ></foxy-tax-form>
 `;
-
 /**
+ * ``` * ``` * ``` * * @param charNumber
+ * ``` * ``` * ``` * ```
+ * ``` * ``` * ``` * @param charNumber
+ * ``` * ``` * ``` * ```
+ * ``` * ``` * ``` * @param charNumber
+ * ``` * ``` * ``` ```
+ * ``` * ``` * @param charNumber
+ * ``` * ``` * ```
+ * ``` * ``` * @param charNumber
+ * ``` * ``` ```
+ * ``` * @param charNumber
+ * ``` * ```
+ * ``` * @param charNumber
+ * ``` ```
  * @param charNumber
  */
 function longText(charNumber: number) {
@@ -217,7 +230,7 @@ describe('Tax mode', function () {
 describe('Providers', function () {
   let el: TaxForm;
   const countries = {
-    NA: ['US', 'CA'],
+    AU: ['AU'],
     EU: [
       'AT',
       'BE',
@@ -250,7 +263,7 @@ describe('Providers', function () {
       'SI',
       'SK',
     ],
-    AU: ['AU'],
+    NA: ['US', 'CA'],
     any: ['AR', 'CO', 'RU', 'SD'],
   };
 
@@ -264,8 +277,11 @@ describe('Providers', function () {
    * @param provider
    * @param cases
    * @param combo
+   * @param el
    */
-  async function expectProvider(provider: string, cases: any, combo: any) {
+  async function expectProvider(provider: string, cases: any, el: TaxForm) {
+    await elementUpdated(el);
+    const combo = el.shadowRoot?.querySelector(`[data-testid="service_provider"]`);
     for (const [group, result] of Object.entries(cases)) {
       for (const country of (countries as any)[group] as any) {
         el.edit({ country });
@@ -287,9 +303,7 @@ describe('Providers', function () {
       NA: true,
       any: true,
     };
-    const combo = el.shadowRoot?.querySelector(`[data-testid="service_provider"]`);
-    const provider = 'onesource';
-    await expectProvider(provider, cases, combo);
+    await expectProvider('onesource', cases, el);
   });
 
   it('Should support Avalara for all countries', async function () {
@@ -300,9 +314,7 @@ describe('Providers', function () {
       NA: true,
       any: true,
     };
-    const combo = el.shadowRoot?.querySelector(`[data-testid="service_provider"]`);
-    const provider = 'avalara';
-    await expectProvider(provider, cases, combo);
+    await expectProvider('avalara', cases, el);
   });
 
   it('Should support TaxJar for US, CA, AU and EU countries.', async function () {
@@ -313,22 +325,18 @@ describe('Providers', function () {
       NA: true,
       any: false,
     };
-    const combo = el.shadowRoot?.querySelector(`[data-testid="service_provider"]`);
-    const provider = 'taxjar';
-    await expectProvider(provider, cases, combo);
+    await expectProvider('taxjar', cases, el);
   });
 
   it('Should support default Thomson Reuters for US, CA, EU countries and AU .', async function () {
     el.edit({ is_live: true, type: 'country' });
     const cases = {
-      AU: true,
+      AU: false,
       EU: true,
       NA: true,
       any: false,
     };
-    const combo = el.shadowRoot?.querySelector(`[data-testid="service_provider"]`);
-    const provider = 'thomsonreuters';
-    await expectProvider(provider, cases, combo);
+    await expectProvider('thomsonreuters', cases, el);
   });
 
   //it("Should support exempt when provider is TaxJar", async function() {
