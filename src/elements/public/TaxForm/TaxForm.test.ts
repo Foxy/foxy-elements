@@ -326,12 +326,126 @@ describe('Providers', function () {
     await expectProvider('thomsonreuters', cases, el);
   });
 
-  //it("Should support exempt when provider is TaxJar", async function() {
-  //});
-  //it("Should not support apply to shipping when provider is TaxJar", async function() {
-  //});
-  //it("Should not support apply to shipping when provider is Avalara or OneSource and country is US, CA or EU", async function() {
-  //});
+  it('Should support exempt when provider is TaxJar', async function () {
+    el.edit({ country: 'US', is_live: true, service_provider: 'taxjar', type: 'country' } as any);
+    await elementUpdated(el);
+    const exempt = el.shadowRoot?.querySelector(`[data-testid="exempt_all_customer_tax_ids"]`);
+    expect(exempt).to.exist;
+  });
+
+  it('Should not support apply to shipping when provider is TaxJar', async function () {
+    el.edit({ country: 'US', is_live: true, service_provider: 'taxjar', type: 'country' } as any);
+    await elementUpdated(el);
+    const shipping = el.shadowRoot?.querySelector(`[data-testid="apply_to_shipping"]`);
+    expect(shipping).not.to.exist;
+  });
+
+  it('Should not support apply to shipping when provider is Avalara or OneSource and country is US, CA or EU', async function () {
+    const cases = [
+      {
+        changes: { country: 'AR', is_live: true, service_provider: 'avalara', type: 'country' },
+        show: true,
+      },
+      {
+        changes: { country: 'AR', is_live: true, service_provider: 'onesource', type: 'country' },
+        show: true,
+      },
+      {
+        changes: { country: 'US', is_live: true, service_provider: 'avalara', type: 'country' },
+        show: false,
+      },
+      {
+        changes: { country: 'US', is_live: true, service_provider: 'onesource', type: 'country' },
+        show: false,
+      },
+      {
+        changes: { country: 'BE', is_live: true, service_provider: 'avalara', type: 'country' },
+        show: false,
+      },
+      {
+        changes: { country: 'BE', is_live: true, service_provider: 'onesource', type: 'country' },
+        show: false,
+      },
+    ];
+    for (const c of cases) {
+      el.edit(c.changes as any);
+      await elementUpdated(el);
+      const shipping = el.shadowRoot?.querySelector(`[data-testid="apply_to_shipping"]`);
+      if (c.show) {
+        expect(shipping, `${c.changes.country} should allow apply to shipping`).to.exist;
+      } else {
+        expect(shipping, `${c.changes.country} should not allow apply to shipping`).not.to.exist;
+      }
+    }
+  });
+
+  it('Should allow to set origin country if type is EU and provider thomsonreuters', async function () {
+    const cases = [
+      { changes: { is_live: true, service_provider: 'thomsonreuters', type: 'union' }, show: true },
+      {
+        changes: { is_live: true, service_provider: 'thomsonreuters', type: 'country' },
+        show: false,
+      },
+      {
+        changes: { is_live: true, service_provider: 'thomsonreuters', type: 'region' },
+        show: false,
+      },
+      {
+        changes: { is_live: true, service_provider: 'thomsonreuters', type: 'local' },
+        show: false,
+      },
+      { changes: { is_live: true, service_provider: 'taxjar', type: 'union' }, show: false },
+      { changes: { is_live: true, service_provider: 'avalara', type: 'union' }, show: false },
+      { changes: { is_live: true, service_provider: 'onesource', type: 'union' }, show: false },
+    ];
+    for (const c of cases) {
+      el.edit(c.changes as any);
+      await elementUpdated(el);
+      const useOrigin = el.shadowRoot?.querySelector(`[data-testid="use_origin_rates"]`);
+      if (c.show) {
+        expect(useOrigin, `${c.changes.service_provider} ${c.changes.type} should use origin`).to
+          .exist;
+      } else {
+        expect(useOrigin, `${c.changes.service_provider} ${c.changes.type} should not use origin`)
+          .to.exist;
+      }
+    }
+  });
+
+  it('Should show country for European Union only when use_origin_rates is true.', async function () {
+    const cases = [
+      {
+        changes: {
+          is_live: true,
+          service_provider: 'thomsonreuters',
+          type: 'union',
+          use_origin_rates: true,
+        },
+        show: true,
+      },
+      {
+        changes: {
+          is_live: true,
+          service_provider: 'thomsonreuters',
+          type: 'country',
+          use_origin_rates: false,
+        },
+        show: false,
+      },
+    ];
+    for (const c of cases) {
+      el.edit(c.changes as any);
+      await elementUpdated(el);
+      const country = el.shadowRoot?.querySelector(`[data-testid="country"]`);
+      if (c.show) {
+        expect(country, `${c.changes.service_provider} ${c.changes.type} should use origin`).to
+          .exist;
+      } else {
+        expect(country, `${c.changes.service_provider} ${c.changes.type} should not use origin`).to
+          .exist;
+      }
+    }
+  });
 });
 
 describe('Usability', function () {
