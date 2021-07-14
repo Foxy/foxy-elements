@@ -407,7 +407,7 @@ describe('Providers', function () {
           .exist;
       } else {
         expect(useOrigin, `${c.changes.service_provider} ${c.changes.type} should not use origin`)
-          .to.exist;
+          .not.to.exist;
       }
     }
   });

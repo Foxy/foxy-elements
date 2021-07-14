@@ -5,6 +5,7 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 import { Themeable, ThemeableMixin } from '../../../mixins/themeable';
 import { countries, countryDetails } from '../../../utils/countries';
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { CheckboxChangeEvent } from '../../private/events';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data } from './types';
@@ -78,6 +79,12 @@ export class TaxForm extends Base<Data> {
     };
   });
 
+  private readonly __bindCheckboxField = memoize((key: keyof Data) => {
+    return (evt: CheckboxChangeEvent) => {
+      this.edit({ [key]: evt.detail });
+    };
+  });
+
   private readonly __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
   });
@@ -136,7 +143,21 @@ export class TaxForm extends Base<Data> {
         </foxy-internal-confirm-dialog>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
           ${this.__textField('name', 'flex-1')}
-          ${this.__comboBoxField('type', 'flex-1', TaxForm.__types.map(this.__tLabelValue))}
+          <x-combo-box
+            .items=${TaxForm.__types.map(this.__tLabelValue)}
+            @value-changed="${this.__handleTypeChange}"
+            class="flex-1"
+            data-testid="type"
+            error-message=${this.__getErrorMessage('type')}
+            label=${this.__t('type').toString()}
+            value="${ifDefined(this.form.type)}"
+          >
+            <style>
+              [part='text-field'] {
+                padding-top: 0;
+              }
+            </style>
+          </x-combo-box>
         </div>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
           ${this.__taxMachine.context.support.country
@@ -171,37 +192,15 @@ export class TaxForm extends Base<Data> {
                 ></x-combo-box>
               `
             : ''}
-          ${this.__taxMachine.context.support.city
-            ? html`
-                <vaadin-text-field
-                  data-testid="city"
-                  class="flex-1"
-                  label=${this.__t('city').toString()}
-                  value="${this.form.city ?? ''}"
-                  @change=${this.__handleCityChange}
-                  error-message=${this.__getErrorMessage('city')}
-                >
-                </vaadin-text-field>
-              `
-            : ''}
+          ${this.__taxMachine.context.support.city ? this.__textField('city', 'flex-1') : ''}
         </div>
         ${this.__taxMachine.context.support.automatic
-          ? html`
-              <x-checkbox
-                data-testid="is_live"
-                class="my-s"
-                ?checked=${ifDefined(this.form.is_live)}
-                @change=${this.__handleAutomatic}
-                error-message=${this.__getErrorMessage('is_live')}
-              >
-                <foxy-i18n lang=${this.lang} ns=${ns} key="is_live"></foxy-i18n>
-              </x-checkbox>
-            `
+          ? this.__checkboxField('is_live', 'my-s')
           : ''}
         <div class="max-w-full border rounded-l border-contrast-10 p-s">
           ${this.__taxMachine.context.support.provider
             ? html` <x-combo-box
-                class="flex-1"
+                class="w-full"
                 data-testid="service_provider"
                 label=${this.__t('provider')}
                 value="${ifDefined(this.form.service_provider)}"
@@ -221,47 +220,14 @@ export class TaxForm extends Base<Data> {
               >
               </vaadin-text-field>`}
           ${this.__taxMachine.context.support.exempt
-            ? html`
-                <x-checkbox
-                  data-testid="exempt_all_customer_tax_ids"
-                  class="my-s"
-                  ?checked=${ifDefined(this.form.exempt_all_customer_tax_ids)}
-                  .value="${ifDefined(this.form.exempt_all_customer_tax_ids)}"
-                  @change=${this.__handleExemptChange}
-                  error-message=${this.__getErrorMessage('exempt_all_customer_tax_ids')}
-                >
-                  <foxy-i18n
-                    ns="${ns}"
-                    lang="${this.lang}"
-                    key="exempt_all_customer_tax_ids"
-                  ></foxy-i18n>
-                </x-checkbox>
-              `
+            ? this.__checkboxField('exempt_all_customer_tax_ids', 'my-s')
             : ''}
         </div>
         ${this.__taxMachine.context.support.origin
-          ? html`
-              <x-checkbox
-                ?checked=${ifDefined(this.form.use_origin_rates)}
-                @change=${this.__handleUseOriginRatesChange}
-                error-message=${this.__getErrorMessage('use_origin_rates')}
-                .value="${ifDefined(this.form.use_origin_rates)}"
-                data-testid="use_origin_rates"
-              >
-                <foxy-i18n ns=${ns} lang=${this.lang} key="useOriginRates"></foxy-i18n>
-              </x-checkbox>
-            `
+          ? this.__checkboxField('use_origin_rates', '')
           : ''}
         ${this.__taxMachine.context.support.shipping
-          ? html` <x-checkbox
-              @change=${this.__handleApplyToShipping}
-              class="my-s"
-              ?checked=${ifDefined(this.form.apply_to_shipping)}
-              error-message=${this.__getErrorMessage('apply_to_shipping')}
-              data-testid="apply_to_shipping"
-            >
-              <foxy-i18n lang=${this.lang} ns=${ns} key="applyToShipping"></foxy-i18n>
-            </x-checkbox>`
+          ? this.__checkboxField('apply_to_shipping', 'my-s')
           : ''}
         <x-property-table
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
@@ -312,7 +278,7 @@ export class TaxForm extends Base<Data> {
     return html`
       <vaadin-text-field
         @change=${this.__bindField(field)}
-        class="${classString}"
+        class="${classString} pt-m"
         data-testid="${field}"
         error-message=${this.__getErrorMessage(field)}
         label=${this.__t(label ? label! : field).toString()}
@@ -342,6 +308,18 @@ export class TaxForm extends Base<Data> {
         }
       </style>
     </x-combo-box>`;
+  }
+
+  private __checkboxField(field: keyof Data, classString: string): TemplateResult {
+    return html` <x-checkbox
+      data-testid="${field}"
+      class="my-s ${classString}"
+      ?checked=${ifDefined(this.form[field])}
+      @change=${this.__bindCheckboxField(field)}
+      error-message=${this.__getErrorMessage(field)}
+    >
+      <foxy-i18n lang=${this.lang} ns=${this.ns} key="${field}"></foxy-i18n>
+    </x-checkbox>`;
   }
 
   private __getErrorMessage(prefix: string) {
@@ -393,6 +371,20 @@ export class TaxForm extends Base<Data> {
   private __handleCityChange(ev: CustomEvent) {
     const city = ev.detail?.explicitOriginalTarget?.value;
     this.edit({ city });
+  }
+
+  private __handleTypeChange(ev: CustomEvent) {
+    const target = ev.target as HTMLInputElement;
+    const changes: any = { type: target.value };
+    if (changes.type === 'union') {
+      const euCountries = countryDetails
+        .filter(c => typeof c === 'object' && c.union)
+        .map(c => (c as any).code);
+      if (!euCountries.includes(this.form.country)) {
+        changes.country = '';
+      }
+    }
+    this.edit(changes);
   }
 
   private __handleCountryChange(ev: CustomEvent) {

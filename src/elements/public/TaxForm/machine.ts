@@ -46,6 +46,7 @@ function updateSupport(ctx: TaxContext): void {
   setSupportAutomatic(ctx);
   setSupportProvider(ctx);
   setSupportProviderOptions(ctx);
+  setSupportOrigin(ctx);
   setSupportExempt(ctx);
   setSupportShipping(ctx);
   setSupportCountry(ctx);
@@ -57,6 +58,9 @@ function updateSupport(ctx: TaxContext): void {
 function setSupportScope(ctx: TaxContext): void {
   ctx.support.region = ['region', 'local'].includes(ctx.value.scope!);
   ctx.support.city = ['local'].includes(ctx.value.scope!);
+  if (['global', 'local'].includes(ctx.value.scope!)) {
+    ctx.value.mode = 'rate';
+  }
 }
 
 /**
@@ -84,6 +88,13 @@ function setSupportAutomatic(ctx: TaxContext): void {
  */
 function setSupportProvider(ctx: TaxContext): void {
   ctx.support.provider = ctx.support.automatic && ctx.value.mode === 'auto';
+}
+
+/**
+ * @param ctx
+ */
+function setSupportOrigin(ctx: TaxContext): void {
+  ctx.support.origin = ctx.value.scope === 'union' && ctx.value.provider === 'thomsonreuters';
 }
 
 /**
