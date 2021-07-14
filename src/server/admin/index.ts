@@ -1,5 +1,6 @@
+import { Collection, Table } from 'dexie';
 import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
-
+import { HALJSONResource } from '../../elements/public/NucleonElement/types';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
@@ -13,11 +14,9 @@ import { composeTransaction } from './composers/composeTransaction';
 import { composeUser } from './composers/composeUser';
 import { getPagination } from '../getPagination';
 import { router } from '../router';
-import { HALJSONResource } from '../../elements/public/NucleonElement/types';
-import { Collection, Table } from 'dexie';
+export { endpoint, router, db, whenDbReady, DemoDatabase };
 
 const endpoint = 'https://demo.foxycart.com/s/admin';
-export { endpoint, router, db, whenDbReady, DemoDatabase };
 
 // subscriptions
 
