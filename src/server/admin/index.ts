@@ -608,7 +608,7 @@ async function respondItems(
   url: string,
   rel: string,
   parent = 'store',
-  parentId = '0'
+  parentId = 0
 ) {
   const [count, items] = await queryCountAndWhere(table, parent, parentId, getPagination(url));
   const body = composeCollection({ composeItem: composer, count, items, rel, url });
@@ -625,13 +625,16 @@ async function respondItems(
  *
  * @returns promise that resolves to an array with the number of ocurrences and the paginated result.
  */
-function queryCountAndWhere(
+async function queryCountAndWhere(
   table: Table,
   field: string,
   value: string | number,
   pagination = { limit: 10, offset: 0 }
 ) {
-  return Promise.all([table.count(), paginateQuery(table.where(field).equals(value), pagination)]);
+  return Promise.all([
+    table.count(),
+    await paginateQuery(table.where(field).equals(value), pagination),
+  ]);
 }
 
 /**
