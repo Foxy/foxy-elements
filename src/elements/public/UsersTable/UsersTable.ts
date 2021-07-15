@@ -17,11 +17,10 @@ export class UsersTable extends Table<Data> {
   };
 
   static emailColumn: Column<Data> = {
-    hideBelow: 'md',
     cell: ctx => html`
       <span data-testclass="email" class="text-s text-secondary">${ctx.data.email}</span>
     `,
-    hideBelow: 'md'
+    hideBelow: 'md',
   };
 
   static rolesColumn: Column<Data> = {
@@ -51,7 +50,6 @@ export class UsersTable extends Table<Data> {
   };
 
   static lastUpdatedColumn: Column<Data> = {
-    hideBelow: 'lg',
     cell: ctx => html`
       <span data-testclass="lastUpdated" class="text-s text-secondary font-tnum">
         <foxy-i18n
@@ -71,7 +69,7 @@ export class UsersTable extends Table<Data> {
         </foxy-i18n>
       </span>
     `,
-    hideBelow: 'lg'
+    hideBelow: 'lg',
   };
 
   static actionsColumn: Column<Data> = {
