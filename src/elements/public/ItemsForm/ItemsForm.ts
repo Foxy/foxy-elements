@@ -1,11 +1,11 @@
 import '@vaadin/vaadin-button';
-import { html, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { parseDuration } from '../../../utils/parse-duration';
 import { Dropdown, ErrorScreen } from '../../private/index';
 import { ItemsFormChangeEvent, ItemsFormSubmitEvent } from './events';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Item } from './private/Item';
 import { ItemInterface } from './types';
 import { SignableFields } from './private/SignableFields';
+import { parseDuration } from '../../../utils/parse-duration';
 
 export { Item };
 
@@ -25,9 +25,9 @@ export class ItemsForm extends SignableFields {
   /** @readonly */
   public static get scopedElements(): Record<string, unknown> {
     return {
-      'x-error-screen': ErrorScreen,
       'vaadin-button': customElements.get('vaadin-button'),
       'x-dropdown': Dropdown,
+      'x-error-screen': ErrorScreen,
       'x-item': Item,
     };
   }
@@ -36,61 +36,19 @@ export class ItemsForm extends SignableFields {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      currency: { type: String },
-      readonly: { type: Boolean },
+      __data: { attribute: false },
+      __hasValidItems: { attribute: false },
+      __total: { attribute: false },
       cart: {
-        type: String, // only accepts checkout or add
         converter: value => {
           if (value && !['checkout', 'add'].includes(value)) {
             return null;
           }
           return value;
         },
+        type: String, // only accepts checkout or add
       },
-      target: { type: String },
-      store: { type: String, attribute: 'store' },
-      sub_frequency: { type: String },
-      sub_startdate: {
-        type: String,
-        converter: value => {
-          if (!ItemsForm.__validDate(value)) {
-            console.error('Invalid start date', value);
-            return '';
-          }
-          return value;
-        },
-      },
-      sub_enddate: {
-        type: String,
-        converter: value => {
-          if (!ItemsForm.__validDateFuture(value)) {
-            console.error('Invalid end date', value);
-            return '';
-          }
-          return value;
-        },
-      },
-      sub_token: { type: String },
-      sub_modify: {
-        type: String,
-        converter: value => {
-          if (value === '' || value === 'append') {
-            return '';
-          } else {
-            return 'replace';
-          }
-        },
-      },
-      sub_restart: {
-        type: String,
-        converter: value => {
-          if (value === 'true') {
-            return value;
-          } else {
-            return 'auto';
-          }
-        },
-      },
+      currency: { type: String },
       frequencies: {
         converter: (value, type) => {
           if (!value) {
@@ -123,9 +81,51 @@ export class ItemsForm extends SignableFields {
         },
       },
       items: { type: Array },
-      __hasValidItems: { attribute: false },
-      __total: { attribute: false },
-      __data: { attribute: false },
+      readonly: { type: Boolean },
+      store: { attribute: 'store', type: String },
+      sub_enddate: {
+        converter: value => {
+          if (!ItemsForm.__validDateFuture(value)) {
+            console.error('Invalid end date', value);
+            return '';
+          }
+          return value;
+        },
+        type: String,
+      },
+      sub_frequency: { type: String },
+      sub_modify: {
+        converter: value => {
+          if (value === '' || value === 'append') {
+            return '';
+          } else {
+            return 'replace';
+          }
+        },
+        type: String,
+      },
+      sub_restart: {
+        converter: value => {
+          if (value === 'true') {
+            return value;
+          } else {
+            return 'auto';
+          }
+        },
+        type: String,
+      },
+      sub_startdate: {
+        converter: value => {
+          if (!ItemsForm.__validDate(value)) {
+            console.error('Invalid start date', value);
+            return '';
+          }
+          return value;
+        },
+        type: String,
+      },
+      sub_token: { type: String },
+      target: { type: String },
     };
   }
 
@@ -295,8 +295,8 @@ export class ItemsForm extends SignableFields {
     super('items-form');
     this.__childItemsObserver = new MutationObserver(this.__observeChildren.bind(this));
     this.__childItemsObserver.observe(this, {
-      childList: true,
       attributes: false,
+      childList: true,
       subtree: true,
     });
     this.updateComplete.then(() => {
@@ -310,6 +310,9 @@ export class ItemsForm extends SignableFields {
     const temp: ItemInterface[] = [];
     this.__itemElements.forEach(e => {
       const proxy = new Proxy(e, {
+        get: function (target: Item, property: string | number) {
+          return target.value[property];
+        },
         set: function (target: Item, property: string | number | symbol, value) {
           const allowedAttributes = Object.keys(target.value);
           if (typeof property === 'string' && allowedAttributes.includes(property)) {
@@ -318,9 +321,6 @@ export class ItemsForm extends SignableFields {
           } else {
             return false;
           }
-        },
-        get: function (target: Item, property: string | number) {
-          return target.value[property];
         },
       });
       temp.push(proxy as unknown as ItemInterface);
@@ -348,6 +348,8 @@ export class ItemsForm extends SignableFields {
 
   /**
    * The total value of the items to be submitted.
+   *
+   * @returns total value of this form.
    */
   public get total(): number {
     return this.__total;
@@ -417,7 +419,11 @@ export class ItemsForm extends SignableFields {
     `;
   }
 
-  /** Add new items */
+  /**
+   * Add new items
+   *
+   * @param newItems
+   */
   public addItems(newItems: ItemInterface[]): void {
     for (const p of newItems) {
       const newItem = this.createItem(p);
@@ -426,7 +432,11 @@ export class ItemsForm extends SignableFields {
     }
   }
 
-  /** Remove items */
+  /**
+   * Remove items
+   *
+   * @param itemIds
+   */
   public removeItems(itemIds: number[]): void {
     this.__removeItems((p: Item) => itemIds.includes(p.pid));
   }
@@ -451,13 +461,13 @@ export class ItemsForm extends SignableFields {
       const duration = parseDuration(this.sub_frequency);
       if (duration.count === 1) {
         return this._t('checkout.subscribe_single_unit', {
-          value,
           period: this._t(duration.units).toLowerCase(),
+          value,
         });
       } else {
         return this._t('checkout.subscribe_muiltiple_units', {
-          value,
           period: this.__translateFrequency(this.sub_frequency).toLowerCase(),
+          value,
         });
       }
     }
@@ -470,13 +480,20 @@ export class ItemsForm extends SignableFields {
     return this.querySelectorAll('[data-item]');
   }
 
-  /** Create child Items from items array
+  /**
+   * Create child Items from items array
+   *
+   * @param itemsArray
    */
   private __createItemsFromItemArray(itemsArray: ItemInterface[]) {
     this.addItems(itemsArray);
   }
 
-  /** Removes item from the form based on a condition */
+  /**
+   * Removes item from the form based on a condition
+   *
+   * @param condition
+   */
   private __removeItems(condition = (e: Item) => true) {
     this.__itemElements.forEach(p => {
       if (condition(p)) {
@@ -490,10 +507,10 @@ export class ItemsForm extends SignableFields {
    *
    * This method does not compute the signature. It must be provided.
    *
-   * @argument string name The name of the field
-   * @argument string signature The computed signature to add to the field
-   * @argument string open Whether the field value is customized by the user
-   * @return string signedName the name of the field with the signature
+   * @param name The name of the field
+   * @param signature The computed signature to add to the field
+   * @param open Whether the field value is customized by the user
+   * @returns signedName the name of the field with the signature
    */
   private __addSignature(name: string, signature: string, open?: string | boolean): string {
     return `${name}||${signature}${open ? '||open' : ''}`;
@@ -505,9 +522,10 @@ export class ItemsForm extends SignableFields {
    * - Iterate of items in itemElements
    * - Add valid items to Form Data
    *
-   * @argument FormData fd the FormData instance to fill
-   * @return number the number of items added
-   **/
+   * @param fd
+   * @param FormData fd the FormData instance to fill
+   * @returns number the number of items added
+   */
   private __formDataFill(fd: FormData): number {
     let added = 0;
     this.__itemElements.forEach(e => {
@@ -519,6 +537,8 @@ export class ItemsForm extends SignableFields {
 
   /**
    * Add custom user provided fields
+   *
+   * @param fd
    */
   private __formDataCustomInputs(fd: FormData) {
     this.querySelectorAll(`[name]`).forEach(e => {
@@ -557,9 +577,10 @@ export class ItemsForm extends SignableFields {
   /**
    * Adds a item to a form data
    *
-   * @argument {FormData} fd the FormData to which the item will be added
-   * @argument {Item} the item to add
-   **/
+   * @param fd the FormData to which the item will be added
+   * @param itemEl the item to add
+   * @param parent
+   */
   private __formDataAddItem(fd: FormData, itemEl: Item, parent: Item | null = null): number {
     let added = 0;
     if (this.__validItem(itemEl)) {
@@ -597,8 +618,9 @@ export class ItemsForm extends SignableFields {
   /**
    * Adds subscription fields to a FormData
    *
-   * @argument {FormData} fd the FormData to which subscription fields will be added
-   **/
+   * @param fd the FormData to which subscription fields will be added
+   * @param itemEl
+   */
   private __formDataAddSubscriptionFields(fd: FormData, itemEl: Item): void {
     // added if sub_frequency is set
     if (this.sub_frequency) {
@@ -613,7 +635,7 @@ export class ItemsForm extends SignableFields {
   /**
    * Adds cart wide subscription fields to a FormData
    *
-   * @argument {FormData} fd the FormData to which subscription fields will be added
+   * @param fd the FormData to which subscription fields will be added
    */
   private __formDataAddCartWideSubscriptionFields(fd: FormData): void {
     if (this.sub_frequency) {
@@ -628,7 +650,7 @@ export class ItemsForm extends SignableFields {
   /**
    * Adds cart related fields to a FormData
    *
-   * @argument {FormData} fd the FormData to which the cart fields will be added.
+   * @param fd the FormData to which the cart fields will be added.
    */
   private __formDataAddCartFields(fd: FormData): void {
     if (this.cart) {
@@ -641,7 +663,8 @@ export class ItemsForm extends SignableFields {
   /**
    * Validates a string for subscription start date or end date according to
    *
-   * @argument string strDate the date as a string to be used as start or end date.
+   * @param strDate the date as a string to be used as start or end date.
+   * @returns valid date.
    *
    * https://wiki.foxycart.com/v/2.0/products#subscription_product_options
    * See [Products subscription options for more details](https://wiki.foxycart.com/v/2.0/products#subscription_product_options)
@@ -667,8 +690,8 @@ export class ItemsForm extends SignableFields {
   /**
    * Checks if a string date is in the future.
    *
-   * @argument string strdate the date, as a string, to be checked.
-   * @returns boolean the date is a valid future date.
+   * @param strDate the date, as a string, to be checked.
+   * @returns  date is a valid future date.
    */
   private static __validDateFuture(strDate: string | null | undefined): boolean {
     let valid = false;
@@ -686,7 +709,7 @@ export class ItemsForm extends SignableFields {
   /**
    * Checks if a frequency complies with possible values
    *
-   * @argument string strFrequency the frequency string to be validated.
+   * @param strFrequency the frequency string to be validated.
    * @returns boolean the string is a foxy cart frequency string.
    */
   private static __validFrequency(strFrequency: string | null | undefined): boolean {
@@ -697,10 +720,12 @@ export class ItemsForm extends SignableFields {
     }
   }
 
-  /** Subscribe to late inserted items.
+  /**
+   * Subscribe to late inserted items.
    *
-   * @argument MutationRecord[] the list of changes occurred.
-   **/
+   * @param mutationList
+   * @param MutationRecord[] the list of changes occurred.
+   */
   private __observeChildren(mutationList: MutationRecord[]): void {
     mutationList.forEach(m => {
       if (m.type == 'childList') {
@@ -746,6 +771,8 @@ export class ItemsForm extends SignableFields {
    *
    * - listen to its change events
    * - set its currency to be the forms currency
+   *
+   * @param item
    */
   private __acknowledgeItemElement(item: Item) {
     item.addEventListener('change', this.__itemChange.bind(this));
@@ -755,9 +782,9 @@ export class ItemsForm extends SignableFields {
   /**
    * Checks if item has quantity and price
    *
-   * @argument  Item the item to be validated
+   * @param item to be validated
    * @returns boolean the item is valid
-   **/
+   */
   private __validItem(item: Item): boolean {
     const pid = item.getAttribute('pid');
     const qty = Number(item.getAttribute('quantity'));
@@ -768,7 +795,7 @@ export class ItemsForm extends SignableFields {
   /**
    * Translates a frequency string
    *
-   * @argument string the frequency string to be translated
+   * @param frequency string to be translated
    * @returns string the translated string
    */
   private __translateFrequency(frequency: string) {
@@ -776,21 +803,21 @@ export class ItemsForm extends SignableFields {
     if (frequency === '.5m') return this._t('frequency_0_5m');
     const { count, units } = parseDuration(frequency);
     return this._t('frequency', {
-      units: this._t(units, { count }),
       count,
+      units: this._t(units, { count }),
     });
   }
 
   /**
    * Translate a given amount
    *
-   * @argument number the amount to be translated
+   * @param amount to be translated
    * @returns string the translated amount
    */
   private __translateAmount(amount: number) {
     return amount.toLocaleString(this.lang, {
-      minimumFractionDigits: 2,
       currency: this.currency!,
+      minimumFractionDigits: 2,
       style: 'currency',
     });
   }
