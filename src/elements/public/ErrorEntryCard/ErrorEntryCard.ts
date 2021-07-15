@@ -1,19 +1,12 @@
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { NucleonElement } from '../NucleonElement';
 import * as FoxySDK from '@foxy.io/sdk';
-import {
-  CSSResult,
-  CSSResultArray,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  css,
-} from 'lit-element';
-import { html } from 'lit-html';
-import { Themeable } from '../../../mixins/themeable';
-import { CheckboxElement } from '@vaadin/vaadin-checkbox';
+import { CSSResultArray, LitElement, PropertyDeclarations, TemplateResult, css } from 'lit-element';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { Group } from '../../private';
+import { NucleonElement } from '../NucleonElement';
+import { Themeable } from '../../../mixins/themeable';
+import { html } from 'lit-html';
 
 type Rel = FoxySDK.Backend.Rels.ErrorEntry;
 type Data = FoxySDK.Core.Resource<Rel, undefined>;
@@ -27,29 +20,29 @@ type Data = FoxySDK.Core.Resource<Rel, undefined>;
  *
  */
 export class ErrorEntryCard extends ScopedElementsMixin(NucleonElement)<Data> {
-  static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles];
+  static get styles(): CSSResultArray {
+    return Themeable.styles;
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      open: { type: Boolean, reflect: true },
+      open: { reflect: true, type: Boolean },
     };
   }
 
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'iron-icon': customElements.get('iron-icon'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'iron-icon': customElements.get('iron-icon'),
       'vaadin-button': ButtonElement,
       'vaadin-checkbox': CheckboxElement,
-      'x-customer-info-card': CustomerInfoCard,
       'x-client-info-card': ClientInfoCard,
-      'x-transaction-info-card': TransactionInfoCard,
-      'x-params-viewer': URLSearchParamsViewer,
+      'x-customer-info-card': CustomerInfoCard,
       'x-group': Group,
+      'x-params-viewer': URLSearchParamsViewer,
+      'x-transaction-info-card': TransactionInfoCard,
     };
   }
 
@@ -218,8 +211,8 @@ class CustomerInfoCard extends ScopedElementsMixin(NucleonElement)<
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles];
+  static get styles(): CSSResultArray {
+    return Themeable.styles;
   }
 
   render(): TemplateResult {
@@ -258,8 +251,8 @@ class TransactionInfoCard extends ScopedElementsMixin(NucleonElement)<
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles];
+  static get styles(): CSSResultArray {
+    return Themeable.styles;
   }
 
   render(): TemplateResult {
@@ -293,23 +286,23 @@ class ClientInfoCard extends Themeable {
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles];
+  static get styles(): CSSResultArray {
+    return Themeable.styles;
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      userAgent: {
-        attribute: 'user-agent',
-        type: String,
-      },
       ipAddress: {
         attribute: 'ip-address',
         type: String,
       },
       ipCountry: {
         attribute: 'ip-country',
+        type: String,
+      },
+      userAgent: {
+        attribute: 'user-agent',
         type: String,
       },
     };
@@ -345,16 +338,13 @@ class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles];
+  static get styles(): CSSResultArray {
+    return Themeable.styles;
   }
 
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      method: {
-        type: String,
-      },
       data: {
         converter: {
           fromAttribute(value: string): URLSearchParams {
@@ -365,6 +355,9 @@ class URLSearchParamsViewer extends ScopedElementsMixin(LitElement) {
           },
         },
         type: Object,
+      },
+      method: {
+        type: String,
       },
     };
   }
@@ -399,7 +392,7 @@ function decodeHtml(html: string) {
 }
 
 class KeyValues extends Themeable {
-  static get styles(): CSSResult | CSSResultArray {
+  static get styles(): CSSResultArray {
     return [
       Themeable.styles,
       css`

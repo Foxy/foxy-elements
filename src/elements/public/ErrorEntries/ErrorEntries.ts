@@ -1,13 +1,13 @@
-import { ScopedElementsMap } from '@open-wc/scoped-elements';
-import { html } from 'lit-html';
-import { CSSResult, CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { ErrorEntryCard } from '../ErrorEntryCard';
+import { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { TabsElement } from '@vaadin/vaadin-tabs/vaadin-tabs';
-import { TabElement } from '@vaadin/vaadin-tabs/vaadin-tab';
-import { Themeable } from '../../../mixins/themeable';
 import { CollectionPage } from '../CollectionPage';
 import { CollectionPages } from '../CollectionPages';
+import { ErrorEntryCard } from '../ErrorEntryCard';
+import { ScopedElementsMap } from '@open-wc/scoped-elements';
+import { TabElement } from '@vaadin/vaadin-tabs/vaadin-tab';
+import { TabsElement } from '@vaadin/vaadin-tabs/vaadin-tabs';
+import { Themeable } from '../../../mixins/themeable';
+import { html } from 'lit-html';
 
 export class ErrorEntries extends Themeable {
   static get properties(): PropertyDeclarations {
@@ -36,8 +36,8 @@ export class ErrorEntries extends Themeable {
     };
   }
 
-  static get styles(): CSSResult | CSSResultArray {
-    return [Themeable.styles];
+  static get styles(): CSSResultArray {
+    return Themeable.styles;
   }
 
   showHidden = false;
