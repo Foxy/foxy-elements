@@ -5,6 +5,7 @@ import * as sinon from 'sinon';
 import { elementUpdated, expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { DefaultTests } from '../../../utils/test-utils';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
@@ -20,13 +21,13 @@ describe('UserForm', () => {
       {
         case: 'should create new users when sufficient valid data is provided',
         data: {
+          email: 'john.doe@example.com',
           first_name: 'John',
           last_name: 'Doe',
-          email: 'john.doe@example.com',
           phone: '55555555',
         },
-        method: 'submit',
         expectation: 'once',
+        method: 'submit',
       },
       {
         case: 'should not create new users when insufficient data is provided',
@@ -35,8 +36,8 @@ describe('UserForm', () => {
           last_name: 'Doe',
           phone: '55555555',
         },
-        method: 'submit',
         expectation: 'never',
+        method: 'submit',
       },
     ];
 
@@ -103,74 +104,20 @@ describe('UserForm', () => {
     }
   });
 
-  describe('deleting a user', () => {
-    let el: UserForm;
-    let mockEl: sinon.SinonMock;
-
-    beforeEach(async () => {
-      el = await fixture(html`
+  describe('deleting a user', async () => {
+    await DefaultTests.confirmBeforeAction(
+      html`
         <foxy-user-form
           href="https://demo.foxycart.com/s/admin/error_entries/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         ></foxy-user-form>
-      `);
-      await waitUntil(() => el.in('idle'), 'Element should become idle');
-      mockEl = sinon.mock(el);
-    });
+      `
+    );
 
-    it('should not delete before confirmation', async () => {
-      mockEl.expects('delete').never();
-      const button = el.shadowRoot!.querySelector('[data-testid="action"]') as ButtonElement;
-      button!.click();
-      mockEl.verify();
-    });
-
-    it('should not delete after cancelation', async () => {
-      mockEl.expects('delete').never();
-      const button = el.shadowRoot!.querySelector('[data-testid="action"]') as ButtonElement;
-      button!.click();
-      const confirmDialog = el.shadowRoot!.querySelector(
-        '[data-testid="confirm"]'
-      ) as InternalConfirmDialog;
-      await elementUpdated(el);
-      confirmDialog.dispatchEvent(new DialogHideEvent(true));
-      await elementUpdated(el);
-      mockEl.verify();
-    });
-
-    it('should delete after confirmation', async () => {
-      mockEl.expects('delete').once();
-      const button = el.shadowRoot!.querySelector('[data-testid="action"]') as ButtonElement;
-      button!.click();
-      const confirmDialog = el.shadowRoot!.querySelector(
-        '[data-testid="confirm"]'
-      ) as InternalConfirmDialog;
-      await elementUpdated(el);
-      confirmDialog.dispatchEvent(new DialogHideEvent());
-      await elementUpdated(el);
-      mockEl.verify();
-    });
-  });
-
-  it('should provide user feedback while loading', async () => {
-    const el: UserForm = await fixture(html`
-      <foxy-user-form
-        href="https://demo.foxycart.com/s/admin/sleep"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-user-form>
-    `);
-
-    expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).not.to.have.class('opacity-0');
-
-    el.href = ' https://demo.foxycart.com/s/admin/not-found';
-    await elementUpdated(el);
-    expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).not.to.have.class('opacity-0');
-
-    el.href = 'https://demo.foxycart.com/s/admin/users/0';
-    expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).not.to.have.class('opacity-0');
-
-    await waitUntil(() => el.in('idle'), 'Element should become idle');
-    expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).to.have.class('opacity-0');
+    await DefaultTests.provideFeedbackOnLoading(
+      html`<foxy-user-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      </foxy-user-form>`,
+      'https://demo.foxycart.com/s/admin/users/0'
+    );
   });
 });
