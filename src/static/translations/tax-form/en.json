@@ -8,9 +8,9 @@
   "onesource": "Thomson Reuters ONESOURCE",
   "provider": "Tax service provider",
   "region": "Region",
-  "taxName": "Name",
-  "taxRate": "Tax rate",
-  "taxType": "Tax type",
+  "name": "Name",
+  "rate": "Tax rate",
+  "type": "Tax type",
   "taxjar": "Tax Jar",
   "thomsonreuters": "Thomson Reuters: others",
   "union": "European Union"
