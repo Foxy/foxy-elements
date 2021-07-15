@@ -1,0 +1,112 @@
+import dedent from 'dedent';
+import { html } from 'lit-html';
+import {
+  ArgsTable,
+  Canvas,
+  Meta,
+  Story,
+  Subtitle,
+} from  '@web/storybook-prebuilt/addon-docs/blocks.js';
+
+import './index.ts';
+
+<Meta title="Tables / TaxesTable" />
+
+# Taxes Table
+
+<Subtitle>Table element for listing taxes</Subtitle>
+
+<Canvas
+  mdxSource={dedent`
+    <foxy-taxes-table
+      href="https://demo.foxycart.com/s/admin/stores/0/taxes"
+      lang="en"
+    >
+    </foxy-taxes-table>
+  `}
+  isExpanded
+  >
+  <Story name="Playground">
+    {() =>
+      html`
+        <foxy-taxes-table
+          href="https://demo.foxycart.com/s/admin/stores/0/taxes"
+          lang="en"
+        >
+        </foxy-taxes-table>
+      `
+    }
+  </Story>
+</Canvas>
+
+## Reference
+
+<ArgsTable of="foxy-taxes-table" />
+
+### hAPI
+
+This element supports the following resources: [taxes](https://api.foxycart.com/rels/taxes).
+
+### i18next
+
+This element supports the following namespaces: `tax-form`, `shared`.
+
+### Theming
+
+Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
+
+<Story name="State: idle.template.clean.invalid" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-taxes-table href="https://demo.foxycart.com/s/admin/stores/0/taxes" class="container-narrow">
+      </foxy-taxes-table>
+    `
+  }
+</Story>
+
+<Story name="State: idle.template.dirty.valid" parameters={{ docs: { disable: true } }}>
+  {() => html`
+    <foxy-taxes-table
+      href="https://demo.foxycart.com/s/admin/stores/0/taxes"
+      class="container-narrow"
+    >
+    </foxy-taxes-table>
+  `}
+</Story>
+
+<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-taxes-table
+        href="https://demo.foxycart.com/s/admin/stores/0/taxes"
+        class="container-narrow"
+      >
+      </foxy-taxes-table>
+    `
+  }
+</Story>
+
+<Story name="State: busy" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-taxes-table
+        href="https://demo.foxycart.com/s/admin/sleep"
+        class="container-narrow"
+      >
+      </foxy-taxes-table>
+    `
+  }
+</Story>
+
+<Story name="State: fail" parameters={{ docs: { disable: true } }}>
+  {() =>
+    html`
+      <foxy-taxes-table
+        parent="https://demo.foxycart.com/s/admin/stores/0/taxes"
+        href="https://demo.foxycart.com/s/admin/not-found"
+        class="container-narrow"
+      >
+      </foxy-taxes-table>
+    `
+  }
+</Story>
