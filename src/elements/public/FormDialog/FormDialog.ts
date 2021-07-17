@@ -89,7 +89,7 @@ export class FormDialog extends Dialog {
         `return options.html\`
           <${value}
             id="form"
-            ns="$\{options.dialog.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
+            ns="$\{options.dialog.ns}$\{customElements.get('${value}')?.defaultNS ?? ''}"
             href=\${options.dialog.href}
             lang=\${options.dialog.lang}
             group=\${options.dialog.group}
