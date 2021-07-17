@@ -1,5 +1,5 @@
 {
-  "applyToShipping": "Apply to Shipping and Handling",
+  "apply_to_shipping": "Apply to Shipping and Handling",
   "is_live": "Automatically calculated",
   "avalara": "Avalara AvaTax 15",
   "exempt_all_customer_tax_ids": "Exempt customers with a tax id",
