@@ -1,11 +1,21 @@
-import { TemplateResult, html } from 'lit-element';
+import '@polymer/iron-icon';
+import { CSSResultArray, TemplateResult, html } from 'lit-element';
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { Themeable, ThemeableMixin } from '../../../mixins/themeable';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Column } from '../Table/types';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
+import { I18N } from '../../private';
 import { Table } from '../Table/Table';
+import { TranslatableMixin } from '../../../mixins/translatable';
 
-export class TaxesTable extends Table<Data> {
+const Base = ScopedElementsMixin(
+  ThemeableMixin(ConfigurableMixin(TranslatableMixin(Table, 'taxes-table')))
+);
+
+export class TaxesTable extends Base<Data> {
   static nameColumn: Column<Data> = {
     cell: ctx => html`
       <span data-testclass="name" class="text-s font-medium">
@@ -90,10 +100,22 @@ export class TaxesTable extends Table<Data> {
           form.show(button);
         }}
       >
-        <foxy-i18n lang=${ctx.lang} key="update" ns=${ctx.ns}></foxy-i18n>
+        <foxy-i18n lang=${ctx.lang} key="update" ns="${ctx.ns}"></foxy-i18n>
       </vaadin-button>
     `,
   };
+
+  static get scopedElements(): ScopedElementsMap {
+    return {
+      'foxy-form-dialog': FormDialog,
+      'foxy-i18n': I18N,
+      'iron-icon': customElements.get('iron-icon'),
+    };
+  }
+
+  static get styles(): CSSResultArray {
+    return Themeable.styles;
+  }
 
   ns = 'taxes-table';
 
@@ -128,7 +150,7 @@ export class TaxesTable extends Table<Data> {
   }
 
   private __loadTranslations() {
-    const newNamespaces: string[] = [];
+    const newNamespaces: string[] = ['shared', this.ns, 'tax-form'];
     if (this.data) {
       for (const t of this.data!._embedded['fx:taxes']) {
         if (t.country) {
