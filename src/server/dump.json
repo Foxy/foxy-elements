@@ -475,7 +475,7 @@
     {
       "id": 0,
       "store": 0,
-      "name": "TN",
+      "name": "Beverage tax",
       "type": "region",
       "country": "US",
       "region": "TN",
@@ -492,7 +492,7 @@
     {
       "id": 1,
       "store": 0,
-      "name": "TX",
+      "name": "Aggregated value tax",
       "type": "region",
       "country": "US",
       "region": "TX",
@@ -503,6 +503,40 @@
       "use_origin_rates": true,
       "exempt_all_customer_tax_ids": false,
       "rate": 3,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
+    },
+    {
+      "id": 2,
+      "store": 0,
+      "name": "Good and Service tax",
+      "type": "country",
+      "country": "AR",
+      "region": "",
+      "city": "",
+      "is_live": false,
+      "service_provider": "",
+      "apply_to_shipping": false,
+      "use_origin_rates": true,
+      "exempt_all_customer_tax_ids": false,
+      "rate": 3,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
+    },
+    {
+      "id": 3,
+      "store": 0,
+      "name": "Green Tax",
+      "type": "local",
+      "country": "NL",
+      "region": "GR",
+      "city": "Groningen",
+      "is_live": false,
+      "service_provider": "",
+      "apply_to_shipping": false,
+      "use_origin_rates": false,
+      "exempt_all_customer_tax_ids": false,
+      "rate": 2.5,
       "date_created": "2013-08-19T10:58:39-0700",
       "date_modified": "2013-08-19T10:58:39-0700"
     }
