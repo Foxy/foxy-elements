@@ -64,6 +64,41 @@ export class TaxForm extends Base<Data> {
 
   private static __types = ['global', 'country', 'region', 'local', 'union'];
 
+  private __comboBoxField = (
+    field: keyof Data,
+    classString: string,
+    items: string[] | { label: string; value: string }[],
+    label = undefined
+  ): TemplateResult => {
+    return html` <x-combo-box
+      .items=${items}
+      @value-changed="${this.__bindField(field)}"
+      class="flex-1"
+      data-testid="${field}"
+      error-message=${this.__getErrorMessage(field)}
+      label=${this.__t(label ? label! : field).toString()}
+      value="${ifDefined(this.form[field])}"
+    >
+      <style>
+        [part='text-field'] {
+          padding-top: 0;
+        }
+      </style>
+    </x-combo-box>`;
+  };
+
+  private __checkboxField = (field: keyof Data, classString: string): TemplateResult => {
+    return html` <x-checkbox
+      data-testid="${field}"
+      class="my-s ${classString}"
+      ?checked=${ifDefined(this.form[field])}
+      @change=${this.__bindCheckboxField(field)}
+      error-message=${this.__getErrorMessage(field)}
+    >
+      <foxy-i18n lang=${this.lang} ns=${this.ns} key="${field}"></foxy-i18n>
+    </x-checkbox>`;
+  };
+
   private __namespaces: Array<string> = [];
 
   private __taxMachine = createMachine(taxMachine as any);
@@ -88,6 +123,11 @@ export class TaxForm extends Base<Data> {
   private readonly __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
   });
+
+  private __getErrorMessage = (prefix: string) => {
+    const error = this.errors.find(err => err.startsWith(prefix));
+    return error ? this.t(error.replace(prefix, 'v8n')) : '';
+  };
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -197,7 +237,7 @@ export class TaxForm extends Base<Data> {
         ${this.__taxMachine.context.support.automatic
           ? this.__checkboxField('is_live', 'my-s')
           : ''}
-        <div class="max-w-full border rounded-l border-contrast-10 p-s">
+        <div class="max-w-full border rounded-l border-contrast-10 p-s my-s">
           ${this.__taxMachine.context.support.provider
             ? html` <x-combo-box
                 class="w-full"
@@ -211,14 +251,7 @@ export class TaxForm extends Base<Data> {
                 error-message="${this.__getErrorMessage('service_provider')}"
               >
               </x-combo-box>`
-            : html`<vaadin-text-field
-                data-testid="rate"
-                label=${this.__t('taxRate').toString()}
-                .value="${ifDefined(this.form.rate)}"
-                @value-changed=${this.__bindField('rate')}
-                error-message=${this.__getErrorMessage('rate')}
-              >
-              </vaadin-text-field>`}
+            : this.__textField('rate', '')}
           ${this.__taxMachine.context.support.exempt
             ? this.__checkboxField('exempt_all_customer_tax_ids', 'my-s')
             : ''}
@@ -285,46 +318,6 @@ export class TaxForm extends Base<Data> {
         value="${ifDefined(this.form[field])}"
       ></vaadin-text-field>
     `;
-  }
-
-  private __comboBoxField(
-    field: keyof Data,
-    classString: string,
-    items: string[] | { label: string; value: string }[],
-    label = undefined
-  ): TemplateResult {
-    return html` <x-combo-box
-      .items=${items}
-      @value-changed="${this.__bindField(field)}"
-      class="flex-1"
-      data-testid="${field}"
-      error-message=${this.__getErrorMessage(field)}
-      label=${this.__t(label ? label! : field).toString()}
-      value="${ifDefined(this.form[field])}"
-    >
-      <style>
-        [part='text-field'] {
-          padding-top: 0;
-        }
-      </style>
-    </x-combo-box>`;
-  }
-
-  private __checkboxField(field: keyof Data, classString: string): TemplateResult {
-    return html` <x-checkbox
-      data-testid="${field}"
-      class="my-s ${classString}"
-      ?checked=${ifDefined(this.form[field])}
-      @change=${this.__bindCheckboxField(field)}
-      error-message=${this.__getErrorMessage(field)}
-    >
-      <foxy-i18n lang=${this.lang} ns=${this.ns} key="${field}"></foxy-i18n>
-    </x-checkbox>`;
-  }
-
-  private __getErrorMessage(prefix: string) {
-    const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.t(error.replace(prefix, 'v8n')) : '';
   }
 
   private get __t(): (s: string) => string {
