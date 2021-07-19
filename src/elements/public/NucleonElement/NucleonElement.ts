@@ -351,7 +351,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   private __handleRumourUpdate(update: (oldData: TData) => TData | null) {
     try {
-      const oldData = this.__service.state.context.data;
+      const oldData = this.__service.state?.context.data;
       if (!oldData) return;
 
       const newData = update(oldData);
