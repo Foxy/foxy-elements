@@ -1,4 +1,3 @@
-import '@polymer/iron-icon';
 import { CSSResultArray, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable, ThemeableMixin } from '../../../mixins/themeable';
@@ -12,7 +11,7 @@ import { Table } from '../Table/Table';
 import { TranslatableMixin } from '../../../mixins/translatable';
 
 const Base = ScopedElementsMixin(
-  ThemeableMixin(ConfigurableMixin(TranslatableMixin(Table, 'taxes-table')))
+  ThemeableMixin(ConfigurableMixin(TranslatableMixin(Table, 'tax-form')))
 );
 
 export class TaxesTable extends Base<Data> {
@@ -28,31 +27,41 @@ export class TaxesTable extends Base<Data> {
       let content;
       switch ((ctx.data as any).type) {
         case 'global':
-          content = html`<foxy-i18n key="global" ns="${ctx.ns}"></foxy-i18n>`;
+          content = html`<foxy-i18n class="inline" key="global" ns="${ctx.ns}"></foxy-i18n>`;
           break;
         case 'union':
           content = html`
-            <foxy-i18n key="union" ns="${ctx.ns}"></foxy-i18n>
+            <foxy-i18n class="inline" key="union" ns="${ctx.ns}"></foxy-i18n>
             ${ctx.data.use_origin_rates
-              ? html`<foxy-i18n key="${ctx.data.country}" ns="${ctx.ns}"></foxy-i18n>`
+              ? html`<foxy-i18n
+                  class="inline"
+                  key="${ctx.data.country}"
+                  ns="${ctx.ns}"
+                ></foxy-i18n>`
               : ''}
-            <foxy-i18n key="union" ns="${ctx.ns}"></foxy-i18n>
+            <foxy-i18n key="union" class="inline" ns="${ctx.ns}"></foxy-i18n>
           `;
           break;
         default:
           content = html`
-            <foxy-i18n key="${ctx.data.country}" ns="country"></foxy-i18n>
+            <foxy-i18n class="inline" key="${ctx.data.country}" ns="country"></foxy-i18n>
             ${
               ['region', 'local'].includes(ctx.data.type)
-                ? html` <foxy-i18n key="${ctx.data.region}" ns="region"></foxy-i18n> `
+                ? html`
+                    <foxy-i18n class="inline" key="${ctx.data.region}" ns="region"></foxy-i18n>
+                  `
                 : ''
             }
-            ${['local'].includes(ctx.data.type) ? html`<span>${ctx.data.city}</span>` : ''}
+            ${
+              ['local'].includes(ctx.data.type)
+                ? html`<span class="inline">${ctx.data.city}</span>`
+                : ''
+            }
           </span>`;
       }
       return html`
-        <span data-testid="scope" class="text-s text-secondary flex flex-wrap gap-s">
-          ${TaxesTable.__scopeIcon()} ${content}
+        <span data-testid="scope" class="text-s text-secondary flex flex-col flex-wrap gap-0">
+          ${content}
         </span>
       `;
     },
@@ -63,31 +72,27 @@ export class TaxesTable extends Base<Data> {
       const auto = ctx.data.is_live;
       const value = auto ? ctx.data.service_provider : ctx.data.rate;
       return html`
-        <div class="flex gap-s">
-          ${TaxesTable.__automaticIcon(auto)}
-          <foxy-i18n class="text-s text-secondary" key="${value}${auto ? '' : '%'}" ns="tax-form">
-          </foxy-i18n>
-        </div>
+        <foxy-i18n
+          class="text-s text-secondary inline"
+          key="${value}${auto ? '' : '%'}"
+          ns="tax-form"
+        >
+        </foxy-i18n>
       `;
     },
-    hideBelow: 'md',
   };
 
   static optionsColumn: Column<Data> = {
-    cell: ctx => html`
-      <div class="flex flex-wrap text-s text-secondary">
-        <foxy-i18n
-          class="${ctx.data.exempt_all_customer_tax_ids ? '' : 'text-disabled'}"
-          key="exempt_all_customer_tax_ids"
-          ns="${ctx.ns}"
-        ></foxy-i18n>
-        <foxy-i18n
-          class="${ctx.data.apply_to_shipping ? '' : 'text-disabled'}"
-          key="apply_to_shipping"
-          ns="${ctx.ns}"
-        ></foxy-i18n>
-      </div>
-    `,
+    cell: ctx => {
+      const options = ['exempt_all_customer_tax_ids', 'apply_to_shipping'];
+      return html`
+        <div class="flex flex-wrap text-s text-secondary">
+          ${options
+            .filter(o => (ctx.data as any)[o])
+            .map(i => html`<foxy-i18n key="${i}" ns="${ctx.ns}"></foxy-i18n>`)}
+        </div>
+      `;
+    },
     hideBelow: 'lg',
   };
 
@@ -114,7 +119,6 @@ export class TaxesTable extends Base<Data> {
     return {
       'foxy-form-dialog': FormDialog,
       'foxy-i18n': I18N,
-      'iron-icon': customElements.get('iron-icon'),
     };
   }
 
@@ -122,14 +126,14 @@ export class TaxesTable extends Base<Data> {
     return Themeable.styles;
   }
 
-  ns = 'taxes-table';
+  ns = 'tax-form';
 
   namespaces = [this.ns, 'country'];
 
   columns = [
     TaxesTable.nameColumn,
-    TaxesTable.scopeColumn,
     TaxesTable.modeColumn,
+    TaxesTable.scopeColumn,
     TaxesTable.optionsColumn,
     TaxesTable.actionsColumn,
   ];
@@ -148,19 +152,8 @@ export class TaxesTable extends Base<Data> {
     `;
   }
 
-  private static __scopeIcon(): TemplateResult {
-    return html`<iron-icon class="w-xxs p-0 m-0" icon="maps:place"></iron-icon>`;
-  }
-
-  private static __automaticIcon(auto: boolean): TemplateResult {
-    return html`<iron-icon
-      class="w-xxs p-0 m-0"
-      icon="${auto ? 'icons:cloud' : 'icons:cloud-off'}"
-    ></iron-icon>`;
-  }
-
   private __loadTranslations() {
-    const newNamespaces: string[] = ['shared', this.ns, 'tax-form'];
+    const newNamespaces: string[] = ['shared', this.ns];
     if (this.data) {
       for (const t of this.data!._embedded['fx:taxes']) {
         if (t.country) {
