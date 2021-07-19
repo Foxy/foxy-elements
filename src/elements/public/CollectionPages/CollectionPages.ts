@@ -69,11 +69,14 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
           if (!response.ok) throw response;
           const json = await response.json();
 
+          this.__stopTrackingRumour();
+
           NucleonElement.Rumour(this.group).share({
-            related: this.pages.map(page => page._links.self.href),
             source: json._links.self.href,
             data: json,
           });
+
+          this.__trackRumour();
 
           return json;
         },

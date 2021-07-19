@@ -264,7 +264,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const data = await this._fetch(this.parent, { body, method: 'POST' });
     const rumour = NucleonElement.Rumour(this.group);
 
+    this.__destroyRumour();
     rumour.share({ data, related: [this.parent], source: data._links.self.href });
+    this.__createRumour();
+
     return data;
   }
 
@@ -273,7 +276,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const data = await this._fetch(this.href);
     const rumour = NucleonElement.Rumour(this.group);
 
+    this.__destroyRumour();
     rumour.share({ data, source: this.href });
+    this.__createRumour();
+
     return data;
   }
 
@@ -283,7 +289,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const data = await this._fetch(this.href, { body, method: 'PATCH' });
     const rumour = NucleonElement.Rumour(this.group);
 
+    this.__destroyRumour();
     rumour.share({ data, source: this.href });
+    this.__createRumour();
+
     return data;
   }
 
@@ -292,7 +301,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const data = await this._fetch(this.href, { method: 'DELETE' });
     const rumour = NucleonElement.Rumour(this.group);
 
+    this.__destroyRumour();
     rumour.share({ data: null, source: this.href, related: [this.parent] });
+    this.__createRumour();
+
     return data;
   }
 
