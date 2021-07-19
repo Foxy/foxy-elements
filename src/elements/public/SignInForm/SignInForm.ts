@@ -3,7 +3,7 @@ import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
-import { NucleonElement } from '..';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { ThemeableMixin } from '../../../mixins/themeable';

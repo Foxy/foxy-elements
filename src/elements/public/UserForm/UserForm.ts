@@ -4,8 +4,8 @@ import { TemplateResult, html } from 'lit-element';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data } from './types';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
