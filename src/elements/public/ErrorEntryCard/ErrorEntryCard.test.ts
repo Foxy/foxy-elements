@@ -89,7 +89,6 @@ describe('ErrorEntryCard', async () => {
     expect(element.shadowRoot?.querySelector('[key="date"]')).to.exist;
     expect(element.shadowRoot?.querySelector('[key="time"]')).to.exist;
     expect(element.shadowRoot?.querySelector('p')).to.exist;
-    expect(element.shadowRoot?.querySelector('[key="customer"]')).to.be.visible;
     expect(element.shadowRoot?.querySelector('[key="client"]')).to.be.visible;
     expect(element.shadowRoot?.querySelector('[key="transaction"]')).to.be.visible;
     expect(element.shadowRoot?.querySelector('[key="request"]')).to.be.visible;
