@@ -134,6 +134,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
     }
 
     this.__page = value;
+    this.requestUpdate();
   }
 
   /** URL of the first page in a collection. */
