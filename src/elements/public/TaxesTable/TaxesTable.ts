@@ -27,40 +27,52 @@ export class TaxesTable extends Base<Data> {
       let content;
       switch ((ctx.data as any).type) {
         case 'global':
-          content = html`<foxy-i18n class="inline" key="global" ns="${ctx.ns}"></foxy-i18n>`;
+          content = html`<foxy-i18n
+            data-testclass="global"
+            class="inline"
+            key="global"
+            ns="${ctx.ns}"
+          ></foxy-i18n>`;
           break;
         case 'union':
           content = html`
-            <foxy-i18n class="inline" key="union" ns="${ctx.ns}"></foxy-i18n>
+            <foxy-i18n class="inline" data-testclass="union" key="union" ns="${ctx.ns}"></foxy-i18n>
             ${ctx.data.use_origin_rates
               ? html`<foxy-i18n
+                  data-testclass="origin"
                   class="inline"
                   key="${ctx.data.country}"
                   ns="${ctx.ns}"
                 ></foxy-i18n>`
               : ''}
-            <foxy-i18n key="union" class="inline" ns="${ctx.ns}"></foxy-i18n>
           `;
           break;
         default:
           content = html`
-            <foxy-i18n class="inline" key="${ctx.data.country}" ns="country"></foxy-i18n>
+            <foxy-i18n data-testclass="country" class="inline" key="${
+              ctx.data.country
+            }" ns="country"></foxy-i18n>
             ${
               ['region', 'local'].includes(ctx.data.type)
                 ? html`
-                    <foxy-i18n class="inline" key="${ctx.data.region}" ns="region"></foxy-i18n>
+                    <foxy-i18n
+                      data-testclass="region"
+                      class="inline"
+                      key="${ctx.data.region}"
+                      ns="region"
+                    ></foxy-i18n>
                   `
                 : ''
             }
             ${
               ['local'].includes(ctx.data.type)
-                ? html`<span class="inline">${ctx.data.city}</span>`
+                ? html`<span data-testclass="city" class="inline">${ctx.data.city}</span>`
                 : ''
             }
           </span>`;
       }
       return html`
-        <span data-testid="scope" class="text-s text-secondary flex flex-col flex-wrap gap-0">
+        <span data-testclass="scope" class="text-s text-secondary flex flex-col flex-wrap gap-0">
           ${content}
         </span>
       `;
@@ -73,6 +85,7 @@ export class TaxesTable extends Base<Data> {
       const value = auto ? ctx.data.service_provider : ctx.data.rate;
       return html`
         <foxy-i18n
+          data-testclass="mode"
           class="text-s text-secondary inline"
           key="${value}${auto ? '' : '%'}"
           ns="tax-form"
@@ -86,7 +99,7 @@ export class TaxesTable extends Base<Data> {
     cell: ctx => {
       const options = ['exempt_all_customer_tax_ids', 'apply_to_shipping'];
       return html`
-        <div class="flex flex-wrap text-s text-secondary">
+        <div class="flex flex-wrap text-s text-secondary" data-testclass="options">
           ${options
             .filter(o => (ctx.data as any)[o])
             .map(i => html`<foxy-i18n key="${i}" ns="${ctx.ns}"></foxy-i18n>`)}
