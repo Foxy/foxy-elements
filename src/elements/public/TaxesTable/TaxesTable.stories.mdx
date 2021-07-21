@@ -10,7 +10,10 @@ import {
 
 import './index.ts';
 
-<Meta title="Tables / TaxesTable" />
+<Meta 
+  title="Tables / TaxesTable" 
+  component="foxy-taxes-table"
+  />
 
 # Taxes Table
 
@@ -39,6 +42,19 @@ import './index.ts';
   </Story>
 </Canvas>
 
+<Story name="Narrow">
+  {() =>
+    html`
+      <foxy-taxes-table
+        href="https://demo.foxycart.com/s/admin/stores/0/taxes"
+        lang="en"
+        class="container-narrow"
+      >
+      </foxy-taxes-table>
+    `
+  }
+</Story>
+
 ## Reference
 
 <ArgsTable of="foxy-taxes-table" />
@@ -49,42 +65,13 @@ This element supports the following resources: [taxes](https://api.foxycart.com/
 
 ### i18next
 
-This element supports the following namespaces: `tax-form`, `shared`.
+This element supports the following namespaces: `taxes-table`, `tax-form`, `shared`.
 
 ### Theming
 
 Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Properties with it. You can find the latest documentation and theme editor on [demo.vaadin.com](https://demo.vaadin.com/lumo-editor/).
 
-<Story name="State: idle.template.clean.invalid" parameters={{ docs: { disable: true } }}>
-  {() =>
-    html`
-      <foxy-taxes-table href="https://demo.foxycart.com/s/admin/stores/0/taxes" class="container-narrow">
-      </foxy-taxes-table>
-    `
-  }
-</Story>
 
-<Story name="State: idle.template.dirty.valid" parameters={{ docs: { disable: true } }}>
-  {() => html`
-    <foxy-taxes-table
-      href="https://demo.foxycart.com/s/admin/stores/0/taxes"
-      class="container-narrow"
-    >
-    </foxy-taxes-table>
-  `}
-</Story>
-
-<Story name="State: idle.snapshot" parameters={{ docs: { disable: true } }}>
-  {() =>
-    html`
-      <foxy-taxes-table
-        href="https://demo.foxycart.com/s/admin/stores/0/taxes"
-        class="container-narrow"
-      >
-      </foxy-taxes-table>
-    `
-  }
-</Story>
 
 <Story name="State: busy" parameters={{ docs: { disable: true } }}>
   {() =>
@@ -102,7 +89,6 @@ Our elements use Vaadin Lumo theme and therefore share the list of CSS Custom Pr
   {() =>
     html`
       <foxy-taxes-table
-        parent="https://demo.foxycart.com/s/admin/stores/0/taxes"
         href="https://demo.foxycart.com/s/admin/not-found"
         class="container-narrow"
       >
