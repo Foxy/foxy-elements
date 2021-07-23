@@ -453,18 +453,3 @@ describe('Usability', function () {
 
   DefaultTests.confirmBeforeAction(taxFormHtml);
 });
-
-describe('Accessibility', function () {
-  //it('passes accessibility test', async () => {
-  //  const element = await fixture(taxFormHtml);
-  //  await waitUntil(() => (element as TaxForm).in('idle'), 'Element should become idle');
-  //  await elementUpdated(element);
-  //  await expect(element).to.be.accessible();
-  //});
-});
-
-describe('Internationalization', function () {
-  it('Should have all visible texts translatable.');
-  it('Should have all visible dates localizable.');
-  it('Should have all visible number formats localizable.');
-});
