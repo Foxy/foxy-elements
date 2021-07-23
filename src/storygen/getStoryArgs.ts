@@ -16,8 +16,12 @@ export function getStoryArgs(summary: Summary): Args {
     args.hidden = false;
 
     allControls.forEach(control => {
-      args[`${control}:before`] = '';
-      args[`${control}:after`] = '';
+      if (control.endsWith('default')) {
+        args[control] = '';
+      } else {
+        args[`${control}:before`] = '';
+        args[`${control}:after`] = '';
+      }
     });
   }
 
