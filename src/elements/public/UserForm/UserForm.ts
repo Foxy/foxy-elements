@@ -154,8 +154,8 @@ export class UserForm extends Base<Data> {
         <div
           data-testid="spinner"
           class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': !isBusy && !isFail,
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
           })}
         >
           <foxy-spinner

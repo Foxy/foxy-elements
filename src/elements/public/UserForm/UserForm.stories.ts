@@ -5,12 +5,12 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.foxycart.com/s/admin/users/0',
-  parent: 'https://demo.foxycart.com/s/admin/stores/0/users',
-  nucleon: true,
-  localName: 'foxy-user-form',
-  translatable: true,
   configurable: {},
+  href: 'https://demo.foxycart.com/s/admin/users/0',
+  localName: 'foxy-user-form',
+  nucleon: true,
+  parent: 'https://demo.foxycart.com/s/admin/stores/0/users',
+  translatable: true,
 };
 
 export default getMeta(summary);

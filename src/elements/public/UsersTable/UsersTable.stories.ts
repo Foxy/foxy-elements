@@ -6,8 +6,8 @@ import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
   href: 'https://demo.foxycart.com/s/admin/stores/0/users',
-  nucleon: true,
   localName: 'foxy-users-table',
+  nucleon: true,
   translatable: true,
 };
 

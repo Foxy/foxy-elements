@@ -115,7 +115,10 @@ describe('UserForm', () => {
     );
 
     await DefaultTests.provideFeedbackOnLoading(
-      html`<foxy-user-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
+      html`<foxy-user-form
+        href="https://demo.foxycart.com/s/admin/users/0"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
       </foxy-user-form>`,
       'https://demo.foxycart.com/s/admin/users/0'
     );
