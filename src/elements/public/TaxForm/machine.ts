@@ -69,7 +69,9 @@ function setSupportScope(ctx: TaxContext): void {
 function setSupportCountry(ctx: TaxContext): void {
   ctx.support.country =
     ['country', 'region', 'local'].includes(ctx.value.scope!) ||
-    (ctx.value.scope === 'union' && ctx.support.originCountry);
+    (ctx.value.scope === 'union' &&
+      ctx.support.originCountry &&
+      ctx.value.provider == 'thomsonreuters');
 }
 
 /**

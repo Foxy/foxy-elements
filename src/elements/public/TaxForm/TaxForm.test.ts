@@ -3,7 +3,8 @@ import { elementUpdated, expect, fixture, html, waitUntil } from '@open-wc/testi
 import { DefaultTests } from '../../../utils/test-utils';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { TaxForm } from './TaxForm';
-import { router } from '../../../server/admin';
+import { router } from '../../../server';
+import { Tax } from '@foxy.io/sdk/dist/types/backend/Rels';
 
 const taxFormUrl = 'https://demo.foxycart.com/s/admin/stores/0/taxes/0';
 
