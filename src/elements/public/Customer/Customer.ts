@@ -632,6 +632,7 @@ export class Customer extends Base<Data> {
           page="foxy-transactions-table"
           lang=${this.lang}
           ns=${this.ns}
+          .templates=${this.getNestedTemplates('transactions:table')}
         >
         </foxy-collection-pages>
       </x-group>
@@ -678,6 +679,7 @@ export class Customer extends Base<Data> {
         lang=${ctx.lang}
         ns=${ctx.ns}
         .columns=${this.__subscriptionsTableColumns}
+        .templates=${ctx.templates}
       >
       </foxy-table>
     `;
@@ -722,6 +724,7 @@ export class Customer extends Base<Data> {
             lang=${this.lang}
             ns=${this.ns}
             .page=${this.__renderSubscriptionsPage}
+            .templates=${this.getNestedTemplates('subscriptions:table')}
           >
           </foxy-collection-pages>
         </x-group>

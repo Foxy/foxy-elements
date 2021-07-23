@@ -31,6 +31,7 @@ const summary: Summary = {
       'customer:payment-methods:list',
       'customer:payment-methods:list:card:actions',
       'customer:transactions',
+      'customer:transactions:table:default',
       'customer:transactions:header',
       'customer:transactions:list',
       'customer:subscriptions',

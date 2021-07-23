@@ -170,6 +170,7 @@ export type Templates = {
   'customer:attributes:list:form:create:after'?: CustomerTemplates['attributes:list:form:create:after'];
   'customer:transactions:before'?: CustomerTemplates['transactions:before'];
   'customer:transactions:after'?: CustomerTemplates['transactions:after'];
+  'customer:transactions:table:default'?: CustomerTemplates['transactions:table:default'];
   'customer:subscriptions:before'?: CustomerTemplates['subscriptions:before'];
   'customer:subscriptions:after'?: CustomerTemplates['subscriptions:after'];
   'customer:subscriptions:list:form:header:before'?: CustomerTemplates['subscriptions:form:header:before'];

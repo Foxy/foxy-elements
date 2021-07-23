@@ -3,12 +3,15 @@ import './index';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { Column } from './types';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Spinner } from '../Spinner/Spinner';
 import { Table } from './Table';
+import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html as litHtmlTemplateFunction } from 'lit-html';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('Table', () => {
   it('extends NucleonElement', () => {
@@ -134,5 +137,27 @@ describe('Table', () => {
     expect(table.tBodies[0].rows[0].cells[1].className).to.include('hidden lg-table-cell');
     expect(table.tBodies[0].rows[0].cells[2].className).to.include('hidden md-table-cell');
     expect(table.tBodies[0].rows[0].cells[3].className).to.include('hidden sm-table-cell');
+  });
+
+  it('renders default slot', async () => {
+    const layout = html`<foxy-table></foxy-table>`;
+    const element = await fixture(layout);
+    expect(await getByTag(element, 'slot')).to.have.property('name', '');
+  });
+
+  it('replaces default slot with template "default" if available', async () => {
+    const name = 'default';
+    const value = `<p>Value of the "${name}" template.</p>`;
+    const element = await fixture<Table<any>>(html`
+      <foxy-table>
+        <template>${unsafeHTML(value)}</template>
+      </foxy-table>
+    `);
+
+    const slot = await getByTag<HTMLSlotElement>(element, 'slot');
+    const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+    expect(slot).to.not.exist;
+    expect(sandbox).to.contain.html(value);
   });
 });

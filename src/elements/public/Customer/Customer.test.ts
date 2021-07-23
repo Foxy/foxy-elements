@@ -1461,9 +1461,14 @@ describe('Customer', () => {
   describe('transactions', () => {
     it('renders foxy-collection-pages with foxy-transactions-table', async () => {
       const data = await getTestData<Data>('./s/admin/customers/0');
-      const layout = html`<foxy-customer .data=${data} group="foo" lang="es"></foxy-customer>`;
+      const layout = html`
+        <foxy-customer group="foo" lang="es" .data=${data}>
+          <template slot="transactions:table:default"></template>
+        </foxy-customer>
+      `;
+
       const element = await fixture<Customer>(layout);
-      const control = await getByTestId(element, 'transactions');
+      const control = (await getByTestId(element, 'transactions')) as CollectionPages<any>;
 
       const transactionsURL = new URL(data._links['fx:transactions'].href);
       transactionsURL.searchParams.set('zoom', 'items');
@@ -1472,6 +1477,9 @@ describe('Customer', () => {
       expect(control).to.have.attribute('group', 'foo');
       expect(control).to.have.attribute('page', 'foxy-transactions-table');
       expect(control).to.have.attribute('lang', 'es');
+
+      expect(control).to.have.property('templates');
+      expect(control.templates).to.have.key('default');
     });
 
     it('is hidden when element is hidden', async () => {
@@ -1604,6 +1612,7 @@ describe('Customer', () => {
           href="https://demo.foxycart.com/s/admin/customers/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
+          <template slot="subscriptions:table:default"></template>
         </foxy-customer>
       `);
 
@@ -1632,6 +1641,9 @@ describe('Customer', () => {
         expect(table).to.have.nested.property('columns[0]', SubscriptionsTable.priceColumn);
         expect(table).to.have.nested.property('columns[1]', SubscriptionsTable.summaryColumn);
         expect(table).to.have.nested.property('columns[2]', SubscriptionsTable.statusColumn);
+
+        expect(table).to.have.property('templates');
+        expect(table.templates).to.have.key('default');
 
         const editButtons = await getByTestClass(table, 'edit');
         expect(editButtons).to.be.not.empty;
