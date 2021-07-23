@@ -3,6 +3,7 @@ import { CustomerPortal } from '.';
 import { Templates as CustomerTemplates } from '../Customer/types';
 import { Renderer } from '../../../mixins/configurable';
 import { Templates as SignInFormTemplates } from '../SignInForm/types';
+import { Templates as SubscriptionCardTemplates } from '../SubscriptionCard/types';
 
 export type Templates = {
   'sign-in:before'?: Renderer<CustomerPortal>;
@@ -173,6 +174,7 @@ export type Templates = {
   'customer:transactions:table:default'?: CustomerTemplates['transactions:table:default'];
   'customer:subscriptions:before'?: CustomerTemplates['subscriptions:before'];
   'customer:subscriptions:after'?: CustomerTemplates['subscriptions:after'];
+  'customer:subscriptions:list:card:default'?: SubscriptionCardTemplates['default'];
   'customer:subscriptions:list:form:header:before'?: CustomerTemplates['subscriptions:form:header:before'];
   'customer:subscriptions:list:form:header:after'?: CustomerTemplates['subscriptions:form:header:after'];
   'customer:subscriptions:list:form:items:before'?: CustomerTemplates['subscriptions:form:items:before'];

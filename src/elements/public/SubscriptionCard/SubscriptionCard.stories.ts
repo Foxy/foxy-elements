@@ -10,6 +10,7 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-subscription-card',
   translatable: true,
+  configurable: { sections: ['default'] },
 };
 
 export default getMeta(summary);

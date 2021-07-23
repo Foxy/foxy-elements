@@ -37,6 +37,7 @@ const summary: Summary = {
       'customer:subscriptions',
       'customer:subscriptions:header',
       'customer:subscriptions:list',
+      'customer:subscriptions:list:card:default',
       'customer:subscriptions:list:form:header',
       'customer:subscriptions:list:form:header:actions',
       'customer:subscriptions:list:form:header:actions:update',

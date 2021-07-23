@@ -1,10 +1,13 @@
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { Data } from './types';
+import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { SubscriptionCard } from './index';
+import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('SubscriptionCard', () => {
   it('registers as foxy-subscription-card', () => {
@@ -189,5 +192,27 @@ describe('SubscriptionCard', () => {
     const element = await fixture<SubscriptionCard>(layout);
 
     expect(await getByTestId(element, 'spinner')).to.have.class('opacity-0');
+  });
+
+  it('renders default slot', async () => {
+    const layout = html`<foxy-subscription-card></foxy-subscription-card>`;
+    const element = await fixture(layout);
+    expect(await getByTag(element, 'slot')).to.have.property('name', '');
+  });
+
+  it('replaces default slot with template "default" if available', async () => {
+    const name = 'default';
+    const value = `<p>Value of the "${name}" template.</p>`;
+    const element = await fixture<SubscriptionCard>(html`
+      <foxy-subscription-card>
+        <template>${unsafeHTML(value)}</template>
+      </foxy-subscription-card>
+    `);
+
+    const slot = await getByTag<HTMLSlotElement>(element, 'slot');
+    const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+    expect(slot).to.not.exist;
+    expect(sandbox).to.contain.html(value);
   });
 });

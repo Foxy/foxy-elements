@@ -195,6 +195,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
           lang=${ctx.lang}
           href=${ctx.href}
           ns="${ctx.ns} ${customElements.get('foxy-subscription-card')?.defaultNS ?? ''}"
+          .templates=${ctx.templates}
         >
         </foxy-subscription-card>
       </button>
@@ -210,6 +211,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         group=${ctx.group}
         class="space-y-m"
         .item=${this.__renderPageItem}
+        .templates=${ctx.templates}
       >
       </foxy-collection-page>
     `;
@@ -263,6 +265,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         ns=${this.ns}
         manual
         .page=${this.__renderPage}
+        .templates=${this.getNestedTemplates('list:card')}
       >
       </foxy-collection-pages>
 
