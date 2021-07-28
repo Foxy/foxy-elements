@@ -1,5 +1,6 @@
 import { TemplateResult, html } from 'lit-html';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data } from './types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -9,7 +10,9 @@ import { classMap } from '../../../utils/class-map';
 import { parseFrequency } from '../../../utils/parse-frequency';
 
 const NS = 'subscription-card';
-const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)));
+const Base = ConfigurableMixin(
+  ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)))
+);
 
 /**
  * Card element displaying subscription summary.
@@ -111,6 +114,8 @@ export class SubscriptionCard extends Base<Data> {
           </foxy-spinner>
         </div>
       </div>
+
+      ${this.renderTemplateOrSlot()}
     `;
   }
 

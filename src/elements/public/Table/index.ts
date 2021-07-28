@@ -1,3 +1,4 @@
+import '../../internal/InternalSandbox/index';
 import '../Spinner/index';
 
 import { Table } from './Table';

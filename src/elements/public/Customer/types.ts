@@ -10,7 +10,9 @@ import { Templates as PaymentMethodCardTemplates } from '../PaymentMethodCard/ty
 import { Renderer } from '../../../mixins/configurable';
 import { Resource } from '@foxy.io/sdk/core';
 import { Templates as SubscriptionFormTemplates } from '../SubscriptionForm/types';
+import { Templates as SubscriptionsTableTemplates } from '../SubscriptionsTable/types';
 import { TemplateResult } from 'lit-html';
+import { Templates as TransactionsTableTemplates } from '../TransactionsTable/types';
 
 export type CustomerAddresses = Resource<Rels.CustomerAddresses>;
 export type Attributes = Resource<Rels.Attributes>;
@@ -155,6 +157,7 @@ export type Templates = {
   'attributes:list:form:create:after'?: AttributeFormTemplates['create:after'];
   'transactions:before'?: Renderer<Customer>;
   'transactions:after'?: Renderer<Customer>;
+  'transactions:table:default'?: Renderer<TransactionsTableTemplates['default']>;
   'subscriptions:before'?: Renderer<Customer>;
   'subscriptions:after'?: Renderer<Customer>;
   'subscriptions:form:header:before'?: SubscriptionFormTemplates['header:before'];
@@ -177,4 +180,5 @@ export type Templates = {
   'subscriptions:form:frequency:after'?: SubscriptionFormTemplates['frequency:after'];
   'subscriptions:form:transactions:before'?: SubscriptionFormTemplates['transactions:before'];
   'subscriptions:form:transactions:after'?: SubscriptionFormTemplates['transactions:after'];
+  'subscriptions:table:default'?: Renderer<SubscriptionsTableTemplates['default']>;
 };

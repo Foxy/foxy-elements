@@ -171,21 +171,19 @@ config!.states!.extension.states!.present.states!.selected.meta = {
     const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
     expect(field).to.be.visible;
 
-    ['input', 'change'].forEach(type => {
-      const oldElementValue = element.value;
-      const newFieldValue = '123';
+    const oldElementValue = element.value;
+    const newFieldValue = '123';
 
-      field.value = newFieldValue;
-      field.dispatchEvent(new Event(type));
+    field.value = newFieldValue;
+    field.dispatchEvent(new Event('change'));
 
-      if (Array.isArray(element.value)) {
-        expect(element.value).to.include(newFieldValue);
-      } else {
-        expect(element.value).to.equal(newFieldValue);
-      }
+    if (Array.isArray(element.value)) {
+      expect(element.value).to.include(newFieldValue);
+    } else {
+      expect(element.value).to.equal(newFieldValue);
+    }
 
-      element.value = oldElementValue;
-    });
+    element.value = oldElementValue;
   },
 };
 

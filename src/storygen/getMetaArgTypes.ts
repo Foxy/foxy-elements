@@ -30,10 +30,10 @@ export function getMetaArgTypes(summary: Summary): Record<string, unknown> {
 
     allControls.forEach(control => {
       if (control.endsWith('default')) {
-        argTypes[control] = { type: 'string', table: { category: 'Slots' } };
+        argTypes[control] = { type: 'string', table: { category: 'slots' } };
       } else {
-        argTypes[`${control}:before`] = { type: 'string', table: { category: 'Slots' } };
-        argTypes[`${control}:after`] = { type: 'string', table: { category: 'Slots' } };
+        argTypes[`${control}:before`] = { type: 'string', table: { category: 'slots' } };
+        argTypes[`${control}:after`] = { type: 'string', table: { category: 'slots' } };
       }
     });
   }
@@ -45,9 +45,9 @@ export function getMetaArgTypes(summary: Summary): Record<string, unknown> {
   }
 
   if (summary.nucleon) {
-    argTypes.UpdateEvent = { control: false, table: { category: 'Static' } };
-    argTypes.Rumour = { control: false, table: { category: 'Static' } };
-    argTypes.API = { control: false, table: { category: 'Static' } };
+    argTypes.UpdateEvent = { control: false, table: { category: 'static' } };
+    argTypes.Rumour = { control: false, table: { category: 'static' } };
+    argTypes.API = { control: false, table: { category: 'static' } };
 
     argTypes.failure = { control: false };
     argTypes.errors = { control: false };

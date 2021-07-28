@@ -69,11 +69,14 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
           if (!response.ok) throw response;
           const json = await response.json();
 
+          this.__stopTrackingRumour();
+
           NucleonElement.Rumour(this.group).share({
-            related: this.pages.map(page => page._links.self.href),
             source: json._links.self.href,
             data: json,
           });
+
+          this.__trackRumour();
 
           return json;
         },
@@ -131,6 +134,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
     }
 
     this.__page = value;
+    this.requestUpdate();
   }
 
   /** URL of the first page in a collection. */
@@ -273,7 +277,11 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
   private __trackRumour() {
     this.__stopTrackingRumour = NucleonElement.Rumour(this.group).track(update => {
       try {
-        this.pages.map(page => update(page));
+        if (this.pages.length === 0) {
+          update({ _links: { self: { href: this.first } } });
+        } else {
+          this.pages.map(page => update(page));
+        }
       } catch (err) {
         if (err instanceof Rumour.UpdateError) {
           this.__service.send({ type: 'SET_FIRST', data: this.first });

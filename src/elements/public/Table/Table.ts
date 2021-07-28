@@ -1,6 +1,7 @@
-import { Collection, Column } from './types';
+import { Collection, Column, Templates } from './types';
 import { TemplateResult, html } from 'lit-html';
 
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { NucleonElement } from '../NucleonElement/index';
 import { PropertyDeclarations } from 'lit-element';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -8,7 +9,7 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 
-const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
+const Base = ConfigurableMixin(ResponsiveMixin(ThemeableMixin(TranslatableMixin(NucleonElement))));
 
 /**
  * Configurable table element for HAL+JSON collections.
@@ -24,6 +25,8 @@ export class Table<TData extends Collection> extends Base<TData> {
       columns: { attribute: false },
     };
   }
+
+  templates: Templates<TData> = {};
 
   /** Array of column templates. See `Column` type for more details. */
   columns: Column<TData>[] = [];
@@ -89,6 +92,8 @@ export class Table<TData extends Collection> extends Base<TData> {
             `
           : ''}
       </div>
+
+      ${this.renderTemplateOrSlot()}
     `;
   }
 

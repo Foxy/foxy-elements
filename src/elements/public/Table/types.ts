@@ -1,6 +1,8 @@
 import { TemplateResult, html } from 'lit-html';
 
 import { Primitive } from 'lit-html/lib/parts';
+import { Renderer } from '../../../mixins/configurable';
+import { Table } from './Table';
 
 export type Collection<TCurie extends string = any, TResource = any> = {
   readonly _links: Record<'next' | 'self', { href: string }>;
@@ -31,4 +33,8 @@ export type Column<TData extends Collection> = {
   hideBelow?: 'sm' | 'md' | 'lg' | 'xl';
   header?: (context: HeaderContext<TData>) => TemplateResult | Primitive;
   cell?: (context: CellContext<TData>) => TemplateResult | Primitive;
+};
+
+export type Templates<TData extends Collection = any> = {
+  default?: Renderer<Table<TData>>;
 };

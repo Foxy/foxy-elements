@@ -2,6 +2,7 @@ import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 
+import { CollectionPages } from '../CollectionPages';
 import { InternalCustomerPortalTransactions } from './InternalCustomerPortalTransactions';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { LitElement } from 'lit-element';
@@ -108,12 +109,17 @@ describe('InternalCustomerPortalTransactions', () => {
     it('renders custom foxy-collection-pages displaying transactions', async () => {
       const customer = await getTestData('./s/admin/customers/0');
       const view = await fixture<InternalCustomerPortalTransactions>(html`
-        <foxy-internal-customer-portal-transactions group="test" lang="es" .customer=${customer}>
+        <foxy-internal-customer-portal-transactions
+          group="test"
+          lang="es"
+          .customer=${customer}
+          .templates=${{ 'table:default': () => '' }}
+        >
         </foxy-internal-customer-portal-transactions>
       `);
 
       const transactions = (await getByTestId(view, 'transactions')) as HTMLDivElement;
-      const pages = (await getByTag(transactions, 'foxy-collection-pages'))!;
+      const pages = (await getByTag(transactions, 'foxy-collection-pages')) as CollectionPages<any>;
 
       expect(pages).to.have.attribute(
         'first',
@@ -123,6 +129,9 @@ describe('InternalCustomerPortalTransactions', () => {
       expect(pages).to.have.attribute('group', 'test');
       expect(pages).to.have.attribute('lang', 'es');
       expect(pages).to.have.attribute('page', 'foxy-transactions-table');
+
+      expect(pages).to.have.property('templates');
+      expect(pages.templates).to.have.key('default');
     });
 
     it('hides list if hiddencontrols matches "list"', async () => {

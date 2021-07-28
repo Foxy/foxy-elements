@@ -141,6 +141,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
           lang="es"
           .customer=${customer}
           .settings=${settings}
+          .templates=${{ 'list:card:default': () => '' }}
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-internal-customer-portal-subscriptions>
@@ -172,6 +173,9 @@ describe('InternalCustomerPortalSubscriptions', () => {
           expect(card).to.have.attribute('group', 'foo');
           expect(card).to.have.attribute('lang', 'es');
           expect(card).to.have.attribute('href', subscription._links.self.href);
+
+          expect(card).to.have.property('templates');
+          expect(card.templates).to.have.key('default');
         }
       }
     });

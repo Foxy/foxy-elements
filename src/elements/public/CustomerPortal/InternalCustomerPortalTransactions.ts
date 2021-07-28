@@ -62,6 +62,7 @@ export class InternalCustomerPortalTransactions extends Base {
           lang=${this.lang}
           ns=${this.ns}
           manual
+          .templates=${this.getNestedTemplates('table')}
         >
         </foxy-collection-pages>
 
