@@ -13,8 +13,8 @@ jobs:
         with:
           package-name: MyPackage # your package name
         env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_CDN_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_CDN_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_CDN_SECRET }}
           AWS_REGION: "us-east-1" # optional: defaults to us-east-1
           SOURCE_DIR: "dist" # optional: defaults to `dist` directory
