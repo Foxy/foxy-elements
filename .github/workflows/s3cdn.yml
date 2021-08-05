@@ -11,10 +11,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: Foxy/foxy-github-action-s3cdn@main
         with:
-          package-name: MyPackage # your package name
+          package-name: MyPackage # optional: Default is repo name.
         env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_CDN_BUCKET_NAME }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_CDN_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_CDN_SECRET }}
-          AWS_REGION: "us-east-1" # optional: defaults to us-east-1
-          SOURCE_DIR: "dist" # optional: defaults to `dist` directory
+          AWS_S3_CDN_BUCKET_NAME: ${{ secrets.AWS_S3_CDN_BUCKET_NAME }}
+          AWS_S3_CDN_KEY_ID: ${{ secrets.AWS_S3_CDN_KEY_ID }}
+          AWS_S3_CDN_KEY_SECRET: ${{ secrets.AWS_S3_CDN_KEY_SECRET }}
+          AWS_REGION: "us-west-1" # optional: defaults to us-east-1
+          SOURCE_DIR: "public" # optional: defaults to `dist` directory
