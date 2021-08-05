@@ -13,7 +13,8 @@ jobs:
       - name: Install & Build
         run: |
           npm install
-          npm run prepack      - uses: Foxy/foxy-github-action-s3cdn@main
+          npm run prepack
+      - uses: Foxy/foxy-github-action-s3cdn@main
         with:
           package-name: MyPackage # optional: Default is repo name.
         env:
