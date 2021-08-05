@@ -1,4 +1,4 @@
-name: Update AWS S3 with current release
+name: S3CDN upload
 
 on:
   push:
@@ -8,7 +8,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Foxy/foxy-elements
+        uses: actions/checkout@v2
+      - name: Install & Build
+        run: |
+          npm install
+          npm run prepack
       - uses: Foxy/foxy-github-action-s3cdn@main
         with:
           package-name: MyPackage # optional: Default is repo name.
