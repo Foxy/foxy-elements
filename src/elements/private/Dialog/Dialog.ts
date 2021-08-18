@@ -59,6 +59,10 @@ export abstract class Dialog extends TranslatableMixin(
     return [
       super.styles,
       css`
+        .grid-cols-header {
+          grid-template-columns: 1fr auto 1fr;
+        }
+
         .scale-85 {
           --tw-scale-x: 0.85;
           --tw-scale-y: 0.85;
@@ -155,7 +159,7 @@ export abstract class Dialog extends TranslatableMixin(
             'opacity-0': !this.__visible,
           })}
           tabindex="-1"
-          @click=${() => this.hide(this.editable)}
+          @click=${() => this.closable && this.hide(this.editable)}
         ></div>
 
         <div
@@ -183,7 +187,7 @@ export abstract class Dialog extends TranslatableMixin(
             })}
           >
             <div
-              class="h-l grid grid-cols-3 text-m font-lumo font-medium border-b border-contrast-10"
+              class="h-l grid grid-cols-header text-m font-lumo font-medium border-b border-contrast-10"
             >
               ${this.closable && !this.hiddenSelector.matches('close-button', true)
                 ? html`

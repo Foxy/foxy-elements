@@ -129,14 +129,14 @@ export class FormDialog extends Dialog {
       >
       </foxy-internal-confirm-dialog>
 
-      ${super.render(
-        this.__renderForm?.bind(null, {
+      ${super.render(() => {
+        return html`${this.__renderForm?.({
           handleUpdate: this.__handleUpdate,
           handleFetch: this.__handleFetch,
           dialog: this,
           html,
-        })
-      )}
+        })}`;
+      })}
     `;
   }
 

@@ -15,6 +15,14 @@
         "loading_empty": "Sin direcciones"
       }
     },
+    "customer-form": {
+      "invalid_credential_error": "Contraseña incorrecta. Asegúrese de haber ingresado su contraseña actual o temporal y vuelva a intentarlo.",
+      "change_password_step_1": "Comencemos con su contraseña actual. Una contraseña temporal también funciona si tiene una.",
+      "change_password_step_2": "Ahora ingrese una nueva contraseña y presione Continuar para aplicar los cambios a su cuenta.",
+      "change_password_step_3": "¡Todo listo! Ahora puede usar su nueva contraseña al iniciar sesión.",
+      "change_password": "Cambiar la contraseña",
+      "sign_in": "Continuar"
+    },
     "payment-method-card": {
       "spinner": {
         "loading_empty": "Sin métodos de pago"
