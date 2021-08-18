@@ -16,6 +16,7 @@ import '../Spinner/index';
 import '../Customer/index';
 
 import { CustomerPortal } from './CustomerPortal';
+import { InternalCustomerPortalChangePassword } from './InternalCustomerPortalChangePassword';
 import { InternalCustomerPortalLink } from './InternalCustomerPortalLink';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
@@ -40,6 +41,11 @@ customElements.define(
 customElements.define(
   'foxy-internal-customer-portal-transactions',
   InternalCustomerPortalTransactions
+);
+
+customElements.define(
+  'foxy-internal-customer-portal-change-password',
+  InternalCustomerPortalChangePassword
 );
 
 customElements.define('foxy-internal-customer-portal-link', InternalCustomerPortalLink);

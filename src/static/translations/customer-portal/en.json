@@ -15,6 +15,14 @@
         "loading_empty": "No addresses"
       }
     },
+    "customer-form": {
+      "invalid_credential_error": "Incorrect password. Please make sure you've entered your current or temporary password and try again.",
+      "change_password_step_1": "Let's start with your current password. A temporary password also works if you have one.",
+      "change_password_step_2": "Now enter a new password and hit Continue to apply changes to your account.",
+      "change_password_step_3": "All done! You can now use your new password when logging in.",
+      "change_password": "Change password",
+      "sign_in": "Continue"
+    },
     "payment-method-card": {
       "spinner": {
         "loading_empty": "No payment methods"
