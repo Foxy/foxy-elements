@@ -155,7 +155,7 @@ export abstract class Dialog extends TranslatableMixin(
             'opacity-0': !this.__visible,
           })}
           tabindex="-1"
-          @click=${() => this.hide(this.editable)}
+          @click=${() => this.closable && this.hide(this.editable)}
         ></div>
 
         <div
