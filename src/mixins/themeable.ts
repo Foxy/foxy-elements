@@ -91,6 +91,10 @@ export const ThemeableMixin = <TBase extends Base>(
                 max-width: 28rem;
               }
 
+              .w-narrow-modal {
+                width: 18rem;
+              }
+
               .snap-x-mandatory {
                 scroll-snap-type: x mandatory;
               }

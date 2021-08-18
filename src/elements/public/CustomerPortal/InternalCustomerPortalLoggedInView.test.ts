@@ -4,6 +4,8 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Customer } from '../Customer/Customer';
+import { CustomerForm } from '../CustomerForm';
+import { Data as CustomerFormData } from '../CustomerForm/types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSubscriptions';
@@ -183,6 +185,120 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
       const templateRenderer = customer.templates['header:actions:after']!;
       const renderedTemplate = await fixture(html`<div>${templateRenderer(html, customer)}</div>`);
       const sandbox = await getByTestId(renderedTemplate, 'customer:header:actions:sign-out:after');
+
+      expect(sandbox).to.exist;
+      expect(sandbox).to.be.instanceOf(InternalSandbox);
+    });
+  });
+
+  describe('customer:header:actions:edit:form:change-password', () => {
+    it('renders foxy-internal-customer-portal-change-password by default', async () => {
+      const element = await fixture<InternalCustomerPortalLoggedInView>(html`
+        <foxy-internal-customer-portal-logged-in-view></foxy-internal-customer-portal-logged-in-view>
+      `);
+
+      const data = await getTestData<CustomerFormData>(
+        'https://demo.foxycart.com/s/admin/customers/0'
+      );
+
+      const form = await fixture<CustomerForm>(html`
+        <foxy-customer-form .data=${data} lang="es" ns="foo"> </foxy-customer-form>
+      `);
+
+      const customer = (await getByTestId(element, 'customer')) as Customer;
+      const templateRenderer = customer.templates['header:actions:edit:form:timestamps:after']!;
+      const renderedTemplate = await fixture(html`<div>${templateRenderer(html, form)}</div>`);
+      const button = await getByTag(
+        renderedTemplate,
+        'foxy-internal-customer-portal-change-password'
+      );
+
+      expect(button).to.exist;
+
+      expect(button).to.have.attribute('customer', form.href);
+      expect(button).to.have.attribute('session', 'foxy://customer-api/session');
+      expect(button).to.have.attribute('email', data.email);
+      expect(button).to.have.attribute('lang', 'es');
+      expect(button).to.have.attribute('ns', 'foo');
+
+      expect(button).not.to.have.attribute('disabled');
+    });
+
+    it("hides foxy-internal-customer-portal-change-password if it's included in hidden controls", async () => {
+      const element = await fixture<InternalCustomerPortalLoggedInView>(html`
+        <foxy-internal-customer-portal-logged-in-view>
+        </foxy-internal-customer-portal-logged-in-view>
+      `);
+
+      const form = await fixture<CustomerForm>(
+        html`<foxy-customer-form hiddencontrols="change-password"></foxy-customer-form>`
+      );
+
+      const customer = (await getByTestId(element, 'customer')) as Customer;
+      const templateRenderer = customer.templates['header:actions:edit:form:timestamps:after']!;
+      const renderedTemplate = await fixture(html`<div>${templateRenderer(html, form)}</div>`);
+      const button = await getByTag(
+        renderedTemplate,
+        'foxy-internal-customer-portal-change-password'
+      );
+
+      expect(button).not.to.exist;
+    });
+
+    it("disables foxy-internal-customer-portal-change-password if it's included in disabled controls", async () => {
+      const element = await fixture<InternalCustomerPortalLoggedInView>(html`
+        <foxy-internal-customer-portal-logged-in-view>
+        </foxy-internal-customer-portal-logged-in-view>
+      `);
+
+      const form = await fixture<CustomerForm>(
+        html`<foxy-customer-form disabledcontrols="change-password"></foxy-customer-form>`
+      );
+
+      const customer = (await getByTestId(element, 'customer')) as Customer;
+      const templateRenderer = customer.templates['header:actions:edit:form:timestamps:after']!;
+      const renderedTemplate = await fixture(html`<div>${templateRenderer(html, form)}</div>`);
+      const button = await getByTag(
+        renderedTemplate,
+        'foxy-internal-customer-portal-change-password'
+      );
+
+      expect(button).to.have.attribute('disabled');
+    });
+
+    it('renders customer:header:actions:edit:form:change-password:before template if present', async () => {
+      const element = await fixture<InternalCustomerPortalLoggedInView>(html`
+        <foxy-internal-customer-portal-logged-in-view></foxy-internal-customer-portal-logged-in-view>
+      `);
+
+      const form = await fixture<CustomerForm>(html`
+        <foxy-customer-form .templates=${{ 'change-password:before': () => html`Test` }}>
+        </foxy-customer-form>
+      `);
+
+      const customer = (await getByTestId(element, 'customer')) as Customer;
+      const templateRenderer = customer.templates['header:actions:edit:form:timestamps:after']!;
+      const renderedTemplate = await fixture(html`<div>${templateRenderer(html, form)}</div>`);
+      const sandbox = await getByTestId(renderedTemplate, 'change-password:before');
+
+      expect(sandbox).to.exist;
+      expect(sandbox).to.be.instanceOf(InternalSandbox);
+    });
+
+    it('renders customer:header:actions:edit:form:change-password:after template if present', async () => {
+      const element = await fixture<InternalCustomerPortalLoggedInView>(html`
+        <foxy-internal-customer-portal-logged-in-view></foxy-internal-customer-portal-logged-in-view>
+      `);
+
+      const form = await fixture<CustomerForm>(html`
+        <foxy-customer-form .templates=${{ 'change-password:after': () => html`Test` }}>
+        </foxy-customer-form>
+      `);
+
+      const customer = (await getByTestId(element, 'customer')) as Customer;
+      const templateRenderer = customer.templates['header:actions:edit:form:timestamps:after']!;
+      const renderedTemplate = await fixture(html`<div>${templateRenderer(html, form)}</div>`);
+      const sandbox = await getByTestId(renderedTemplate, 'change-password:after');
 
       expect(sandbox).to.exist;
       expect(sandbox).to.be.instanceOf(InternalSandbox);

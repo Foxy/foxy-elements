@@ -1,4 +1,5 @@
 import { Templates as AccessRecoveryFormTemplates } from '../AccessRecoveryForm/types';
+import { Customer } from '../Customer/Customer';
 import { CustomerPortal } from '.';
 import { Templates as CustomerTemplates } from '../Customer/types';
 import { Renderer } from '../../../mixins/configurable';
@@ -54,6 +55,8 @@ export type Templates = {
   'customer:header:actions:edit:form:delete:after'?: CustomerTemplates['header:actions:edit:form:delete:after'];
   'customer:header:actions:edit:form:create:before'?: CustomerTemplates['header:actions:edit:form:create:before'];
   'customer:header:actions:edit:form:create:after'?: CustomerTemplates['header:actions:edit:form:create:after'];
+  'customer:header:actions:edit:form:change-password:before'?: Renderer<Customer>;
+  'customer:header:actions:edit:form:change-password:after'?: Renderer<Customer>;
   'customer:default'?: CustomerTemplates['default'];
   'customer:addresses:before'?: CustomerTemplates['addresses:before'];
   'customer:addresses:after'?: CustomerTemplates['addresses:after'];

@@ -53,6 +53,7 @@ const summary: Summary = {
       'sign-in:form:submit',
       'sign-in:recover',
       'customer:header:actions:edit',
+      'customer:header:actions:edit:form:change-password',
       'customer:header:actions:sign-out',
     ],
     inputs: [

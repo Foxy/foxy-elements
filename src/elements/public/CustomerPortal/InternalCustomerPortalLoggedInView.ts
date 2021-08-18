@@ -141,6 +141,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
     const templates: CustomerTemplates = this.getNestedTemplates('customer');
     const originalHeaderActionsAfterTemplate = templates['header:actions:after'];
+    const originalTimestampsAfterTemplate = templates['header:actions:edit:form:timestamps:after'];
     const originalDefaultTemplate = templates['default'];
 
     templates['header:actions:after'] = (html, host) => {
@@ -175,6 +176,32 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       `;
     };
 
+    templates['header:actions:edit:form:timestamps:after'] = (html, host) => {
+      const scope = 'change-password';
+
+      return html`
+        ${originalTimestampsAfterTemplate?.(html, host)}
+        ${host.hiddenSelector.matches(scope, true)
+          ? ''
+          : html`
+              ${host.renderTemplateOrSlot(`${scope}:before`)}
+
+              <foxy-internal-customer-portal-change-password
+                customer=${host.href}
+                session="foxy://customer-api/session"
+                style="margin-top: var(--lumo-space-l)"
+                email=${host.data?.email ?? ''}
+                lang=${host.lang}
+                ns=${host.ns}
+                ?disabled=${host.in('busy') || host.disabledSelector.matches(scope, true)}
+              >
+              </foxy-internal-customer-portal-change-password>
+
+              ${host.renderTemplateOrSlot(`${scope}:after`)}
+            `}
+      `;
+    };
+
     return html`
       <foxy-customer
         readonlycontrols=${this.readonlySelector.zoom('customer').toString()}
@@ -199,6 +226,6 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
   }
 
   private get __customerElement() {
-    return this.renderRoot.querySelector('#customer') as Customer | null;
+    return this.renderRoot.querySelector<Customer>('#customer');
   }
 }
