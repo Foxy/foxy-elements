@@ -94,8 +94,9 @@ export class Donation extends Translatable {
   public amount: null | number = null;
 
   /**
-   * **Required** store subdomain. This is usually the part after before `.foxycart.com`
+   * **Required** store domain. This is usually the part after before `.foxycart.com`
    * and after `https://`, e.g. the `foxy-demo` bit of `https://foxy-demo.foxycart.com`.
+   * Custom domains like `my.domain.example.com` are also supported since v1.6.1.
    *
    * **Example:** `"foxy-demo"`
    */
@@ -254,12 +255,14 @@ export class Donation extends Translatable {
       `;
     }
 
+    const domain = this.store.includes('.') ? this.store : `${this.store}.foxycart.com`;
+
     return html`
       <form
         target="${this.target}"
         class="sr-only"
         method="POST"
-        action="https://${this.store}.foxycart.com/cart"
+        action="https://${domain}/cart"
         data-testid="form"
       >
         ${[...this.__data.entries()].map(

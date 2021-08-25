@@ -50,6 +50,29 @@ describe('foxy-donation', () => {
       });
     });
 
+    describe('store domains', () => {
+      it('supports partial store domains', async () => {
+        const layout = `<foxy-donation currency="usd" amount="25" store="foxy-demo" name="Donation"></foxy-donation>`;
+        const element = await fixture<Donation>(layout);
+
+        expect(getRefs<Refs>(element).form?.action).to.equal('https://foxy-demo.foxycart.com/cart');
+      });
+
+      it('supports full store domains', async () => {
+        const layout = `<foxy-donation currency="usd" amount="25" store="foxy-demo.foxycart.com" name="Donation"></foxy-donation>`;
+        const element = await fixture<Donation>(layout);
+
+        expect(getRefs<Refs>(element).form?.action).to.equal('https://foxy-demo.foxycart.com/cart');
+      });
+
+      it('supports custom store domains', async () => {
+        const layout = `<foxy-donation currency="usd" amount="25" store="example.com" name="Donation"></foxy-donation>`;
+        const element = await fixture<Donation>(layout);
+
+        expect(getRefs<Refs>(element).form?.action).to.equal('https://example.com/cart');
+      });
+    });
+
     describe('submission', () => {
       it('emits cancelable "submit" event on .submit()', async () => {
         const element = await fixture<Donation>(layout);
