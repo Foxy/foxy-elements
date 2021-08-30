@@ -27,13 +27,14 @@
     "prepack": "npm run lint && rimraf dist && node ./.build/compile-for-npm.js && rollup -c"
   },
   "dependencies": {
-    "@foxy.io/sdk": "^1.5.0",
+    "@foxy.io/sdk": "^1.5.1",
     "@open-wc/lit-helpers": "^0.3.11",
     "@open-wc/scoped-elements": "1.2.1",
     "@polymer/iron-icons": "^3.0.1",
     "@polymer/paper-spinner": "^3.0.2",
     "@vaadin-component-factory/vcf-tooltip": "^1.3.14",
     "@vaadin/vaadin": "^15.0.6",
+    "cookie-storage": "^6.1.0",
     "dedent": "^0.7.0",
     "dexie": "^3.0.3",
     "email-validator": "^2.0.4",

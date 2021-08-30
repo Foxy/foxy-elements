@@ -3,6 +3,7 @@ import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-elem
 import { API } from '@foxy.io/sdk/customer';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { cookieStorage } from './cookieStorage';
 
 /**
  * Element connector for Customer API.
@@ -27,7 +28,7 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
     };
   }
 
-  private __storage: 'session' | 'local' = 'local';
+  private __storage: 'session' | 'cookie' | 'local' = 'local';
 
   private __level = 0;
 
@@ -88,11 +89,11 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
   }
 
   /** Credentials storage implementing Web Storage API. Access tokens and other related info will be stored here. Defaults to in-memory storage. */
-  get storage(): 'session' | 'local' {
+  get storage(): 'session' | 'cookie' | 'local' {
     return this.__storage;
   }
 
-  set storage(value: 'session' | 'local') {
+  set storage(value: 'session' | 'cookie' | 'local') {
     this.__storage = value;
     this.__api = this.__createAPIInstance();
   }
@@ -115,8 +116,14 @@ export class CustomerApi extends ConfigurableMixin(LitElement) {
   }
 
   private __createAPIInstance() {
+    const storageOptions = {
+      session: sessionStorage,
+      cookie: cookieStorage,
+      local: localStorage,
+    };
+
     return new API({
-      storage: this.storage === 'session' ? sessionStorage : localStorage,
+      storage: storageOptions[this.storage],
       level: this.level,
       base: new URL(this.base),
     });

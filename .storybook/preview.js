@@ -28,10 +28,9 @@ addEventListener('fetch', async evt => {
         const { type, credential } = await evt.request.json();
         const request = new Request(url, { method: 'POST', body: JSON.stringify(credential) });
         const apiResponse = await router.handleRequest(request).handlerPromise;
-        const apiToken = (await apiResponse.clone().json()).session_token;
 
         if (apiResponse.ok) {
-          localStorage.setItem(API.SESSION, apiToken);
+          localStorage.setItem(API.SESSION, await apiResponse.clone().text());
           response = new Response(
             JSON.stringify({
               _links: { self: { href: evt.request.url } },
@@ -54,8 +53,8 @@ addEventListener('fetch', async evt => {
     }
 
     if (evt.request.url.startsWith('https://demo.foxycart.com/s/customer')) {
-      const token = localStorage.getItem(API.SESSION);
-      if (token) evt.request.headers.set('Authorization', `Bearer ${token}`);
+      const session = JSON.parse(localStorage.getItem(API.SESSION));
+      if (session) evt.request.headers.set('Authorization', `Bearer ${session.session_token}`);
     }
 
     if (!response) response = await router.handleRequest(evt.request).handlerPromise;

@@ -7,6 +7,7 @@ import { API } from '@foxy.io/sdk/customer';
 import { CustomerApi } from './CustomerApi';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { LitElement } from 'lit-element';
+import { cookieStorage } from './cookieStorage';
 
 describe('CustomerApi', () => {
   it('extends LitElement', () => {
@@ -51,12 +52,29 @@ describe('CustomerApi', () => {
 
   it('initializes SDK.Customer.API at .api with the element property values', async () => {
     const element = await fixture<CustomerApi>(html`
-      <foxy-customer-api storage="session" level="3" base="https://foxy.io/"></foxy-customer-api>
+      <foxy-customer-api level="3" base="https://foxy.io/"></foxy-customer-api>
     `);
 
-    expect(element).to.have.nested.property('api.storage', sessionStorage);
     expect(element).to.have.nested.property('api.console.level', 3);
     expect(element).to.have.deep.nested.property('api.base', new URL('https://foxy.io/'));
+  });
+
+  it('uses session storage if storage="session"', async () => {
+    const layout = html`<foxy-customer-api storage="session"></foxy-customer-api>`;
+    const element = await fixture<CustomerApi>(layout);
+    expect(element).to.have.nested.property('api.storage', sessionStorage);
+  });
+
+  it('uses local storage if storage="local"', async () => {
+    const layout = html`<foxy-customer-api storage="local"></foxy-customer-api>`;
+    const element = await fixture<CustomerApi>(layout);
+    expect(element).to.have.nested.property('api.storage', localStorage);
+  });
+
+  it('uses cookie storage if storage="cookie"', async () => {
+    const layout = html`<foxy-customer-api storage="cookie"></foxy-customer-api>`;
+    const element = await fixture<CustomerApi>(layout);
+    expect(element).to.have.nested.property('api.storage', cookieStorage);
   });
 
   it('ignores custom fetch events', async () => {
