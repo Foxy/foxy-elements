@@ -112,9 +112,9 @@ export class PaymentMethodCard extends Base<Data> {
       `;
     }
 
-    const type = data!.cc_type.toLowerCase();
+    const type = data!.cc_type?.toLowerCase() ?? 'unknown';
     const logo = logos[type as keyof typeof logos] ?? logos.unknown;
-    const last4Digits = data!.cc_number_masked.substring(data!.cc_number_masked.length - 4);
+    const last4Digits = data!.cc_number_masked?.substring(data!.cc_number_masked.length - 4);
 
     return html`
       <foxy-internal-confirm-dialog
@@ -148,14 +148,22 @@ export class PaymentMethodCard extends Base<Data> {
 
           <div class="font-tnum leading-none flex justify-between">
             <div data-testid="expiry">
-              <span class="sr-only">${this.t('expires').toString()}&nbsp;</span>
-              <span>${data!.cc_exp_month} / ${data!.cc_exp_year}</span>
+              ${data!.cc_exp_month && data.cc_exp_year
+                ? html`
+                    <span class="sr-only">${this.t('expires').toString()}&nbsp;</span>
+                    <span>${data!.cc_exp_month} / ${data!.cc_exp_year}</span>
+                  `
+                : ''}
             </div>
 
             <div data-testid="number">
-              <span class="sr-only">${this.t('last_4_digits').toString()}&nbsp;</span>
-              <span aria-hidden="true">••••</span>
-              <span>${last4Digits}</span>
+              ${last4Digits
+                ? html`
+                    <span class="sr-only">${this.t('last_4_digits').toString()}&nbsp;</span>
+                    <span aria-hidden="true">••••</span>
+                    <span>${last4Digits}</span>
+                  `
+                : ''}
             </div>
           </div>
         </div>

@@ -38,6 +38,29 @@ describe('PaymentMethodCard', () => {
     expect(await getByTestId(element, 'number')).to.include.text('1234');
   });
 
+  it("doesn't render expiry date if it's null", async () => {
+    const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+
+    data.cc_exp_month = null;
+    data.cc_exp_year = null;
+
+    const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
+    const element = await fixture<PaymentMethodCard>(layout);
+
+    expect(await getByTestId(element, 'expiry')).to.have.trimmed.text('');
+  });
+
+  it("doesn't render last 4 digits if it's null", async () => {
+    const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+
+    data.cc_number_masked = null;
+
+    const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
+    const element = await fixture<PaymentMethodCard>(layout);
+
+    expect(await getByTestId(element, 'number')).to.have.trimmed.text('');
+  });
+
   describe('actions', () => {
     it('renders actions when loaded', async () => {
       const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
