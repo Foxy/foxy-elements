@@ -121,7 +121,8 @@ export abstract class Dialog extends TranslatableMixin(
   /** @readonly */
   createRenderRoot(): Element | ShadowRoot {
     const dialogWindow = new DialogWindow();
-    const dialogWindowsHost = document.querySelector(Dialog.dialogWindowsHost);
+    const dialogWindowsHosts = document.querySelectorAll(Dialog.dialogWindowsHost);
+    const dialogWindowsHost = Array.from(dialogWindowsHosts).pop();
 
     dialogWindow.addEventListener('fetch', (evt: Event) => {
       if (evt instanceof FetchEvent) {
