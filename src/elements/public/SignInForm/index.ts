@@ -1,5 +1,7 @@
+import 'webcomponent-qr-code';
 import '@vaadin/vaadin-text-field/vaadin-email-field';
 import '@vaadin/vaadin-text-field/vaadin-password-field';
+import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-lumo-styles/icons';
 import '@polymer/iron-icon';
