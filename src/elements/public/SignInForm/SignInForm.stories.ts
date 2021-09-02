@@ -11,9 +11,9 @@ const summary: Summary = {
   localName: 'foxy-sign-in-form',
   translatable: true,
   configurable: {
-    sections: ['error'],
-    buttons: ['submit'],
-    inputs: ['email', 'password', 'new-password'],
+    sections: ['error', 'mfa-secret-code'],
+    buttons: ['submit', 'mfa-remember-device'],
+    inputs: ['email', 'password', 'new-password', 'mfa-totp-code'],
   },
 };
 

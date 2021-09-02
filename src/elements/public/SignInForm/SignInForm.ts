@@ -1,6 +1,7 @@
 import { Data, Templates } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -258,6 +259,47 @@ export class SignInForm extends Base<Data> {
     `;
   };
 
+  private readonly __renderMfaRememberDevice = () => {
+    const { __mfaSecretCode: mfaSecretCode, form, lang, ns } = this;
+    const scope = 'mfa-remember-device';
+    const isBusy = this.in('busy');
+    const isDisabled = isBusy || this.disabledSelector.matches(scope, true);
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+        <vaadin-checkbox
+          class="mb-m"
+          ?disabled=${isDisabled}
+          ?checked=${!!form.credential?.mfa_remember_device}
+          @change=${(evt: CustomEvent) => {
+            const target = evt.currentTarget as CheckboxElement;
+            const credential = {
+              ...form.credential!,
+              mfa_remember_device: target.checked,
+              mfa_totp_code: form.credential?.mfa_totp_code ?? '',
+            };
+
+            if (mfaSecretCode) credential.mfa_secret_code = mfaSecretCode;
+            this.edit({ credential });
+          }}
+        >
+          <foxy-i18n class="block" lang=${lang} key="mfa_remember_device" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class="block text-xs ${isDisabled ? 'text-disabled' : 'text-secondary'}"
+            lang=${lang}
+            key="mfa_remember_device_hint"
+            ns=${ns}
+          >
+          </foxy-i18n>
+        </vaadin-checkbox>
+
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
+      </div>
+    `;
+  };
+
   private readonly __renderError = () => {
     return html`
       <div>
@@ -315,6 +357,11 @@ export class SignInForm extends Base<Data> {
     const isMfaTotpCodeHidden =
       (!isMfaRequired && !mfaTotpCode) || hiddenSelector.matches('mfa-totp-code', true);
 
+    const isMfaRememberDeviceHidden =
+      !isMfaRequired ||
+      (isMfaRequired && mfaSecretCode) ||
+      hiddenSelector.matches('mfa-remember-device', true);
+
     const isMfaSecretCodeHidden = !mfaSecretCode || hiddenSelector.matches('mfa-secret-code', true);
     const isNewPasswordHidden = isMfaRequired || hiddenSelector.matches('new-password', true);
     const isFailed = errors.some(error => error.endsWith('_error'));
@@ -327,6 +374,7 @@ export class SignInForm extends Base<Data> {
         ${isNewPasswordHidden || !isNewPasswordRequired ? '' : this.__renderNewPassword()}
         ${isMfaTotpCodeHidden ? '' : this.__renderMfaTotpCode()}
         ${isMfaSecretCodeHidden ? '' : this.__renderMfaSecretCode()}
+        ${isMfaRememberDeviceHidden ? '' : this.__renderMfaRememberDevice()}
         ${hiddenSelector.matches('error', true) || !isFailed ? '' : this.__renderError()}
         ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
 
