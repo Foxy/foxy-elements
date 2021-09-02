@@ -206,6 +206,7 @@ export class SignInForm extends Base<Data> {
           ?disabled=${isBusy || disabledSelector.matches(scope, true)}
           ?readonly=${readonlySelector.matches(scope, true)}
           .checkValidity=${this.__mfaTotpCodeValidator}
+          autofocus
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
           @input=${(evt: InputEvent) => {
             const mfaTotpCode = (evt.target as PasswordFieldElement).value;
