@@ -53,7 +53,8 @@ class CustomCookieStorage extends CookieStorageModule.CookieStorage {
   setItem(name: string, value: string, options?: CookieOptions): void {
     if (name === API.SESSION) {
       const session = JSON.parse(value) as ExtendedStoredSession;
-      const expires = new Date(new Date(session.date_created).getTime() + session.expires_in);
+      const expiresInMs = session.expires_in * 1000;
+      const expires = new Date(new Date(session.date_created).getTime() + expiresInMs);
 
       super.setItem('fx.customer', session.session_token, { expires });
       super.setItem('fx.customer.jwt', session.jwt, { expires });
