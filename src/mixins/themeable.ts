@@ -63,6 +63,14 @@ export const ThemeableMixin = <TBase extends Base>(
             margin: 0;
           }
 
+          vaadin-checkbox::part(checkbox) {
+            margin: 0;
+          }
+
+          vaadin-checkbox::part(label) {
+            margin: 0.1875em var(--lumo-space-m);
+          }
+
           @tailwind components;
 
           @tailwind utilities;

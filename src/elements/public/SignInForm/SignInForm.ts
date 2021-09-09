@@ -1,6 +1,7 @@
 import { Data, Templates } from './types';
-import { TemplateResult, html } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { EmailFieldElement } from '@vaadin/vaadin-text-field/vaadin-email-field';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -24,6 +25,12 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
  * @slot password:after
  * @slot new-password:before
  * @slot new-password:after
+ * @slot mfa-secret-code:before
+ * @slot mfa-secret-code:after
+ * @slot mfa-totp-code:before
+ * @slot mfa-totp-code:after
+ * @slot mfa-remember-device:before
+ * @slot mfa-remember-device:after
  * @slot error:before
  * @slot error:after
  * @slot submit:before
@@ -33,16 +40,26 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
  * @since 1.4.0
  */
 export class SignInForm extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      issuer: { type: String },
+    };
+  }
+
   static get v8n(): NucleonV8N<Data> {
     return [
       ({ credential: c }) => !!c?.email || 'email_required',
       ({ credential: c }) => isEmail(c?.email ?? '') || 'email_invalid_email',
       ({ credential: c }) => !!c?.password || 'password_required',
       ({ credential: c }) => (c?.new_password?.length === 0 ? 'new_password_required' : true),
+      ({ credential: c }) => (c?.mfa_totp_code?.length === 0 ? 'mfa_totp_code_required' : true),
     ];
   }
 
   templates: Templates = {};
+
+  issuer = 'Unknown';
 
   private readonly __emailValidator = () => !this.errors.some(err => err.startsWith('email'));
 
@@ -50,6 +67,10 @@ export class SignInForm extends Base<Data> {
 
   private readonly __newPasswordValidator = () => {
     return !this.errors.some(err => err.startsWith('new_password') && !err.endsWith('_error'));
+  };
+
+  private readonly __mfaTotpCodeValidator = () => {
+    return !this.errors.some(err => err.startsWith('mfa_totp_code') && !err.endsWith('_error'));
   };
 
   private readonly __renderEmail = () => {
@@ -165,6 +186,129 @@ export class SignInForm extends Base<Data> {
     `;
   };
 
+  private readonly __renderMfaTotpCode = () => {
+    const { disabledSelector, readonlySelector, errors } = this;
+
+    const mfaSecretCode = this.__mfaSecretCode;
+    const prefix = 'mfa_totp_code';
+    const scope = 'mfa-totp-code';
+    const error = errors.find(err => err.startsWith(prefix) && !err.endsWith('_error'));
+    const errorKey = error?.replace(prefix, 'v8n');
+    const errorMessage = errorKey ? this.t(errorKey).toString() : '';
+
+    const isBusy = this.in('busy');
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+        <vaadin-text-field
+          error-message=${errorMessage}
+          helper-text=${mfaSecretCode ? this.t('mfa_totp_code_hint') : ''}
+          placeholder="123456"
+          data-testid=${scope}
+          class="w-full mb-m"
+          label=${this.t(prefix).toString()}
+          value=${ifDefined(this.form.credential?.mfa_totp_code)}
+          ?disabled=${isBusy || disabledSelector.matches(scope, true)}
+          ?readonly=${readonlySelector.matches(scope, true)}
+          .checkValidity=${this.__mfaTotpCodeValidator}
+          autofocus
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+          @input=${(evt: InputEvent) => {
+            const mfaTotpCode = (evt.target as PasswordFieldElement).value;
+            const credential = { ...this.form.credential!, mfa_totp_code: mfaTotpCode };
+            if (mfaSecretCode) credential.mfa_secret_code = mfaSecretCode;
+            this.edit({ type: 'password', credential });
+          }}
+        >
+        </vaadin-text-field>
+
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
+      </div>
+    `;
+  };
+
+  private readonly __renderMfaSecretCode = () => {
+    const scope = 'mfa-secret-code';
+    const mfaSecretCode = this.__mfaSecretCode!;
+    const issuer = encodeURIComponent(this.issuer);
+    const email = encodeURIComponent(this.form.credential?.email ?? '');
+    const otpauthUrl = new URL(`otpauth://totp/${issuer}:${email}`);
+
+    otpauthUrl.searchParams.set('secret', mfaSecretCode);
+    otpauthUrl.searchParams.set('issuer', this.issuer);
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+        <div
+          data-testid=${scope}
+          class="flex space-x-m overflow-hidden rounded border p-m mb-m border-contrast-10"
+          style="background: white; color: black;"
+        >
+          <qr-code
+            modulesize="2"
+            margin="0"
+            format="svg"
+            class="inline-flex"
+            data=${otpauthUrl.toString()}
+          >
+          </qr-code>
+
+          <div class="break-all font-semibold leading-s text-xs tracking-widest">
+            ${mfaSecretCode}
+          </div>
+        </div>
+
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
+      </div>
+    `;
+  };
+
+  private readonly __renderMfaRememberDevice = () => {
+    const { __mfaSecretCode: mfaSecretCode, form, lang, ns } = this;
+    const scope = 'mfa-remember-device';
+    const isBusy = this.in('busy');
+    const isDisabled = isBusy || this.disabledSelector.matches(scope, true);
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+        <vaadin-checkbox
+          data-testid=${scope}
+          class="mb-m"
+          ?disabled=${isDisabled}
+          ?checked=${!!form.credential?.mfa_remember_device}
+          @change=${(evt: CustomEvent) => {
+            const target = evt.currentTarget as CheckboxElement;
+            const credential = {
+              ...form.credential!,
+              mfa_remember_device: target.checked,
+              mfa_totp_code: form.credential?.mfa_totp_code ?? '',
+            };
+
+            if (mfaSecretCode) credential.mfa_secret_code = mfaSecretCode;
+            this.edit({ credential });
+          }}
+        >
+          <foxy-i18n class="block" lang=${lang} key="mfa_remember_device" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class="block text-xs ${isDisabled ? 'text-disabled' : 'text-secondary'}"
+            lang=${lang}
+            key="mfa_remember_device_hint"
+            ns=${ns}
+          >
+          </foxy-i18n>
+        </vaadin-checkbox>
+
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
+      </div>
+    `;
+  };
+
   private readonly __renderError = () => {
     return html`
       <div>
@@ -208,21 +352,38 @@ export class SignInForm extends Base<Data> {
   };
 
   render(): TemplateResult {
-    const { hiddenSelector, errors, lang, ns } = this;
+    const { hiddenSelector, errors, lang, form, ns } = this;
+    const mfaSecretCode = this.__mfaSecretCode;
+    const mfaTotpCode = form.credential?.mfa_totp_code;
+
+    const isMfaRequired =
+      !!mfaSecretCode || !!mfaTotpCode || errors.some(err => err.startsWith('mfa'));
 
     const isNewPasswordRequired =
       typeof this.form.credential?.new_password === 'string' ||
       errors.some(error => error.startsWith('new_password_'));
 
-    const isNewPasswordHidden = hiddenSelector.matches('new-password', true);
+    const isMfaTotpCodeHidden =
+      (!isMfaRequired && !mfaTotpCode) || hiddenSelector.matches('mfa-totp-code', true);
+
+    const isMfaRememberDeviceHidden =
+      !isMfaRequired ||
+      (isMfaRequired && mfaSecretCode) ||
+      hiddenSelector.matches('mfa-remember-device', true);
+
+    const isMfaSecretCodeHidden = !mfaSecretCode || hiddenSelector.matches('mfa-secret-code', true);
+    const isNewPasswordHidden = isMfaRequired || hiddenSelector.matches('new-password', true);
     const isFailed = errors.some(error => error.endsWith('_error'));
     const isBusy = this.in('busy');
 
     return html`
       <main aria-live="polite" aria-busy=${isBusy} class="relative font-lumo text-m leading-m">
         ${hiddenSelector.matches('email', true) ? '' : this.__renderEmail()}
-        ${hiddenSelector.matches('password', true) ? '' : this.__renderPassword()}
-        ${!isNewPasswordRequired || isNewPasswordHidden ? '' : this.__renderNewPassword()}
+        ${isMfaRequired || hiddenSelector.matches('password', true) ? '' : this.__renderPassword()}
+        ${isNewPasswordHidden || !isNewPasswordRequired ? '' : this.__renderNewPassword()}
+        ${isMfaTotpCodeHidden ? '' : this.__renderMfaTotpCode()}
+        ${isMfaSecretCodeHidden ? '' : this.__renderMfaSecretCode()}
+        ${isMfaRememberDeviceHidden ? '' : this.__renderMfaRememberDevice()}
         ${hiddenSelector.matches('error', true) || !isFailed ? '' : this.__renderError()}
         ${hiddenSelector.matches('submit', true) ? '' : this.__renderSubmit()}
 
@@ -261,5 +422,14 @@ export class SignInForm extends Base<Data> {
 
       throw [v8nError];
     }
+  }
+
+  private get __mfaSecretCode() {
+    const storedSecret = this.form.credential?.mfa_secret_code;
+    if (storedSecret) return storedSecret;
+
+    const prefix = 'mfa_required';
+    const mfaSetupError = this.errors.find(error => error.startsWith(prefix));
+    return mfaSetupError?.replace(prefix, '').trim();
   }
 }
