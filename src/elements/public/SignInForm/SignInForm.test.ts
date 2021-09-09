@@ -4,13 +4,16 @@ import { expect, fixture, waitUntil } from '@open-wc/testing';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { PasswordFieldElement } from '@vaadin/vaadin-text-field/vaadin-password-field';
 import { SignInForm } from './SignInForm';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
+import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
+import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
@@ -582,6 +585,697 @@ describe('SignInForm', () => {
 
       expect(slot).to.not.exist;
       expect(sandbox).to.contain.html(value);
+    });
+  });
+
+  describe('mfa-secret-code', () => {
+    it('is hidden by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const mfaSecretCode = await getByTestId(element, 'mfa-secret-code');
+
+      expect(mfaSecretCode).to.not.exist;
+    });
+
+    it('is hidden when the form is hidden', async () => {
+      const layout = html`<foxy-sign-in-form hidden></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-secret-code')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols matches "mfa-secret-code"', async () => {
+      const layout = html`<foxy-sign-in-form hiddencontrols="mfa-secret-code"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-secret-code')).to.not.exist;
+    });
+
+    it('is visible if form.credential.mfa_secret_code exists', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-secret-code')).to.exist;
+    });
+
+    it('is visible if POST returns error type mfa_required with secret code', async () => {
+      const layout = html`<foxy-sign-in-form parent="foxy://test"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const error = { code: 'mfa_required test_secret_code_123' };
+      const body = JSON.stringify({ _embedded: { 'fx:errors': [error] } });
+
+      element.addEventListener('fetch', evt => {
+        const whenResponseReady = Promise.resolve(new Response(body, { status: 403 }));
+        (evt as FetchEvent).respondWith(whenResponseReady);
+      });
+
+      element.edit({
+        type: 'password',
+        credential: { email: 'foo@bar.test', password: '123' },
+      });
+
+      element.submit();
+      await waitUntil(() => element.in('idle'));
+
+      expect(await getByTestId(element, 'mfa-secret-code')).to.exist;
+    });
+
+    it('renders "mfa-secret-code:before" slot when visible', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: '123' } });
+
+      const slot = await getByName(element, 'mfa-secret-code:before');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "mfa-secret-code:before" slot with template "mfa-secret-code:before" if available', async () => {
+      const name = 'mfa-secret-code:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: '123' } });
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "mfa-secret-code:after" slot when visible', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: '123' } });
+
+      const slot = await getByName(element, 'mfa-secret-code:after');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "mfa-secret-code:after" slot with template "mfa-secret-code:after" if available', async () => {
+      const name = 'mfa-secret-code:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: '123' } });
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders otpauth:// URL as QR when visible', async () => {
+      const issuer = 'foo';
+      const email = 'foo@bar.test';
+      const code = '123';
+      const layout = html`<foxy-sign-in-form issuer=${issuer}></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({ credential: { email, password: '', mfa_secret_code: code } });
+
+      const otpauthUrl = new URL(`otpauth://totp/${issuer}:${encodeURIComponent(email)}`);
+      otpauthUrl.searchParams.set('secret', code);
+      otpauthUrl.searchParams.set('issuer', issuer);
+
+      const qrElement = await getByTag(element, 'qr-code');
+      expect(qrElement).to.have.attribute('data', otpauthUrl.toString());
+    });
+
+    it('renders secret code as text when visible', async () => {
+      const code = 'my_test_code_123';
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({ credential: { email: '', password: '', mfa_secret_code: code } });
+
+      const mfaSecretCode = await getByTestId(element, 'mfa-secret-code');
+      expect(mfaSecretCode).to.contain.text(code);
+    });
+  });
+
+  describe('mfa-totp-code', () => {
+    it('is hidden by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const mfaSecretCode = await getByTestId(element, 'mfa-totp-code');
+
+      expect(mfaSecretCode).to.not.exist;
+    });
+
+    it('is hidden when the form is hidden', async () => {
+      const layout = html`<foxy-sign-in-form hidden></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols matches "mfa-totp-code"', async () => {
+      const layout = html`<foxy-sign-in-form hiddencontrols="mfa-totp-code"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.not.exist;
+    });
+
+    it('is visible if form.credential.mfa_totp_code exists', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.exist;
+    });
+
+    it('is visible if POST returns error type mfa_required with secret code', async () => {
+      const layout = html`<foxy-sign-in-form parent="foxy://test"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const error = { code: 'mfa_required test_secret_code_123' };
+      const body = JSON.stringify({ _embedded: { 'fx:errors': [error] } });
+
+      element.addEventListener('fetch', evt => {
+        const whenResponseReady = Promise.resolve(new Response(body, { status: 403 }));
+        (evt as FetchEvent).respondWith(whenResponseReady);
+      });
+
+      element.edit({
+        type: 'password',
+        credential: { email: 'foo@bar.test', password: '123' },
+      });
+
+      element.submit();
+      await waitUntil(() => element.in('idle'));
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.exist;
+    });
+
+    it('is visible if POST returns error type mfa_totp_code_required', async () => {
+      const layout = html`<foxy-sign-in-form parent="foxy://test"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const error = { code: 'mfa_totp_code_required' };
+      const body = JSON.stringify({ _embedded: { 'fx:errors': [error] } });
+
+      element.addEventListener('fetch', evt => {
+        const whenResponseReady = Promise.resolve(new Response(body, { status: 403 }));
+        (evt as FetchEvent).respondWith(whenResponseReady);
+      });
+
+      element.edit({
+        type: 'password',
+        credential: { email: 'foo@bar.test', password: '123' },
+      });
+
+      element.submit();
+      await waitUntil(() => element.in('idle'));
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.exist;
+    });
+
+    it('has i18n label with key "mfa_totp_code"', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      const control = await getByTestId<TextFieldElement>(element, 'mfa-totp-code');
+      expect(control).to.have.attribute('label', 'mfa_totp_code');
+    });
+
+    it('has i18n hint with key "mfa_totp_code_hint" when secret code is available', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_secret_code: '123',
+        },
+      });
+
+      const control = await getByTestId<TextFieldElement>(element, 'mfa-totp-code');
+      expect(control).to.have.attribute('helper-text', 'mfa_totp_code_hint');
+    });
+
+    it('has value of form.credential.mfa_totp_code', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      const control = await getByTestId<TextFieldElement>(element, 'mfa-totp-code');
+      expect(control).to.have.property('value', '123');
+    });
+
+    it('writes to form.credential.mfa_totp_code on input', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      const control = await getByTestId<TextFieldElement>(element, 'mfa-totp-code');
+      control!.value = '456';
+      control!.dispatchEvent(new CustomEvent('input'));
+
+      expect(element).to.have.nested.property('form.credential.mfa_totp_code', '456');
+    });
+
+    it('renders "mfa-totp-code:before" slot by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      const slot = await getByName<HTMLSlotElement>(element, 'mfa-totp-code:before');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "mfa-totp-code:before" slot with template "mfa-totp-code:before" if available', async () => {
+      const name = 'mfa-totp-code:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "mfa-totp-code:after" slot by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      const slot = await getByName<HTMLSlotElement>(element, 'mfa-totp-code:after');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "mfa-totp-code:after" slot with template "mfa-totp-code:after" if available', async () => {
+      const name = 'mfa-totp-code:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).not.to.have.attribute('readonly');
+    });
+
+    it('is readonly when element is readonly', async () => {
+      const layout = html`<foxy-sign-in-form readonly></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+      expect(await getByTestId(element, 'mfa-totp-code')).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes mfa-totp-code', async () => {
+      const layout = html`<foxy-sign-in-form readonlycontrols="mfa-totp-code"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.have.attribute('readonly');
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).not.to.have.attribute('disabled');
+    });
+
+    it('is disabled when element is disabled', async () => {
+      const layout = html`<foxy-sign-in-form disabled></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes mfa-totp-code', async () => {
+      const layout = html`<foxy-sign-in-form disabledcontrols="mfa-totp-code"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      element.edit({ credential: { email: '', password: '', mfa_totp_code: '123' } });
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.have.attribute('disabled');
+    });
+
+    it('is disabled when form is sending data', async () => {
+      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const layout = html`<foxy-sign-in-form parent=${href}></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        type: 'password',
+        credential: {
+          email: 'foo@bar.test',
+          password: '123',
+          mfa_totp_code: '123',
+        },
+      });
+
+      element.submit();
+
+      expect(await getByTestId(element, 'mfa-totp-code')).to.have.attribute('disabled');
+    });
+  });
+
+  describe('mfa-remember-device', () => {
+    it('is hidden by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const mfaSecretCode = await getByTestId(element, 'mfa-remember-device');
+
+      expect(mfaSecretCode).to.not.exist;
+    });
+
+    it('is hidden when the form is hidden', async () => {
+      const layout = html`<foxy-sign-in-form hidden></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      expect(await getByTestId(element, 'mfa-remember-device')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols matches "mfa-remember-device"', async () => {
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form hiddencontrols="mfa-remember-device"></foxy-sign-in-form>
+      `);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      expect(await getByTestId(element, 'mfa-remember-device')).to.not.exist;
+    });
+
+    it('is visible if form.credential.mfa_totp_code and form.credential.mfa_remember_device exist', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      expect(await getByTestId(element, 'mfa-remember-device')).to.exist;
+    });
+
+    it('is visible if POST returns error type mfa_totp_code', async () => {
+      const layout = html`<foxy-sign-in-form parent="foxy://test"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+      const error = { code: 'mfa_totp_code' };
+      const body = JSON.stringify({ _embedded: { 'fx:errors': [error] } });
+
+      element.addEventListener('fetch', evt => {
+        const whenResponseReady = Promise.resolve(new Response(body, { status: 403 }));
+        (evt as FetchEvent).respondWith(whenResponseReady);
+      });
+
+      element.edit({
+        type: 'password',
+        credential: { email: 'foo@bar.test', password: '123' },
+      });
+
+      element.submit();
+      await waitUntil(() => element.in('idle'));
+
+      expect(await getByTestId(element, 'mfa-remember-device')).to.exist;
+    });
+
+    it('has i18n label with key "mfa_remember_device"', async () => {
+      const layout = html`<foxy-sign-in-form ns="foo" lang="es"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      const label = await getByKey(element, 'mfa_remember_device');
+
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    it('has i18n hint with key "mfa_remember_device_hint"', async () => {
+      const layout = html`<foxy-sign-in-form ns="foo" lang="es"></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      const hint = await getByKey(element, 'mfa_remember_device_hint');
+
+      expect(hint).to.have.attribute('lang', 'es');
+      expect(hint).to.have.attribute('ns', 'foo');
+    });
+
+    it('has value of form.credential.mfa_remember_device', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      const control = await getByTestId(element, 'mfa-remember-device');
+      expect(control).to.have.property('checked', true);
+    });
+
+    it('writes to form.credential.mfa_remember_device on input', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: false,
+        },
+      });
+
+      const control = await getByTestId<CheckboxElement>(element, 'mfa-remember-device');
+
+      control!.checked = true;
+      control!.dispatchEvent(new CustomEvent('change'));
+
+      expect(element).to.have.nested.property('form.credential.mfa_remember_device', true);
+    });
+
+    it('renders "mfa-remember-device:before" slot by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      const slot = await getByName<HTMLSlotElement>(element, 'mfa-remember-device:before');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "mfa-remember-device:before" slot with template "mfa-remember-device:before" if available', async () => {
+      const name = 'mfa-remember-device:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "mfa-remember-device:after" slot by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      const slot = await getByName<HTMLSlotElement>(element, 'mfa-remember-device:after');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "mfa-remember-device:after" slot with template "mfa-remember-device:after" if available', async () => {
+      const name = 'mfa-remember-device:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-sign-in-form>
+      `);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      expect(await getByTestId(element, 'mfa-remember-device')).not.to.have.attribute('disabled');
+    });
+
+    it('is disabled when element is disabled', async () => {
+      const layout = html`<foxy-sign-in-form disabled></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      expect(await getByTestId(element, 'mfa-remember-device')).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes mfa-remember-device', async () => {
+      const element = await fixture<SignInForm>(html`
+        <foxy-sign-in-form disabledcontrols="mfa-remember-device"></foxy-sign-in-form>
+      `);
+
+      element.edit({
+        credential: {
+          email: '',
+          password: '',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      expect(await getByTestId(element, 'mfa-remember-device')).to.have.attribute('disabled');
+    });
+
+    it('is disabled when form is sending data', async () => {
+      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const layout = html`<foxy-sign-in-form parent=${href}></foxy-sign-in-form>`;
+      const element = await fixture<SignInForm>(layout);
+
+      element.edit({
+        type: 'password',
+        credential: {
+          email: 'foo@bar.test',
+          password: '123',
+          mfa_totp_code: '123',
+          mfa_remember_device: true,
+        },
+      });
+
+      element.submit();
+
+      expect(await getByTestId(element, 'mfa-remember-device')).to.have.attribute('disabled');
     });
   });
 

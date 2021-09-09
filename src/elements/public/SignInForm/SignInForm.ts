@@ -230,6 +230,7 @@ export class SignInForm extends Base<Data> {
   };
 
   private readonly __renderMfaSecretCode = () => {
+    const scope = 'mfa-secret-code';
     const mfaSecretCode = this.__mfaSecretCode!;
     const issuer = encodeURIComponent(this.issuer);
     const email = encodeURIComponent(this.form.credential?.email ?? '');
@@ -240,9 +241,10 @@ export class SignInForm extends Base<Data> {
 
     return html`
       <div>
-        ${this.renderTemplateOrSlot('mfa-totp-code:before')}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <div
+          data-testid=${scope}
           class="flex space-x-m overflow-hidden rounded border p-m mb-m border-contrast-10"
           style="background: white; color: black;"
         >
@@ -260,7 +262,7 @@ export class SignInForm extends Base<Data> {
           </div>
         </div>
 
-        ${this.renderTemplateOrSlot('mfa-totp-code:after')}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   };
@@ -276,6 +278,7 @@ export class SignInForm extends Base<Data> {
         ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <vaadin-checkbox
+          data-testid=${scope}
           class="mb-m"
           ?disabled=${isDisabled}
           ?checked=${!!form.credential?.mfa_remember_device}
