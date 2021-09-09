@@ -25,6 +25,12 @@ const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 
  * @slot password:after
  * @slot new-password:before
  * @slot new-password:after
+ * @slot mfa-secret-code:before
+ * @slot mfa-secret-code:after
+ * @slot mfa-totp-code:before
+ * @slot mfa-totp-code:after
+ * @slot mfa-remember-device:before
+ * @slot mfa-remember-device:after
  * @slot error:before
  * @slot error:after
  * @slot submit:before
