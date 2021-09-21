@@ -54,9 +54,10 @@ export class FrequencyList extends Translatable {
             : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
         )}
 
-        <div class="space-y-s md-space-y-0 md-space-x-s w-full md-flex">
+        <div class="w-full md-flex">
           <x-frequency-input
             data-testid="input"
+            class="mb-s md-mb-0 md-mr-s"
             .lang=${this.lang}
             .value=${this.__newValue}
             .disabled=${isInputDisabled}
@@ -82,7 +83,7 @@ export class FrequencyList extends Translatable {
                 .lang=${this.lang}
                 key="fmod.add_option_hint"
                 class=${classMap({
-                  'block text-xs mt-xs': true,
+                  'block text-xs mt-xs text-center md-text-left': true,
                   'text-tertiary': this.value.length < 20,
                   'text-primary': this.value.length >= 20,
                 })}

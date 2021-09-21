@@ -105,7 +105,7 @@ export class DisallowedDates extends Translatable {
                 .lang=${this.lang}
                 key="ndmod.add_range_hint"
                 class=${classMap({
-                  'block text-xs mt-xs': true,
+                  'block text-xs mt-xs text-center sm-text-left': true,
                   'text-tertiary': this.value.length < 20,
                   'text-primary': this.value.length >= 20,
                 })}

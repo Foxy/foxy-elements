@@ -124,8 +124,8 @@ export class NextDateModificationRule extends Translatable {
               </x-jsonata-input>
             </x-group>
 
-            <div class="flex space-y-l md-space-y-0 flex-col md-flex-row">
-              <div class="md-w-1-2 md-border-r md-border-contrast-10">
+            <div class="flex flex-col md-flex-row">
+              <div class="mb-l md-mb-0 md-w-1-2 md-border-r md-border-contrast-10">
                 <x-offset-input
                   data-testid="min"
                   type="min"
