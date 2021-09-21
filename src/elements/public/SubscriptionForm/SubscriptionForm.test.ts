@@ -155,6 +155,26 @@ describe('SubscriptionForm', () => {
       expect(control).to.have.attribute('ns', 'subscription-form');
     });
 
+    it('once loaded, renders a special status for inactive subscriptions in subtitle', async () => {
+      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+
+      data.first_failed_transaction_date = null;
+      data.is_active = false;
+      data.end_date = null;
+
+      const element = await fixture<SubscriptionForm>(html`
+        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
+      `);
+
+      const control = await getByTestId(element, 'header-subtitle');
+
+      expect(control).to.have.property('localName', 'foxy-i18n');
+      expect(control).to.have.attribute('lang', 'es');
+      expect(control).to.have.attribute('key', 'subscription_inactive');
+      expect(control).to.have.attribute('ns', 'subscription-form');
+    });
+
     it('is visible by default', async () => {
       const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);

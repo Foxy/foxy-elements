@@ -88,6 +88,7 @@
   "subscription_active": "Next payment on {{date, date}}",
   "subscription_cancelled": "Ended on {{date, date}}",
   "subscription_failed": "Payment failed on {{date, date}}",
+  "subscription_inactive": "Inactive",
   "subscription_plural": "Subscriptions",
   "subscription_will_be_cancelled": "Ends on {{date, date}}",
   "tax_id": "Tax ID",

@@ -107,6 +107,24 @@ describe('SubscriptionCard', () => {
     expect(control).to.have.attribute('ns', 'subscription-card');
   });
 
+  it('once loaded, renders a special status for inactive subscriptions', async () => {
+    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const data = await getTestData<Data>(href);
+
+    data.first_failed_transaction_date = null;
+    data.is_active = false;
+    data.end_date = null;
+
+    const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
+    const element = await fixture<SubscriptionCard>(layout);
+    const control = await getByTestId(element, 'status');
+
+    expect(control).to.have.property('localName', 'foxy-i18n');
+    expect(control).to.have.attribute('lang', 'es');
+    expect(control).to.have.attribute('key', 'subscription_inactive');
+    expect(control).to.have.attribute('ns', 'subscription-card');
+  });
+
   it('once loaded, renders subscription price', async () => {
     const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);

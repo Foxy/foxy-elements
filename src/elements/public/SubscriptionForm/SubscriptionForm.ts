@@ -107,7 +107,7 @@ export class SubscriptionForm extends Base<Data> {
         key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
       } else {
         date = data.next_transaction_date ?? new Date().toISOString();
-        key = 'subscription_active';
+        key = `subscription_${data.is_active ? 'active' : 'inactive'}`;
       }
 
       const text = html`

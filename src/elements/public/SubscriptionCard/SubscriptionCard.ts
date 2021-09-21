@@ -155,6 +155,6 @@ export class SubscriptionCard extends Base<Data> {
       return hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
     }
 
-    return 'subscription_active';
+    return `subscription_${this.data?.is_active ? 'active' : 'inactive'}`;
   }
 }

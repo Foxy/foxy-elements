@@ -83,7 +83,7 @@ describe('SubscriptionsTable', () => {
               date = subscription.end_date;
             } else {
               date = subscription.next_transaction_date;
-              key = 'subscription_active';
+              key = `subscription_${subscription.is_active ? 'active' : 'inactive'}`;
             }
 
             expect(statusRef).to.have.deep.property('options', { date });
