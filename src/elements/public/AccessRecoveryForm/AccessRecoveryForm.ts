@@ -63,23 +63,25 @@ export class AccessRecoveryForm extends Base<Data> {
     };
 
     return html`
-      ${this.renderTemplateOrSlot('email:before')}
+      <div>
+        ${this.renderTemplateOrSlot('email:before')}
 
-      <vaadin-email-field
-        error-message=${emailErrorMessage}
-        data-testid="email"
-        class="w-full"
-        label=${this.t('email').toString()}
-        value=${ifDefined(this.form.detail?.email)}
-        ?disabled=${isBusy || isFailed || this.disabledSelector.matches('email', true)}
-        ?readonly=${this.readonlySelector.matches('email', true)}
-        .checkValidity=${this.__checkEmailValidity}
-        @input=${handleInput}
-        @keydown=${handleKeyDown}
-      >
-      </vaadin-email-field>
+        <vaadin-email-field
+          error-message=${emailErrorMessage}
+          data-testid="email"
+          class="w-full"
+          label=${this.t('email').toString()}
+          value=${ifDefined(this.form.detail?.email)}
+          ?disabled=${isBusy || isFailed || this.disabledSelector.matches('email', true)}
+          ?readonly=${this.readonlySelector.matches('email', true)}
+          .checkValidity=${this.__checkEmailValidity}
+          @input=${handleInput}
+          @keydown=${handleKeyDown}
+        >
+        </vaadin-email-field>
 
-      ${this.renderTemplateOrSlot('email:after')}
+        ${this.renderTemplateOrSlot('email:after')}
+      </div>
     `;
   };
 
@@ -90,14 +92,16 @@ export class AccessRecoveryForm extends Base<Data> {
     const key = isFailed ? 'unknown_error' : 'recover_access_success';
 
     return html`
-      ${this.renderTemplateOrSlot('message:before')}
+      <div>
+        ${this.renderTemplateOrSlot('message:before')}
 
-      <p class="leading-s flex items-start text-s rounded p-s ${color}">
-        <iron-icon class="flex-shrink-0 mr-s" icon=${icon}></iron-icon>
-        <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns} data-testid="message"></foxy-i18n>
-      </p>
+        <p class="leading-s flex items-start text-s rounded p-s ${color}">
+          <iron-icon class="flex-shrink-0 mr-s" icon=${icon}></iron-icon>
+          <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns} data-testid="message"></foxy-i18n>
+        </p>
 
-      ${this.renderTemplateOrSlot('message:after')}
+        ${this.renderTemplateOrSlot('message:after')}
+      </div>
     `;
   };
 
@@ -107,19 +111,24 @@ export class AccessRecoveryForm extends Base<Data> {
     const isBusy = this.in('busy');
 
     return html`
-      ${this.renderTemplateOrSlot('submit:before')}
+      <div>
+        ${this.renderTemplateOrSlot('submit:before')}
 
-      <vaadin-button
-        data-testid="submit"
-        class="w-full"
-        theme="primary"
-        ?disabled=${isBusy || !isValid || isFailed || this.disabledSelector.matches('submit', true)}
-        @click=${() => this.submit()}
-      >
-        <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
-      </vaadin-button>
+        <vaadin-button
+          data-testid="submit"
+          class="w-full"
+          theme="primary"
+          ?disabled=${isBusy ||
+          !isValid ||
+          isFailed ||
+          this.disabledSelector.matches('submit', true)}
+          @click=${() => this.submit()}
+        >
+          <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
+        </vaadin-button>
 
-      ${this.renderTemplateOrSlot('submit:after')}
+        ${this.renderTemplateOrSlot('submit:after')}
+      </div>
     `;
   };
 
