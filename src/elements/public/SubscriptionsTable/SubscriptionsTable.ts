@@ -65,8 +65,14 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
         color = hasEnded ? 'bg-success-10 text-success' : 'bg-contrast-5 text-tertiary';
       } else {
         date = ctx.data.next_transaction_date;
-        key = 'subscription_active';
-        color = 'bg-success-10 text-success';
+
+        if (ctx.data.is_active) {
+          key = 'subscription_active';
+          color = 'bg-success-10 text-success';
+        } else {
+          key = 'subscription_inactive';
+          color = 'bg-contrast-5 text-tertiary';
+        }
       }
 
       return ctx.html`

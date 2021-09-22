@@ -1,4 +1,7 @@
 {
+  "access-recovery-form": {
+    "unknown_error": "We can't issue a one-time code for this account at the moment. If you've already requested the code, please wait a few minutes before trying again."
+  },
   "customer": {
     "subscription-card": {
       "spinner": {

@@ -1,15 +1,8 @@
-import {
-  CSSResult,
-  CSSResultArray,
-  Constructor,
-  LitElement,
-  PropertyDeclarations,
-} from 'lit-element';
+import { Constructor, LitElement, PropertyDeclarations } from 'lit-element';
 import i18next, { FormatFunction, StringMap, TFunction, i18n } from 'i18next';
 
 import HttpApi from 'i18next-http-backend';
 import { I18n } from '../elements/public/I18n/I18n';
-import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable } from './themeable';
 import { cdn } from '../env';
 
@@ -21,16 +14,13 @@ import { cdn } from '../env';
  *
  * @deprecated
  */
-export abstract class Translatable extends ScopedElementsMixin(LitElement) {
+export abstract class Translatable extends Themeable {
   static get properties(): PropertyDeclarations {
     return {
+      ...super.properties,
       lang: { type: String, noAccessor: true },
       ns: { type: String, noAccessor: true },
     };
-  }
-
-  public static get styles(): CSSResult | CSSResultArray | CSSStyleSheet {
-    return Themeable.styles;
   }
 
   /**

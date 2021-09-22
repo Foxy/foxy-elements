@@ -2,6 +2,7 @@
 
 import { CSSResult, CSSResultArray, Constructor, LitElement, css } from 'lit-element';
 
+import { ResponsiveMixin } from './responsive';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 type Base = Constructor<LitElement> & { styles?: CSSResult | CSSResultArray | CSSStyleSheet };
@@ -126,4 +127,6 @@ export const ThemeableMixin = <TBase extends Base>(
  *
  * @deprecated
  */
-export abstract class Themeable extends ScopedElementsMixin(ThemeableMixin(LitElement)) {}
+export abstract class Themeable extends ScopedElementsMixin(
+  ResponsiveMixin(ThemeableMixin(LitElement))
+) {}

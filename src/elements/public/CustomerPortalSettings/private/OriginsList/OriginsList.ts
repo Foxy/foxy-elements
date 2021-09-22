@@ -65,9 +65,10 @@ export class OriginsList extends Translatable {
               : html`<x-skeleton slot=${index}>${item}</x-skeleton>`
           )}
 
-          <div class="flex flex-col space-y-s sm-space-y-0 sm-flex-row sm-space-x-s sm-items-start">
+          <div class="flex flex-col sm-flex-row sm-items-start">
             <vaadin-text-field
               data-testid="input"
+              class="mb-s sm-mb-0 sm-mr-s"
               .placeholder=${this._isI18nReady ? 'https://foxy.io' : ''}
               .errorMessage=${this._t(`origins.${this.__errorCode}`).toString()}
               .disabled=${this.disabled || !this._isI18nReady}
