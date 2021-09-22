@@ -859,7 +859,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         expect(await getByTestId(element, 'access-recovery:back')).to.have.attribute('disabled');
       });
 
-      it('renders foxy-i18n caption with key "cancel"', async () => {
+      it('renders foxy-i18n caption with key "back"', async () => {
         const element = await fixture<InternalCustomerPortalLoggedOutView>(html`
           <foxy-internal-customer-portal-logged-out-view
             page="access-recovery"
@@ -870,7 +870,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         `);
 
         const signin = await getByTestId(element, 'access-recovery:back');
-        const title = await getByKey(signin!, 'cancel');
+        const title = await getByKey(signin!, 'back');
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');

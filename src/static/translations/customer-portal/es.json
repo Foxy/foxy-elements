@@ -1,4 +1,7 @@
 {
+  "access-recovery-form": {
+    "unknown_error": "No podemos emitir un código de una sola vez para esta cuenta en este momento. Si ya solicitó el código, espere unos minutos antes de volver a intentarlo."
+  },
   "customer": {
     "subscription-card": {
       "spinner": {

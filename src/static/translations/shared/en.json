@@ -4,6 +4,7 @@
   "address_name": "Address name",
   "address_plural": "Addresses",
   "attribute_plural": "Attributes",
+  "back": "Back",
   "backend_developer": "Backend developer",
   "backend_developer_explainer": "Manages server-side code in PHP, Python, Ruby, etc.",
   "cancel": "Cancel",
