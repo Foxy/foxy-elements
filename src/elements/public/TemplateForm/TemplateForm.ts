@@ -189,7 +189,7 @@ export class TemplateForm extends Base<Item> {
             <vaadin-text-field
               class="w-full mb-s"
               label="${this.t('description.label')}"
-              value=${this.form?.description}
+              value="${this.form?.description}"
               readonly
             >
             </vaadin-text-field>
