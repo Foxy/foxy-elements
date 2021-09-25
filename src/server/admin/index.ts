@@ -6,11 +6,14 @@ import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
+import { composeEmailTemplate } from './composers/composeEmailTemplate';
 import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
 import { composeSubscription } from './composers/composeSubscription';
+import { composeTemplateCache } from './composers/composeTemplateCache';
 import { composeTransaction } from './composers/composeTransaction';
 import { composeUser } from './composers/composeUser';
+import { createTemplateComposeFunction } from './composers/composeTemplates';
 import { getPagination } from '../getPagination';
 import { router } from '../router';
 
@@ -544,6 +547,49 @@ router.delete('/s/admin/users/:id', async ({ params, request }) => {
   await db.users.delete(parseInt(params.id));
 
   return user;
+});
+
+// Templates
+router.get('/s/admin/stores/:id/email_templates', async ({ request }) => {
+  return respondItems(
+    db.emailTemplates,
+    createTemplateComposeFunction('cart_template'),
+    request.url,
+    'fx:email_templates'
+  );
+});
+
+// Templates
+
+router.get('/s/admin/email_templates/:id', async ({ params }) => {
+  return respondItemById(db.emailTemplates, parseInt(params.id), composeEmailTemplate);
+});
+
+router.get('/s/admin/template/:template_type/:id', async ({ params }) => {
+  const tplDict: Record<string, Dexie.Table> = {
+    cart_include_templates: db.cartIncludeTemplates,
+    cart_templates: db.cartTemplates,
+    checkout_templates: db.checkoutTemplates,
+    email_templates: db.emailTemplates,
+    receipt_templates: db.checkoutTemplates,
+  };
+  const tplDatabase = tplDict[params.template_type] ?? null;
+  if (tplDatabase === null) {
+    return new Response(null, { status: 404 });
+  }
+  return respondItemById(
+    tplDatabase,
+    parseInt(params.id),
+    createTemplateComposeFunction(params.template_type)
+  );
+});
+
+router.post('/s/admin/template/:template_type/:id/cache', async () => {
+  return new Response(JSON.stringify(composeTemplateCache()));
+});
+
+router.get('/s/admin/template_configs/:id', async ({ params }) => {
+  return respondItemById(db.templateConfig, parseInt(params.id), composeTemplateConfig);
 });
 
 /**
