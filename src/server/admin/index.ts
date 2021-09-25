@@ -546,6 +546,95 @@ router.delete('/s/admin/users/:id', async ({ params, request }) => {
   return user;
 });
 
+/**
+ * Returns a response object with the composed entry for the given id in the given table.
+ *
+ * @param table the Dixie table storing the data
+ * @param id the id number to be fetched
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @returns response object with the item requested.
+ */
+async function respondItemById(
+  table: Table,
+  id: number,
+  composer: (d: any) => HALJSONResource
+): Promise<Response> {
+  await whenDbReady;
+  const body = composer(await table.get(id));
+  return new Response(JSON.stringify(body));
+}
+
+/**
+ * Creates a response with the composed entries for the given
+ * table.
+ *
+ * @param table the Dixie table storing the data
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @param url the requested url
+ * @param rel the rel string
+ * @param parent the field to use to filter the items by parentID
+ * @param parentId the id number to be fetched
+ * @returns response promise
+ */
+async function respondItems(
+  table: Table,
+  composer: (d: any) => HALJSONResource,
+  url: string,
+  rel: string,
+  parent = 'store',
+  parentId = 0
+) {
+  const [count, items] = await queryCountAndWhere(table, parent, parentId, getPagination(url));
+  const body = composeCollection({ composeItem: composer, count, items, rel, url });
+  return new Response(JSON.stringify(body));
+}
+
+/**
+ * Performs a simple query by a single field and return the results and count.
+ *
+ * @param table of the database to be queried.
+ * @param field the specific field that must match the value.
+ * @param value the value that must be matched.
+ * @param pagination the pagination object.
+ *
+ * @returns promise that resolves to an array with the number of ocurrences and the paginated result.
+ */
+async function queryCountAndWhere(
+  table: Table,
+  field: string,
+  value: string | number,
+  pagination = { limit: 10, offset: 0 }
+) {
+  return Promise.all([
+    table.count(),
+    await paginateQuery(table.where(field).equals(value), pagination),
+  ]);
+}
+
+/**
+ * @param query
+ * @param pagination
+ */
+function paginateQuery(query: Collection<any, any>, pagination = { limit: 20, offset: 0 }) {
+  return query.offset(pagination.offset).limit(pagination.limit).toArray();
+}
+
+// helper routes
+router.get('/property_helpers/countries', async ({ request }) => {
+  const searchParams = new URL(request.url).searchParams;
+  const countries = db.countries;
+  if (!searchParams.has('include_regions')) {
+    // Remove the list of regions if asked by the client
+    for (const v of Object.values(countries)) {
+      const country = v as Country;
+      // an empty array stands for no region
+      country.has_regions = !Array.isArray(country.regions) || country.regions.length > 0;
+      delete country.regions;
+    }
+  }
+  return new Response(JSON.stringify(composeCountries(countries)));
+});
+
 // special routes
 
 router.get('/s/admin/not-found', async () => new Response(null, { status: 404 }));
