@@ -189,7 +189,6 @@ router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
-
   const lastTransaction = zoom.includes('last_transaction')
     ? await db.transactions.where('subscription').equals(id).last()
     : undefined;
@@ -247,6 +246,21 @@ router.get('/s/admin/stores/:id/error_entries', async ({ params, request }) => {
   } catch (e) {
     console.log('There was an error', e);
   }
+});
+
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+  const errorEntry = await db.errorEntries.get(parseInt(params.id));
+  const body = composeErrorEntry(errorEntry);
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  await db.errorEntries.update(id, await request.json());
+  const body = composeErrorEntry(await db.errorEntries.get(id));
+  return new Response(JSON.stringify(body));
 });
 
 router.get('/s/admin/error_entries/:id', async ({ params }) => {
