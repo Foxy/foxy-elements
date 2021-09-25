@@ -1,22 +1,4 @@
 {
-  "error_entries": [
-    {
-      "id": 0,
-      "store": 0,
-      "transaction": 0,
-      "url": "https://serverless.foxycartdev.com/checkout",
-      "error_message": "DataFeed Failed: (2) 2012-08-10 12:12:49 No data returned for  [0]\n malformed",
-      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15",
-      "referrer": "https://serverless.foxycart.test/checkout",
-      "ip_address": "10.0.0.1",
-      "ip_country": "United States",
-      "post_values": "fcsid=tlu0s66jmpnoit6dtsh78ls95s&ThisAction=checkout&customer_id=4535647181a2a3c24976cc6581bdef4d&is_anonymous=0&anonymous_checkout_selected=0&email_is_found=1&customer_email=sally.sims@test.com&shipping_first_name=Sally&shipping_last_name=Sims&shipping_company=&shipping_phone=&shipping_tax_id=&shipping_address1=8 Random St.&shipping_address2=&shipping_postal_code=12345&shipping_city=SAN FRANCISCO&shipping_region=CA&shipping_country=US&use_different_addresses=1&billing_first_name=Sally&billing_last_name=Sims&billing_company=&billing_phone=&billing_address1=8 Random St.&billing_address2=&billing_postal_code=94103&billing_city=SAN FRANCISCO&billing_region=CA&billing_country=US&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=visa&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 1111&cc_exp_year_saved=2025&cc_exp_month_saved=06&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:900,&quot;browserScreenWidth&quot;:1440,&quot;browserLanguage&quot;:&quot;en-gb&quot;,&quot;browserTimeZone&quot;:-180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
-      "get_values": "",
-      "hide_error": false,
-      "date_created": "2021-03-29T13:57:40-0700",
-      "date_modified": "2021-03-29T13:57:40-0700"
-    }
-  ],
   "customer_attributes": [
     {
       "id": 0,
