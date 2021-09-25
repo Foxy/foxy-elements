@@ -44,10 +44,6 @@ class DemoDatabase extends Dexie {
 
   subscriptions: Dexie.Table<any, number>;
 
-  taxes: Dexie.Table<any, number>;
-
-  templateConfig: Dexie.Table<any, number>;
-
   transactions: Dexie.Table<any, number>;
 
   users: Dexie.Table<any, number>;
@@ -71,8 +67,6 @@ class DemoDatabase extends Dexie {
       receipt_templates: '++id,store',
       stores: '++id',
       subscriptions: '++id,store,customer',
-      taxes: '++id,store',
-      template_config: '++id',
       transactions: '++id,store,customer,subscription',
       users: '++id,store',
     });
@@ -92,8 +86,6 @@ class DemoDatabase extends Dexie {
     this.receiptTemplates = this.table('receipt_templates');
     this.stores = this.table('stores');
     this.subscriptions = this.table('subscriptions');
-    this.taxes = this.table('taxes');
-    this.templateConfig = this.table('template_config');
     this.transactions = this.table('transactions');
     this.users = this.table('users');
   }
