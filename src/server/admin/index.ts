@@ -588,10 +588,6 @@ router.post('/s/admin/template/:template_type/:id/cache', async () => {
   return new Response(JSON.stringify(composeTemplateCache()));
 });
 
-router.get('/s/admin/template_configs/:id', async ({ params }) => {
-  return respondItemById(db.templateConfig, parseInt(params.id), composeTemplateConfig);
-});
-
 /**
  * Returns a response object with the composed entry for the given id in the given table.
  *
@@ -664,22 +660,6 @@ async function queryCountAndWhere(
 function paginateQuery(query: Collection<any, any>, pagination = { limit: 20, offset: 0 }) {
   return query.offset(pagination.offset).limit(pagination.limit).toArray();
 }
-
-// helper routes
-router.get('/property_helpers/countries', async ({ request }) => {
-  const searchParams = new URL(request.url).searchParams;
-  const countries = db.countries;
-  if (!searchParams.has('include_regions')) {
-    // Remove the list of regions if asked by the client
-    for (const v of Object.values(countries)) {
-      const country = v as Country;
-      // an empty array stands for no region
-      country.has_regions = !Array.isArray(country.regions) || country.regions.length > 0;
-      delete country.regions;
-    }
-  }
-  return new Response(JSON.stringify(composeCountries(countries)));
-});
 
 // special routes
 
