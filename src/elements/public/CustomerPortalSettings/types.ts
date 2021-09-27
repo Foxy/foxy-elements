@@ -34,7 +34,7 @@ export interface CustomerPortalSettingsSetHrefEvent {
 
 export interface CustomerPortalSettingsSetSSOEvent {
   type: 'SET_SSO';
-  data: boolean;
+  value: boolean;
 }
 
 export interface CustomerPortalSettingsSaveEvent {

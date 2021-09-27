@@ -158,7 +158,7 @@ const setHref = actions.assign<CustomerPortalSettingsContext>({
 
 const setSSO = actions.assign<CustomerPortalSettingsContext>({
   newResource: ({ newResource }, evt) => {
-    const sso = (evt as CustomerPortalSettingsSetSSOEvent).data;
+    const sso = (evt as CustomerPortalSettingsSetSSOEvent).value;
     return { ...newResource!, sso };
   },
 });
