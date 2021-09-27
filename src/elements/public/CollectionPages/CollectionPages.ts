@@ -8,7 +8,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Rumour } from '@foxy.io/sdk/core';
 import { machine } from './machine';
 import { repeat } from 'lit-html/directives/repeat';
-import traverse from 'traverse';
+import { serveFromCache } from '../NucleonElement/serveFromCache';
 
 /**
  * Renders an element for each page in a collection.
@@ -311,22 +311,16 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
   }
 
   private __respondIfPossible(event: FetchEvent) {
-    const localName = this.localName;
+    const cacheResponse = serveFromCache(event.request.url, this.pages);
+    if (!cacheResponse.ok) return;
 
-    traverse(this.__service.state.context.pages).forEach(function () {
-      if (this.node?._links?.self?.href === event.request.url) {
-        console.debug(
-          `%c@foxy.io/elements::${localName}\n%c200%c GET ${event.request.url}`,
-          'color: gray',
-          `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
-          ''
-        );
-
-        const body = JSON.stringify(this.node);
-        event.respondWith(Promise.resolve(new Response(body)));
-        this.stop();
-      }
-    });
+    event.respondWith(Promise.resolve(cacheResponse));
+    console.debug(
+      `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${event.request.url}`,
+      'color: gray',
+      `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
+      ''
+    );
   }
 
   private __stallRequest(event: FetchEvent) {

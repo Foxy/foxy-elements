@@ -7,7 +7,7 @@ import { API } from './API';
 import { FetchEvent } from './FetchEvent';
 import { UpdateEvent } from './UpdateEvent';
 import memoize from 'lodash-es/memoize';
-import traverse from 'traverse';
+import { serveFromCache } from './serveFromCache';
 
 /**
  * Base class for custom elements working with remote HAL+JSON resources.
@@ -369,21 +369,15 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     if (!(event instanceof FetchEvent)) return;
     if (event.request.method !== 'GET') return;
 
-    const localName = this.localName;
+    const cacheResponse = serveFromCache(event.request.url, this.data);
+    if (!cacheResponse.ok) return;
 
-    traverse(this.__service.state.context.data).forEach(function () {
-      if (this.node?._links?.self?.href === event.request.url) {
-        console.debug(
-          `%c@foxy.io/elements::${localName}\n%c200%c GET ${event.request.url}`,
-          'color: gray',
-          `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
-          ''
-        );
-
-        const body = JSON.stringify(this.node);
-        event.respondWith(Promise.resolve(new Response(body)));
-        this.stop();
-      }
-    });
+    event.respondWith(Promise.resolve(cacheResponse));
+    console.debug(
+      `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${event.request.url}`,
+      'color: gray',
+      `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
+      ''
+    );
   }
 }
