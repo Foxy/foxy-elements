@@ -45,6 +45,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      related: { type: Array },
       parent: { type: String },
       group: { type: String, noAccessor: true },
       href: { type: String, noAccessor: true },
@@ -72,6 +73,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
    * Changing the `parent` attribute will update the value of this property.
    */
   parent = '';
+
+  /**
+   * Optional URI list of the related resources. If Rumour encounters a related
+   * resource on creation or deletion, it will be reloaded from source.
+   */
+  related: string[] = [];
 
   private __href = '';
 
@@ -263,9 +270,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const body = JSON.stringify(edits);
     const data = await this._fetch(this.parent, { body, method: 'POST' });
     const rumour = NucleonElement.Rumour(this.group);
+    const related = [...this.related, this.parent];
 
     this.__destroyRumour();
-    rumour.share({ data, related: [this.parent], source: data._links.self.href });
+    rumour.share({ data, related, source: data._links.self.href });
     this.__createRumour();
 
     return data;
@@ -300,9 +308,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   protected async _sendDelete(): Promise<TData> {
     const data = await this._fetch(this.href, { method: 'DELETE' });
     const rumour = NucleonElement.Rumour(this.group);
+    const related = [...this.related, this.parent];
 
     this.__destroyRumour();
-    rumour.share({ data: null, source: this.href, related: [this.parent] });
+    rumour.share({ data: null, source: this.href, related });
     this.__createRumour();
 
     return data;
