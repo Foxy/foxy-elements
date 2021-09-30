@@ -5,6 +5,7 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { repeat } from 'lit-html/directives/repeat';
+import { spread } from '@open-wc/lit-helpers';
 
 /**
  * Renders an element for each resource in a collection page.
@@ -17,10 +18,14 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      props: { type: Object },
       item: { type: String },
       ns: { type: String },
     };
   }
+
+  /** Spread directive argument from `@open-wc/lit-helpers` (properties, event listeners and attributes you'd like to pass to the item element). */
+  props: Record<string, unknown> = {};
 
   ns = '';
 
@@ -69,6 +74,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
             ?readonly=\${ctx.readonly}
             ?hidden=\${ctx.hidden}
             .templates=\${ctx.templates}
+            ...=\${ctx.spread(ctx.props)}
           >
           </${value}>\``
       ) as ItemRenderer;
@@ -121,6 +127,8 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
           readonly: this.readonly,
           hidden: this.hidden,
           parent: this.href,
+          spread: spread,
+          props: this.props,
           group: this.group,
           lang: this.lang,
           data: item.data,
