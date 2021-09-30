@@ -1,6 +1,7 @@
 import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
 
 import { composeCollection } from './composers/composeCollection';
+import { composeCustomField } from './composers/composeCustomField';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
@@ -326,6 +327,74 @@ router.delete('/s/admin/customer_attributes/:id', async ({ params }) => {
   const id = parseInt(params.id);
   const body = composeCustomerAttribute(await db.customerAttributes.get(id));
   await db.customerAttributes.delete(id);
+
+  return new Response(JSON.stringify(body));
+});
+
+// custom_fields
+
+router.get('/s/admin/transactions/:id/custom_fields', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.customFields.count(),
+    db.customFields.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:custom_fields';
+  const composeItem = composeCustomField;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/custom_fields/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeCustomField(await db.customFields.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+router.post('/s/admin/transactions/:id/custom_fields', async ({ params, request }) => {
+  await whenDbReady;
+
+  const requestBody = await request.json();
+  const newID = await db.customFields.add({
+    name: requestBody.name ?? '',
+    value: requestBody.value ?? '',
+    is_hidden: !!requestBody.is_hidden,
+    transaction: parseInt(params.id),
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  });
+
+  const newDoc = await db.customFields.get(newID);
+  const responseBody = composeCustomField(newDoc);
+
+  return new Response(JSON.stringify(responseBody));
+});
+
+router.patch('/s/admin/custom_fields/:id', async ({ params, request }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  await db.customFields.update(id, await request.json());
+  const body = composeCustomField(await db.customFields.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+router.delete('/s/admin/custom_fields/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeCustomField(await db.customFields.get(id));
+  await db.customFields.delete(id);
 
   return new Response(JSON.stringify(body));
 });

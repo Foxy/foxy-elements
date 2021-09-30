@@ -12,6 +12,7 @@ export { CustomerForm } from './CustomerForm/CustomerForm';
 export { CustomerPortal } from './CustomerPortal/CustomerPortal';
 export { CustomerPortalSettings } from './CustomerPortalSettings/CustomerPortalSettings';
 export { CustomersTable } from './CustomersTable/CustomersTable';
+export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
 export { Donation } from './Donation/Donation';
 export { ErrorEntryCard } from './ErrorEntryCard/ErrorEntryCard';
 export { FormDialog } from './FormDialog/FormDialog';

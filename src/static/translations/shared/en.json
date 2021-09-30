@@ -84,6 +84,7 @@
   "region": "Region",
   "request": "Request",
   "save": "Save",
+  "show_on_receipt": "Show on receipt",
   "sign_in": "Sign in",
   "sign_in_hint": "Please enter your email and password",
   "subscription_active": "Next payment on {{date, date}}",

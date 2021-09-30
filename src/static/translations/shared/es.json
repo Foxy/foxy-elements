@@ -84,6 +84,7 @@
   "region": "Region",
   "request": "Pedido",
   "save": "Guardar",
+  "show_on_receipt": "Mostrar en recibo",
   "sign_in": "Iniciar sesión",
   "sign_in_hint": "Por favor, introduzca su correo electrónico y contraseña",
   "subscription_active": "Próximo pago el {{date, date}}",

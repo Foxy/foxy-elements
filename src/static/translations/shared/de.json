@@ -67,6 +67,7 @@
   "recover_access_success": "Erledigt! Bitte prüfen Sie Ihre E-Mail für weitere Anweisungen.",
   "region": "Region",
   "save": "Speichern",
+  "show_on_receipt": "Auf Quittung anzeigen",
   "sign_in": "Sich anmelden",
   "sign_in_hint": "Bitte geben Sie Ihre E-Mail und Ihr Passwort ein",
   "subscription_active": "Nächste Zahlung am {{date, date}}",

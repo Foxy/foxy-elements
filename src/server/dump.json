@@ -17,6 +17,17 @@
       "date_modified": "2021-03-29T13:57:40-0700"
     }
   ],
+  "custom_fields": [
+    {
+      "id": 0,
+      "name": "Terms & Conditions",
+      "value": "Checked",
+      "is_hidden": true,
+      "transaction": 0,
+      "date_created": "2013-08-05T14:15:59-0700",
+      "date_modified": "2013-08-05T14:15:59-0700"
+    }
+  ],
   "customer_attributes": [
     {
       "id": 0,
