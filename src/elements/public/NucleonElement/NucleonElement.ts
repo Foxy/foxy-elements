@@ -88,6 +88,8 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   private __fetchEventHandler!: (evt: Event) => void;
 
+  private __fetchEventQueue: FetchEvent[] = [];
+
   private readonly __service = interpret(
     (Nucleon.machine as NucleonMachine<TData>).withConfig({
       services: {
@@ -240,6 +242,14 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__service.send({ type: 'DELETE' });
   }
 
+  /**
+   * Fetches data from `element.href` in background, keeping the edits and v8n errors.
+   * @example element.refresh()
+   */
+  refresh(): void {
+    this.__service.send({ type: 'REFRESH' });
+  }
+
   /** @readonly */
   connectedCallback(): void {
     super.connectedCallback();
@@ -247,6 +257,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__createService();
     this.__createRumour();
     this.__createServer();
+    this.__processFetchEventQueue();
   }
 
   /** @readonly */
@@ -256,6 +267,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__destroyService();
     this.__destroyRumour();
     this.__destroyServer();
+    this.__flushFetchEventQueue('parent element was disconnected');
   }
 
   /** Sends API request. Throws an error on non-2XX response. */
@@ -298,7 +310,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const rumour = NucleonElement.Rumour(this.group);
 
     this.__destroyRumour();
-    rumour.share({ data, source: this.href });
+    rumour.share({ data, source: this.href, related: this.related });
     this.__createRumour();
 
     return data;
@@ -326,6 +338,8 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
       this.requestUpdate();
       this.dispatchEvent(new UpdateEvent());
+
+      if (!state.matches('busy')) this.__processFetchEventQueue();
     });
 
     this.__service.onChange(() => {
@@ -367,26 +381,53 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
       if (newData !== oldData) this.__service.send({ data: newData, type: 'SET_DATA' });
     } catch (err) {
       if (err instanceof Rumour.UpdateError) {
-        this.__service.send({ type: 'FETCH' });
+        this.__service.send({ type: 'REFRESH' });
       } else {
         throw err;
       }
     }
   }
 
+  private __processFetchEventQueue() {
+    const api = new NucleonElement.API(this);
+
+    this.__fetchEventQueue.forEach(event => {
+      const request = event.request;
+      const cacheResponse = serveFromCache(request.url, this.data);
+      const whenResponseReady = cacheResponse.ok ? cacheResponse : api.fetch(request);
+
+      event.respondWith(Promise.resolve(whenResponseReady));
+
+      if (cacheResponse.ok) {
+        console.debug(
+          `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${request.url}`,
+          'color: gray',
+          `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
+          ''
+        );
+      }
+    });
+
+    this.__fetchEventQueue = [];
+  }
+
+  private __flushFetchEventQueue(errorMessage: string) {
+    this.__fetchEventQueue.forEach(event => {
+      event.respondWith(Promise.reject(new Error(errorMessage)));
+    });
+
+    this.__fetchEventQueue = [];
+  }
+
   private __handleFetchEvent(event: Event) {
     if (!(event instanceof FetchEvent)) return;
+    if (event.defaultPrevented) return;
     if (event.request.method !== 'GET') return;
+    if (event.composedPath()[0] === this) return;
 
-    const cacheResponse = serveFromCache(event.request.url, this.data);
-    if (!cacheResponse.ok) return;
+    event.preventDefault();
+    this.__fetchEventQueue.push(event);
 
-    event.respondWith(Promise.resolve(cacheResponse));
-    console.debug(
-      `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${event.request.url}`,
-      'color: gray',
-      `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
-      ''
-    );
+    if (!this.in('busy')) this.__processFetchEventQueue();
   }
 }
