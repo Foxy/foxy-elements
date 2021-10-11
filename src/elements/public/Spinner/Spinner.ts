@@ -82,7 +82,7 @@ export class Spinner extends TranslatableMixin(ThemeableMixin(LitElement), 'spin
     } else {
       icon = html`<paper-spinner-lite data-testid="icon" active></paper-spinner-lite>`;
       text = 'loading_busy';
-      tint = 'text-primary';
+      tint = 'text-tertiary';
     }
 
     if (this.layout === 'horizontal') {
