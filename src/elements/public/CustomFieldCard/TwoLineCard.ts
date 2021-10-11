@@ -40,7 +40,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
 
   private readonly __renderTitle = (content?: TemplateFn<TData>) => {
     return html`
-      <div>
+      <div data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
         <div class="text-secondary">${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;</div>
         ${this.renderTemplateOrSlot('title:after')}
@@ -50,7 +50,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
 
   private readonly __renderSubtitle = (content?: TemplateFn<TData>) => {
     return html`
-      <div>
+      <div data-testid="subtitle">
         ${this.renderTemplateOrSlot('subtitle:before')}
         <div class="font-semibold">${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;</div>
         ${this.renderTemplateOrSlot('subtitle:after')}
