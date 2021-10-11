@@ -271,7 +271,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   }
 
   /** Sends API request. Throws an error on non-2XX response. */
-  protected async _fetch(...args: Parameters<Window['fetch']>): Promise<TData> {
+  protected async _fetch<TResult = TData>(...args: Parameters<Window['fetch']>): Promise<TResult> {
     const response = await new API(this).fetch(...args);
     if (!response.ok) throw response;
     return response.json();
@@ -423,6 +423,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     if (!(event instanceof FetchEvent)) return;
     if (event.defaultPrevented) return;
     if (event.request.method !== 'GET') return;
+    if (event.request.url.startsWith('foxy://')) return;
     if (event.composedPath()[0] === this) return;
 
     event.preventDefault();
