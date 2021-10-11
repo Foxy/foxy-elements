@@ -34,6 +34,7 @@
   "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
   "expires": "Expires",
   "first_name": "First name",
+  "fraud_risk": "Fraud risk: {{ score }}",
   "frequency": "$t({{units}}, { \"count\": {{count}} })",
   "frequency_label": "Frequency",
   "frequency_plural": "$t({{units}}, { \"count\": {{count}} })",

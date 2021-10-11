@@ -27,6 +27,7 @@
   "end_subscription_explainer": "Ihr Abonnement bleibt bis zum gewählten Enddatum aktiv. Wenn Sie sich entscheiden, dieses Abonnement später fortzusetzen, müssen Sie sich möglicherweise erneut anmelden.",
   "expires": "Läuft aus",
   "first_name": "Vorname",
+  "fraud_risk": "Betrugsrisiko: {{ score }}",
   "frequency": "$t({{units}}, { \"count\": {{count}} })",
   "frequency_label": "Häufigkeit",
   "frequency_plural": "$t({{units}}, { \"count\": {{count}} })",

@@ -22,6 +22,7 @@ export { FormDialog } from './FormDialog/FormDialog';
 export { I18n } from './I18n/I18n';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
 export { NucleonElement } from './NucleonElement/NucleonElement';
+export { PaymentCard } from './PaymentCard/PaymentCard';
 export { PaymentMethodCard } from './PaymentMethodCard/PaymentMethodCard';
 export { SignInForm } from './SignInForm/SignInForm';
 export { Spinner } from './Spinner/Spinner';

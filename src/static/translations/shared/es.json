@@ -34,6 +34,7 @@
   "end_subscription_explainer": "Su suscripción permanecerá activa hasta la fecha de finalización seleccionada. Es posible que deba volver a suscribirse si decide reanudar esta suscripción más adelante.",
   "expires": "Caduca",
   "first_name": "Nombre",
+  "fraud_risk": "Riesgo de fraude: {{ score }}",
   "frequency": "$t({{units}}, { \"count\": {{count}} })",
   "frequency_label": "Frecuencia",
   "frequency_plural": "{{count}} $t({{units}}, { \"count\": {{count}} })",
