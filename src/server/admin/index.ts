@@ -21,18 +21,6 @@ import { router } from '../router';
 const endpoint = 'https://demo.foxycart.com/s/admin';
 export { endpoint, router, db, whenDbReady, DemoDatabase };
 
-// store
-
-router.get('/s/admin/stores/:id', async ({ params }) => {
-  await whenDbReady;
-
-  const id = parseInt(params.id);
-  const doc = await db.stores.get(id);
-  const body = composeStore(doc);
-
-  return new Response(JSON.stringify(body));
-});
-
 // subscriptions
 
 router.get('/s/admin/stores/:id/subscriptions', async ({ params, request }) => {
@@ -716,6 +704,18 @@ router.delete('/s/admin/users/:id', async ({ params, request }) => {
   await db.users.delete(parseInt(params.id));
 
   return user;
+});
+
+// store
+
+router.get('/s/admin/stores/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const doc = await db.stores.get(id);
+  const body = composeStore(doc);
+
+  return new Response(JSON.stringify(body));
 });
 
 // special routes
