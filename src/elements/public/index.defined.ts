@@ -15,6 +15,7 @@ export { CustomerPortalSettings } from './CustomerPortalSettings/index';
 export { CustomersTable } from './CustomersTable/index';
 export { CustomFieldCard } from './CustomFieldCard/index';
 export { CustomFieldForm } from './CustomFieldForm/index';
+export { DiscountCard } from './DiscountCard/index';
 export { Donation } from './Donation/index';
 export { ErrorEntryCard } from './ErrorEntryCard/index';
 export { FormDialog } from './FormDialog/index';
