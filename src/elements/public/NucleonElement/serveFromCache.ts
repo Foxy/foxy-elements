@@ -5,10 +5,16 @@ export function serveFromCache(requestUrl: string, data: any): Response {
 
   traverse(data).forEach(function () {
     // looking for a standalone resource in the data first
-    if (this.node?._links?.self?.href === requestUrl) {
-      body = JSON.stringify(this.node);
-      this.stop();
-      return;
+    if (this.node?._links?.self?.href) {
+      const fullHref = this.node?._links?.self?.href;
+      const noZoomURL = new URL(this.node?._links?.self?.href);
+      noZoomURL.searchParams.delete('zoom');
+
+      if (requestUrl === fullHref || requestUrl === noZoomURL.toString()) {
+        body = JSON.stringify(this.node);
+        this.stop();
+        return;
+      }
     }
 
     // alternatively, looking for an embedded collection in the data
