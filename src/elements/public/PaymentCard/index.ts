@@ -1,3 +1,4 @@
+import '../../internal/InternalSandbox/index';
 import '../I18n/index';
 import '../Spinner/index';
 
