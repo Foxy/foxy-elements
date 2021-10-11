@@ -71,6 +71,7 @@
   "next_transaction_date": "Next transaction date",
   "password": "Password",
   "payment_method_plural": "Payment methods",
+  "percent": "{{fraction, percent}}",
   "phone": "Phone",
   "postal_code": "Postal code",
   "preview": "Preview",
