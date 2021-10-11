@@ -1,13 +1,17 @@
 import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
 
+import { composeAppliedTax } from './composers/composeAppliedTax';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomField } from './composers/composeCustomField';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
+import { composeDiscount } from './composers/composeDiscount';
 import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
+import { composePayment } from './composers/composePayment';
+import { composeStore } from './composers/composeStore';
 import { composeSubscription } from './composers/composeSubscription';
 import { composeTransaction } from './composers/composeTransaction';
 import { composeUser } from './composers/composeUser';
@@ -16,6 +20,18 @@ import { router } from '../router';
 
 const endpoint = 'https://demo.foxycart.com/s/admin';
 export { endpoint, router, db, whenDbReady, DemoDatabase };
+
+// store
+
+router.get('/s/admin/stores/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const doc = await db.stores.get(id);
+  const body = composeStore(doc);
+
+  return new Response(JSON.stringify(body));
+});
 
 // subscriptions
 
@@ -395,6 +411,93 @@ router.delete('/s/admin/custom_fields/:id', async ({ params }) => {
   const id = parseInt(params.id);
   const body = composeCustomField(await db.customFields.get(id));
   await db.customFields.delete(id);
+
+  return new Response(JSON.stringify(body));
+});
+
+// applied_taxes
+
+router.get('/s/admin/transactions/:id/applied_taxes', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.appliedTaxes.count(),
+    db.appliedTaxes.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:applied_taxes';
+  const composeItem = composeAppliedTax;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/applied_taxes/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeAppliedTax(await db.appliedTaxes.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+// discounts
+
+router.get('/s/admin/transactions/:id/discounts', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.discounts.count(),
+    db.discounts.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:discounts';
+  const composeItem = composeDiscount;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/discounts/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeDiscount(await db.discounts.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+// payments
+
+router.get('/s/admin/transactions/:id/payments', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.payments.count(),
+    db.payments.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:payments';
+  const composeItem = composePayment;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/payments/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composePayment(await db.payments.get(id));
 
   return new Response(JSON.stringify(body));
 });
