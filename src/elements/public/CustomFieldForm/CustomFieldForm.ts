@@ -2,6 +2,7 @@ import { Data, Templates, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
@@ -110,7 +111,14 @@ export class CustomFieldForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('visibility:before')}
 
-        <vaadin-checkbox ?checked=${!form.is_hidden} ?disabled=${isDisabled}>
+        <vaadin-checkbox
+          ?disabled=${isDisabled}
+          ?checked=${!form.is_hidden}
+          @change=${(evt: CustomEvent) => {
+            const checkbox = evt.currentTarget as CheckboxElement;
+            this.edit({ is_hidden: !checkbox.checked });
+          }}
+        >
           <foxy-i18n lang=${lang} key="show_on_receipt" ns=${ns}></foxy-i18n>
         </vaadin-checkbox>
 
