@@ -108,7 +108,7 @@ export class CustomFieldForm extends Base<Data> {
     const isDisabled = !this.in('idle') || disabledSelector.matches('visibility', true);
 
     return html`
-      <div>
+      <div data-testid="visibility">
         ${this.renderTemplateOrSlot('visibility:before')}
 
         <vaadin-checkbox
