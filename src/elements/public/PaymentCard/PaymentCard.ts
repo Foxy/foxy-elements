@@ -115,7 +115,7 @@ export class PaymentCard extends Base<Data> {
     const ns = `${this.ns} gateways`;
 
     return html`
-      <div class="text-s flex text-secondary">
+      <div class="text-s flex text-secondary" data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
         <foxy-i18n lang=${this.lang} key=${key} ns=${ns}></foxy-i18n>&ZeroWidthSpace;
         ${this.renderTemplateOrSlot('title:after')}
@@ -134,7 +134,7 @@ export class PaymentCard extends Base<Data> {
     const ns = this.ns;
 
     return html`
-      <div class="flex font-semibold text-s">
+      <div class="flex font-semibold text-s" data-testid="subtitle">
         ${this.renderTemplateOrSlot('subtitle:before')}
 
         <foxy-i18n options=${amountOptions} lang=${lang} key="price" ns=${ns}></foxy-i18n>
@@ -156,7 +156,7 @@ export class PaymentCard extends Base<Data> {
     if (!month || !year || !last4Digits) return;
 
     return html`
-      <div class="flex">
+      <div class="flex" data-testid="card-info">
         ${this.renderTemplateOrSlot('card-info:before')}
 
         <div class="truncate flex items-center h-s rounded overflow-hidden bg-contrast-5">
@@ -175,7 +175,7 @@ export class PaymentCard extends Base<Data> {
     const background = score > 0 ? 'bg-error-10' : 'bg-success-10';
 
     return html`
-      <div class="flex">
+      <div class="flex" data-testid="fraud-risk">
         ${this.renderTemplateOrSlot('fraud-risk:before')}
 
         <foxy-i18n
@@ -194,7 +194,7 @@ export class PaymentCard extends Base<Data> {
 
   private __renderProcessorResponse() {
     return html`
-      <div class="text-s text-tertiary">
+      <div class="text-s text-tertiary" data-testid="processor-response">
         ${this.renderTemplateOrSlot('processor-response:before')}
         ${this.data?.processor_response}&ZeroWidthSpace;
         ${this.renderTemplateOrSlot('processor-response:after')}
