@@ -108,7 +108,7 @@ export class I18n extends TranslatableMixin(LitElement, '') {
 
   /** @readonly */
   render(): TemplateResult {
-    return html`${this.t(this.key, { ...this.options, lng: this.lang })}`;
+    return html`<span>${this.t(this.key, { ...this.options, lng: this.lang })}</span>`;
   }
 
   /** @readonly */
