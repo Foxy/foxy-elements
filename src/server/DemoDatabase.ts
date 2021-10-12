@@ -24,11 +24,19 @@ class DemoDatabase extends Dexie {
 
   subscriptions: Dexie.Table<any, number>;
 
+  appliedTaxes: Dexie.Table<any, number>;
+
   transactions: Dexie.Table<any, number>;
 
   errorEntries: Dexie.Table<any, number>;
 
+  customFields: Dexie.Table<any, number>;
+
   customers: Dexie.Table<any, number>;
+
+  discounts: Dexie.Table<any, number>;
+
+  payments: Dexie.Table<any, number>;
 
   stores: Dexie.Table<any, number>;
 
@@ -41,15 +49,19 @@ class DemoDatabase extends Dexie {
   constructor() {
     super('foxy_demo_db');
 
-    this.version(5).stores({
+    this.version(7).stores({
       customer_portal_settings: 'store',
       customer_attributes: '++id,customer',
       customer_addresses: '++id,customer',
       payment_methods: '++id,customer',
       subscriptions: '++id,store,customer',
+      applied_taxes: '++id,transaction',
       transactions: '++id,store,customer,subscription',
       error_entries: '++id',
+      custom_fields: '++id,transaction',
       customers: '++id,store,email',
+      discounts: '++id,transaction',
+      payments: '++id,transaction',
       stores: '++id',
       items: '++id,cart,transaction',
       carts: '++id',
@@ -61,9 +73,13 @@ class DemoDatabase extends Dexie {
     this.customerAddresses = this.table('customer_addresses');
     this.paymentMethods = this.table('payment_methods');
     this.subscriptions = this.table('subscriptions');
+    this.appliedTaxes = this.table('applied_taxes');
     this.transactions = this.table('transactions');
     this.errorEntries = this.table('error_entries');
+    this.customFields = this.table('custom_fields');
     this.customers = this.table('customers');
+    this.discounts = this.table('discounts');
+    this.payments = this.table('payments');
     this.stores = this.table('stores');
     this.items = this.table('items');
     this.carts = this.table('carts');

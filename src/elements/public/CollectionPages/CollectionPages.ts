@@ -8,7 +8,8 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Rumour } from '@foxy.io/sdk/core';
 import { machine } from './machine';
 import { repeat } from 'lit-html/directives/repeat';
-import traverse from 'traverse';
+import { serveFromCache } from '../NucleonElement/serveFromCache';
+import { spread } from '@open-wc/lit-helpers';
 
 /**
  * Renders an element for each page in a collection.
@@ -28,11 +29,15 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
       first: { type: String, noAccessor: true },
       pages: { type: Array, noAccessor: true },
       group: { type: String },
+      props: { type: Object },
       lang: { type: String },
       page: { type: String },
       ns: { type: String },
     };
   }
+
+  /** Spread directive argument from `@open-wc/lit-helpers` (properties, event listeners and attributes you'd like to pass to the page element). */
+  props: Record<string, unknown> = {};
 
   /** Optional ISO 639-1 code describing the language element content is written in. */
   lang = '';
@@ -126,6 +131,7 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
             ?readonly=\${ctx.readonly}
             ?hidden=\${ctx.hidden}
             .templates=\${ctx.templates}
+            ...=\${ctx.spread(ctx.props)}
           >
           </${value}>\``
       ) as PageRenderer<TPage>;
@@ -235,6 +241,8 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
             disabled: this.disabled,
             readonly: this.readonly,
             hidden: this.hidden,
+            spread: spread,
+            props: this.props,
             group: this.group,
             data: this.pages[pageIndex] ?? null,
             href: page.href,
@@ -311,22 +319,16 @@ export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitEl
   }
 
   private __respondIfPossible(event: FetchEvent) {
-    const localName = this.localName;
+    const cacheResponse = serveFromCache(event.request.url, this.pages);
+    if (!cacheResponse.ok) return;
 
-    traverse(this.__service.state.context.pages).forEach(function () {
-      if (this.node?._links?.self?.href === event.request.url) {
-        console.debug(
-          `%c@foxy.io/elements::${localName}\n%c200%c GET ${event.request.url}`,
-          'color: gray',
-          `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
-          ''
-        );
-
-        const body = JSON.stringify(this.node);
-        event.respondWith(Promise.resolve(new Response(body)));
-        this.stop();
-      }
-    });
+    event.respondWith(Promise.resolve(cacheResponse));
+    console.debug(
+      `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${event.request.url}`,
+      'color: gray',
+      `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
+      ''
+    );
   }
 
   private __stallRequest(event: FetchEvent) {

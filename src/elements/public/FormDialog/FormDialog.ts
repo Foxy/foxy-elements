@@ -27,8 +27,12 @@ export class FormDialog extends Dialog {
       form: { type: String, noAccessor: true },
       group: { type: String },
       parent: { type: String },
+      related: { type: Array },
     };
   }
+
+  /** Optional URI list of the related resources (passed to form). */
+  related: string[] = [];
 
   /** Optional URL of the collection this resource belongs to (passed to form). */
   parent = '';
@@ -101,6 +105,7 @@ export class FormDialog extends Dialog {
             ?readonly=\${options.dialog.readonly}
             ?hidden=\${options.dialog.hidden}
             .templates=\${options.dialog.templates}
+            .related=\${options.dialog.related}
             @fetch=\${options.handleFetch}
             @update=\${options.handleUpdate}
           >

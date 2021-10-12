@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 
 const plugin = require('tailwindcss/plugin');
+const postcss = require('postcss');
 
 /**
  * This is a custom TailwindCSS config based on the Vaadin Lumo
@@ -118,40 +119,40 @@ const borderRadiusMap = {
 };
 
 const boxShadowMap = {
-  none: 'none',
-  xxxs: cssVar(
+  'none': 'none',
+  'xxxs': cssVar(
     'box-shadow-xxxs',
     '0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2)'
   ),
-  xxs: cssVar(
+  'xxs': cssVar(
     'box-shadow-xxs',
     '0 3px 4px 0 rgba(0, 0, 0, 0.14), 0 1px 8px 0 rgba(0, 0, 0, 0.12), 0 3px 3px -2px rgba(0, 0, 0, 0.4)'
   ),
-  xs: cssVar(
+  'xs': cssVar(
     'box-shadow-xs',
     '0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.4)'
   ),
-  s: cssVar(
+  's': cssVar(
     'box-shadow-s',
     '0 6px 10px 0 rgba(0, 0, 0, 0.14), 0 1px 18px 0 rgba(0, 0, 0, 0.12), 0 3px 5px -1px rgba(0, 0, 0, 0.4)'
   ),
-  m: cssVar(
+  'm': cssVar(
     'box-shadow-m',
     '0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.4)'
   ),
-  l: cssVar(
+  'l': cssVar(
     'box-shadow-l',
     '0 12px 16px 1px rgba(0, 0, 0, 0.14), 0 4px 22px 3px rgba(0, 0, 0, 0.12), 0 6px 7px -4px rgba(0, 0, 0, 0.4)'
   ),
-  xl: cssVar(
+  'xl': cssVar(
     'box-shadow-xl',
     '0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.4)'
   ),
-  xxl: cssVar(
+  'xxl': cssVar(
     'box-shadow-xxl',
     '0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.4)'
   ),
-  outline: `0 0 0 2px ${cssVar('primary-color-50pct', 'hsla(214, 90%, 52%, 0.5)')};`,
+  'outline': `0 0 0 2px ${cssVar('primary-color-50pct', 'hsla(214, 90%, 52%, 0.5)')};`,
   'outline-success': `0 0 0 2px ${cssVar('success-color-50pct', 'hsla(145, 76%, 44%, 0.55)')};`,
   'outline-error': `0 0 0 2px ${cssVar('error-color-50pct', 'hsla(3, 100%, 60%, 0.1)')};`,
   'outline-base': `0 0 0 2px ${cssVar('base-color', '#fff')};`,
@@ -193,21 +194,21 @@ const lineHeightMap = {
 };
 
 const sizeMap = {
-  0: '0px',
-  auto: 'auto',
-  px: '1px',
-  xxs: cssVar('size-xxs', '1.5rem'),
-  xs: cssVar('size-xs', '1.625rem'),
-  s: cssVar('size-s', '1.875rem'),
-  m: cssVar('size-m', '2.25rem'),
-  l: cssVar('size-l', '2.75rem'),
-  xl: cssVar('size-xl', '3.5rem'),
+  '0': '0px',
+  'auto': 'auto',
+  'px': '1px',
+  'xxs': cssVar('size-xxs', '1.5rem'),
+  'xs': cssVar('size-xs', '1.625rem'),
+  's': cssVar('size-s', '1.875rem'),
+  'm': cssVar('size-m', '2.25rem'),
+  'l': cssVar('size-l', '2.75rem'),
+  'xl': cssVar('size-xl', '3.5rem'),
   '1-3': '33.333333%',
   '1-2': '50%',
   '2-3': '66.666667%',
-  full: '100%',
-  min: 'min-content',
-  max: 'max-content',
+  'full': '100%',
+  'min': 'min-content',
+  'max': 'max-content',
 };
 
 module.exports = {
@@ -223,10 +224,10 @@ module.exports = {
     'md',
     'lg',
     'xl',
-    'group-hover',
+    'media-group-hover',
     'group-focus',
     'focus-within',
-    'hover',
+    'media-hover',
     'focus',
     'disabled',
   ],
@@ -253,6 +254,26 @@ module.exports = {
             return `:host([${breakpoint}]) .${newClassName}`;
           });
         });
+      });
+
+      addVariant('media-hover', ({ container, separator, modifySelectors }) => {
+        modifySelectors(({ className }) => {
+          return `.${e(`hover${separator}${className}`)}:hover`;
+        });
+
+        const atRule = postcss.atRule({ name: 'media', params: '(hover: hover)' });
+        atRule.append(container.nodes);
+        container.append(atRule);
+      });
+
+      addVariant('media-group-hover', ({ container, separator, modifySelectors }) => {
+        modifySelectors(({ className }) => {
+          return `.group:hover .${e(`group-hover${separator}${className}`)}`;
+        });
+
+        const atRule = postcss.atRule({ name: 'media', params: '(hover: hover)' });
+        atRule.append(container.nodes);
+        container.append(atRule);
       });
     }),
   ],

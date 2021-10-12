@@ -3,6 +3,7 @@ import { TemplateResult, html } from 'lit-html';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { HALJSONResource } from '../NucleonElement/types';
 import { Renderer } from '../../../mixins/configurable';
+import { spread } from '@open-wc/lit-helpers';
 
 export type Page = HALJSONResource & { _embedded: Record<string, HALJSONResource[]> };
 export type ExtractItem<T> = T extends { _embedded: Record<string, (infer U)[]> } ? U : never;
@@ -16,6 +17,8 @@ export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource>
   disabled: boolean;
   hidden: boolean;
   parent: string;
+  spread: typeof spread;
+  props: Record<string, unknown>;
   group: string;
   html: typeof html;
   lang: string;

@@ -8,6 +8,13 @@ import { setCustomElements } from '@web/storybook-prebuilt/web-components';
 customElements.tags.forEach(tag => (tag.attributes = []));
 setCustomElements(customElements);
 
+// Set gateway names
+window.customElements.whenDefined('foxy-i18n').then(() => {
+  window.customElements.get('foxy-i18n').setGateways({
+    values: { authorize: { name: 'Authorize.Net' } },
+  });
+});
+
 addEventListener('fetch', async evt => {
   if (evt instanceof FetchEvent && !evt.defaultPrevented) {
     evt.preventDefault();

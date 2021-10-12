@@ -29,7 +29,10 @@ const result = ts
   .createProgram({ rootNames: [DEFINED_ENTRY, MAIN_ENTRY], options: programOptions })
   .emit(undefined, ts.sys.writeFile, undefined, undefined, { before: [injectCSS(cssSnippets)] });
 
-process.exit(result.emitSkipped ? 1 : 0);
+if (result.emitSkipped) {
+  console.error(ts.formatDiagnostics(result.diagnostics, ts.createCompilerHost(programOptions)));
+  process.exit(1);
+}
 
 // #region helpers
 

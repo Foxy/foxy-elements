@@ -29,21 +29,29 @@ Mock Backend API is like [hAPI](https://api.foxycart.com), but with half (third?
 https://demo.foxycart.com/s/admin/customers/0/default_payment_method GET, DELETE
 https://demo.foxycart.com/s/admin/customers/0/attributes GET, POST
 https://demo.foxycart.com/s/admin/customers/0/addresses GET, POST
+https://demo.foxycart.com/s/admin/customers/0 GET, PATCH, DELETE
 
 https://demo.foxycart.com/s/admin/stores/0/subscriptions GET
 https://demo.foxycart.com/s/admin/stores/0/error_entries GET
 https://demo.foxycart.com/s/admin/stores/0/transactions GET
 https://demo.foxycart.com/s/admin/stores/0/customers GET, PATCH, DELETE
 https://demo.foxycart.com/s/admin/stores/0/users GET, POST
+https://demo.foxycart.com/s/admin/stores/0 GET
 
 https://demo.foxycart.com/s/admin/transactions/0 GET
 https://demo.foxycart.com/s/admin/transactions/0/custom_fields GET, POST
+https://demo.foxycart.com/s/admin/transactions/0/applied_taxes GET
+https://demo.foxycart.com/s/admin/transactions/0/discounts GET
+https://demo.foxycart.com/s/admin/transactions/0/payments GET
 
 https://demo.foxycart.com/s/admin/customer_attributes/0 GET, PATCH, DELETE
 https://demo.foxycart.com/s/admin/customer_addresses/0 GET, PATCH, DELETE
 https://demo.foxycart.com/s/admin/subscriptions/0 GET, PATCH
 https://demo.foxycart.com/s/admin/error_entries/0 GET, PATCH
 https://demo.foxycart.com/s/admin/custom_fields/0 GET, PATCH, DELETE
+https://demo.foxycart.com/s/admin/applied_taxes/0 GET
+https://demo.foxycart.com/s/admin/discounts/0 GET
+https://demo.foxycart.com/s/admin/payments/0 GET
 https://demo.foxycart.com/s/admin/items/0 GET
 https://demo.foxycart.com/s/admin/users/0 GET, PATCH, DELETE
 ```
