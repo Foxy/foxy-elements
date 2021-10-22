@@ -154,7 +154,7 @@ export abstract class Dialog extends TranslatableMixin(
         <div
           id="backdrop"
           class=${classMap({
-            'select-none ease-in-out transition duration-500 absolute inset-0 bg-contrast-50 focus-outline-none':
+            'select-none ease-in-out transition duration-500 absolute inset-0 bg-shade-50 focus-outline-none':
               true,
             'opacity-100': this.__visible,
             'opacity-0': !this.__visible,
