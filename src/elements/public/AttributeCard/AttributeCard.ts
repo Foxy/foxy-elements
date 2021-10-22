@@ -63,7 +63,7 @@ export class AttributeCard extends Base<Data> {
 
     return html`
       <div
-        class="relative text-body text-s font-lumo leading-m"
+        class="relative text-body text-m font-lumo leading-m"
         aria-live="polite"
         aria-busy=${this.in('busy')}
       >

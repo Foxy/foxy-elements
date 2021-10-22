@@ -54,7 +54,7 @@ export class PaymentCard extends Base<Data> {
       <div
         aria-busy=${!this.data && this.in('busy')}
         aria-live="polite"
-        class="relative text-body text-s font-lumo leading-m focus-outline-none"
+        class="relative text-body text-m font-lumo leading-m focus-outline-none"
       >
         <div
           class=${classMap({
@@ -115,7 +115,7 @@ export class PaymentCard extends Base<Data> {
     const ns = `${this.ns} gateways`;
 
     return html`
-      <div class="text-s flex text-secondary" data-testid="title">
+      <div class="text-m flex text-secondary" data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
         <foxy-i18n lang=${this.lang} key=${key} ns=${ns}></foxy-i18n>&ZeroWidthSpace;
         ${this.renderTemplateOrSlot('title:after')}
@@ -134,7 +134,7 @@ export class PaymentCard extends Base<Data> {
     const ns = this.ns;
 
     return html`
-      <div class="flex font-semibold text-s" data-testid="subtitle">
+      <div class="flex font-semibold text-m" data-testid="subtitle">
         ${this.renderTemplateOrSlot('subtitle:before')}
 
         <foxy-i18n options=${amountOptions} lang=${lang} key="price" ns=${ns}></foxy-i18n>
@@ -161,7 +161,7 @@ export class PaymentCard extends Base<Data> {
 
         <div class="truncate flex items-center h-s rounded overflow-hidden bg-contrast-5">
           <div class="h-s">${logos[type] ?? logos.unknown}</div>
-          <div class="text-s font-semibold px-s">•••• ${last4Digits} ${month}/${year}</div>
+          <div class="text-m font-semibold px-s">•••• ${last4Digits} ${month}/${year}</div>
         </div>
 
         ${this.renderTemplateOrSlot('card-info:after')}
@@ -180,7 +180,7 @@ export class PaymentCard extends Base<Data> {
 
         <foxy-i18n
           options=${JSON.stringify({ score })}
-          class="truncate flex font-semibold h-s items-center px-s rounded text-s ${color} ${background}"
+          class="truncate flex font-semibold h-s items-center px-s rounded text-m ${color} ${background}"
           lang=${this.lang}
           key="fraud_risk"
           ns=${this.ns}
@@ -194,7 +194,7 @@ export class PaymentCard extends Base<Data> {
 
   private __renderProcessorResponse() {
     return html`
-      <div class="text-s text-tertiary" data-testid="processor-response">
+      <div class="text-m text-tertiary" data-testid="processor-response">
         ${this.renderTemplateOrSlot('processor-response:before')}
         ${this.data?.processor_response}&ZeroWidthSpace;
         ${this.renderTemplateOrSlot('processor-response:after')}

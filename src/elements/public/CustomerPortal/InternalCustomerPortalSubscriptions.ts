@@ -222,7 +222,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
       ${this.renderTemplateOrSlot('header:before')}
 
       <foxy-i18n
-        class="block text-m font-semibold"
+        class="block text-l font-semibold"
         lang=${this.lang}
         key="subscription_plural"
         ns=${this.ns}

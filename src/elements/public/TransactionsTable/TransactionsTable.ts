@@ -8,7 +8,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
     cell: ctx => ctx.html`
       <foxy-i18n
         data-testclass="i18n totals"
-        class="text-s font-semibold font-tnum"
+        class="text-m font-semibold font-tnum"
         lang=${ctx.lang}
         key="price"
         ns=${ctx.ns}
@@ -31,7 +31,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
       return ctx.html`
         <foxy-i18n
           data-testclass="i18n summaries"
-          class="text-s"
+          class="text-m"
           lang=${ctx.lang}
           key="transaction_summary"
           ns=${ctx.ns}
@@ -58,7 +58,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
       return ctx.html`
         <foxy-i18n
           data-testclass="i18n statuses"
-          class="px-s py-xs text-s font-medium rounded ${color}"
+          class="px-s py-xs text-m font-medium rounded ${color}"
           lang=${ctx.lang}
           key=${`transaction_${status}`}
           ns=${ctx.ns}
@@ -72,7 +72,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
     hideBelow: 'md',
     cell: ctx => {
       return ctx.html`
-        <span class="text-s text-secondary font-tnum" data-testclass="ids">
+        <span class="text-m text-secondary font-tnum" data-testclass="ids">
           <span class="text-tertiary">ID</span> ${ctx.data.id}
         </span>
       `;
@@ -85,7 +85,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
       return ctx.html`
         <foxy-i18n
           data-testclass="i18n dates"
-          class="text-s text-secondary font-tnum"
+          class="text-m text-secondary font-tnum"
           lang=${ctx.lang}
           key="date"
           ns=${ctx.ns}
@@ -102,7 +102,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
         <a
           data-testclass="links"
           target="_blank"
-          class="text-s font-semibold text-primary rounded hover-underline focus-outline-none focus-shadow-outline"
+          class="text-m font-semibold text-primary rounded hover-underline focus-outline-none focus-shadow-outline"
           href=${ctx.data._links['fx:receipt'].href}
         >
           <foxy-i18n
