@@ -89,11 +89,26 @@ router.get('/s/admin/stores/:id/subscriptions', async ({ params, request }) => {
 });
 
 // transactions
-router.get('/s/admin/transactions/:id', async ({ params }) => {
+router.get('/s/admin/transactions/:id', async ({ params, request }) => {
   await whenDbReady;
+
   const id = parseInt(params.id);
   const doc = await db.transactions.get(id);
-  const body = composeTransaction(doc);
+  const searchParams = new URL(request.url).searchParams;
+
+  let payments: any[] | undefined = undefined;
+  let items: any[] | undefined = undefined;
+
+  if (searchParams.get('zoom')?.includes('payments')) {
+    payments = await db.payments.where('transaction').equals(id).limit(20).toArray();
+  }
+
+  if (searchParams.get('zoom')?.includes('items')) {
+    items = await db.items.where('transaction').equals(id).limit(20).toArray();
+  }
+
+  const body = composeTransaction(doc, items, payments);
+
   return new Response(JSON.stringify(body));
 });
 
