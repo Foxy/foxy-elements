@@ -9,6 +9,7 @@ export { CollectionPage } from './CollectionPage/CollectionPage';
 export { CollectionPages } from './CollectionPages/CollectionPages';
 export { Customer } from './Customer/Customer';
 export { CustomerApi } from './CustomerApi/CustomerApi';
+export { CustomerCard } from './CustomerCard/CustomerCard';
 export { CustomerForm } from './CustomerForm/CustomerForm';
 export { CustomerPortal } from './CustomerPortal/CustomerPortal';
 export { CustomerPortalSettings } from './CustomerPortalSettings/CustomerPortalSettings';
