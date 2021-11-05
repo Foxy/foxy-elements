@@ -25,6 +25,7 @@ export { ItemsForm, Item } from './ItemsForm/ItemsForm';
 export { NucleonElement } from './NucleonElement/NucleonElement';
 export { PaymentCard } from './PaymentCard/PaymentCard';
 export { PaymentMethodCard } from './PaymentMethodCard/PaymentMethodCard';
+export { QueryBuilder } from './QueryBuilder/QueryBuilder';
 export { SignInForm } from './SignInForm/SignInForm';
 export { Spinner } from './Spinner/Spinner';
 export { SubscriptionCard } from './SubscriptionCard/SubscriptionCard';
