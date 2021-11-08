@@ -107,7 +107,7 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
               </div>
             `;
           } else {
-            divider = spacer;
+            divider = ruleIndex > 0 ? spacer : '';
             ruleTemplate = this.__renderRule({
               value: '',
               options,
