@@ -51,18 +51,18 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
   ): TemplateResult {
     const orDivider = html`
       <div class="flex">
-        <div class="flex items-center flex-1 h-m">
+        <div class="flex items-center flex-1 h-xs">
           <div class="flex-1 border-t border-success-50"></div>
           <div class="leading-none uppercase font-semibold text-xs text-secondary px-s">
             <foxy-i18n lang=${this.lang} key="or" ns=${this.ns}></foxy-i18n>
           </div>
           <div class="flex-1 border-t border-success-50"></div>
         </div>
-        <div class="h-m ml-s flex-shrink-0"></div>
+        <div class="w-m ml-s flex-shrink-0"></div>
       </div>
     `;
 
-    const spacer = html`<div class="h-m"></div>`;
+    const spacer = html`<div class="h-xs"></div>`;
 
     return html`
       ${repeat(

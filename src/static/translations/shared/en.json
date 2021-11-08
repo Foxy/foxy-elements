@@ -46,6 +46,8 @@
   "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
   "full_name": "{{first_name}} {{last_name}}",
   "invalid_credential_error": "Incorrect email or password. Please check your credentials and try again.",
+  "is_defined_false": "Not defined",
+  "is_defined_true": "Defined",
   "item": "Item",
   "item_plural": "Items",
   "last_4_digits": "Last 4 digits",

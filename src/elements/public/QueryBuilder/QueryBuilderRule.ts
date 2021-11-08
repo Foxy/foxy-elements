@@ -12,6 +12,7 @@ import { Operator, Option, ParsedValue, Type } from './types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { renderInput } from './templates/renderInput';
+import { renderSelect } from './templates/renderSelect';
 import { renderToggle } from './templates/renderToggle';
 import { repeat } from 'lit-html/directives/repeat';
 
@@ -119,6 +120,8 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
                 <div class="flex-1">
                   ${operator === Operator.In
                     ? this.__renderInOperatorValueInput(parsedValue)
+                    : operator === Operator.IsDefined
+                    ? this.__renderIsDefinedValueInput(parsedValue)
                     : operator === null && [Type.Number, Type.Date].includes(type)
                     ? this.__renderRangeValueInput(parsedValue)
                     : this.__renderSingleValueInput(parsedValue)}
@@ -214,10 +217,12 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
         const type = this.__option?.type ?? this.__type;
         const operatorsForType = operatorsByType[type];
         const newOperatorIndex = operator ? operatorsForType.indexOf(operator) : -1;
+        const newOperator = operatorsForType[newOperatorIndex + 1] ?? null;
 
         this.value = QueryBuilderRule.stringify({
           ...parsedValue,
-          operator: operatorsForType[newOperatorIndex + 1] ?? null,
+          operator: newOperator,
+          value: newOperator === Operator.IsDefined ? 'true' : parsedValue.value,
         });
 
         this.dispatchEvent(new CustomEvent('change'));
@@ -301,6 +306,21 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
     return renderInput({
       ...this.__getCommonValueInputProps(parsedValue.value),
       label: this.t('value'),
+      onChange: newValue => {
+        this.value = QueryBuilderRule.stringify({ ...parsedValue, value: newValue });
+        this.dispatchEvent(new CustomEvent('change'));
+      },
+    });
+  }
+
+  private __renderIsDefinedValueInput(parsedValue: ParsedValue) {
+    return renderSelect({
+      label: this.t('value'),
+      value: parsedValue.value,
+      options: [
+        { key: this.t('is_defined_true'), value: 'true' },
+        { key: this.t('is_defined_false'), value: 'false' },
+      ],
       onChange: newValue => {
         this.value = QueryBuilderRule.stringify({ ...parsedValue, value: newValue });
         this.dispatchEvent(new CustomEvent('change'));
