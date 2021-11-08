@@ -12,7 +12,7 @@ export function renderToggle(params: ToggleParams): TemplateResult {
   return html`
     <button
       class=${classMap({
-        'block h-s w-s group': true,
+        'block w-m h-m group': true,
         'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
         'text-primary bg-primary-10': !params.disabled,
         'text-tertiary bg-contrast-5 cursor-default': params.disabled,

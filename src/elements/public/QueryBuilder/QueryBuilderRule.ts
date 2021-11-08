@@ -106,14 +106,16 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
               ${type === Type.Attribute
                 ? html`
                     <div class="flex divide-x divide-contrast-10">
-                      <div class="flex-shrink-0"><div class="h-s w-s"></div></div>
+                      <div class="flex-shrink-0"><div class="w-m h-m"></div></div>
                       <div class="flex-1">${this.__renderNameInput(parsedValue)}</div>
                     </div>
                   `
                 : ''}
 
-              <div class="flex divide-x divide-contrast-10">
-                <div class="flex-shrink-0">${this.__renderOperatorToggle(parsedValue)}</div>
+              <div class="flex divide-x divide-contrast-10 items-start">
+                <div class="flex-shrink-0 border-b border-contrast-10" style="margin-bottom: -1px">
+                  ${this.__renderOperatorToggle(parsedValue)}
+                </div>
                 <div class="flex-1">
                   ${operator === Operator.In
                     ? this.__renderInOperatorValueInput(parsedValue)
@@ -260,41 +262,37 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
 
   private __renderRangeValueInput(parsedValue: ParsedValue) {
     return html`
-      <div class="grid grid-cols-2">
-        <div class="border-r border-contrast-10">
-          ${renderInput({
-            ...this.__getCommonValueInputProps(parsedValue.value.split('..')[0]),
-            label: this.t('range_from'),
-            onChange: newValue => {
-              const splitValue = parsedValue.value.split('..');
-              splitValue[0] = newValue;
+      <div class="divide-y divide-contrast-10">
+        ${renderInput({
+          ...this.__getCommonValueInputProps(parsedValue.value.split('..')[0]),
+          label: this.t('range_from'),
+          onChange: newValue => {
+            const splitValue = parsedValue.value.split('..');
+            splitValue[0] = newValue;
 
-              this.value = QueryBuilderRule.stringify({
-                ...parsedValue,
-                value: splitValue.join('..'),
-              });
+            this.value = QueryBuilderRule.stringify({
+              ...parsedValue,
+              value: splitValue.join('..'),
+            });
 
-              this.dispatchEvent(new CustomEvent('change'));
-            },
-          })}
-        </div>
-        <div>
-          ${renderInput({
-            ...this.__getCommonValueInputProps(parsedValue.value.split('..')[1]),
-            label: this.t('range_to'),
-            onChange: newValue => {
-              const splitValue = parsedValue.value.split('..');
-              splitValue[1] = newValue;
+            this.dispatchEvent(new CustomEvent('change'));
+          },
+        })}
+        ${renderInput({
+          ...this.__getCommonValueInputProps(parsedValue.value.split('..')[1]),
+          label: this.t('range_to'),
+          onChange: newValue => {
+            const splitValue = parsedValue.value.split('..');
+            splitValue[1] = newValue;
 
-              this.value = QueryBuilderRule.stringify({
-                ...parsedValue,
-                value: splitValue.join('..'),
-              });
+            this.value = QueryBuilderRule.stringify({
+              ...parsedValue,
+              value: splitValue.join('..'),
+            });
 
-              this.dispatchEvent(new CustomEvent('change'));
-            },
-          })}
-        </div>
+            this.dispatchEvent(new CustomEvent('change'));
+          },
+        })}
       </div>
     `;
   }

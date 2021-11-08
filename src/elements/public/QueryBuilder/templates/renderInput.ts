@@ -34,12 +34,12 @@ export function renderInput(params: InputParams): TemplateResult {
 
   return html`
     <label
-      class="text-s flex items-center cursor-text group text-tertiary hover-text-primary focus-within-text-primary"
+      class="flex items-center cursor-text group text-tertiary hover-text-primary focus-within-text-primary"
     >
       <div class="relative flex-1 min-w-0 overflow-hidden">
         ${hasDisplayValue
           ? html`
-              <div class="absolute inset-0 h-s px-s font-medium text-body flex items-center">
+              <div class="absolute inset-0 h-m px-s font-medium text-body flex items-center">
                 <div class="truncate">${params.displayValue}</div>
               </div>
             `
@@ -49,12 +49,12 @@ export function renderInput(params: InputParams): TemplateResult {
           list=${ifDefined(params.datalist ? listId : undefined)}
           type=${params.type}
           class=${classMap({
-            'bg-base text-body relative appearance-none flex h-s px-s font-medium w-full': true,
+            'bg-base text-body relative appearance-none flex h-m px-s font-medium w-full': true,
             'flex max-w-full whitespace-nowrap': true, // ugh safari
             'focus-outline-none': true,
             'opacity-0 focus-opacity-100': hasDisplayValue,
           })}
-          placeholder=${params.label}
+          placeholder=${params.type === 'date' ? '' : params.label}
           .value=${normalizedValue}
           @input=${(evt: Event) => {
             const input = evt.currentTarget as HTMLInputElement;
@@ -70,10 +70,10 @@ export function renderInput(params: InputParams): TemplateResult {
 
       <span
         class=${classMap({
-          'font-tnum text-xxs font-medium transition-colors border mx-s px-xs rounded-s': true,
+          'font-tnum text-xs font-medium transition-colors border mr-s px-xs rounded-s': true,
           'border-contrast-10': true,
-          'inline-block': !!normalizedValue,
-          'sr-only': !normalizedValue,
+          'inline-block': !!normalizedValue || params.type === 'date',
+          'sr-only': !normalizedValue && params.type !== 'date',
         })}
       >
         ${params.label}

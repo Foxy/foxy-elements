@@ -78,6 +78,8 @@ export const ThemeableMixin = <TBase extends Base>(
           .appearance-none::-webkit-list-button {
             opacity: 0 !important;
             width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
 
           input.appearance-none {

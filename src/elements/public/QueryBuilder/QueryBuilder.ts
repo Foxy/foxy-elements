@@ -51,18 +51,18 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
   ): TemplateResult {
     const orDivider = html`
       <div class="flex">
-        <div class="flex items-center flex-1 h-s">
+        <div class="flex items-center flex-1 h-m">
           <div class="flex-1 border-t border-success-50"></div>
-          <div class="leading-none uppercase font-semibold text-xxs text-secondary px-s">
+          <div class="leading-none uppercase font-semibold text-xs text-secondary px-s">
             <foxy-i18n lang=${this.lang} key="or" ns=${this.ns}></foxy-i18n>
           </div>
           <div class="flex-1 border-t border-success-50"></div>
         </div>
-        <div class="w-s ml-s flex-shrink-0"></div>
+        <div class="h-m ml-s flex-shrink-0"></div>
       </div>
     `;
 
-    const spacer = html`<div class="h-s"></div>`;
+    const spacer = html`<div class="h-m"></div>`;
 
     return html`
       ${repeat(
@@ -161,12 +161,12 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
         ${value
           ? html`
               <div
-                class="-mr-s flex flex-col flex-shrink-0 items-center w-s border-t border-b border-transparent divide-y divide-transparent"
+                class="-mr-s flex flex-col flex-shrink-0 items-center border-t border-b border-transparent divide-y divide-transparent"
               >
                 <button
                   aria-label=${this.t('delete')}
                   class=${classMap({
-                    'box-content flex h-s w-s rounded-full transition-colors': true,
+                    'box-content flex w-m h-m rounded-full transition-colors': true,
                     'text-secondary': true,
                     'hover-bg-error-10 hover-text-error': !isNested,
                     'hover-bg-base hover-text-error': isNested,
@@ -176,14 +176,14 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
                   ?disabled=${!value}
                   @click=${onDelete}
                 >
-                  <iron-icon icon="icons:remove-circle-outline" class="m-auto icon-inline text-l">
+                  <iron-icon icon="icons:remove-circle-outline" class="m-auto icon-inline text-xl">
                   </iron-icon>
                 </button>
 
                 <button
                   aria-label=${this.t('add_or_clause')}
                   class=${classMap({
-                    'box-content flex h-s w-s rounded-full transition-colors': true,
+                    'box-content flex w-m h-m rounded-full transition-colors': true,
                     'text-success': true,
                     'hover-bg-success-10 focus-outline-none focus-ring-2 ring-success-50': true,
                     'hidden': !value || isNested,
@@ -191,7 +191,7 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
                   ?disabled=${!value}
                   @click=${onConvert}
                 >
-                  <iron-icon icon="icons:add-circle-outline" class="m-auto icon-inline text-l">
+                  <iron-icon icon="icons:add-circle-outline" class="m-auto icon-inline text-xl">
                   </iron-icon>
                 </button>
               </div>
