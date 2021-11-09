@@ -104,7 +104,7 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
 
         ${parsedValue.path
           ? html`
-              ${type === Type.Attribute
+              ${type === Type.Attribute || parsedValue.name
                 ? html`
                     <div class="flex divide-x divide-contrast-10">
                       <div class="flex-shrink-0"><div class="w-m h-m"></div></div>
@@ -122,6 +122,8 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
                     ? this.__renderInOperatorValueInput(parsedValue)
                     : operator === Operator.IsDefined
                     ? this.__renderIsDefinedValueInput(parsedValue)
+                    : type === Type.Boolean
+                    ? this.__renderBooleanValueInput(parsedValue)
                     : operator === null && [Type.Number, Type.Date].includes(type)
                     ? this.__renderRangeValueInput(parsedValue)
                     : this.__renderSingleValueInput(parsedValue)}
@@ -135,20 +137,17 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
 
   private __renderTypeToggle(type: Type) {
     const typeToIcon = {
-      [Type.Attribute]: icons.attribute,
-      [Type.Date]: icons.date,
-      [Type.Number]: icons.number,
-      [Type.String]: icons.string,
+      [Type.Attribute]: icons.typeAttribute,
+      [Type.Boolean]: icons.typeBoolean,
+      [Type.Date]: icons.typeDate,
+      [Type.Number]: icons.typeNumber,
+      [Type.String]: icons.typeString,
+      [Type.Any]: icons.typeAny,
     };
 
-    return renderToggle({
-      disabled: !!this.__option,
-      caption: typeToIcon[type],
-      onClick: () => {
-        const types = Object.values(Type);
-        this.__type = types[types.indexOf(type) + 1] ?? types[0];
-      },
-    });
+    return html`
+      <div class="w-m h-m text-tertiary">${this.__option ? typeToIcon[type] : icons.typeAny}</div>
+    `;
   }
 
   private __renderPathInput(path: string) {
@@ -157,7 +156,7 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
       type: 'text',
       label: this.t('field'),
       value: path,
-      datalist: this.options?.map(o => ({ value: o.path, key: this.t(o.key) })),
+      list: this.options?.map(o => ({ value: o.path, key: this.t(o.key) })),
       displayValue: this.__option?.key ? this.t(this.__option.key) : undefined,
       onChange: newPath => {
         this.value = QueryBuilderRule.stringify({
@@ -187,35 +186,49 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
   private __renderOperatorToggle(parsedValue: ParsedValue) {
     const operator = parsedValue.operator;
     const operatorToIcon: Record<string, SVGTemplateResult> = {
-      [Operator.GreaterThan]: icons.greaterThanOperator,
-      [Operator.GreaterThanOrEqual]: icons.greaterThanOrEqualOperator,
-      [Operator.In]: icons.inOperator,
-      [Operator.IsDefined]: icons.booleanOperator,
-      [Operator.LessThan]: icons.lessThanOperator,
-      [Operator.LessThanOrEqual]: icons.lessThanOrEqualOperator,
-      [Operator.Not]: icons.notOperator,
+      [Operator.GreaterThan]: icons.operatorGreaterThan,
+      [Operator.GreaterThanOrEqual]: icons.operatorGreaterThanOrEqual,
+      [Operator.In]: icons.operatorIn,
+      [Operator.IsDefined]: icons.operatorIsDefined,
+      [Operator.LessThan]: icons.operatorLessThan,
+      [Operator.LessThanOrEqual]: icons.operatorLessThanOrEqual,
+      [Operator.Not]: icons.operatorNot,
     };
 
-    return renderToggle({
-      disabled: false,
-      caption: operator ? operatorToIcon[operator] : icons.equalOperator,
-      onClick: () => {
-        const operatorsByType = {
-          [Type.Attribute]: [Operator.In, Operator.IsDefined, Operator.Not],
-          [Type.String]: [Operator.In, Operator.Not],
-          [Type.Date]: [Operator.In, Operator.Not],
-          [Type.Number]: [
-            Operator.GreaterThan,
-            Operator.GreaterThanOrEqual,
-            Operator.In,
-            Operator.LessThan,
-            Operator.LessThanOrEqual,
-            Operator.Not,
-          ],
-        };
+    const operatorsByType = {
+      [Type.Attribute]: [Operator.In, Operator.IsDefined, Operator.Not],
+      [Type.Boolean]: [],
+      [Type.String]: [Operator.In, Operator.Not],
+      [Type.Date]: [Operator.In, Operator.Not],
+      [Type.Number]: [
+        Operator.GreaterThan,
+        Operator.GreaterThanOrEqual,
+        Operator.In,
+        Operator.LessThan,
+        Operator.LessThanOrEqual,
+        Operator.Not,
+      ],
+      [Type.Any]: [
+        Operator.IsDefined,
+        Operator.GreaterThan,
+        Operator.GreaterThanOrEqual,
+        Operator.In,
+        Operator.LessThan,
+        Operator.LessThanOrEqual,
+        Operator.Not,
+      ],
+    };
 
-        const type = this.__option?.type ?? this.__type;
-        const operatorsForType = operatorsByType[type];
+    const operatorsForType = this.__option
+      ? operatorsByType[this.__option.type]
+      : parsedValue.name
+      ? Object.values(Operator)
+      : Object.values(Operator).filter(v => v !== Operator.IsDefined);
+
+    return renderToggle({
+      disabled: operatorsForType.length === 0,
+      caption: operator ? operatorToIcon[operator] : icons.operatorEqual,
+      onClick: () => {
         const newOperatorIndex = operator ? operatorsForType.indexOf(operator) : -1;
         const newOperator = operatorsForType[newOperatorIndex + 1] ?? null;
 
@@ -231,6 +244,8 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
   }
 
   private __renderInOperatorValueInput(parsedValue: ParsedValue) {
+    const renderer = this.__option?.list ? renderSelect : renderInput;
+
     return html`
       <div class="divide-y divide-contrast-10">
         ${repeat(
@@ -238,9 +253,10 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
           (_, i) => i,
           (v, i) => html`
             <div>
-              ${renderInput({
+              ${renderer({
                 ...this.__getCommonValueInputProps(v ?? ''),
                 label: v ? String(i + 1) : this.t('add_value'),
+                clearable: true,
                 onChange: newValue => {
                   const splitValue = parsedValue.value.split(',');
 
@@ -266,9 +282,11 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
   }
 
   private __renderRangeValueInput(parsedValue: ParsedValue) {
+    const renderer = this.__option?.list ? renderSelect : renderInput;
+
     return html`
       <div class="divide-y divide-contrast-10">
-        ${renderInput({
+        ${renderer({
           ...this.__getCommonValueInputProps(parsedValue.value.split('..')[0]),
           label: this.t('range_from'),
           onChange: newValue => {
@@ -283,7 +301,7 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
             this.dispatchEvent(new CustomEvent('change'));
           },
         })}
-        ${renderInput({
+        ${renderer({
           ...this.__getCommonValueInputProps(parsedValue.value.split('..')[1]),
           label: this.t('range_to'),
           onChange: newValue => {
@@ -303,9 +321,29 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
   }
 
   private __renderSingleValueInput(parsedValue: ParsedValue) {
-    return renderInput({
+    const renderer = this.__option?.list ? renderSelect : renderInput;
+
+    return renderer({
       ...this.__getCommonValueInputProps(parsedValue.value),
       label: this.t('value'),
+      onChange: newValue => {
+        this.value = QueryBuilderRule.stringify({ ...parsedValue, value: newValue });
+        this.dispatchEvent(new CustomEvent('change'));
+      },
+    });
+  }
+
+  private __renderBooleanValueInput(parsedValue: ParsedValue) {
+    const trueKey = this.__option?.list?.find(v => v.value === 'true')?.key ?? 'true';
+    const falseKey = this.__option?.list?.find(v => v.value === 'false')?.key ?? 'false';
+
+    return renderSelect({
+      label: this.t('value'),
+      value: parsedValue.value,
+      list: [
+        { key: this.t(trueKey), value: 'true' },
+        { key: this.t(falseKey), value: 'false' },
+      ],
       onChange: newValue => {
         this.value = QueryBuilderRule.stringify({ ...parsedValue, value: newValue });
         this.dispatchEvent(new CustomEvent('change'));
@@ -317,7 +355,7 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
     return renderSelect({
       label: this.t('value'),
       value: parsedValue.value,
-      options: [
+      list: [
         { key: this.t('is_defined_true'), value: 'true' },
         { key: this.t('is_defined_false'), value: 'false' },
       ],
@@ -333,9 +371,9 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
     const type = optionType === Type.Number ? 'number' : optionType === Type.Date ? 'date' : 'text';
     const listOption = this.__option?.list?.find(v => v.value === inputValue);
     const displayValue = listOption ? this.t(listOption.key) : undefined;
-    const datalist = this.__option?.list?.map(v => ({ key: this.t(v.key), value: v.value }));
+    const list = this.__option?.list?.map(v => ({ key: this.t(v.key), value: v.value }));
 
-    return { type, datalist, displayValue, value: inputValue };
+    return { type, list, displayValue, value: inputValue };
   }
 }
 

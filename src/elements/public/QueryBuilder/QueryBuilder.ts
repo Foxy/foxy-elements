@@ -52,11 +52,11 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
     const orDivider = html`
       <div class="flex">
         <div class="flex items-center flex-1 h-xs">
-          <div class="flex-1 border-t border-success-50"></div>
+          <div class="flex-1 border-t border-contrast-50"></div>
           <div class="leading-none uppercase font-semibold text-xs text-secondary px-s">
             <foxy-i18n lang=${this.lang} key="or" ns=${this.ns}></foxy-i18n>
           </div>
-          <div class="flex-1 border-t border-success-50"></div>
+          <div class="flex-1 border-t border-contrast-50"></div>
         </div>
         <div class="w-m ml-s flex-shrink-0"></div>
       </div>
@@ -100,7 +100,7 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
             });
           } else if (Array.isArray(rule)) {
             ruleTemplate = html`
-              <div class="bg-success-10 rounded-t-l rounded-b-l p-s -m-s">
+              <div class="bg-contrast-10 rounded-t-l rounded-b-l p-s -m-s">
                 ${this.__renderGroup(rule, options, true, newValue => {
                   onChange(value.map((v, i) => (i === ruleIndex ? (newValue as string[]) : v)));
                 })}
@@ -147,7 +147,7 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
           class=${classMap({
             'flex-1 bg-base rounded overflow-hidden border': true,
             'border-contrast-10': !isNested,
-            'border-success-50': isNested,
+            'border-contrast-50': isNested,
           })}
           lang=${this.lang}
           ns=${this.ns}
@@ -167,10 +167,8 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
                   aria-label=${this.t('delete')}
                   class=${classMap({
                     'box-content flex w-m h-m rounded-full transition-colors': true,
-                    'text-secondary': true,
-                    'hover-bg-error-10 hover-text-error': !isNested,
-                    'hover-bg-base hover-text-error': isNested,
-                    'focus-outline-none focus-ring-2 ring-error-50': true,
+                    'text-secondary hover-bg-contrast-5 hover-text-error': true,
+                    'focus-outline-none focus-ring-2 ring-primary-50': true,
                     'hidden': !value,
                   })}
                   ?disabled=${!value}
@@ -185,7 +183,7 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
                   class=${classMap({
                     'box-content flex w-m h-m rounded-full transition-colors': true,
                     'text-success': true,
-                    'hover-bg-success-10 focus-outline-none focus-ring-2 ring-success-50': true,
+                    'hover-bg-contrast-5 focus-outline-none focus-ring-2 ring-primary-50': true,
                     'hidden': !value || isNested,
                   })}
                   ?disabled=${!value}

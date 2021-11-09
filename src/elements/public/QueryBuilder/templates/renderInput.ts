@@ -9,7 +9,7 @@ export type InputParams = {
   label: string;
   value: string;
   displayValue?: string;
-  datalist?: { key: string; value: string }[];
+  list?: { key: string; value: string }[];
   onChange: (newValue: string) => void;
 };
 
@@ -34,7 +34,7 @@ export function renderInput(params: InputParams): TemplateResult {
 
   return html`
     <label
-      class="flex items-center cursor-text group text-tertiary hover-text-primary focus-within-text-primary"
+      class="flex items-center cursor-text group text-transparent hover-text-tertiary focus-within-text-tertiary"
     >
       <div class="relative flex-1 min-w-0 overflow-hidden">
         ${hasDisplayValue
@@ -46,7 +46,7 @@ export function renderInput(params: InputParams): TemplateResult {
           : ''}
 
         <input
-          list=${ifDefined(params.datalist ? listId : undefined)}
+          list=${ifDefined(params.list ? listId : undefined)}
           type=${params.type}
           class=${classMap({
             'bg-base text-body relative appearance-none flex h-m px-s font-medium w-full': true,
@@ -70,8 +70,7 @@ export function renderInput(params: InputParams): TemplateResult {
 
       <span
         class=${classMap({
-          'font-tnum text-xs font-medium transition-colors border mr-s px-xs rounded-s': true,
-          'border-contrast-10': true,
+          'font-tnum text-xs font-medium border border-current mr-s px-xs rounded-s': true,
           'inline-block': !!normalizedValue || params.type === 'date',
           'sr-only': !normalizedValue && params.type !== 'date',
         })}
@@ -79,12 +78,10 @@ export function renderInput(params: InputParams): TemplateResult {
         ${params.label}
       </span>
 
-      ${params.datalist
+      ${params.list
         ? html`
             <datalist id=${listId}>
-              ${params.datalist.map(
-                ({ key, value }) => html`<option value=${value}>${key}</option>`
-              )}
+              ${params.list.map(({ key, value }) => html`<option value=${value}>${key}</option>`)}
             </datalist>
           `
         : ''}

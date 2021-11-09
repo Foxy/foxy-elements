@@ -15,6 +15,16 @@ export default getMeta(summary);
 
 const options = JSON.stringify([
   { type: Type.Attribute, path: 'attributes', key: '' },
+  { type: Type.Number, path: 'total_order', key: '' },
+  {
+    type: Type.Boolean,
+    path: 'data_is_fed',
+    key: '',
+    list: [
+      { key: 'webhooks_fed', value: 'true' },
+      { key: 'webhooks_not_fed', value: 'false' },
+    ],
+  },
   { type: Type.Date, path: 'transaction_date', key: 'transaction_date' },
   {
     type: Type.String,
@@ -31,7 +41,7 @@ const options = JSON.stringify([
 export const Playground = (): TemplateResult => html`
   <foxy-query-builder
     options=${options}
-    value="total_order%3Agreaterthanorequal=15&transaction_date=2019-01-01T00%3A00%3A00..2019-01-02T00%3A00%3A00&custom_fields%5Bcolor%5D=red%7Cstatus%253Ain%3Dauthorized%252Cdeclined&total_order%3Anot=20"
+    value="total_order%3Agreaterthanorequal=15&transaction_date=2019-01-01T00%3A00%3A00..2019-01-02T00%3A00%3A00&custom_fields%5Bcolor%5D=red%7Cstatus%253Ain%3Dauthorized%252Capproved&data_is_fed=false"
   >
   </foxy-query-builder>
 `;

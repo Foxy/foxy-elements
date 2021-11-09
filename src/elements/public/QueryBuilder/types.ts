@@ -1,8 +1,10 @@
 export enum Type {
   Attribute = 'attribute',
+  Boolean = 'boolean',
   String = 'string',
   Number = 'number',
   Date = 'date',
+  Any = 'any',
 }
 
 export enum Operator {
