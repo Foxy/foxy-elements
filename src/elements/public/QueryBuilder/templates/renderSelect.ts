@@ -15,7 +15,7 @@ export function renderSelect(params: SelectParams): TemplateResult {
 
   return html`
     <label
-      class="flex items-center cursor-pointer transition-colors group text-transparent hover-text-tertiary hover-bg-contrast-5 focus-within-text-tertiary"
+      class="flex items-center cursor-pointer transition-colors group text-tertiary hover-bg-contrast-5 focus-within-text-tertiary"
     >
       <div class="relative flex-1 min-w-0 overflow-hidden">
         <select

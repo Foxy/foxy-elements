@@ -8,6 +8,7 @@ export type InputParams = {
   type: string;
   label: string;
   value: string;
+  disabled?: boolean;
   displayValue?: string;
   list?: { key: string; value: string }[];
   onChange: (newValue: string) => void;
@@ -34,7 +35,7 @@ export function renderInput(params: InputParams): TemplateResult {
 
   return html`
     <label
-      class="flex items-center cursor-text group text-transparent hover-text-tertiary focus-within-text-tertiary"
+      class="relative flex items-center cursor-text group text-tertiary focus-within-text-tertiary"
     >
       <div class="relative flex-1 min-w-0 overflow-hidden">
         ${hasDisplayValue
@@ -56,6 +57,7 @@ export function renderInput(params: InputParams): TemplateResult {
           })}
           placeholder=${params.type === 'date' ? '' : params.label}
           .value=${normalizedValue}
+          ?disabled=${params.disabled}
           @input=${(evt: Event) => {
             const input = evt.currentTarget as HTMLInputElement;
 
@@ -85,6 +87,13 @@ export function renderInput(params: InputParams): TemplateResult {
             </datalist>
           `
         : ''}
+      ${params.disabled
+        ? ''
+        : html`
+            <div
+              class="absolute inset-0 transition-colors bg-transparent group-hover-bg-contrast-5 pointer-events-none"
+            ></div>
+          `}
     </label>
   `;
 }

@@ -1,14 +1,17 @@
 import * as icons from './icons/index';
 
 import {
+  CSSResultArray,
   LitElement,
   PropertyDeclarations,
   SVGTemplateResult,
   TemplateResult,
+  css,
   html,
 } from 'lit-element';
 import { Operator, Option, ParsedValue, Type } from './types';
 
+import { ResponsiveMixin } from '../../../mixins/responsive';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { renderInput } from './templates/renderInput';
@@ -16,7 +19,9 @@ import { renderSelect } from './templates/renderSelect';
 import { renderToggle } from './templates/renderToggle';
 import { repeat } from 'lit-html/directives/repeat';
 
-class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'query-builder-rule')) {
+class QueryBuilderRule extends ResponsiveMixin(
+  ThemeableMixin(TranslatableMixin(LitElement, 'query-builder-rule'))
+) {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -25,6 +30,25 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
       options: { type: Array, noAccessor: true },
       value: { type: String, noAccessor: true },
     };
+  }
+
+  static get styles(): CSSResultArray {
+    return [
+      super.styles,
+      css`
+        .gap-1px {
+          gap: 1px;
+        }
+
+        .grid-vertical {
+          grid-template: auto / var(--lumo-size-m) 1fr;
+        }
+
+        :host([sm]) .sm-grid-horizontal {
+          grid-template: auto / var(--lumo-size-m) 1fr var(--lumo-size-m) 1fr;
+        }
+      `,
+    ];
   }
 
   static parse(search: string): ParsedValue {
@@ -96,41 +120,34 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
     const operator = parsedValue.operator;
 
     return html`
-      <div class="overflow-hidden divide-y divide-contrast-10">
-        <div class="flex divide-x divide-contrast-10">
-          <div class="flex-shrink-0">${this.__renderTypeToggle(type)}</div>
-          <div class="flex-1">${this.__renderPathInput(parsedValue.path)}</div>
+      <div class="bg-contrast-10">
+        <div class="grid gap-1px grid-vertical sm-grid-horizontal">
+          <div class="bg-base">${this.__renderTypeToggle(type)}</div>
+          <div class="bg-base">
+            ${parsedValue.path && (type === Type.Attribute || parsedValue.name)
+              ? html`
+                  <div class="bg-contrast-10 grid gap-1px grid-cols-1 sm-grid-cols-2">
+                    <div class="bg-base">${this.__renderPathInput(parsedValue.path)}</div>
+                    <div class="bg-base">${this.__renderNameInput(parsedValue)}</div>
+                  </div>
+                `
+              : this.__renderPathInput(parsedValue.path)}
+          </div>
+
+          <div class="bg-base">${this.__renderOperatorToggle(parsedValue)}</div>
+
+          <div class="bg-base">
+            ${operator === Operator.In
+              ? this.__renderInOperatorValueInput(parsedValue)
+              : operator === Operator.IsDefined
+              ? this.__renderIsDefinedValueInput(parsedValue)
+              : type === Type.Boolean
+              ? this.__renderBooleanValueInput(parsedValue)
+              : operator === null && [Type.Number, Type.Date].includes(type)
+              ? this.__renderRangeValueInput(parsedValue)
+              : this.__renderSingleValueInput(parsedValue)}
+          </div>
         </div>
-
-        ${parsedValue.path
-          ? html`
-              ${type === Type.Attribute || parsedValue.name
-                ? html`
-                    <div class="flex divide-x divide-contrast-10">
-                      <div class="flex-shrink-0"><div class="w-m h-m"></div></div>
-                      <div class="flex-1">${this.__renderNameInput(parsedValue)}</div>
-                    </div>
-                  `
-                : ''}
-
-              <div class="flex divide-x divide-contrast-10 items-start">
-                <div class="flex-shrink-0 border-b border-contrast-10" style="margin-bottom: -1px">
-                  ${this.__renderOperatorToggle(parsedValue)}
-                </div>
-                <div class="flex-1">
-                  ${operator === Operator.In
-                    ? this.__renderInOperatorValueInput(parsedValue)
-                    : operator === Operator.IsDefined
-                    ? this.__renderIsDefinedValueInput(parsedValue)
-                    : type === Type.Boolean
-                    ? this.__renderBooleanValueInput(parsedValue)
-                    : operator === null && [Type.Number, Type.Date].includes(type)
-                    ? this.__renderRangeValueInput(parsedValue)
-                    : this.__renderSingleValueInput(parsedValue)}
-                </div>
-              </div>
-            `
-          : ''}
       </div>
     `;
   }
@@ -226,7 +243,7 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
       : Object.values(Operator).filter(v => v !== Operator.IsDefined);
 
     return renderToggle({
-      disabled: operatorsForType.length === 0,
+      disabled: operatorsForType.length === 0 || !parsedValue.path,
       caption: operator ? operatorToIcon[operator] : icons.operatorEqual,
       onClick: () => {
         const newOperatorIndex = operator ? operatorsForType.indexOf(operator) : -1;
@@ -247,12 +264,12 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
     const renderer = this.__option?.list ? renderSelect : renderInput;
 
     return html`
-      <div class="divide-y divide-contrast-10">
+      <div class="bg-contrast-10 grid grid-cols-1 gap-1px">
         ${repeat(
           [...parsedValue.value.split(',').filter(v => !!v), null],
           (_, i) => i,
           (v, i) => html`
-            <div>
+            <div class="bg-base">
               ${renderer({
                 ...this.__getCommonValueInputProps(v ?? ''),
                 label: v ? String(i + 1) : this.t('add_value'),
@@ -285,37 +302,44 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
     const renderer = this.__option?.list ? renderSelect : renderInput;
 
     return html`
-      <div class="divide-y divide-contrast-10">
-        ${renderer({
-          ...this.__getCommonValueInputProps(parsedValue.value.split('..')[0]),
-          label: this.t('range_from'),
-          onChange: newValue => {
-            const splitValue = parsedValue.value.split('..');
-            splitValue[0] = newValue;
+      <div
+        class="grid bg-contrast-10 gap-1px grid-cols-1 grid-rows-2 sm-grid-cols-2 sm-grid-rows-1"
+      >
+        <div class="bg-base">
+          ${renderer({
+            ...this.__getCommonValueInputProps(parsedValue.value.split('..')[0]),
+            label: this.t('range_from'),
+            onChange: newValue => {
+              const splitValue = parsedValue.value.split('..');
+              splitValue[0] = newValue;
 
-            this.value = QueryBuilderRule.stringify({
-              ...parsedValue,
-              value: splitValue.join('..'),
-            });
+              this.value = QueryBuilderRule.stringify({
+                ...parsedValue,
+                value: splitValue.join('..'),
+              });
 
-            this.dispatchEvent(new CustomEvent('change'));
-          },
-        })}
-        ${renderer({
-          ...this.__getCommonValueInputProps(parsedValue.value.split('..')[1]),
-          label: this.t('range_to'),
-          onChange: newValue => {
-            const splitValue = parsedValue.value.split('..');
-            splitValue[1] = newValue;
+              this.dispatchEvent(new CustomEvent('change'));
+            },
+          })}
+        </div>
 
-            this.value = QueryBuilderRule.stringify({
-              ...parsedValue,
-              value: splitValue.join('..'),
-            });
+        <div class="bg-base">
+          ${renderer({
+            ...this.__getCommonValueInputProps(parsedValue.value.split('..')[1]),
+            label: this.t('range_to'),
+            onChange: newValue => {
+              const splitValue = parsedValue.value.split('..');
+              splitValue[1] = newValue;
 
-            this.dispatchEvent(new CustomEvent('change'));
-          },
-        })}
+              this.value = QueryBuilderRule.stringify({
+                ...parsedValue,
+                value: splitValue.join('..'),
+              });
+
+              this.dispatchEvent(new CustomEvent('change'));
+            },
+          })}
+        </div>
       </div>
     `;
   }
@@ -324,7 +348,8 @@ class QueryBuilderRule extends ThemeableMixin(TranslatableMixin(LitElement, 'que
     const renderer = this.__option?.list ? renderSelect : renderInput;
 
     return renderer({
-      ...this.__getCommonValueInputProps(parsedValue.value),
+      ...this.__getCommonValueInputProps(parsedValue.value ?? ''),
+      disabled: !parsedValue.path,
       label: this.t('value'),
       onChange: newValue => {
         this.value = QueryBuilderRule.stringify({ ...parsedValue, value: newValue });

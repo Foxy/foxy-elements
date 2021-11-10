@@ -2,12 +2,15 @@ import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-elem
 
 import { Option } from './types';
 import { QueryBuilderRule } from './QueryBuilderRule';
+import { ResponsiveMixin } from '../../../mixins/responsive';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { repeat } from 'lit-html/directives/repeat';
 
-class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-builder')) {
+class QueryBuilder extends ResponsiveMixin(
+  ThemeableMixin(TranslatableMixin(LitElement, 'query-builder'))
+) {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -51,14 +54,20 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
   ): TemplateResult {
     const orDivider = html`
       <div class="flex">
-        <div class="flex items-center flex-1 h-xs">
-          <div class="flex-1 border-t border-contrast-50"></div>
-          <div class="leading-none uppercase font-semibold text-xs text-secondary px-s">
-            <foxy-i18n lang=${this.lang} key="or" ns=${this.ns}></foxy-i18n>
-          </div>
-          <div class="flex-1 border-t border-contrast-50"></div>
+        <div class="flex items-center flex-1 h-s">
+          <foxy-i18n
+            class="block w-m text-center leading-none uppercase font-semibold text-xs text-contrast-30"
+            lang=${this.lang}
+            key="or"
+            ns=${this.ns}
+          >
+          </foxy-i18n>
+
+          <div class="flex-1 border-t border-contrast-20"></div>
         </div>
+
         <div class="w-m ml-s flex-shrink-0"></div>
+        <div class="hidden sm-block w-m flex-shrink-0"></div>
       </div>
     `;
 
@@ -69,7 +78,7 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
         [...value, null],
         (_, i) => String(i),
         (rule, ruleIndex) => {
-          let divider = ruleIndex > 0 ? (isNested ? orDivider : spacer) : '';
+          const divider = ruleIndex > 0 ? (isNested ? orDivider : spacer) : '';
           let ruleTemplate: TemplateResult;
 
           if (typeof rule === 'string') {
@@ -107,7 +116,6 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
               </div>
             `;
           } else {
-            divider = ruleIndex > 0 ? spacer : '';
             ruleTemplate = this.__renderRule({
               value: '',
               options,
@@ -140,7 +148,7 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
     onConvert?: () => void;
   }) {
     return html`
-      <div class="flex space-x-s">
+      <div class="flex items-center space-x-s">
         <foxy-query-builder-rule
           options=${options}
           value=${value}
@@ -158,43 +166,44 @@ class QueryBuilder extends ThemeableMixin(TranslatableMixin(LitElement, 'query-b
         >
         </foxy-query-builder-rule>
 
-        ${value
-          ? html`
-              <div
-                class="-mr-s flex flex-col flex-shrink-0 items-center border-t border-b border-transparent divide-y divide-transparent"
-              >
-                <button
-                  aria-label=${this.t('delete')}
-                  class=${classMap({
-                    'box-content flex w-m h-m rounded-full transition-colors': true,
-                    'text-secondary hover-bg-contrast-5 hover-text-error': true,
-                    'focus-outline-none focus-ring-2 ring-primary-50': true,
-                    'hidden': !value,
-                  })}
-                  ?disabled=${!value}
-                  @click=${onDelete}
-                >
-                  <iron-icon icon="icons:remove-circle-outline" class="m-auto icon-inline text-xl">
-                  </iron-icon>
-                </button>
+        <div
+          class=${classMap({
+            '-mr-s self-start flex-col sm-flex-row flex-shrink-0 items-center': true,
+            'border-t border-b border-transparent divide-y divide-transparent': true,
+            'hidden': !this.value,
+            'flex': !!this.value,
+          })}
+        >
+          <button
+            aria-label=${this.t('delete')}
+            class=${classMap({
+              'box-content flex w-m h-m rounded-full transition-colors': true,
+              'text-secondary hover-bg-contrast-5 hover-text-error': true,
+              'focus-outline-none focus-ring-2 ring-primary-50': true,
+              'opacity-0': !value,
+            })}
+            ?disabled=${!value}
+            @click=${onDelete}
+          >
+            <iron-icon icon="icons:remove-circle-outline" class="m-auto icon-inline text-xl">
+            </iron-icon>
+          </button>
 
-                <button
-                  aria-label=${this.t('add_or_clause')}
-                  class=${classMap({
-                    'box-content flex w-m h-m rounded-full transition-colors': true,
-                    'text-success': true,
-                    'hover-bg-contrast-5 focus-outline-none focus-ring-2 ring-primary-50': true,
-                    'hidden': !value || isNested,
-                  })}
-                  ?disabled=${!value}
-                  @click=${onConvert}
-                >
-                  <iron-icon icon="icons:add-circle-outline" class="m-auto icon-inline text-xl">
-                  </iron-icon>
-                </button>
-              </div>
-            `
-          : ''}
+          <button
+            aria-label=${this.t('add_or_clause')}
+            class=${classMap({
+              'box-content flex w-m h-m rounded-full transition-colors': true,
+              'text-success': true,
+              'hover-bg-contrast-5 focus-outline-none focus-ring-2 ring-primary-50': true,
+              'opacity-0': !value || isNested,
+            })}
+            ?disabled=${!value}
+            @click=${onConvert}
+          >
+            <iron-icon icon="icons:add-circle-outline" class="m-auto icon-inline text-xl">
+            </iron-icon>
+          </button>
+        </div>
       </div>
     `;
   }

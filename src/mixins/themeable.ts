@@ -72,6 +72,12 @@ export const ThemeableMixin = <TBase extends Base>(
             margin: 0.1875em var(--lumo-space-m);
           }
 
+          .appearance-none {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+          }
+
           .appearance-none::-webkit-calendar-picker-indicator,
           .appearance-none::-webkit-outer-spin-button,
           .appearance-none::-webkit-inner-spin-button,
@@ -82,8 +88,8 @@ export const ThemeableMixin = <TBase extends Base>(
             padding: 0 !important;
           }
 
-          input.appearance-none {
-            -moz-appearance: textfield;
+          input::-webkit-date-and-time-value {
+            text-align: inherit !important;
           }
 
           @tailwind components;
