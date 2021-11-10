@@ -13,15 +13,13 @@ export const ResponsiveMixin = <TBase extends Constructor<LitElement>>(
 
       const breakpoints = Object.entries({ sm: 640, md: 768, lg: 1024, xl: 1280 });
       const observer = new ResizeObserver(entries => {
-        requestAnimationFrame(() => {
-          entries.forEach(({ contentRect, target }) => {
-            breakpoints.forEach(([name, minWidth]) => {
-              if (contentRect.width >= minWidth) {
-                if (!target.hasAttribute(name)) target.setAttribute(name, '');
-              } else {
-                if (target.hasAttribute(name)) target.removeAttribute(name);
-              }
-            });
+        entries.forEach(({ contentRect, target }) => {
+          breakpoints.forEach(([name, minWidth]) => {
+            if (contentRect.width >= minWidth) {
+              if (!target.hasAttribute(name)) target.setAttribute(name, '');
+            } else {
+              if (target.hasAttribute(name)) target.removeAttribute(name);
+            }
           });
         });
       });
