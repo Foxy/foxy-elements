@@ -1,20 +1,23 @@
 import { TemplateResult, html } from 'lit-html';
 
+import { I18n } from '../../I18n/I18n';
 import { classMap } from '../../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { serializeDate } from '../../../../utils/serialize-date';
 
 export type InputParams = {
+  t: I18n['t'];
   id?: string;
+  list?: { label: string; value: string }[];
   type: string;
   label: string;
   value: string;
   disabled?: boolean;
   displayValue?: string;
-  list?: { key: string; value: string }[];
   onChange: (newValue: string) => void;
 };
 
-export function renderInput(params: InputParams): TemplateResult {
+export function Input(params: InputParams): TemplateResult {
   const id = params.id ?? String(Math.floor(Math.random() * Math.pow(10, 8)));
   const listId = `${id}-list`;
   const hasDisplayValue = !!params.displayValue;
@@ -23,39 +26,33 @@ export function renderInput(params: InputParams): TemplateResult {
 
   if (params.type === 'date') {
     const date = new Date(params.value);
-
-    if (!isNaN(date.getTime())) {
-      const yyyy = date.getFullYear().toString().padStart(4, '0');
-      const mm = (date.getMonth() + 1).toString().padStart(2, '0');
-      const dd = date.getDate().toString().padStart(2, '0');
-
-      normalizedValue = `${yyyy}-${mm}-${dd}`;
-    }
+    if (!isNaN(date.getTime())) normalizedValue = serializeDate(date);
   }
 
   return html`
-    <label
-      class="relative flex items-center cursor-text group text-tertiary focus-within-text-tertiary"
-    >
+    <label class="relative flex items-center cursor-text group text-tertiary">
       <div class="relative flex-1 min-w-0 overflow-hidden">
         ${hasDisplayValue
           ? html`
-              <div class="absolute inset-0 h-m px-s font-medium text-body flex items-center">
-                <div class="truncate">${params.displayValue}</div>
+              <div
+                aria-hidden="true"
+                class="absolute inset-0 h-m px-s font-medium text-body flex items-center"
+              >
+                <div class="truncate">${params.t(params.displayValue!)}</div>
               </div>
             `
           : ''}
 
         <input
-          list=${ifDefined(params.list ? listId : undefined)}
-          type=${params.type}
+          placeholder=${normalizedValue || params.type === 'date' ? '' : params.t(params.label)}
           class=${classMap({
             'bg-base text-body relative appearance-none flex h-m px-s font-medium w-full': true,
             'flex max-w-full whitespace-nowrap': true, // ugh safari
             'focus-outline-none': true,
             'opacity-0 focus-opacity-100': hasDisplayValue,
           })}
-          placeholder=${params.type === 'date' ? '' : params.label}
+          list=${ifDefined(params.list ? listId : undefined)}
+          type=${params.type}
           .value=${normalizedValue}
           ?disabled=${params.disabled}
           @input=${(evt: Event) => {
@@ -77,13 +74,15 @@ export function renderInput(params: InputParams): TemplateResult {
           'sr-only': !normalizedValue && params.type !== 'date',
         })}
       >
-        ${params.label}
+        ${params.t(params.label)}
       </span>
 
       ${params.list
         ? html`
             <datalist id=${listId}>
-              ${params.list.map(({ key, value }) => html`<option value=${value}>${key}</option>`)}
+              ${params.list.map(
+                ({ label, value }) => html`<option value=${value}>${params.t(label)}</option>`
+              )}
             </datalist>
           `
         : ''}

@@ -1,4 +1,3 @@
-import '../I18n/index';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 

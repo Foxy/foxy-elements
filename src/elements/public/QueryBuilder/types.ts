@@ -18,14 +18,14 @@ export enum Operator {
 }
 
 export type Option = {
-  list?: { key: string; value: string }[];
-  type: Type;
+  label: string;
+  list?: { label: string; value: string }[];
   path: string;
-  key: string;
+  type: Type;
 };
 
 export type ParsedValue = {
-  name: string | null;
+  name?: string;
   path: string;
   value: string;
   operator: Operator | null;

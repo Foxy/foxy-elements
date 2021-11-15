@@ -11,32 +11,44 @@ const summary: Summary = {
   translatable: true,
 };
 
-export default getMeta(summary);
-
 const options = JSON.stringify([
-  { type: Type.Attribute, path: 'attributes', key: '' },
-  { type: Type.Number, path: 'total_order', key: '' },
   {
+    type: Type.Attribute,
+    path: 'attributes',
+    label: '',
+  },
+  {
+    type: Type.Number,
+    path: 'total_order',
+    label: '',
+  },
+  {
+    label: '',
     type: Type.Boolean,
     path: 'data_is_fed',
-    key: '',
     list: [
-      { key: 'webhooks_fed', value: 'true' },
-      { key: 'webhooks_not_fed', value: 'false' },
+      { label: 'webhooks_fed', value: 'true' },
+      { label: 'webhooks_not_fed', value: 'false' },
     ],
   },
-  { type: Type.Date, path: 'transaction_date', key: 'transaction_date' },
+  {
+    type: Type.Date,
+    path: 'transaction_date',
+    label: 'transaction_date',
+  },
   {
     type: Type.String,
     path: 'status',
-    key: 'status',
+    label: 'status',
     list: [
-      { key: 'transaction_authorized', value: 'authorized' },
-      { key: 'transaction_approved', value: 'approved' },
-      { key: 'transaction_pending', value: 'pending' },
+      { label: 'transaction_authorized', value: 'authorized' },
+      { label: 'transaction_approved', value: 'approved' },
+      { label: 'transaction_pending', value: 'pending' },
     ],
   },
 ]);
+
+export default getMeta(summary);
 
 export const Playground = (): TemplateResult => html`
   <foxy-query-builder
@@ -45,3 +57,5 @@ export const Playground = (): TemplateResult => html`
   >
   </foxy-query-builder>
 `;
+
+export const Empty = (): TemplateResult => html`<foxy-query-builder></foxy-query-builder>`;
