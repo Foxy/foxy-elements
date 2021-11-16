@@ -33,13 +33,13 @@ class CustomerCard extends Base<Data> {
         </div>
 
         <div
-          data-testid="spinner"
           class=${classMap({
             'pointer-events-none absolute inset-0 flex transition-opacity': true,
             'opacity-0': !!this.data,
           })}
         >
           <foxy-spinner
+            data-testid="spinner"
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
             class="m-auto"
             lang=${this.lang}
@@ -57,9 +57,11 @@ class CustomerCard extends Base<Data> {
     const content = data ? html`${name}` : html`&ZeroWidthSpace;`;
 
     return html`
-      ${this.renderTemplateOrSlot('name:before')}
-      <div class="font-semibold text-body truncate">${content}</div>
-      ${this.renderTemplateOrSlot('name:after')}
+      <div data-testid="name">
+        ${this.renderTemplateOrSlot('name:before')}
+        <div class="font-semibold text-body truncate">${content}</div>
+        ${this.renderTemplateOrSlot('name:after')}
+      </div>
     `;
   }
 
@@ -69,9 +71,11 @@ class CustomerCard extends Base<Data> {
     const content = data ? html`${email}` : html`&ZeroWidthSpace;`;
 
     return html`
-      ${this.renderTemplateOrSlot('email:before')}
-      <div class="text-tertiary truncate">${content}</div>
-      ${this.renderTemplateOrSlot('email:after')}
+      <div data-testid="email">
+        ${this.renderTemplateOrSlot('email:before')}
+        <div class="text-tertiary truncate">${content}</div>
+        ${this.renderTemplateOrSlot('email:after')}
+      </div>
     `;
   }
 }
