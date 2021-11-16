@@ -39,7 +39,7 @@ export function getMetaArgTypes(summary: Summary): Record<string, unknown> {
   }
 
   if (summary.translatable) {
-    argTypes.lang = { control: { type: 'inline-radio', options: ['en', 'es'] } };
+    argTypes.lang = { control: { type: 'inline-radio', options: ['en', 'es', 'de'] } };
     argTypes.ns = { control: false, table: { category: 'properties' } };
     argTypes.t = { control: false, table: { category: 'properties' } };
   }
