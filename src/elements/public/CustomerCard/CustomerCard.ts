@@ -10,6 +10,17 @@ import { classMap } from '../../../utils/class-map';
 const NS = 'customer-card';
 const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
 
+/**
+ * Basic card displaying a customer record.
+ *
+ * @slot name:before
+ * @slot name:after
+ * @slot email:before
+ * @slot email:after
+ *
+ * @element foxy-customer-card
+ * @since 1.12.0
+ */
 class CustomerCard extends Base<Data> {
   templates: Templates = {};
 
