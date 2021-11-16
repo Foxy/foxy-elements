@@ -379,6 +379,35 @@ describe('QueryBuilder', () => {
     expect(element).to.have.value('foo=2022-01-01T00%3A00%3A00.000Z..2024-01-01T00%3A00%3A00.000Z');
   });
 
+  it('supports ranges for known number fields', async () => {
+    const layout = html`
+      <foxy-query-builder
+        options=${JSON.stringify([{ path: 'foo', type: 'number', label: 'Foo' }])}
+        value="foo=10..20"
+      >
+      </foxy-query-builder>
+    `;
+
+    const element = await fixture<QueryBuilder>(layout);
+    const root = element.renderRoot;
+    const [from, to] = [...root.querySelectorAll<HTMLInputElement>('input[type="number"]')];
+
+    expect(from).to.have.property('value', '10');
+    expect(to).to.have.property('value', '20');
+
+    from.value = '30';
+    from.dispatchEvent(new InputEvent('input'));
+    await element.updateComplete;
+
+    expect(element).to.have.value('foo=30..20');
+
+    to.value = '40';
+    to.dispatchEvent(new InputEvent('input'));
+    await element.updateComplete;
+
+    expect(element).to.have.value('foo=30..40');
+  });
+
   it('supports lists for known date fields', async () => {
     const layout = html`
       <foxy-query-builder
@@ -428,35 +457,6 @@ describe('QueryBuilder', () => {
     expect(element).to.have.value(
       'foo%3Ain=2022-01-01T00%3A00%3A00.000Z%2C2024-01-01T00%3A00%3A00.000Z'
     );
-  });
-
-  it('supports ranges for known number fields', async () => {
-    const layout = html`
-      <foxy-query-builder
-        options=${JSON.stringify([{ path: 'foo', type: 'number', label: 'Foo' }])}
-        value="foo=10..20"
-      >
-      </foxy-query-builder>
-    `;
-
-    const element = await fixture<QueryBuilder>(layout);
-    const root = element.renderRoot;
-    const [from, to] = [...root.querySelectorAll<HTMLInputElement>('input[type="number"]')];
-
-    expect(from).to.have.property('value', '10');
-    expect(to).to.have.property('value', '20');
-
-    from.value = '30';
-    from.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
-
-    expect(element).to.have.value('foo=30..20');
-
-    to.value = '40';
-    to.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
-
-    expect(element).to.have.value('foo=30..40');
   });
 
   it('supports lists for known number fields', async () => {
@@ -751,5 +751,107 @@ describe('QueryBuilder', () => {
     expect(value.options[1]).to.have.value('2021-01-01');
     expect(value.options[1]).to.contain.text('January 1, 2021');
     expect(value.options[1]).to.not.have.attribute('selected');
+  });
+
+  it('supports predefined options for string list values', async () => {
+    const layout = html`
+      <foxy-query-builder
+        options=${JSON.stringify([
+          {
+            label: 'Foo',
+            path: 'foo',
+            type: 'string',
+            list: [
+              { value: 'bar', label: 'BAR' },
+              { value: 'baz', label: 'BAZ' },
+            ],
+          },
+        ])}
+        value="foo%3Ain=bar%2Cbaz"
+      >
+      </foxy-query-builder>
+    `;
+
+    const element = await fixture<QueryBuilder>(layout);
+    const root = element.renderRoot;
+    const values = root.querySelectorAll<HTMLSelectElement>('select');
+
+    for (const value of values) {
+      const options = [...value.options].reverse();
+
+      expect(options[0]).to.have.value('baz');
+      expect(options[0]).to.contain.text('BAZ');
+
+      expect(options[1]).to.have.value('bar');
+      expect(options[1]).to.contain.text('BAR');
+    }
+  });
+
+  it('supports predefined options for number list values', async () => {
+    const layout = html`
+      <foxy-query-builder
+        options=${JSON.stringify([
+          {
+            label: 'Foo',
+            path: 'foo',
+            type: 'number',
+            list: [
+              { value: '123', label: 'One Two Three' },
+              { value: '456', label: 'Four Five Six' },
+            ],
+          },
+        ])}
+        value="foo%3Ain=123%2C456"
+      >
+      </foxy-query-builder>
+    `;
+
+    const element = await fixture<QueryBuilder>(layout);
+    const root = element.renderRoot;
+    const values = root.querySelectorAll<HTMLSelectElement>('select');
+
+    for (const value of values) {
+      const options = [...value.options].reverse();
+
+      expect(options[0]).to.have.value('456');
+      expect(options[0]).to.contain.text('Four Five Six');
+
+      expect(options[1]).to.have.value('123');
+      expect(options[1]).to.contain.text('One Two Three');
+    }
+  });
+
+  it('supports predefined options for date list values', async () => {
+    const layout = html`
+      <foxy-query-builder
+        options=${JSON.stringify([
+          {
+            label: 'Foo',
+            path: 'foo',
+            type: 'date',
+            list: [
+              { value: '2020-01-01T00:00:00.000Z', label: 'January 1, 2020' },
+              { value: '2021-01-01T00:00:00.000Z', label: 'January 1, 2021' },
+            ],
+          },
+        ])}
+        value="foo%3Ain=2020-01-01T00%3A00%3A00.000Z%2C2021-01-01T00%3A00%3A00.000Z"
+      >
+      </foxy-query-builder>
+    `;
+
+    const element = await fixture<QueryBuilder>(layout);
+    const root = element.renderRoot;
+    const values = root.querySelectorAll<HTMLSelectElement>('select');
+
+    for (const value of values) {
+      const options = [...value.options].reverse();
+
+      expect(options[0]).to.have.value('2021-01-01T00:00:00.000Z');
+      expect(options[0]).to.contain.text('January 1, 2021');
+
+      expect(options[1]).to.have.value('2020-01-01T00:00:00.000Z');
+      expect(options[1]).to.contain.text('January 1, 2020');
+    }
   });
 });
