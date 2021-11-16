@@ -3276,6 +3276,7 @@
     {
       "name": "foxy-customer-card",
       "path": "./src/elements/public/CustomerCard/index.ts",
+      "description": "Basic card displaying a customer record.",
       "attributes": [
         {
           "name": "mode",
@@ -3491,6 +3492,20 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "name:before"
+        },
+        {
+          "name": "name:after"
+        },
+        {
+          "name": "email:before"
+        },
+        {
+          "name": "email:after"
         }
       ]
     },
@@ -8663,6 +8678,7 @@
     {
       "name": "foxy-transaction-card",
       "path": "./src/elements/public/TransactionCard/index.ts",
+      "description": "Basic card displaying a transaction.",
       "attributes": [
         {
           "name": "mode",
@@ -8878,6 +8894,32 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "total:before"
+        },
+        {
+          "name": "total:after"
+        },
+        {
+          "name": "status:before"
+        },
+        {
+          "name": "status:after"
+        },
+        {
+          "name": "description:before"
+        },
+        {
+          "name": "description:after"
+        },
+        {
+          "name": "customer:before"
+        },
+        {
+          "name": "customer:after"
         }
       ]
     },
