@@ -5,7 +5,7 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.foxycart.com/s/admin/transactions/0?zoom=items,payments',
+  href: 'https://demo.foxycart.com/s/admin/transactions/0?zoom=items',
   parent: 'https://demo.foxycart.com/s/admin/stores/0/transactions',
   nucleon: true,
   localName: 'foxy-transaction-card',
