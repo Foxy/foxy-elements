@@ -56,13 +56,13 @@ class TransactionCard extends Base<Data> {
         </div>
 
         <div
-          data-testid="spinner"
           class=${classMap({
             'pointer-events-none absolute inset-0 flex transition-opacity': true,
             'opacity-0': !!this.data,
           })}
         >
           <foxy-spinner
+            data-testid="spinner"
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
             class="m-auto"
             lang=${this.lang}
@@ -107,9 +107,11 @@ class TransactionCard extends Base<Data> {
     }
 
     return html`
-      ${this.renderTemplateOrSlot('total:before')}
-      <div class="font-semibold truncate">${content}</div>
-      ${this.renderTemplateOrSlot('total:after')}
+      <div data-testid="total">
+        ${this.renderTemplateOrSlot('total:before')}
+        <div class="font-semibold truncate">${content}</div>
+        ${this.renderTemplateOrSlot('total:after')}
+      </div>
     `;
   }
 
@@ -131,26 +133,29 @@ class TransactionCard extends Base<Data> {
     const status = this.data?.status || 'completed';
 
     return html`
-      ${this.renderTemplateOrSlot('status:before')}
+      <div data-testid="status">
+        ${this.renderTemplateOrSlot('status:before')}
 
-      <div class="text-tertiary text-s flex items-center space-x-s">
-        <foxy-i18n
-          options=${JSON.stringify({ value: this.data?.transaction_date })}
-          lang=${this.lang}
-          key="time"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
+        <div class="text-tertiary text-s flex items-center space-x-s">
+          <foxy-i18n
+            options=${JSON.stringify({ value: this.data?.transaction_date })}
+            lang=${this.lang}
+            key="time"
+            ns=${this.ns}
+          >
+          </foxy-i18n>
 
-        <iron-icon
-          class="icon-inline text-l ${specialColors[status] ?? 'text-tertiary'}"
-          title=${this.t(`transaction_${status}`)}
-          icon=${specialIcons[status] ?? 'icons:schedule'}
-        >
-        </iron-icon>
+          <iron-icon
+            data-testid="status-icon"
+            class="icon-inline text-l ${specialColors[status] ?? 'text-tertiary'}"
+            title=${this.t(`transaction_${status}`)}
+            icon=${specialIcons[status] ?? 'icons:schedule'}
+          >
+          </iron-icon>
+        </div>
+
+        ${this.renderTemplateOrSlot('status:after')}
       </div>
-
-      ${this.renderTemplateOrSlot('status:after')}
     `;
   }
 
@@ -178,9 +183,11 @@ class TransactionCard extends Base<Data> {
     }
 
     return html`
-      ${this.renderTemplateOrSlot('description:before')}
-      <div class="text-s text-secondary truncate">${content}</div>
-      ${this.renderTemplateOrSlot('description:after')}
+      <div data-testid="description">
+        ${this.renderTemplateOrSlot('description:before')}
+        <div class="text-s text-secondary truncate">${content}</div>
+        ${this.renderTemplateOrSlot('description:after')}
+      </div>
     `;
   }
 
@@ -191,9 +198,11 @@ class TransactionCard extends Base<Data> {
       : html`&ZeroWidthSpace;`;
 
     return html`
-      ${this.renderTemplateOrSlot('total:before')}
-      <div class="text-tertiary truncate text-s">${content}</div>
-      ${this.renderTemplateOrSlot('total:after')}
+      <div data-testid="customer">
+        ${this.renderTemplateOrSlot('customer:before')}
+        <div class="text-tertiary truncate text-s">${content}</div>
+        ${this.renderTemplateOrSlot('customer:after')}
+      </div>
     `;
   }
 }
