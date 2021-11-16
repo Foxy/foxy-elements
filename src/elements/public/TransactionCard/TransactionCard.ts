@@ -12,6 +12,21 @@ import { classMap } from '../../../utils/class-map';
 const NS = 'transaction-card';
 const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
 
+/**
+ * Basic card displaying a transaction.
+ *
+ * @slot total:before
+ * @slot total:after
+ * @slot status:before
+ * @slot status:after
+ * @slot description:before
+ * @slot description:after
+ * @slot customer:before
+ * @slot customer:after
+ *
+ * @element foxy-transaction-card
+ * @since 1.12.0
+ */
 class TransactionCard extends Base<Data> {
   templates: Templates = {};
 
