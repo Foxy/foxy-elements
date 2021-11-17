@@ -1,8 +1,7 @@
-import { CSSResultArray, TemplateResult, html } from 'lit-element';
 import { Checkbox, PropertyTable } from '../../private';
 import { Interpreter, createMachine, interpret } from 'xstate';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { Themeable, ThemeableMixin } from '../../../mixins/themeable';
+import { TemplateResult, html } from 'lit-element';
 import { countries, countryDetails } from '../../../utils/countries';
 
 import { CheckboxChangeEvent } from '../../private/events';
@@ -11,6 +10,7 @@ import { Data } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
+import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { globalRegions } from '../../../utils/regions';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -34,10 +34,6 @@ export class TaxForm extends Base<Data> {
       'x-property-table': PropertyTable,
       'x-checkbox': Checkbox,
     };
-  }
-
-  static get styles(): CSSResultArray {
-    return Themeable.styles;
   }
 
   static get v8n(): NucleonV8N<Data> {
@@ -74,13 +70,9 @@ export class TaxForm extends Base<Data> {
     </x-checkbox>`;
   };
 
-  private __namespaces: Array<string> = [];
-
   private __taxMachine = createMachine(taxMachine as any);
 
   private __taxService: Interpreter<any, any, any, { value: any; context: any }> | undefined;
-
-  private __untrackTranslations?: () => void;
 
   private readonly __bindField = memoize((key: keyof Data) => {
     return (evt: CustomEvent) => {
@@ -95,10 +87,6 @@ export class TaxForm extends Base<Data> {
     };
   });
 
-  private readonly __getValidator = memoize((prefix: string) => () => {
-    return !this.errors.some(err => err.startsWith(prefix));
-  });
-
   private __getErrorMessage = (prefix: string) => {
     const error = this.errors.find(err => err.startsWith(prefix));
     return error ? this.t(error.replace(prefix, 'v8n')) : '';
@@ -108,11 +96,6 @@ export class TaxForm extends Base<Data> {
     super.connectedCallback();
     this.__taxService = interpret(this.__taxMachine);
     this.__taxService.start();
-    this.__untrackTranslations = customElements
-      .get('foxy-i18n')
-      .onTranslationChange(() => this.requestUpdate());
-    this.__namespaces.push(this.ns, 'country');
-    customElements.get('foxy-i18n').i18next.loadNamespaces(this.__namespaces);
   }
 
   requestUpdate(name?: string | number | symbol | undefined, oldValue?: unknown): Promise<unknown> {
@@ -336,11 +319,6 @@ export class TaxForm extends Base<Data> {
     if (!evt.detail.cancelled) this.delete();
   }
 
-  private __handleCityChange(ev: CustomEvent) {
-    const city = ev.detail?.explicitOriginalTarget?.value;
-    this.edit({ city });
-  }
-
   private __handleTypeChange(ev: CustomEvent) {
     const target = ev.target as HTMLInputElement;
     const changes: any = { type: target.value };
@@ -358,24 +336,6 @@ export class TaxForm extends Base<Data> {
   private __handleCountryChange(ev: CustomEvent) {
     const chosen = ev.detail.value;
     this.edit({ country: chosen, region: '' });
-    this.__namespaces.push(`region-${chosen?.toLowerCase()}`);
-    customElements.get('foxy-i18n').i18next.loadNamespaces(this.__namespaces);
-  }
-
-  private __handleAutomatic(ev: CustomEvent) {
-    this.edit({ is_live: ev.detail });
-  }
-
-  private __handleUseOriginRatesChange(ev: CustomEvent) {
-    this.edit({ use_origin_rates: ev.detail });
-  }
-
-  private __handleApplyToShipping(ev: CustomEvent) {
-    this.edit({ apply_to_shipping: ev.detail });
-  }
-
-  private __handleExemptChange(ev: CustomEvent) {
-    this.edit({ exempt_all_customer_tax_ids: ev.detail });
   }
 
   private __handleRegionChange(ev: CustomEvent) {
