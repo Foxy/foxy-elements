@@ -14,15 +14,15 @@ export class CustomersTable extends TranslatableMixin(Table, 'customers-table')<
   static idColumn: Column<Data> = {
     hideBelow: 'md',
     cell: ctx => html`
-      <span role="presentation" class="text-s text-tertiary">ID&nbsp;</span>
-      <span data-testclass="ids" class="text-s text-secondary font-tnum">${ctx.data.id}</span>
+      <span role="presentation" class="text-m text-tertiary">ID&nbsp;</span>
+      <span data-testclass="ids" class="text-m text-secondary font-tnum">${ctx.data.id}</span>
     `,
   };
 
   static dateColumn: Column<Data> = {
     hideBelow: 'md',
     cell: ctx => html`
-      <span class="text-s text-secondary font-tnum">
+      <span class="text-m text-secondary font-tnum">
         <foxy-i18n data-testclass="i18n" lang=${ctx.lang} key="date_created" ns=${ctx.ns}>
         </foxy-i18n>
 
@@ -40,7 +40,7 @@ export class CustomersTable extends TranslatableMixin(Table, 'customers-table')<
 
   static emailColumn: Column<Data> = {
     cell: ctx =>
-      html`<span data-testclass="emails" class="text-s text-secondary">${ctx.data.email}</span>`,
+      html`<span data-testclass="emails" class="text-m text-secondary">${ctx.data.email}</span>`,
   };
 
   columns = [

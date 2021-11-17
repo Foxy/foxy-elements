@@ -1,12 +1,4 @@
-import {
-  CSSResultArray,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  css,
-  html,
-} from 'lit-element';
-
+import { html, LitElement, PropertyDeclarations, svg, TemplateResult } from 'lit-element';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 
@@ -21,22 +13,6 @@ export class Spinner extends TranslatableMixin(ThemeableMixin(LitElement), 'spin
       layout: { type: String },
       state: { type: String },
     };
-  }
-
-  /** @readonly */
-  static get styles(): CSSResultArray {
-    return [
-      super.styles,
-      css`
-        paper-spinner-lite {
-          --paper-spinner-stroke-width: 2px;
-          --paper-spinner-color: currentColor;
-          height: 19px;
-          width: 19px;
-          margin: 2.5px;
-        }
-      `,
-    ];
   }
 
   /**
@@ -80,7 +56,12 @@ export class Spinner extends TranslatableMixin(ThemeableMixin(LitElement), 'spin
       text = 'loading_empty';
       tint = 'text-tertiary';
     } else {
-      icon = html`<paper-spinner-lite data-testid="icon" active></paper-spinner-lite>`;
+      icon = svg`
+        <svg data-testid="icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 22 22" preserveAspectRatio="xMidYMid" class="animate-spin h-full w-full">
+          <circle cx="11" cy="11" fill="none" stroke="#e15b64" stroke-width="2" r="8" stroke-dasharray="24 12" class="stroke-current"></circle>
+        </svg>
+      `;
+
       text = 'loading_busy';
       tint = 'text-tertiary';
     }

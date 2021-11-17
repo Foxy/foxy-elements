@@ -65,7 +65,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
       <div
         aria-live="polite"
         aria-busy=${!this.data && this.in('busy')}
-        class="relative text-body text-s font-lumo leading-m"
+        class="relative text-body text-m font-lumo leading-m"
       >
         ${hiddenSelector.matches('title', true) ? '' : this.__renderTitle(options?.title)}
         ${hiddenSelector.matches('subtitle', true) ? '' : this.__renderSubtitle(options?.subtitle)}

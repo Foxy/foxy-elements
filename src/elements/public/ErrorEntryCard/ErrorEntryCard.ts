@@ -60,7 +60,9 @@ export class ErrorEntryCard extends Base<Data> {
           ?open=${open}
           @toggle=${this.__handleToggle}
         >
-          <summary class="rounded-s ring-offset-4 ring-primary-50 focus-outline-none focus-ring-2">
+          <summary
+            class="rounded-s ring-offset-4 ring-offset-base ring-primary-50 focus-outline-none focus-ring-2"
+          >
             <div
               style="padding-left: calc(var(--lumo-space-xs) + var(--lumo-space-s) - 1px)"
               class=${classMap({
