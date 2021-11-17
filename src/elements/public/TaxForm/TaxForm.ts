@@ -4,6 +4,7 @@ import { Interpreter, createMachine, interpret } from 'xstate';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable, ThemeableMixin } from '../../../mixins/themeable';
 import { countries, countryDetails } from '../../../utils/countries';
+
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { CheckboxChangeEvent } from '../../private/events';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
@@ -63,29 +64,6 @@ export class TaxForm extends Base<Data> {
   }
 
   private static __types = ['global', 'country', 'region', 'local', 'union'];
-
-  private __comboBoxField = (
-    field: keyof Data,
-    classString: string,
-    items: string[] | { label: string; value: string }[],
-    label = undefined
-  ): TemplateResult => {
-    return html` <x-combo-box
-      .items=${items}
-      @value-changed="${this.__bindField(field)}"
-      class="flex-1"
-      data-testid="${field}"
-      error-message=${this.__getErrorMessage(field)}
-      label=${this.__t(label ? label! : field).toString()}
-      value="${ifDefined(this.form[field])}"
-    >
-      <style>
-        [part='text-field'] {
-          padding-top: 0;
-        }
-      </style>
-    </x-combo-box>`;
-  };
 
   private __checkboxField = (field: keyof Data, classString: string): TemplateResult => {
     return html` <x-checkbox
