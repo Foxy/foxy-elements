@@ -1,19 +1,16 @@
 import { CSSResultArray, TemplateResult, html } from 'lit-element';
-import { Checkbox, I18N, PropertyTable } from '../../private';
+import { Checkbox, PropertyTable } from '../../private';
 import { Interpreter, createMachine, interpret } from 'xstate';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { Themeable, ThemeableMixin } from '../../../mixins/themeable';
 import { countries, countryDetails } from '../../../utils/countries';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
 import { CheckboxChangeEvent } from '../../private/events';
-import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { Data } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { globalRegions } from '../../../utils/regions';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -28,14 +25,14 @@ const Base = ScopedElementsMixin(
 export class TaxForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-i18n': I18N,
-      'foxy-internal-confirm-dialog': InternalConfirmDialog,
+      'vaadin-text-field': customElements.get('vaadin-text-field'),
+      'vaadin-combo-box': customElements.get('vaadin-combo-box'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-spinner': customElements.get('foxy-spinner'),
-      'vaadin-text-field': TextFieldElement,
-      'x-button': ButtonElement,
-      'x-checkbox': Checkbox,
-      'x-combo-box': ComboBoxElement,
+      'foxy-i18n': customElements.get('foxy-i18n'),
       'x-property-table': PropertyTable,
+      'x-checkbox': Checkbox,
     };
   }
 
@@ -161,7 +158,7 @@ export class TaxForm extends Base<Data> {
         </foxy-internal-confirm-dialog>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
           ${this.__textField('name', 'flex-1')}
-          <x-combo-box
+          <vaadin-combo-box
             .items=${TaxForm.__types.map(this.__tLabelValue)}
             @value-changed="${this.__handleTypeChange}"
             class="flex-1"
@@ -175,12 +172,12 @@ export class TaxForm extends Base<Data> {
                 padding-top: 0;
               }
             </style>
-          </x-combo-box>
+          </vaadin-combo-box>
         </div>
         <div class="flex flex-wrap flex-auto max-w-full gap-s">
           ${this.__taxMachine.context.support.country
             ? html`
-                <x-combo-box
+                <vaadin-combo-box
                   data-testid="country"
                   class="flex-1"
                   label=${this.__tSource('country')('country')}
@@ -192,12 +189,12 @@ export class TaxForm extends Base<Data> {
                     : ''}"
                   @value-changed="${this.__handleCountryChange}"
                   error-message=${this.__getErrorMessage('country')}
-                ></x-combo-box>
+                ></vaadin-combo-box>
               `
             : ''}
           ${this.__taxMachine.context.support.region
             ? html`
-                <x-combo-box
+                <vaadin-combo-box
                   data-testid="region"
                   class="flex-1"
                   label=${this.__tSource('region')('region')}
@@ -207,7 +204,7 @@ export class TaxForm extends Base<Data> {
                   value="${ifDefined(this.form.region)}"
                   @value-changed="${this.__handleRegionChange}"
                   error-message=${this.__getErrorMessage('region')}
-                ></x-combo-box>
+                ></vaadin-combo-box>
               `
             : ''}
           ${this.__taxMachine.context.support.city ? this.__textField('city', 'flex-1') : ''}
@@ -217,7 +214,7 @@ export class TaxForm extends Base<Data> {
           : ''}
         <div class="max-w-full border rounded-l border-contrast-10 p-s my-s">
           ${this.__taxMachine.context.support.provider
-            ? html` <x-combo-box
+            ? html` <vaadin-combo-box
                 class="w-full"
                 data-testid="service_provider"
                 label=${this.__t('provider')}
@@ -228,7 +225,7 @@ export class TaxForm extends Base<Data> {
                 @value-changed=${this.__bindField('service_provider')}
                 error-message="${this.__getErrorMessage('service_provider')}"
               >
-              </x-combo-box>`
+              </vaadin-combo-box>`
             : this.__textField('rate', '')}
           ${this.__taxMachine.context.support.exempt
             ? this.__checkboxField('exempt_all_customer_tax_ids', 'my-s')
@@ -255,7 +252,7 @@ export class TaxForm extends Base<Data> {
         <div class="flex flex-wrap gap-x-s">
           ${this.href
             ? html`
-                <x-button
+                <vaadin-button
                   aria-label="delete"
                   role="button"
                   class="flex-1"
@@ -265,10 +262,10 @@ export class TaxForm extends Base<Data> {
                   @click=${this.__handleDeleteClick}
                 >
                   <foxy-i18n ns="${ns}" key="delete" lang="${this.lang}"></foxy-i18n>
-                </x-button>
+                </vaadin-button>
               `
             : ''}
-          <x-button
+          <vaadin-button
             role="button"
             aria-label="${this.href ? 'save' : 'create'}"
             class="flex-1"
@@ -279,7 +276,7 @@ export class TaxForm extends Base<Data> {
           >
             <foxy-i18n ns="${ns}" key="${this.href ? 'save' : 'create'}" lang="${this.lang}">
             </foxy-i18n>
-          </x-button>
+          </vaadin-button>
         </div>
       `;
     }
