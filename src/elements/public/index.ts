@@ -25,6 +25,7 @@ export { SubscriptionCard } from './SubscriptionCard/SubscriptionCard';
 export { SubscriptionForm } from './SubscriptionForm/SubscriptionForm';
 export { SubscriptionsTable } from './SubscriptionsTable/SubscriptionsTable';
 export { Table } from './Table/Table';
+export { TaxForm } from './TaxForm/TaxForm';
 export { TransactionsTable } from './TransactionsTable/TransactionsTable';
 export { UserForm } from './UserForm/UserForm';
 export { UsersTable } from './UsersTable/UsersTable';
