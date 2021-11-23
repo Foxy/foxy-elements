@@ -1,5 +1,6 @@
 import { Collection, Table } from 'dexie';
 import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
+
 import { HALJSONResource } from '../../elements/public/NucleonElement/types';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomer } from './composers/composeCustomer';
@@ -570,6 +571,21 @@ router.get('/s/admin/stores/:storeId/taxes/:id', async ({ params }) => {
 
 router.get('/s/admin/stores/:id/taxes', async ({ request }) => {
   return respondItems(db.taxes, composeTax, request.url, 'fx:taxes');
+});
+
+// property helpers
+
+router.get('/s/admin/property_helpers/countries', async () => {
+  const { countries } = await import('./helpers/countries');
+  return new Response(JSON.stringify(countries));
+});
+
+router.get('/s/admin/property_helpers/regions', async ({ request }) => {
+  const country = new URL(request.url).searchParams.get('country_code') ?? 'US';
+  const regions = { ...(await import('./helpers/regionsUS')).regionsUS } as any;
+  if (country !== 'US') regions.values = [];
+
+  return new Response(JSON.stringify(regions));
 });
 
 /**
