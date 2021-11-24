@@ -42,7 +42,11 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
     return html`
       <div data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
-        <div class="text-secondary">${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;</div>
+
+        <div class="text-secondary truncate">
+          ${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;
+        </div>
+
         ${this.renderTemplateOrSlot('title:after')}
       </div>
     `;
@@ -52,7 +56,11 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
     return html`
       <div data-testid="subtitle">
         ${this.renderTemplateOrSlot('subtitle:before')}
-        <div class="font-semibold">${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;</div>
+
+        <div class="font-semibold truncate">
+          ${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;
+        </div>
+
         ${this.renderTemplateOrSlot('subtitle:after')}
       </div>
     `;
