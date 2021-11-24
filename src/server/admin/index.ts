@@ -1,5 +1,7 @@
+import { Collection, Table } from 'dexie';
 import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
 
+import { HALJSONResource } from '../../elements/public/NucleonElement/types';
 import { composeAppliedTax } from './composers/composeAppliedTax';
 import { composeCollection } from './composers/composeCollection';
 import { composeCustomField } from './composers/composeCustomField';
@@ -13,6 +15,7 @@ import { composeItem } from './composers/composeItem';
 import { composePayment } from './composers/composePayment';
 import { composeStore } from './composers/composeStore';
 import { composeSubscription } from './composers/composeSubscription';
+import { composeTax } from './composers/composeTax';
 import { composeTransaction } from './composers/composeTransaction';
 import { composeUser } from './composers/composeUser';
 import { getPagination } from '../getPagination';
@@ -209,7 +212,6 @@ router.get('/s/admin/subscriptions/:id', async ({ params, request }) => {
   const id = parseInt(params.id);
   const doc = await db.subscriptions.get(id);
   const zoom = new URL(request.url).searchParams.get('zoom') ?? '';
-
   const lastTransaction = zoom.includes('last_transaction')
     ? await db.transactions.where('subscription').equals(id).last()
     : undefined;
@@ -267,6 +269,21 @@ router.get('/s/admin/stores/:id/error_entries', async ({ params, request }) => {
   } catch (e) {
     console.log('There was an error', e);
   }
+});
+
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+  const errorEntry = await db.errorEntries.get(parseInt(params.id));
+  const body = composeErrorEntry(errorEntry);
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  await db.errorEntries.update(id, await request.json());
+  const body = composeErrorEntry(await db.errorEntries.get(id));
+  return new Response(JSON.stringify(body));
 });
 
 router.get('/s/admin/error_entries/:id', async ({ params }) => {
@@ -532,24 +549,24 @@ router.post('/s/admin/customers/:id/addresses', async ({ params, request }) => {
   const customer = await db.customers.get(parseInt(params.id));
   const requestBody = await request.json();
   const newID = await db.customerAddresses.add({
-    store: customer.store,
-    customer: customer.id,
-    address_name: requestBody.address_name ?? '',
-    first_name: requestBody.first_name ?? '',
-    last_name: requestBody.last_name ?? '',
-    company: requestBody.company ?? '',
     address1: requestBody.address1,
     address2: requestBody.address2 ?? '',
+    address_name: requestBody.address_name ?? '',
     city: requestBody.city ?? '',
-    region: requestBody.region ?? '',
-    postal_code: requestBody.postal_code ?? '',
+    company: requestBody.company ?? '',
     country: requestBody.country ?? '',
-    phone: requestBody.phone ?? '',
-    is_default_billing: requestBody.is_default_billing ?? false,
-    is_default_shipping: requestBody.is_default_shipping ?? false,
-    ignore_address_restrictions: requestBody.ignore_address_restrictions ?? false,
+    customer: customer.id,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
+    first_name: requestBody.first_name ?? '',
+    ignore_address_restrictions: requestBody.ignore_address_restrictions ?? false,
+    is_default_billing: requestBody.is_default_billing ?? false,
+    is_default_shipping: requestBody.is_default_shipping ?? false,
+    last_name: requestBody.last_name ?? '',
+    phone: requestBody.phone ?? '',
+    postal_code: requestBody.postal_code ?? '',
+    region: requestBody.region ?? '',
+    store: customer.store,
   });
 
   const newDoc = await db.customerAddresses.get(newID);
@@ -721,6 +738,31 @@ router.delete('/s/admin/users/:id', async ({ params, request }) => {
   return user;
 });
 
+// taxes
+
+router.get('/s/admin/stores/:storeId/taxes/:id', async ({ params }) => {
+  return respondItemById(db.taxes, parseInt(params.id), composeTax);
+});
+
+router.get('/s/admin/stores/:id/taxes', async ({ request }) => {
+  return respondItems(db.taxes, composeTax, request.url, 'fx:taxes');
+});
+
+// property helpers
+
+router.get('/s/admin/property_helpers/countries', async () => {
+  const { countries } = await import('./helpers/countries');
+  return new Response(JSON.stringify(countries));
+});
+
+router.get('/s/admin/property_helpers/regions', async ({ request }) => {
+  const country = new URL(request.url).searchParams.get('country_code') ?? 'US';
+  const regions = { ...(await import('./helpers/regionsUS')).regionsUS } as any;
+  if (country !== 'US') regions.values = [];
+
+  return new Response(JSON.stringify(regions));
+});
+
 // store
 
 router.get('/s/admin/stores/:id', async ({ params }) => {
@@ -738,3 +780,76 @@ router.get('/s/admin/stores/:id', async ({ params }) => {
 router.get('/s/admin/not-found', async () => new Response(null, { status: 404 }));
 
 router.get('/s/admin/sleep', () => new Promise(() => void 0));
+
+/**
+ * Returns a response object with the composed entry for the given id in the given table.
+ *
+ * @param table the Dexie table storing the data
+ * @param id the id number to be fetched
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @returns response object with the item requested.
+ */
+async function respondItemById(
+  table: Table,
+  id: number,
+  composer: (d: any) => HALJSONResource
+): Promise<Response> {
+  await whenDbReady;
+  const body = composer(await table.get(id));
+  return new Response(JSON.stringify(body));
+}
+
+/**
+ * Creates a response with the composed entries for the given
+ * table.
+ *
+ * @param table the Dexie table storing the data
+ * @param composer the function to be used to compose the response into a HAL Resource
+ * @param url the requested url
+ * @param rel the rel string
+ * @param parent the field to use to filter the items by parentID
+ * @param parentId the id number to be fetched
+ * @returns response promise
+ */
+async function respondItems(
+  table: Table,
+  composer: (d: any) => HALJSONResource,
+  url: string,
+  rel: string,
+  parent = 'store',
+  parentId = 0
+) {
+  const [count, items] = await queryCountAndWhere(table, parent, parentId, getPagination(url));
+  const body = composeCollection({ composeItem: composer, count, items, rel, url });
+  return new Response(JSON.stringify(body));
+}
+
+/**
+ * Performs a simple query by a single field and return the results and count.
+ *
+ * @param table of the database to be queried.
+ * @param field the specific field that must match the value.
+ * @param value the value that must be matched.
+ * @param pagination the pagination object.
+ *
+ * @returns promise that resolves to an array with the number of ocurrences and the paginated result.
+ */
+async function queryCountAndWhere(
+  table: Table,
+  field: string,
+  value: string | number,
+  pagination = { limit: 10, offset: 0 }
+) {
+  return Promise.all([
+    table.count(),
+    await paginateQuery(table.where(field).equals(value), pagination),
+  ]);
+}
+
+/**
+ * @param query
+ * @param pagination
+ */
+function paginateQuery(query: Collection<any, any>, pagination = { limit: 20, offset: 0 }) {
+  return query.offset(pagination.offset).limit(pagination.limit).toArray();
+}
