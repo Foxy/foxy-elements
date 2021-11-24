@@ -354,7 +354,7 @@ export class Customer extends Base<Data> {
 
       <section class="pt-m" data-testid="addresses">
         <header class="space-x-m flex items-center mb-s">
-          <h2 class="text-m font-semibold">
+          <h2 class="text-l font-semibold">
             <foxy-i18n ns=${ns} lang=${lang} key="address_plural"></foxy-i18n>
           </h2>
 
@@ -405,7 +405,7 @@ export class Customer extends Base<Data> {
       ${this.renderTemplateOrSlot('payment-methods:before')}
 
       <div class="pt-m" data-testid="payment-methods">
-        <h2 class="text-m font-semibold mb-s">
+        <h2 class="text-l font-semibold mb-s">
           <foxy-i18n
             data-testclass="i18n"
             lang=${this.lang}
@@ -592,7 +592,7 @@ export class Customer extends Base<Data> {
 
       <section class="pt-m" data-testid="attributes">
         <header class="space-x-m flex items-center mb-s">
-          <h2 class="text-m font-semibold">
+          <h2 class="text-l font-semibold">
             <foxy-i18n ns=${ns} lang=${lang} key="attribute_plural"></foxy-i18n>
           </h2>
 
@@ -664,7 +664,7 @@ export class Customer extends Base<Data> {
             form.show(button);
           }}
         >
-          <foxy-i18n class="text-s" lang=${lang} key="update" ns=${this.ns}></foxy-i18n>
+          <foxy-i18n class="text-m" lang=${lang} key="update" ns=${this.ns}></foxy-i18n>
         </vaadin-button>
       `,
     },

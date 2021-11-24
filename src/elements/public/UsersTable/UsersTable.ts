@@ -10,7 +10,7 @@ import { roles } from '../UserForm/roles';
 export class UsersTable extends Table<Data> {
   static nameColumn: Column<Data> = {
     cell: ctx => html`
-      <span data-testclass="name" class="text-s font-medium">
+      <span data-testclass="name" class="text-m font-medium">
         ${ctx.data.first_name} ${ctx.data.last_name}
       </span>
     `,
@@ -19,7 +19,7 @@ export class UsersTable extends Table<Data> {
   static emailColumn: Column<Data> = {
     hideBelow: 'md',
     cell: ctx => html`
-      <span data-testclass="email" class="text-s text-secondary">${ctx.data.email}</span>
+      <span data-testclass="email" class="text-m text-secondary">${ctx.data.email}</span>
     `,
   };
 
@@ -52,7 +52,7 @@ export class UsersTable extends Table<Data> {
   static lastUpdatedColumn: Column<Data> = {
     hideBelow: 'lg',
     cell: ctx => html`
-      <span data-testclass="lastUpdated" class="text-s text-secondary font-tnum">
+      <span data-testclass="lastUpdated" class="text-m text-secondary font-tnum">
         <foxy-i18n
           options=${JSON.stringify({ value: ctx.data.date_modified })}
           lang=${ctx.lang}

@@ -13,7 +13,7 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
       return ctx.html`
         <foxy-i18n
           data-testclass="i18n frequencies"
-          class="font-semibold text-s font-tnum"
+          class="font-semibold text-m font-tnum"
           lang=${ctx.lang}
           key="price_${ctx.data.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
           ns=${ctx.ns}
@@ -35,7 +35,7 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
       return ctx.html`
         <foxy-i18n
           data-testclass="i18n summaries"
-          class="text-s"
+          class="text-m"
           lang=${ctx.lang}
           key="transaction_summary"
           ns=${ctx.ns}
@@ -78,7 +78,7 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
       return ctx.html`
         <foxy-i18n
           data-testclass="i18n statuses"
-          class="px-s py-xs text-s font-semibold rounded ${color}"
+          class="px-s py-xs text-m font-semibold rounded ${color}"
           lang=${ctx.lang}
           key=${key}
           ns=${ctx.ns}
@@ -95,7 +95,7 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
         <a
           data-testclass="links"
           target="_blank"
-          class="text-s font-semibold text-primary rounded hover-underline focus-outline-none focus-shadow-outline"
+          class="text-m font-semibold text-primary rounded hover-underline focus-outline-none focus-shadow-outline"
           href=${ctx.data._links['fx:sub_token_url'].href}
         >
           <foxy-i18n

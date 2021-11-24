@@ -1,0 +1,35 @@
+{
+  "access-recovery-form": {
+    "unknown_error": "Im Moment können wir für dieses Konto keinen einmaligen Code vergeben. Wenn Sie den Code bereits angefordert haben, warten Sie bitte ein paar Minuten, bevor Sie es erneut versuchen."
+  },
+  "customer": {
+    "subscription-card": {
+      "spinner": {
+        "loading_empty": "Keine Abonnements"
+      }
+    },
+    "transactions-table": {
+      "spinner": {
+        "loading_empty": "Keine Transaktionen"
+      }
+    },
+    "address-card": {
+      "spinner": {
+        "loading_empty": "Keine Adressen"
+      }
+    },
+    "customer-form": {
+      "invalid_credential_error": "Falsches Passwort. Bitte vergewissern Sie sich, dass Sie Ihr aktuelles oder temporäres Passwort eingegeben haben und versuchen Sie es erneut.",
+      "change_password_step_1": "Lass uns mit Ihrem aktuellen Passwort beginnen. Ein temporäres Passwort funktioniert auch, wenn Sie eines haben.",
+      "change_password_step_2": "Geben Sie nun ein neues Passwort ein und klicken Sie auf Weiter, um die Änderungen an Ihrem Konto vorzunehmen.",
+      "change_password_step_3": "Das war's! Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
+      "change_password": "Passwort ändern",
+      "sign_in": "Weiter"
+    },
+    "payment-method-card": {
+      "spinner": {
+        "loading_empty": "Keine Zahlungsmethoden"
+      }
+    }
+  }
+}

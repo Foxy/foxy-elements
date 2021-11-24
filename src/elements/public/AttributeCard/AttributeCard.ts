@@ -30,12 +30,8 @@ export class AttributeCard extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('name:before')}
 
-      <div class="flex items-center space-x-xs text-xxs text-primary">
-        <div
-          class="truncate uppercase font-semibold tracking-wider"
-          title=${data?.name ?? ''}
-          data-testid="name"
-        >
+      <div class="flex items-center space-x-xs text-secondary">
+        <div class="truncate" title=${data?.name ?? ''} data-testid="name">
           ${data?.name ?? html`&nbsp;`}
         </div>
 
@@ -53,7 +49,7 @@ export class AttributeCard extends Base<Data> {
 
     return html`
       ${this.renderTemplateOrSlot('value:before')}
-      <div class="truncate" title=${data?.value ?? ''} data-testid="value">
+      <div class="truncate font-semibold" title=${data?.value ?? ''} data-testid="value">
         ${data?.value ?? html`&nbsp;`}
       </div>
       ${this.renderTemplateOrSlot('value:after')}
@@ -67,7 +63,7 @@ export class AttributeCard extends Base<Data> {
 
     return html`
       <div
-        class="relative text-body text-s font-lumo leading-m focus-outline-none"
+        class="relative text-body text-m font-lumo leading-m"
         aria-live="polite"
         aria-busy=${this.in('busy')}
       >

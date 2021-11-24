@@ -1,4 +1,61 @@
 {
+  "applied_taxes": [
+    {
+      "id": 0,
+      "tax": 0,
+      "store": 0,
+      "transaction": 0,
+      "rate": 8.0,
+      "name": "US Sales Tax",
+      "amount": 1.7765,
+      "apply_to_handling": true,
+      "apply_to_shipping": true,
+      "is_future_tax": false,
+      "shipto": "",
+      "date_created": "2021-03-29T13:57:40-0700",
+      "date_modified": "2021-03-29T13:57:40-0700"
+    }
+  ],
+  "discounts": [
+    {
+      "id": 0,
+      "store": 0,
+      "coupon": 0,
+      "customer": 0,
+      "coupon_code": 0,
+      "transaction": 0,
+      "code": "1WLCM",
+      "amount": -1,
+      "name": "Welcome Bonus",
+      "display": "-1.00",
+      "is_taxable": false,
+      "is_future_discount": false,
+      "date_created": "2021-03-29T13:57:40-0700",
+      "date_modified": "2021-03-29T13:57:40-0700"
+    }
+  ],
+  "payments": [
+    {
+      "id": 0,
+      "store": 0,
+      "transaction": 0,
+      "type": "plastic",
+      "gateway_type": "authorize",
+      "processor_response": "Authorize.net Transaction ID: 2233990980",
+      "processor_response_details": "",
+      "purchase_order": "",
+      "cc_number_masked": "xxxxxxxxxxxx1111",
+      "cc_type": "Visa",
+      "cc_exp_month": "01",
+      "cc_exp_year": "2017",
+      "fraud_protection_score": 0,
+      "paypal_payer_id": "",
+      "third_party_id": "",
+      "amount": 20.15,
+      "date_created": "2015-05-21T14:22:09-0700",
+      "date_modified": "2015-05-21T14:22:09-0700"
+    }
+  ],
   "error_entries": [
     {
       "id": 0,
@@ -15,6 +72,17 @@
       "hide_error": false,
       "date_created": "2021-03-29T13:57:40-0700",
       "date_modified": "2021-03-29T13:57:40-0700"
+    }
+  ],
+  "custom_fields": [
+    {
+      "id": 0,
+      "name": "Terms & Conditions",
+      "value": "Checked",
+      "is_hidden": true,
+      "transaction": 0,
+      "date_created": "2013-08-05T14:15:59-0700",
+      "date_modified": "2013-08-05T14:15:59-0700"
     }
   ],
   "customer_attributes": [
@@ -341,7 +409,7 @@
       "timezone": "America/Los_Angeles",
       "hide_currency_symbol": false,
       "hide_decimal_characters": false,
-      "use_international_currency_symbol": false,
+      "use_international_currency_symbol": true,
       "language": "english",
       "logo_url": "https://picsum.photos/64",
       "checkout_type": "default_account",
