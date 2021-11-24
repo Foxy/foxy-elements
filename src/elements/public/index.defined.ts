@@ -32,6 +32,7 @@ export { SubscriptionCard } from './SubscriptionCard/index';
 export { SubscriptionForm } from './SubscriptionForm/index';
 export { SubscriptionsTable } from './SubscriptionsTable/index';
 export { Table } from './Table/index';
+export { TaxCard } from './TaxCard/index';
 export { TaxForm } from './TaxForm/index';
 export { TransactionCard } from './TransactionCard/index';
 export { TransactionsTable } from './TransactionsTable/index';
