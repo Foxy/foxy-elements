@@ -1,4 +1,4 @@
-import { Checkbox, PropertyTable } from '../../private';
+import { Checkbox, PropertyTable } from '../../private/index';
 import { Data, Templates } from './types';
 import { Nucleon, Resource } from '@foxy.io/sdk/core';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -11,7 +11,7 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '..';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/backend';
