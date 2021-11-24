@@ -132,7 +132,7 @@ export abstract class Translatable extends Themeable {
 
     this.__whenI18NReady = this.__i18n.init({
       ns: ['global'],
-      supportedLngs: ['nl', 'en', 'es', 'sv', 'fi', 'fr', 'de', 'zh', 'no', 'it'],
+      supportedLngs: ['nl', 'en', 'es', 'sv', 'fi', 'fr', 'de', 'zh', 'no', 'it', 'pl'],
       interpolation: { format: Translatable.__f },
       fallbackLng: 'en',
       fallbackNS: 'global',
