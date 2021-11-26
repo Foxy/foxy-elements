@@ -479,7 +479,7 @@ export class TaxForm extends Base<Data> {
       { label: 'Thomson Reuters ONESOURCE', value: 'onesource' },
     ];
 
-    if (defaultLiveRateCountries.includes(this.form.country)) {
+    if (this.form.type === 'union' || defaultLiveRateCountries.includes(this.form.country)) {
       items.push({ label: this.t('tax_rate_provider_default'), value: 'default' });
     }
 
