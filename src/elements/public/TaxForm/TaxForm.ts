@@ -148,6 +148,7 @@ export class TaxForm extends Base<Data> {
     })
   );
 
+  /** URI of the `fx:countries` hAPI resource. */
   get countries(): string {
     return this.__countries;
   }
@@ -162,6 +163,7 @@ export class TaxForm extends Base<Data> {
     }
   }
 
+  /** URI of the `fx:regions` hAPI resource. */
   get regions(): string {
     return this.__regions;
   }
