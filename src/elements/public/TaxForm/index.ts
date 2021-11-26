@@ -5,6 +5,7 @@ import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '@vaadin/vaadin-combo-box';
 import '@vaadin/vaadin-button';
+import '@vaadin/vaadin-select';
 
 import { TaxForm } from './TaxForm';
 
