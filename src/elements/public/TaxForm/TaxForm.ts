@@ -104,27 +104,19 @@ export class TaxForm extends Base<Data> {
     return [
       ({ name: v }) => !!v || 'name_required',
       ({ name: v }) => !v || v.length <= 30 || 'name_too_long',
-      ({ type: v }) => !!v || 'type_required',
-      ({ type: v }) => (v && this.__types.includes(v)) || 'type_unknown',
-      ({ country: c, type: t }) => t != 'country' || !!c || 'country_required',
+      ({ country: c, type: t }) => t !== 'country' || !!c || 'country_required',
+      ({ country: c, type: t }) => t !== 'region' || !!c || 'country_required',
       ({ country: c, use_origin_rates: r }) => !r || !!c || 'country_required',
-      ({ country: v }) => !v || !!v.match(/[A-Z]{2}/) || 'country_unknown',
+      ({ country: v }) => !v || !!v.match(/[A-Z]{2}/) || 'country_invalid',
       ({ region: v, type: t }) => t != 'region' || !!v || 'region_required',
-      ({ region: v }) => !v || v.length <= 20 || 'region_unknown',
-      ({ city: v }) => !v || v.length <= 20 || 'city_too_long',
+      ({ region: v }) => !v || v.length <= 20 || 'region_too_long',
+      ({ city: v }) => !v || v.length <= 50 || 'city_too_long',
       ({ city: c, type: t }) => t != 'local' || !!c || 'city_required',
-      ({ service_provider: v }) => !v || this.__providers.includes(v) || 'service_provider_unknown',
-      ({ is_live: l, service_provider: v }) => !l || !!v || 'service_provider_required',
-      ({ rate: v }) => !v || v <= 100 || 'rate_unknown',
-      ({ is_live: l, rate: v }) => !!l || !!v || 'rate_required',
+      ({ rate: v }) => !v || v <= 100 || 'rate_invalid',
     ];
   }
 
   templates: Templates = {};
-
-  private static __providers = ['avalara', '', 'taxjar', 'onesource'];
-
-  private static __types = ['global', 'country', 'region', 'local', 'union'];
 
   private __countries = '';
 
@@ -232,6 +224,13 @@ export class TaxForm extends Base<Data> {
     `;
   }
 
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+
+    // vaadin's combo box doesn't seem to validate on its own
+    this.renderRoot.querySelectorAll('vaadin-combo-box').forEach(e => e.validate());
+  }
+
   disconnectedCallback(): void {
     super.disconnectedCallback();
 
@@ -305,6 +304,15 @@ export class TaxForm extends Base<Data> {
     return !this.data;
   }
 
+  private __getErrorMessage(prefix: string) {
+    const error = this.errors.find(err => err.startsWith(prefix));
+    return error ? this.t(error.replace(prefix, 'v8n')).toString() : '';
+  }
+
+  private __getValidator(prefix: string) {
+    return () => !this.errors.some(err => err.startsWith(prefix));
+  }
+
   private __renderName(): TemplateResult {
     return html`
       <div>
@@ -314,8 +322,11 @@ export class TaxForm extends Base<Data> {
           class="w-full"
           label=${this.t('name')}
           value=${ifDefined(this.form.name)}
+          .checkValidity=${this.__getValidator('name')}
+          .errorMessage=${this.__getErrorMessage('name')}
           ?disabled=${this.in('busy') || this.disabledSelector.matches('name', true)}
           ?readonly=${this.readonlySelector.matches('name', true)}
+          required
           @input=${(evt: CustomEvent) => {
             const newName = (evt.currentTarget as TextFieldElement).value;
             this.edit({ name: newName });
@@ -383,10 +394,13 @@ export class TaxForm extends Base<Data> {
           label="${this.t('country')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
           value=${ifDefined(this.form.country)}
           class="w-full"
+          .checkValidity=${this.__getValidator('country')}
+          .errorMessage=${this.__getErrorMessage('country')}
           .items=${items}
           ?allow-custom-value=${items.length === 0}
           ?disabled=${isLoading || this.disabledSelector.matches('country', true)}
           ?readonly=${this.readonlySelector.matches('country', true)}
+          required
           @change=${(evt: CustomEvent) => {
             this.edit({
               country: (evt.currentTarget as ComboBoxElement).value,
@@ -425,10 +439,13 @@ export class TaxForm extends Base<Data> {
           label="${this.t('region')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
           value=${ifDefined(this.form.region)}
           class="w-full"
+          .checkValidity=${this.__getValidator('region')}
+          .errorMessage=${this.__getErrorMessage('region')}
           .items=${items}
           ?allow-custom-value=${items.length === 0}
           ?disabled=${isLoading || this.disabledSelector.matches('region', true)}
           ?readonly=${this.readonlySelector.matches('region', true)}
+          required
           @change=${(evt: CustomEvent) => {
             const newRegion = (evt.currentTarget as ComboBoxElement).value;
             this.edit({ region: newRegion, city: '' });
@@ -450,8 +467,11 @@ export class TaxForm extends Base<Data> {
           class="w-full"
           label=${this.t('city')}
           value=${ifDefined(this.form.city)}
+          .checkValidity=${this.__getValidator('city')}
+          .errorMessage=${this.__getErrorMessage('city')}
           ?disabled=${this.in('busy') || this.disabledSelector.matches('city', true)}
           ?readonly=${this.readonlySelector.matches('city', true)}
+          required
           @input=${(evt: CustomEvent) => {
             const newCity = (evt.currentTarget as TextFieldElement).value;
             this.edit({ city: newCity });
@@ -527,8 +547,11 @@ export class TaxForm extends Base<Data> {
           min="0"
           prevent-invalid-input
           has-controls
+          .checkValidity=${this.__getValidator('rate')}
+          .errorMessage=${this.__getErrorMessage('rate')}
           ?disabled=${this.in('busy') || this.disabledSelector.matches('rate', true)}
           ?readonly=${this.readonlySelector.matches('rate', true)}
+          required
           @change=${(evt: CustomEvent) => {
             const newRate = parseInt((evt.currentTarget as IntegerFieldElement).value);
             this.edit({ rate: newRate });
