@@ -1,7 +1,7 @@
-import { Rels } from '@foxy.io/sdk/customer';
-import { Resource } from '@foxy.io/sdk/core';
-import { Renderer } from '../../../mixins/configurable';
 import { AddressForm } from './AddressForm';
+import { Rels } from '@foxy.io/sdk/customer';
+import { Renderer } from '../../../mixins/configurable';
+import { Resource } from '@foxy.io/sdk/core';
 
 export type Data = Resource<Rels.CustomerAddress>;
 export type Templates = {
@@ -19,10 +19,10 @@ export type Templates = {
   'phone:after'?: Renderer<AddressForm>;
   'company:before'?: Renderer<AddressForm>;
   'company:after'?: Renderer<AddressForm>;
-  'address-line-one:before'?: Renderer<AddressForm>;
-  'address-line-one:after'?: Renderer<AddressForm>;
-  'address-line-two:before'?: Renderer<AddressForm>;
-  'address-line-two:after'?: Renderer<AddressForm>;
+  'address-one:before'?: Renderer<AddressForm>;
+  'address-one:after'?: Renderer<AddressForm>;
+  'address-two:before'?: Renderer<AddressForm>;
+  'address-two:after'?: Renderer<AddressForm>;
   'postal-code:before'?: Renderer<AddressForm>;
   'postal-code:after'?: Renderer<AddressForm>;
   'timestamps:before'?: Renderer<AddressForm>;
