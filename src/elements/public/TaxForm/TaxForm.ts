@@ -1,11 +1,11 @@
-import { Checkbox, PropertyTable } from '../../private/index';
+import { Checkbox, Dropdown, PropertyTable } from '../../private/index';
+import { CheckboxChangeEvent, DropdownChangeEvent } from '../../private/events';
 import { Data, Templates } from './types';
 import { Nucleon, Resource } from '@foxy.io/sdk/core';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CheckboxChangeEvent } from '../../private/events';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
@@ -83,12 +83,12 @@ export class TaxForm extends Base<Data> {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'vaadin-button': customElements.get('vaadin-button'),
-      'vaadin-select': customElements.get('vaadin-select'),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'x-property-table': PropertyTable,
       'x-checkbox': Checkbox,
+      'x-dropdown': Dropdown,
     };
   }
 
@@ -329,31 +329,23 @@ export class TaxForm extends Base<Data> {
   }
 
   private __renderType(): TemplateResult {
-    const types = [
-      { label: this.t('tax_global'), value: 'global' },
-      { label: this.t('tax_union'), value: 'union' },
-      { label: this.t('tax_country'), value: 'country' },
-      { label: this.t('tax_region'), value: 'region' },
-      { label: this.t('tax_local'), value: 'local' },
-    ];
+    if (!this.form.type) this.edit({ type: 'global' });
 
     return html`
       <div>
         ${this.renderTemplateOrSlot('type:before')}
 
-        <vaadin-combo-box
-          item-value-path="value"
-          item-label-path="label"
-          item-id-path="value"
+        <x-dropdown
           label=${this.t('type')}
           value=${ifDefined(this.form.type)}
           class="w-full"
-          .items=${types}
+          .items=${['global', 'union', 'country', 'region', 'local']}
+          .getText=${(value: string) => this.t(`tax_${value}`)}
           ?disabled=${this.in('busy') || this.disabledSelector.matches('type', true)}
           ?readonly=${this.readonlySelector.matches('type', true)}
-          @change=${(evt: CustomEvent) => {
+          @change=${(evt: DropdownChangeEvent) => {
             this.edit({
-              type: (evt.currentTarget as ComboBoxElement).value as Data['type'],
+              type: evt.detail as Data['type'],
               country: '',
               region: '',
               city: '',
@@ -366,7 +358,7 @@ export class TaxForm extends Base<Data> {
             });
           }}
         >
-        </vaadin-combo-box>
+        </x-dropdown>
 
         ${this.renderTemplateOrSlot('type:after')}
       </div>
@@ -491,33 +483,32 @@ export class TaxForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('provider:before')}
 
-        <vaadin-combo-box
-          item-value-path="value"
-          item-label-path="label"
-          item-id-path="value"
+        <x-dropdown
           label=${this.t('tax_rate_provider')}
-          value=${this.form.service_provider || this.form.is_live ? 'default' : 'none'}
+          value=${this.form.service_provider || (this.form.is_live ? 'default' : 'none')}
           class="w-full"
-          allow-custom-value
-          .items=${items}
+          .items=${items.map(item => item.value)}
+          .getText=${(value: string) => items.find(item => item.value === value)?.label}
           ?disabled=${this.in('busy') || this.disabledSelector.matches('provider', true)}
           ?readonly=${this.readonlySelector.matches('provider', true)}
-          @change=${(evt: CustomEvent) => {
-            const newValue = (evt.currentTarget as ComboBoxElement).value;
-            const newProvider = newValue === 'none' || newValue === 'default' ? '' : newValue;
+          @change=${(evt: DropdownChangeEvent) => {
+            const newValue = evt.detail as string;
+            const newProvider = ['none', 'default'].includes(newValue) ? '' : newValue;
 
             this.edit({
               service_provider: newProvider as Data['service_provider'],
               is_live: newValue !== 'none',
             });
 
-            if (this.__isApplyToShippingHidden) this.edit({ apply_to_shipping: false });
-            if (this.__isExemptAllCustomerTaxIdsHidden)
+            if (this.__isExemptAllCustomerTaxIdsHidden) {
               this.edit({ exempt_all_customer_tax_ids: false });
+            }
+
+            if (this.__isApplyToShippingHidden) this.edit({ apply_to_shipping: false });
             if (this.__isUseOriginRatesHidden) this.edit({ use_origin_rates: false });
           }}
         >
-        </vaadin-combo-box>
+        </x-dropdown>
 
         ${this.renderTemplateOrSlot('provider:after')}
       </div>
