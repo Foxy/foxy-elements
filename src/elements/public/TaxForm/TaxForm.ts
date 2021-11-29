@@ -337,6 +337,7 @@ export class TaxForm extends Base<Data> {
           ?disabled=${this.in('busy') || this.disabledSelector.matches('name', true)}
           ?readonly=${this.readonlySelector.matches('name', true)}
           required
+          @keydown=${this.__submitOnEnter}
           @input=${(evt: CustomEvent) => {
             const newName = (evt.currentTarget as TextFieldElement).value;
             this.edit({ name: newName });
@@ -482,6 +483,7 @@ export class TaxForm extends Base<Data> {
           ?disabled=${this.in('busy') || this.disabledSelector.matches('city', true)}
           ?readonly=${this.readonlySelector.matches('city', true)}
           required
+          @keydown=${this.__submitOnEnter}
           @input=${(evt: CustomEvent) => {
             const newCity = (evt.currentTarget as TextFieldElement).value;
             this.edit({ city: newCity });
@@ -562,6 +564,7 @@ export class TaxForm extends Base<Data> {
           ?disabled=${this.in('busy') || this.disabledSelector.matches('rate', true)}
           ?readonly=${this.readonlySelector.matches('rate', true)}
           required
+          @keydown=${this.__submitOnEnter}
           @change=${(evt: CustomEvent) => {
             const newRate = parseInt((evt.currentTarget as IntegerFieldElement).value);
             this.edit({ rate: newRate });
@@ -757,5 +760,9 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('delete:after')}
       </div>
     `;
+  }
+
+  private __submitOnEnter(evt: KeyboardEvent) {
+    if (evt.key === 'Enter') this.submit();
   }
 }
