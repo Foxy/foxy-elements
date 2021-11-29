@@ -118,6 +118,8 @@ export class TaxForm extends Base<Data> {
 
   templates: Templates = {};
 
+  private __previousCountry: string | undefined = undefined;
+
   private __countries = '';
 
   private __regions = '';
@@ -228,6 +230,11 @@ export class TaxForm extends Base<Data> {
 
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
+
+    if (this.form.country !== this.__previousCountry) {
+      this.__previousCountry = this.form.country;
+      this.__regionsService.send({ type: 'FETCH' });
+    }
 
     // vaadin's combo box doesn't seem to validate on its own
     this.renderRoot.querySelectorAll('vaadin-combo-box').forEach(e => e.validate());
@@ -394,7 +401,7 @@ export class TaxForm extends Base<Data> {
           item-label-path="default"
           item-id-path="cc2"
           label="${this.t('country')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
-          value=${ifDefined(this.form.country)}
+          value=${ifDefined(isLoadingItems ? undefined : this.form.country)}
           class="w-full"
           .checkValidity=${this.__getValidator('country')}
           .errorMessage=${this.__getErrorMessage('country')}
@@ -439,7 +446,7 @@ export class TaxForm extends Base<Data> {
           item-label-path="default"
           item-id-path="code"
           label="${this.t('region')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
-          value=${ifDefined(this.form.region)}
+          value=${ifDefined(isLoadingItems ? undefined : this.form.region)}
           class="w-full"
           .checkValidity=${this.__getValidator('region')}
           .errorMessage=${this.__getErrorMessage('region')}
