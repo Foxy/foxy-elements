@@ -46,11 +46,11 @@ const Base = ScopedElementsMixin(
  * @slot company:before - **new in v1.4.0**
  * @slot company:after - **new in v1.4.0**
  *
- * @slot address-line-one:before - **new in v1.4.0**
- * @slot address-line-one:after - **new in v1.4.0**
+ * @slot address-one:before - **new in v1.4.0**
+ * @slot address-one:after - **new in v1.4.0**
  *
- * @slot address-line-two:before - **new in v1.4.0**
- * @slot address-line-two:after - **new in v1.4.0**
+ * @slot address-two:before - **new in v1.4.0**
+ * @slot address-two:after - **new in v1.4.0**
  *
  * @slot country:before - **new in v1.4.0**
  * @slot country:after - **new in v1.4.0**

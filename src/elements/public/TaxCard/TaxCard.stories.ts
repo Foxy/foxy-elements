@@ -5,28 +5,12 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.foxycart.com/s/admin/customer_addresses/0',
-  parent: 'https://demo.foxycart.com/s/admin/customers/0/customer_addresses',
+  href: 'https://demo.foxycart.com/s/admin/stores/0/taxes/0',
+  parent: 'https://demo.foxycart.com/s/admin/stores/0/taxes',
   nucleon: true,
-  localName: 'foxy-address-form',
+  localName: 'foxy-tax-card',
   translatable: true,
-  configurable: {
-    sections: ['timestamps'],
-    buttons: ['delete', 'create'],
-    inputs: [
-      'address-name',
-      'first-name',
-      'last-name',
-      'company',
-      'phone',
-      'address-one',
-      'address-two',
-      'country',
-      'region',
-      'city',
-      'postal-code',
-    ],
-  },
+  configurable: { sections: ['title', 'subtitle'] },
 };
 
 export default getMeta(summary);
