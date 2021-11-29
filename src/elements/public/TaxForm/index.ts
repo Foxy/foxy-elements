@@ -1,4 +1,5 @@
 import '../../internal/InternalConfirmDialog/index';
+import '../../internal/InternalSandbox/index';
 import '../Spinner/index';
 import '../I18n/index';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';

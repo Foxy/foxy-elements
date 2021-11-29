@@ -84,6 +84,7 @@ export class TaxForm extends Base<Data> {
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'x-property-table': PropertyTable,
