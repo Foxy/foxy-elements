@@ -211,6 +211,7 @@ export class TaxForm extends Base<Data> {
         ${this.__isDeleteHidden ? null : this.__renderDelete()}
 
         <div
+          data-testid="spinner"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': !this.in('busy') && !this.in('fail'),
@@ -329,6 +330,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('name:before')}
 
         <vaadin-text-field
+          data-testid="name"
           class="w-full"
           label=${this.t('name')}
           value=${ifDefined(this.form.name)}
@@ -358,6 +360,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('type:before')}
 
         <x-dropdown
+          data-testid="type"
           label=${this.t('type')}
           value=${ifDefined(this.form.type)}
           class="w-full"
@@ -402,6 +405,7 @@ export class TaxForm extends Base<Data> {
           item-value-path="cc2"
           item-label-path="default"
           item-id-path="cc2"
+          data-testid="country"
           label="${this.t('country')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
           value=${ifDefined(isLoadingItems ? undefined : this.form.country)}
           class="w-full"
@@ -447,6 +451,7 @@ export class TaxForm extends Base<Data> {
           item-value-path="code"
           item-label-path="default"
           item-id-path="code"
+          data-testid="region"
           label="${this.t('region')}${isLoadingItems ? ` • ${this.t('loading_busy')}` : ''}"
           value=${ifDefined(isLoadingItems ? undefined : this.form.region)}
           class="w-full"
@@ -475,6 +480,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('city:before')}
 
         <vaadin-text-field
+          data-testid="city"
           class="w-full"
           label=${this.t('city')}
           value=${ifDefined(this.form.city)}
@@ -516,6 +522,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('provider:before')}
 
         <x-dropdown
+          data-testid="provider"
           label=${this.t('tax_rate_provider')}
           value=${this.form.service_provider || (this.form.is_live ? 'default' : 'none')}
           class="w-full"
@@ -553,6 +560,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('rate:before')}
 
         <vaadin-integer-field
+          data-testid="rate"
           class="w-full"
           label=${this.t('tax_rate')}
           value=${ifDefined(this.form.rate)}
@@ -583,8 +591,9 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('apply-to-shipping:before')}
 
         <x-checkbox
+          data-testid="apply-to-shipping"
           class="leading-s"
-          ?disabled=${this.disabledSelector.matches('apply-to-shipping', true)}
+          ?disabled=${this.in('busy') || this.disabledSelector.matches('apply-to-shipping', true)}
           ?readonly=${this.readonlySelector.matches('apply-to-shipping', true)}
           ?checked=${!!this.form.apply_to_shipping}
           @change=${(evt: CheckboxChangeEvent) => this.edit({ apply_to_shipping: evt.detail })}
@@ -617,8 +626,9 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('use-origin-rates:before')}
 
         <x-checkbox
+          data-testid="use-origin-rates"
           class="leading-s"
-          ?disabled=${this.disabledSelector.matches('use-origin-rates', true)}
+          ?disabled=${this.in('busy') || this.disabledSelector.matches('use-origin-rates', true)}
           ?readonly=${this.readonlySelector.matches('use-origin-rates', true)}
           ?checked=${!!this.form.use_origin_rates}
           @change=${(evt: CheckboxChangeEvent) => this.edit({ use_origin_rates: evt.detail })}
@@ -646,14 +656,17 @@ export class TaxForm extends Base<Data> {
   }
 
   private __renderExemptAllCustomerTaxIds(): TemplateResult {
+    const scope = 'exempt-all-customer-tax-ids';
+
     return html`
       <div>
-        ${this.renderTemplateOrSlot('exempt-all-customer-tax-ids:before')}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <x-checkbox
+          data-testid="${scope}"
           class="leading-s"
-          ?disabled=${this.disabledSelector.matches('exempt-all-customer-tax-ids', true)}
-          ?readonly=${this.readonlySelector.matches('exempt-all-customer-tax-ids', true)}
+          ?disabled=${this.in('busy') || this.disabledSelector.matches(scope, true)}
+          ?readonly=${this.readonlySelector.matches(scope, true)}
           ?checked=${!!this.form.exempt_all_customer_tax_ids}
           @change=${(evt: CheckboxChangeEvent) => {
             this.edit({ exempt_all_customer_tax_ids: evt.detail });
@@ -676,7 +689,7 @@ export class TaxForm extends Base<Data> {
           </foxy-i18n>
         </x-checkbox>
 
-        ${this.renderTemplateOrSlot('exempt-all-customer-tax-ids:after')}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
@@ -687,6 +700,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('timestamps:before')}
 
         <x-property-table
+          data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
             value: this.data ? this.t('date', { value: new Date(this.data[field]) }) : '',
@@ -714,6 +728,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('create:before')}
 
         <vaadin-button
+          data-testid="create"
           class="w-full"
           theme="primary success"
           ?disabled=${isBusy || isInvalid || this.disabledSelector.matches('create', true)}
@@ -731,6 +746,7 @@ export class TaxForm extends Base<Data> {
     return html`
       <div>
         <foxy-internal-confirm-dialog
+          data-testid="confirm"
           message="delete_prompt"
           confirm="delete"
           cancel="cancel"
@@ -746,6 +762,7 @@ export class TaxForm extends Base<Data> {
         ${this.renderTemplateOrSlot('delete:before')}
 
         <vaadin-button
+          data-testid="delete"
           theme="primary error"
           class="w-full"
           ?disabled=${this.in('busy') || this.disabledSelector.matches('delete', true)}
