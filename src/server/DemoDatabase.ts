@@ -16,13 +16,23 @@ class DemoDatabase extends Dexie {
 
   customerPortalSettings: Dexie.Table<any, number>;
 
+  cartIncludeTemplates: Dexie.Table<any, number>;
+
   customerAttributes: Dexie.Table<any, number>;
 
   customerAddresses: Dexie.Table<any, number>;
 
+  checkoutTemplates: Dexie.Table<any, number>;
+
+  receiptTemplates: Dexie.Table<any, number>;
+
   paymentMethods: Dexie.Table<any, number>;
 
+  emailTemplates: Dexie.Table<any, number>;
+
   subscriptions: Dexie.Table<any, number>;
+
+  cartTemplates: Dexie.Table<any, number>;
 
   appliedTaxes: Dexie.Table<any, number>;
 
@@ -51,11 +61,16 @@ class DemoDatabase extends Dexie {
   constructor() {
     super('foxy_demo_db');
 
-    this.version(8).stores({
+    this.version(9).stores({
       customer_portal_settings: 'store',
+      cart_include_templates: '++id,store',
       customer_attributes: '++id,customer',
       customer_addresses: '++id,customer',
+      checkout_templates: '++id,store',
+      receipt_templates: '++id,store',
+      email_templates: '++id,store',
       payment_methods: '++id,customer',
+      cart_templates: '++id,store',
       subscriptions: '++id,store,customer',
       applied_taxes: '++id,transaction',
       transactions: '++id,store,customer,subscription',
@@ -72,9 +87,14 @@ class DemoDatabase extends Dexie {
     });
 
     this.customerPortalSettings = this.table('customer_portal_settings');
+    this.cartIncludeTemplates = this.table('cart_include_templates');
     this.customerAttributes = this.table('customer_attributes');
+    this.checkoutTemplates = this.table('checkout_templates');
     this.customerAddresses = this.table('customer_addresses');
+    this.receiptTemplates = this.table('receipt_templates');
     this.paymentMethods = this.table('payment_methods');
+    this.emailTemplates = this.table('email_templates');
+    this.cartTemplates = this.table('cart_templates');
     this.subscriptions = this.table('subscriptions');
     this.appliedTaxes = this.table('applied_taxes');
     this.transactions = this.table('transactions');

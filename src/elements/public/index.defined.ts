@@ -34,6 +34,7 @@ export { SubscriptionsTable } from './SubscriptionsTable/index';
 export { Table } from './Table/index';
 export { TaxCard } from './TaxCard/index';
 export { TaxForm } from './TaxForm/index';
+export { TemplateForm } from './TemplateForm/index';
 export { TransactionCard } from './TransactionCard/index';
 export { TransactionsTable } from './TransactionsTable/index';
 export { UserForm } from './UserForm/index';
