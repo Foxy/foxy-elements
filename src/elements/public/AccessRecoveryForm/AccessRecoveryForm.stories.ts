@@ -5,7 +5,7 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  parent: 'foxy://auth/recover',
+  parent: 'https://demo.foxycart.com/s/virtual/recovery',
   nucleon: true,
   localName: 'foxy-access-recovery-form',
   translatable: true,

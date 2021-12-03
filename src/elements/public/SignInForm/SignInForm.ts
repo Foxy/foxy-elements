@@ -407,7 +407,7 @@ export class SignInForm extends Base<Data> {
     `;
   }
 
-  protected async _fetch(...args: Parameters<Window['fetch']>): Promise<Data> {
+  protected async _fetch<TResult = Data>(...args: Parameters<Window['fetch']>): Promise<TResult> {
     try {
       return await super._fetch(...args);
     } catch (err) {

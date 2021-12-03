@@ -10,7 +10,7 @@ export class DialogWindow extends ThemeableMixin(ResponsiveMixin(LitElement)) {
       css`
         :host {
           position: relative;
-          z-index: 1000;
+          z-index: 200;
         }
       `,
     ];

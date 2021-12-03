@@ -2,6 +2,7 @@ import { LitElement, PropertyDeclarations, TemplateResult, html } from 'lit-elem
 import i18next, { StringMap, TOptions } from 'i18next';
 
 import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { Gateways } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { backend } from './backend';
 import { format } from './format/index';
@@ -62,6 +63,20 @@ export class I18n extends TranslatableMixin(LitElement, '') {
     return () => removeEventListener('fetch', handleFetch);
   }
 
+  /**
+   * Adds payment gateway names to the i18next store. Fetch `fx:hosted_payment_gateways`
+   * and `fx:payment_gateways` and call this method to make gateway names available to
+   * elements like `foxy-payment-card`.
+   *
+   * @param param0 `fx:hosted_payment_gateways` or `fx:payment_gateways`
+   * @example I18n.setGateways({ values: { authorize: { name: 'Authorize.Net' }}})
+   */
+  static setGateways({ values }: Gateways): void {
+    for (const id in values) {
+      this.i18next.addResource('en', 'gateways', `gateways.${id}`, values[id].name);
+    }
+  }
+
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
@@ -93,7 +108,7 @@ export class I18n extends TranslatableMixin(LitElement, '') {
 
   /** @readonly */
   render(): TemplateResult {
-    return html`${this.t(this.key, { ...this.options, lng: this.lang })}`;
+    return html`<span>${this.t(this.key, { ...this.options, lng: this.lang })}</span>`;
   }
 
   /** @readonly */

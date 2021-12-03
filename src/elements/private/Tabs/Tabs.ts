@@ -30,7 +30,7 @@ export class Tabs extends LitElement {
           id="tab-${index}"
           role="tab"
           class=${classMap({
-            'text-m font-semibold px-s rounded focus-outline-none focus-shadow-outline': true,
+            'text-l font-semibold px-s rounded focus-outline-none focus-shadow-outline': true,
             'text-tertiary hover-text-body focus-text-body': this.value !== index,
           })}
           aria-controls="panel-${index}"

@@ -21,6 +21,8 @@ import { NextDateModification } from './private/NextDateModification/NextDateMod
 import { NextDateModificationChangeEvent } from './private/NextDateModification/NextDateModificationChangeEvent';
 import { OriginsList } from './private/OriginsList/OriginsList';
 import { OriginsListChangeEvent } from './private/OriginsList/OriginsListChangeEvent';
+import { SSOSwitch } from './private/SSOSwitch/SSOSwitch';
+import { SSOSwitchChangeEvent } from './private/SSOSwitch/SSOSwitchChangeEvent';
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { Translatable } from '../../../mixins/translatable';
 import cloneDeep from 'lodash-es/cloneDeep';
@@ -56,6 +58,7 @@ export class CustomerPortalSettings extends Translatable {
       'x-loading-screen': LoadingScreen,
       'x-error-screen': ErrorScreen,
       'x-origins-list': OriginsList,
+      'x-sso-switch': SSOSwitch,
       'x-skeleton': Skeleton,
       'x-section': Section,
       'x-switch': Switch,
@@ -188,6 +191,18 @@ export class CustomerPortalSettings extends Translatable {
           }}
         >
         </x-next-date-modification>
+
+        <x-sso-switch
+          data-testid="sso"
+          .lang=${this.lang}
+          .ns=${this.ns}
+          .value=${newResource?.sso ?? false}
+          .disabled=${!newResource}
+          @change=${(evt: SSOSwitchChangeEvent) => {
+            this.__service.send({ type: 'SET_SSO', value: evt.detail });
+          }}
+        >
+        </x-sso-switch>
 
         <x-section>
           <x-i18n slot="title" key="advanced.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>

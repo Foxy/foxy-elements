@@ -86,7 +86,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           ?disabled=${!!form?.in('busy') || disabledSelector.matches('back', true)}
           @click=${() => (this.page = 'sign-in')}
         >
-          <foxy-i18n ns=${this.ns} lang=${this.lang} key="cancel"></foxy-i18n>
+          <foxy-i18n ns=${this.ns} lang=${this.lang} key="back"></foxy-i18n>
         </vaadin-button>
 
         ${this.renderTemplateOrSlot('access-recovery:back:after')}

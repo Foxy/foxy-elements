@@ -48,7 +48,7 @@ export class SubscriptionCard extends Base<Data> {
             </iron-icon>
           </div>
 
-          <div class="flex-1 min-w-0 leading-s flex flex-col sm-flex-row sm-items-center">
+          <div class="flex-1 min-w-0 leading-xs flex flex-col sm-flex-row sm-items-center">
             <div class="order-1 sm-order-0">
               <div class="text-body font-semibold origin-top-left text-m">
                 <foxy-i18n
@@ -64,7 +64,7 @@ export class SubscriptionCard extends Base<Data> {
 
               <div
                 class=${classMap({
-                  'text-s': true,
+                  'text-m': true,
                   'text-tertiary': !isActive && !isFailed,
                   'text-success': isActive && !isFailed,
                   'text-error': isFailed,
@@ -155,6 +155,6 @@ export class SubscriptionCard extends Base<Data> {
       return hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
     }
 
-    return 'subscription_active';
+    return `subscription_${this.data?.is_active ? 'active' : 'inactive'}`;
   }
 }

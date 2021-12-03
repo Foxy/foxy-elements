@@ -41,14 +41,14 @@ describe('I18n', () => {
     expect(element).to.have.property('lang', '');
     expect(element).to.have.property('key', '');
     expect(element).to.have.property('ns', '');
-    expect(element).shadowDom.to.equal('');
+    expect(element).shadowDom.to.equal('<span></span>');
   });
 
   it('renders key when provided with no translations', async () => {
     const template = html`<foxy-i18n key="foo"></foxy-i18n>`;
     const element = await fixture<I18n>(template);
 
-    expect(element).shadowDom.to.equal('foo');
+    expect(element).shadowDom.to.equal('<span>foo</span>');
   });
 
   it('loads and uses namespace when assigned', async () => {
@@ -56,7 +56,7 @@ describe('I18n', () => {
     const template = html`<foxy-i18n key="foo"></foxy-i18n>`;
     const element = await fixture<I18n>(template);
 
-    expect(element).shadowDom.to.equal('foo');
+    expect(element).shadowDom.to.equal('<span>foo</span>');
 
     element.ns = 'foo';
     const event = (await oneEvent(window, 'fetch')) as unknown as FetchEvent;
@@ -68,7 +68,7 @@ describe('I18n', () => {
     await new Promise(resolve => setTimeout(resolve));
     await element.updateComplete;
 
-    expect(element).shadowDom.to.equal('bar');
+    expect(element).shadowDom.to.equal('<span>bar</span>');
   });
 
   it('loads and uses language when assigned', async () => {
@@ -76,7 +76,7 @@ describe('I18n', () => {
     const template = html`<foxy-i18n key="foo"></foxy-i18n>`;
     const element = await fixture<I18n>(template);
 
-    expect(element).shadowDom.to.equal('foo');
+    expect(element).shadowDom.to.equal('<span>foo</span>');
 
     element.lang = 'es';
     const event = (await oneEvent(window, 'fetch')) as unknown as FetchEvent;
@@ -88,7 +88,7 @@ describe('I18n', () => {
     await new Promise(resolve => setTimeout(resolve));
     await element.updateComplete;
 
-    expect(element).shadowDom.to.equal('bar');
+    expect(element).shadowDom.to.equal('<span>bar</span>');
   });
 
   it('applies options when provided', async () => {
@@ -97,6 +97,6 @@ describe('I18n', () => {
     const template = html`<foxy-i18n key="foo" .options=${{ baz: 'qux' }}></foxy-i18n>`;
     const element = await fixture<I18n>(template);
 
-    expect(element).shadowDom.to.equal('bar qux');
+    expect(element).shadowDom.to.equal('<span>bar qux</span>');
   });
 });

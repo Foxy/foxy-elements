@@ -2,6 +2,7 @@ import { TemplateResult, html } from 'lit-html';
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { Renderer } from '../../../mixins/configurable';
+import { spread } from '@open-wc/lit-helpers';
 
 export type Page = {
   _links: { next: { href: string }; self: { href: string } };
@@ -50,6 +51,8 @@ export type PageRendererContext<TPage extends Page = Page> = {
   readonly: boolean;
   disabled: boolean;
   hidden: boolean;
+  spread: typeof spread;
+  props: Record<string, unknown>;
   group: string;
   html: typeof html;
   href: string;

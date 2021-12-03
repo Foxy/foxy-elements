@@ -7,7 +7,7 @@ import { API } from './API';
 import { FetchEvent } from './FetchEvent';
 import { UpdateEvent } from './UpdateEvent';
 import memoize from 'lodash-es/memoize';
-import traverse from 'traverse';
+import { serveFromCache } from './serveFromCache';
 
 /**
  * Base class for custom elements working with remote HAL+JSON resources.
@@ -45,6 +45,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      related: { type: Array },
       parent: { type: String },
       group: { type: String, noAccessor: true },
       href: { type: String, noAccessor: true },
@@ -73,6 +74,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
    */
   parent = '';
 
+  /**
+   * Optional URI list of the related resources. If Rumour encounters a related
+   * resource on creation or deletion, it will be reloaded from source.
+   */
+  related: string[] = [];
+
   private __href = '';
 
   private __group = '';
@@ -80,6 +87,8 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   private __unsubscribeFromRumour!: () => void;
 
   private __fetchEventHandler!: (evt: Event) => void;
+
+  private __fetchEventQueue: FetchEvent[] = [];
 
   private readonly __service = interpret(
     (Nucleon.machine as NucleonMachine<TData>).withConfig({
@@ -233,6 +242,14 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__service.send({ type: 'DELETE' });
   }
 
+  /**
+   * Fetches data from `element.href` in background, keeping the edits and v8n errors.
+   * @example element.refresh()
+   */
+  refresh(): void {
+    this.__service.send({ type: 'REFRESH' });
+  }
+
   /** @readonly */
   connectedCallback(): void {
     super.connectedCallback();
@@ -240,6 +257,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__createService();
     this.__createRumour();
     this.__createServer();
+    this.__processFetchEventQueue();
   }
 
   /** @readonly */
@@ -249,10 +267,11 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__destroyService();
     this.__destroyRumour();
     this.__destroyServer();
+    this.__flushFetchEventQueue('parent element was disconnected');
   }
 
   /** Sends API request. Throws an error on non-2XX response. */
-  protected async _fetch(...args: Parameters<Window['fetch']>): Promise<TData> {
+  protected async _fetch<TResult = TData>(...args: Parameters<Window['fetch']>): Promise<TResult> {
     const response = await new API(this).fetch(...args);
     if (!response.ok) throw response;
     return response.json();
@@ -263,9 +282,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const body = JSON.stringify(edits);
     const data = await this._fetch(this.parent, { body, method: 'POST' });
     const rumour = NucleonElement.Rumour(this.group);
+    const related = [...this.related, this.parent];
 
     this.__destroyRumour();
-    rumour.share({ data, related: [this.parent], source: data._links.self.href });
+    rumour.share({ data, related, source: data._links.self.href });
     this.__createRumour();
 
     return data;
@@ -290,7 +310,7 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     const rumour = NucleonElement.Rumour(this.group);
 
     this.__destroyRumour();
-    rumour.share({ data, source: this.href });
+    rumour.share({ data, source: this.href, related: this.related });
     this.__createRumour();
 
     return data;
@@ -300,9 +320,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
   protected async _sendDelete(): Promise<TData> {
     const data = await this._fetch(this.href, { method: 'DELETE' });
     const rumour = NucleonElement.Rumour(this.group);
+    const related = [...this.related, this.parent];
 
     this.__destroyRumour();
-    rumour.share({ data: null, source: this.href, related: [this.parent] });
+    rumour.share({ data: null, source: this.href, related });
     this.__createRumour();
 
     return data;
@@ -317,6 +338,8 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
       this.requestUpdate();
       this.dispatchEvent(new UpdateEvent());
+
+      if (!state.matches('busy')) this.__processFetchEventQueue();
     });
 
     this.__service.onChange(() => {
@@ -358,32 +381,54 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
       if (newData !== oldData) this.__service.send({ data: newData, type: 'SET_DATA' });
     } catch (err) {
       if (err instanceof Rumour.UpdateError) {
-        this.__service.send({ type: 'FETCH' });
+        this.__service.send({ type: 'REFRESH' });
       } else {
         throw err;
       }
     }
   }
 
-  private __handleFetchEvent(event: Event) {
-    if (!(event instanceof FetchEvent)) return;
-    if (event.request.method !== 'GET') return;
+  private __processFetchEventQueue() {
+    const api = new NucleonElement.API(this);
 
-    const localName = this.localName;
+    this.__fetchEventQueue.forEach(event => {
+      const request = event.request;
+      const cacheResponse = serveFromCache(request.url, this.data);
+      const whenResponseReady = cacheResponse.ok ? cacheResponse : api.fetch(request);
 
-    traverse(this.__service.state.context.data).forEach(function () {
-      if (this.node?._links?.self?.href === event.request.url) {
+      event.respondWith(Promise.resolve(whenResponseReady));
+
+      if (cacheResponse.ok) {
         console.debug(
-          `%c@foxy.io/elements::${localName}\n%c200%c GET ${event.request.url}`,
+          `%c@foxy.io/elements::${this.localName}\n%c200%c GET ${request.url}`,
           'color: gray',
           `background: gray; padding: 0 .2em; border-radius: .2em; color: white;`,
           ''
         );
-
-        const body = JSON.stringify(this.node);
-        event.respondWith(Promise.resolve(new Response(body)));
-        this.stop();
       }
     });
+
+    this.__fetchEventQueue = [];
+  }
+
+  private __flushFetchEventQueue(errorMessage: string) {
+    this.__fetchEventQueue.forEach(event => {
+      event.respondWith(Promise.reject(new Error(errorMessage)));
+    });
+
+    this.__fetchEventQueue = [];
+  }
+
+  private __handleFetchEvent(event: Event) {
+    if (!(event instanceof FetchEvent)) return;
+    if (event.defaultPrevented) return;
+    if (event.request.method !== 'GET') return;
+    if (event.request.url.startsWith('foxy://')) return;
+    if (event.composedPath()[0] === this) return;
+
+    event.preventDefault();
+    this.__fetchEventQueue.push(event);
+
+    if (!this.in('busy')) this.__processFetchEventQueue();
   }
 }

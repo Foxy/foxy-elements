@@ -2,6 +2,7 @@
 
 import { CSSResult, CSSResultArray, Constructor, LitElement, css } from 'lit-element';
 
+import { ResponsiveMixin } from './responsive';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 type Base = Constructor<LitElement> & { styles?: CSSResult | CSSResultArray | CSSStyleSheet };
@@ -71,6 +72,26 @@ export const ThemeableMixin = <TBase extends Base>(
             margin: 0.1875em var(--lumo-space-m);
           }
 
+          .appearance-none {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+          }
+
+          .appearance-none::-webkit-calendar-picker-indicator,
+          .appearance-none::-webkit-outer-spin-button,
+          .appearance-none::-webkit-inner-spin-button,
+          .appearance-none::-webkit-list-button {
+            opacity: 0 !important;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          input::-webkit-date-and-time-value {
+            text-align: inherit !important;
+          }
+
           @tailwind components;
 
           @tailwind utilities;
@@ -126,4 +147,6 @@ export const ThemeableMixin = <TBase extends Base>(
  *
  * @deprecated
  */
-export abstract class Themeable extends ScopedElementsMixin(ThemeableMixin(LitElement)) {}
+export abstract class Themeable extends ScopedElementsMixin(
+  ResponsiveMixin(ThemeableMixin(LitElement))
+) {}

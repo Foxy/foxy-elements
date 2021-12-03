@@ -66,6 +66,10 @@
     "minWarning": "The minimum is either too close to the maximum or exceeds it. This may make your customers unable to change next date under certain conditions. Please proceed with caution.",
     "maxHint": "Requires the new date to be at most {{duration}} into the future."
   },
+  "sso": {
+    "title": "Enable Single Sign-On (SSO)",
+    "subtitle": "Sync your sessions across your website and our checkout"
+  },
   "jwt": {
     "title": "JWT shared secret",
     "subtitle": "Reset this key to drop all active sessions",

@@ -6,6 +6,7 @@ import {
   CustomerPortalSettingsSetHrefEvent,
   CustomerPortalSettingsSetNextDateModificationEvent,
   CustomerPortalSettingsSetOriginsEvent,
+  CustomerPortalSettingsSetSSOEvent,
   CustomerPortalSettingsSetSecretEvent,
   CustomerPortalSettingsSetSessionEvent,
 } from './types';
@@ -155,9 +156,17 @@ const setHref = actions.assign<CustomerPortalSettingsContext>({
   href: (_, evt) => (evt as CustomerPortalSettingsSetHrefEvent).data,
 });
 
+const setSSO = actions.assign<CustomerPortalSettingsContext>({
+  newResource: ({ newResource }, evt) => {
+    const sso = (evt as CustomerPortalSettingsSetSSOEvent).value;
+    return { ...newResource!, sso };
+  },
+});
+
 // #endregion actions
 
 const setters = {
+  SET_SSO: { target: '#cps.idle', actions: 'setSSO' },
   SET_SECRET: { target: '#cps.idle', actions: 'setSecret' },
   SET_ORIGINS: { target: '#cps.idle', actions: 'setOrigins' },
   SET_SESSION: { target: '#cps.idle', actions: 'setSession' },
@@ -287,6 +296,7 @@ export const machine = Machine<CustomerPortalSettingsContext>(
       setSession,
       setSecret,
       setHref,
+      setSSO,
       handleLoadingSuccess,
       handleSavingSuccess,
       handleError,

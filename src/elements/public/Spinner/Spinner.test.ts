@@ -20,8 +20,7 @@ describe('Spinner', () => {
     expect(text).to.have.attribute('ns', 'spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
-    expect(icon).to.have.attribute('active');
-    expect(icon).to.have.property('localName', 'paper-spinner-lite');
+    expect(icon).to.have.property('localName', 'svg');
   });
 
   it('passes lang down to children', async () => {
@@ -45,8 +44,7 @@ describe('Spinner', () => {
     expect(text).to.have.attribute('ns', 'spinner');
     expect(text).to.have.property('localName', 'foxy-i18n');
 
-    expect(icon).to.have.attribute('active');
-    expect(icon).to.have.property('localName', 'paper-spinner-lite');
+    expect(icon).to.have.property('localName', 'svg');
   });
 
   it('renders end state', async () => {

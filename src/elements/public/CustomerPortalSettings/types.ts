@@ -1,5 +1,5 @@
-import { FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
 import { ErrorType, FriendlyError } from '../../private/ErrorScreen/ErrorScreen';
+import { FxCustomerPortalSettings, FxStore } from '../../../types/hapi';
 
 export interface CustomerPortalSettingsContext {
   oldResource: FxCustomerPortalSettings | null;
@@ -30,6 +30,11 @@ export interface CustomerPortalSettingsResetEvent {
 export interface CustomerPortalSettingsSetHrefEvent {
   type: 'SET_HREF';
   data: string | null;
+}
+
+export interface CustomerPortalSettingsSetSSOEvent {
+  type: 'SET_SSO';
+  value: boolean;
 }
 
 export interface CustomerPortalSettingsSaveEvent {

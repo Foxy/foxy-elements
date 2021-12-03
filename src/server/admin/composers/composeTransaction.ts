@@ -1,8 +1,9 @@
 import { composeItem } from './composeItem';
+import { composePayment } from './composePayment';
 import { endpoint } from '..';
 import halson from 'halson';
 
-export function composeTransaction(doc: any, items?: any[]) {
+export function composeTransaction(doc: any, items?: any[], payments?: any[]) {
   const { id, store, customer, subscription, ...publicData } = doc;
 
   let result = halson({ ...publicData, id })
@@ -30,6 +31,13 @@ export function composeTransaction(doc: any, items?: any[]) {
     result = result.addEmbed(
       'fx:items',
       items.map(item => composeItem(item))
+    );
+  }
+
+  if (payments && payments.length > 0) {
+    result = result.addEmbed(
+      'fx:payments',
+      payments.map(payment => composePayment(payment))
     );
   }
 

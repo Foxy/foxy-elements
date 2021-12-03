@@ -42,7 +42,7 @@ export class AddressCard extends Base<Data> {
       <div class="mb-s leading-none">
         ${this.renderTemplateOrSlot('address-name:before')}
 
-        <span class="uppercase text-xxs font-semibold text-primary tracking-wider">
+        <span class="font-semibold">
           ${isDefaultBilling || isDefaultShipping
             ? html`
                 <foxy-i18n
@@ -67,7 +67,7 @@ export class AddressCard extends Base<Data> {
       <p>
         ${this.renderTemplateOrSlot(`${id}:before`)}
 
-        <span class="flex items-center text-s space-x-s">
+        <span class="flex items-center text-m space-x-s text-secondary">
           <iron-icon icon=${icon} class="icon-inline flex-shrink-0"></iron-icon>
           <span class="truncate" data-testid=${id}>${text}</span>
           &ZeroWidthSpace;
@@ -129,7 +129,7 @@ export class AddressCard extends Base<Data> {
 
     return html`
       <div
-        class="relative h-full text-left text-s leading-m font-lumo text-body"
+        class="relative h-full text-left text-m leading-m font-lumo text-body"
         aria-live="polite"
         aria-busy=${isBusy}
         data-testid="wrapper"

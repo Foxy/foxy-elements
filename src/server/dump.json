@@ -1,4 +1,90 @@
 {
+  "applied_taxes": [
+    {
+      "id": 0,
+      "tax": 0,
+      "store": 0,
+      "transaction": 0,
+      "rate": 8.0,
+      "name": "US Sales Tax",
+      "amount": 1.7765,
+      "apply_to_handling": true,
+      "apply_to_shipping": true,
+      "is_future_tax": false,
+      "shipto": "",
+      "date_created": "2021-03-29T13:57:40-0700",
+      "date_modified": "2021-03-29T13:57:40-0700"
+    }
+  ],
+  "discounts": [
+    {
+      "id": 0,
+      "store": 0,
+      "coupon": 0,
+      "customer": 0,
+      "coupon_code": 0,
+      "transaction": 0,
+      "code": "1WLCM",
+      "amount": -1,
+      "name": "Welcome Bonus",
+      "display": "-1.00",
+      "is_taxable": false,
+      "is_future_discount": false,
+      "date_created": "2021-03-29T13:57:40-0700",
+      "date_modified": "2021-03-29T13:57:40-0700"
+    }
+  ],
+  "payments": [
+    {
+      "id": 0,
+      "store": 0,
+      "transaction": 0,
+      "type": "plastic",
+      "gateway_type": "authorize",
+      "processor_response": "Authorize.net Transaction ID: 2233990980",
+      "processor_response_details": "",
+      "purchase_order": "",
+      "cc_number_masked": "xxxxxxxxxxxx1111",
+      "cc_type": "Visa",
+      "cc_exp_month": "01",
+      "cc_exp_year": "2017",
+      "fraud_protection_score": 0,
+      "paypal_payer_id": "",
+      "third_party_id": "",
+      "amount": 20.15,
+      "date_created": "2015-05-21T14:22:09-0700",
+      "date_modified": "2015-05-21T14:22:09-0700"
+    }
+  ],
+  "error_entries": [
+    {
+      "id": 0,
+      "store": 0,
+      "transaction": 0,
+      "url": "https://serverless.foxycartdev.com/checkout",
+      "error_message": "DataFeed Failed: (2) 2012-08-10 12:12:49 No data returned for  [0]\n malformed",
+      "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15",
+      "referrer": "https://serverless.foxycart.test/checkout",
+      "ip_address": "10.0.0.1",
+      "ip_country": "United States",
+      "post_values": "fcsid=tlu0s66jmpnoit6dtsh78ls95s&ThisAction=checkout&customer_id=4535647181a2a3c24976cc6581bdef4d&is_anonymous=0&anonymous_checkout_selected=0&email_is_found=1&customer_email=sally.sims@test.com&shipping_first_name=Sally&shipping_last_name=Sims&shipping_company=&shipping_phone=&shipping_tax_id=&shipping_address1=8 Random St.&shipping_address2=&shipping_postal_code=12345&shipping_city=SAN FRANCISCO&shipping_region=CA&shipping_country=US&use_different_addresses=1&billing_first_name=Sally&billing_last_name=Sims&billing_company=&billing_phone=&billing_address1=8 Random St.&billing_address2=&billing_postal_code=94103&billing_city=SAN FRANCISCO&billing_region=CA&billing_country=US&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=visa&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 1111&cc_exp_year_saved=2025&cc_exp_month_saved=06&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:900,&quot;browserScreenWidth&quot;:1440,&quot;browserLanguage&quot;:&quot;en-gb&quot;,&quot;browserTimeZone&quot;:-180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
+      "get_values": "",
+      "hide_error": false,
+      "date_created": "2021-03-29T13:57:40-0700",
+      "date_modified": "2021-03-29T13:57:40-0700"
+    }
+  ],
+  "custom_fields": [
+    {
+      "id": 0,
+      "name": "Terms & Conditions",
+      "value": "Checked",
+      "is_hidden": true,
+      "transaction": 0,
+      "date_created": "2013-08-05T14:15:59-0700",
+      "date_modified": "2013-08-05T14:15:59-0700"
+    }
+  ],
   "customer_attributes": [
     {
       "id": 0,
@@ -120,59 +206,6 @@
       "content_text_url": "",
       "date_created": "2012-08-10T11:58:54-0700",
       "date_modified": "2012-08-10T11:58:54-0700"
-    }
-  ],
-  "error_entries": [
-    {
-      "id": 0,
-      "store": 0,
-      "customer": 0,
-      "transaction": 0,
-      "url": "https://api-sandbox.foxycart.com/api_rest.php",
-      "error_message": "DataFeed Failed: (2) 2012-08-10 12:12:49 No data returned for  [0]\n malformed",
-      "user_agent": "curl/7.21.3 (i386-pc-win32) libcurl/7.21.3 OpenSSL/0.9.8q zlib/1.2.5",
-      "referrer": "https://example.com",
-      "ip_address": "10.1.249.103",
-      "ip_country": "",
-      "post_values": "fcsid=ef3r23si2a8kra9gt91krlltli&ThisAction=checkout&customer_id=32df6844ba6d2a75001d1ada29685290&is_anonymous=0&anonymous_checkout_selected=0&email_is_found=1&customer_email=example@example.com&shipping_first_name=Foo&shipping_last_name=Oliveira&shipping_company=&shipping_phone=&shipping_tax_id=&shipping_address1=Summer st 19&shipping_address2=&shipping_postal_code=55517266&shipping_city=Springfield&shipping_region=DF&shipping_country=BR&use_different_addresses=0&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=mastercard&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 7480&cc_exp_year_saved=2027&cc_exp_month_saved=08&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:1024,&quot;browserScreenWidth&quot;:1280,&quot;browserLanguage&quot;:&quot;en-US&quot;,&quot;browserTimeZone&quot;:180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
-      "get_values": "fcsid=ef3r23si2a8kra9gt91krlltli&ThisAction=checkout&customer_id=32df6844ba6d2a75001d1ada29685290&is_anonymous=0&anonymous_checkout_selected=0&email_is_found=1&customer_email=example@example.com&shipping_first_name=Foo&shipping_last_name=Oliveira&shipping_company=&shipping_phone=&shipping_tax_id=&shipping_address1=Summer st 19&shipping_address2=&shipping_postal_code=55517266&shipping_city=Springfield&shipping_region=DF&shipping_country=BR&use_different_addresses=0&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=mastercard&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 7480&cc_exp_year_saved=2027&cc_exp_month_saved=08&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:1024,&quot;browserScreenWidth&quot;:1280,&quot;browserLanguage&quot;:&quot;en-US&quot;,&quot;browserTimeZone&quot;:180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
-      "hide_error": false,
-      "date_created": "2012-08-10T12:12:49-0700",
-      "date_modified": null
-    },
-    {
-      "id": 1,
-      "store": 0,
-      "customer": 0,
-      "transaction": 0,
-      "url": "https://api-sandbox.foxycart.com/api_rest.php",
-      "error_message": "DataFeed Failed: (2) 2013-08-10 12:12:49 No data returned for  [0]\n malformed",
-      "user_agent": "curl/8.21.3 (i386-pc-win32) libcurl/7.21.3 OpenSSL/0.9.8q zlib/1.2.5",
-      "referrer": "https://example.com",
-      "ip_address": "10.2.249.103",
-      "ip_country": "",
-      "post_values": "fcsid=ef7r23si2a8kra9gt91krlltli&ThisAction=checkout&customer_id=32df6844ba6d2a75004d1ada29685292&is_anonymous=0",
-      "get_values": "fcsid=ef9r23si2a8kra9gt91krlltli&ThisAction=checkout&customer_id=32df6856ba6d2a75015d1ada29685290&is_anonymous=0&anonymous_checkout_selected=0",
-      "hide_error": true,
-      "date_created": "2012-10-19T17:12:49-0700",
-      "date_modified": null
-    },
-    {
-      "id": 2,
-      "store": 0,
-      "customer": 0,
-      "transaction": 0,
-      "url": "https://api-sandbox.foxycart.com/api_rest.php",
-      "error_message": "DataFeed Failed: (5) 2014-08-10 12:12:49 No data returned for  [0]\n malformed",
-      "user_agent": "curl/11.21.3 (i386-pc-win32) libcurl/7.21.3 OpenSSL/0.9.8q zlib/1.2.5",
-      "referrer": "https://example.com",
-      "ip_address": "13.2.249.103",
-      "ip_country": "",
-      "post_values": "email_is_found=4&customer_email=example@example.com&shipping_first_name=Foo&shipping_last_name=Oliveira&shipping_company=&shipping_phone=&shipping_tax_id=&shipping_address1=Summer st 19&shipping_address2=&shipping_postal_code=55517266&shipping_city=Springfield&shipping_region=DF&shipping_country=BR&use_different_addresses=0&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=mastercard&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 7480&cc_exp_year_saved=2027&cc_exp_month_saved=08&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:1024,&quot;browserScreenWidth&quot;:1280,&quot;browserLanguage&quot;:&quot;en-US&quot;,&quot;browserTimeZone&quot;:180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
-      "get_values": "shipping_address5=&shipping_postal_code=55517266&shipping_city=Springfield&shipping_region=DF&shipping_country=BR&use_different_addresses=0&shipping_service_description=Flat Rate Shipping&shipping_service_signature=&cc_type=mastercard&fc_payment_method=plastic_saved&cc_number_masked=xxxx xxxx xxxx 7480&cc_exp_year_saved=2027&cc_exp_month_saved=08&browserInfo={&quot;browserUserAgent&quot;:&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.72 Safari/537.36&quot;,&quot;browserAcceptHeader&quot;:&quot;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8&quot;,&quot;browserColorDepth&quot;:24,&quot;browserScreenHeight&quot;:1024,&quot;browserScreenWidth&quot;:1280,&quot;browserLanguage&quot;:&quot;en-US&quot;,&quot;browserTimeZone&quot;:180,&quot;browserJavaScriptEnabled&quot;:true,&quot;browserJavaEnabled&quot;:false}&fc_payment_method_orig=plastic_saved&",
-      "hide_error": false,
-      "date_created": "2015-10-19T17:12:49-0700",
-      "date_modified": null
     }
   ],
   "payment_methods": [
@@ -378,7 +411,7 @@
       "timezone": "America/Los_Angeles",
       "hide_currency_symbol": false,
       "hide_decimal_characters": false,
-      "use_international_currency_symbol": false,
+      "use_international_currency_symbol": true,
       "language": "english",
       "logo_url": "https://picsum.photos/64",
       "checkout_type": "default_account",
@@ -593,6 +626,76 @@
       "sso": true,
       "date_created": "2020-04-13T08:44:09-0700",
       "date_modified": "2020-04-13T08:46:03-0700"
+    }
+  ],
+  "taxes": [
+    {
+      "id": 0,
+      "store": 0,
+      "name": "Beverage tax",
+      "type": "region",
+      "country": "US",
+      "region": "TN",
+      "city": "",
+      "is_live": true,
+      "service_provider": "avalara",
+      "apply_to_shipping": true,
+      "use_origin_rates": true,
+      "exempt_all_customer_tax_ids": true,
+      "rate": 1,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
+    },
+    {
+      "id": 1,
+      "store": 0,
+      "name": "Aggregated value tax",
+      "type": "region",
+      "country": "US",
+      "region": "TX",
+      "city": "",
+      "is_live": false,
+      "service_provider": "",
+      "apply_to_shipping": false,
+      "use_origin_rates": true,
+      "exempt_all_customer_tax_ids": false,
+      "rate": 3,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
+    },
+    {
+      "id": 2,
+      "store": 0,
+      "name": "Good and Service tax",
+      "type": "country",
+      "country": "AR",
+      "region": "",
+      "city": "",
+      "is_live": false,
+      "service_provider": "",
+      "apply_to_shipping": false,
+      "use_origin_rates": true,
+      "exempt_all_customer_tax_ids": false,
+      "rate": 3,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
+    },
+    {
+      "id": 3,
+      "store": 0,
+      "name": "Green Tax",
+      "type": "local",
+      "country": "NL",
+      "region": "GR",
+      "city": "Groningen",
+      "is_live": false,
+      "service_provider": "",
+      "apply_to_shipping": false,
+      "use_origin_rates": false,
+      "exempt_all_customer_tax_ids": false,
+      "rate": 2.5,
+      "date_created": "2013-08-19T10:58:39-0700",
+      "date_modified": "2013-08-19T10:58:39-0700"
     }
   ],
   "users": [

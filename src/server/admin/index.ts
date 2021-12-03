@@ -1,15 +1,22 @@
 import { Collection, Table } from 'dexie';
 import { DemoDatabase, db, whenDbReady } from '../DemoDatabase';
+
 import { HALJSONResource } from '../../elements/public/NucleonElement/types';
+import { composeAppliedTax } from './composers/composeAppliedTax';
 import { composeCollection } from './composers/composeCollection';
+import { composeCustomField } from './composers/composeCustomField';
 import { composeCustomer } from './composers/composeCustomer';
 import { composeCustomerAddress } from './composers/composeCustomerAddress';
 import { composeCustomerAttribute } from './composers/composeCustomerAttribute';
 import { composeDefaultPaymentMethod } from './composers/composeDefaultPaymentMethod';
+import { composeDiscount } from './composers/composeDiscount';
 import { composeEmailTemplate } from './composers/composeEmailTemplate';
 import { composeErrorEntry } from './composers/composeErrorEntry';
 import { composeItem } from './composers/composeItem';
+import { composePayment } from './composers/composePayment';
+import { composeStore } from './composers/composeStore';
 import { composeSubscription } from './composers/composeSubscription';
+import { composeTax } from './composers/composeTax';
 import { composeTemplateCache } from './composers/composeTemplateCache';
 import { composeTransaction } from './composers/composeTransaction';
 import { composeUser } from './composers/composeUser';
@@ -88,11 +95,26 @@ router.get('/s/admin/stores/:id/subscriptions', async ({ params, request }) => {
 });
 
 // transactions
-router.get('/s/admin/transactions/:id', async ({ params }) => {
+router.get('/s/admin/transactions/:id', async ({ params, request }) => {
   await whenDbReady;
+
   const id = parseInt(params.id);
   const doc = await db.transactions.get(id);
-  const body = composeTransaction(doc);
+  const searchParams = new URL(request.url).searchParams;
+
+  let payments: any[] | undefined = undefined;
+  let items: any[] | undefined = undefined;
+
+  if (searchParams.get('zoom')?.includes('payments')) {
+    payments = await db.payments.where('transaction').equals(id).limit(20).toArray();
+  }
+
+  if (searchParams.get('zoom')?.includes('items')) {
+    items = await db.items.where('transaction').equals(id).limit(20).toArray();
+  }
+
+  const body = composeTransaction(doc, items, payments);
+
   return new Response(JSON.stringify(body));
 });
 
@@ -267,6 +289,21 @@ router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
   return new Response(JSON.stringify(body));
 });
 
+router.get('/s/admin/error_entries/:id', async ({ params }) => {
+  await whenDbReady;
+  const errorEntry = await db.errorEntries.get(parseInt(params.id));
+  const body = composeErrorEntry(errorEntry);
+  return new Response(JSON.stringify(body));
+});
+
+router.patch('/s/admin/error_entries/:id', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  await db.errorEntries.update(id, await request.json());
+  const body = composeErrorEntry(await db.errorEntries.get(id));
+  return new Response(JSON.stringify(body));
+});
+
 // customer_attributes
 
 router.get('/s/admin/customers/:id/attributes', async ({ params, request }) => {
@@ -329,6 +366,161 @@ router.delete('/s/admin/customer_attributes/:id', async ({ params }) => {
   const id = parseInt(params.id);
   const body = composeCustomerAttribute(await db.customerAttributes.get(id));
   await db.customerAttributes.delete(id);
+
+  return new Response(JSON.stringify(body));
+});
+
+// custom_fields
+
+router.get('/s/admin/transactions/:id/custom_fields', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.customFields.count(),
+    db.customFields.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:custom_fields';
+  const composeItem = composeCustomField;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/custom_fields/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeCustomField(await db.customFields.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+router.post('/s/admin/transactions/:id/custom_fields', async ({ params, request }) => {
+  await whenDbReady;
+
+  const requestBody = await request.json();
+  const newID = await db.customFields.add({
+    name: requestBody.name ?? '',
+    value: requestBody.value ?? '',
+    is_hidden: !!requestBody.is_hidden,
+    transaction: parseInt(params.id),
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  });
+
+  const newDoc = await db.customFields.get(newID);
+  const responseBody = composeCustomField(newDoc);
+
+  return new Response(JSON.stringify(responseBody));
+});
+
+router.patch('/s/admin/custom_fields/:id', async ({ params, request }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  await db.customFields.update(id, await request.json());
+  const body = composeCustomField(await db.customFields.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+router.delete('/s/admin/custom_fields/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeCustomField(await db.customFields.get(id));
+  await db.customFields.delete(id);
+
+  return new Response(JSON.stringify(body));
+});
+
+// applied_taxes
+
+router.get('/s/admin/transactions/:id/applied_taxes', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.appliedTaxes.count(),
+    db.appliedTaxes.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:applied_taxes';
+  const composeItem = composeAppliedTax;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/applied_taxes/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeAppliedTax(await db.appliedTaxes.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+// discounts
+
+router.get('/s/admin/transactions/:id/discounts', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.discounts.count(),
+    db.discounts.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:discounts';
+  const composeItem = composeDiscount;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/discounts/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composeDiscount(await db.discounts.get(id));
+
+  return new Response(JSON.stringify(body));
+});
+
+// payments
+
+router.get('/s/admin/transactions/:id/payments', async ({ params, request }) => {
+  await whenDbReady;
+  const id = parseInt(params.id);
+  const url = request.url;
+  const { limit, offset } = getPagination(url);
+
+  const [count, items] = await Promise.all([
+    db.payments.count(),
+    db.payments.where('transaction').equals(id).offset(offset).limit(limit).toArray(),
+  ]);
+
+  const rel = 'fx:payments';
+  const composeItem = composePayment;
+  const body = composeCollection({ composeItem, rel, url, count, items });
+
+  return new Response(JSON.stringify(body));
+});
+
+router.get('/s/admin/payments/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const body = composePayment(await db.payments.get(id));
 
   return new Response(JSON.stringify(body));
 });
@@ -588,10 +780,53 @@ router.post('/s/admin/template/:template_type/:id/cache', async () => {
   return new Response(JSON.stringify(composeTemplateCache()));
 });
 
+// taxes
+
+router.get('/s/admin/stores/:storeId/taxes/:id', async ({ params }) => {
+  return respondItemById(db.taxes, parseInt(params.id), composeTax);
+});
+
+router.get('/s/admin/stores/:id/taxes', async ({ request }) => {
+  return respondItems(db.taxes, composeTax, request.url, 'fx:taxes');
+});
+
+// property helpers
+
+router.get('/s/admin/property_helpers/countries', async () => {
+  const { countries } = await import('./helpers/countries');
+  return new Response(JSON.stringify(countries));
+});
+
+router.get('/s/admin/property_helpers/regions', async ({ request }) => {
+  const country = new URL(request.url).searchParams.get('country_code') ?? 'US';
+  const regions = { ...(await import('./helpers/regionsUS')).regionsUS } as any;
+  if (country !== 'US') regions.values = [];
+
+  return new Response(JSON.stringify(regions));
+});
+
+// store
+
+router.get('/s/admin/stores/:id', async ({ params }) => {
+  await whenDbReady;
+
+  const id = parseInt(params.id);
+  const doc = await db.stores.get(id);
+  const body = composeStore(doc);
+
+  return new Response(JSON.stringify(body));
+});
+
+// special routes
+
+router.get('/s/admin/not-found', async () => new Response(null, { status: 404 }));
+
+router.get('/s/admin/sleep', () => new Promise(() => void 0));
+
 /**
  * Returns a response object with the composed entry for the given id in the given table.
  *
- * @param table the Dixie table storing the data
+ * @param table the Dexie table storing the data
  * @param id the id number to be fetched
  * @param composer the function to be used to compose the response into a HAL Resource
  * @returns response object with the item requested.
@@ -610,7 +845,7 @@ async function respondItemById(
  * Creates a response with the composed entries for the given
  * table.
  *
- * @param table the Dixie table storing the data
+ * @param table the Dexie table storing the data
  * @param composer the function to be used to compose the response into a HAL Resource
  * @param url the requested url
  * @param rel the rel string
@@ -660,9 +895,3 @@ async function queryCountAndWhere(
 function paginateQuery(query: Collection<any, any>, pagination = { limit: 20, offset: 0 }) {
   return query.offset(pagination.offset).limit(pagination.limit).toArray();
 }
-
-// special routes
-
-router.get('/s/admin/not-found', async () => new Response(null, { status: 404 }));
-
-router.get('/s/admin/sleep', () => new Promise(() => void 0));
