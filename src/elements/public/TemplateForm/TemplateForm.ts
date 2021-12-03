@@ -1,38 +1,34 @@
-import {
-  AdminEmailTemplateItem,
-  CartIncludeTemplateItem,
-  CartTemplateItem,
-  CheckoutTemplateItem,
-  CustomerEmailTemplateItem,
-  EmailTemplateItem,
-} from './types';
 import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
-import { Checkbox, Choice, Group, PropertyTable } from '../../private/index';
+import { Choice, Group, PropertyTable } from '../../private/index';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+
+import { ChoiceChangeEvent } from '../../private/events';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement';
-import { NucleonV8N } from '../NucleonElement/types';
-import { Tabs } from '../../private/Tabs/Tabs';
+import { Data } from './types';
+import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
+import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import memoize from 'lodash-es/memoize';
 
 const NS = 'template-form';
-
 const Base = ScopedElementsMixin(
   ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)))
 );
 
-type Item = AdminEmailTemplateItem &
-  CartIncludeTemplateItem &
-  CartTemplateItem &
-  CheckoutTemplateItem &
-  CustomerEmailTemplateItem &
-  EmailTemplateItem;
+export class TemplateForm extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __cacheState: { attribute: false },
+      __contentChoice: { attribute: false },
+    };
+  }
 
-export class TemplateForm extends Base<Item> {
   static get styles(): CSSResultArray {
     return [
       ...super.styles,
@@ -44,328 +40,277 @@ export class TemplateForm extends Base<Item> {
     ];
   }
 
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      __cacheSuccess: { attribute: false, type: Boolean },
-      __customizeTemplate: { attribute: false, type: String },
-    };
-  }
-
   static get scopedElements(): ScopedElementsMap {
     return {
-      'foxy-i18n': customElements.get('foxy-i18n'),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
-      'vaadin-button': customElements.get('vaadin-button'),
-      'vaadin-radio-button': customElements.get('vaadin-radio-button'),
-      'vaadin-radio-group': customElements.get('vaadin-radio-group'),
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
+      'foxy-i18n': customElements.get('foxy-i18n'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'x-checkbox': Checkbox,
+      'vaadin-text-area': customElements.get('vaadin-text-area'),
+      'vaadin-button': customElements.get('vaadin-button'),
+      'x-property-table': PropertyTable,
       'x-choice': Choice,
       'x-group': Group,
-      'x-property-table': PropertyTable,
-      'x-tabs': Tabs,
     };
   }
 
-  static get v8n(): NucleonV8N<Item> {
-    const url_fields = {
-      content_html_url: 300,
-      content_text_url: 300,
-      content_url: 300,
-    };
-    type UrlField = keyof typeof url_fields;
-    const rules = [
-      // url fields must not exceed 300
-      ...Object.keys(url_fields).map(
-        (field: string) => (item: Partial<EmailTemplateItem & CartTemplateItem>) => {
-          const v = item[field as unknown as UrlField];
-          return !v || v.length <= url_fields[field as UrlField] || `${field}_too_long`;
-        }
-      ),
-      // url fields must be URLs
-      ...Object.keys(url_fields).map(
-        (field: string) => (item: Partial<EmailTemplateItem & CartTemplateItem>) => {
-          const v = item[field as unknown as UrlField];
-          return !v || TemplateForm.__isValidUrl(v) || `${field}_invalid`;
-        }
-      ),
-    ];
-    return rules;
-  }
+  private __cacheState: 'idle' | 'busy' | 'fail' = 'idle';
 
-  private __isEmail = false;
-
-  private __cacheErrors = [];
-
-  private __cacheSuccess = false;
-
-  private __getValidator = memoize((prefix: string) => () => {
-    return !this.errors.some(err => err.startsWith(prefix));
-  });
-
-  private __bindField = memoize((key: keyof Item) => {
-    const edit = { [key]: '' };
-    return (evt: CustomEvent) => {
-      const target = evt.target as HTMLInputElement;
-      edit[key] = target.value;
-      this.edit(edit);
-    };
-  });
-
-  private __customizeTemplate: 'default' | 'url' | 'clipboard' = 'default';
-
-  get href(): string {
-    return super.href;
-  }
-
-  set href(value: string) {
-    super.href = value;
-    if (value.includes('/email_templates/')) {
-      this.__isEmail = true;
-    } else {
-      this.__isEmail = false;
-    }
-  }
+  private __contentChoice: 'default' | 'url' | 'clipboard' = 'default';
 
   render(): TemplateResult {
-    return html`${this.__isEmail
-      ? html`
-          <x-tabs size="2" data-testid="tabs">
-            ${['html', 'text'].map(
-              (tab, index) => html`
-                <foxy-i18n
-                  data-testclass="i18n"
-                  slot="tab-${index}"
-                  lang="${this.lang}"
-                  key="email.${tab}-version"
-                  ns="${this.ns}"
-                ></foxy-i18n>
-                <div class="pt-s" slot="panel-${index}">
-                  ${this.__renderForm(tab as 'html' | 'text')}
-                </div>
-              `
-            )}
-          </x-tabs>
-        `
-      : this.__renderForm()}`;
-  }
-
-  __renderForm(contentType: 'html' | 'text' = 'text'): TemplateResult {
-    let contentField: 'content' | 'content_html' | 'content_text';
-    let urlField: 'content_url' | 'content_html_url' | 'content_text_url';
-    if (this.__isEmail) {
-      if (contentType == 'html') {
-        contentField = 'content_html';
-        urlField = 'content_html_url';
-      } else {
-        contentField = 'content_text';
-        urlField = 'content_text_url';
-      }
-    } else {
-      contentField = 'content';
-      urlField = 'content_url';
-    }
+    const { hiddenSelector, href, lang, ns } = this;
+    const action = href ? 'delete' : 'create';
+    const isBusy = this.in('busy');
+    const isFail = this.in('fail');
 
     return html`
-      <foxy-internal-confirm-dialog
-        data-testid="confirm-cache"
-        message="cache_prompt"
-        confirm="cache"
-        cancel="cancel"
-        header="cache"
-        theme="primary error"
-        lang=${this.lang}
-        ns=${this.ns}
-        id="confirm-cache"
-        @hide=${this.__handleConfirmCache}
-      >
-      </foxy-internal-confirm-dialog>
-      ${ifDefined(this.form.description)
-        ? html`
-            <vaadin-text-field
-              class="w-full mb-s"
-              label="${this.t('description.label')}"
-              value="${this.form?.description}"
-              readonly
-            >
-            </vaadin-text-field>
-          `
-        : ''}
-      ${this.__isEmail
-        ? html`
-            <vaadin-text-field
-              class="w-full mb-s"
-              data-testid="subject"
-              value=${ifDefined((this.form as any)['subject'])}
-              @input=${this.__bindField('subject')}
-              label="${this.t('email.subject')}"
-            >
-            </vaadin-text-field>
-          `
-        : ``}
-      ${this.__renderChoices(contentType, urlField, contentField)}
-      <x-property-table
-        class="mb-xl"
-        .items=${(['date_modified', 'date_created'] as const).map(field => ({
-          name: this.t(field),
-          value: this.data
-            ? html`
-                <foxy-i18n key="date" options='{"value": "${this.data![field]}"}'></foxy-i18n>
-                <foxy-i18n key="time" options='{"value": "${this.data![field]}"}'></foxy-i18n>
-              `
-            : '',
-        }))}
-      ></x-property-table>
-      <vaadin-button
-        data-testid="action"
-        theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
-        class="w-full"
-        ?disabled=${!this.errors.length}
-        @click=${this.__handleActionSubmit}
-      >
-        <foxy-i18n lang=${this.lang} key="update" ns=${this.ns}> </foxy-i18n>
-      </vaadin-button>
-    `;
-  }
+      <div class="space-y-m">
+        ${hiddenSelector.matches('description', true) ? '' : this.__renderDescription()}
+        ${hiddenSelector.matches('content', true) ? '' : this.__renderContent()}
+        ${hiddenSelector.matches('timestamps', true) || !href ? '' : this.__renderTimestamps()}
+        ${hiddenSelector.matches(action) ? '' : this.__renderAction(action)}
 
-  private __renderChoices(
-    contentType: 'html' | 'text',
-    urlField: string,
-    contentField: string
-  ): TemplateResult {
-    return html`
-      <x-choice
-        data-testid="template-type${this.__isEmail ? '-' + contentType : ''}"
-        class="w-full py-m"
-        ?readonly=${this.readonly}
-        vertical-align="top"
-        .items=${['default', 'url', 'clipboard']}
-        @change=${(ev: CustomEvent) => this._setCustomizeState(ev)}
-        error-message=${this.__getErrorMessage(urlField)}
-        .getText=${this.__optionTextFormatted.bind(this)}
+        <div
+          data-testid="spinner"
+          class=${classMap({
+            'transition duration-500 ease-in-out absolute inset-0 flex': true,
+            'opacity-0 pointer-events-none': !isBusy && !isFail,
+          })}
         >
-        <foxy-i18n key="customize-template" lang=${this.lang} ns=${this.ns}></foxy-i18n>
-        <div slot="url-conditional">
-          <div class="flex items-center mt-0 mb-m">
-            <vaadin-text-field
-              class="mr-s flex-grow"
-              value=${ifDefined((this.form as any)[urlField])}
-              data-testid="${urlField}"
-              @input=${this.__bindField(urlField as any)}
-              >
-            </vaadin-text-field>
-            <vaadin-button 
-              @click=${this.__handleActionCache}
-              ?disabled=${!(
-                this.form &&
-                (this.form as any)[urlField] &&
-                ((this.form as any)[urlField] as string).length > 0 &&
-                this.__getErrorMessage(urlField).length == 0
-              )}
-              >
-              <foxy-i18n 
-                lang=${this.lang}
-                key="cache"
-                ns=${this.ns}>
-            </vaadin-button>
-          </div>
-          ${
-            this.__cacheSuccess
-              ? html`<foxy-i18n key="cache-success" lang=${this.lang} ns=${this.ns}></foxy-i18n>`
-              : ''
-          }
-          ${
-            this.__cacheErrors.length
-              ? html`<foxy-i18n
-                  class="color-error"
-                  key="cache-error"
-                  lang=${this.lang}
-                  ns=${this.ns}
-                ></foxy-i18n>`
-              : ''
-          }
+          <foxy-spinner
+            layout="vertical"
+            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
+            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
+            lang=${lang}
+            ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
+          >
+          </foxy-spinner>
         </div>
-        <div slot="clipboard-conditional">
-          <vaadin-text-area
-            id="cached-content"
-            data-testid="${contentField}"
-            class="w-full"
-            label="${this.t('content')}"
-            value=${ifDefined((this.form as any)[contentField])}
-            >
-          </vaadin-text-area>
-        </div>
-      </x-choice>
-    `;
-  }
-
-  private __optionTextFormatted(text: string): TemplateResult {
-    return html`
-      <div class="flex flex-col justify-start my-s">
-        <div class="w-full">${this.t(`template-type.label-${text}`)}</div>
-        <div class="w-full text-s">${this.t(`template-type.description-${text}`)}</div>
       </div>
     `;
   }
 
-  private __getErrorMessage(prefix: string) {
-    const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.t(error.replace(prefix, 'v8n')) : '';
+  private __renderDescription() {
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('description:before')}
+
+        <vaadin-text-field
+          class="w-full mb-s"
+          label=${this.t('description')}
+          .value=${this.form?.description ?? ''}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+          @input=${(evt: CustomEvent) => {
+            this.edit({ description: (evt.currentTarget as TextFieldElement).value });
+          }}
+        >
+        </vaadin-text-field>
+
+        ${this.renderTemplateOrSlot('description:after')}
+      </div>
+    `;
   }
 
-  private static __isValidUrl(url: string): boolean {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
+  private __renderContent() {
+    const contentChoice = this.form.content_url
+      ? 'url'
+      : this.form.content
+      ? 'clipboard'
+      : this.__contentChoice;
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('content:before')}
+
+        <x-group frame>
+          <foxy-i18n lang=${this.lang} slot="header" key="template" ns=${this.ns}></foxy-i18n>
+
+          <x-choice
+            data-testid="template-type"
+            .value=${contentChoice}
+            .items=${['default', 'url', 'clipboard']}
+            ?readonly=${this.readonlySelector.matches('content', true)}
+            ?disabled=${this.in('busy') || this.disabledSelector.matches('content', true)}
+            @change=${(evt: Event) => {
+              if (evt instanceof ChoiceChangeEvent) {
+                this.edit({ content: '', content_url: '' });
+                this.__contentChoice = evt.detail as any; // TODO
+              }
+            }}
+          >
+            ${['default', 'url', 'clipboard'].map(value => {
+              return html`
+                <div slot="${value}-label" class="py-s">
+                  <foxy-i18n class="block" lang=${this.lang} key="template_${value}" ns=${this.ns}>
+                  </foxy-i18n>
+
+                  <foxy-i18n
+                    class="block text-s opacity-70"
+                    lang=${this.lang}
+                    key="template_${value}_explainer"
+                    ns=${this.ns}
+                  >
+                  </foxy-i18n>
+                </div>
+              `;
+            })}
+
+            <div slot="url" ?hidden=${contentChoice !== 'url'}>
+              <div class="flex items-center mt-0 mb-m">
+                <vaadin-text-field
+                  data-testid="content_url"
+                  value=${ifDefined(this.form.content_url)}
+                  class="mr-s flex-grow"
+                  @input=${(evt: CustomEvent) => {
+                    const value = (evt.currentTarget as TextFieldElement).value;
+                    this.edit({ content: '', content_url: value });
+                  }}
+                >
+                </vaadin-text-field>
+
+                ${this.form.content_url === this.data?.content_url
+                  ? html`
+                      <vaadin-button
+                        class="relative"
+                        ?disabled=${this.__cacheState === 'busy'}
+                        @click=${this.__cache}
+                      >
+                        <foxy-i18n
+                          class=${classMap({
+                            'relative transition-opacity': true,
+                            'opacity-0': this.__cacheState !== 'idle',
+                          })}
+                          lang=${this.lang}
+                          key="cache"
+                          ns=${this.ns}
+                        >
+                        </foxy-i18n>
+
+                        <div
+                          class=${classMap({
+                            'absolute inset-0 flex transition-opacity': true,
+                            'opacity-0': this.__cacheState === 'idle',
+                          })}
+                        >
+                          <foxy-spinner
+                            layout="no-label"
+                            class="m-auto"
+                            state=${this.__cacheState === 'fail' ? 'error' : 'busy'}
+                            lang=${this.lang}
+                            ns=${this.ns}
+                          >
+                          </foxy-spinner>
+                        </div>
+                      </vaadin-button>
+                    `
+                  : ''}
+              </div>
+            </div>
+
+            <div slot="clipboard" ?hidden=${contentChoice !== 'clipboard'}>
+              <vaadin-text-area
+                id="cached-content"
+                data-testid="content"
+                class="w-full mb-m"
+                .value=${this.form.content}
+                @input=${(evt: CustomEvent) => {
+                  const value = (evt.currentTarget as TextAreaElement).value;
+                  this.edit({ content: value, content_url: '' });
+                }}
+              >
+              </vaadin-text-area>
+            </div>
+          </x-choice>
+        </x-group>
+
+        ${this.renderTemplateOrSlot('content:after')}
+      </div>
+    `;
   }
 
-  private _setCustomizeState(ev: CustomEvent): void {
-    this.__customizeTemplate = ev.detail;
+  private __renderTimestamps() {
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('timestamps:before')}
+
+        <x-property-table
+          data-testid="timestamps"
+          .items=${(['date_modified', 'date_created'] as const).map(field => ({
+            name: this.t(field),
+            value: this.data ? this.t('date', { value: new Date(this.data[field]) }) : '',
+          }))}
+        >
+        </x-property-table>
+
+        ${this.renderTemplateOrSlot('timestamps:after')}
+      </div>
+    `;
   }
 
-  private static _all_images_over_https(text: string) {
-    return !!text.match(/src="http:\/\//);
-  }
+  private __renderAction(action: string) {
+    const { disabledSelector, href, lang, ns } = this;
 
-  private __handleActionCache(ev: CustomEvent) {
-    const confirm = this.renderRoot.querySelector('#confirm-cache');
-    if (confirm) {
-      (confirm as InternalConfirmDialog).show(ev.currentTarget as HTMLElement);
-    }
-  }
+    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isDisabled = !this.in('idle') || disabledSelector.matches(action, true);
+    const isValid = isTemplateValid || isSnapshotValid;
 
-  private __handleActionSubmit() {
-    this.submit();
-  }
-
-  private __handleConfirmCache(evt: CustomEvent) {
-    if (!evt.detail.cancelled) this.__handleCache();
-  }
-
-  private async __handleCache() {
-    if (!(this.data && this.data._links && this.data._links['fx:cache'])) {
-      return;
-    }
-    const result = await this._fetch(this.data._links['fx:cache'].href, {
-      body: '',
-      method: 'POST',
-    });
-    if (result) {
-      const errorResult = result as any;
-      if (errorResult['_embedded'] && errorResult['embedded']['fx:errors']) {
-        this.__cacheErrors = errorResult['fx:errors'].map((i: { message: string }) => i.message);
+    const handleClick = (evt: Event) => {
+      if (action === 'delete') {
+        const confirm = this.renderRoot.querySelector('#confirm');
+        (confirm as InternalConfirmDialog).show(evt.currentTarget as HTMLElement);
       } else {
-        this.__cacheSuccess = true;
-        this.__cacheErrors = [];
-        setTimeout(() => (this.__cacheSuccess = false), 3000);
+        this.submit();
       }
+    };
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${action}:before`)}
+
+        <foxy-internal-confirm-dialog
+          message="delete_prompt"
+          confirm="delete"
+          cancel="cancel"
+          header="delete"
+          theme="primary error"
+          lang=${lang}
+          ns=${ns}
+          id="confirm"
+          data-testid="confirm"
+          @hide=${(evt: DialogHideEvent) => {
+            if (!evt.detail.cancelled) this.delete();
+          }}
+        >
+        </foxy-internal-confirm-dialog>
+
+        <vaadin-button
+          class="w-full"
+          theme=${this.in('idle') ? `primary ${href ? 'error' : 'success'}` : ''}
+          data-testid=${action}
+          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
+          @click=${handleClick}
+        >
+          <foxy-i18n ns=${ns} key=${action} lang=${lang}></foxy-i18n>
+        </vaadin-button>
+
+        ${this.renderTemplateOrSlot(`${action}:after`)}
+      </div>
+    `;
+  }
+
+  private async __cache(): Promise<void> {
+    this.__cacheState = 'busy';
+
+    try {
+      const url = this.data?._links['fx:cache'].href ?? '';
+      const response = await new TemplateForm.API(this).fetch(url, { method: 'POST' });
+
+      this.__cacheState = response.ok ? 'idle' : 'fail';
+    } catch {
+      this.__cacheState = 'fail';
     }
   }
 }

@@ -17,24 +17,12 @@ import { spread } from '@open-wc/lit-helpers/src/spread';
 
 const VALUE_OTHER = `@foxy.io/elements::other[${(Math.pow(10, 10) * Math.random()).toFixed(0)}]`;
 
-/**
- * Renders the radio button input.
- *
- * @param readonly make the input readonly
- * @param disabled make the input disabled
- * @param checked whether the input is checked
- * @param attrs attributes for the input element
- * @param label user visible label
- * @param item the value of the item input
- * @returns rendered input
- */
 function radio(
   readonly: boolean,
   disabled: boolean,
   checked: boolean,
   attrs: (part: AttributePart) => void,
-  label: TemplateResult,
-  item: string
+  label: TemplateResult
 ) {
   const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover-bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
@@ -54,31 +42,17 @@ function radio(
           <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo w-full leading-m ${color}">
-        ${label} ${checked ? html`<slot name=${`${item}-conditional`}></slot>` : ``}
-      </div>
+      <div class="font-lumo leading-m ${color}">${label}</div>
     </label>
   `;
 }
 
-/**
- * Renders the checkbox input.
- *
- * @param readonly make the input readonly
- * @param disabled make the input disabled
- * @param checked whether the input is checked
- * @param attrs attributes for the input element
- * @param label user visible label
- * @param item the value of the item input
- * @returns rendered input
- */
 function check(
   readonly: boolean,
   disabled: boolean,
   checked: boolean,
   attrs: (part: AttributePart) => void,
-  label: TemplateResult,
-  item: string
+  label: TemplateResult
 ) {
   const enabledBg = checked ? 'bg-primary' : 'bg-contrast-20 group-hover-bg-contrast-30';
   const disabledBg = checked ? 'bg-primary-50' : 'bg-contrast-10';
@@ -88,16 +62,16 @@ function check(
   const dot = `${ease} transform ${scale} ${readonly ? 'text-contrast-20' : 'text-tint'}`;
   const bg = readonly ? '' : disabled ? disabledBg : enabledBg;
   const border = `border ${readonly ? 'border-contrast-20' : 'border-transparent'}`;
+
   return html`
-    <label class="group flex items-start ${disabled || readonly ? '' : 'cursor-pointer'}">
+    <label class="group flex items-center ${disabled || readonly ? '' : 'cursor-pointer'}">
       <div class="item flex items-center justify-center text-primary-contrast">
         <div class="check rounded-s ${border} ${ease} ${bg} focus-within-shadow-outline">
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
           <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
         </div>
       </div>
-      <div class="font-lumo w-full leading-m ${color}">${label}</div>
-      ${checked ? html`<slot name=${`${item}-conditional`}></slot>` : ``}
+      <div class="font-lumo leading-m ${color}">${label}</div>
     </label>
   `;
 }
@@ -105,11 +79,11 @@ function check(
 export class Choice extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
-      'iron-icon': customElements.get('iron-icon'),
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-frequency-input': FrequencyInput,
+      'vaadin-text-area': customElements.get('vaadin-text-area'),
+      'iron-icon': customElements.get('iron-icon'),
     };
   }
 
@@ -120,26 +94,21 @@ export class Choice extends Translatable {
         :host {
           --item-width: calc((var(--lumo-space-m) * 2) + 1.25rem);
         }
-
         .ml-xxl {
           margin-left: var(--item-width);
         }
-
         .item {
           height: var(--lumo-size-l);
           width: var(--item-width);
         }
-
         .radio {
           height: 1.25rem;
           width: 1.25rem;
         }
-
         .check {
           height: 1.125rem;
           width: 1.125rem;
         }
-
         .dot {
           height: 0.5rem;
           width: 0.5rem;
@@ -251,22 +220,21 @@ export class Choice extends Translatable {
     const children = html`
       ${items.map((item, index, array) => {
         const other = this.custom && index === array.length - 1;
-
         const checked = other
           ? otherChecked
           : multiple
           ? !!this.value?.includes(item)
           : item === String(this.value);
-
         const disabled = this.disabled || !this._isI18nReady;
-
         const attributes = spread({
+          'value': other ? VALUE_OTHER : item,
+          'name': multiple ? item : 'choice',
+          'data-testid': `item-${item}`,
           '?disabled': disabled || this.readonly,
           '@change': (evt: Event) => {
             const checked = (evt.target as HTMLInputElement).checked;
             const newItem = item === VALUE_OTHER ? this.defaultCustomValue : item;
             const value = this.value;
-
             if (Array.isArray(value)) {
               if (item === VALUE_OTHER) {
                 this.value = checked ? [...value, newItem] : value.slice(0, value.length - 1);
@@ -276,14 +244,9 @@ export class Choice extends Translatable {
             } else {
               this.value = checked ? newItem : null;
             }
-
             this.dispatchEvent(new ChoiceChangeEvent(this.value));
           },
-          'data-testid': `item-${item}`,
-          'name': multiple ? item : 'choice',
-          'value': other ? VALUE_OTHER : item,
         });
-
         const label = html`
           <div>
             ${item === VALUE_OTHER
@@ -291,14 +254,11 @@ export class Choice extends Translatable {
               : html`<slot name=${`${item}-label`}>${this.getText(item)}</slot>`}
           </div>
         `;
-
         return html`
           <div class="ml-xxl border-t border-contrast-10 ${index ? '' : 'hidden'}"></div>
-
           ${multiple
-            ? check(this.readonly, disabled, checked, attributes, label, item)
-            : radio(this.readonly, disabled, checked, attributes, label, item)}
-
+            ? check(this.readonly, disabled, checked, attributes, label)
+            : radio(this.readonly, disabled, checked, attributes, label)}
           <div class="mr-m ml-xxl">
             ${item === VALUE_OTHER && otherChecked ? this.__field : ''}
             ${item !== VALUE_OTHER ? html`<slot name=${item}></slot>` : ''}
@@ -325,15 +285,15 @@ export class Choice extends Translatable {
     };
 
     const attributes = spread({
-      '?disabled': this.disabled,
-      '?readonly': this.readonly,
-      '@change': handleInput,
+      'placeholder': this._t('choice.other').toString(),
       'class': 'w-full mb-m',
-      'data-testid': 'field',
+      'value': this.__service.state.context.customValue,
       'max': this.max,
       'min': this.min,
-      'placeholder': this._t('choice.other').toString(),
-      'value': this.__service.state.context.customValue,
+      '?disabled': this.disabled,
+      '?readonly': this.readonly,
+      'data-testid': 'field',
+      '@change': handleInput,
     });
 
     if (this.type === 'frequency') {
