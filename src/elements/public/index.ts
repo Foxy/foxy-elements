@@ -18,6 +18,7 @@ export { CustomFieldCard } from './CustomFieldCard/CustomFieldCard';
 export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
 export { DiscountCard } from './DiscountCard/DiscountCard';
 export { Donation } from './Donation/Donation';
+export { EmailTemplateForm } from './EmailTemplateForm/EmailTemplateForm';
 export { ErrorEntryCard } from './ErrorEntryCard/ErrorEntryCard';
 export { FormDialog } from './FormDialog/FormDialog';
 export { I18n } from './I18n/I18n';
