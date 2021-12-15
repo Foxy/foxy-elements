@@ -155,11 +155,18 @@ describe('InternalCustomerPortalSubscriptions', () => {
         'https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&zoom=last_transaction%2Ctransaction_template%3Aitems'
       );
 
-      await waitUntil(async () => (pages as CollectionPages<any>).in('idle'));
-      await waitUntil(async () => {
-        const pageNodes = await getByTag(pages, 'foxy-collection-page', true);
-        return pageNodes.every(page => (page as CollectionPage<any>).in({ idle: 'snapshot' }));
+      await waitUntil(async () => (pages as CollectionPages<any>).in('idle'), undefined, {
+        timeout: 5000,
       });
+
+      await waitUntil(
+        async () => {
+          const pageNodes = await getByTag(pages, 'foxy-collection-page', true);
+          return pageNodes.every(page => (page as CollectionPage<any>).in({ idle: 'snapshot' }));
+        },
+        undefined,
+        { timeout: 5000 }
+      );
 
       const pageNodes = await getByTag<CollectionPage<any>>(pages, 'foxy-collection-page', true);
       const cards = await getByTag<SubscriptionCard>(pages, 'foxy-subscription-card', true);
@@ -390,7 +397,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
                 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-              await waitUntil(() => form.in({ idle: 'snapshot' }));
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
               const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
               const link = await getByTestId(sandbox, 'header:actions:update');
@@ -506,7 +513,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
                 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-              await waitUntil(() => form.in({ idle: 'snapshot' }));
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
               const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
               const link = await getByTestId(sandbox, 'header:actions:end');
@@ -576,7 +583,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
                 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-              await waitUntil(() => form.in({ idle: 'snapshot' }));
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
               const sandbox1 = (await getByTestId(form, 'items:actions:after'))!;
               const sandbox2 = await getByTestId(sandbox1, 'items:actions:update:before');
@@ -609,7 +616,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
                 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-              await waitUntil(() => form.in({ idle: 'snapshot' }));
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
               const sandbox1 = (await getByTestId(form, 'items:actions:after'))!;
               const sandbox2 = await getByTestId(sandbox1, 'items:actions:update:after');
@@ -643,7 +650,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
                 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
               const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-              await waitUntil(() => form.in({ idle: 'snapshot' }));
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
               const sandbox = (await getByTestId(form, 'items:actions:after')) as InternalSandbox;
               const link = await getByTestId(sandbox, 'items:actions:update');

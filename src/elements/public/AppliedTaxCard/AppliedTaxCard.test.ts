@@ -31,8 +31,7 @@ describe('AppliedTaxCard', () => {
     const layout = html`<foxy-applied-tax-card @fetch=${handleFetch}></foxy-applied-tax-card>`;
     const element = await fixture<AppliedTaxCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/applied_taxes/0';
-    await waitUntil(() => !!element.data);
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'title');
 
     expect(title).to.include.text(element.data!.name);
@@ -47,7 +46,7 @@ describe('AppliedTaxCard', () => {
     element.lang = 'es';
     element.ns = 'foo';
 
-    await waitUntil(() => !!element.data);
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const subtitle = (await getByTestId(element, 'subtitle')) as HTMLDivElement;
     const amount = await getByKey(subtitle, 'price');
     const data = element.data!;
@@ -76,7 +75,7 @@ describe('AppliedTaxCard', () => {
     element.lang = 'es';
     element.ns = 'foo';
 
-    await waitUntil(() => !!element.data);
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const subtitle = (await getByTestId(element, 'subtitle')) as HTMLDivElement;
     const rate = await getByKey(subtitle, 'percent');
     const options = JSON.stringify({ fraction: element.data!.rate / 100 });

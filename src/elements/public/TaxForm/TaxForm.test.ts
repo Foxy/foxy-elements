@@ -393,7 +393,7 @@ describe('TaxForm', () => {
       element.countries = 'test://countries';
 
       const control = await getByTestId<ComboBoxElement>(element, 'country');
-      await waitUntil(() => control!.items!.length > 0);
+      await waitUntil(() => control!.items!.length > 0, undefined, { timeout: 5000 });
       element.removeEventListener('fetch', handleFetch);
 
       expect(control).to.have.deep.property('items', [{ cc2: 'AB', default: 'Foo' }]);
@@ -635,7 +635,7 @@ describe('TaxForm', () => {
       element.regions = 'test://regions';
 
       const control = await getByTestId<ComboBoxElement>(element, 'region');
-      await waitUntil(() => control!.items!.length > 0);
+      await waitUntil(() => control!.items!.length > 0, undefined, { timeout: 5000 });
       element.removeEventListener('fetch', handleFetch);
 
       expect(control).to.have.deep.property('items', [{ code: 'AB', default: 'Foo' }]);
@@ -2301,7 +2301,7 @@ describe('TaxForm', () => {
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');

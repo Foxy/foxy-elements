@@ -412,7 +412,10 @@ describe('SignInForm', () => {
         });
 
         element.submit();
-        await waitUntil(() => element.in({ idle: { template: { dirty: 'invalid' } } }));
+
+        await waitUntil(() => element.in({ idle: { template: { dirty: 'invalid' } } }), undefined, {
+          timeout: 5000,
+        });
 
         expect(await getByTestId(element, 'new-password')).to.exist;
       });
@@ -638,7 +641,7 @@ describe('SignInForm', () => {
       });
 
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       expect(await getByTestId(element, 'mfa-secret-code')).to.exist;
     });
@@ -774,7 +777,7 @@ describe('SignInForm', () => {
       });
 
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       expect(await getByTestId(element, 'mfa-totp-code')).to.exist;
     });
@@ -796,7 +799,7 @@ describe('SignInForm', () => {
       });
 
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       expect(await getByTestId(element, 'mfa-totp-code')).to.exist;
     });
@@ -1044,7 +1047,7 @@ describe('SignInForm', () => {
       });
 
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       expect(await getByTestId(element, 'mfa-remember-device')).to.exist;
     });
@@ -1318,7 +1321,7 @@ describe('SignInForm', () => {
       });
 
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       const error = await getByTestId(element, 'error');
 
@@ -1349,7 +1352,7 @@ describe('SignInForm', () => {
         });
 
         element.submit();
-        await waitUntil(() => element.in('idle'));
+        await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
         const error = await getByTestId(element, 'error');
 
@@ -1366,7 +1369,7 @@ describe('SignInForm', () => {
 
       element.edit(await getTestData('https://demo.foxycart.com/s/virtual/session'));
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       expect(await getByName(element, 'error:before')).to.have.property('localName', 'slot');
     });
@@ -1382,7 +1385,7 @@ describe('SignInForm', () => {
 
       element.edit(await getTestData('https://demo.foxycart.com/s/virtual/session'));
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       const slot = await getByName<HTMLSlotElement>(element, name);
       const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
@@ -1397,7 +1400,7 @@ describe('SignInForm', () => {
 
       element.edit(await getTestData('https://demo.foxycart.com/s/virtual/session'));
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       expect(await getByName(element, 'error:after')).to.have.property('localName', 'slot');
     });
@@ -1413,7 +1416,7 @@ describe('SignInForm', () => {
 
       element.edit(await getTestData('https://demo.foxycart.com/s/virtual/session'));
       element.submit();
-      await waitUntil(() => element.in('idle'));
+      await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
       const slot = await getByName<HTMLSlotElement>(element, name);
       const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;

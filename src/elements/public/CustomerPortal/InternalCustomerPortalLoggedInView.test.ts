@@ -112,11 +112,14 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
       button.click();
       expect(element).to.have.property('loggingOutState', 'busy');
 
-      await waitUntil(() =>
-        fetchEvents.some(({ request }) => {
-          const { url, method } = request;
-          return url === 'foxy://customer-api/session' && method === 'DELETE';
-        })
+      await waitUntil(
+        () =>
+          fetchEvents.some(({ request }) => {
+            const { url, method } = request;
+            return url === 'foxy://customer-api/session' && method === 'DELETE';
+          }),
+        undefined,
+        { timeout: 5000 }
       );
     });
 
@@ -326,10 +329,10 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
         </foxy-internal-customer-portal-logged-in-view>
       `);
 
-      await waitUntil(() => view.in({ idle: 'snapshot' }));
+      await waitUntil(() => view.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const customer = (await getByTestId(view, 'customer')) as Customer;
-      await waitUntil(() => customer.in({ idle: 'snapshot' }));
+      await waitUntil(() => customer.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const tag = 'foxy-internal-customer-portal-subscriptions';
       const sandbox = (await getByTestId(customer, 'default')) as InternalSandbox;
@@ -414,10 +417,10 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
         </foxy-internal-customer-portal-logged-in-view>
       `);
 
-      await waitUntil(() => view.in({ idle: 'snapshot' }));
+      await waitUntil(() => view.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const customer = (await getByTestId(view, 'customer')) as Customer;
-      await waitUntil(() => customer.in({ idle: 'snapshot' }));
+      await waitUntil(() => customer.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const tag = 'foxy-internal-customer-portal-transactions';
       const sandbox = (await getByTestId(customer, 'default')) as InternalSandbox;

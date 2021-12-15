@@ -65,7 +65,11 @@ describe('UserForm', () => {
         expect(button).to.exist;
 
         button!.click();
-        await waitUntil(() => el.in('idle'), 'Element should become idle');
+
+        await waitUntil(() => el.in('idle'), 'Element should become idle', {
+          timeout: 5000,
+        });
+
         mockEl.verify();
       });
     }

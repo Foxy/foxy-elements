@@ -17,7 +17,10 @@ describe('UsersTable', () => {
       </foxy-users-table>
     `);
 
-    await waitUntil(() => element.in('idle'), 'Element should become idle');
+    await waitUntil(() => element.in('idle'), 'Element should become idle', {
+      timeout: 5000,
+    });
+
     const row = element.shadowRoot?.querySelector('table tbody tr');
     expect(row).to.exist;
 
@@ -32,7 +35,10 @@ describe('UsersTable', () => {
       </foxy-users-table>
     `);
 
-    await waitUntil(() => element.in('idle'), 'Element should become idle');
+    await waitUntil(() => element.in('idle'), 'Element should become idle', {
+      timeout: 5000,
+    });
+
     const row = element.shadowRoot?.querySelector('table tbody tr');
     expect(row).to.exist;
 
@@ -51,7 +57,9 @@ describe('UsersTable', () => {
       </foxy-users-table>
     `);
 
-    await waitUntil(() => element.in('idle'), 'Element should become idle');
+    await waitUntil(() => element.in('idle'), 'Element should become idle', {
+      timeout: 5000,
+    });
 
     const button = element.shadowRoot!.querySelector('[data-testclass="actions"]');
     const dialog = element.shadowRoot?.querySelector('foxy-form-dialog') as FormDialog;

@@ -194,7 +194,7 @@ describe('SubscriptionCard', () => {
     const element = await fixture<SubscriptionCard>(layout);
     const control = await getByTestId(element, 'spinner');
 
-    await waitUntil(() => element.in('fail'));
+    await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
     expect(control!).not.to.have.class('opacity-0');
     expect(control!.firstElementChild).to.have.property('localName', 'foxy-spinner');

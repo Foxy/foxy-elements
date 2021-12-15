@@ -232,7 +232,7 @@ describe('AccessRecoveryForm', () => {
 
       element.edit({ type: 'email', detail: { email: 'justice.witt@example.com' } });
       element.submit();
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       const message = await getByTestId(element, 'message');
 

@@ -31,8 +31,7 @@ describe('DiscountCard', () => {
     const layout = html`<foxy-discount-card @fetch=${handleFetch}></foxy-discount-card>`;
     const element = await fixture<DiscountCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/discounts/0';
-    await waitUntil(() => !!element.data);
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'title');
 
     expect(title).to.include.text(element.data!.name);
@@ -48,7 +47,7 @@ describe('DiscountCard', () => {
     element.lang = 'es';
     element.ns = 'foo';
 
-    await waitUntil(() => !!element.data);
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const subtitle = (await getByTestId(element, 'subtitle')) as HTMLDivElement;
     const amount = await getByKey(subtitle, 'price');
     const data = element.data!;

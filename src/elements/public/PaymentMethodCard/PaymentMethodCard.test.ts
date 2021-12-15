@@ -344,7 +344,7 @@ describe('PaymentMethodCard', () => {
       const element = await fixture<PaymentMethodCard>(layout);
       const spinner = await getByTestId(element, 'spinner');
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(spinner).to.have.attribute('state', 'error');
       expect(spinner).to.have.attribute('lang', 'es');

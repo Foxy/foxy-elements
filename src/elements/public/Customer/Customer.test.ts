@@ -640,10 +640,14 @@ describe('Customer', () => {
 
           const list = await getByTestId<CollectionPages<any>>(element, 'addresses:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const cards = list!.querySelectorAll('[data-testclass="addresses:list:card"]');
 
@@ -675,10 +679,14 @@ describe('Customer', () => {
           const element = await fixture<Customer>(layout);
           const list = await getByTestId<CollectionPages<any>>(element, 'addresses:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const button = (await getByTestClass(element, 'addresses:list:card'))[0];
           const card = button.firstElementChild as AddressCard;
@@ -1110,10 +1118,14 @@ describe('Customer', () => {
 
           const list = await getByTestId<CollectionPages<any>>(element, 'attributes:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const cards = list!.querySelectorAll('[data-testclass="attributes:list:card"]');
 
@@ -1145,10 +1157,14 @@ describe('Customer', () => {
           const element = await fixture<Customer>(layout);
           const list = await getByTestId<CollectionPages<any>>(element, 'attributes:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const button = (await getByTestClass(element, 'attributes:list:card'))[0];
           const card = button.firstElementChild as AttributeCard;
@@ -1616,7 +1632,7 @@ describe('Customer', () => {
         </foxy-customer>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const pages = await getByTestId<CollectionPages<any>>(element, 'subscriptions:pages');
       const firstURL = new URL(element.data!._links['fx:subscriptions'].href);
@@ -1624,9 +1640,11 @@ describe('Customer', () => {
 
       expect(pages).to.have.attribute('first', firstURL.toString());
 
-      await waitUntil(() => pages!.in('idle'));
+      await waitUntil(() => pages!.in('idle'), undefined, { timeout: 5000 });
       const tables = await getByTestClass<Table<any>>(element, 'subscriptions:pages:table');
-      await waitUntil(() => tables.every(table => table.in({ idle: 'snapshot' })));
+      await waitUntil(() => tables.every(table => table.in({ idle: 'snapshot' })), undefined, {
+        timeout: 5000,
+      });
 
       expect(tables).to.be.not.empty;
 
@@ -1672,11 +1690,11 @@ describe('Customer', () => {
         </foxy-customer>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
       const pages = await getByTestId<CollectionPages<any>>(element, 'subscriptions:pages');
-      await waitUntil(() => pages!.in('idle'));
+      await waitUntil(() => pages!.in('idle'), undefined, { timeout: 5000 });
       const [table] = await getByTestClass<Table<any>>(element, 'subscriptions:pages:table');
-      await waitUntil(() => table.in({ idle: 'snapshot' }));
+      await waitUntil(() => table.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
       const form = await getByTestId<FormDialog>(element, 'subscriptions:form');
       const showMethod = stub(form!, 'show');
 
@@ -1722,7 +1740,7 @@ describe('Customer', () => {
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');

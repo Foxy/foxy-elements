@@ -201,7 +201,7 @@ describe('CustomerCard', () => {
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');

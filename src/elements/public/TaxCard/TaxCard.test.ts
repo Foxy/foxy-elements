@@ -29,8 +29,7 @@ describe('TaxCard', () => {
     const layout = html`<foxy-tax-card @fetch=${handleFetch}></foxy-tax-card>`;
     const element = await fixture<TaxCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/stores/0/taxes/0';
-    await waitUntil(() => !!element.data);
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'title');
 
     expect(title).to.include.text(element.data!.name);

@@ -43,7 +43,7 @@ describe('TransactionCard', () => {
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const transaction = await getTestData<Data>('./s/admin/transactions/0');
       const store = await getTestData<Resource<Rels.Store>>(transaction._links['fx:store'].href);
@@ -128,7 +128,7 @@ describe('TransactionCard', () => {
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const transaction = await getTestData<Data>('./s/admin/transactions/0');
       const time = await getByKey(element, 'time');
@@ -212,7 +212,7 @@ describe('TransactionCard', () => {
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const transaction = await getTestData<Data>('./s/admin/transactions/0?zoom=items');
       const items = transaction._embedded['fx:items'];
@@ -300,7 +300,7 @@ describe('TransactionCard', () => {
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const transaction = await getTestData<Data>('./s/admin/transactions/0?zoom=items');
       const customer = await getByTestId(element, 'customer');
@@ -413,7 +413,7 @@ describe('TransactionCard', () => {
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');

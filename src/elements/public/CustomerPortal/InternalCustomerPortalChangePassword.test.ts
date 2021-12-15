@@ -108,7 +108,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
     expect(await getByKey(dialog, 'change_password_step_2')).to.exist;
   });
 
@@ -138,7 +138,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
     expect(await getByKey(dialog, 'change_password_step_1')).to.exist;
   });
 
@@ -169,7 +169,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
 
     form.edit({
       type: 'password',
@@ -181,7 +181,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
     expect(await getByKey(dialog, 'change_password_step_3')).to.exist;
   });
 
@@ -212,7 +212,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
 
     form.edit({
       type: 'password',
@@ -224,7 +224,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
 
     expect(await getByKey(dialog, 'change_password_step_2')).to.exist;
   });
