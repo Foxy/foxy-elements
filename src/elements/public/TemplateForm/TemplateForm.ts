@@ -136,7 +136,7 @@ export class TemplateForm extends Base<Data> {
             @change=${(evt: Event) => {
               if (evt instanceof ChoiceChangeEvent) {
                 this.edit({ content: '', content_url: '' });
-                this.__contentChoice = evt.detail as any; // TODO
+                this.__contentChoice = evt.detail as 'url' | 'clipboard' | 'default';
               }
             }}
           >

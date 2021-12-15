@@ -152,7 +152,7 @@ export class EmailTemplateForm extends Base<Data> {
           @change=${(evt: Event) => {
             if (evt instanceof ChoiceChangeEvent) {
               this.edit({ [textPath]: '', [urlPath]: '' });
-              this.__contentChoice = evt.detail as any; // TODO
+              this.__contentChoice = evt.detail as 'url' | 'clipboard' | 'default';
             }
           }}
         >
