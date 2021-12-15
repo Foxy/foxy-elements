@@ -370,7 +370,7 @@ describe('The form should be aware of its items', async function () {
       <test-items-form currency="usd" store="test.foxycart.com">
         <x-testitem name="p1" price="10.00" quantity="3"></x-testitem>
         <x-testitem name="p2" price="10.00" quantity="1"></x-testitem>
-        <x-testitem name="p3" price="10.00" quantity="2"></test-item>
+        <x-testitem name="p3" price="10.00" quantity="2"></x-testitem>
         <x-testitem name="p4" price="10.00" quantity="1"></x-testitem>
       </test-items-form>
     `);
