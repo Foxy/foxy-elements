@@ -1,7 +1,6 @@
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { createModel } from '@xstate/test';
-import { LitElement } from 'lit-element';
 import { createMachine } from 'xstate';
 import { RequestEvent } from '../../../events/request';
 import { bookmark } from '../../../mocks/FxBookmark';
@@ -13,7 +12,7 @@ import {
 
 import { store } from '../../../mocks/FxStore';
 import { FxCustomerPortalSettings } from '../../../types/hapi';
-import { getRefs, retry } from '../../../utils/test-utils';
+import { getRefs } from '../../../utils/test-utils';
 import { ErrorScreen, ErrorType } from '../../private/ErrorScreen/ErrorScreen';
 import { LoadingScreen } from '../../private/LoadingScreen/LoadingScreen';
 import { Switch, SwitchChangeEvent } from '../../private/Switch/Switch';
