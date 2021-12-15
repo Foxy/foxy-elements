@@ -1,5 +1,6 @@
 import traverse from 'traverse';
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function serveFromCache(requestUrl: string, data: any): Response {
   let body: string | null = null;
 
