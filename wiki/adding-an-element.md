@@ -72,10 +72,10 @@ import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
   // Mock URL of a standalone resource (see Mock server)
-  href: 'https://demo.foxycart.com/s/admin/custom_fields/0',
+  href: 'https://demo.api/hapi/custom_fields/0',
 
   // Mock URL of a collection that standalone resource belongs to (see Mock server)
-  parent: 'https://demo.foxycart.com/s/admin/transactions/0/custom_fields',
+  parent: 'https://demo.api/hapi/custom_fields',
 
   // Always true for elements based on NucleonElement
   nucleon: true,
@@ -102,11 +102,11 @@ Empty.args.href = '';
 
 // Story displaying the element in the `fail` state
 export const Error = getStory(summary);
-Error.args.href = 'https://demo.foxycart.com/s/admin/not-found';
+Error.args.href = 'https://demo.api/virtual/empty?status=404';
 
 // Story displaying the element in the `busy` state
 export const Busy = getStory(summary);
-Busy.args.href = 'https://demo.foxycart.com/s/admin/sleep';
+Busy.args.href = 'https://demo.api/virtual/stall';
 ```
 
 To see your stories in action, run `npm run storybook`.
