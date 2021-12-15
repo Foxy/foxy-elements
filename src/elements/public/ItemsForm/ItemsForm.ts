@@ -92,7 +92,7 @@ export class ItemsForm extends SignableFields {
         },
       },
       frequencies: {
-        converter: (value, type) => {
+        converter: value => {
           if (!value) {
             return [];
           }
