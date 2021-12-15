@@ -35,7 +35,7 @@ function radio(
   const border = `border ${readonly ? 'border-contrast-20' : 'border-transparent'}`;
 
   return html`
-    <label class="group flex items-start ${disabled || readonly ? '' : 'cursor-pointer'}">
+    <label class="group flex items-center ${disabled || readonly ? '' : 'cursor-pointer'}">
       <div class="item flex items-center justify-center">
         <div class="flex radio rounded-full ${border} ${ease} ${bg} focus-within-shadow-outline">
           <div class="dot m-auto rounded-full ${dot}"></div>
