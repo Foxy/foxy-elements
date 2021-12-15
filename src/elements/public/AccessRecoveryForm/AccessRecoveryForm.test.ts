@@ -10,10 +10,15 @@ import { NucleonElement } from '../NucleonElement';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
-import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+
+const getTestData = () => ({
+  _links: { self: { href: 'https://demo.api/virtual/recovery' } },
+  type: 'email' as const,
+  detail: { email: 'sally.sims@example.com' },
+});
 
 describe('AccessRecoveryForm', () => {
   it('extends NucleonElement', () => {
@@ -211,7 +216,7 @@ describe('AccessRecoveryForm', () => {
       const element = await fixture<AccessRecoveryForm>(layout);
 
       element.hidden = true;
-      element.data = await getTestData('https://demo.api/virtual/recovery');
+      element.data = getTestData();
 
       expect(await getByTestId(element, 'message')).to.not.exist;
     });
@@ -221,7 +226,7 @@ describe('AccessRecoveryForm', () => {
       const element = await fixture<AccessRecoveryForm>(layout);
 
       element.hiddenControls = new BooleanSelector('message');
-      element.data = await getTestData('https://demo.api/virtual/recovery');
+      element.data = getTestData();
 
       expect(await getByTestId(element, 'message')).to.not.exist;
     });
@@ -246,7 +251,7 @@ describe('AccessRecoveryForm', () => {
       const layout = html`<foxy-access-recovery-form></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
-      element.data = await getTestData('https://demo.api/virtual/recovery');
+      element.data = getTestData();
       element.lang = 'es';
 
       const message = await getByTestId(element, 'message');
@@ -261,7 +266,7 @@ describe('AccessRecoveryForm', () => {
       const layout = html`<foxy-access-recovery-form></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
-      element.data = await getTestData('https://demo.api/virtual/recovery');
+      element.data = getTestData();
       element.lang = 'es';
 
       expect(await getByName(element, 'message:before')).to.have.property('localName', 'slot');
@@ -269,7 +274,7 @@ describe('AccessRecoveryForm', () => {
 
     it('replaces "message:before" slot with template "message:before" if available and visible', async () => {
       const name = 'message:before';
-      const data = await getTestData('https://demo.api/virtual/recovery');
+      const data = getTestData();
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AccessRecoveryForm>(html`
         <foxy-access-recovery-form .data=${data} lang="es">
@@ -288,7 +293,7 @@ describe('AccessRecoveryForm', () => {
       const layout = html`<foxy-access-recovery-form></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
-      element.data = await getTestData('https://demo.api/virtual/recovery');
+      element.data = getTestData();
       element.lang = 'es';
 
       expect(await getByName(element, 'message:after')).to.have.property('localName', 'slot');
@@ -296,7 +301,7 @@ describe('AccessRecoveryForm', () => {
 
     it('replaces "message:after" slot with template "message:after" if available and visible', async () => {
       const name = 'message:after';
-      const data = await getTestData('https://demo.api/virtual/recovery');
+      const data = getTestData();
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AccessRecoveryForm>(html`
         <foxy-access-recovery-form .data=${data} lang="es">
@@ -453,7 +458,7 @@ describe('AccessRecoveryForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('https://demo.api/virtual/recovery');
+      const data = getTestData();
       const layout = html`<foxy-access-recovery-form .data=${data}></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

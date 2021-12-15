@@ -16,12 +16,20 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
-import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 const router = createRouter();
+
+const getTestData = () => ({
+  _links: { self: { href: 'https://demo.api/virtual/session' } },
+  type: 'password' as const,
+  credential: {
+    email: 'sally.sims@example.com',
+    password: '3i74uylOIUB&*21?',
+  },
+});
 
 describe('SignInForm', () => {
   it('extends NucleonElement', () => {
@@ -1298,7 +1306,7 @@ describe('SignInForm', () => {
       const element = await fixture<SignInForm>(layout);
 
       element.hidden = true;
-      element.data = await getTestData('https://demo.api/virtual/session');
+      element.data = getTestData();
 
       expect(await getByTestId(element, 'error')).to.not.exist;
     });
@@ -1308,7 +1316,7 @@ describe('SignInForm', () => {
       const element = await fixture<SignInForm>(layout);
 
       element.hiddenControls = new BooleanSelector('error');
-      element.data = await getTestData('https://demo.api/virtual/session');
+      element.data = getTestData();
 
       expect(await getByTestId(element, 'error')).to.not.exist;
     });
@@ -1369,7 +1377,7 @@ describe('SignInForm', () => {
       const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
       const element = await fixture<SignInForm>(layout);
 
-      element.edit(await getTestData('https://demo.api/virtual/session'));
+      element.edit(getTestData());
       element.submit();
       await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
@@ -1385,7 +1393,7 @@ describe('SignInForm', () => {
         </foxy-sign-in-form>
       `);
 
-      element.edit(await getTestData('./virtual/session'));
+      element.edit(getTestData());
       element.submit();
       await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
@@ -1400,7 +1408,7 @@ describe('SignInForm', () => {
       const layout = html`<foxy-sign-in-form></foxy-sign-in-form>`;
       const element = await fixture<SignInForm>(layout);
 
-      element.edit(await getTestData('https://demo.api/virtual/session'));
+      element.edit(getTestData());
       element.submit();
       await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
@@ -1416,7 +1424,7 @@ describe('SignInForm', () => {
         </foxy-sign-in-form>
       `);
 
-      element.edit(await getTestData('https://demo.api/virtual/session'));
+      element.edit(getTestData());
       element.submit();
       await waitUntil(() => element.in('idle'), undefined, { timeout: 5000 });
 
@@ -1576,7 +1584,7 @@ describe('SignInForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('https://demo.api/virtual/session');
+      const data = getTestData();
       const layout = html`<foxy-sign-in-form .data=${data}></foxy-sign-in-form>`;
       const element = await fixture<SignInForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
