@@ -11,7 +11,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { html } from 'lit-html';
 import isEqual from 'lodash-es/isEqual';
-import sinon from 'sinon';
+import { stub } from 'sinon';
 
 describe('FormDialog', () => {
   it('extends Dialog', () => {
@@ -118,7 +118,7 @@ describe('FormDialog', () => {
     await dialog.show();
 
     const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<never>;
-    sinon.stub(formElement, 'in').callsFake(stateValue => stateValue === 'busy');
+    stub(formElement, 'in').callsFake(stateValue => stateValue === 'busy');
     formElement.dispatchEvent(new UpdateEvent());
 
     await dialog.updateComplete;
@@ -140,7 +140,7 @@ describe('FormDialog', () => {
       await dialog.show();
 
       const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<never>;
-      sinon.stub(formElement, 'in').callsFake(v => isEqual(v, stateValue));
+      stub(formElement, 'in').callsFake(v => isEqual(v, stateValue));
       formElement.dispatchEvent(new UpdateEvent());
 
       await dialog.updateComplete;
