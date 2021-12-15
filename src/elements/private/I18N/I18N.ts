@@ -1,13 +1,6 @@
 import { ScopedElementsMap } from '@open-wc/scoped-elements';
 import { TOptions } from 'i18next';
-import {
-  css,
-  CSSResultArray,
-  html,
-  property,
-  TemplateResult,
-  PropertyDeclarations,
-} from 'lit-element';
+import { css, CSSResultArray, html, TemplateResult, PropertyDeclarations } from 'lit-element';
 import { Translatable } from '../../../mixins/translatable';
 import { Skeleton } from '../Skeleton/Skeleton';
 
