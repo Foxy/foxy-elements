@@ -116,7 +116,9 @@ export class CustomerForm extends Base<Data> {
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
-            value: this.data ? this.t('date', { value: new Date(this.data[field]) }) : '',
+            value: this.data?.[field]
+              ? this.t('date', { value: new Date(this.data[field] as string) })
+              : '',
           }))}
         >
         </x-property-table>
