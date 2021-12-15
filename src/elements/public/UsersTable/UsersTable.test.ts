@@ -5,10 +5,11 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog/FormDialog';
 import { UsersTable } from './UsersTable';
-import { router } from '../../../server/admin';
+import { createRouter } from '../../../server/index';
 import { stub } from 'sinon';
 
-const usersURL = 'https://demo.foxycart.com/s/admin/stores/0/users';
+const router = createRouter();
+const usersURL = 'https://demo.api/hapi/users';
 
 describe('UsersTable', () => {
   it('displays 5 columns', async function () {
@@ -73,6 +74,6 @@ describe('UsersTable', () => {
 
     expect(showMethod).to.have.been.called;
     expect(dialog).to.have.property('form', 'foxy-user-form');
-    expect(dialog).to.have.property('href', 'https://demo.foxycart.com/s/admin/users/0');
+    expect(dialog).to.have.property('href', 'https://demo.api/hapi/users/0');
   });
 });

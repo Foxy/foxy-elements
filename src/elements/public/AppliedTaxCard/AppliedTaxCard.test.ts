@@ -7,11 +7,13 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
+import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
-import { router } from '../../../server';
+
+const router = createRouter();
 
 describe('AppliedTaxCard', () => {
   it('extends TwoLineCard', () => {
@@ -31,6 +33,7 @@ describe('AppliedTaxCard', () => {
     const layout = html`<foxy-applied-tax-card @fetch=${handleFetch}></foxy-applied-tax-card>`;
     const element = await fixture<AppliedTaxCard>(layout);
 
+    element.href = 'https://demo.api/hapi/applied_taxes/0';
     await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'title');
 
@@ -42,7 +45,7 @@ describe('AppliedTaxCard', () => {
     const layout = html`<foxy-applied-tax-card @fetch=${handleFetch}></foxy-applied-tax-card>`;
     const element = await fixture<AppliedTaxCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/applied_taxes/0';
+    element.href = 'https://demo.api/hapi/applied_taxes/0';
     element.lang = 'es';
     element.ns = 'foo';
 
@@ -71,7 +74,7 @@ describe('AppliedTaxCard', () => {
     const layout = html`<foxy-applied-tax-card @fetch=${handleFetch}></foxy-applied-tax-card>`;
     const element = await fixture<AppliedTaxCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/applied_taxes/0';
+    element.href = 'https://demo.api/hapi/applied_taxes/0';
     element.lang = 'es';
     element.ns = 'foo';
 

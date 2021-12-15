@@ -5,8 +5,8 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.foxycart.com/s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items',
-  parent: 'https://demo.foxycart.com/s/admin/stores/0/subscriptions',
+  href: 'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items',
+  parent: 'https://demo.api/hapi/subscriptions',
   nucleon: true,
   localName: 'foxy-subscription-form',
   translatable: true,
@@ -29,5 +29,5 @@ export const Error = getStory(summary);
 export const Busy = getStory(summary);
 
 Empty.args.href = '';
-Error.args.href = 'https://demo.foxycart.com/s/admin/not-found';
-Busy.args.href = 'https://demo.foxycart.com/s/admin/sleep';
+Error.args.href = 'https://demo.api/virtual/empty?status=404';
+Busy.args.href = 'https://demo.api/virtual/stall';

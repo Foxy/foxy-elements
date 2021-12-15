@@ -77,7 +77,7 @@ describe('CustomerPortal', () => {
         readonlycontrols="customer:header:actions:edit:form"
         hiddencontrols="access-recovery:header"
         group="foo"
-        base="https://demo.foxycart.com/s/customer/"
+        base="https://demo.api/portal/"
         lang="es"
       >
         <template slot="sign-in:header:before">
@@ -94,7 +94,7 @@ describe('CustomerPortal', () => {
     expect(view).to.have.attribute('disabledcontrols', 'sign-in:recover');
     expect(view).to.have.attribute('readonlycontrols', 'customer:header:actions:edit:form');
     expect(view).to.have.attribute('hiddencontrols', 'access-recovery:header');
-    expect(view).to.have.attribute('customer', 'https://demo.foxycart.com/s/customer/');
+    expect(view).to.have.attribute('customer', 'https://demo.api/portal/');
     expect(view).to.have.attribute('group', 'foo');
     expect(view).to.have.attribute('lang', 'es');
     expect(view.templates).to.have.key('sign-in:header:before');

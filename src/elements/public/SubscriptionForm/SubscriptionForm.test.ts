@@ -5,6 +5,7 @@ import { Choice } from '../../private';
 import { CollectionPages } from '../CollectionPages';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { Data } from './types';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog';
 import { InternalCalendar } from '../../internal/InternalCalendar';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
@@ -13,6 +14,7 @@ import { SubscriptionForm } from './index';
 import { Table } from '../Table';
 import { TransactionsTable } from '../TransactionsTable';
 import { Data as TransactionsTableData } from '../TransactionsTable/types';
+import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTag } from '../../../testgen/getByTag';
@@ -34,7 +36,7 @@ describe('SubscriptionForm', () => {
 
   describe('header', () => {
     it('once loaded, renders price and frequency in title', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
 
       data.frequency = '3w';
@@ -56,7 +58,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('once loaded, renders price and frequency for .5m subscriptions in title', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
 
       data.frequency = '.5m';
@@ -78,7 +80,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('once loaded, renders a special status for failed subscriptions in subtitle', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const date = new Date().toISOString();
       const data = { ...(await getTestData<Data>(href)), first_failed_transaction_date: date };
       const element = await fixture<SubscriptionForm>(html`
@@ -95,7 +97,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('once loaded, renders a special status for subscriptions that are about to end in subtitle', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
 
       data.first_failed_transaction_date = null;
@@ -115,7 +117,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('once loaded, renders a special status for subscriptions that have ended in subtitle', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
 
       data.first_failed_transaction_date = null;
@@ -135,7 +137,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('once loaded, renders a special status for active subscriptions in subtitle', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
 
       data.first_failed_transaction_date = null;
@@ -156,7 +158,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('once loaded, renders a special status for inactive subscriptions in subtitle', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
 
       data.first_failed_transaction_date = null;
@@ -244,7 +246,7 @@ describe('SubscriptionForm', () => {
 
   describe('items', () => {
     it('once loaded, renders subscription items', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form .data=${data} lang="es"></foxy-subscription-form>
@@ -439,7 +441,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('renders disabled if form is disabled', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-subscription-form .data=${data} disabled></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);
@@ -448,7 +450,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('renders disabled if disabledcontrols includes "end-date"', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form .data=${await getTestData<Data>(href)} disabledcontrols="end-date">
         </foxy-subscription-form>
@@ -524,7 +526,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('opens cancellation dialog on click', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);
@@ -591,7 +593,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('passes templates to the cancellation dialog', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const content = '<div>Test content of submit:before</div>';
       const element = await fixture<SubscriptionForm>(html`
@@ -607,7 +609,7 @@ describe('SubscriptionForm', () => {
 
   describe('next-transaction-date', () => {
     it('is hidden when form is hidden', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-subscription-form .data=${data} hidden></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);
@@ -616,7 +618,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden when hiddencontrols includes "next-transaction-date"', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form .data=${data} hiddencontrols="next-transaction-date">
@@ -635,7 +637,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden if settings prohibit next date modification', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
           .data=${await getTestData(href)}
@@ -711,7 +713,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('when visible, renders foxy-internal-calendar bound to form.next_transaction_date', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       data.next_transaction_date = new Date(Date.now() + 84600000).toISOString();
       const element = await fixture<SubscriptionForm>(html`
@@ -732,7 +734,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is disabled when the form is disabled', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form .data=${data} disabled></foxy-subscription-form>
@@ -742,7 +744,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is disabled when disabledcontrols includes "next-transaction-date"', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
           .data=${await getTestData<Data>(href)}
@@ -755,7 +757,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is readonly when the form is disabled', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form .data=${data} readonly></foxy-subscription-form>
@@ -765,7 +767,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is readonly when readonlycontrols includes "next-transaction-date"', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
           .data=${await getTestData<Data>(href)}
@@ -778,7 +780,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('disables dates matching rules in the settings, if provided', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
           .data=${await getTestData<Data>(href)}
@@ -797,7 +799,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('disables past dates if no settings were provided', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form .data=${await getTestData<Data>(href)}></foxy-subscription-form>
       `);
@@ -809,7 +811,7 @@ describe('SubscriptionForm', () => {
 
   describe('frequency', () => {
     it('is hidden when form is hidden', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-subscription-form .data=${data} hidden></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);
@@ -818,7 +820,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden when hiddencontrols includes "frequency"', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form .data=${data} hiddencontrols="frequency"> </foxy-subscription-form>
@@ -836,7 +838,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden if settings prohibit frequency modification', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
           .data=${await getTestData(href)}
@@ -902,7 +904,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('when visible, renders radio list with common options by default', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
@@ -931,7 +933,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('when visible, renders radio list if settings have up to 4 frequency options', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const values = ['1y', '1m', '.5m', '1w'];
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
@@ -964,7 +966,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('when visible, renders dropdown if settings have 5+ frequency options', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const values = ['2y', '1y', '4m', '2w', '5d'];
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
@@ -990,7 +992,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('binds radio list value to form.frequency', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = { ...(await getTestData<Data>(href)), frequency: '3y' };
       const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);
@@ -1005,7 +1007,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('binds dropdown value to form.frequency', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const values = ['2y', '1y', '4m', '2w', '5d'];
       const element = await fixture<SubscriptionForm>(html`
         <foxy-subscription-form
@@ -1043,7 +1045,7 @@ describe('SubscriptionForm', () => {
       };
 
       it(`${target} is disabled if form is disabled`, async () => {
-        const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+        const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<SubscriptionForm>(html`
           <foxy-subscription-form
             disabled
@@ -1057,7 +1059,7 @@ describe('SubscriptionForm', () => {
       });
 
       it(`${target} is disabled if disabledcontrols includes "frequency"`, async () => {
-        const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+        const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<SubscriptionForm>(html`
           <foxy-subscription-form
             disabledcontrols="frequency"
@@ -1071,7 +1073,7 @@ describe('SubscriptionForm', () => {
       });
 
       it(`${target} is readonly if subscription is inactive`, async () => {
-        const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+        const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<SubscriptionForm>(html`
           <foxy-subscription-form
             .data=${{ ...(await getTestData<Data>(href)), is_active: false }}
@@ -1084,7 +1086,7 @@ describe('SubscriptionForm', () => {
       });
 
       it(`${target} is readonly if form is readonly`, async () => {
-        const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+        const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<SubscriptionForm>(html`
           <foxy-subscription-form
             readonly
@@ -1098,7 +1100,7 @@ describe('SubscriptionForm', () => {
       });
 
       it(`${target} is readonly if readonlycontrols includes "frequency"`, async () => {
-        const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+        const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
         const element = await fixture<SubscriptionForm>(html`
           <foxy-subscription-form
             readonlycontrols="frequency"
@@ -1126,7 +1128,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('renders a foxy-table with transactions in foxy-collection-pages', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const element = await fixture<SubscriptionForm>(
         html`<foxy-subscription-form .data=${data} lang="es" group="foo"></foxy-subscription-form>`
@@ -1149,7 +1151,7 @@ describe('SubscriptionForm', () => {
       type TableCellData = TransactionsTableData['_embedded']['fx:transactions'][number];
       type TableCellContext = CellContext<TransactionsTableData>;
 
-      const transaction = await getTestData<TableCellData>('./s/admin/transactions/0');
+      const transaction = await getTestData<TableCellData>('./hapi/transactions/0');
       const ctx: TableCellContext = { html, data: transaction, lang: pages.lang, ns: 'foo' };
       const extraFixtures = await fixture(
         html`
@@ -1246,7 +1248,7 @@ describe('SubscriptionForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-subscription-form href=${href} lang="es"></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -1259,8 +1261,16 @@ describe('SubscriptionForm', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
-      const layout = html`<foxy-subscription-form href=${href} lang="es"></foxy-subscription-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-subscription-form
+          href="https://demo.api/virtual/empty?status=404"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `;
+
       const element = await fixture<SubscriptionForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
@@ -1274,7 +1284,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData(href);
       const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
       const element = await fixture<SubscriptionForm>(layout);

@@ -1,15 +1,15 @@
 import './index';
 
 import { expect, fixture, html, oneEvent } from '@open-wc/testing';
-
+import { createRouter } from '../../../server/index';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { router } from '../../../server/admin/index';
+
+const router = createRouter();
 
 describe('ErrorEntryCard', async () => {
   it('passes accessibility test', async () => {
     const element = await fixture(html`
-      <foxy-error-entry-card href="https://demo.foxycart.com/s/admin/error_entries/0">
-      </foxy-error-entry-card>
+      <foxy-error-entry-card href="https://demo.api/hapi/error_entries/0"></foxy-error-entry-card>
     `);
 
     await expect(element).to.be.accessible();
@@ -28,8 +28,7 @@ describe('ErrorEntryCard', async () => {
 
   it('displays a spinner on top of the element when loading with data', async () => {
     const layout = html`
-      <foxy-error-entry-card href="https://demo.foxycart.com/s/admin/error_entries/0">
-      </foxy-error-entry-card>
+      <foxy-error-entry-card href="https://demo.api/hapi/error_entries/0"> </foxy-error-entry-card>
     `;
 
     const element = await fixture(layout);
@@ -42,7 +41,7 @@ describe('ErrorEntryCard', async () => {
   it("displays a spinner error if data can't be loaded", async () => {
     const layout = html`
       <foxy-error-entry-card
-        href="https://demo.foxycart.com/s/admin/not-found"
+        href="https://demo.api/virtual/empty?status=404"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-error-entry-card>
@@ -58,7 +57,7 @@ describe('ErrorEntryCard', async () => {
   it('displays a summary when closed', async () => {
     const element = await fixture(html`
       <foxy-error-entry-card
-        href="https://demo.foxycart.com/s/admin/error_entries/0"
+        href="https://demo.api/hapi/error_entries/0"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-error-entry-card>
@@ -76,7 +75,7 @@ describe('ErrorEntryCard', async () => {
     const element = await fixture(
       html`
         <foxy-error-entry-card
-          href="https://demo.foxycart.com/s/admin/error_entries/0"
+          href="https://demo.api/hapi/error_entries/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-error-entry-card>
@@ -90,7 +89,6 @@ describe('ErrorEntryCard', async () => {
     expect(element.shadowRoot?.querySelector('[key="time"]')).to.exist;
     expect(element.shadowRoot?.querySelector('p')).to.exist;
     expect(element.shadowRoot?.querySelector('[key="client"]')).to.be.visible;
-    expect(element.shadowRoot?.querySelector('[key="transaction"]')).to.be.visible;
     expect(element.shadowRoot?.querySelector('[key="request"]')).to.be.visible;
   });
 });

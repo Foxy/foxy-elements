@@ -6,7 +6,7 @@ const getHref = (page: string) => {
 
 export const AddingPagesGuideOrdersDemo = (): TemplateResult => html`
   <foxy-customer-portal
-    base="https://demo.foxycart.com/s/customer/"
+    base="https://demo.api/portal/"
     hiddencontrols="customer:header:actions:edit customer:subscriptions customer:transactions customer:addresses customer:payment-methods"
   >
     <template slot="customer:header:before">

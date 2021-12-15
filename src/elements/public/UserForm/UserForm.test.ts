@@ -9,8 +9,9 @@ import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { UserForm } from './UserForm';
-import { router } from '../../../server/admin/index';
+import { createRouter } from '../../../server/index';
 
+const router = createRouter();
 const a51 = Array(52).join('a');
 const a101 = Array(102).join('a');
 
@@ -91,7 +92,9 @@ describe('UserForm', () => {
           <foxy-user-form @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}></foxy-user-form>
         `);
 
-        await waitUntil(() => el.in('idle'), 'Element should become idle');
+        await waitUntil(() => el.in('idle'), 'Element should become idle', {
+          timeout: 5000,
+        });
 
         const changes: any = {};
         changes[c.name] = c.value;
@@ -114,11 +117,13 @@ describe('UserForm', () => {
     beforeEach(async () => {
       el = await fixture(html`
         <foxy-user-form
-          href="https://demo.foxycart.com/s/admin/error_entries/0"
+          href="https://demo.api/hapi/error_entries/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         ></foxy-user-form>
       `);
-      await waitUntil(() => el.in('idle'), 'Element should become idle');
+      await waitUntil(() => el.in('idle'), 'Element should become idle', {
+        timeout: 5000,
+      });
       mockEl = sinon.mock(el);
     });
 
@@ -159,7 +164,7 @@ describe('UserForm', () => {
   it('should provide user feedback while loading', async () => {
     const el: UserForm = await fixture(html`
       <foxy-user-form
-        href="https://demo.foxycart.com/s/admin/sleep"
+        href="https://demo.api/virtual/stall"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-user-form>
@@ -167,14 +172,16 @@ describe('UserForm', () => {
 
     expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).not.to.have.class('opacity-0');
 
-    el.href = ' https://demo.foxycart.com/s/admin/not-found';
+    el.href = ' https://demo.api/virtual/empty?status=404';
     await elementUpdated(el);
     expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).not.to.have.class('opacity-0');
 
-    el.href = 'https://demo.foxycart.com/s/admin/users/0';
+    el.href = 'https://demo.api/hapi/users/0';
     expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).not.to.have.class('opacity-0');
 
-    await waitUntil(() => el.in('idle'), 'Element should become idle');
+    await waitUntil(() => el.in('idle'), 'Element should become idle', {
+      timeout: 5000,
+    });
     expect(el.shadowRoot?.querySelector(`[data-testid="spinner"]`)).to.have.class('opacity-0');
   });
 });

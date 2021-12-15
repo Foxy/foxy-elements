@@ -19,8 +19,8 @@ type Refs = {
 
 describe('TransactionsTable', () => {
   generateTests<Data, TransactionsTable, Refs>({
-    parent: 'https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&zoom=items',
-    href: 'https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&zoom=items',
+    parent: 'https://demo.api/hapi/transactions?zoom=items',
+    href: 'https://demo.api/hapi/transactions?zoom=items',
     tag: 'foxy-transactions-table',
     isEmptyValid: true,
     maxTestsPerState: 5,

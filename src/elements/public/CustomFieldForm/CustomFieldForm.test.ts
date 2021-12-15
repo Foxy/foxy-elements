@@ -62,7 +62,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/custom_fields/0');
+      const validData = await getTestData<Data>('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const control = await getByTestId<TextFieldElement>(element, 'name');
@@ -148,14 +148,14 @@ describe('CustomFieldForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-custom-field-form href=${href}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-custom-field-form href=${href}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
@@ -223,7 +223,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/custom_fields/0');
+      const validData = await getTestData<Data>('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const control = await getByTestId<TextFieldElement>(element, 'value');
@@ -307,14 +307,14 @@ describe('CustomFieldForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-custom-field-form href=${href}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       expect(await getByTestId(element, 'value')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-custom-field-form href=${href}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       expect(await getByTestId(element, 'value')).to.have.attribute('disabled');
@@ -443,7 +443,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('is enabled once loaded', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const visibility = (await getByTestId(element, 'visibility')) as HTMLDivElement;
@@ -453,7 +453,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('once loaded, disabled when element is disabled', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data} disabled></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const visibility = (await getByTestId(element, 'visibility')) as HTMLDivElement;
@@ -465,7 +465,7 @@ describe('CustomFieldForm', () => {
     it('once loaded, disabled when disabledcontrols includes "visibility"', async () => {
       const element = await fixture<CustomFieldForm>(html`
         <foxy-custom-field-form
-          .data=${await getTestData('./s/admin/custom_fields/0')}
+          .data=${await getTestData('./hapi/custom_fields/0')}
           disabledcontrols="visibility"
         >
         </foxy-custom-field-form>
@@ -494,7 +494,7 @@ describe('CustomFieldForm', () => {
 
   describe('timestamps', () => {
     it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./s/admin/custom_fields/0');
+      const data = await getTestData<Data>('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const control = await getByTestId(element, 'timestamps');
@@ -507,7 +507,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/custom_fields/0');
+      const data = await getTestData<Data>('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
@@ -516,7 +516,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/custom_fields/0');
+      const data = await getTestData<Data>('./hapi/custom_fields/0');
       const name = 'timestamps:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomFieldForm>(html`
@@ -533,7 +533,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/custom_fields/0');
+      const data = await getTestData<Data>('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
@@ -542,7 +542,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/custom_fields/0');
+      const data = await getTestData<Data>('./hapi/custom_fields/0');
       const name = 'timestamps:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomFieldForm>(html`
@@ -686,7 +686,7 @@ describe('CustomFieldForm', () => {
 
   describe('delete', () => {
     it('renders delete button once resource is loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/custom_fields/0';
+      const href = 'https://demo.api/hapi/custom_fields/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-custom-field-form .data=${data} disabled></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
@@ -695,7 +695,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('renders with i18n key "delete" for caption', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form
         .data=${data}
         lang="es"
@@ -711,7 +711,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('renders disabled if form is disabled', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data} disabled></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
 
@@ -719,7 +719,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('renders disabled if form is sending changes', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
 
@@ -732,7 +732,7 @@ describe('CustomFieldForm', () => {
     it('renders disabled if disabledcontrols includes "delete"', async () => {
       const element = await fixture<CustomFieldForm>(html`
         <foxy-custom-field-form
-          .data=${await getTestData<Data>('./s/admin/custom_fields/0')}
+          .data=${await getTestData<Data>('./hapi/custom_fields/0')}
           disabledcontrols="delete"
         >
         </foxy-custom-field-form>
@@ -742,7 +742,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('shows deletion confirmation dialog on click', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const control = await getByTestId<ButtonElement>(element, 'delete');
@@ -755,7 +755,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('deletes resource if deletion is confirmed', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
@@ -767,7 +767,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('keeps resource if deletion is cancelled', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
@@ -779,7 +779,7 @@ describe('CustomFieldForm', () => {
     });
 
     it("doesn't render if form is hidden", async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data} hidden></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
 
@@ -789,7 +789,7 @@ describe('CustomFieldForm', () => {
     it('doesn\'t render if hiddencontrols includes "delete"', async () => {
       const element = await fixture<CustomFieldForm>(html`
         <foxy-custom-field-form
-          .data=${await getTestData<Data>('https://demo.foxycart.com/s/admin/custom_fields/0')}
+          .data=${await getTestData<Data>('./hapi/custom_fields/0')}
           hiddencontrols="delete"
         >
         </foxy-custom-field-form>
@@ -799,7 +799,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('renders with "delete:before" slot by default', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'delete:before');
@@ -808,7 +808,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/custom_fields/0';
+      const href = 'https://demo.api/hapi/custom_fields/0';
       const name = 'delete:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomFieldForm>(html`
@@ -825,7 +825,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('renders with "delete:after" slot by default', async () => {
-      const data = await getTestData('./s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'delete:after');
@@ -834,7 +834,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/custom_fields/0';
+      const href = 'https://demo.api/hapi/custom_fields/0';
       const name = 'delete:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomFieldForm>(html`
@@ -853,7 +853,7 @@ describe('CustomFieldForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-custom-field-form href=${href} lang="es"></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -866,7 +866,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-custom-field-form href=${href} lang="es"></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -881,7 +881,7 @@ describe('CustomFieldForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/admin/custom_fields/0');
+      const data = await getTestData('./hapi/custom_fields/0');
       const layout = html`<foxy-custom-field-form .data=${data}></foxy-custom-field-form>`;
       const element = await fixture<CustomFieldForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

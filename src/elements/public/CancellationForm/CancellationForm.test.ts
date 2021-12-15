@@ -194,7 +194,7 @@ describe('CancellationForm', () => {
     });
 
     it('is readonly when data.end_date is set', async () => {
-      const data = await getTestData<Data>('./s/admin/subscriptions/0');
+      const data = await getTestData<Data>('./hapi/subscriptions/0');
       data.end_date = new Date(Date.now() + 84600000).toISOString();
 
       const layout = html`<foxy-cancellation-form .data=${data}></foxy-cancellation-form>`;
@@ -210,7 +210,7 @@ describe('CancellationForm', () => {
     });
 
     it('is enabled once loaded', async () => {
-      const data = await getTestData('./s/admin/subscriptions/0');
+      const data = await getTestData('./hapi/subscriptions/0');
       const layout = html`<foxy-cancellation-form .data=${data}></foxy-cancellation-form>`;
       const element = await fixture<CancellationForm>(layout);
 
@@ -218,7 +218,7 @@ describe('CancellationForm', () => {
     });
 
     it('once loaded, disabled when element is disabled', async () => {
-      const data = await getTestData('./s/admin/subscriptions/0');
+      const data = await getTestData('./hapi/subscriptions/0');
       const layout = html`<foxy-cancellation-form .data=${data} disabled></foxy-cancellation-form>`;
       const element = await fixture<CancellationForm>(layout);
 
@@ -228,7 +228,7 @@ describe('CancellationForm', () => {
     it('once loaded, disabled when disabledcontrols includes "end-date"', async () => {
       const element = await fixture<CancellationForm>(html`
         <foxy-cancellation-form
-          .data=${await getTestData('./s/admin/subscriptions/0')}
+          .data=${await getTestData('./hapi/subscriptions/0')}
           disabledcontrols="end-date"
         >
         </foxy-cancellation-form>
@@ -297,7 +297,7 @@ describe('CancellationForm', () => {
     });
 
     it('submits valid form on click', async () => {
-      const data = await getTestData('./s/admin/subscriptions/0');
+      const data = await getTestData('./hapi/subscriptions/0');
       const layout = html`<foxy-cancellation-form .data=${data}></foxy-cancellation-form>`;
       const element = await fixture<CancellationForm>(layout);
       const control = await getByTestId<ButtonElement>(element, 'submit');
@@ -374,7 +374,7 @@ describe('CancellationForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-cancellation-form href=${href} lang="es"></foxy-cancellation-form>`;
       const element = await fixture<CancellationForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -387,7 +387,7 @@ describe('CancellationForm', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-cancellation-form href=${href} lang="es"></foxy-cancellation-form>`;
       const element = await fixture<CancellationForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -402,7 +402,7 @@ describe('CancellationForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('./s/admin/subscriptions/0');
+      const data = await getTestData('./hapi/subscriptions/0');
       const layout = html`<foxy-cancellation-form .data=${data}></foxy-cancellation-form>`;
       const element = await fixture<CancellationForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

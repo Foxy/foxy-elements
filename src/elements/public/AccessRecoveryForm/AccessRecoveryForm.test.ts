@@ -147,7 +147,7 @@ describe('AccessRecoveryForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-access-recovery-form href=${href}></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
@@ -155,7 +155,7 @@ describe('AccessRecoveryForm', () => {
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-access-recovery-form href=${href}></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
@@ -211,7 +211,7 @@ describe('AccessRecoveryForm', () => {
       const element = await fixture<AccessRecoveryForm>(layout);
 
       element.hidden = true;
-      element.data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      element.data = await getTestData('https://demo.api/virtual/recovery');
 
       expect(await getByTestId(element, 'message')).to.not.exist;
     });
@@ -221,7 +221,7 @@ describe('AccessRecoveryForm', () => {
       const element = await fixture<AccessRecoveryForm>(layout);
 
       element.hiddenControls = new BooleanSelector('message');
-      element.data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      element.data = await getTestData('https://demo.api/virtual/recovery');
 
       expect(await getByTestId(element, 'message')).to.not.exist;
     });
@@ -246,7 +246,7 @@ describe('AccessRecoveryForm', () => {
       const layout = html`<foxy-access-recovery-form></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
-      element.data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      element.data = await getTestData('https://demo.api/virtual/recovery');
       element.lang = 'es';
 
       const message = await getByTestId(element, 'message');
@@ -261,7 +261,7 @@ describe('AccessRecoveryForm', () => {
       const layout = html`<foxy-access-recovery-form></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
-      element.data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      element.data = await getTestData('https://demo.api/virtual/recovery');
       element.lang = 'es';
 
       expect(await getByName(element, 'message:before')).to.have.property('localName', 'slot');
@@ -269,7 +269,7 @@ describe('AccessRecoveryForm', () => {
 
     it('replaces "message:before" slot with template "message:before" if available and visible', async () => {
       const name = 'message:before';
-      const data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      const data = await getTestData('https://demo.api/virtual/recovery');
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AccessRecoveryForm>(html`
         <foxy-access-recovery-form .data=${data} lang="es">
@@ -288,7 +288,7 @@ describe('AccessRecoveryForm', () => {
       const layout = html`<foxy-access-recovery-form></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
 
-      element.data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      element.data = await getTestData('https://demo.api/virtual/recovery');
       element.lang = 'es';
 
       expect(await getByName(element, 'message:after')).to.have.property('localName', 'slot');
@@ -296,7 +296,7 @@ describe('AccessRecoveryForm', () => {
 
     it('replaces "message:after" slot with template "message:after" if available and visible', async () => {
       const name = 'message:after';
-      const data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      const data = await getTestData('https://demo.api/virtual/recovery');
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AccessRecoveryForm>(html`
         <foxy-access-recovery-form .data=${data} lang="es">
@@ -439,7 +439,7 @@ describe('AccessRecoveryForm', () => {
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
       const element = await fixture<AccessRecoveryForm>(html`
-        <foxy-access-recovery-form href="https://demo.foxycart.com/s/admin/sleep" lang="es">
+        <foxy-access-recovery-form href="https://demo.api/virtual/stall" lang="es">
         </foxy-access-recovery-form>
       `);
 
@@ -453,7 +453,7 @@ describe('AccessRecoveryForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/virtual/recovery');
+      const data = await getTestData('https://demo.api/virtual/recovery');
       const layout = html`<foxy-access-recovery-form .data=${data}></foxy-access-recovery-form>`;
       const element = await fixture<AccessRecoveryForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

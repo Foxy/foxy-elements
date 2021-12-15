@@ -8,6 +8,8 @@ import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/virtual';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 
 describe('CustomerCard', () => {
   it('extends NucleonElement', () => {
@@ -26,7 +28,7 @@ describe('CustomerCard', () => {
 
   describe('name', () => {
     it('renders name once loaded', async () => {
-      const data = await getTestData<Data>('https://demo.foxycart.com/s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const layout = html`<foxy-customer-card .data=${data}></foxy-customer-card>`;
       const element = await fixture<CustomerCard>(layout);
       const name = await getByTestId(element, 'name');
@@ -99,7 +101,7 @@ describe('CustomerCard', () => {
 
   describe('email', () => {
     it('renders email once loaded if provided', async () => {
-      const data = await getTestData<Data>('https://demo.foxycart.com/s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const layout = html`<foxy-customer-card .data=${data}></foxy-customer-card>`;
       const element = await fixture<CustomerCard>(layout);
       const name = await getByTestId(element, 'email');
@@ -196,7 +198,17 @@ describe('CustomerCard', () => {
     });
 
     it('renders "error" foxy-spinner if loading fails', async () => {
-      const layout = html`<foxy-customer-card href="/" lang="es" ns="foo"></foxy-customer-card>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-customer-card
+          href="https://demo.api/virtual/empty?status=404"
+          lang="es"
+          ns="foo"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-customer-card>
+      `;
+
       const element = await fixture<CustomerCard>(layout);
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;
@@ -210,7 +222,7 @@ describe('CustomerCard', () => {
     });
 
     it('hides the spinner once loaded', async () => {
-      const data = await getTestData<any>('https://demo.foxycart.com/s/admin/customers/0');
+      const data = await getTestData<any>('./hapi/customers/0');
       const layout = html`<foxy-customer-card .data=${data}></foxy-customer-card>`;
       const element = await fixture<CustomerCard>(layout);
       const spinner = await getByTestId(element, 'spinner');

@@ -23,7 +23,7 @@ describe('AddressCard', () => {
 
   describe('address-name', () => {
     it('renders foxy-i18n with key "default_billing_address" for default billing address when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
       data.is_default_billing = true;
@@ -40,7 +40,7 @@ describe('AddressCard', () => {
     });
 
     it('renders foxy-i18n with key "default_shipping_address" for default shipping address when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
       data.is_default_billing = false;
@@ -57,7 +57,7 @@ describe('AddressCard', () => {
     });
 
     it('renders foxy-i18n with key "default_shipping_address" for default shipping address when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
       data.is_default_billing = false;
@@ -74,7 +74,7 @@ describe('AddressCard', () => {
     });
 
     it('renders address name for custom address when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
       data.is_default_billing = false;
@@ -152,7 +152,7 @@ describe('AddressCard', () => {
 
   describe('full-name', () => {
     it('renders foxy-i18n with key "full-name" when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-card .data=${data} lang="es"></foxy-address-card>`;
       const element = await fixture<AddressCard>(layout);
@@ -231,7 +231,7 @@ describe('AddressCard', () => {
 
   describe('company', () => {
     it('renders company name when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = { ...(await getTestData<Data>(href)), company: 'Acme Corporation' };
       const layout = html`<foxy-address-card .data=${data}></foxy-address-card>`;
       const element = await fixture<AddressCard>(layout);
@@ -304,7 +304,7 @@ describe('AddressCard', () => {
 
   describe('phone', () => {
     it('renders phone name when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = { ...(await getTestData<Data>(href)), phone: '+1-202-555-0177' };
       const layout = html`<foxy-address-card .data=${data}></foxy-address-card>`;
       const element = await fixture<AddressCard>(layout);
@@ -415,7 +415,7 @@ describe('AddressCard', () => {
     });
 
     it('hides the spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/admin/customer_addresses/0');
+      const data = await getTestData('./hapi/customer_addresses/0');
       const layout = html`<foxy-address-card .data=${data}></foxy-address-card>`;
       const element = await fixture<AddressCard>(layout);
       const spinner = await getByTestId(element, 'spinner');

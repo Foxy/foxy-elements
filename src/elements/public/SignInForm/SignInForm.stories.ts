@@ -4,7 +4,7 @@ import { Summary } from '../../../storygen/Summary';
 import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
-const base = new URL('https://demo.foxycart.com/s/virtual/session');
+const base = new URL('https://demo.api/virtual/session');
 const summary: Summary = {
   parent: base.toString(),
   nucleon: true,
@@ -48,4 +48,4 @@ MfaTotpCodeInvalidError.args.parent = String(
   new URL('./session?code=mfa_totp_code_invalid_error', base)
 );
 
-UnknownError.args.parent = 'https://demo.foxycart.com/s/admin/not-found';
+UnknownError.args.parent = 'https://demo.api/virtual/empty?status=404';

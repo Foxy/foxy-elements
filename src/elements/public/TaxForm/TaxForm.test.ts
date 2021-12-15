@@ -73,7 +73,7 @@ describe('TaxForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+      const validData = await getTestData<Data>('./hapi/taxes/0');
       const layout = html`<foxy-tax-form></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const control = await getByTestId<TextFieldElement>(element, 'name');
@@ -155,14 +155,14 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form href=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-tax-form href=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       expect(await getByTestId(element, 'name')).to.have.attribute('disabled');
@@ -297,7 +297,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -490,7 +490,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -732,7 +732,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -956,7 +956,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -1150,7 +1150,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -1351,7 +1351,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -1511,7 +1511,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -1687,7 +1687,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -1859,7 +1859,7 @@ describe('TaxForm', () => {
     });
 
     it('is disabled when form is in busy state', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-tax-form parent=${href}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -1934,7 +1934,7 @@ describe('TaxForm', () => {
 
   describe('timestamps', () => {
     it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+      const data = await getTestData<Data>('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const control = await getByTestId(element, 'timestamps');
@@ -1947,7 +1947,7 @@ describe('TaxForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+      const data = await getTestData<Data>('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
@@ -1956,7 +1956,7 @@ describe('TaxForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+      const data = await getTestData<Data>('./hapi/taxes/0');
       const name = 'timestamps:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<TaxForm>(html`
@@ -1973,7 +1973,7 @@ describe('TaxForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+      const data = await getTestData<Data>('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
@@ -1982,7 +1982,7 @@ describe('TaxForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+      const data = await getTestData<Data>('./hapi/taxes/0');
       const name = 'timestamps:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<TaxForm>(html`
@@ -2118,7 +2118,7 @@ describe('TaxForm', () => {
 
   describe('delete', () => {
     it('renders delete button once resource is loaded', async () => {
-      const href = './s/admin/stores/0/taxes/0';
+      const href = './hapi/taxes/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-tax-form .data=${data} disabled></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
@@ -2127,7 +2127,7 @@ describe('TaxForm', () => {
     });
 
     it('renders with i18n key "delete" for caption', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data} lang="es"></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const control = await getByTestId(element, 'delete');
@@ -2140,7 +2140,7 @@ describe('TaxForm', () => {
     });
 
     it('renders disabled if form is disabled', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data} disabled></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -2148,7 +2148,7 @@ describe('TaxForm', () => {
     });
 
     it('renders disabled if form is sending changes', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -2160,10 +2160,7 @@ describe('TaxForm', () => {
 
     it('renders disabled if disabledcontrols includes "delete"', async () => {
       const element = await fixture<TaxForm>(html`
-        <foxy-tax-form
-          .data=${await getTestData<Data>('./s/admin/stores/0/taxes/0')}
-          disabledcontrols="delete"
-        >
+        <foxy-tax-form .data=${await getTestData<Data>('./hapi/taxes/0')} disabledcontrols="delete">
         </foxy-tax-form>
       `);
 
@@ -2171,7 +2168,7 @@ describe('TaxForm', () => {
     });
 
     it('shows deletion confirmation dialog on click', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const control = await getByTestId<ButtonElement>(element, 'delete');
@@ -2184,7 +2181,7 @@ describe('TaxForm', () => {
     });
 
     it('deletes resource if deletion is confirmed', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
@@ -2196,7 +2193,7 @@ describe('TaxForm', () => {
     });
 
     it('keeps resource if deletion is cancelled', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
@@ -2208,7 +2205,7 @@ describe('TaxForm', () => {
     });
 
     it("doesn't render if form is hidden", async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data} hidden></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
@@ -2217,10 +2214,7 @@ describe('TaxForm', () => {
 
     it('doesn\'t render if hiddencontrols includes "delete"', async () => {
       const element = await fixture<TaxForm>(html`
-        <foxy-tax-form
-          .data=${await getTestData<Data>('./s/admin/stores/0/taxes/0')}
-          hiddencontrols="delete"
-        >
+        <foxy-tax-form .data=${await getTestData<Data>('./hapi/taxes/0')} hiddencontrols="delete">
         </foxy-tax-form>
       `);
 
@@ -2228,7 +2222,7 @@ describe('TaxForm', () => {
     });
 
     it('renders with "delete:before" slot by default', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'delete:before');
@@ -2237,7 +2231,7 @@ describe('TaxForm', () => {
     });
 
     it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = './s/admin/stores/0/taxes/0';
+      const href = './hapi/taxes/0';
       const name = 'delete:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<TaxForm>(html`
@@ -2254,7 +2248,7 @@ describe('TaxForm', () => {
     });
 
     it('renders with "delete:after" slot by default', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'delete:after');
@@ -2263,7 +2257,7 @@ describe('TaxForm', () => {
     });
 
     it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = './s/admin/stores/0/taxes/0';
+      const href = './hapi/taxes/0';
       const name = 'delete:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<TaxForm>(html`
@@ -2282,7 +2276,7 @@ describe('TaxForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = './s/admin/sleep';
+      const href = './hapi/sleep';
       const layout = html`<foxy-tax-form href=${href} lang="es"></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -2295,7 +2289,7 @@ describe('TaxForm', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = './s/admin/not-found';
+      const href = './hapi/not-found';
       const layout = html`<foxy-tax-form href=${href} lang="es"></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -2310,7 +2304,7 @@ describe('TaxForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('./s/admin/stores/0/taxes/0');
+      const data = await getTestData('./hapi/taxes/0');
       const layout = html`<foxy-tax-form .data=${data}></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

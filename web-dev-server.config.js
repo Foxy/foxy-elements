@@ -20,7 +20,6 @@ export default {
 
   mimeTypes: {
     '**/*.cjs': 'js',
-    '**/dump.json': 'js',
     '**/custom-elements.json': 'js',
   },
 
@@ -42,7 +41,6 @@ export default {
 
     commonjsPlugin({
       include: [
-        '**/indexeddb-export-import/**/*',
         '**/email-validator/**/*',
         '**/cookie-storage/**/*',
         '**/highlight.js/**/*',
@@ -50,7 +48,6 @@ export default {
         '**/traverse/**/*',
         '**/consola/**/*',
         '**/jsonata/**/*',
-        '**/halson/**/*',
         '**/dedent/**/*',
         '**/@babel/**/*',
         '**/chalk/**/*',

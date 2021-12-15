@@ -1,11 +1,21 @@
-import './customer/index';
-import './virtual/index';
-import './admin/index';
+import { HandlerContext, Router } from 'service-worker-router';
+import { createRouter as createHapiRouter } from './hapi/index';
+import { createRouter as createPortalRouter } from './portal/index';
+import { createRouter as createVirtualRouter } from './virtual/index';
 
-import { router } from './router';
+export function createRouter(): Router {
+  const subRouters: Record<string, Router> = {
+    virtual: createVirtualRouter(),
+    portal: createPortalRouter(),
+    hapi: createHapiRouter(),
+  };
 
-// if there's no handler, make a real request
-router.all('*', ({ request }) => fetch(request));
+  return new Router().all('*', async ({ url, request }: HandlerContext) => {
+    if (!request) return new Response(null, { status: 404 });
 
-export { DemoDatabase, db, whenDbReady } from './DemoDatabase';
-export { router };
+    const prefix = url.pathname.split('/')[1] ?? '';
+    const handlerPromise = subRouters[prefix]?.handleRequest(request)?.handlerPromise;
+
+    return handlerPromise ?? new Response(null, { status: 404 });
+  });
+}

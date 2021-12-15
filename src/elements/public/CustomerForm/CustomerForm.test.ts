@@ -51,7 +51,7 @@ describe('CustomerForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customers/0');
+      const validData = await getTestData<Data>('./hapi/customers/0');
       const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'first-name');
       const submit = stub(element, 'submit');
@@ -132,14 +132,14 @@ describe('CustomerForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
@@ -202,7 +202,7 @@ describe('CustomerForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customers/0');
+      const validData = await getTestData<Data>('./hapi/customers/0');
       const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'last-name');
       const submit = stub(element, 'submit');
@@ -283,14 +283,14 @@ describe('CustomerForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
@@ -353,7 +353,7 @@ describe('CustomerForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customers/0');
+      const validData = await getTestData<Data>('./hapi/customers/0');
       const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'email');
       const submit = stub(element, 'submit');
@@ -434,14 +434,14 @@ describe('CustomerForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'email')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'email')).to.have.attribute('disabled');
@@ -504,7 +504,7 @@ describe('CustomerForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customers/0');
+      const validData = await getTestData<Data>('./hapi/customers/0');
       const element = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'tax-id');
       const submit = stub(element, 'submit');
@@ -585,14 +585,14 @@ describe('CustomerForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'tax-id')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-customer-form href=${href}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       expect(await getByTestId(element, 'tax-id')).to.have.attribute('disabled');
@@ -631,7 +631,7 @@ describe('CustomerForm', () => {
 
   describe('timestamps', () => {
     it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       const control = await getByTestId(element, 'timestamps');
@@ -644,7 +644,7 @@ describe('CustomerForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
@@ -653,7 +653,7 @@ describe('CustomerForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const name = 'timestamps:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomerForm>(html`
@@ -670,7 +670,7 @@ describe('CustomerForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
@@ -679,7 +679,7 @@ describe('CustomerForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const name = 'timestamps:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomerForm>(html`
@@ -812,7 +812,7 @@ describe('CustomerForm', () => {
 
   describe('delete', () => {
     it('renders delete button once resource is loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data} disabled></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -833,7 +833,7 @@ describe('CustomerForm', () => {
     });
 
     it('renders disabled if form is disabled', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data} disabled></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -842,7 +842,7 @@ describe('CustomerForm', () => {
     });
 
     it('renders disabled if form is sending changes', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -856,7 +856,7 @@ describe('CustomerForm', () => {
     it('renders disabled if disabledcontrols includes "delete"', async () => {
       const element = await fixture<CustomerForm>(html`
         <foxy-customer-form
-          .data=${await getTestData<Data>('https://demo.foxycart.com/s/admin/customers/0')}
+          .data=${await getTestData<Data>('./hapi/customers/0')}
           disabledcontrols="delete"
         >
         </foxy-customer-form>
@@ -866,7 +866,7 @@ describe('CustomerForm', () => {
     });
 
     it('shows deletion confirmation dialog on click', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -880,7 +880,7 @@ describe('CustomerForm', () => {
     });
 
     it('deletes resource if deletion is confirmed', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -893,7 +893,7 @@ describe('CustomerForm', () => {
     });
 
     it('keeps resource if deletion is cancelled', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -906,7 +906,7 @@ describe('CustomerForm', () => {
     });
 
     it("doesn't render if form is hidden", async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data} hidden></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -917,7 +917,7 @@ describe('CustomerForm', () => {
     it('doesn\'t render if hiddencontrols includes "delete"', async () => {
       const element = await fixture<CustomerForm>(html`
         <foxy-customer-form
-          .data=${await getTestData<Data>('https://demo.foxycart.com/s/admin/customers/0')}
+          .data=${await getTestData<Data>('./hapi/customers/0')}
           hiddencontrols="delete"
         >
         </foxy-customer-form>
@@ -927,7 +927,7 @@ describe('CustomerForm', () => {
     });
 
     it('renders with "delete:before" slot by default', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -937,7 +937,7 @@ describe('CustomerForm', () => {
     });
 
     it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const name = 'delete:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomerForm>(html`
@@ -954,7 +954,7 @@ describe('CustomerForm', () => {
     });
 
     it('renders with "delete:after" slot by default', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
@@ -964,7 +964,7 @@ describe('CustomerForm', () => {
     });
 
     it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customers/0';
+      const href = 'https://demo.api/hapi/customers/0';
       const name = 'delete:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<CustomerForm>(html`
@@ -983,7 +983,7 @@ describe('CustomerForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-customer-form href=${href} lang="es"></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -996,7 +996,7 @@ describe('CustomerForm', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-customer-form href=${href} lang="es"></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -1011,7 +1011,7 @@ describe('CustomerForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/admin/customers/0');
+      const data = await getTestData('./hapi/customers/0');
       const layout = html`<foxy-customer-form .data=${data}></foxy-customer-form>`;
       const element = await fixture<CustomerForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

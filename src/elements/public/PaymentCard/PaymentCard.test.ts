@@ -13,8 +13,10 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
-import { router } from '../../../server';
+import { createRouter } from '../../../server/index';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+
+const router = createRouter();
 
 describe('PaymentCard', () => {
   it('extends NucleonElement', () => {
@@ -31,7 +33,7 @@ describe('PaymentCard', () => {
 
   describe('title', () => {
     it('renders gateway name in title once loaded', async () => {
-      const data = await getTestData<Data>('https://demo.foxycart.com/s/admin/payments/0');
+      const data = await getTestData<Data>('./hapi/payments/0');
       const layout = html`<foxy-payment-card lang="es" ns="foo" .data=${data}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
       const title = (await getByTestId(element, 'title')) as HTMLDivElement;
@@ -110,14 +112,14 @@ describe('PaymentCard', () => {
       const layout = html`<foxy-payment-card @fetch=${handleFetch}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
 
-      element.href = 'https://demo.foxycart.com/s/admin/payments/0';
+      element.href = 'https://demo.api/hapi/payments/0';
       element.lang = 'es';
       element.ns = 'foo';
 
       type Transaction = Resource<Rels.Transaction>;
       type Store = Resource<Rels.Store>;
 
-      await waitUntil(() => !!element.data);
+      await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
 
       const data = element.data!;
       const store = await getTestData<Store>(data._links['fx:store'].href);
@@ -207,7 +209,7 @@ describe('PaymentCard', () => {
 
   describe('card-info', () => {
     it('renders expiry date and last 4 digits if available', async () => {
-      const data = await getTestData<Data>('./s/admin/payments/0');
+      const data = await getTestData<Data>('./hapi/payments/0');
 
       data.cc_exp_month = '01';
       data.cc_exp_year = '2021';
@@ -222,7 +224,7 @@ describe('PaymentCard', () => {
     });
 
     it('renders "card-info:before" slot if card info exists', async () => {
-      const data = await getTestData('./s/admin/payments/0');
+      const data = await getTestData('./hapi/payments/0');
       const layout = html`<foxy-payment-card .data=${data}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
 
@@ -230,7 +232,7 @@ describe('PaymentCard', () => {
     });
 
     it('replaces "card-info:before" slot with template "card-info:before" if available', async () => {
-      const data = await getTestData('./s/admin/payments/0');
+      const data = await getTestData('./hapi/payments/0');
       const name = 'card-info:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentCard>(html`
@@ -247,14 +249,14 @@ describe('PaymentCard', () => {
     });
 
     it('renders "card-info:after" slot by default', async () => {
-      const data = await getTestData('./s/admin/payments/0');
+      const data = await getTestData('./hapi/payments/0');
       const layout = html`<foxy-payment-card .data=${data}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
       expect(await getByName(element, 'card-info:after')).to.have.property('localName', 'slot');
     });
 
     it('replaces "card-info:after" slot with template "card-info:after" if available', async () => {
-      const data = await getTestData('./s/admin/payments/0');
+      const data = await getTestData('./hapi/payments/0');
       const name = 'card-info:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentCard>(html`
@@ -271,14 +273,14 @@ describe('PaymentCard', () => {
     });
 
     it('is visible if card info exists', async () => {
-      const data = await getTestData('./s/admin/payments/0');
+      const data = await getTestData('./hapi/payments/0');
       const layout = html`<foxy-payment-card .data=${data}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
       expect(await getByTestId(element, 'card-info')).to.exist;
     });
 
     it('is hidden when card is hidden', async () => {
-      const data = await getTestData('./s/admin/payments/0');
+      const data = await getTestData('./hapi/payments/0');
       const layout = html`<foxy-payment-card .data=${data} hidden></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
       expect(await getByTestId(element, 'card-info')).to.not.exist;
@@ -287,7 +289,7 @@ describe('PaymentCard', () => {
     it('is hidden when hiddencontrols includes "card-info"', async () => {
       const layout = html`<foxy-payment-card hiddencontrols="card-info"></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
-      element.data = await getTestData('./s/admin/payments/0');
+      element.data = await getTestData('./hapi/payments/0');
 
       expect(await getByTestId(element, 'card-info')).to.not.exist;
     });
@@ -299,11 +301,11 @@ describe('PaymentCard', () => {
       const layout = html`<foxy-payment-card @fetch=${handleFetch}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
 
-      element.href = 'https://demo.foxycart.com/s/admin/payments/0';
+      element.href = 'https://demo.api/hapi/payments/0';
       element.lang = 'es';
       element.ns = 'foo';
 
-      await waitUntil(() => !!element.data);
+      await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
 
       const fraudRisk = (await getByTestId(element, 'fraud-risk')) as HTMLDivElement;
       const score = await getByKey(fraudRisk, 'fraud_risk');
@@ -383,8 +385,8 @@ describe('PaymentCard', () => {
       const layout = html`<foxy-payment-card @fetch=${handleFetch}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
 
-      element.href = 'https://demo.foxycart.com/s/admin/payments/0';
-      await waitUntil(() => !!element.data);
+      element.href = 'https://demo.api/hapi/payments/0';
+      await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
 
       const response = (await getByTestId(element, 'processor-response')) as HTMLDivElement;
       expect(response).to.include.text(element.data!.processor_response);
@@ -488,7 +490,7 @@ describe('PaymentCard', () => {
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
@@ -497,7 +499,7 @@ describe('PaymentCard', () => {
     });
 
     it('hides the spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/admin/payments/0');
+      const data = await getTestData('./hapi/payments/0');
       const layout = html`<foxy-payment-card .data=${data}></foxy-payment-card>`;
       const element = await fixture<PaymentCard>(layout);
       const spinner = await getByTestId(element, 'spinner');
