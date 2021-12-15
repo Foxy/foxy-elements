@@ -1,7 +1,7 @@
 import { API } from '@foxy.io/sdk/core';
 import { FetchEvent } from './FetchEvent';
 import { expect } from '@open-wc/testing';
-import sinon from 'sinon';
+import { stub } from 'sinon';
 
 describe('NucleonElement', () => {
   describe('FetchEvent', () => {
@@ -32,8 +32,8 @@ describe('NucleonElement', () => {
     it('provides a way of handling successful requests with event.respondWith()', async () => {
       const response = new Response();
       const request = new API.WHATWGRequest('./test');
-      const resolve = sinon.stub();
-      const reject = sinon.stub();
+      const resolve = stub();
+      const reject = stub();
       const event = new FetchEvent('fetch', { request, resolve, reject });
 
       event.respondWith(Promise.resolve(response));
@@ -44,8 +44,8 @@ describe('NucleonElement', () => {
 
     it('calls a way of handling failed requests with event.respondWith()', async () => {
       const request = new API.WHATWGRequest('./test');
-      const resolve = sinon.stub();
-      const reject = sinon.stub();
+      const resolve = stub();
+      const reject = stub();
       const error = new Error();
       const event = new FetchEvent('fetch', { request, resolve, reject });
 
