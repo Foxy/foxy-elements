@@ -75,7 +75,7 @@ addEventListener('fetch', async evt => {
       ''
     );
 
-    evt.respondWith(new Promise(resolve => setTimeout(() => resolve(response), 1000)));
+    evt.respondWith(new Promise(resolve => setTimeout(() => resolve(response), 300)));
   }
 });
 
