@@ -26,10 +26,7 @@ describe('AddressCard', () => {
       const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_billing = true;
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_shipping = false;
 
       const layout = html`<foxy-address-card .data=${data} lang="es"></foxy-address-card>`;
@@ -46,10 +43,7 @@ describe('AddressCard', () => {
       const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
-      // TODO: remove the directives below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_billing = false;
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_shipping = true;
 
       const layout = html`<foxy-address-card .data=${data} lang="es"></foxy-address-card>`;
@@ -66,10 +60,7 @@ describe('AddressCard', () => {
       const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
-      // TODO: remove the directives below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_billing = false;
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_shipping = true;
 
       const layout = html`<foxy-address-card .data=${data} lang="es"></foxy-address-card>`;
@@ -86,10 +77,7 @@ describe('AddressCard', () => {
       const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
-      // TODO: remove the directives below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_billing = false;
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_shipping = false;
       data.address_name = 'Home';
 

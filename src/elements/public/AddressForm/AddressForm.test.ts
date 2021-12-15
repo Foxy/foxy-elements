@@ -134,8 +134,6 @@ describe('AddressForm', () => {
     it('is readonly when resource is a default billing address', async () => {
       const data = await getTestData<Data>('./s/admin/customer_addresses/0');
 
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_billing = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
@@ -145,10 +143,7 @@ describe('AddressForm', () => {
     });
 
     it('is readonly when resource is a default shipping address', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
-
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
+      
       data.is_default_shipping = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
@@ -1925,9 +1920,7 @@ describe('AddressForm', () => {
     it('renders disabled if data.is_default_billing is true', async () => {
       const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
       const data = await getTestData<Data>(href);
-
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
+      
       data.is_default_billing = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
@@ -1939,9 +1932,7 @@ describe('AddressForm', () => {
     it('renders disabled if data.is_default_shipping is true', async () => {
       const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
       const data = await getTestData<Data>(href);
-
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
+      
       data.is_default_shipping = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
