@@ -10,6 +10,17 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-tax-form',
   translatable: true,
+  configurable: {
+    sections: ['timestamps'],
+    buttons: [
+      'exempt-all-customer-tax-ids',
+      'use-origin-rates',
+      'apply-to-shipping',
+      'create',
+      'delete',
+    ],
+    inputs: ['name', 'type', 'country', 'region', 'city', 'provider', 'rate'],
+  },
 };
 
 export default getMeta(summary);
