@@ -24,7 +24,7 @@ export class Group extends LitElement {
   public frame = false;
 
   public render(): TemplateResult {
-    const frameClass = 'border border-contrast-10';
+    const frameClass = 'border border-contrast-10 overflow-hidden';
 
     return html`
       <section class="space-y-s font-lumo antialiased">

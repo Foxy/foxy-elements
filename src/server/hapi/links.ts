@@ -164,4 +164,9 @@ export const links: Links = {
     'fx:attributes': { href: `./attributes?user_id=${id}` },
     'fx:default_store': { href: `./stores/${default_store_id}` },
   }),
+
+  template_configs: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:template_sets': { href: `./template_sets?template_config_id=${id}` },
+  }),
 };
