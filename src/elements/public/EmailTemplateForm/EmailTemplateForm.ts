@@ -158,7 +158,7 @@ export class EmailTemplateForm extends Base<Data> {
         >
           ${['default', 'url', 'clipboard'].map(value => {
             return html`
-              <div slot="${value}-label" class="py-s">
+              <div slot="${value}-label" class="py-s leading-s">
                 <foxy-i18n class="block" lang=${this.lang} key="template_${value}" ns=${this.ns}>
                 </foxy-i18n>
 
