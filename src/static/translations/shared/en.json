@@ -226,5 +226,16 @@
   "custom_header": "Custom header",
   "custom_header_helper_text": "Any CSS or JS you need to add to the header can be put here and will be inserted before the </head> tag of your templates. Keep in mind all script file references must be through https or run through the Foxy caching system. Twig syntax is not available in the header.",
   "custom_footer": "Custom footer",
-  "custom_footer_helper_text": "Any JS snippets or conversion scripts you need to add to the footer can be put here and will be inserted before the </body> tag. You can use Twig syntax here. For conversion scripts you only want to display once on the receipt page, use {% if first_receipt_display %} {# conversion script content here #} {% endif %}."
+  "custom_footer_helper_text": "Any JS snippets or conversion scripts you need to add to the footer can be put here and will be inserted before the </body> tag. You can use Twig syntax here. For conversion scripts you only want to display once on the receipt page, use {% if first_receipt_display %} {# conversion script content here #} {% endif %}.",
+  "ga_account_id": "Account ID",
+  "ga_account_id_explainer": "You can find the ID in the Admin section of your Analytics in Tracking info > Tracking code.",
+  "ga_include_on_site": "Include via loader.js",
+  "ga_include_on_site_explainer": "Enable Google Analytics on any page where the loader.js file is included.",
+  "sio_account_id": "Write Key",
+  "sio_account_id_explainer": "You can find the write key in your project set up guide or in the source’s settings.",
+  "troubleshooting": "Troubleshooting",
+  "troubleshooting_debug": "Log debug messages in the browser console",
+  "troubleshooting_debug_explainer": "Enable this option to trigger console.log() calls for our JS, which can assist with troubleshooting your store.",
+  "custom_config": "Custom config",
+  "custom_config_helper_text": "If you have any custom values you'd like to make available to your twig template, you can add them here as a valid JSON string."
 }

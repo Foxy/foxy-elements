@@ -121,7 +121,7 @@ export type TemplateConfigJSON = {
   http_receipt: boolean;
 
   /** A place where you can store your own custom JSON configuration data to be used by your Twig templates. */
-  custom_config: string;
+  custom_config: any;
 
   /** Log debug info to browser console. */
   debug: {
