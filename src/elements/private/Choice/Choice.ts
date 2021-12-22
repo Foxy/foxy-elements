@@ -36,7 +36,7 @@ function radio(
 
   return html`
     <label class="group flex items-center ${disabled || readonly ? '' : 'cursor-pointer'}">
-      <div class="item flex items-center justify-center">
+      <div class="item flex items-center justify-center flex-shrink-0">
         <div class="flex radio rounded-full ${border} ${ease} ${bg} focus-within-shadow-outline">
           <div class="dot m-auto rounded-full ${dot}"></div>
           <input type="radio" class="sr-only" .checked=${checked} ...=${attrs} />
@@ -65,7 +65,7 @@ function check(
 
   return html`
     <label class="group flex items-center ${disabled || readonly ? '' : 'cursor-pointer'}">
-      <div class="item flex items-center justify-center text-primary-contrast">
+      <div class="item flex items-center justify-center flex-shrink-0 text-primary-contrast">
         <div class="check rounded-s ${border} ${ease} ${bg} focus-within-shadow-outline">
           <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
           <input type="checkbox" class="sr-only" .checked=${checked} ...=${attrs} />
