@@ -889,6 +889,12 @@ export class TemplateConfigForm extends Base<Data> {
                   >
                     <select
                       class="h-s mr-xs text-right appearance-none bg-transparent cursor-pointer focus-outline-none font-medium"
+                      @change=${(evt: Event) => {
+                        const select = evt.currentTarget as HTMLSelectElement;
+                        const value = select.options[select.options.selectedIndex].value;
+                        (config as Record<string, string>)[property] = value;
+                        this.edit({ json: JSON.stringify(json) });
+                      }}
                     >
                       ${values.map(value => {
                         return html`
