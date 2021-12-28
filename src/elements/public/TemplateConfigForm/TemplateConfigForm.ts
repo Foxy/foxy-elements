@@ -1,3 +1,5 @@
+import * as logos from '../PaymentMethodCard/logos';
+
 import { CheckboxChangeEvent, ChoiceChangeEvent } from '../../private/events';
 import { Data, TemplateConfigJSON } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -71,11 +73,16 @@ export class TemplateConfigForm extends Base<Data> {
           ${hidden.matches('foxycomplete', true) ? '' : this.__renderFoxycomplete(json)}
           ${hidden.matches('locations', true) ? '' : this.__renderLocations(json)}
           ${hidden.matches('hidden-fields', true) ? '' : this.__renderHiddenFields(json)}
+          ${hidden.matches('cards', true) ? '' : this.__renderCards(json)}
+          ${hidden.matches('checkout-type', true) ? '' : this.__renderCheckoutType(json)}
+          ${hidden.matches('consent', true) ? '' : this.__renderConsent(json)}
+          ${hidden.matches('fields', true) ? '' : this.__renderFields(json)}
           ${hidden.matches('google-analytics', true) ? '' : this.__renderGoogleAnalytics(json)}
           ${hidden.matches('segment-io', true) ? '' : this.__renderSegmentIo(json)}
           ${hidden.matches('troubleshooting', true) ? '' : this.__renderTroubleshooting(json)}
           ${hidden.matches('custom-config', true) ? '' : this.__renderCustomConfig(json)}
           ${hidden.matches('header', true) ? '' : this.__renderHeader(json)}
+          ${hidden.matches('custom-fields', true) ? '' : this.__renderCustomFields(json)}
           ${hidden.matches('footer', true) ? '' : this.__renderFooter(json)}
         </div>
 
@@ -166,7 +173,8 @@ export class TemplateConfigForm extends Base<Data> {
           this.edit({ json: JSON.stringify({ ...json, foxycomplete: newConfig }) });
         }}
       >
-        <foxy-i18n lang=${lang} key="show_country_flags" ns=${ns}></foxy-i18n>
+        <foxy-i18n class="leading-s block" lang=${lang} key="show_country_flags" ns=${ns}>
+        </foxy-i18n>
       </x-checkbox>
     `;
 
@@ -515,6 +523,404 @@ export class TemplateConfigForm extends Base<Data> {
     `;
   }
 
+  private __renderCards(json: TemplateConfigJSON) {
+    const { lang, ns } = this;
+    const isDisabled = this.disabledSelector.matches('cards', true);
+    const config = json.supported_payment_cards as string[];
+
+    let skipForSaved: boolean;
+    let skipForSSO: boolean;
+
+    if (json.csc_requirements === 'all_cards') {
+      skipForSaved = false;
+      skipForSSO = false;
+    } else if (json.csc_requirements === 'sso_only') {
+      skipForSaved = true;
+      skipForSSO = false;
+    } else {
+      skipForSaved = true;
+      skipForSSO = true;
+    }
+
+    const typeToName: Record<string, string> = {
+      amex: 'American Express',
+      diners: 'Diners Club',
+      discover: 'Discover',
+      jcb: 'JCB',
+      maestro: 'Maestro',
+      mastercard: 'Mastercard',
+      unionpay: 'UnionPay',
+      visa: 'Visa',
+    };
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('cards:before')}
+
+        <div class="space-y-xs">
+          <x-group frame>
+            <foxy-i18n slot="header" lang=${lang} key="supported_cards" ns=${ns}></foxy-i18n>
+
+            <div class="flex flex-wrap m-xs p-s">
+              ${Object.entries(logos).map(([type, logo]) => {
+                if (!typeToName[type]) return;
+                const isChecked = config.includes(type);
+
+                return html`
+                  <div
+                    class=${classMap({
+                      'm-xs rounded': true,
+                      'opacity-50 cursor-default': isDisabled,
+                      'cursor-pointer ring-primary-50 focus-within-ring-2': !isDisabled,
+                    })}
+                  >
+                    <label
+                      class=${classMap({
+                        'overflow-hidden transition-colors flex rounded border': true,
+                        'border-primary bg-primary-10 text-primary': isChecked,
+                        'hover-text-body': isChecked && !isDisabled,
+                        'border-contrast-10': !isChecked,
+                        'hover-border-primary hover-text-primary': !isChecked && !isDisabled,
+                      })}
+                    >
+                      <div class="h-s">${logo}</div>
+
+                      <div class="text-s font-medium mx-s my-auto leading-none">
+                        ${typeToName[type]}
+                      </div>
+
+                      <input
+                        type="checkbox"
+                        class="sr-only"
+                        ?disabled=${isDisabled}
+                        ?checked=${isChecked}
+                        @change=${(evt: Event) => {
+                          evt.stopPropagation();
+
+                          if (isChecked) {
+                            config.splice(config.indexOf(type), 1);
+                          } else {
+                            config.push(type);
+                          }
+
+                          this.edit({ json: JSON.stringify(json) });
+                        }}
+                      />
+                    </label>
+                  </div>
+                `;
+              })}
+            </div>
+
+            <div class="flex flex-wrap p-s border-t border-contrast-10">
+              <x-checkbox
+                class="m-s"
+                ?disabled=${isDisabled || json.csc_requirements === 'new_cards_only'}
+                ?checked=${skipForSaved}
+                @change=${(evt: CheckboxChangeEvent) => {
+                  json.csc_requirements = evt.detail ? 'sso_only' : 'all_cards';
+                  this.edit({ json: JSON.stringify(json) });
+                }}
+              >
+                <foxy-i18n class="leading-s block" lang=${lang} key="skip_csc_for_saved" ns=${ns}>
+                </foxy-i18n>
+              </x-checkbox>
+
+              <x-checkbox
+                class="m-s"
+                ?disabled=${isDisabled}
+                ?checked=${skipForSSO}
+                @change=${(evt: CheckboxChangeEvent) => {
+                  json.csc_requirements = evt.detail
+                    ? 'new_cards_only'
+                    : skipForSaved
+                    ? 'sso_only'
+                    : 'all_cards';
+
+                  this.edit({ json: JSON.stringify(json) });
+                }}
+              >
+                <foxy-i18n class="leading-s block" lang=${lang} key="skip_csc_for_sso" ns=${ns}>
+                </foxy-i18n>
+              </x-checkbox>
+            </div>
+          </x-group>
+
+          <foxy-i18n
+            class="text-xs text-secondary leading-s block"
+            lang=${lang}
+            key="supported_cards_disclaimer"
+            ns=${ns}
+          >
+          </foxy-i18n>
+        </div>
+
+        ${this.renderTemplateOrSlot('cards:after')}
+      </div>
+    `;
+  }
+
+  private __renderCheckoutType(json: TemplateConfigJSON) {
+    const { lang, ns } = this;
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('checkout-type:before')}
+
+        <div class="space-y-xs">
+          <x-group frame>
+            <foxy-i18n slot="header" lang=${lang} key="checkout_type" ns=${ns}></foxy-i18n>
+
+            <x-choice
+              ?disabled=${this.disabledSelector.matches('checkout-type', true)}
+              ?readonly=${this.readonlySelector.matches('checkout-type', true)}
+              .items=${['default_account', 'default_guest', 'guest_only', 'account_only']}
+              .value=${json.checkout_type}
+              .getText=${(item: string) => this.t(`checkout_type_${item}`)}
+              @change=${(evt: ChoiceChangeEvent) => {
+                json.checkout_type = evt.detail as TemplateConfigJSON['checkout_type'];
+                this.edit({ json: JSON.stringify(json) });
+              }}
+            >
+            </x-choice>
+          </x-group>
+
+          <foxy-i18n
+            class="text-secondary text-xs leading-s block"
+            lang=${lang}
+            key="checkout_type_helper_text"
+            ns=${ns}
+          >
+          </foxy-i18n>
+        </div>
+
+        ${this.renderTemplateOrSlot('checkout-type:after')}
+      </div>
+    `;
+  }
+
+  private __renderConsent(json: TemplateConfigJSON) {
+    const { lang, ns } = this;
+    const tosConfig = json.tos_checkbox_settings;
+    const mailConfig = json.newsletter_subscribe;
+    const sdtaConfig = json.eu_secure_data_transfer_consent;
+    const isDisabled = this.disabledSelector.matches('consent', true);
+    const isReadonly = this.readonlySelector.matches('consent', true);
+    const dividerStyle = 'margin-left: calc(1.125rem + (var(--lumo-space-m) * 2))';
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('consent:before')}
+
+        <x-group frame>
+          <foxy-i18n slot="header" lang=${lang} key="consent" ns=${ns}></foxy-i18n>
+
+          <x-checkbox
+            ?disabled=${isDisabled}
+            ?readonly=${isReadonly}
+            ?checked=${tosConfig.usage === 'required' || tosConfig.usage === 'optional'}
+            class="m-m"
+            @change=${(evt: CheckboxChangeEvent) => {
+              tosConfig.initial_state = evt.detail ? tosConfig.initial_state : 'unchecked';
+              tosConfig.is_hidden = false;
+              tosConfig.usage = evt.detail ? 'required' : 'none';
+              tosConfig.url = evt.detail ? tosConfig.url : '';
+
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+            <div class="flex flex-col">
+              <foxy-i18n lang=${lang} key="display_tos_link" ns=${ns}></foxy-i18n>
+              <foxy-i18n
+                class="text-xs leading-s text-secondary"
+                lang=${lang}
+                key="display_tos_link_explainer"
+                ns=${ns}
+              >
+              </foxy-i18n>
+            </div>
+
+            <div slot="content" ?hidden=${tosConfig.usage === 'none'}>
+              <vaadin-text-field
+                label=${this.t('location_url')}
+                class="w-full mt-m"
+                placeholder="https://example.com/path/to/tos"
+                clear-button-visible
+                ?disabled=${isDisabled}
+                ?readonly=${isReadonly}
+                .value=${tosConfig.url}
+                @input=${(evt: CustomEvent) => {
+                  tosConfig.url = (evt.currentTarget as TextFieldElement).value;
+                  this.edit({ json: JSON.stringify(json) });
+                }}
+              >
+              </vaadin-text-field>
+
+              <div class="flex flex-wrap -mx-s -mb-s mt-s">
+                <x-checkbox
+                  class="m-s"
+                  ?disabled=${isDisabled}
+                  ?checked=${tosConfig.usage === 'required'}
+                  @change=${(evt: CheckboxChangeEvent) => {
+                    tosConfig.usage = evt.detail ? 'required' : 'optional';
+                    this.edit({ json: JSON.stringify(json) });
+                  }}
+                >
+                  <foxy-i18n class="leading-s block" lang=${lang} key="require_consent" ns=${ns}>
+                  </foxy-i18n>
+                </x-checkbox>
+
+                <x-checkbox
+                  class="m-s"
+                  ?disabled=${isDisabled}
+                  ?checked=${tosConfig.initial_state === 'checked'}
+                  @change=${(evt: CheckboxChangeEvent) => {
+                    tosConfig.initial_state = evt.detail ? 'checked' : 'unchecked';
+                    this.edit({ json: JSON.stringify(json) });
+                  }}
+                >
+                  <foxy-i18n class="leading-s block" lang=${lang} key="checked_by_default" ns=${ns}>
+                  </foxy-i18n>
+                </x-checkbox>
+              </div>
+            </div>
+          </x-checkbox>
+
+          <div style=${dividerStyle} class="border-b border-contrast-10"></div>
+
+          <x-checkbox
+            ?disabled=${isDisabled}
+            ?readonly=${isReadonly}
+            ?checked=${mailConfig.usage === 'required'}
+            class="m-m"
+            @change=${(evt: CheckboxChangeEvent) => {
+              mailConfig.usage = evt.detail ? 'required' : 'none';
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+            <div class="flex flex-col">
+              <foxy-i18n lang=${lang} key="newsletter_subscribe" ns=${ns}></foxy-i18n>
+              <foxy-i18n
+                class="text-xs leading-s text-secondary"
+                lang=${lang}
+                key="newsletter_subscribe_explainer"
+                ns=${ns}
+              >
+              </foxy-i18n>
+            </div>
+          </x-checkbox>
+
+          <div style=${dividerStyle} class="border-b border-contrast-10"></div>
+
+          <x-checkbox
+            ?disabled=${isDisabled}
+            ?readonly=${isReadonly}
+            ?checked=${sdtaConfig.usage === 'required'}
+            class="m-m"
+            @change=${(evt: CheckboxChangeEvent) => {
+              sdtaConfig.usage = evt.detail ? 'required' : 'none';
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+            <div class="flex flex-col">
+              <foxy-i18n lang=${lang} key="display_sdta" ns=${ns}></foxy-i18n>
+              <foxy-i18n
+                class="text-xs leading-s text-secondary"
+                lang=${lang}
+                key="display_sdta_explainer"
+                ns=${ns}
+              >
+              </foxy-i18n>
+            </div>
+          </x-checkbox>
+        </x-group>
+
+        ${this.renderTemplateOrSlot('consent:before')}
+      </div>
+    `;
+  }
+
+  private __renderFields(json: TemplateConfigJSON) {
+    const { lang, ns } = this;
+    const isDisabled = this.disabledSelector.matches('fields', true);
+    const config = json.custom_checkout_field_requirements;
+    const options = {
+      cart_controls: ['enabled', 'disabled'],
+      coupon_entry: ['enabled', 'disabled'],
+      billing_first_name: ['default', 'optional', 'required', 'hidden'],
+      billing_last_name: ['default', 'optional', 'required', 'hidden'],
+      billing_company: ['default', 'optional', 'required', 'hidden'],
+      billing_tax_id: ['default', 'optional', 'required', 'hidden'],
+      billing_phone: ['default', 'optional', 'required', 'hidden'],
+      billing_address1: ['default', 'optional', 'required', 'hidden'],
+      billing_address2: ['default', 'optional', 'required', 'hidden'],
+      billing_city: ['default', 'optional', 'required', 'hidden'],
+      billing_region: ['default', 'optional', 'required', 'hidden'],
+      billing_postal_code: ['default', 'optional', 'required', 'hidden'],
+      billing_country: ['default', 'optional', 'required', 'hidden'],
+    };
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('fields:before')}
+
+        <x-group frame>
+          <foxy-i18n slot="header" lang=${lang} key="field_plural" ns=${ns}></foxy-i18n>
+
+          <div class="bg-contrast-10 grid grid-cols-1 md-grid-cols-2" style="gap: 1px">
+            ${Object.entries(options).map(([property, values]) => {
+              return html`
+                <label class="flex items-center pl-m bg-base">
+                  <foxy-i18n
+                    class="flex-1"
+                    lang=${lang}
+                    key=${property.replace('billing_', '')}
+                    ns=${ns}
+                  >
+                  </foxy-i18n>
+
+                  <div
+                    class=${classMap({
+                      'px-s m-xs flex items-center cursor-pointer rounded leading-none': true,
+                      'ring-primary-50 ring-inset focus-within-ring-2': !isDisabled,
+                      'hover-text-primary': !isDisabled,
+                      'opacity-50': isDisabled,
+                    })}
+                  >
+                    <select
+                      class="h-s mr-xs text-right appearance-none bg-transparent cursor-pointer focus-outline-none font-medium"
+                    >
+                      ${values.map(value => {
+                        return html`
+                          <option
+                            value=${value}
+                            ?selected=${(config as Record<string, string>)[property] === value}
+                          >
+                            ${this.t(value)}
+                          </option>
+                        `;
+                      })}
+                    </select>
+
+                    <iron-icon
+                      class="pointer-events-none icon-inline text-xl"
+                      icon="icons:expand-more"
+                    >
+                    </iron-icon>
+                  </div>
+                </label>
+              `;
+            })}
+
+            <div class="bg-base hidden md-block"></div>
+          </div>
+        </x-group>
+
+        ${this.renderTemplateOrSlot('fields:after')}
+      </div>
+    `;
+  }
+
   private __renderGoogleAnalytics(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.analytics_config;
@@ -714,6 +1120,31 @@ export class TemplateConfigForm extends Base<Data> {
         </vaadin-text-area>
 
         ${this.renderTemplateOrSlot('header:after')}
+      </div>
+    `;
+  }
+
+  private __renderCustomFields(json: TemplateConfigJSON) {
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('custom-fields:before')}
+
+        <vaadin-text-area
+          class="w-full"
+          label=${this.t('custom_fields')}
+          helper-text=${this.t('custom_fields_helper_text')}
+          .value=${json.custom_script_values.header}
+          ?disabled=${this.disabledSelector.matches('header', true)}
+          ?readonly=${this.readonlySelector.matches('header', true)}
+          @input=${(evt: CustomEvent) => {
+            const newValue = (evt.currentTarget as TextAreaElement).value;
+            json.custom_script_values.checkout_fields = newValue;
+            this.edit({ json: JSON.stringify(json) });
+          }}
+        >
+        </vaadin-text-area>
+
+        ${this.renderTemplateOrSlot('custom-fields:after')}
       </div>
     `;
   }

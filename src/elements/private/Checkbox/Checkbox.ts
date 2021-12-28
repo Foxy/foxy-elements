@@ -47,7 +47,11 @@ export class Checkbox extends ConfigurableMixin(ThemeableMixin(LitElement)) {
     const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
 
     return html`
-      <label class="flex group cursor-pointer">
+      <label
+        class="flex group transition-opacity ${this.disabled
+          ? 'cursor-default opacity-50'
+          : 'cursor-pointer'}"
+      >
         <div
           class="flex-shrink-0 check rounded-s ${box} text-primary-contrast focus-within-shadow-outline"
         >
