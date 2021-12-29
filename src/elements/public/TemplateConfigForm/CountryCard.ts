@@ -15,12 +15,18 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      disabled: { type: Boolean },
+      readonly: { type: Boolean },
       regions: { type: Array },
       region: { type: String },
       name: { type: String },
       code: { type: String },
     };
   }
+
+  disabled = false;
+
+  readonly = false;
 
   regions: string[] = [];
 
@@ -32,7 +38,12 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
 
   render(): TemplateResult {
     return html`
-      <div class="border border-contrast-10 rounded text-s">
+      <div
+        class=${classMap({
+          'border border-contrast-10 rounded text-s': true,
+          'text-disabled': this.disabled,
+        })}
+      >
         <div class="h-m flex justify-between items-center border-b border-contrast-10">
           <div class="ml-m">
             <span>${this.name || this.code}</span>
@@ -40,8 +51,16 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
           </div>
 
           <button
-            class="mr-xs flex items-center justify-center rounded-full transition-colors hover-bg-error-10 hover-text-error focus-outline-none focus-ring-2 focus-ring-inset focus-ring-error-50"
+            class=${classMap({
+              'mr-xs items-center justify-center rounded-full transition-colors': true,
+              'hover-bg-error-10 hover-text-error': !this.disabled,
+              'focus-outline-none focus-ring-2 ring-inset ring-error-50': !this.disabled,
+              'cursor-default': this.disabled,
+              'flex': !this.readonly,
+              'hidden': this.readonly,
+            })}
             style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
+            ?disabled=${this.disabled}
             @click=${() => this.dispatchEvent(new CustomEvent('delete'))}
           >
             <iron-icon icon="icons:close" class="icon-inline text-m"></iron-icon>
@@ -64,8 +83,16 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
                 </span>
 
                 <button
-                  class="flex items-center justify-center rounded-full transition-colors hover-bg-error-10 hover-text-error focus-outline-none focus-ring-2 focus-ring-inset focus-ring-error-50"
+                  class=${classMap({
+                    'items-center justify-center rounded-full transition-colors': true,
+                    'hover-bg-error-10 hover-text-error': !this.disabled,
+                    'focus-outline-none focus-ring-2 ring-inset ring-error-50': !this.disabled,
+                    'cursor-default': this.disabled,
+                    'flex': !this.readonly,
+                    'hidden': this.readonly,
+                  })}
                   style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
+                  ?disabled=${this.disabled}
                   @click=${() => {
                     this.regions = this.regions.filter(value => value !== region);
                     this.dispatchEvent(new CustomEvent('update:regions'));
@@ -78,8 +105,14 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
           })}
 
           <div
-            class="h-s m-xs flex items-center transition-colors border border-contrast-10 hover-border-contrast-40 focus-within-ring-1 focus-within-ring-primary-50 focus-within-border-primary-50"
             style="border-radius: var(--lumo-size-s)"
+            class=${classMap({
+              'h-s m-xs items-center transition-colors border border-contrast-10': true,
+              'hover-border-contrast-40': !this.disabled,
+              'focus-within-ring-1 ring-primary-50 focus-within-border-primary-50': !this.disabled,
+              'flex': !this.readonly,
+              'hidden': this.readonly,
+            })}
           >
             <input
               placeholder=${this.t('add_region')}
@@ -87,6 +120,7 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
               style="width: 8rem"
               list="list"
               .value=${this.region}
+              ?disabled=${this.disabled}
               @keydown=${(evt: KeyboardEvent) => {
                 if (evt.key === 'Enter' && this.region) this.__addRegion();
               }}

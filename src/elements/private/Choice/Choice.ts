@@ -29,10 +29,10 @@ function radio(
   const scale = checked ? 'scale-100' : 'scale-0';
   const color = disabled ? 'text-disabled' : readonly ? 'text-secondary' : 'text-body';
   const ease = 'transition ease-in-out duration-200';
-  const dotBg = readonly ? 'bg-contrast-20' : 'bg-tint';
+  const dotBg = readonly ? 'bg-contrast-70' : 'bg-tint';
   const dot = `${ease} ${disabled || readonly ? '' : 'shadow-xs'} transform ${scale} ${dotBg}`;
   const bg = readonly ? '' : disabled ? disabledBg : enabledBg;
-  const border = `border ${readonly ? 'border-contrast-20' : 'border-transparent'}`;
+  const border = `border ${readonly ? 'border-dashed border-contrast-30' : 'border-transparent'}`;
 
   return html`
     <label class="group flex items-center ${disabled || readonly ? '' : 'cursor-pointer'}">
@@ -59,9 +59,9 @@ function check(
   const scale = checked ? 'scale-100' : 'scale-0';
   const color = disabled ? 'text-disabled' : readonly ? 'text-secondary' : 'text-body';
   const ease = 'transition ease-in-out duration-200';
-  const dot = `${ease} transform ${scale} ${readonly ? 'text-contrast-20' : 'text-tint'}`;
+  const dot = `${ease} transform ${scale} ${readonly ? 'text-contrast-70' : 'text-tint'}`;
   const bg = readonly ? '' : disabled ? disabledBg : enabledBg;
-  const border = `border ${readonly ? 'border-contrast-20' : 'border-transparent'}`;
+  const border = `border ${readonly ? 'border-dashed border-contrast-30' : 'border-transparent'}`;
 
   return html`
     <label class="group flex items-center ${disabled || readonly ? '' : 'cursor-pointer'}">
@@ -230,11 +230,14 @@ export class Choice extends Translatable {
           'value': other ? VALUE_OTHER : item,
           'name': multiple ? item : 'choice',
           'data-testid': `item-${item}`,
-          '?disabled': disabled || this.readonly,
+          '?disabled': disabled,
           '@change': (evt: Event) => {
+            if (this.readonly) return evt.preventDefault();
+
             const checked = (evt.target as HTMLInputElement).checked;
             const newItem = item === VALUE_OTHER ? this.defaultCustomValue : item;
             const value = this.value;
+
             if (Array.isArray(value)) {
               if (item === VALUE_OTHER) {
                 this.value = checked ? [...value, newItem] : value.slice(0, value.length - 1);
@@ -244,6 +247,7 @@ export class Choice extends Translatable {
             } else {
               this.value = checked ? newItem : null;
             }
+
             this.dispatchEvent(new ChoiceChangeEvent(this.value));
           },
         });

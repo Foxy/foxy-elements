@@ -89,13 +89,22 @@ export class CountriesList extends Base<Resource<Rels.Countries>> {
           })}
 
           <div
-            class="h-m flex items-center rounded transition-colors border border-contrast-10 hover-border-contrast-40 focus-within-ring-1 focus-within-ring-primary-50 focus-within-border-primary-50"
+            class=${classMap({
+              'h-m flex items-center rounded transition-colors': true,
+              'border border-contrast-10 ring-primary-50': true,
+              'hover-border-contrast-40': !this.disabled,
+              'focus-within-ring-1 focus-within-border-primary-50': !this.disabled,
+              'flex': !this.readonly,
+              'hidden': this.readonly,
+            })}
           >
             <input
               placeholder=${this.t('add_country')}
               class="w-full bg-transparent appearance-none h-m text-s px-m focus-outline-none"
               list="list"
               .value=${this.country}
+              ?disabled=${this.disabled}
+              ?readonly=${this.readonly}
               @keydown=${(evt: KeyboardEvent) => {
                 if (evt.key === 'Enter' && this.country) this.__addCountry();
               }}
@@ -115,7 +124,7 @@ export class CountriesList extends Base<Resource<Rels.Countries>> {
                 'focus-outline-none focus-ring-2 ring-inset ring-success-50': !!this.country,
               })}
               style="width: calc(var(--lumo-size-s) - 2px); height: calc(var(--lumo-size-s) - 2px)"
-              ?disabled=${!this.country}
+              ?disabled=${!this.country || this.disabled}
               @click=${this.__addCountry}
             >
               <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>

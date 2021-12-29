@@ -11,13 +11,15 @@ import {
 } from 'lit-element';
 
 import { CheckboxChangeEvent } from './CheckboxChangeEvent';
-import { ConfigurableMixin } from '../../../mixins/configurable';
 import { ThemeableMixin } from '../../../mixins/themeable';
+import { classMap } from '../../../utils/class-map';
 
-export class Checkbox extends ConfigurableMixin(ThemeableMixin(LitElement)) {
+export class Checkbox extends ThemeableMixin(LitElement) {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      readonly: { type: Boolean },
+      disabled: { type: Boolean },
       checked: { type: Boolean },
     };
   }
@@ -38,31 +40,54 @@ export class Checkbox extends ConfigurableMixin(ThemeableMixin(LitElement)) {
     ];
   }
 
+  readonly = false;
+
+  disabled = false;
+
   checked = false;
 
   render(): TemplateResult {
-    const checked = this.checked;
-    const ease = 'transition-colors ease-in-out duration-200';
-    const box = `${ease} ${checked ? 'bg-primary' : 'bg-contrast-20 group-hover-bg-contrast-30'}`;
-    const dot = `${ease} transform ${checked ? 'scale-100' : 'scale-0'}`;
-
     return html`
       <label
-        class="flex group transition-opacity ${this.disabled
-          ? 'cursor-default opacity-50'
-          : 'cursor-pointer'}"
+        class=${classMap({
+          'flex group transition-colors': true,
+          'cursor-default': this.disabled || this.readonly,
+          'text-disabled': this.disabled,
+          'text-secondary': this.readonly,
+          'cursor-pointer': !this.disabled,
+        })}
       >
         <div
-          class="flex-shrink-0 check rounded-s ${box} text-primary-contrast focus-within-shadow-outline"
+          class=${classMap({
+            'flex-shrink-0 check transition-colors rounded-s border': true,
+            'focus-within-shadow-outline': true,
+            'bg-primary text-primary-contrast': !this.readonly && this.checked,
+            'border-dashed border-contrast-30': this.readonly,
+            'border-transparent': !this.readonly,
+            'opacity-50': this.disabled,
+            'text-secondary bg-contrast-20': !this.readonly && !this.checked,
+            'group-hover-bg-contrast-30': !this.readonly && !this.checked,
+          })}
         >
-          <iron-icon icon="lumo:checkmark" class="block w-full h-full ${dot}"></iron-icon>
+          <iron-icon
+            icon="lumo:checkmark"
+            class=${classMap({
+              'block w-full h-full transition-transform transform': true,
+              'scale-100': this.checked,
+              'scale-0': !this.checked,
+            })}
+          >
+          </iron-icon>
+
           <input
             type="checkbox"
             class="sr-only"
-            .checked=${checked}
+            .checked=${this.checked}
             ?disabled=${this.disabled}
             data-testid="input"
             @change=${(evt: Event) => {
+              if (this.readonly) return evt.preventDefault();
+
               evt.stopPropagation();
               this.checked = !this.checked;
               this.dispatchEvent(new CheckboxChangeEvent(this.checked));
@@ -70,12 +95,17 @@ export class Checkbox extends ConfigurableMixin(ThemeableMixin(LitElement)) {
           />
         </div>
 
-        <div class="flex-1 font-lumo text-body leading-m -mt-xs ml-m">
+        <div class="flex-1 font-lumo leading-m -mt-xs ml-m">
           <slot></slot>
         </div>
       </label>
 
-      <div class="font-lumo ${this.disabled ? 'text-tertiary' : 'text-body'} ml-xxl">
+      <div
+        class=${classMap({
+          'font-lumo ml-xxl transition-colors': true,
+          'text-disabled': this.disabled,
+        })}
+      >
         <slot name="content"></slot>
       </div>
     `;

@@ -108,18 +108,26 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderCartType(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const items = ['default', 'fullpage', 'custom'];
+    const isDisabled = this.disabledSelector.matches('cart-type', true);
 
     return html`
       <div>
         ${this.renderTemplateOrSlot('cart-type:before')}
 
         <x-group frame>
-          <foxy-i18n slot="header" lang=${lang} key="cart_type" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class=${isDisabled ? 'text-disabled' : ''}
+            slot="header"
+            lang=${lang}
+            key="cart_type"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
           <x-choice
             .value=${json.cart_type}
             .items=${items}
-            ?disabled=${this.disabledSelector.matches('cart-type', true)}
+            ?disabled=${isDisabled}
             ?readonly=${this.readonlySelector.matches('cart-type', true)}
             @change=${(evt: ChoiceChangeEvent) => {
               this.edit({ json: JSON.stringify({ ...json, cart_type: evt.detail }) });
@@ -130,7 +138,7 @@ export class TemplateConfigForm extends Base<Data> {
                 <div slot="${item}-label" class="grid leading-s py-s">
                   <foxy-i18n lang=${lang} key="cart_type_${item}" ns=${ns}></foxy-i18n>
                   <foxy-i18n
-                    class="text-secondary text-xs"
+                    class="text-xs ${isDisabled ? 'text-disabled' : 'text-secondary'}"
                     lang=${lang}
                     key="cart_type_${item}_explainer"
                     ns=${ns}
@@ -173,8 +181,7 @@ export class TemplateConfigForm extends Base<Data> {
           this.edit({ json: JSON.stringify({ ...json, foxycomplete: newConfig }) });
         }}
       >
-        <foxy-i18n class="leading-s block" lang=${lang} key="show_country_flags" ns=${ns}>
-        </foxy-i18n>
+        <foxy-i18n lang=${lang} key="show_country_flags" ns=${ns}></foxy-i18n>
       </x-checkbox>
     `;
 
@@ -183,7 +190,14 @@ export class TemplateConfigForm extends Base<Data> {
         ${this.renderTemplateOrSlot('foxycomplete:before')}
 
         <x-group frame>
-          <foxy-i18n slot="header" lang=${lang} key="foxycomplete" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class=${isDisabled ? 'text-disabled' : ''}
+            slot="header"
+            lang=${lang}
+            key="foxycomplete"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
           <x-choice
             .value=${value}
@@ -207,7 +221,7 @@ export class TemplateConfigForm extends Base<Data> {
                 <div slot="${item}-label" class="grid leading-s py-s">
                   <foxy-i18n lang=${lang} key="foxycomplete_${item}" ns=${ns}></foxy-i18n>
                   <foxy-i18n
-                    class="text-secondary text-xs"
+                    class="text-xs ${isDisabled ? 'text-disabled' : 'text-secondary'}"
                     lang=${lang}
                     key="foxycomplete_${item}_explainer"
                     ns=${ns}
@@ -277,6 +291,8 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderLocations(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.location_filtering;
+    const isDisabled = this.disabledSelector.matches('locations', true);
+    const isReadonly = this.readonlySelector.matches('locations', true);
 
     const shippingChoice = config.shipping_filter_type === 'blacklist' ? 'block' : 'allow';
     const billingChoice =
@@ -310,16 +326,31 @@ export class TemplateConfigForm extends Base<Data> {
       ${this.renderTemplateOrSlot('locations:before')}
 
       <x-group frame>
-        <foxy-i18n slot="header" lang=${lang} key="location_plural" ns=${ns}></foxy-i18n>
+        <foxy-i18n
+          class=${isDisabled ? 'text-disabled' : ''}
+          slot="header"
+          lang=${lang}
+          key="location_plural"
+          ns=${ns}
+        >
+        </foxy-i18n>
 
         <div class="grid sm-grid-cols-2 bg-contrast-10" style="gap: 1px">
           <x-group class="bg-base pt-m">
-            <foxy-i18n class="text-tertiary" slot="header" lang=${lang} key="shipping" ns=${ns}>
+            <foxy-i18n
+              class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
+              slot="header"
+              lang=${lang}
+              key="shipping"
+              ns=${ns}
+            >
             </foxy-i18n>
 
             <x-choice
               .items=${['allow', 'block']}
               .value=${shippingChoice}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
               @change=${(evt: ChoiceChangeEvent) => {
                 if (config.usage !== 'both') config.usage = 'independent';
                 config.shipping_filter_type = evt.detail === 'block' ? 'blacklist' : 'whitelist';
@@ -338,8 +369,8 @@ export class TemplateConfigForm extends Base<Data> {
                 slot=${shippingChoice}
                 lang=${lang}
                 ns=${ns}
-                ?disabled=${this.disabledSelector.matches('locations', true)}
-                ?readonly=${this.readonlySelector.matches('locations', true)}
+                ?disabled=${isDisabled}
+                ?readonly=${isReadonly}
                 @update:countries=${(evt: CustomEvent) => {
                   config.shipping_filter_values = (evt.currentTarget as CountriesList).countries;
                   normalize();
@@ -351,12 +382,20 @@ export class TemplateConfigForm extends Base<Data> {
           </x-group>
 
           <x-group class="bg-base pt-m">
-            <foxy-i18n class="text-tertiary" slot="header" lang=${lang} key="billing" ns=${ns}>
+            <foxy-i18n
+              class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
+              slot="header"
+              lang=${lang}
+              key="billing"
+              ns=${ns}
+            >
             </foxy-i18n>
 
             <x-choice
               .items=${['allow', 'block', 'copy']}
               .value=${billingChoice}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
               @change=${(evt: ChoiceChangeEvent) => {
                 if (evt.detail === 'copy') {
                   config.usage = 'both';
@@ -381,8 +420,8 @@ export class TemplateConfigForm extends Base<Data> {
                 slot=${billingChoice}
                 lang=${lang}
                 ns=${ns}
-                ?disabled=${this.disabledSelector.matches('locations', true)}
-                ?readonly=${this.readonlySelector.matches('locations', true)}
+                ?disabled=${isDisabled}
+                ?readonly=${isReadonly}
                 ?hidden=${billingChoice === 'copy'}
                 @update:countries=${(evt: CustomEvent) => {
                   config.billing_filter_values = (evt.currentTarget as CountriesList).countries;
@@ -405,6 +444,8 @@ export class TemplateConfigForm extends Base<Data> {
     const suggestions = [] as string[];
     const fields = [] as string[];
     const config = json.cart_display_config;
+    const isDisabled = this.disabledSelector.matches('hidden-fields', true);
+    const isReadonly = this.readonlySelector.matches('hidden-fields', true);
 
     type FieldName = keyof Omit<
       TemplateConfigJSON['cart_display_config'],
@@ -443,18 +484,39 @@ export class TemplateConfigForm extends Base<Data> {
         ${this.renderTemplateOrSlot('hidden-fields:before')}
 
         <x-group frame>
-          <foxy-i18n slot="header" lang=${lang} key="hidden_fields" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class=${isDisabled ? 'text-disabled' : ''}
+            slot="header"
+            lang=${lang}
+            key="hidden_fields"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
           <div class="divide-y divide-contrast-10">
-            ${fields.map(
-              field => html`
-                <div class="h-m ml-m pr-xs flex items-center justify-between">
+            ${fields.map(field => {
+              return html`
+                <div
+                  class=${classMap({
+                    'h-m ml-m pr-xs flex items-center justify-between': true,
+                    'text-secondary': isReadonly,
+                    'text-disabled': isDisabled,
+                  })}
+                >
                   ${suggestions.includes(field)
                     ? html`<foxy-i18n lang=${lang} key=${field} ns=${ns}></foxy-i18n>`
                     : html`<span>${field}</span>`}
 
                   <button
-                    class="flex w-xs h-xs items-center justify-center rounded-full transition-colors hover-bg-error-10 hover-text-error focus-outline-none focus-ring-2 focus-ring-inset focus-ring-error-50"
+                    class=${classMap({
+                      'w-xs h-xs rounded-full transition-colors': true,
+                      'hover-bg-error-10 hover-text-error': !isDisabled,
+                      'focus-outline-none focus-ring-2 ring-inset ring-error-50': !isDisabled,
+                      'cursor-default': isDisabled,
+                      'flex': !isReadonly,
+                      'hidden': isReadonly,
+                    })}
+                    ?disabled=${isDisabled}
                     @click=${() => {
                       if (typeof config[`show_${field}` as FieldName] === 'boolean') {
                         config[`show_${field}` as FieldName] = true;
@@ -467,11 +529,11 @@ export class TemplateConfigForm extends Base<Data> {
                       this.edit({ json: JSON.stringify(json) });
                     }}
                   >
-                    <iron-icon icon="icons:close" class="icon-inline text-m"></iron-icon>
+                    <iron-icon icon="icons:close" class="icon-inline text-m m-auto"></iron-icon>
                   </button>
                 </div>
-              `
-            )}
+              `;
+            })}
           </div>
 
           <div
@@ -479,6 +541,8 @@ export class TemplateConfigForm extends Base<Data> {
             class=${classMap({
               'h-m flex items-center ring-inset ring-primary-50 focus-within-ring-2': true,
               'border-t border-contrast-10': fields.length > 0,
+              'flex': !isReadonly,
+              'hidden': isReadonly,
             })}
           >
             <input
@@ -486,6 +550,7 @@ export class TemplateConfigForm extends Base<Data> {
               class="w-full bg-transparent appearance-none h-m px-m focus-outline-none"
               list="hidden-fields-list"
               .value=${live(this.__addHiddenFieldInputValue)}
+              ?disabled=${isDisabled}
               @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && addField()}
               @input=${(evt: InputEvent) => {
                 this.__addHiddenFieldInputValue = (evt.currentTarget as HTMLInputElement).value;
@@ -526,6 +591,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderCards(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const isDisabled = this.disabledSelector.matches('cards', true);
+    const isReadonly = this.readonlySelector.matches('cards', true);
     const config = json.supported_payment_cards as string[];
 
     let skipForSaved: boolean;
@@ -559,7 +625,14 @@ export class TemplateConfigForm extends Base<Data> {
 
         <div class="space-y-xs">
           <x-group frame>
-            <foxy-i18n slot="header" lang=${lang} key="supported_cards" ns=${ns}></foxy-i18n>
+            <foxy-i18n
+              class=${isDisabled ? 'text-disabled' : ''}
+              slot="header"
+              lang=${lang}
+              key="supported_cards"
+              ns=${ns}
+            >
+            </foxy-i18n>
 
             <div class="flex flex-wrap m-xs p-s">
               ${Object.entries(logos).map(([type, logo]) => {
@@ -577,10 +650,12 @@ export class TemplateConfigForm extends Base<Data> {
                     <label
                       class=${classMap({
                         'overflow-hidden transition-colors flex rounded border': true,
-                        'border-primary bg-primary-10 text-primary': isChecked,
-                        'hover-text-body': isChecked && !isDisabled,
+                        'border-primary bg-primary-10 text-primary': isChecked && !isReadonly,
+                        'border-contrast bg-contrast-5 text-secondary': isChecked && isReadonly,
+                        'hover-text-body': isChecked && !isDisabled && !isReadonly,
                         'border-contrast-10': !isChecked,
-                        'hover-border-primary hover-text-primary': !isChecked && !isDisabled,
+                        'hover-border-primary': !isChecked && !isDisabled && !isReadonly,
+                        'hover-text-primary': !isChecked && !isDisabled && !isReadonly,
                       })}
                     >
                       <div class="h-s">${logo}</div>
@@ -595,6 +670,7 @@ export class TemplateConfigForm extends Base<Data> {
                         ?disabled=${isDisabled}
                         ?checked=${isChecked}
                         @change=${(evt: Event) => {
+                          if (isReadonly) return evt.preventDefault();
                           evt.stopPropagation();
 
                           if (isChecked) {
@@ -616,6 +692,7 @@ export class TemplateConfigForm extends Base<Data> {
               <x-checkbox
                 class="m-s"
                 ?disabled=${isDisabled || json.csc_requirements === 'new_cards_only'}
+                ?readonly=${isReadonly}
                 ?checked=${skipForSaved}
                 @change=${(evt: CheckboxChangeEvent) => {
                   json.csc_requirements = evt.detail ? 'sso_only' : 'all_cards';
@@ -629,6 +706,7 @@ export class TemplateConfigForm extends Base<Data> {
               <x-checkbox
                 class="m-s"
                 ?disabled=${isDisabled}
+                ?readonly=${isReadonly}
                 ?checked=${skipForSSO}
                 @change=${(evt: CheckboxChangeEvent) => {
                   json.csc_requirements = evt.detail
@@ -647,7 +725,7 @@ export class TemplateConfigForm extends Base<Data> {
           </x-group>
 
           <foxy-i18n
-            class="text-xs text-secondary leading-s block"
+            class="text-xs leading-s block ${isDisabled ? 'text-disabled' : 'text-secondary'}"
             lang=${lang}
             key="supported_cards_disclaimer"
             ns=${ns}
@@ -662,6 +740,8 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderCheckoutType(json: TemplateConfigJSON) {
     const { lang, ns } = this;
+    const isDisabled = this.disabledSelector.matches('checkout-type', true);
+    const isReadonly = this.readonlySelector.matches('checkout-type', true);
 
     return html`
       <div>
@@ -669,11 +749,18 @@ export class TemplateConfigForm extends Base<Data> {
 
         <div class="space-y-xs">
           <x-group frame>
-            <foxy-i18n slot="header" lang=${lang} key="checkout_type" ns=${ns}></foxy-i18n>
+            <foxy-i18n
+              class=${isDisabled ? 'text-disabled' : ''}
+              slot="header"
+              lang=${lang}
+              key="checkout_type"
+              ns=${ns}
+            >
+            </foxy-i18n>
 
             <x-choice
-              ?disabled=${this.disabledSelector.matches('checkout-type', true)}
-              ?readonly=${this.readonlySelector.matches('checkout-type', true)}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
               .items=${['default_account', 'default_guest', 'guest_only', 'account_only']}
               .value=${json.checkout_type}
               .getText=${(item: string) => this.t(`checkout_type_${item}`)}
@@ -686,7 +773,7 @@ export class TemplateConfigForm extends Base<Data> {
           </x-group>
 
           <foxy-i18n
-            class="text-secondary text-xs leading-s block"
+            class="text-xs leading-s block ${isDisabled ? 'text-disabled' : 'text-secondary'}"
             lang=${lang}
             key="checkout_type_helper_text"
             ns=${ns}
@@ -713,7 +800,14 @@ export class TemplateConfigForm extends Base<Data> {
         ${this.renderTemplateOrSlot('consent:before')}
 
         <x-group frame>
-          <foxy-i18n slot="header" lang=${lang} key="consent" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class=${isDisabled ? 'text-disabled' : ''}
+            slot="header"
+            lang=${lang}
+            key="consent"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
           <x-checkbox
             ?disabled=${isDisabled}
@@ -732,7 +826,7 @@ export class TemplateConfigForm extends Base<Data> {
             <div class="flex flex-col">
               <foxy-i18n lang=${lang} key="display_tos_link" ns=${ns}></foxy-i18n>
               <foxy-i18n
-                class="text-xs leading-s text-secondary"
+                class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
                 lang=${lang}
                 key="display_tos_link_explainer"
                 ns=${ns}
@@ -801,7 +895,7 @@ export class TemplateConfigForm extends Base<Data> {
             <div class="flex flex-col">
               <foxy-i18n lang=${lang} key="newsletter_subscribe" ns=${ns}></foxy-i18n>
               <foxy-i18n
-                class="text-xs leading-s text-secondary"
+                class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
                 lang=${lang}
                 key="newsletter_subscribe_explainer"
                 ns=${ns}
@@ -825,7 +919,7 @@ export class TemplateConfigForm extends Base<Data> {
             <div class="flex flex-col">
               <foxy-i18n lang=${lang} key="display_sdta" ns=${ns}></foxy-i18n>
               <foxy-i18n
-                class="text-xs leading-s text-secondary"
+                class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
                 lang=${lang}
                 key="display_sdta_explainer"
                 ns=${ns}
@@ -843,6 +937,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderFields(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const isDisabled = this.disabledSelector.matches('fields', true);
+    const isReadonly = this.readonlySelector.matches('fields', true);
     const config = json.custom_checkout_field_requirements;
     const options = {
       cart_controls: ['enabled', 'disabled'],
@@ -865,12 +960,25 @@ export class TemplateConfigForm extends Base<Data> {
         ${this.renderTemplateOrSlot('fields:before')}
 
         <x-group frame>
-          <foxy-i18n slot="header" lang=${lang} key="field_plural" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class=${isDisabled ? 'text-disabled' : ''}
+            slot="header"
+            lang=${lang}
+            key="field_plural"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
           <div class="bg-contrast-10 grid grid-cols-1 md-grid-cols-2" style="gap: 1px">
             ${Object.entries(options).map(([property, values]) => {
               return html`
-                <label class="flex items-center pl-m bg-base">
+                <label
+                  class=${classMap({
+                    'flex items-center pl-m bg-base': true,
+                    'text-secondary': isReadonly,
+                    'text-disabled': isDisabled,
+                  })}
+                >
                   <foxy-i18n
                     class="flex-1"
                     lang=${lang}
@@ -881,14 +989,36 @@ export class TemplateConfigForm extends Base<Data> {
 
                   <div
                     class=${classMap({
-                      'px-s m-xs flex items-center cursor-pointer rounded leading-none': true,
+                      'flex items-center text-right font-medium h-s px-s m-xs': isReadonly,
+                      'hidden': !isReadonly,
+                    })}
+                  >
+                    ${this.t(
+                      values.find(
+                        value => (config as Record<string, string>)[property] === value
+                      ) as string
+                    )}
+                  </div>
+
+                  <div
+                    class=${classMap({
+                      'px-s m-xs flex items-center rounded leading-none': true,
                       'ring-primary-50 ring-inset focus-within-ring-2': !isDisabled,
                       'hover-text-primary': !isDisabled,
-                      'opacity-50': isDisabled,
+                      'cursor-pointer': !isDisabled,
+                      'cursor-default': isDisabled,
+                      'flex': !isReadonly,
+                      'hidden': isReadonly,
                     })}
                   >
                     <select
-                      class="h-s mr-xs text-right appearance-none bg-transparent cursor-pointer focus-outline-none font-medium"
+                      class=${classMap({
+                        'h-s mr-xs text-right appearance-none bg-transparent font-medium': true,
+                        'focus-outline-none cursor-pointer': !isDisabled,
+                        'cursor-default': isDisabled,
+                      })}
+                      ?disabled=${isDisabled}
+                      ?readonly=${isReadonly}
                       @change=${(evt: Event) => {
                         const select = evt.currentTarget as HTMLSelectElement;
                         const value = select.options[select.options.selectedIndex].value;
@@ -940,7 +1070,7 @@ export class TemplateConfigForm extends Base<Data> {
         ${this.renderTemplateOrSlot('google-analytics:before')}
 
         <x-group frame>
-          <span slot="header">Google Analytics</span>
+          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Google Analytics</span>
 
           <div class="p-m space-y-m">
             <vaadin-text-field
@@ -973,7 +1103,7 @@ export class TemplateConfigForm extends Base<Data> {
               <div class="flex flex-col">
                 <foxy-i18n lang=${lang} key="ga_include_on_site" ns=${ns}></foxy-i18n>
                 <foxy-i18n
-                  class="text-xs leading-s text-secondary"
+                  class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
                   lang=${lang}
                   key="ga_include_on_site_explainer"
                   ns=${ns}
@@ -1001,7 +1131,7 @@ export class TemplateConfigForm extends Base<Data> {
         ${this.renderTemplateOrSlot('segment-io:before')}
 
         <x-group frame>
-          <span slot="header">Segment.io</span>
+          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Segment.io</span>
 
           <div class="p-m">
             <vaadin-text-field
@@ -1032,18 +1162,27 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderTroubleshooting(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.debug;
+    const isDisabled = this.disabledSelector.matches('troubleshooting', true);
+    const isReadonly = this.readonlySelector.matches('troubleshooting', true);
 
     return html`
       <div>
         ${this.renderTemplateOrSlot('troubleshooting:before')}
 
         <x-group frame>
-          <foxy-i18n slot="header" lang=${lang} key="troubleshooting" ns=${ns}></foxy-i18n>
+          <foxy-i18n
+            class=${isDisabled ? 'text-disabled' : ''}
+            slot="header"
+            lang=${lang}
+            key="troubleshooting"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
           <div class="p-m space-y-m">
             <x-checkbox
-              ?disabled=${this.disabledSelector.matches('troubleshooting', true)}
-              ?readonly=${this.readonlySelector.matches('troubleshooting', true)}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
               ?checked=${config.usage === 'required'}
               @change=${(evt: CheckboxChangeEvent) => {
                 config.usage = evt.detail ? 'required' : 'none';
@@ -1053,7 +1192,7 @@ export class TemplateConfigForm extends Base<Data> {
               <div class="flex flex-col">
                 <foxy-i18n lang=${lang} key="troubleshooting_debug" ns=${ns}></foxy-i18n>
                 <foxy-i18n
-                  class="text-xs leading-s text-secondary"
+                  class="text-xs leading-s ${isDisabled ? 'text-disabled' : 'text-secondary'}"
                   lang=${lang}
                   key="troubleshooting_debug_explainer"
                   ns=${ns}
