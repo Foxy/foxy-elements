@@ -10,6 +10,25 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-template-config-form',
   translatable: true,
+  configurable: {
+    inputs: [
+      'cart-type',
+      'foxycomplete',
+      'locations',
+      'hidden-fields',
+      'cards',
+      'checkout-type',
+      'consent',
+      'fields',
+      'google-analytics',
+      'segment-io',
+      'troubleshooting',
+      'custom-config',
+      'header',
+      'custom-fields',
+      'footer',
+    ],
+  },
 };
 
 export default getMeta(summary);

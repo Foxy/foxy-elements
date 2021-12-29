@@ -1,7 +1,7 @@
 import * as logos from '../PaymentMethodCard/logos';
 
 import { CheckboxChangeEvent, ChoiceChangeEvent } from '../../private/events';
-import { Data, TemplateConfigJSON } from './types';
+import { Data, TemplateConfigJSON, Templates } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
@@ -26,6 +26,57 @@ const Base = ScopedElementsMixin(
   ResponsiveMixin(ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS))))
 );
 
+/**
+ * Form element for creating or editing template configs (`fx:template_config`).
+ *
+ * @slot cart-type:before
+ * @slot cart-type:after
+ *
+ * @slot foxycomplete:before
+ * @slot foxycomplete:after
+ *
+ * @slot locations:before
+ * @slot locations:after
+ *
+ * @slot hidden-fields:before
+ * @slot hidden-fields:after
+ *
+ * @slot cards:before
+ * @slot cards:after
+ *
+ * @slot checkout-type:before
+ * @slot checkout-type:after
+ *
+ * @slot consent:before
+ * @slot consent:after
+ *
+ * @slot fields:before
+ * @slot fields:after
+ *
+ * @slot google-analytics:before
+ * @slot google-analytics:after
+ *
+ * @slot segment-io:before
+ * @slot segment-io:after
+ *
+ * @slot troubleshooting:before
+ * @slot troubleshooting:after
+ *
+ * @slot custom-config:before
+ * @slot custom-config:after
+ *
+ * @slot header:before
+ * @slot header:after
+ *
+ * @slot custom-fields:before
+ * @slot custom-fields:after
+ *
+ * @slot footer:before
+ * @slot footer:after
+ *
+ * @element foxy-template-config-form
+ * @since 1.14.0
+ */
 export class TemplateConfigForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
@@ -51,8 +102,12 @@ export class TemplateConfigForm extends Base<Data> {
     };
   }
 
+  templates: Templates = {};
+
+  /** URI of the `fx:countries` hAPI resource. */
   countries = '';
 
+  /** URI of the `fx:regions` hAPI resource. */
   regions = '';
 
   private __addHiddenFieldInputValue = '';
