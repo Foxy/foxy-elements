@@ -5,7 +5,6 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -14,7 +13,7 @@ import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import { live } from 'lit-html/directives/live';
 
 const NS = 'template-form';
 const Base = ScopedElementsMixin(
@@ -96,13 +95,18 @@ export class TemplateForm extends Base<Data> {
   }
 
   private __renderDescription() {
+    const scope = 'description';
+
     return html`
       <div>
-        ${this.renderTemplateOrSlot('description:before')}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <vaadin-text-field
+          data-testid=${scope}
           class="w-full mb-s"
-          label=${this.t('description')}
+          label=${this.t(scope)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(scope)}
+          ?readonly=${this.readonlySelector.matches(scope)}
           .value=${this.form?.description ?? ''}
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
           @input=${(evt: CustomEvent) => {
@@ -111,12 +115,15 @@ export class TemplateForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        ${this.renderTemplateOrSlot('description:after')}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
 
   private __renderContent() {
+    const scope = 'content';
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches(scope);
+    const isReadonly = this.readonlySelector.matches(scope);
     const contentChoice = this.form.content_url
       ? 'url'
       : this.form.content
@@ -124,18 +131,25 @@ export class TemplateForm extends Base<Data> {
       : this.__contentChoice;
 
     return html`
-      <div>
-        ${this.renderTemplateOrSlot('content:before')}
+      <div data-testid="content">
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <x-group frame>
-          <foxy-i18n lang=${this.lang} slot="header" key="template" ns=${this.ns}></foxy-i18n>
+          <foxy-i18n
+            class=${classMap({ 'transition-colors': true, 'text-disabled': isDisabled })}
+            lang=${this.lang}
+            slot="header"
+            key="template"
+            ns=${this.ns}
+          >
+          </foxy-i18n>
 
           <x-choice
-            data-testid="template-type"
+            data-testid="content-type"
             .value=${contentChoice}
             .items=${['default', 'url', 'clipboard']}
-            ?readonly=${this.readonlySelector.matches('content', true)}
-            ?disabled=${this.in('busy') || this.disabledSelector.matches('content', true)}
+            ?readonly=${isReadonly}
+            ?disabled=${isDisabled}
             @change=${(evt: Event) => {
               if (evt instanceof ChoiceChangeEvent) {
                 this.edit({ content: '', content_url: '' });
@@ -163,9 +177,12 @@ export class TemplateForm extends Base<Data> {
             <div slot="url" ?hidden=${contentChoice !== 'url'}>
               <div class="flex items-center mt-0 mb-m">
                 <vaadin-text-field
-                  data-testid="content_url"
-                  value=${ifDefined(this.form.content_url)}
+                  data-testid="content-url"
                   class="mr-s flex-grow"
+                  ?readonly=${isReadonly}
+                  ?disabled=${isDisabled}
+                  .value=${this.form.content_url}
+                  @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
                   @input=${(evt: CustomEvent) => {
                     const value = (evt.currentTarget as TextFieldElement).value;
                     this.edit({ content: '', content_url: value });
@@ -173,51 +190,51 @@ export class TemplateForm extends Base<Data> {
                 >
                 </vaadin-text-field>
 
-                ${this.form.content_url === this.data?.content_url
-                  ? html`
-                      <vaadin-button
-                        class="relative"
-                        ?disabled=${this.__cacheState === 'busy'}
-                        @click=${this.__cache}
-                      >
-                        <foxy-i18n
-                          class=${classMap({
-                            'relative transition-opacity': true,
-                            'opacity-0': this.__cacheState !== 'idle',
-                          })}
-                          lang=${this.lang}
-                          key="cache"
-                          ns=${this.ns}
-                        >
-                        </foxy-i18n>
+                <vaadin-button
+                  data-testid="cache"
+                  class="relative"
+                  ?hidden=${isReadonly || this.form.content_url !== this.data?.content_url}
+                  ?disabled=${isDisabled || this.__cacheState === 'busy'}
+                  @click=${this.__cache}
+                >
+                  <foxy-i18n
+                    class=${classMap({
+                      'relative transition-opacity': true,
+                      'opacity-0': this.__cacheState !== 'idle',
+                    })}
+                    lang=${this.lang}
+                    key="cache"
+                    ns=${this.ns}
+                  >
+                  </foxy-i18n>
 
-                        <div
-                          class=${classMap({
-                            'absolute inset-0 flex transition-opacity': true,
-                            'opacity-0': this.__cacheState === 'idle',
-                          })}
-                        >
-                          <foxy-spinner
-                            layout="no-label"
-                            class="m-auto"
-                            state=${this.__cacheState === 'fail' ? 'error' : 'busy'}
-                            lang=${this.lang}
-                            ns=${this.ns}
-                          >
-                          </foxy-spinner>
-                        </div>
-                      </vaadin-button>
-                    `
-                  : ''}
+                  <div
+                    class=${classMap({
+                      'absolute inset-0 flex transition-opacity': true,
+                      'opacity-0': this.__cacheState === 'idle',
+                    })}
+                  >
+                    <foxy-spinner
+                      layout="no-label"
+                      class="m-auto"
+                      state=${this.__cacheState === 'fail' ? 'error' : 'busy'}
+                      lang=${this.lang}
+                      ns=${this.ns}
+                    >
+                    </foxy-spinner>
+                  </div>
+                </vaadin-button>
               </div>
             </div>
 
             <div slot="clipboard" ?hidden=${contentChoice !== 'clipboard'}>
               <vaadin-text-area
                 id="cached-content"
-                data-testid="content"
+                data-testid="content-clipboard"
                 class="w-full mb-m"
-                .value=${this.form.content}
+                ?readonly=${isReadonly}
+                ?disabled=${isDisabled}
+                .value=${live(this.form.content)}
                 @input=${(evt: CustomEvent) => {
                   const value = (evt.currentTarget as TextAreaElement).value;
                   this.edit({ content: value, content_url: '' });
@@ -228,15 +245,17 @@ export class TemplateForm extends Base<Data> {
           </x-choice>
         </x-group>
 
-        ${this.renderTemplateOrSlot('content:after')}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
 
   private __renderTimestamps() {
+    const scope = 'timestamps';
+
     return html`
       <div>
-        ${this.renderTemplateOrSlot('timestamps:before')}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <x-property-table
           data-testid="timestamps"
@@ -249,7 +268,7 @@ export class TemplateForm extends Base<Data> {
         >
         </x-property-table>
 
-        ${this.renderTemplateOrSlot('timestamps:after')}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
