@@ -1,10 +1,10 @@
 import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 import { Choice, Group, PropertyTable } from '../../private/index';
+import { Data, Templates } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -54,6 +54,8 @@ export class EmailTemplateForm extends Base<Data> {
       'x-group': Group,
     };
   }
+
+  templates: Templates = {};
 
   private __cacheState: 'idle' | 'busy' | 'fail' = 'idle';
 
