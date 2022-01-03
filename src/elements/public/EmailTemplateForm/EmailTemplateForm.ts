@@ -93,13 +93,18 @@ export class EmailTemplateForm extends Base<Data> {
   }
 
   private __renderDescription() {
+    const scope = 'description';
+
     return html`
       <div>
-        ${this.renderTemplateOrSlot('description:before')}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <vaadin-text-field
+          data-testid=${scope}
           class="w-full mb-s"
-          label=${this.t('description')}
+          label=${this.t(scope)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(scope)}
+          ?readonly=${this.readonlySelector.matches(scope)}
           .value=${this.form?.description ?? ''}
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
           @input=${(evt: CustomEvent) => {
@@ -108,19 +113,19 @@ export class EmailTemplateForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        ${this.renderTemplateOrSlot('description:after')}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
 
   private __renderContent() {
     return html`
-      <div>
+      <div data-testid="content">
         ${this.renderTemplateOrSlot('content:before')}
 
         <div class="space-y-l">
-          ${this.__renderTabContent('content_text_url', 'content_text', 'text_template')}
-          ${this.__renderTabContent('content_html_url', 'content_html', 'html_template')}
+          ${this.__renderContentVariant('content_text_url', 'content_text', 'text_template')}
+          ${this.__renderContentVariant('content_html_url', 'content_html', 'html_template')}
         </div>
 
         ${this.renderTemplateOrSlot('content:after')}
@@ -128,11 +133,13 @@ export class EmailTemplateForm extends Base<Data> {
     `;
   }
 
-  private __renderTabContent(
+  private __renderContentVariant(
     urlPath: 'content_text_url' | 'content_html_url',
     textPath: 'content_text' | 'content_html',
     header: string
   ) {
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('content', true);
+    const isReadonly = this.readonlySelector.matches('content', true);
     const contentChoice = this.form[urlPath]
       ? 'url'
       : this.form[textPath]
@@ -141,14 +148,21 @@ export class EmailTemplateForm extends Base<Data> {
 
     return html`
       <x-group frame>
-        <foxy-i18n lang=${this.lang} slot="header" key=${header} ns=${this.ns}></foxy-i18n>
+        <foxy-i18n
+          class=${classMap({ 'transition-colors': true, 'text-disabled': isDisabled })}
+          lang=${this.lang}
+          slot="header"
+          key=${header}
+          ns=${this.ns}
+        >
+        </foxy-i18n>
 
         <x-choice
-          data-testid="template-type"
+          data-testid="${textPath.replace('_', '-')}-type"
           .value=${contentChoice}
           .items=${['default', 'url', 'clipboard']}
-          ?readonly=${this.readonlySelector.matches('content', true)}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('content', true)}
+          ?readonly=${isReadonly}
+          ?disabled=${isDisabled}
           @change=${(evt: Event) => {
             if (evt instanceof ChoiceChangeEvent) {
               this.edit({ [textPath]: '', [urlPath]: '' });
@@ -176,9 +190,12 @@ export class EmailTemplateForm extends Base<Data> {
           <div slot="url" ?hidden=${contentChoice !== 'url'}>
             <div class="flex items-center mt-0 mb-m">
               <vaadin-text-field
-                data-testid="content_url"
+                data-testid="${textPath.replace('_', '-')}-url"
                 value=${ifDefined(this.form[urlPath])}
                 class="mr-s flex-grow"
+                ?readonly=${isReadonly}
+                ?disabled=${isDisabled}
+                @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
                 @input=${(evt: CustomEvent) => {
                   const value = (evt.currentTarget as TextFieldElement).value;
                   this.edit({ [textPath]: '', [urlPath]: value });
@@ -186,50 +203,50 @@ export class EmailTemplateForm extends Base<Data> {
               >
               </vaadin-text-field>
 
-              ${this.form[urlPath] === this.data?.[urlPath]
-                ? html`
-                    <vaadin-button
-                      class="relative"
-                      ?disabled=${this.__cacheState === 'busy'}
-                      @click=${this.__cache}
-                    >
-                      <foxy-i18n
-                        class=${classMap({
-                          'relative transition-opacity': true,
-                          'opacity-0': this.__cacheState !== 'idle',
-                        })}
-                        lang=${this.lang}
-                        key="cache"
-                        ns=${this.ns}
-                      >
-                      </foxy-i18n>
+              <vaadin-button
+                data-testid="${textPath.replace('_', '-')}-cache"
+                class="relative"
+                ?disabled=${isDisabled || this.__cacheState === 'busy'}
+                ?hidden=${isReadonly || this.form[urlPath] !== this.data?.[urlPath]}
+                @click=${this.__cache}
+              >
+                <foxy-i18n
+                  class=${classMap({
+                    'relative transition-opacity': true,
+                    'opacity-0': this.__cacheState !== 'idle',
+                  })}
+                  lang=${this.lang}
+                  key="cache"
+                  ns=${this.ns}
+                >
+                </foxy-i18n>
 
-                      <div
-                        class=${classMap({
-                          'absolute inset-0 flex transition-opacity': true,
-                          'opacity-0': this.__cacheState === 'idle',
-                        })}
-                      >
-                        <foxy-spinner
-                          layout="no-label"
-                          class="m-auto"
-                          state=${this.__cacheState === 'fail' ? 'error' : 'busy'}
-                          lang=${this.lang}
-                          ns=${this.ns}
-                        >
-                        </foxy-spinner>
-                      </div>
-                    </vaadin-button>
-                  `
-                : ''}
+                <div
+                  class=${classMap({
+                    'absolute inset-0 flex transition-opacity': true,
+                    'opacity-0': this.__cacheState === 'idle',
+                  })}
+                >
+                  <foxy-spinner
+                    layout="no-label"
+                    class="m-auto"
+                    state=${this.__cacheState === 'fail' ? 'error' : 'busy'}
+                    lang=${this.lang}
+                    ns=${this.ns}
+                  >
+                  </foxy-spinner>
+                </div>
+              </vaadin-button>
             </div>
           </div>
 
           <div slot="clipboard" ?hidden=${contentChoice !== 'clipboard'}>
             <vaadin-text-area
+              data-testid="${textPath.replace('_', '-')}-clipboard"
               id="cached-content"
-              data-testid="content"
               class="w-full mb-m"
+              ?readonly=${isReadonly}
+              ?disabled=${isDisabled}
               .value=${this.form[textPath]}
               @input=${(evt: CustomEvent) => {
                 const value = (evt.currentTarget as TextAreaElement).value;
@@ -244,9 +261,11 @@ export class EmailTemplateForm extends Base<Data> {
   }
 
   private __renderTimestamps() {
+    const scope = 'timestamps';
+
     return html`
       <div>
-        ${this.renderTemplateOrSlot('timestamps:before')}
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <x-property-table
           data-testid="timestamps"
@@ -259,7 +278,7 @@ export class EmailTemplateForm extends Base<Data> {
         >
         </x-property-table>
 
-        ${this.renderTemplateOrSlot('timestamps:after')}
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
