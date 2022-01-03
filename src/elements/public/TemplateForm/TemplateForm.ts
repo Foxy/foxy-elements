@@ -1,5 +1,6 @@
 import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
 import { Choice, Group, PropertyTable } from '../../private/index';
+import { Data, Templates } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
 import { ChoiceChangeEvent } from '../../private/events';
@@ -54,6 +55,8 @@ export class TemplateForm extends Base<Data> {
       'x-group': Group,
     };
   }
+
+  templates: Templates = {};
 
   private __cacheState: 'idle' | 'busy' | 'fail' = 'idle';
 
