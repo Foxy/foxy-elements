@@ -166,7 +166,7 @@ export class TemplateConfigForm extends Base<Data> {
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('cart-type', true);
 
     return html`
-      <div>
+      <div data-testid="cart-type">
         ${this.renderTemplateOrSlot('cart-type:before')}
 
         <x-group frame>
@@ -180,6 +180,7 @@ export class TemplateConfigForm extends Base<Data> {
           </foxy-i18n>
 
           <x-choice
+            data-testid="cart-type-choice"
             .value=${json.cart_type}
             .items=${items}
             ?disabled=${isDisabled}
