@@ -20,6 +20,27 @@ const Base = ScopedElementsMixin(
   ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)))
 );
 
+/**
+ * Form element for creating or editing email templates (`fx:email_template`).
+ *
+ * @slot description:before
+ * @slot description:after
+ *
+ * @slot content:before
+ * @slot content:after
+ *
+ * @slot timestamps:before
+ * @slot timestamps:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
+ * @element foxy-email-template-form
+ * @since 1.14.0
+ */
 export class EmailTemplateForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
