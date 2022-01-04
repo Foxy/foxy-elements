@@ -113,7 +113,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __addHiddenFieldInputValue = '';
 
   render(): TemplateResult {
-    const hidden = this.hiddenControls;
+    const hidden = this.hiddenSelector;
     const json: TemplateConfigJSON = this.form.json ? JSON.parse(this.form.json) : getDefaultJSON();
 
     return html`
