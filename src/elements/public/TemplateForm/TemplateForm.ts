@@ -20,6 +20,27 @@ const Base = ScopedElementsMixin(
   ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)))
 );
 
+/**
+ * Form element for creating or editing templates (`fx:cart_include_template`, `fx:checkout_template`, `fx:cart_template`).
+ *
+ * @slot description:before
+ * @slot description:after
+ *
+ * @slot content:before
+ * @slot content:after
+ *
+ * @slot timestamps:before
+ * @slot timestamps:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
+ * @element foxy-template-form
+ * @since 1.14.0
+ */
 export class TemplateForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
