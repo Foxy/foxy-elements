@@ -796,7 +796,7 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderCheckoutType(json: TemplateConfigJSON) {
     const { lang, ns } = this;
-    const isDisabled = this.disabledSelector.matches('checkout-type', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('checkout-type', true);
     const isReadonly = this.readonlySelector.matches('checkout-type', true);
 
     return html`
