@@ -5570,6 +5570,7 @@
     {
       "name": "foxy-email-template-form",
       "path": "./src/elements/public/EmailTemplateForm/index.ts",
+      "description": "Form element for creating or editing email templates (`fx:email_template`).",
       "attributes": [
         {
           "name": "mode",
@@ -5640,6 +5641,7 @@
       "properties": [
         {
           "name": "templates",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -5784,6 +5786,38 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "description:before"
+        },
+        {
+          "name": "description:after"
+        },
+        {
+          "name": "content:before"
+        },
+        {
+          "name": "content:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
@@ -9798,6 +9832,7 @@
     {
       "name": "foxy-template-form",
       "path": "./src/elements/public/TemplateForm/index.ts",
+      "description": "Form element for creating or editing templates (`fx:cart_include_template`, `fx:checkout_template`, `fx:cart_template`).",
       "attributes": [
         {
           "name": "mode",
@@ -9868,6 +9903,7 @@
       "properties": [
         {
           "name": "templates",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -10012,6 +10048,38 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "description:before"
+        },
+        {
+          "name": "description:after"
+        },
+        {
+          "name": "content:before"
+        },
+        {
+          "name": "content:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
