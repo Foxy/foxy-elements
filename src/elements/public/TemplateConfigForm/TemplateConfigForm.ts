@@ -163,7 +163,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderCartType(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const items = ['default', 'fullpage', 'custom'];
-    const isDisabled = this.disabledSelector.matches('cart-type', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('cart-type', true);
 
     return html`
       <div>
