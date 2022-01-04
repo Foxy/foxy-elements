@@ -800,7 +800,7 @@ export class TemplateConfigForm extends Base<Data> {
     const isReadonly = this.readonlySelector.matches('checkout-type', true);
 
     return html`
-      <div>
+      <div data-testid="checkout-type">
         ${this.renderTemplateOrSlot('checkout-type:before')}
 
         <div class="space-y-xs">
@@ -815,6 +815,7 @@ export class TemplateConfigForm extends Base<Data> {
             </foxy-i18n>
 
             <x-choice
+              data-testid="checkout-type-choice"
               ?disabled=${isDisabled}
               ?readonly=${isReadonly}
               .items=${['default_account', 'default_guest', 'guest_only', 'account_only']}
