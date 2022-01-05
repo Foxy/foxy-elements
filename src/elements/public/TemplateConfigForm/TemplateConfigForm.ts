@@ -1337,7 +1337,7 @@ export class TemplateConfigForm extends Base<Data> {
           label=${this.t('custom_fields')}
           helper-text=${this.t('custom_fields_helper_text')}
           .value=${json.custom_script_values.checkout_fields}
-          ?disabled=${this.disabledSelector.matches('custom-fields', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('custom-fields', true)}
           ?readonly=${this.readonlySelector.matches('custom-fields', true)}
           @input=${(evt: CustomEvent) => {
             const newValue = (evt.currentTarget as TextAreaElement).value;
