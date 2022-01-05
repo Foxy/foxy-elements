@@ -1329,10 +1329,11 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderCustomFields(json: TemplateConfigJSON) {
     return html`
-      <div>
+      <div data-testid="custom-fields">
         ${this.renderTemplateOrSlot('custom-fields:before')}
 
         <vaadin-text-area
+          data-testid="custom-fields-field"
           class="w-full"
           label=${this.t('custom_fields')}
           helper-text=${this.t('custom_fields_helper_text')}

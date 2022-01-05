@@ -630,4 +630,179 @@ describe('TemplateConfigForm', () => {
       expect(json).to.have.nested.property('custom_script_values.header', 'Test');
     });
   });
+
+  describe('custom-fields', () => {
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'custom-fields')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'custom-fields')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes custom-fields', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form hiddencontrols="custom-fields"></foxy-template-config-form>`
+      );
+
+      expect(await getByTestId(element, 'custom-fields')).to.not.exist;
+    });
+
+    it('renders "custom-fields:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'custom-fields:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "custom-fields:before" slot with template "custom-fields:before" if available', async () => {
+      const type = 'custom-fields:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "custom-fields:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'custom-fields:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "custom-fields:after" slot with template "custom-fields:after" if available', async () => {
+      const type = 'custom-fields:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a label with i18n key custom_fields', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.have.attribute('label', 'custom_fields');
+    });
+
+    it('renders a helper text with i18n key custom_fields_helper_text', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.have.attribute('helper-text', 'custom_fields_helper_text');
+    });
+
+    it('reflects the value of custom_script_values.checkout_fields from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.custom_script_values.checkout_fields = 'Test';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.have.property('value', 'Test');
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.not.have.attribute('disabled');
+    });
+
+    it('is disabled when element is disabled', async () => {
+      const layout = html`<foxy-template-config-form disabled></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes custom-fields', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form disabledcontrols="custom-fields"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.have.attribute('disabled');
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.not.have.attribute('readonly');
+    });
+
+    it('is readonly when element is readonly', async () => {
+      const layout = html`<foxy-template-config-form readonly></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes custom-fields', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form readonlycontrols="custom-fields"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = await getByTestId(control, 'custom-fields-field');
+
+      expect(field).to.have.attribute('readonly');
+    });
+
+    it('writes to custom_script_values.checkout_fields property of parsed form.json value on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'custom-fields')) as HTMLElement;
+      const field = (await getByTestId(control, 'custom-fields-field')) as TextAreaElement;
+
+      field.value = 'Test';
+      field.dispatchEvent(new CustomEvent('input'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('custom_script_values.checkout_fields', 'Test');
+    });
+  });
 });
