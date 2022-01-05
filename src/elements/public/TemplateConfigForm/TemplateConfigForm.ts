@@ -1363,7 +1363,7 @@ export class TemplateConfigForm extends Base<Data> {
           label=${this.t('custom_footer')}
           helper-text=${this.t('custom_footer_helper_text')}
           .value=${json.custom_script_values.footer}
-          ?disabled=${this.disabledSelector.matches('footer', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('footer', true)}
           ?readonly=${this.readonlySelector.matches('footer', true)}
           @input=${(evt: CustomEvent) => {
             const target = evt.currentTarget as TextAreaElement;
