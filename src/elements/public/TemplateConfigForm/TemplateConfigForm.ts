@@ -1267,10 +1267,11 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderCustomConfig(json: TemplateConfigJSON) {
     return html`
-      <div>
+      <div data-testid="custom-config">
         ${this.renderTemplateOrSlot('custom-config:before')}
 
         <vaadin-text-area
+          data-testid="custom-config-field"
           class="w-full"
           label=${this.t('custom_config')}
           placeholder='{ "key": "value" }'
