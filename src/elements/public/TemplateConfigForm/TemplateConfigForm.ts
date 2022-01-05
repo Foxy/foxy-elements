@@ -1276,7 +1276,7 @@ export class TemplateConfigForm extends Base<Data> {
           placeholder='{ "key": "value" }'
           helper-text=${this.t('custom_config_helper_text')}
           .value=${json.custom_config ? JSON.stringify(json.custom_config, null, 2) : ''}
-          ?disabled=${this.disabledSelector.matches('custom-config', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('custom-config', true)}
           ?readonly=${this.readonlySelector.matches('custom-config', true)}
           @input=${(evt: CustomEvent) => {
             const input = evt.currentTarget as TextAreaElement;
