@@ -1355,10 +1355,11 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderFooter(json: TemplateConfigJSON) {
     return html`
-      <div>
+      <div data-testid="footer">
         ${this.renderTemplateOrSlot('footer:before')}
 
         <vaadin-text-area
+          data-testid="footer-field"
           class="w-full"
           label=${this.t('custom_footer')}
           helper-text=${this.t('custom_footer_helper_text')}

@@ -805,4 +805,179 @@ describe('TemplateConfigForm', () => {
       expect(json).to.have.nested.property('custom_script_values.checkout_fields', 'Test');
     });
   });
+
+  describe('footer', () => {
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'footer')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'footer')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes footer', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form hiddencontrols="footer"></foxy-template-config-form>`
+      );
+
+      expect(await getByTestId(element, 'footer')).to.not.exist;
+    });
+
+    it('renders "footer:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'footer:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "footer:before" slot with template "footer:before" if available', async () => {
+      const type = 'footer:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "footer:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'footer:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "footer:after" slot with template "footer:after" if available', async () => {
+      const type = 'footer:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a label with i18n key custom_footer', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.have.attribute('label', 'custom_footer');
+    });
+
+    it('renders a helper text with i18n key custom_footer_helper_text', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.have.attribute('helper-text', 'custom_footer_helper_text');
+    });
+
+    it('reflects the value of custom_script_values.footer from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.custom_script_values.footer = 'Test';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.have.property('value', 'Test');
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.not.have.attribute('disabled');
+    });
+
+    it('is disabled when element is disabled', async () => {
+      const layout = html`<foxy-template-config-form disabled></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes footer', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form disabledcontrols="footer"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.have.attribute('disabled');
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.not.have.attribute('readonly');
+    });
+
+    it('is readonly when element is readonly', async () => {
+      const layout = html`<foxy-template-config-form readonly></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes footer', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form readonlycontrols="footer"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = await getByTestId(control, 'footer-field');
+
+      expect(field).to.have.attribute('readonly');
+    });
+
+    it('writes to custom_script_values.footer property of parsed form.json value on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'footer')) as HTMLElement;
+      const field = (await getByTestId(control, 'footer-field')) as TextAreaElement;
+
+      field.value = 'Test';
+      field.dispatchEvent(new CustomEvent('input'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('custom_script_values.footer', 'Test');
+    });
+  });
 });
