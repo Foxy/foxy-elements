@@ -1299,10 +1299,11 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderHeader(json: TemplateConfigJSON) {
     return html`
-      <div>
+      <div data-testid="header">
         ${this.renderTemplateOrSlot('header:before')}
 
         <vaadin-text-area
+          data-testid="header-field"
           class="w-full"
           label=${this.t('custom_header')}
           helper-text=${this.t('custom_header_helper_text')}
