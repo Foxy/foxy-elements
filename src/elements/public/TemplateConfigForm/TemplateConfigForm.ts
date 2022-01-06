@@ -1144,6 +1144,7 @@ export class TemplateConfigForm extends Base<Data> {
                 gaConfig.account_id = (evt.currentTarget as TextFieldElement).value;
                 gaConfig.usage = gaConfig.account_id ? 'required' : 'none';
                 config.usage = gaConfig.account_id || sioConfig.account_id ? 'required' : 'none';
+                this.edit({ json: JSON.stringify(json) });
               }}
             >
             </vaadin-text-field>
@@ -1205,6 +1206,7 @@ export class TemplateConfigForm extends Base<Data> {
                 sioConfig.account_id = (evt.currentTarget as TextFieldElement).value;
                 sioConfig.usage = sioConfig.account_id ? 'required' : 'none';
                 config.usage = gaConfig.account_id || sioConfig.account_id ? 'required' : 'none';
+                this.edit({ json: JSON.stringify(json) });
               }}
             >
             </vaadin-text-field>
