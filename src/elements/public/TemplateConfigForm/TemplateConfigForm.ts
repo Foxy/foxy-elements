@@ -1228,7 +1228,7 @@ export class TemplateConfigForm extends Base<Data> {
     const isReadonly = this.readonlySelector.matches('troubleshooting', true);
 
     return html`
-      <div>
+      <div data-testid="troubleshooting">
         ${this.renderTemplateOrSlot('troubleshooting:before')}
 
         <x-group frame>
@@ -1243,6 +1243,7 @@ export class TemplateConfigForm extends Base<Data> {
 
           <div class="p-m space-y-m">
             <x-checkbox
+              data-testid="troubleshooting-check"
               ?disabled=${isDisabled}
               ?readonly=${isReadonly}
               ?checked=${config.usage === 'required'}

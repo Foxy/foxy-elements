@@ -922,6 +922,201 @@ describe('TemplateConfigForm', () => {
     });
   });
 
+  describe('troubleshooting', () => {
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'troubleshooting')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'troubleshooting')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes troubleshooting', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form hiddencontrols="troubleshooting"></foxy-template-config-form>
+      `);
+
+      expect(await getByTestId(element, 'troubleshooting')).to.not.exist;
+    });
+
+    it('renders "troubleshooting:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'troubleshooting:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "troubleshooting:before" slot with template "troubleshooting:before" if available', async () => {
+      const type = 'troubleshooting:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "troubleshooting:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'troubleshooting:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "troubleshooting:after" slot with template "troubleshooting:after" if available', async () => {
+      const type = 'troubleshooting:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a label with i18n key troubleshooting', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const label = await getByKey(control, 'troubleshooting');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    it('reflects the value of debug.usage from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.debug.usage = 'required';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = await getByTestId(control, 'troubleshooting-check');
+
+      expect(check).to.have.attribute('checked');
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = await getByTestId(control, 'troubleshooting-check');
+
+      expect(check).to.not.have.attribute('disabled');
+    });
+
+    it('is disabled when element is disabled', async () => {
+      const layout = html`<foxy-template-config-form disabled></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = await getByTestId(control, 'troubleshooting-check');
+
+      expect(check).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes troubleshooting', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form disabledcontrols="troubleshooting"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = await getByTestId(control, 'troubleshooting-check');
+
+      expect(check).to.have.attribute('disabled');
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = await getByTestId(control, 'troubleshooting-check');
+
+      expect(check).to.not.have.attribute('readonly');
+    });
+
+    it('is readonly when element is readonly', async () => {
+      const layout = html`<foxy-template-config-form readonly></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = await getByTestId(control, 'troubleshooting-check');
+
+      expect(check).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes troubleshooting', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form readonlycontrols="troubleshooting"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = await getByTestId(control, 'troubleshooting-check');
+
+      expect(check).to.have.attribute('readonly');
+    });
+
+    it('writes to debug.usage property of parsed form.json value on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = (await getByTestId(control, 'troubleshooting-check')) as Checkbox;
+
+      check.checked = true;
+      check.dispatchEvent(new CheckboxChangeEvent(true));
+
+      expect(JSON.parse(element.form.json as string)).to.have.nested.property(
+        'debug.usage',
+        'required'
+      );
+    });
+
+    it('renders translatable checkbox label and explainer', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'troubleshooting')) as HTMLElement;
+      const check = (await getByTestId(control, 'troubleshooting-check')) as Checkbox;
+      const label = check.querySelector(`foxy-i18n[key="troubleshooting_debug"]`);
+      const explainer = check.querySelector(`foxy-i18n[key="troubleshooting_debug_explainer"]`);
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+
+      expect(explainer).to.exist;
+      expect(explainer).to.have.attribute('lang', 'es');
+      expect(explainer).to.have.attribute('ns', 'foo');
+    });
+  });
+
   describe('custom-config', () => {
     it('is visible by default', async () => {
       const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
