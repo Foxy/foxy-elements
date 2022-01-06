@@ -1185,7 +1185,7 @@ export class TemplateConfigForm extends Base<Data> {
     const isReadonly = this.readonlySelector.matches('segment-io', true);
 
     return html`
-      <div>
+      <div data-testid="segment-io">
         ${this.renderTemplateOrSlot('segment-io:before')}
 
         <x-group frame>
@@ -1193,6 +1193,7 @@ export class TemplateConfigForm extends Base<Data> {
 
           <div class="p-m">
             <vaadin-text-field
+              data-testid="segment-io-field"
               class="w-full"
               label=${this.t('sio_account_id')}
               placeholder="MY-WRITE-KEY"
