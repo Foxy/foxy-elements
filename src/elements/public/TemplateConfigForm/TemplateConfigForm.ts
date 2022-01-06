@@ -1181,7 +1181,7 @@ export class TemplateConfigForm extends Base<Data> {
     const config = json.analytics_config;
     const sioConfig = config.segment_io;
     const gaConfig = config.google_analytics;
-    const isDisabled = this.disabledSelector.matches('segment-io', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('segment-io', true);
     const isReadonly = this.readonlySelector.matches('segment-io', true);
 
     return html`
