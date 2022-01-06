@@ -1123,7 +1123,7 @@ export class TemplateConfigForm extends Base<Data> {
     const isReadonly = this.readonlySelector.matches('google-analytics', true);
 
     return html`
-      <div>
+      <div data-testid="google-analytics">
         ${this.renderTemplateOrSlot('google-analytics:before')}
 
         <x-group frame>
@@ -1131,6 +1131,7 @@ export class TemplateConfigForm extends Base<Data> {
 
           <div class="p-m space-y-m">
             <vaadin-text-field
+              data-testid="google-analytics-field"
               class="w-full"
               label=${this.t('ga_account_id')}
               placeholder="UA-1234567-1"
@@ -1150,6 +1151,7 @@ export class TemplateConfigForm extends Base<Data> {
             </vaadin-text-field>
 
             <x-checkbox
+              data-testid="google-analytics-check"
               ?disabled=${isDisabled}
               ?readonly=${isReadonly}
               ?checked=${gaConfig.include_on_site}

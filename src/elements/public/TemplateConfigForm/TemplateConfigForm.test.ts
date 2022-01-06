@@ -1,10 +1,10 @@
 import './index';
 
+import { Checkbox, Choice } from '../../private';
+import { CheckboxChangeEvent, ChoiceChangeEvent } from '../../private/events';
 import { Data, TemplateConfigJSON } from './types';
 import { expect, fixture, html } from '@open-wc/testing';
 
-import { Choice } from '../../private';
-import { ChoiceChangeEvent } from '../../private/events';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { TemplateConfigForm } from './TemplateConfigForm';
@@ -454,6 +454,273 @@ describe('TemplateConfigForm', () => {
 
       const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
       expect(json).to.have.property('checkout_type', 'default_guest');
+    });
+  });
+
+  describe('google-analytics', () => {
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'google-analytics')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'google-analytics')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes google-analytics', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form hiddencontrols="google-analytics"></foxy-template-config-form>
+      `);
+
+      expect(await getByTestId(element, 'google-analytics')).to.not.exist;
+    });
+
+    it('renders "google-analytics:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'google-analytics:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "google-analytics:before" slot with template "google-analytics:before" if available', async () => {
+      const type = 'google-analytics:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "google-analytics:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'google-analytics:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "google-analytics:after" slot with template "google-analytics:after" if available', async () => {
+      const type = 'google-analytics:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a field labelled with i18n key ga_account_id', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+
+      expect(field).to.have.attribute('label', 'ga_account_id');
+    });
+
+    it('renders a field explained with i18n key ga_account_id_explainer', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+
+      expect(field).to.have.attribute('helper-text', 'ga_account_id_explainer');
+    });
+
+    it('reflects the value of analytics_config.google_analytics.account_id from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.analytics_config.google_analytics.account_id = '123456';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+
+      expect(field).to.have.property('value', '123456');
+    });
+
+    it('reflects the value of analytics_config.google_analytics.include_on_site from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.analytics_config.google_analytics.include_on_site = true;
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const check = await getByTestId(control, 'google-analytics-check');
+
+      expect(check).to.have.attribute('checked');
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+      const check = await getByTestId(control, 'google-analytics-check');
+
+      expect(field).to.not.have.attribute('disabled');
+      expect(check).to.not.have.attribute('disabled');
+    });
+
+    it('is disabled when element is disabled', async () => {
+      const layout = html`<foxy-template-config-form disabled></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+      const check = await getByTestId(control, 'google-analytics-check');
+
+      expect(field).to.have.attribute('disabled');
+      expect(check).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes google-analytics', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form disabledcontrols="google-analytics"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+      const check = await getByTestId(control, 'google-analytics-check');
+
+      expect(field).to.have.attribute('disabled');
+      expect(check).to.have.attribute('disabled');
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+      const check = await getByTestId(control, 'google-analytics-check');
+
+      expect(field).to.not.have.attribute('readonly');
+      expect(check).to.not.have.attribute('readonly');
+    });
+
+    it('is readonly when element is readonly', async () => {
+      const layout = html`<foxy-template-config-form readonly></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+      const check = await getByTestId(control, 'google-analytics-check');
+
+      expect(field).to.have.attribute('readonly');
+      expect(check).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes google-analytics', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form readonlycontrols="google-analytics"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = await getByTestId(control, 'google-analytics-field');
+      const check = await getByTestId(control, 'google-analytics-check');
+
+      expect(field).to.have.attribute('readonly');
+      expect(check).to.have.attribute('readonly');
+    });
+
+    it('writes to analytics_config.google_analytics.account_id property of parsed form.json value on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = (await getByTestId(control, 'google-analytics-field')) as TextFieldElement;
+
+      field.value = '123456';
+      field.dispatchEvent(new CustomEvent('input'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+
+      expect(json).to.have.nested.property(
+        'analytics_config.google_analytics.account_id',
+        '123456'
+      );
+
+      expect(json).to.have.nested.property('analytics_config.google_analytics.usage', 'required');
+    });
+
+    it('writes to analytics_config.google_analytics.include_on_site property of parsed form.json value on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const check = (await getByTestId(control, 'google-analytics-check')) as Checkbox;
+
+      check.checked = true;
+      check.dispatchEvent(new CheckboxChangeEvent(true));
+
+      expect(JSON.parse(element.form.json as string)).to.have.nested.property(
+        'analytics_config.google_analytics.include_on_site',
+        true
+      );
+    });
+
+    it('switches analytics_config.google_analytics.usage property of parsed form.json to none when empty', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      let json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      json.analytics_config.google_analytics.account_id = '123456';
+      json.analytics_config.google_analytics.usage = 'required';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const field = (await getByTestId(control, 'google-analytics-field')) as TextFieldElement;
+
+      field.value = '';
+      field.dispatchEvent(new CustomEvent('input'));
+
+      json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('analytics_config.google_analytics.account_id', '');
+      expect(json).to.have.nested.property('analytics_config.google_analytics.usage', 'none');
+    });
+
+    it('renders translatable checkbox label and explainer', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const check = (await getByTestId(control, 'google-analytics-check')) as Checkbox;
+      const label = check.querySelector(`foxy-i18n[key="ga_include_on_site"]`);
+      const explainer = check.querySelector(`foxy-i18n[key="ga_include_on_site_explainer"]`);
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+
+      expect(explainer).to.exist;
+      expect(explainer).to.have.attribute('lang', 'es');
+      expect(explainer).to.have.attribute('ns', 'foo');
     });
   });
 
