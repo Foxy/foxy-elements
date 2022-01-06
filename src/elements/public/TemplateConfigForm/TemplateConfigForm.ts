@@ -1224,7 +1224,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderTroubleshooting(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.debug;
-    const isDisabled = this.disabledSelector.matches('troubleshooting', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('troubleshooting', true);
     const isReadonly = this.readonlySelector.matches('troubleshooting', true);
 
     return html`
