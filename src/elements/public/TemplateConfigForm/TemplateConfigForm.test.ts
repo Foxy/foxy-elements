@@ -243,6 +243,22 @@ describe('TemplateConfigForm', () => {
     });
   });
 
+  describe('foxycomplete', () => {
+    // TODO
+  });
+
+  describe('locations', () => {
+    // TODO
+  });
+
+  describe('hidden-fields', () => {
+    // TODO
+  });
+
+  describe('cards', () => {
+    // TODO
+  });
+
   describe('checkout-type', () => {
     it('is visible by default', async () => {
       const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
@@ -455,6 +471,635 @@ describe('TemplateConfigForm', () => {
       const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
       expect(json).to.have.property('checkout_type', 'default_guest');
     });
+  });
+
+  describe('consent', () => {
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'consent')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'consent')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes consent', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form hiddencontrols="consent"></foxy-template-config-form>
+      `);
+
+      expect(await getByTestId(element, 'consent')).to.not.exist;
+    });
+
+    it('renders "consent:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'consent:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "consent:before" slot with template "consent:before" if available', async () => {
+      const type = 'consent:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "consent:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'consent:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "consent:after" slot with template "consent:after" if available', async () => {
+      const type = 'consent:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a label with i18n key consent', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const label = await getByKey(control, 'consent');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    it('renders a TOS URL field with i18n label location_url', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-check')) as HTMLElement;
+      const field = check.querySelector('[data-testid="consent-tos-field"]') as TextFieldElement;
+
+      expect(field).to.have.attribute('label', 'location_url');
+    });
+
+    it('reflects the value of tos_checkbox_settings.usage (required) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.tos_checkbox_settings.usage = 'required';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const generalCheck = await getByTestId(control, 'consent-tos-check');
+      const requireCheck = await getByTestId(control, 'consent-tos-require-check');
+
+      expect(generalCheck).to.have.attribute('checked');
+      expect(requireCheck).to.have.attribute('checked');
+    });
+
+    it('reflects the value of tos_checkbox_settings.usage (optional) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.tos_checkbox_settings.usage = 'optional';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const generalCheck = await getByTestId(control, 'consent-tos-check');
+      const requireCheck = await getByTestId(control, 'consent-tos-require-check');
+
+      expect(generalCheck).to.have.attribute('checked');
+      expect(requireCheck).to.not.have.attribute('checked');
+    });
+
+    it('reflects the value of tos_checkbox_settings.usage (none) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.tos_checkbox_settings.usage = 'none';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const generalCheck = await getByTestId(control, 'consent-tos-check');
+      const requireCheck = await getByTestId(control, 'consent-tos-require-check');
+
+      expect(generalCheck).to.not.have.attribute('checked');
+      expect(requireCheck).to.not.have.attribute('checked');
+    });
+
+    it('reflects the value of tos_checkbox_settings.url from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.tos_checkbox_settings.url = 'Test';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-check')) as HTMLElement;
+      const field = check.querySelector('[data-testid="consent-tos-field"]') as TextFieldElement;
+
+      expect(field).to.have.property('value', 'Test');
+    });
+
+    it('reflects the value of tos_checkbox_settings.initial_state (checked) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.tos_checkbox_settings.initial_state = 'checked';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const generalCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const stateCheck = generalCheck.querySelector('[data-testid="consent-tos-state-check"]')!;
+
+      expect(stateCheck).to.have.attribute('checked');
+    });
+
+    it('reflects the value of tos_checkbox_settings.initial_state (unchecked) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.tos_checkbox_settings.initial_state = 'unchecked';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const generalCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const stateCheck = generalCheck.querySelector('[data-testid="consent-tos-state-check"]')!;
+
+      expect(stateCheck).to.not.have.attribute('checked');
+    });
+
+    it('reflects the value of newsletter_subscribe.usage (required) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.newsletter_subscribe.usage = 'required';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = await getByTestId(control, 'consent-mail-check');
+
+      expect(check).to.have.attribute('checked');
+    });
+
+    it('reflects the value of newsletter_subscribe.usage (none) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.newsletter_subscribe.usage = 'none';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = await getByTestId(control, 'consent-mail-check');
+
+      expect(check).to.not.have.attribute('checked');
+    });
+
+    it('reflects the value of eu_secure_data_transfer_consent.usage (required) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.eu_secure_data_transfer_consent.usage = 'required';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = await getByTestId(control, 'consent-sdta-check');
+
+      expect(check).to.have.attribute('checked');
+    });
+
+    it('reflects the value of eu_secure_data_transfer_consent.usage (none) from parsed form.json', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.eu_secure_data_transfer_consent.usage = 'none';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = await getByTestId(control, 'consent-sdta-check');
+
+      expect(check).to.not.have.attribute('checked');
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const tosCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const tosField = tosCheck.querySelector('[data-testid="consent-tos-field"]');
+      const tosRequireCheck = tosCheck.querySelector('[data-testid="consent-tos-require-check"]');
+      const tosStateCheck = tosCheck.querySelector('[data-testid="consent-tos-state-check"]');
+      const mailCheck = await getByTestId(control, 'consent-mail-check');
+      const sdtaCheck = await getByTestId(control, 'consent-sdta-check');
+
+      expect(tosCheck).to.not.have.attribute('disabled');
+      expect(tosField).to.not.have.attribute('disabled');
+      expect(tosRequireCheck).to.not.have.attribute('disabled');
+      expect(tosStateCheck).to.not.have.attribute('disabled');
+      expect(mailCheck).to.not.have.attribute('disabled');
+      expect(sdtaCheck).to.not.have.attribute('disabled');
+    });
+
+    it('is disabled when element is disabled', async () => {
+      const layout = html`<foxy-template-config-form disabled></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const tosCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const tosField = tosCheck.querySelector('[data-testid="consent-tos-field"]');
+      const tosRequireCheck = tosCheck.querySelector('[data-testid="consent-tos-require-check"]');
+      const tosStateCheck = tosCheck.querySelector('[data-testid="consent-tos-state-check"]');
+      const mailCheck = await getByTestId(control, 'consent-mail-check');
+      const sdtaCheck = await getByTestId(control, 'consent-sdta-check');
+
+      expect(tosCheck).to.have.attribute('disabled');
+      expect(tosField).to.have.attribute('disabled');
+      expect(tosRequireCheck).to.have.attribute('disabled');
+      expect(tosStateCheck).to.have.attribute('disabled');
+      expect(mailCheck).to.have.attribute('disabled');
+      expect(sdtaCheck).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes consent', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form disabledcontrols="consent"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const tosCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const tosField = tosCheck.querySelector('[data-testid="consent-tos-field"]');
+      const tosRequireCheck = tosCheck.querySelector('[data-testid="consent-tos-require-check"]');
+      const tosStateCheck = tosCheck.querySelector('[data-testid="consent-tos-state-check"]');
+      const mailCheck = await getByTestId(control, 'consent-mail-check');
+      const sdtaCheck = await getByTestId(control, 'consent-sdta-check');
+
+      expect(tosCheck).to.have.attribute('disabled');
+      expect(tosField).to.have.attribute('disabled');
+      expect(tosRequireCheck).to.have.attribute('disabled');
+      expect(tosStateCheck).to.have.attribute('disabled');
+      expect(mailCheck).to.have.attribute('disabled');
+      expect(sdtaCheck).to.have.attribute('disabled');
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const tosCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const tosField = tosCheck.querySelector('[data-testid="consent-tos-field"]');
+      const tosRequireCheck = tosCheck.querySelector('[data-testid="consent-tos-require-check"]');
+      const tosStateCheck = tosCheck.querySelector('[data-testid="consent-tos-state-check"]');
+      const mailCheck = await getByTestId(control, 'consent-mail-check');
+      const sdtaCheck = await getByTestId(control, 'consent-sdta-check');
+
+      expect(tosCheck).to.not.have.attribute('readonly');
+      expect(tosField).to.not.have.attribute('readonly');
+      expect(tosRequireCheck).to.not.have.attribute('readonly');
+      expect(tosStateCheck).to.not.have.attribute('readonly');
+      expect(mailCheck).to.not.have.attribute('readonly');
+      expect(sdtaCheck).to.not.have.attribute('readonly');
+    });
+
+    it('is readonly when element is readonly', async () => {
+      const layout = html`<foxy-template-config-form readonly></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const tosCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const tosField = tosCheck.querySelector('[data-testid="consent-tos-field"]');
+      const tosRequireCheck = tosCheck.querySelector('[data-testid="consent-tos-require-check"]');
+      const tosStateCheck = tosCheck.querySelector('[data-testid="consent-tos-state-check"]');
+      const mailCheck = await getByTestId(control, 'consent-mail-check');
+      const sdtaCheck = await getByTestId(control, 'consent-sdta-check');
+
+      expect(tosCheck).to.have.attribute('readonly');
+      expect(tosField).to.have.attribute('readonly');
+      expect(tosRequireCheck).to.have.attribute('readonly');
+      expect(tosStateCheck).to.have.attribute('readonly');
+      expect(mailCheck).to.have.attribute('readonly');
+      expect(sdtaCheck).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes consent', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form readonlycontrols="consent"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const tosCheck = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const tosField = tosCheck.querySelector('[data-testid="consent-tos-field"]');
+      const tosRequireCheck = tosCheck.querySelector('[data-testid="consent-tos-require-check"]');
+      const tosStateCheck = tosCheck.querySelector('[data-testid="consent-tos-state-check"]');
+      const mailCheck = await getByTestId(control, 'consent-mail-check');
+      const sdtaCheck = await getByTestId(control, 'consent-sdta-check');
+
+      expect(tosCheck).to.have.attribute('readonly');
+      expect(tosField).to.have.attribute('readonly');
+      expect(tosRequireCheck).to.have.attribute('readonly');
+      expect(tosStateCheck).to.have.attribute('readonly');
+      expect(mailCheck).to.have.attribute('readonly');
+      expect(sdtaCheck).to.have.attribute('readonly');
+    });
+
+    it('writes to tos_checkbox_settings.usage property of parsed form.json value on change (general, true)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+
+      check.checked = true;
+      check.dispatchEvent(new CheckboxChangeEvent(true));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('tos_checkbox_settings.usage', 'required');
+    });
+
+    it('writes to tos_checkbox_settings.usage property of parsed form.json value on change (general, false)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+
+      check.checked = false;
+      check.dispatchEvent(new CheckboxChangeEvent(false));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('tos_checkbox_settings.usage', 'none');
+    });
+
+    it('writes to tos_checkbox_settings.usage property of parsed form.json value on change (require, true)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-require-check')) as Checkbox;
+
+      check.checked = true;
+      check.dispatchEvent(new CheckboxChangeEvent(true));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('tos_checkbox_settings.usage', 'required');
+    });
+
+    it('writes to tos_checkbox_settings.usage property of parsed form.json value on change (require, false)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-require-check')) as Checkbox;
+
+      check.checked = false;
+      check.dispatchEvent(new CheckboxChangeEvent(false));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('tos_checkbox_settings.usage', 'optional');
+    });
+
+    it('writes to tos_checkbox_settings.url property of parsed form.json value on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const field = check.querySelector('[data-testid="consent-tos-field"]') as TextFieldElement;
+
+      field.value = 'Test';
+      field.dispatchEvent(new CustomEvent('input'));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('tos_checkbox_settings.url', 'Test');
+    });
+
+    it('writes to tos_checkbox_settings.initial_state property of parsed form.json value on change (true)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-state-check')) as Checkbox;
+
+      check.checked = true;
+      check.dispatchEvent(new CheckboxChangeEvent(true));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('tos_checkbox_settings.initial_state', 'checked');
+    });
+
+    it('writes to tos_checkbox_settings.initial_state property of parsed form.json value on change (false)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-state-check')) as Checkbox;
+
+      check.checked = false;
+      check.dispatchEvent(new CheckboxChangeEvent(false));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('tos_checkbox_settings.initial_state', 'unchecked');
+    });
+
+    it('writes to newsletter_subscribe.usage property of parsed form.json value on change (true)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-mail-check')) as Checkbox;
+
+      check.checked = true;
+      check.dispatchEvent(new CheckboxChangeEvent(true));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('newsletter_subscribe.usage', 'required');
+    });
+
+    it('writes to newsletter_subscribe.usage property of parsed form.json value on change (false)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-mail-check')) as Checkbox;
+
+      check.checked = false;
+      check.dispatchEvent(new CheckboxChangeEvent(false));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('newsletter_subscribe.usage', 'none');
+    });
+
+    it('writes to eu_secure_data_transfer_consent.usage property of parsed form.json value on change (true)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-sdta-check')) as Checkbox;
+
+      check.checked = true;
+      check.dispatchEvent(new CheckboxChangeEvent(true));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('eu_secure_data_transfer_consent.usage', 'required');
+    });
+
+    it('writes to eu_secure_data_transfer_consent.usage property of parsed form.json value on change (false)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-sdta-check')) as Checkbox;
+
+      check.checked = false;
+      check.dispatchEvent(new CheckboxChangeEvent(false));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('eu_secure_data_transfer_consent.usage', 'none');
+    });
+
+    it('renders translatable tos checkbox label and explainer', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-check')) as Checkbox;
+      const label = check.querySelector(`foxy-i18n[key="display_tos_link"]`);
+      const explainer = check.querySelector(`foxy-i18n[key="display_tos_link_explainer"]`);
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+
+      expect(explainer).to.exist;
+      expect(explainer).to.have.attribute('lang', 'es');
+      expect(explainer).to.have.attribute('ns', 'foo');
+    });
+
+    it('renders translatable "require TOS" checkbox label', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-require-check')) as Checkbox;
+      const label = check.querySelector(`foxy-i18n[key="require_consent"]`);
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    it('renders translatable "checked by default" checkbox label', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-tos-state-check')) as Checkbox;
+      const label = check.querySelector(`foxy-i18n[key="checked_by_default"]`);
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    it('renders translatable newsletter checkbox label and explainer', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-mail-check')) as Checkbox;
+      const label = check.querySelector(`foxy-i18n[key="newsletter_subscribe"]`);
+      const explainer = check.querySelector(`foxy-i18n[key="newsletter_subscribe_explainer"]`);
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+
+      expect(explainer).to.exist;
+      expect(explainer).to.have.attribute('lang', 'es');
+      expect(explainer).to.have.attribute('ns', 'foo');
+    });
+
+    it('renders translatable EU SDTA checkbox label and explainer', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'consent')) as HTMLElement;
+      const check = (await getByTestId(control, 'consent-sdta-check')) as Checkbox;
+      const label = check.querySelector(`foxy-i18n[key="display_sdta"]`);
+      const explainer = check.querySelector(`foxy-i18n[key="display_sdta_explainer"]`);
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+
+      expect(explainer).to.exist;
+      expect(explainer).to.have.attribute('lang', 'es');
+      expect(explainer).to.have.attribute('ns', 'foo');
+    });
+  });
+
+  describe('fields', () => {
+    // TODO
   });
 
   describe('google-analytics', () => {

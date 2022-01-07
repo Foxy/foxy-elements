@@ -853,7 +853,7 @@ export class TemplateConfigForm extends Base<Data> {
     const dividerStyle = 'margin-left: calc(1.125rem + (var(--lumo-space-m) * 2))';
 
     return html`
-      <div>
+      <div data-testid="consent">
         ${this.renderTemplateOrSlot('consent:before')}
 
         <x-group frame>
@@ -867,6 +867,7 @@ export class TemplateConfigForm extends Base<Data> {
           </foxy-i18n>
 
           <x-checkbox
+            data-testid="consent-tos-check"
             ?disabled=${isDisabled}
             ?readonly=${isReadonly}
             ?checked=${tosConfig.usage === 'required' || tosConfig.usage === 'optional'}
@@ -893,6 +894,7 @@ export class TemplateConfigForm extends Base<Data> {
 
             <div slot="content" ?hidden=${tosConfig.usage === 'none'}>
               <vaadin-text-field
+                data-testid="consent-tos-field"
                 label=${this.t('location_url')}
                 class="w-full mt-m"
                 placeholder="https://example.com/path/to/tos"
@@ -909,6 +911,7 @@ export class TemplateConfigForm extends Base<Data> {
 
               <div class="flex flex-wrap -mx-s -mb-s mt-s">
                 <x-checkbox
+                  data-testid="consent-tos-require-check"
                   class="m-s"
                   ?disabled=${isDisabled}
                   ?readonly=${isReadonly}
@@ -923,6 +926,7 @@ export class TemplateConfigForm extends Base<Data> {
                 </x-checkbox>
 
                 <x-checkbox
+                  data-testid="consent-tos-state-check"
                   class="m-s"
                   ?disabled=${isDisabled}
                   ?readonly=${isReadonly}
@@ -942,6 +946,7 @@ export class TemplateConfigForm extends Base<Data> {
           <div style=${dividerStyle} class="border-b border-contrast-10"></div>
 
           <x-checkbox
+            data-testid="consent-mail-check"
             ?disabled=${isDisabled}
             ?readonly=${isReadonly}
             ?checked=${mailConfig.usage === 'required'}
@@ -966,6 +971,7 @@ export class TemplateConfigForm extends Base<Data> {
           <div style=${dividerStyle} class="border-b border-contrast-10"></div>
 
           <x-checkbox
+            data-testid="consent-sdta-check"
             ?disabled=${isDisabled}
             ?readonly=${isReadonly}
             ?checked=${sdtaConfig.usage === 'required'}
