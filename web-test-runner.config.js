@@ -2,6 +2,7 @@ import webServerConfig from './web-dev-server.config.js';
 
 export default Object.assign({}, webServerConfig, {
   browserLogs: false,
+  testsFinishTimeout: 240000, // 4 minutes
 
   testFramework: {
     config: {
