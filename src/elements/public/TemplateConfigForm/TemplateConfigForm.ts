@@ -911,6 +911,7 @@ export class TemplateConfigForm extends Base<Data> {
                 <x-checkbox
                   class="m-s"
                   ?disabled=${isDisabled}
+                  ?readonly=${isReadonly}
                   ?checked=${tosConfig.usage === 'required'}
                   @change=${(evt: CheckboxChangeEvent) => {
                     tosConfig.usage = evt.detail ? 'required' : 'optional';
@@ -924,6 +925,7 @@ export class TemplateConfigForm extends Base<Data> {
                 <x-checkbox
                   class="m-s"
                   ?disabled=${isDisabled}
+                  ?readonly=${isReadonly}
                   ?checked=${tosConfig.initial_state === 'checked'}
                   @change=${(evt: CheckboxChangeEvent) => {
                     tosConfig.initial_state = evt.detail ? 'checked' : 'unchecked';
