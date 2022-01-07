@@ -5,6 +5,7 @@ import { CheckboxChangeEvent, ChoiceChangeEvent } from '../../private/events';
 import { Data, TemplateConfigJSON } from './types';
 import { expect, fixture, html } from '@open-wc/testing';
 
+import { I18n } from '../I18n';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { TemplateConfigForm } from './TemplateConfigForm';
@@ -1099,7 +1100,229 @@ describe('TemplateConfigForm', () => {
   });
 
   describe('fields', () => {
-    // TODO
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'fields')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'fields')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes fields', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form hiddencontrols="fields"></foxy-template-config-form>`
+      );
+
+      expect(await getByTestId(element, 'fields')).to.not.exist;
+    });
+
+    it('renders "fields:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'fields:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "fields:before" slot with template "fields:before" if available', async () => {
+      const type = 'fields:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "fields:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'fields:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "fields:after" slot with template "fields:after" if available', async () => {
+      const type = 'fields:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a group label with i18n key field_plural', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'fields')) as HTMLElement;
+      const label = await getByKey(control, 'field_plural');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    const options = {
+      cart_controls: ['enabled', 'disabled'],
+      coupon_entry: ['enabled', 'disabled'],
+      billing_first_name: ['default', 'optional', 'required', 'hidden'],
+      billing_last_name: ['default', 'optional', 'required', 'hidden'],
+      billing_company: ['default', 'optional', 'required', 'hidden'],
+      billing_tax_id: ['default', 'optional', 'required', 'hidden'],
+      billing_phone: ['default', 'optional', 'required', 'hidden'],
+      billing_address1: ['default', 'optional', 'required', 'hidden'],
+      billing_address2: ['default', 'optional', 'required', 'hidden'],
+      billing_city: ['default', 'optional', 'required', 'hidden'],
+      billing_region: ['default', 'optional', 'required', 'hidden'],
+      billing_postal_code: ['default', 'optional', 'required', 'hidden'],
+      billing_country: ['default', 'optional', 'required', 'hidden'],
+    };
+
+    Object.entries(options).map(([property, values]) => {
+      const key = property.replace('billing_', '');
+
+      it(`renders a label with i18n key ${key}`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+
+        element.lang = 'es';
+        element.ns = 'foo';
+
+        const control = (await getByTestId(element, 'fields')) as HTMLElement;
+        const label = control.querySelector(`label foxy-i18n[key="${key}"]`) as I18n;
+
+        expect(label).to.exist;
+        expect(label).to.have.attribute('lang', 'es');
+        expect(label).to.have.attribute('ns', 'foo');
+      });
+
+      it(`renders a select for ${property} field`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const control = (await getByTestId(element, 'fields')) as HTMLElement;
+        const select = (await getByTestId(control, `fields-${property}`)) as HTMLSelectElement;
+        const options = Array.from(select.options);
+
+        values.forEach(value => {
+          const option = options.find(o => o.value === value);
+          expect(option, `must have an option for "${value}" value`).to.exist;
+        });
+      });
+
+      values.forEach(value => {
+        it(`reflects a value of custom_checkout_field_requirements.${property} (${value})`, async () => {
+          const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+          const element = await fixture<TemplateConfigForm>(layout);
+          const data = await getTestData<Data>('./hapi/template_configs/0');
+          const json = JSON.parse(data.json);
+
+          json.custom_checkout_field_requirements[property] = value;
+          data.json = JSON.stringify(json);
+          element.data = data;
+
+          const control = (await getByTestId(element, 'fields')) as HTMLElement;
+          const select = (await getByTestId(control, `fields-${property}`)) as HTMLSelectElement;
+          const option = select.options[select.selectedIndex];
+
+          expect(option).to.have.attribute('value', value);
+        });
+
+        it(`writes to custom_checkout_field_requirements.${property} on change (${value})`, async () => {
+          const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+          const element = await fixture<TemplateConfigForm>(layout);
+          const control = (await getByTestId(element, 'fields')) as HTMLElement;
+          const select = (await getByTestId(control, `fields-${property}`)) as HTMLSelectElement;
+          const option = Array.from(select.options).find(o => o.value === value)!;
+
+          option.selected = true;
+          select.dispatchEvent(new Event('change'));
+
+          const json = JSON.parse(element.form.json as string);
+          const path = `custom_checkout_field_requirements.${property}`;
+
+          expect(json).to.have.nested.property(path, value);
+        });
+      });
+    });
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'fields')) as HTMLElement;
+      const selects = control.querySelectorAll('select');
+
+      selects.forEach(select => expect(select).to.not.have.attribute('disabled'));
+    });
+
+    it('is disabled when the form is disabled', async () => {
+      const layout = html`<foxy-template-config-form disabled></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'fields')) as HTMLElement;
+      const selects = control.querySelectorAll('select');
+
+      selects.forEach(select => expect(select).to.have.attribute('disabled'));
+    });
+
+    it('is disabled when disabledcontrols include fields', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form disabledcontrols="fields"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'fields')) as HTMLElement;
+      const selects = control.querySelectorAll('select');
+
+      selects.forEach(select => expect(select).to.have.attribute('disabled'));
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'fields')) as HTMLElement;
+      const selects = control.querySelectorAll('select');
+
+      selects.forEach(select => expect(select).to.not.have.attribute('readonly'));
+    });
+
+    it('is readonly when the form is readonly', async () => {
+      const layout = html`<foxy-template-config-form readonly></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'fields')) as HTMLElement;
+      const selects = control.querySelectorAll('select');
+
+      selects.forEach(select => expect(select).to.have.attribute('readonly'));
+    });
+
+    it('is readonly when readonlycontrols include fields', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form readonlycontrols="fields"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'fields')) as HTMLElement;
+      const selects = control.querySelectorAll('select');
+
+      selects.forEach(select => expect(select).to.have.attribute('readonly'));
+    });
   });
 
   describe('google-analytics', () => {

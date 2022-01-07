@@ -1021,7 +1021,7 @@ export class TemplateConfigForm extends Base<Data> {
     };
 
     return html`
-      <div>
+      <div data-testid="fields">
         ${this.renderTemplateOrSlot('fields:before')}
 
         <x-group frame>
@@ -1077,6 +1077,7 @@ export class TemplateConfigForm extends Base<Data> {
                     })}
                   >
                     <select
+                      data-testid="fields-${property}"
                       class=${classMap({
                         'h-s mr-xs text-right appearance-none bg-transparent font-medium': true,
                         'focus-outline-none cursor-pointer': !isDisabled,
