@@ -848,7 +848,7 @@ export class TemplateConfigForm extends Base<Data> {
     const tosConfig = json.tos_checkbox_settings;
     const mailConfig = json.newsletter_subscribe;
     const sdtaConfig = json.eu_secure_data_transfer_consent;
-    const isDisabled = this.disabledSelector.matches('consent', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('consent', true);
     const isReadonly = this.readonlySelector.matches('consent', true);
     const dividerStyle = 'margin-left: calc(1.125rem + (var(--lumo-space-m) * 2))';
 
