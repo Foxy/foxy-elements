@@ -988,7 +988,7 @@ export class TemplateConfigForm extends Base<Data> {
           </x-checkbox>
         </x-group>
 
-        ${this.renderTemplateOrSlot('consent:before')}
+        ${this.renderTemplateOrSlot('consent:after')}
       </div>
     `;
   }
