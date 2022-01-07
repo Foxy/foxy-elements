@@ -1001,7 +1001,7 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderFields(json: TemplateConfigJSON) {
     const { lang, ns } = this;
-    const isDisabled = this.disabledSelector.matches('fields', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('fields', true);
     const isReadonly = this.readonlySelector.matches('fields', true);
     const config = json.custom_checkout_field_requirements;
     const options = {
