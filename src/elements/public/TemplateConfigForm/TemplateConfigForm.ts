@@ -646,7 +646,7 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderCards(json: TemplateConfigJSON) {
     const { lang, ns } = this;
-    const isDisabled = this.disabledSelector.matches('cards', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('cards', true);
     const isReadonly = this.readonlySelector.matches('cards', true);
     const config = json.supported_payment_cards as string[];
 
