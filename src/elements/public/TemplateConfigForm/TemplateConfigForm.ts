@@ -724,6 +724,7 @@ export class TemplateConfigForm extends Base<Data> {
                         type="checkbox"
                         class="sr-only"
                         ?disabled=${isDisabled}
+                        ?readonly=${isReadonly}
                         ?checked=${isChecked}
                         @change=${(evt: Event) => {
                           if (isReadonly) return evt.preventDefault();
