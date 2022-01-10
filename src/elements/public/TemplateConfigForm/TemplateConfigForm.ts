@@ -676,7 +676,7 @@ export class TemplateConfigForm extends Base<Data> {
     };
 
     return html`
-      <div>
+      <div data-testid="cards">
         ${this.renderTemplateOrSlot('cards:before')}
 
         <div class="space-y-xs">
@@ -747,6 +747,7 @@ export class TemplateConfigForm extends Base<Data> {
 
             <div class="flex flex-wrap p-s border-t border-contrast-10">
               <x-checkbox
+                data-testid="cards-saved-check"
                 class="m-s"
                 ?disabled=${isDisabled || json.csc_requirements === 'new_cards_only'}
                 ?readonly=${isReadonly}
@@ -761,6 +762,7 @@ export class TemplateConfigForm extends Base<Data> {
               </x-checkbox>
 
               <x-checkbox
+                data-testid="cards-sso-check"
                 class="m-s"
                 ?disabled=${isDisabled}
                 ?readonly=${isReadonly}
