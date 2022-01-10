@@ -730,10 +730,10 @@ export class TemplateConfigForm extends Base<Data> {
                           if (isReadonly) return evt.preventDefault();
                           evt.stopPropagation();
 
-                          if (isChecked) {
-                            config.splice(config.indexOf(type), 1);
-                          } else {
+                          if ((evt.currentTarget as HTMLInputElement).checked) {
                             config.push(type);
+                          } else {
+                            config.splice(config.indexOf(type), 1);
                           }
 
                           this.edit({ json: JSON.stringify(json) });
