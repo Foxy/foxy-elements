@@ -416,6 +416,43 @@ describe('InternalCustomerPortalSubscriptions', () => {
               expect(text).to.have.attribute('ns', 'customer-portal');
             });
 
+            it('disables fx:sub_token_url link with ?cart=checkout&sub_restart=auto if subscription has ended', async () => {
+              const customer = await getTestData('./hapi/customers/0');
+              const settings = await getTestData('./portal/customer_portal_settings');
+              const element = await fixture<InternalCustomerPortalSubscriptions>(html`
+                <foxy-internal-customer-portal-subscriptions
+                  lang="es"
+                  ns="customer-portal"
+                  .customer=${customer}
+                  .settings=${settings}
+                  @fetch=${(evt: FetchEvent) => {
+                    const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                    evt.request.headers.set('Authorization', `Bearer ${token}`);
+                    router.handleEvent(evt);
+                  }}
+                >
+                </foxy-internal-customer-portal-subscriptions>
+              `);
+
+              const subscriptions = (await getByTestId(element, 'subscriptions')) as Element;
+              const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+              dialog.open = true;
+              dialog.href =
+                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+
+              const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+
+              form.data!.end_date = '2012-08-10T11:58:54-0700';
+              form.data = { ...form.data! };
+
+              const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+              const link = await getByTestId(sandbox, 'header:actions:update');
+
+              expect(link).to.have.attribute('disabled');
+            });
+
             it('hides header:actions:update if hiddencontrols matches "list:form:header:actions:update"', async () => {
               const customer = await getTestData('./hapi/customers/0');
               const settings = await getTestData('./portal/customer_portal_settings');
@@ -529,6 +566,43 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
               expect(text).to.have.attribute('lang', 'es');
               expect(text).to.have.attribute('ns', 'customer-portal');
+            });
+
+            it('disables fx:sub_token_url link with ?sub_cancel=true if subscription has an end date', async () => {
+              const customer = await getTestData('./hapi/customers/0');
+              const settings = await getTestData('./portal/customer_portal_settings');
+              const element = await fixture<InternalCustomerPortalSubscriptions>(html`
+                <foxy-internal-customer-portal-subscriptions
+                  lang="es"
+                  ns="customer-portal"
+                  .customer=${customer}
+                  .settings=${settings}
+                  @fetch=${(evt: FetchEvent) => {
+                    const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                    evt.request.headers.set('Authorization', `Bearer ${token}`);
+                    router.handleEvent(evt);
+                  }}
+                >
+                </foxy-internal-customer-portal-subscriptions>
+              `);
+
+              const subscriptions = (await getByTestId(element, 'subscriptions')) as Element;
+              const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+              dialog.open = true;
+              dialog.href =
+                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+
+              const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+
+              form.data!.end_date = '2012-08-10T11:58:54-0700';
+              form.data = { ...form.data! };
+
+              const sandbox = (await getByTestId(form, 'header:after')) as InternalSandbox;
+              const link = await getByTestId(sandbox, 'header:actions:end');
+
+              expect(link).to.have.attribute('disabled');
             });
 
             it('hides header:actions:end if hiddencontrols matches "list:form:header:actions:end"', async () => {
@@ -659,6 +733,44 @@ describe('InternalCustomerPortalSubscriptions', () => {
 
               expect(text).to.have.attribute('lang', 'es');
               expect(text).to.have.attribute('ns', 'customer-portal');
+            });
+
+            it('disables fx:sub_modification_url link if subscription has ended', async () => {
+              const customer = await getTestData('./hapi/customers/0');
+              const settings = await getTestData('./portal/customer_portal_settings');
+              const element = await fixture<InternalCustomerPortalSubscriptions>(html`
+                <foxy-internal-customer-portal-subscriptions
+                  lang="es"
+                  ns="customer-portal"
+                  .customer=${customer}
+                  .settings=${settings}
+                  @fetch=${(evt: FetchEvent) => {
+                    const token = `0-${Date.now() + Math.pow(10, 10)}`;
+                    evt.request.headers.set('Authorization', `Bearer ${token}`);
+                    router.handleEvent(evt);
+                  }}
+                >
+                </foxy-internal-customer-portal-subscriptions>
+              `);
+
+              const subscriptions = (await getByTestId(element, 'subscriptions')) as Element;
+              const dialog = (await getByTag(subscriptions, 'foxy-form-dialog')) as FormDialog;
+
+              dialog.open = true;
+              dialog.href =
+                'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+
+              const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
+              await waitUntil(() => form.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
+
+              form.data!.end_date = '2012-08-10T11:58:54-0700';
+              form.data = { ...form.data! };
+
+              const sandbox = (await getByTestId(form, 'items:actions:after')) as InternalSandbox;
+              const link = await getByTestId(sandbox, 'items:actions:update');
+
+              expect(link).to.be.instanceOf(InternalCustomerPortalLink);
+              expect(link).to.have.attribute('disabled');
             });
 
             it('hides items:actions:update if hiddencontrols matches "list:form:items:actions:update"', async () => {
