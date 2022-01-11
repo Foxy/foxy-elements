@@ -253,7 +253,350 @@ describe('TemplateConfigForm', () => {
   });
 
   describe('hidden-fields', () => {
-    // TODO
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'hidden-fields')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'hidden-fields')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes hidden-fields', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form hiddencontrols="hidden-fields"></foxy-template-config-form>`
+      );
+
+      expect(await getByTestId(element, 'hidden-fields')).to.not.exist;
+    });
+
+    it('renders "hidden-fields:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'hidden-fields:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "hidden-fields:before" slot with template "hidden-fields:before" if available', async () => {
+      const type = 'hidden-fields:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "hidden-fields:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'hidden-fields:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "hidden-fields:after" slot with template "hidden-fields:after" if available', async () => {
+      const type = 'hidden-fields:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a group label with i18n key hidden_fields', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      const label = await getByKey(control, 'hidden_fields');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    const builtIns = [
+      'show_product_weight',
+      'show_product_category',
+      'show_product_code',
+      'show_product_options',
+      'show_sub_frequency',
+      'show_sub_startdate',
+      'show_sub_nextdate',
+      'show_sub_enddate',
+    ] as const;
+
+    builtIns.forEach(name => {
+      it(`reflects the value of cart_display_config from parsed form.json (built-ins, hidden, ${name})`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+        json.cart_display_config.usage = 'required';
+        json.cart_display_config[name] = false;
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+        const list = (await getByTestId(control, 'hidden-fields-list')) as HTMLElement;
+        const item = Array.from(list.children).find(child => {
+          return !!child.querySelector(`foxy-i18n[key="${name.substring(5)}"]`);
+        });
+
+        expect(item).to.exist;
+      });
+
+      it(`reflects the value of cart_display_config from parsed form.json (built-ins, visible, ${name})`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+        json.cart_display_config.usage = 'required';
+        json.cart_display_config[name] = true;
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+        const list = (await getByTestId(control, 'hidden-fields-list')) as HTMLElement;
+        const item = Array.from(list.children).find(child => {
+          return !!child.querySelector(`foxy-i18n[key="${name.substring(5)}"]`);
+        });
+
+        expect(item).to.not.exist;
+      });
+
+      it(`writes to cart_display_config property of parsed form.json on delete (built-ins, ${name})`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+        json.cart_display_config.usage = 'required';
+        json.cart_display_config[name] = false;
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+        const list = (await getByTestId(control, 'hidden-fields-list')) as HTMLElement;
+        const item = Array.from(list.children).find(child => {
+          return !!child.querySelector(`foxy-i18n[key="${name.substring(5)}"]`);
+        }) as HTMLElement;
+
+        const button = item.querySelector('button[aria-label="delete"]') as HTMLButtonElement;
+        button.click();
+
+        const newJSON = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+        expect(newJSON).to.have.nested.property(`cart_display_config.${name}`, true);
+      });
+    });
+
+    it('reflects the value of cart_display_config from parsed form.json (custom)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      json.cart_display_config.usage = 'required';
+      json.cart_display_config.hidden_product_options = ['foo_test_field', 'bar_test_field'];
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      const list = (await getByTestId(control, 'hidden-fields-list')) as HTMLElement;
+      const items = Array.from(list.children);
+
+      json.cart_display_config.hidden_product_options.forEach(name => {
+        const item = items.find(child => child.textContent?.includes(name));
+        expect(item).to.exist;
+      });
+    });
+
+    it('writes to cart_display_config property of parsed form.json on delete (custom)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      json.cart_display_config.usage = 'required';
+      json.cart_display_config.hidden_product_options = ['foo_test_field', 'bar_test_field'];
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      const list = (await getByTestId(control, 'hidden-fields-list')) as HTMLElement;
+      const items = Array.from(list.children);
+
+      json.cart_display_config.hidden_product_options.forEach(name => {
+        const item = items.find(child => child.textContent?.includes(name)) as HTMLElement;
+        const button = item.querySelector('button[aria-label="delete"]') as HTMLButtonElement;
+        button.click();
+
+        const newJSON = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+        expect(newJSON.cart_display_config.hidden_product_options).to.not.include(name);
+      });
+    });
+
+    it('writes to cart_display_config property of parsed form.json on add (via button click)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      const list = (await getByTestId(control, 'hidden-fields-new')) as HTMLElement;
+      const input = list.querySelector('input') as HTMLInputElement;
+
+      input.value = 'foo_test_field';
+      input.dispatchEvent(new InputEvent('input'));
+
+      await element.updateComplete;
+      list.querySelector('button')!.click();
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+
+      expect(json).to.have.nested.property('cart_display_config.usage', 'required');
+      expect(json).to.have.nested.property('cart_display_config.hidden_product_options');
+      expect(json.cart_display_config.hidden_product_options).to.include('foo_test_field');
+    });
+
+    it('writes to cart_display_config property of parsed form.json on add (via enter press)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      const list = (await getByTestId(control, 'hidden-fields-new')) as HTMLElement;
+      const input = list.querySelector('input') as HTMLInputElement;
+
+      input.value = 'foo_test_field';
+      input.dispatchEvent(new InputEvent('input'));
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+
+      expect(json).to.have.nested.property('cart_display_config.usage', 'required');
+      expect(json).to.have.nested.property('cart_display_config.hidden_product_options');
+      expect(json.cart_display_config.hidden_product_options).to.include('foo_test_field');
+    });
+
+    it('is enabled by default', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+
+      control.querySelectorAll('input').forEach(input => {
+        input.value = 'Foo';
+        input.dispatchEvent(new InputEvent('input'));
+      });
+
+      await element.updateComplete;
+
+      control.querySelectorAll('button, input').forEach(node => {
+        expect(node).to.not.have.attribute('disabled');
+      });
+    });
+
+    it('disabled Add button when input is empty', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      const newField = (await getByTestId(control, 'hidden-fields-new')) as HTMLElement;
+      const newFieldButton = newField.querySelector('button');
+
+      expect(newFieldButton).to.have.attribute('disabled');
+    });
+
+    it('is disabled when the form is disabled', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form disabled></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+
+      control.querySelectorAll('input').forEach(input => {
+        input.value = 'Foo';
+        input.dispatchEvent(new InputEvent('input'));
+      });
+
+      await element.updateComplete;
+
+      control.querySelectorAll('button, input').forEach(node => {
+        expect(node).to.have.attribute('disabled');
+      });
+    });
+
+    it('is disabled when disabledcontrols include hidden-fields', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form
+          disabledcontrols="hidden-fields"
+        ></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+
+      control.querySelectorAll('input').forEach(input => {
+        input.value = 'Foo';
+        input.dispatchEvent(new InputEvent('input'));
+      });
+
+      await element.updateComplete;
+
+      control.querySelectorAll('button, input').forEach(node => {
+        expect(node).to.have.attribute('disabled');
+      });
+    });
+
+    it('is editable by default', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      control.querySelectorAll('input').forEach(node => {
+        expect(node).to.not.have.attribute('readonly');
+      });
+    });
+
+    it('is readonly when the form is readonly', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form readonly></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      control.querySelectorAll('input').forEach(node => {
+        expect(node).to.have.attribute('readonly');
+      });
+    });
+
+    it('is readonly when readonlycontrols include hidden-fields', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form
+          readonlycontrols="hidden-fields"
+        ></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'hidden-fields')) as HTMLElement;
+      control.querySelectorAll('input').forEach(node => {
+        expect(node).to.have.attribute('readonly');
+      });
+    });
   });
 
   describe('cards', () => {

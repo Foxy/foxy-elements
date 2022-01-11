@@ -537,7 +537,7 @@ export class TemplateConfigForm extends Base<Data> {
     const isAddButtonDisabled = isDisabled || !this.__addHiddenFieldInputValue;
 
     return html`
-      <div>
+      <div data-testid="hidden-fields">
         ${this.renderTemplateOrSlot('hidden-fields:before')}
 
         <x-group frame>
@@ -550,7 +550,7 @@ export class TemplateConfigForm extends Base<Data> {
           >
           </foxy-i18n>
 
-          <div class="divide-y divide-contrast-10">
+          <div class="divide-y divide-contrast-10" data-testid="hidden-fields-list">
             ${fields.map(field => {
               return html`
                 <div
@@ -565,6 +565,7 @@ export class TemplateConfigForm extends Base<Data> {
                     : html`<span>${field}</span>`}
 
                   <button
+                    aria-label=${this.t('delete')}
                     class=${classMap({
                       'w-xs h-xs rounded-full transition-colors': true,
                       'hover-bg-error-10 hover-text-error': !isDisabled,
@@ -594,6 +595,7 @@ export class TemplateConfigForm extends Base<Data> {
           </div>
 
           <div
+            data-testid="hidden-fields-new"
             style="border-radius: ${inputRadius.join(' ')}"
             class=${classMap({
               'h-m flex items-center ring-inset ring-primary-50 focus-within-ring-2': true,
