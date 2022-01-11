@@ -534,6 +534,7 @@ export class TemplateConfigForm extends Base<Data> {
 
     const radius = 'calc(var(--lumo-border-radius-l) / 1.2)';
     const inputRadius = fields.length === 0 ? [radius] : ['0', '0', radius, radius];
+    const isAddButtonDisabled = isDisabled || !this.__addHiddenFieldInputValue;
 
     return html`
       <div>
@@ -626,12 +627,12 @@ export class TemplateConfigForm extends Base<Data> {
               class=${classMap({
                 'w-xs h-xs mr-xs flex-shrink-0 ring-inset ring-success-50': true,
                 'flex items-center justify-center rounded-full transition-colors': true,
-                'bg-contrast-5 text-disabled cursor-default': !this.__addHiddenFieldInputValue,
-                'bg-success-10 text-success cursor-pointer': !!this.__addHiddenFieldInputValue,
-                'hover-bg-success hover-text-success-contrast': !!this.__addHiddenFieldInputValue,
-                'focus-outline-none focus-ring-2': !!this.__addHiddenFieldInputValue,
+                'bg-contrast-5 text-disabled cursor-default': isAddButtonDisabled,
+                'bg-success-10 text-success cursor-pointer': !isAddButtonDisabled,
+                'hover-bg-success hover-text-success-contrast': !isAddButtonDisabled,
+                'focus-outline-none focus-ring-2': !isAddButtonDisabled,
               })}
-              ?disabled=${!this.__addHiddenFieldInputValue}
+              ?disabled=${isAddButtonDisabled}
               @click=${addField}
             >
               <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>
