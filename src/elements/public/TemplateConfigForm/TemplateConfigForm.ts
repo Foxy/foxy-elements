@@ -608,6 +608,7 @@ export class TemplateConfigForm extends Base<Data> {
               list="hidden-fields-list"
               .value=${live(this.__addHiddenFieldInputValue)}
               ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
               @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && addField()}
               @input=${(evt: InputEvent) => {
                 this.__addHiddenFieldInputValue = (evt.currentTarget as HTMLInputElement).value;
