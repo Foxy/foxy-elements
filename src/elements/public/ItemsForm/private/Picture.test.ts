@@ -1,4 +1,5 @@
 import { elementUpdated, expect, fixture, html } from '@open-wc/testing';
+
 import { Picture } from './Picture';
 
 customElements.define('x-picture', Picture);
@@ -90,6 +91,17 @@ describe('Preview', () => {
 
       expect(picture).to.have.property('quantity', quantity);
       expect(picture).to.have.property('image', image);
+    });
+
+    it('renders a placeholder if image fails to load', async () => {
+      const image = 'https://i.dont.exist.local/example.jpg';
+      const template = html`<x-picture .quantity=${2} .image=${image}></x-picture>`;
+      const picture = await fixture<Picture>(template);
+      const images = picture.shadowRoot!.querySelectorAll('img');
+
+      images.forEach(image => image.dispatchEvent(new Event('error')));
+      await picture.updateComplete;
+      images.forEach(image => expect(image).to.have.property('src', Picture.placeholder));
     });
   });
 });
