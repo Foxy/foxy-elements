@@ -500,7 +500,7 @@ export class TemplateConfigForm extends Base<Data> {
     const suggestions = [] as string[];
     const fields = [] as string[];
     const config = json.cart_display_config;
-    const isDisabled = this.disabledSelector.matches('hidden-fields', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('hidden-fields', true);
     const isReadonly = this.readonlySelector.matches('hidden-fields', true);
 
     type FieldName = keyof Omit<
