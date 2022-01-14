@@ -213,28 +213,24 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderFoxycomplete(json: TemplateConfigJSON) {
     const { lang, ns } = this;
+
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('foxycomplete', true);
     const isReadonly = this.readonlySelector.matches('foxycomplete', true);
+    const config = json.foxycomplete;
     const items = ['combobox', 'search', 'disabled'];
-    const value =
-      json.foxycomplete.usage === 'none'
-        ? 'disabled'
-        : json.foxycomplete.show_combobox
-        ? 'combobox'
-        : 'search';
 
-    const renderFlagsCheckbox = () => html`
+    const value =
+      config.usage === 'none' ? 'disabled' : config.show_combobox ? 'combobox' : 'search';
+
+    const flagsCheckbox = html`
       <x-checkbox
+        data-testid="foxycomplete-flags-check"
         ?disabled=${isDisabled}
         ?readonly=${isReadonly}
-        ?checked=${json.foxycomplete.show_flags}
+        ?checked=${config.show_flags}
         @change=${(evt: CheckboxChangeEvent) => {
-          const newConfig: TemplateConfigJSON['foxycomplete'] = {
-            ...json.foxycomplete,
-            show_flags: evt.detail,
-          };
-
-          this.edit({ json: JSON.stringify({ ...json, foxycomplete: newConfig }) });
+          config.show_flags = evt.detail;
+          this.edit({ json: JSON.stringify(json) });
         }}
       >
         <foxy-i18n lang=${lang} key="show_country_flags" ns=${ns}></foxy-i18n>
@@ -242,7 +238,7 @@ export class TemplateConfigForm extends Base<Data> {
     `;
 
     return html`
-      <div>
+      <div data-testid="foxycomplete">
         ${this.renderTemplateOrSlot('foxycomplete:before')}
 
         <x-group frame>
@@ -256,20 +252,16 @@ export class TemplateConfigForm extends Base<Data> {
           </foxy-i18n>
 
           <x-choice
+            data-testid="foxycomplete-choice"
             .value=${value}
             .items=${items}
             ?disabled=${isDisabled}
             ?readonly=${isReadonly}
             @change=${(evt: Event) => {
               if (!(evt instanceof ChoiceChangeEvent)) return;
-
-              const newConfig: TemplateConfigJSON['foxycomplete'] = {
-                ...json.foxycomplete,
-                usage: evt.detail === 'disabled' ? 'none' : 'required',
-                show_combobox: evt.detail === 'combobox',
-              };
-
-              this.edit({ json: JSON.stringify({ ...json, foxycomplete: newConfig }) });
+              config.usage = evt.detail === 'disabled' ? 'none' : 'required';
+              config.show_combobox = evt.detail === 'combobox';
+              this.edit({ json: JSON.stringify(json) });
             }}
           >
             ${items.map(item => {
@@ -294,18 +286,15 @@ export class TemplateConfigForm extends Base<Data> {
 
                   return html`
                     <vaadin-text-field
+                      data-testid="foxycomplete-${action}-icon"
                       label=${this.t(`${action}_icon`)}
-                      .value=${json.foxycomplete[field]}
+                      .value=${config[field]}
                       ?disabled=${isDisabled}
                       ?readonly=${isReadonly}
+                      @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
                       @input=${(evt: CustomEvent) => {
-                        const target = evt.currentTarget as TextFieldElement;
-                        const newConfig: TemplateConfigJSON['foxycomplete'] = {
-                          ...json.foxycomplete,
-                          [field]: target.value,
-                        };
-
-                        this.edit({ json: JSON.stringify({ ...json, foxycomplete: newConfig }) });
+                        config[field] = (evt.currentTarget as TextFieldElement).value;
+                        this.edit({ json: JSON.stringify(json) });
                       }}
                     >
                     </vaadin-text-field>
@@ -313,25 +302,21 @@ export class TemplateConfigForm extends Base<Data> {
                 })}
               </div>
 
-              ${renderFlagsCheckbox()}
+              ${flagsCheckbox}
             </div>
 
-            <div slot="search" class="pb-s" ?hidden=${value !== 'search'}>
-              ${renderFlagsCheckbox()}
-            </div>
+            <div slot="search" class="pb-s" ?hidden=${value !== 'search'}>${flagsCheckbox}</div>
           </x-choice>
 
           <div class="border-t border-contrast-10 p-m">
             <x-checkbox
+              data-testid="foxycomplete-lookup-check"
               ?disabled=${isDisabled}
               ?readonly=${isReadonly}
               ?checked=${json.postal_code_lookup.usage === 'enabled'}
               @change=${(evt: CheckboxChangeEvent) => {
-                const newConfig: TemplateConfigJSON['postal_code_lookup'] = {
-                  usage: evt.detail ? 'enabled' : 'none',
-                };
-
-                this.edit({ json: JSON.stringify({ ...json, postal_code_lookup: newConfig }) });
+                json.postal_code_lookup.usage = evt.detail ? 'enabled' : 'none';
+                this.edit({ json: JSON.stringify(json) });
               }}
             >
               <foxy-i18n lang=${lang} key="enable_postcode_lookup" ns=${ns}></foxy-i18n>
