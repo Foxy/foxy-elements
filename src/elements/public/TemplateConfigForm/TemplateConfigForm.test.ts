@@ -15,6 +15,7 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('TemplateConfigForm', () => {
@@ -245,7 +246,450 @@ describe('TemplateConfigForm', () => {
   });
 
   describe('foxycomplete', () => {
-    // TODO
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'foxycomplete')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'foxycomplete')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes foxycomplete', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form hiddencontrols="foxycomplete"></foxy-template-config-form>`
+      );
+
+      expect(await getByTestId(element, 'foxycomplete')).to.not.exist;
+    });
+
+    it('renders "foxycomplete:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'foxycomplete:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "foxycomplete:before" slot with template "foxycomplete:before" if available', async () => {
+      const type = 'foxycomplete:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "foxycomplete:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'foxycomplete:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "foxycomplete:after" slot with template "foxycomplete:after" if available', async () => {
+      const type = 'foxycomplete:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders a group label with i18n key foxycomplete', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const label = await getByKey(control, 'foxycomplete');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    it('renders a choice of foxycomplete configurations', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+
+      expect(choice).to.exist;
+      expect(choice).to.have.deep.property('items', ['combobox', 'search', 'disabled']);
+    });
+
+    it('selects "disabled" if foxycomplete.usage from parsed form.json is "none"', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.foxycomplete.usage = 'none';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+
+      expect(choice).to.have.property('value', 'disabled');
+    });
+
+    it('selects "combobox" if foxycomplete.usage from parsed form.json is "required" and foxycomplete.show_combobox is true', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.foxycomplete.usage = 'required';
+      json.foxycomplete.show_combobox = true;
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+
+      expect(choice).to.have.property('value', 'combobox');
+    });
+
+    it('selects "search" if foxycomplete.usage from parsed form.json is "required" and foxycomplete.show_combobox is false', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      element.data = data;
+      json.foxycomplete.usage = 'required';
+      json.foxycomplete.show_combobox = false;
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+
+      expect(choice).to.have.property('value', 'search');
+    });
+
+    const interactiveControlIds = [
+      'foxycomplete-choice',
+      'foxycomplete-open-icon',
+      'foxycomplete-close-icon',
+      'foxycomplete-lookup-check',
+      'foxycomplete-flags-check',
+    ];
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        expect(await getByTestId(control, id)).to.not.have.attribute('disabled');
+      }
+    });
+
+    it('is disabled when form is disabled', async () => {
+      const layout = html`<foxy-template-config-form disabled></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        expect(await getByTestId(control, id)).to.have.attribute('disabled');
+      }
+    });
+
+    it('is disabled when disabledcontrols includes foxycomplete', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form disabledcontrols="foxycomplete"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        expect(await getByTestId(control, id)).to.have.attribute('disabled');
+      }
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        expect(await getByTestId(control, id)).to.not.have.attribute('readonly');
+      }
+    });
+
+    it('is readonly when form is readonly', async () => {
+      const layout = html`<foxy-template-config-form readonly></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        expect(await getByTestId(control, id)).to.have.attribute('readonly');
+      }
+    });
+
+    it('is readonly when readonlycontrols includes foxycomplete', async () => {
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form readonlycontrols="foxycomplete"></foxy-template-config-form>
+      `);
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        expect(await getByTestId(control, id)).to.have.attribute('readonly');
+      }
+    });
+
+    it('writes to foxycomplete property of parsed form.json value on change (combobox)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+
+      choice.value = 'combobox';
+      choice.dispatchEvent(new ChoiceChangeEvent('combobox'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('foxycomplete.usage', 'required');
+      expect(json).to.have.nested.property('foxycomplete.show_combobox', true);
+    });
+
+    it('writes to foxycomplete property of parsed form.json value on change (search)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+
+      choice.value = 'search';
+      choice.dispatchEvent(new ChoiceChangeEvent('search'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('foxycomplete.usage', 'required');
+      expect(json).to.have.nested.property('foxycomplete.show_combobox', false);
+    });
+
+    it('writes to foxycomplete property of parsed form.json value on change (disabled)', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+
+      choice.value = 'disabled';
+      choice.dispatchEvent(new ChoiceChangeEvent('disabled'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('foxycomplete.usage', 'none');
+    });
+
+    ['combobox', 'search', 'disabled'].forEach(type => {
+      it(`renders i18n label and explainer for ${type} foxycomplete config`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+
+        element.lang = 'es';
+        element.ns = 'foo';
+
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const choice = (await getByTestId(control, 'foxycomplete-choice')) as Choice;
+        const wrapper = choice.querySelector(`[slot="${type}-label"]`) as HTMLElement;
+        const label = await getByKey(wrapper, `foxycomplete_${type}`);
+        const explainer = await getByKey(wrapper, `foxycomplete_${type}_explainer`);
+
+        expect(label).to.exist;
+        expect(label).to.have.attribute('lang', 'es');
+        expect(label).to.have.attribute('ns', 'foo');
+
+        expect(explainer).to.exist;
+        expect(explainer).to.have.attribute('lang', 'es');
+        expect(explainer).to.have.attribute('ns', 'foo');
+      });
+    });
+
+    ['open', 'close'].forEach(action => {
+      it(`renders a text field with i18n label ${action}_icon`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const field = await getByTestId(control, `foxycomplete-${action}-icon`);
+
+        expect(field).to.have.attribute('label', `${action}_icon`);
+      });
+
+      it(`reflects the value of foxycomplete.combobox_${action} of parsed form.json`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json);
+
+        element.data = data;
+        json.foxycomplete[`combobox_${action}`] = 'Test';
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const field = await getByTestId(control, `foxycomplete-${action}-icon`);
+
+        expect(field).to.have.property('value', 'Test');
+      });
+
+      it(`writes to foxycomplete.combobox_${action} of parsed form.json on input`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const field = (await getByTestId(
+          control,
+          `foxycomplete-${action}-icon`
+        )) as TextFieldElement;
+
+        field.value = 'Test';
+        field.dispatchEvent(new CustomEvent('input'));
+
+        const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+        expect(json).to.have.nested.property(`foxycomplete.combobox_${action}`, 'Test');
+      });
+
+      it(`submits a valid form on enter (${action} icon field)`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const submit = stub(element, 'submit');
+
+        element.data = await getTestData('./hapi/template_configs/0');
+
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const field = (await getByTestId(
+          control,
+          `foxycomplete-${action}-icon`
+        )) as TextFieldElement;
+
+        field.value = 'Test';
+        field.dispatchEvent(new CustomEvent('input'));
+        field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
+
+        expect(submit).to.have.been.called;
+      });
+    });
+
+    it('renders a checkbox with i18n label show_country_flags', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const check = await getByTestId(control, 'foxycomplete-flags-check');
+
+      expect(check).to.exist;
+      expect(check).to.be.instanceOf(Checkbox);
+
+      const label = check?.querySelector('foxy-i18n[key="show_country_flags"]');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    [true, false].forEach(state => {
+      it(`reflects the value of foxycomplete.show_flags (${state}) of parsed form.json`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+        json.foxycomplete.show_flags = state;
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const check = await getByTestId(control, 'foxycomplete-flags-check');
+
+        expect(check).to.have.property('checked', state);
+      });
+
+      it(`writes to foxycomplete.show_flags of parsed form.json (value: ${state})`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const check = (await getByTestId(control, 'foxycomplete-flags-check')) as Checkbox;
+
+        check.checked = state;
+        check.dispatchEvent(new CheckboxChangeEvent(state));
+
+        const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+        expect(json).to.have.nested.property('foxycomplete.show_flags', state);
+      });
+    });
+
+    it('renders a checkbox with i18n label enable_postcode_lookup', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+      const check = await getByTestId(control, 'foxycomplete-lookup-check');
+
+      expect(check).to.exist;
+      expect(check).to.be.instanceOf(Checkbox);
+
+      const label = check?.querySelector('foxy-i18n[key="enable_postcode_lookup"]');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'foo');
+    });
+
+    [true, false].forEach(state => {
+      it(`reflects the value of postal_code_lookup.usage (${state}) of parsed form.json`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+        json.postal_code_lookup.usage = state ? 'enabled' : 'none';
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const check = await getByTestId(control, 'foxycomplete-lookup-check');
+
+        expect(check).to.have.property('checked', state);
+      });
+
+      it(`writes to postal_code_lookup.usage of parsed form.json (value: ${state})`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const control = (await getByTestId(element, 'foxycomplete')) as HTMLElement;
+        const check = (await getByTestId(control, 'foxycomplete-lookup-check')) as Checkbox;
+
+        check.checked = state;
+        check.dispatchEvent(new CheckboxChangeEvent(state));
+
+        const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+        const expectedValue = state ? 'enabled' : 'none';
+
+        expect(json).to.have.nested.property('postal_code_lookup.usage', expectedValue);
+      });
+    });
   });
 
   describe('locations', () => {
