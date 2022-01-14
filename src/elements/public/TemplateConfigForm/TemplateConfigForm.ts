@@ -213,7 +213,7 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __renderFoxycomplete(json: TemplateConfigJSON) {
     const { lang, ns } = this;
-    const isDisabled = this.disabledSelector.matches('foxycomplete', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('foxycomplete', true);
     const isReadonly = this.readonlySelector.matches('foxycomplete', true);
     const items = ['combobox', 'search', 'disabled'];
     const value =
