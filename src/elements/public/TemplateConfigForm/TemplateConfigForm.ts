@@ -332,7 +332,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderLocations(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.location_filtering;
-    const isDisabled = this.disabledSelector.matches('locations', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('locations', true);
     const isReadonly = this.readonlySelector.matches('locations', true);
 
     const shippingChoice = config.shipping_filter_type === 'blacklist' ? 'block' : 'allow';
