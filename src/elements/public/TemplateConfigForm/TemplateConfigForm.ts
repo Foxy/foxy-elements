@@ -364,119 +364,122 @@ export class TemplateConfigForm extends Base<Data> {
     };
 
     return html`
-      ${this.renderTemplateOrSlot('locations:before')}
+      <div data-testid="locations">
+        ${this.renderTemplateOrSlot('locations:before')}
 
-      <x-group frame>
-        <foxy-i18n
-          class=${isDisabled ? 'text-disabled' : ''}
-          slot="header"
-          lang=${lang}
-          key="location_plural"
-          ns=${ns}
-        >
-        </foxy-i18n>
+        <x-group frame>
+          <foxy-i18n
+            class=${isDisabled ? 'text-disabled' : ''}
+            slot="header"
+            lang=${lang}
+            key="location_plural"
+            ns=${ns}
+          >
+          </foxy-i18n>
 
-        <div class="grid sm-grid-cols-2 bg-contrast-10" style="gap: 1px">
-          <x-group class="bg-base pt-m">
-            <foxy-i18n
-              class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
-              slot="header"
-              lang=${lang}
-              key="shipping"
-              ns=${ns}
-            >
-            </foxy-i18n>
-
-            <x-choice
-              .items=${['allow', 'block']}
-              .value=${shippingChoice}
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              @change=${(evt: ChoiceChangeEvent) => {
-                if (config.usage !== 'both') config.usage = 'independent';
-                config.shipping_filter_type = evt.detail === 'block' ? 'blacklist' : 'whitelist';
-                normalize();
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-              <foxy-i18n slot="allow-label" lang=${lang} key="allowlist" ns=${ns}></foxy-i18n>
-              <foxy-i18n slot="block-label" lang=${lang} key="blocklist" ns=${ns}></foxy-i18n>
-
-              <x-countries-list
-                countries=${JSON.stringify(config.shipping_filter_values)}
-                regions=${this.regions}
-                class="mb-m"
-                href=${this.countries}
-                slot=${shippingChoice}
+          <div class="grid sm-grid-cols-2 bg-contrast-10" style="gap: 1px">
+            <x-group class="bg-base pt-m">
+              <foxy-i18n
+                class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
+                slot="header"
                 lang=${lang}
+                key="shipping"
                 ns=${ns}
+              >
+              </foxy-i18n>
+
+              <x-choice
+                .items=${['allow', 'block']}
+                .value=${shippingChoice}
                 ?disabled=${isDisabled}
                 ?readonly=${isReadonly}
-                @update:countries=${(evt: CustomEvent) => {
-                  config.shipping_filter_values = (evt.currentTarget as CountriesList).countries;
+                @change=${(evt: ChoiceChangeEvent) => {
+                  if (config.usage !== 'both') config.usage = 'independent';
+                  config.shipping_filter_type = evt.detail === 'block' ? 'blacklist' : 'whitelist';
                   normalize();
                   this.edit({ json: JSON.stringify(json) });
                 }}
               >
-              </x-countries-list>
-            </x-choice>
-          </x-group>
+                <foxy-i18n slot="allow-label" lang=${lang} key="allowlist" ns=${ns}></foxy-i18n>
+                <foxy-i18n slot="block-label" lang=${lang} key="blocklist" ns=${ns}></foxy-i18n>
 
-          <x-group class="bg-base pt-m">
-            <foxy-i18n
-              class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
-              slot="header"
-              lang=${lang}
-              key="billing"
-              ns=${ns}
-            >
-            </foxy-i18n>
+                <x-countries-list
+                  countries=${JSON.stringify(config.shipping_filter_values)}
+                  regions=${this.regions}
+                  class="mb-m"
+                  href=${this.countries}
+                  slot=${shippingChoice}
+                  lang=${lang}
+                  ns=${ns}
+                  ?disabled=${isDisabled}
+                  ?readonly=${isReadonly}
+                  @update:countries=${(evt: CustomEvent) => {
+                    config.shipping_filter_values = (evt.currentTarget as CountriesList).countries;
+                    normalize();
+                    this.edit({ json: JSON.stringify(json) });
+                  }}
+                >
+                </x-countries-list>
+              </x-choice>
+            </x-group>
 
-            <x-choice
-              .items=${['allow', 'block', 'copy']}
-              .value=${billingChoice}
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              @change=${(evt: ChoiceChangeEvent) => {
-                if (evt.detail === 'copy') {
-                  config.usage = 'both';
-                } else {
-                  config.usage = 'independent';
-                  config.billing_filter_type = evt.detail === 'block' ? 'blacklist' : 'whitelist';
-                }
-
-                normalize();
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-              <foxy-i18n slot="allow-label" lang=${lang} key="allowlist" ns=${ns}></foxy-i18n>
-              <foxy-i18n slot="block-label" lang=${lang} key="blocklist" ns=${ns}></foxy-i18n>
-              <foxy-i18n slot="copy-label" lang=${lang} key="same_as_shipping" ns=${ns}></foxy-i18n>
-
-              <x-countries-list
-                countries=${JSON.stringify(config.billing_filter_values)}
-                regions=${this.regions}
-                class="mb-m"
-                href=${this.countries}
-                slot=${billingChoice}
+            <x-group class="bg-base pt-m">
+              <foxy-i18n
+                class=${isDisabled ? 'text-disabled' : 'text-tertiary'}
+                slot="header"
                 lang=${lang}
+                key="billing"
                 ns=${ns}
+              >
+              </foxy-i18n>
+
+              <x-choice
+                .items=${['allow', 'block', 'copy']}
+                .value=${billingChoice}
                 ?disabled=${isDisabled}
                 ?readonly=${isReadonly}
-                ?hidden=${billingChoice === 'copy'}
-                @update:countries=${(evt: CustomEvent) => {
-                  config.billing_filter_values = (evt.currentTarget as CountriesList).countries;
+                @change=${(evt: ChoiceChangeEvent) => {
+                  if (evt.detail === 'copy') {
+                    config.usage = 'both';
+                  } else {
+                    config.usage = 'independent';
+                    config.billing_filter_type = evt.detail === 'block' ? 'blacklist' : 'whitelist';
+                  }
+
                   normalize();
                   this.edit({ json: JSON.stringify(json) });
                 }}
               >
-              </x-countries-list>
-            </x-choice>
-          </x-group>
-        </div>
-      </x-group>
+                <foxy-i18n slot="allow-label" lang=${lang} key="allowlist" ns=${ns}></foxy-i18n>
+                <foxy-i18n slot="block-label" lang=${lang} key="blocklist" ns=${ns}></foxy-i18n>
+                <foxy-i18n slot="copy-label" lang=${lang} key="same_as_shipping" ns=${ns}>
+                </foxy-i18n>
 
-      ${this.renderTemplateOrSlot('locations:after')}
+                <x-countries-list
+                  countries=${JSON.stringify(config.billing_filter_values)}
+                  regions=${this.regions}
+                  class="mb-m"
+                  href=${this.countries}
+                  slot=${billingChoice}
+                  lang=${lang}
+                  ns=${ns}
+                  ?disabled=${isDisabled}
+                  ?readonly=${isReadonly}
+                  ?hidden=${billingChoice === 'copy'}
+                  @update:countries=${(evt: CustomEvent) => {
+                    config.billing_filter_values = (evt.currentTarget as CountriesList).countries;
+                    normalize();
+                    this.edit({ json: JSON.stringify(json) });
+                  }}
+                >
+                </x-countries-list>
+              </x-choice>
+            </x-group>
+          </div>
+        </x-group>
+
+        ${this.renderTemplateOrSlot('locations:after')}
+      </div>
     `;
   }
 
