@@ -224,7 +224,7 @@ export const TranslatableMixin = <T extends Base>(
         `shared:${key}`,
       ];
 
-      return I18nElement.i18next.t(keys, options).toString();
+      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();
     };
 
     private __untrackTranslations?: () => void;
