@@ -5,6 +5,7 @@ import { CheckboxChangeEvent, ChoiceChangeEvent } from '../../private/events';
 import { Data, TemplateConfigJSON } from './types';
 import { expect, fixture, html } from '@open-wc/testing';
 
+import { CountriesList } from './CountriesList';
 import { I18n } from '../I18n';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -693,7 +694,492 @@ describe('TemplateConfigForm', () => {
   });
 
   describe('locations', () => {
-    // TODO
+    it('is visible by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'locations')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-template-config-form hidden></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      expect(await getByTestId(element, 'locations')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes locations', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form hiddencontrols="locations"></foxy-template-config-form>`
+      );
+
+      expect(await getByTestId(element, 'locations')).to.not.exist;
+    });
+
+    it('renders "locations:before" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'locations:before');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "locations:before" slot with template "locations:before" if available', async () => {
+      const type = 'locations:before';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "locations:after" slot by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const slot = await getByName(element, 'locations:after');
+
+      expect(slot).to.be.instanceOf(HTMLSlotElement);
+    });
+
+    it('replaces "locations:after" slot with template "locations:after" if available', async () => {
+      const type = 'locations:after';
+      const value = `<p>Value of the "${type}" template.</p>`;
+      const element = await fixture<TemplateConfigForm>(html`
+        <foxy-template-config-form>
+          <template slot=${type}>${unsafeHTML(value)}</template>
+        </foxy-template-config-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, type);
+      const sandbox = (await getByTestId<InternalSandbox>(element, type))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    ['location_plural', 'shipping', 'billing'].forEach(key => {
+      it(`renders a group label with i18n key ${key}`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+
+        element.lang = 'es';
+        element.ns = 'foo';
+
+        const control = (await getByTestId(element, 'locations')) as HTMLElement;
+        const label = await getByKey(control, key);
+
+        expect(label).to.exist;
+        expect(label).to.have.attribute('lang', 'es');
+        expect(label).to.have.attribute('ns', 'foo');
+      });
+    });
+
+    const interactiveControlIds = [
+      'locations-shipping-choice',
+      'locations-shipping-list',
+      'locations-billing-choice',
+      'locations-billing-list',
+    ];
+
+    it('is enabled by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        const node = await getByTestId(control, id);
+        expect(node, `${id} must not be disabled`).to.not.have.attribute('disabled');
+      }
+    });
+
+    it('is disabled when form is disabled', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form disabled></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        const node = await getByTestId(control, id);
+        expect(node, `${id} must be disabled`).to.have.attribute('disabled');
+      }
+    });
+
+    it('is disabled when disabledcontrols includes locations', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form disabledcontrols="locations"></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        const node = await getByTestId(control, id);
+        expect(node, `${id} must be disabled`).to.have.attribute('disabled');
+      }
+    });
+
+    it('is editable by default', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        const node = await getByTestId(control, id);
+        expect(node, `${id} must not be readonly`).to.not.have.attribute('readonly');
+      }
+    });
+
+    it('is readonly when form is readonly', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form readonly></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        const node = await getByTestId(control, id);
+        expect(node, `${id} must be readonly`).to.have.attribute('readonly');
+      }
+    });
+
+    it('is readonly when readonlycontrols includes locations', async () => {
+      const element = await fixture<TemplateConfigForm>(
+        html`<foxy-template-config-form readonlycontrols="locations"></foxy-template-config-form>`
+      );
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+
+      for (const id of interactiveControlIds) {
+        const node = await getByTestId(control, id);
+        expect(node, `${id} must be readonly`).to.have.attribute('readonly');
+      }
+    });
+
+    it('renders a choice of shipping filter configurations', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const choice = (await getByTestId(control, 'locations-shipping-choice')) as Choice;
+
+      expect(choice).to.exist;
+      expect(choice).to.have.deep.property('items', ['allow', 'block']);
+    });
+
+    [
+      ['block', 'blacklist', 'blocklist'],
+      ['allow', 'whitelist', 'allowlist'],
+    ].forEach(([choiceValue, apiValue, labelKey]) => {
+      it(`selects "${choiceValue}" shipping filter configuration if location_filtering.shipping_filter_type of parsed form.json is "${apiValue}"`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json);
+
+        element.data = data;
+        json.location_filtering.shipping_filter_type = apiValue;
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'locations')) as HTMLElement;
+        const choice = (await getByTestId(control, 'locations-shipping-choice')) as Choice;
+
+        expect(choice).to.have.property('value', choiceValue);
+      });
+
+      it(`sets location_filtering.shipping_filter_type property of parsed form.json to "${apiValue}" when "${choiceValue}" is selected`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const control = (await getByTestId(element, 'locations')) as HTMLElement;
+        const choice = (await getByTestId(control, 'locations-shipping-choice')) as Choice;
+
+        choice.value = choiceValue;
+        choice.dispatchEvent(new ChoiceChangeEvent(choiceValue));
+
+        const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+        expect(json).to.have.nested.property('location_filtering.shipping_filter_type', apiValue);
+      });
+
+      it(`renders an i18n label for choice option "${choiceValue}" with the "${labelKey}" key`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+
+        element.lang = 'es';
+        element.ns = 'foo';
+
+        const control = (await getByTestId(element, 'locations')) as HTMLElement;
+        const choice = (await getByTestId(control, 'locations-shipping-choice')) as Choice;
+        const label = choice.querySelector(`foxy-i18n[slot="${choiceValue}-label"]`);
+
+        expect(label).to.exist;
+        expect(label).to.have.attribute('lang', 'es');
+        expect(label).to.have.attribute('key', labelKey);
+        expect(label).to.have.attribute('ns', 'foo');
+      });
+    });
+
+    it('renders a CountriesList for shipping filter values', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      json.location_filtering.shipping_filter_values = { US: ['AL', 'TX'], RU: '*' };
+      element.edit({ json: JSON.stringify(json) });
+
+      element.countries = 'test://countries';
+      element.regions = 'test://regions';
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const list = await getByTestId(control, 'locations-shipping-list');
+
+      expect(list).to.be.instanceOf(CountriesList);
+      expect(list).to.have.attribute('countries', JSON.stringify({ US: ['AL', 'TX'], RU: '*' }));
+      expect(list).to.have.attribute('regions', 'test://regions');
+      expect(list).to.have.attribute('href', 'test://countries');
+      expect(list).to.have.attribute('lang', 'es');
+      expect(list).to.have.attribute('ns', 'foo');
+    });
+
+    it('sets shipping filter values on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const list = (await getByTestId(control, 'locations-shipping-list')) as CountriesList;
+
+      list.countries = { US: ['AL', 'TX'], RU: '*' };
+      list.dispatchEvent(new CustomEvent('update:countries'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.deep.nested.property('location_filtering.shipping_filter_values', {
+        US: ['AL', 'TX'],
+        RU: '*',
+      });
+    });
+
+    it('renders a choice of billing filter configurations', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const choice = (await getByTestId(control, 'locations-billing-choice')) as Choice;
+
+      expect(choice).to.exist;
+      expect(choice).to.have.deep.property('items', ['allow', 'block', 'copy']);
+    });
+
+    it('selects "copy" billing filter configuration if location_filtering.usage of parsed form.json is "both"', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json);
+
+      element.data = data;
+      json.location_filtering.usage = 'both';
+      element.edit({ json: JSON.stringify(json) });
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const choice = (await getByTestId(control, 'locations-billing-choice')) as Choice;
+
+      expect(choice).to.have.property('value', 'copy');
+    });
+
+    ['none', 'shipping', 'billing', 'independent'].forEach(type => {
+      it(`selects "block" billing filter configuration if location_filtering.usage of parsed form.json is "${type}" and location_filtering.billing_filter_type is "blacklist"`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json);
+
+        json.location_filtering.billing_filter_type = 'blacklist';
+        json.location_filtering.usage = type;
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'locations')) as HTMLElement;
+        const choice = (await getByTestId(control, 'locations-billing-choice')) as Choice;
+
+        expect(choice).to.have.property('value', 'block');
+      });
+
+      it(`selects "allow" billing filter configuration if location_filtering.usage of parsed form.json is "${type}" and location_filtering.billing_filter_type is "whitelist"`, async () => {
+        const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+        const element = await fixture<TemplateConfigForm>(layout);
+        const data = await getTestData<Data>('./hapi/template_configs/0');
+        const json = JSON.parse(data.json);
+
+        json.location_filtering.billing_filter_type = 'whitelist';
+        json.location_filtering.usage = type;
+        element.edit({ json: JSON.stringify(json) });
+
+        const control = (await getByTestId(element, 'locations')) as HTMLElement;
+        const choice = (await getByTestId(control, 'locations-billing-choice')) as Choice;
+
+        expect(choice).to.have.property('value', 'allow');
+      });
+    });
+
+    it('sets location_filtering.billing_filter_type property of parsed form.json to "blacklist" when "block" is selected', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const choice = (await getByTestId(control, 'locations-billing-choice')) as Choice;
+
+      choice.value = 'block';
+      choice.dispatchEvent(new ChoiceChangeEvent('block'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('location_filtering.billing_filter_type', 'blacklist');
+    });
+
+    it('sets location_filtering.billing_filter_type property of parsed form.json to "whitelist" when "allow" is selected', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const choice = (await getByTestId(control, 'locations-billing-choice')) as Choice;
+
+      choice.value = 'allow';
+      choice.dispatchEvent(new ChoiceChangeEvent('allow'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.nested.property('location_filtering.billing_filter_type', 'whitelist');
+    });
+
+    it('copies shipping filter config to billing when "copy" is selected', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const choice = (await getByTestId(control, 'locations-billing-choice')) as Choice;
+
+      choice.value = 'copy';
+      choice.dispatchEvent(new ChoiceChangeEvent('copy'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+
+      expect(json).to.have.nested.property(
+        'location_filtering.billing_filter_type',
+        json.location_filtering.shipping_filter_type
+      );
+
+      expect(json).to.have.nested.property(
+        'location_filtering.shipping_filter_values',
+        json.location_filtering.shipping_filter_values
+      );
+    });
+
+    it('renders a CountriesList for billing filter values', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const data = await getTestData<Data>('./hapi/template_configs/0');
+      const json = JSON.parse(data.json) as TemplateConfigJSON;
+
+      json.location_filtering.billing_filter_values = { US: ['AL', 'TX'], RU: '*' };
+      element.edit({ json: JSON.stringify(json) });
+
+      element.countries = 'test://countries';
+      element.regions = 'test://regions';
+      element.lang = 'es';
+      element.ns = 'foo';
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const list = await getByTestId(control, 'locations-billing-list');
+
+      expect(list).to.be.instanceOf(CountriesList);
+      expect(list).to.have.attribute('countries', JSON.stringify({ US: ['AL', 'TX'], RU: '*' }));
+      expect(list).to.have.attribute('regions', 'test://regions');
+      expect(list).to.have.attribute('href', 'test://countries');
+      expect(list).to.have.attribute('lang', 'es');
+      expect(list).to.have.attribute('ns', 'foo');
+    });
+
+    it('sets billing filter values on change', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const list = (await getByTestId(control, 'locations-billing-list')) as CountriesList;
+
+      list.countries = { US: ['AL', 'TX'], RU: '*' };
+      list.dispatchEvent(new CustomEvent('update:countries'));
+
+      const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
+      expect(json).to.have.deep.nested.property('location_filtering.billing_filter_values', {
+        US: ['AL', 'TX'],
+        RU: '*',
+      });
+    });
+
+    it('switches location_filtering.usage of parsed form.json to "none" on change if there aren\'t any filters', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const shippingList = (await getByTestId(control, 'locations-shipping-list')) as CountriesList;
+      const billingList = (await getByTestId(control, 'locations-billing-list')) as CountriesList;
+
+      shippingList.countries = {};
+      shippingList.dispatchEvent(new CustomEvent('update:countries'));
+      billingList.countries = {};
+      billingList.dispatchEvent(new CustomEvent('update:countries'));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('location_filtering.usage', 'none');
+    });
+
+    it('switches location_filtering.usage of parsed form.json to "billing" on change if there are only billing filters', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const shippingList = (await getByTestId(control, 'locations-shipping-list')) as CountriesList;
+      const billingList = (await getByTestId(control, 'locations-billing-list')) as CountriesList;
+
+      shippingList.countries = {};
+      shippingList.dispatchEvent(new CustomEvent('update:countries'));
+      billingList.countries = { US: '*' };
+      billingList.dispatchEvent(new CustomEvent('update:countries'));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('location_filtering.usage', 'billing');
+    });
+
+    it('switches location_filtering.usage of parsed form.json to "shipping" on change if there are only shipping filters', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const shippingList = (await getByTestId(control, 'locations-shipping-list')) as CountriesList;
+      const billingList = (await getByTestId(control, 'locations-billing-list')) as CountriesList;
+
+      shippingList.countries = { US: '*' };
+      shippingList.dispatchEvent(new CustomEvent('update:countries'));
+      billingList.countries = {};
+      billingList.dispatchEvent(new CustomEvent('update:countries'));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('location_filtering.usage', 'shipping');
+    });
+
+    it('switches location_filtering.usage of parsed form.json to "independent" on change if there are both shipping and billing filters', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+
+      const control = (await getByTestId(element, 'locations')) as HTMLElement;
+      const shippingList = (await getByTestId(control, 'locations-shipping-list')) as CountriesList;
+      const billingList = (await getByTestId(control, 'locations-billing-list')) as CountriesList;
+
+      shippingList.countries = { US: '*' };
+      shippingList.dispatchEvent(new CustomEvent('update:countries'));
+      billingList.countries = { AL: '*' };
+      billingList.dispatchEvent(new CustomEvent('update:countries'));
+
+      const json = JSON.parse(element.form.json as string);
+      expect(json).to.have.nested.property('location_filtering.usage', 'independent');
+    });
   });
 
   describe('hidden-fields', () => {

@@ -389,6 +389,7 @@ export class TemplateConfigForm extends Base<Data> {
               </foxy-i18n>
 
               <x-choice
+                data-testid="locations-shipping-choice"
                 .items=${['allow', 'block']}
                 .value=${shippingChoice}
                 ?disabled=${isDisabled}
@@ -404,6 +405,7 @@ export class TemplateConfigForm extends Base<Data> {
                 <foxy-i18n slot="block-label" lang=${lang} key="blocklist" ns=${ns}></foxy-i18n>
 
                 <x-countries-list
+                  data-testid="locations-shipping-list"
                   countries=${JSON.stringify(config.shipping_filter_values)}
                   regions=${this.regions}
                   class="mb-m"
@@ -434,6 +436,7 @@ export class TemplateConfigForm extends Base<Data> {
               </foxy-i18n>
 
               <x-choice
+                data-testid="locations-billing-choice"
                 .items=${['allow', 'block', 'copy']}
                 .value=${billingChoice}
                 ?disabled=${isDisabled}
@@ -456,6 +459,7 @@ export class TemplateConfigForm extends Base<Data> {
                 </foxy-i18n>
 
                 <x-countries-list
+                  data-testid="locations-billing-list"
                   countries=${JSON.stringify(config.billing_filter_values)}
                   regions=${this.regions}
                   class="mb-m"
