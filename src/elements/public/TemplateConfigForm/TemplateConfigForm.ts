@@ -118,12 +118,7 @@ export class TemplateConfigForm extends Base<Data> {
 
     return html`
       <div class="relative" aria-busy=${this.in('busy')} aria-live="polite">
-        <div
-          class=${classMap({
-            'space-y-l transition-opacity': true,
-            'opacity-50': !this.in('idle'),
-          })}
-        >
+        <div class="space-y-l">
           ${hidden.matches('cart-type', true) ? '' : this.__renderCartType(json)}
           ${hidden.matches('foxycomplete', true) ? '' : this.__renderFoxycomplete(json)}
           ${hidden.matches('locations', true) ? '' : this.__renderLocations(json)}
