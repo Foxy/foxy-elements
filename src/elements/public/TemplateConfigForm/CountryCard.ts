@@ -15,26 +15,20 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      disabled: { type: Boolean },
-      readonly: { type: Boolean },
+      __newRegion: { attribute: false },
       regions: { type: Array },
-      region: { type: String },
       name: { type: String },
       code: { type: String },
     };
   }
 
-  disabled = false;
-
-  readonly = false;
-
   regions: string[] = [];
-
-  region = '';
 
   name = '';
 
   code = '';
+
+  private __newRegion = '';
 
   render(): TemplateResult {
     return html`
@@ -44,13 +38,17 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
           'text-disabled': this.disabled,
         })}
       >
-        <div class="h-m flex justify-between items-center border-b border-contrast-10">
+        <div
+          data-testid="country"
+          class="h-m flex justify-between items-center border-b border-contrast-10"
+        >
           <div class="ml-m">
             <span>${this.name || this.code}</span>
             ${this.name ? html`<span class="text-secondary">${this.code}</span>` : ''}
           </div>
 
           <button
+            aria-label=${this.t('delete')}
             class=${classMap({
               'mr-xs items-center justify-center rounded-full transition-colors': true,
               'hover-bg-error-10 hover-text-error': !this.disabled,
@@ -67,7 +65,7 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
           </button>
         </div>
 
-        <div class="flex flex-wrap p-xs">
+        <div data-testid="regions" class="flex flex-wrap p-xs">
           ${this.regions.map(region => {
             const name = this.data?.values[region]?.default;
             const code = region;
@@ -83,6 +81,7 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
                 </span>
 
                 <button
+                  aria-label=${this.t('delete')}
                   class=${classMap({
                     'items-center justify-center rounded-full transition-colors': true,
                     'hover-bg-error-10 hover-text-error': !this.disabled,
@@ -105,6 +104,7 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
           })}
 
           <div
+            data-testid="new-region"
             style="border-radius: var(--lumo-size-s)"
             class=${classMap({
               'h-s m-xs items-center transition-colors border border-contrast-10': true,
@@ -119,14 +119,15 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
               class="bg-transparent appearance-none h-s text-s px-s focus-outline-none"
               style="width: 8rem"
               list="list"
-              .value=${this.region}
+              .value=${this.__newRegion}
               ?disabled=${this.disabled}
+              ?readonly=${this.readonly}
               @keydown=${(evt: KeyboardEvent) => {
-                if (evt.key === 'Enter' && this.region) this.__addRegion();
+                if (evt.key === 'Enter' && this.__newRegion) this.__addRegion();
               }}
               @input=${(evt: InputEvent) => {
                 const target = evt.currentTarget as HTMLInputElement;
-                this.region = target.value;
+                this.__newRegion = target.value;
               }}
             />
 
@@ -135,12 +136,12 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
               class=${classMap({
                 'flex-shrink-0': true,
                 'flex items-center justify-center rounded-full transition-colors': true,
-                'bg-contrast-5 text-disabled cursor-default': !this.region,
-                'bg-success-10 text-success cursor-pointer': !!this.region,
-                'hover-bg-success hover-text-success-contrast': !!this.region,
-                'focus-outline-none focus-ring-2 ring-inset ring-success-50': !!this.region,
+                'bg-contrast-5 text-disabled cursor-default': !this.__newRegion,
+                'bg-success-10 text-success cursor-pointer': !!this.__newRegion,
+                'hover-bg-success hover-text-success-contrast': !!this.__newRegion,
+                'focus-outline-none focus-ring-2 ring-inset ring-success-50': !!this.__newRegion,
               })}
-              ?disabled=${!this.region}
+              ?disabled=${this.disabled || !this.__newRegion}
               @click=${this.__addRegion}
             >
               <iron-icon icon="icons:add" class="icon-inline text-m"></iron-icon>
@@ -158,8 +159,8 @@ export class CountryCard extends Base<Resource<Rels.Regions>> {
   }
 
   private __addRegion() {
-    this.regions = [...new Set([...this.regions, this.region])];
-    this.region = '';
+    this.regions = [...new Set([...this.regions, this.__newRegion])];
+    this.__newRegion = '';
     this.dispatchEvent(new CustomEvent('update:regions'));
   }
 }
