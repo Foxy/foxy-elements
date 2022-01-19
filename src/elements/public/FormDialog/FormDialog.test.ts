@@ -11,7 +11,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
 import { html } from 'lit-html';
 import isEqual from 'lodash-es/isEqual';
-import sinon from 'sinon';
+import { stub } from 'sinon';
 
 describe('FormDialog', () => {
   it('extends Dialog', () => {
@@ -24,8 +24,8 @@ describe('FormDialog', () => {
   });
 
   it('renders form element when supplied with its local name', async () => {
-    const parent = 'https://demo.foxycart.com/s/admin/customers/0/attributes';
-    const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+    const parent = 'https://demo.api/hapi/customers/0/attributes';
+    const href = 'https://demo.api/hapi/attributes/0';
     const form = 'foxy-attribute-form';
     const lang = 'ru';
 
@@ -47,7 +47,7 @@ describe('FormDialog', () => {
   });
 
   it('closes itself on successful DELETE request from form', async () => {
-    const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+    const href = 'https://demo.api/hapi/attributes/0';
     const form = 'foxy-attribute-form';
     const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
@@ -79,7 +79,7 @@ describe('FormDialog', () => {
 
   it('closes itself on successful POST request from form', async () => {
     const form = 'foxy-attribute-form';
-    const parent = 'https://demo.foxycart.com/s/admin/customers/0/attributes';
+    const parent = 'https://demo.api/hapi/customers/0/attributes';
     const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog parent=${parent} form=${form}></foxy-form-dialog>
     `);
@@ -109,7 +109,7 @@ describe('FormDialog', () => {
   });
 
   it('becomes unclosable when form is busy', async () => {
-    const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+    const href = 'https://demo.api/hapi/attributes/0';
     const form = 'foxy-attribute-form';
     const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
@@ -118,7 +118,7 @@ describe('FormDialog', () => {
     await dialog.show();
 
     const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<never>;
-    sinon.stub(formElement, 'in').callsFake(stateValue => stateValue === 'busy');
+    stub(formElement, 'in').callsFake(stateValue => stateValue === 'busy');
     formElement.dispatchEvent(new UpdateEvent());
 
     await dialog.updateComplete;
@@ -131,7 +131,7 @@ describe('FormDialog', () => {
     { idle: { snapshot: { dirty: 'valid' } } },
   ].forEach(stateValue => {
     it(`becomes editable when form is in ${JSON.stringify(stateValue)} state`, async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+      const href = 'https://demo.api/hapi/attributes/0';
       const form = 'foxy-attribute-form';
       const dialog = await fixture<FormDialog>(html`
         <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
@@ -140,7 +140,7 @@ describe('FormDialog', () => {
       await dialog.show();
 
       const formElement = dialog.renderRoot.querySelector('#form') as NucleonElement<never>;
-      sinon.stub(formElement, 'in').callsFake(v => isEqual(v, stateValue));
+      stub(formElement, 'in').callsFake(v => isEqual(v, stateValue));
       formElement.dispatchEvent(new UpdateEvent());
 
       await dialog.updateComplete;

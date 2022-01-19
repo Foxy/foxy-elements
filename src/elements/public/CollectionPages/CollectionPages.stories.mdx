@@ -1,6 +1,12 @@
 import dedent from 'dedent';
 import { html } from 'lit-html';
-import { Subtitle, ArgsTable, Story, Canvas, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import {
+  Subtitle,
+  ArgsTable,
+  Story,
+  Canvas,
+  Meta,
+} from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import './index.ts';
 import '../AddressCard/index.ts';
 
@@ -24,7 +30,7 @@ CollectionPages will keep those attributes up-to-date, so changes to the pages e
 <Canvas
   mdxSource={dedent`
     <foxy-collection-pages
-      first="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+      first="https://demo.api/hapi/customer_addresses?limit=2"
       page="foxy-collection-page foxy-address-card"
     >
     </foxy-collection-pages>
@@ -41,7 +47,7 @@ CollectionPages will keep those attributes up-to-date, so changes to the pages e
         </style>
         <foxy-collection-pages
           class="flex deep-space -m-8"
-          first="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+          first="https://demo.api/hapi/customer_addresses?limit=2"
           page="foxy-collection-page foxy-address-card"
         >
         </foxy-collection-pages>
@@ -134,7 +140,7 @@ This element doesn't render any of its own markup.
   {() =>
     html`
       <foxy-collection-pages
-        href="https://demo.foxycart.com/s/admin/customers/0/addresses?limit=2"
+        href="https://demo.api/hapi/customer_addresses?limit=2"
         item="foxy-address-card"
         lang="en"
       >
@@ -147,7 +153,7 @@ This element doesn't render any of its own markup.
   {() =>
     html`
       <foxy-collection-pages
-        href="https://demo.foxycart.com/s/admin/sleep"
+        href="https://demo.api/virtual/stall"
         item="foxy-address-card"
         lang="en"
       >
@@ -160,7 +166,7 @@ This element doesn't render any of its own markup.
   {() =>
     html`
       <foxy-collection-pages
-        href="https://demo.foxycart.com/s/admin/not-found"
+        href="https://demo.api/virtual/empty?status=404"
         item="foxy-address-card"
         lang="en"
       >

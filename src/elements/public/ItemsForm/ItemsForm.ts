@@ -92,7 +92,7 @@ export class ItemsForm extends SignableFields {
         },
       },
       frequencies: {
-        converter: (value, type) => {
+        converter: value => {
           if (!value) {
             return [];
           }
@@ -477,7 +477,7 @@ export class ItemsForm extends SignableFields {
   }
 
   /** Removes item from the form based on a condition */
-  private __removeItems(condition = (e: Item) => true) {
+  private __removeItems(condition: (e: Item) => boolean = () => true) {
     this.__itemElements.forEach(p => {
       if (condition(p)) {
         p.remove();

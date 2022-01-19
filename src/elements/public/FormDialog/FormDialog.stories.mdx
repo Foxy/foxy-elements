@@ -1,4 +1,11 @@
-import { ArgsTable, Canvas, Story, Subtitle, Props, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import {
+  ArgsTable,
+  Canvas,
+  Story,
+  Subtitle,
+  Props,
+  Meta,
+} from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import { html } from 'lit-html';
 import dedent from 'dedent';
 import '@vaadin/vaadin-button';
@@ -20,15 +27,15 @@ Turning a NucleonElement-powered form into a dialog is as easy as this:
   mdxSource={dedent`
     <!-- Before -->
     <foxy-attribute-form
-      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
-      href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+      parent="https://demo.api/hapi/attributes"
+      href="https://demo.api/hapi/attributes/0"
     >
     </foxy-attribute-form>
  
     <!-- After (call dialog.show() or set dialog.open = true to open) -->
     <foxy-form-dialog
-      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
-      href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+      parent="https://demo.api/hapi/attributes"
+      href="https://demo.api/hapi/attributes/0"
       form="foxy-attribute-form"
     >
     </foxy-form-dialog>
@@ -37,8 +44,8 @@ Turning a NucleonElement-powered form into a dialog is as easy as this:
   <Story name="Basic">
     {() => html`
       <foxy-form-dialog
-        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
-        href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+        parent="https://demo.api/hapi/attributes"
+        href="https://demo.api/hapi/attributes/0"
         form="foxy-attribute-form"
         id="dialog-0"
       >
@@ -59,8 +66,8 @@ We can also add a header if we like (the value of `header` can also be an i18nex
   mdxSource={dedent`
     <foxy-form-dialog
       header="Edit attribute"
-      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
-      href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+      parent="https://demo.api/hapi/attributes"
+      href="https://demo.api/hapi/attributes/0"
       form="foxy-attribute-form"
     >
     </foxy-form-dialog>
@@ -70,8 +77,8 @@ We can also add a header if we like (the value of `header` can also be an i18nex
     {() => html`
       <foxy-form-dialog
         header="Edit attribute"
-        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
-        href="https://demo.foxycart.com/s/admin/customer_attributes/0"
+        parent="https://demo.api/hapi/attributes"
+        href="https://demo.api/hapi/attributes/0"
         form="foxy-attribute-form"
         id="dialog-1"
       >
@@ -90,7 +97,7 @@ Finally, we can change how our dialog is positioned and animated by setting the 
   mdxSource={dedent`
     <foxy-form-dialog
       header="Create attribute"
-      parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+      parent="https://demo.api/hapi/attributes"
       form="foxy-attribute-form"
       alert
     >
@@ -101,7 +108,7 @@ Finally, we can change how our dialog is positioned and animated by setting the 
     {() => html`
       <foxy-form-dialog
         header="Create attribute"
-        parent="https://demo.foxycart.com/s/admin/customers/0/attributes"
+        parent="https://demo.api/hapi/attributes"
         form="foxy-attribute-form"
         alert
         id="dialog-2"

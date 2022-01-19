@@ -13,7 +13,7 @@ If you're targeting [browsers that support ES6](https://caniuse.com/#feat=es6), 
 <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-bundle.js"></script>
 
 <!-- 2. Load element (replace "foxy-donation" with the one you need or add more script tags); -->
-<script type="module" src="https://unpkg.com/@foxy.io/elements/dist/cdn/foxy-donation.js"></script>
+<script type="module" src="https://unpkg.com/@foxy.io/elements@1/dist/cdn/foxy-donation.js"></script>
 
 <!-- 3. Use the element anywhere on your page. -->
 <foxy-donation></foxy-donation>

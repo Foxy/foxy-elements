@@ -32,7 +32,7 @@ describe('Table', () => {
 
   it('passes context and data to columns[number].header renderer', async () => {
     const assert = async (resolve: () => void) => {
-      const data = await getTestData('./s/admin/stores/0/transactions');
+      const data = await getTestData('./hapi/transactions');
       const columns: Column<any>[] = [
         {
           header: ctx => {
@@ -55,7 +55,7 @@ describe('Table', () => {
 
   it('passes context and data to columns[number].cell renderer', async () => {
     const assert = async (resolve: () => void) => {
-      const data = await getTestData<any>('./s/admin/stores/0/transactions');
+      const data = await getTestData<any>('./hapi/transactions');
       const columns: Column<any>[] = [
         {
           cell: ctx => {
@@ -88,7 +88,7 @@ describe('Table', () => {
 
   it('renders foxy-spinner in error state if loading data fails', async () => {
     const element = await fixture<Table<any>>(html`<foxy-table href="/foo"></foxy-table>`);
-    await waitUntil(() => element.in('fail'));
+    await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
     expect(await getByTestId(element, 'spinner')).to.have.attribute('state', 'error');
   });
 
@@ -111,7 +111,7 @@ describe('Table', () => {
       { cell: ({ html }) => html`Two` },
     ];
 
-    const data = await getTestData('./s/admin/stores/0/transactions');
+    const data = await getTestData('./hapi/transactions');
     const layout = html`<foxy-table .data=${data} .columns=${columns}></foxy-table>`;
     const element = await fixture<Table<any>>(layout);
     const table = (await getByTestId(element, 'table')) as HTMLTableElement;
@@ -128,7 +128,7 @@ describe('Table', () => {
       { hideBelow: 'sm' },
     ];
 
-    const data = await getTestData('./s/admin/stores/0/transactions');
+    const data = await getTestData('./hapi/transactions');
     const layout = html`<foxy-table .data=${data} .columns=${columns}></foxy-table>`;
     const element = await fixture<Table<any>>(layout);
     const table = (await getByTestId(element, 'table')) as HTMLTableElement;

@@ -16,8 +16,8 @@ type Data = {
 
 describe('CollectionPage', () => {
   generateTests<Data, CollectionPage<Data>, Refs>({
-    parent: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
-    href: 'https://demo.foxycart.com/s/admin/customers/0/attributes',
+    parent: 'https://demo.api/hapi/attributes',
+    href: 'https://demo.api/hapi/attributes',
     tag: 'foxy-collection-page',
     isEmptyValid: true,
     maxTestsPerState: 5,

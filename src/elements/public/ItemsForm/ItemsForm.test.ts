@@ -370,7 +370,7 @@ describe('The form should be aware of its items', async function () {
       <test-items-form currency="usd" store="test.foxycart.com">
         <x-testitem name="p1" price="10.00" quantity="3"></x-testitem>
         <x-testitem name="p2" price="10.00" quantity="1"></x-testitem>
-        <x-testitem name="p3" price="10.00" quantity="2"></test-item>
+        <x-testitem name="p3" price="10.00" quantity="2"></x-testitem>
         <x-testitem name="p4" price="10.00" quantity="1"></x-testitem>
       </test-items-form>
     `);
@@ -493,7 +493,7 @@ describe('The form submits a valid POST to forxycart', async function () {
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
     expect(form).to.exist;
     const fd = new FormData(form);
-    for (const [k, v] of fd.entries()) {
+    for (const [k] of fd.entries()) {
       if (k != 'cart') {
         expect(k).to.match(/.*signed.*/);
       }

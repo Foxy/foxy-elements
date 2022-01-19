@@ -156,7 +156,9 @@ export class AttributeForm extends Base<Data> {
   private readonly __renderTimestamps = () => {
     const items = (['date_modified', 'date_created'] as const).map(field => ({
       name: this.t(field),
-      value: this.t('date', { value: new Date(this.data![field]) }),
+      value: this.data?.[field]
+        ? this.t('date', { value: new Date(this.data[field] as string) })
+        : '',
     }));
 
     return html`

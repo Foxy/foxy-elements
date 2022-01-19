@@ -33,7 +33,7 @@ You can choose between multiple types of storage for the session info: `memory` 
 
 This element supports multiple virtual endpoints. Requests to those endpoints will be automatically rewritten to match their Customer API counterparts:
 
-### `foxy://auth/session`
+### `foxy://customer-api/session`
 
 `POST` with the following payload will call `POST /s/customer/authenticate` and respond with status `200` (on successful sign-in), `401` (when email or password doesn't match) or `500` (if something breaks) and a `null` body.
 
@@ -46,7 +46,7 @@ type AuthSessionPostPayload = {
 
 `DELETE` will call `DELETE /s/customer/authenticate` and respond with status `200` (on successful sign-out) or `500` (if something breaks) and a `null` body.
 
-### `foxy://auth/recover`
+### `foxy://customer-api/recover`
 
 `POST` with the following payload will call `POST /s/customer/forgot_password` and respond with status `200` (if password reset request was acknowledged) or `500` (if something breaks) and a `null` body.
 

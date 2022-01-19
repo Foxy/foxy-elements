@@ -5,11 +5,13 @@ import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { AddressForm } from './AddressForm';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { Data } from './types';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
 import { SelectElement } from '@vaadin/vaadin-select';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
+import { createRouter } from '../../../server/virtual';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
@@ -52,7 +54,7 @@ describe('AddressForm', () => {
     });
 
     it('invalidates the form when empty', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
 
       element.data = validData;
@@ -63,7 +65,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'address-name');
       const submit = stub(element, 'submit');
@@ -132,10 +134,8 @@ describe('AddressForm', () => {
     });
 
     it('is readonly when resource is a default billing address', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_billing = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
@@ -145,10 +145,8 @@ describe('AddressForm', () => {
     });
 
     it('is readonly when resource is a default shipping address', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const data = await getTestData<Data>('./hapi/customer_addresses/0');
 
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_shipping = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
@@ -170,14 +168,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'address-name')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'address-name')).to.have.attribute('disabled');
@@ -240,7 +238,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'first-name');
       const submit = stub(element, 'submit');
@@ -321,14 +319,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'first-name')).to.have.attribute('disabled');
@@ -391,7 +389,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'last-name');
       const submit = stub(element, 'submit');
@@ -472,14 +470,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'last-name')).to.have.attribute('disabled');
@@ -542,7 +540,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'company');
       const submit = stub(element, 'submit');
@@ -623,14 +621,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'company')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'company')).to.have.attribute('disabled');
@@ -693,7 +691,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'phone');
       const submit = stub(element, 'submit');
@@ -774,14 +772,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'phone')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'phone')).to.have.attribute('disabled');
@@ -844,7 +842,7 @@ describe('AddressForm', () => {
     });
 
     it('invalidates the form when empty', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
 
       element.data = validData;
@@ -855,7 +853,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'address-one');
       const submit = stub(element, 'submit');
@@ -936,14 +934,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'address-one')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'address-one')).to.have.attribute('disabled');
@@ -1006,7 +1004,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'address-two');
       const submit = stub(element, 'submit');
@@ -1087,14 +1085,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'address-two')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'address-two')).to.have.attribute('disabled');
@@ -1225,14 +1223,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'country')).to.have.attribute('disabled');
@@ -1363,14 +1361,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'region')).to.have.attribute('disabled');
@@ -1433,7 +1431,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'city');
       const submit = stub(element, 'submit');
@@ -1514,14 +1512,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'city')).to.have.attribute('disabled');
@@ -1584,7 +1582,7 @@ describe('AddressForm', () => {
     });
 
     it('submits valid form on enter', async () => {
-      const validData = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const validData = await getTestData<Data>('./hapi/customer_addresses/0');
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<TextFieldElement>(element, 'postal-code');
       const submit = stub(element, 'submit');
@@ -1665,14 +1663,14 @@ describe('AddressForm', () => {
     });
 
     it('is disabled when form is loading', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'postal-code')).to.have.attribute('disabled');
     });
 
     it('is disabled when form has failed to load data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-address-form href=${href}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       expect(await getByTestId(element, 'postal-code')).to.have.attribute('disabled');
@@ -1711,7 +1709,7 @@ describe('AddressForm', () => {
 
   describe('timestamps', () => {
     it('once form data is loaded, renders a property table with created and modified dates', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const data = await getTestData<Data>('./hapi/customer_addresses/0');
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       const control = await getByTestId(element, 'timestamps');
@@ -1724,7 +1722,7 @@ describe('AddressForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:before" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const data = await getTestData<Data>('./hapi/customer_addresses/0');
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:before');
@@ -1733,7 +1731,7 @@ describe('AddressForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:before" slot with template "timestamps:before" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const data = await getTestData<Data>('./hapi/customer_addresses/0');
       const name = 'timestamps:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AddressForm>(html`
@@ -1750,7 +1748,7 @@ describe('AddressForm', () => {
     });
 
     it('once form data is loaded, renders "timestamps:after" slot', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const data = await getTestData<Data>('./hapi/customer_addresses/0');
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       const slot = await getByName<HTMLSlotElement>(element, 'timestamps:after');
@@ -1759,7 +1757,7 @@ describe('AddressForm', () => {
     });
 
     it('once form data is loaded, replaces "timestamps:after" slot with template "timestamps:after" if available', async () => {
-      const data = await getTestData<Data>('./s/admin/customer_addresses/0');
+      const data = await getTestData<Data>('./hapi/customer_addresses/0');
       const name = 'timestamps:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AddressForm>(html`
@@ -1893,7 +1891,7 @@ describe('AddressForm', () => {
 
   describe('delete', () => {
     it('renders delete button once resource is loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data} disabled></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -1914,7 +1912,7 @@ describe('AddressForm', () => {
     });
 
     it('renders disabled if form is disabled', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data} disabled></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -1923,11 +1921,9 @@ describe('AddressForm', () => {
     });
 
     it('renders disabled if data.is_default_billing is true', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_billing = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
@@ -1937,11 +1933,9 @@ describe('AddressForm', () => {
     });
 
     it('renders disabled if data.is_default_shipping is true', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
 
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incorrect for this resource
       data.is_default_shipping = true;
 
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
@@ -1951,7 +1945,7 @@ describe('AddressForm', () => {
     });
 
     it('renders disabled if form is sending changes', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -1965,7 +1959,7 @@ describe('AddressForm', () => {
     it('renders disabled if disabledcontrols includes "delete"', async () => {
       const element = await fixture<AddressForm>(html`
         <foxy-address-form
-          .data=${await getTestData<Data>('https://demo.foxycart.com/s/admin/customer_addresses/0')}
+          .data=${await getTestData<Data>('./hapi/customer_addresses/0')}
           disabledcontrols="delete"
         >
         </foxy-address-form>
@@ -1975,7 +1969,7 @@ describe('AddressForm', () => {
     });
 
     it('shows deletion confirmation dialog on click', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -1989,7 +1983,7 @@ describe('AddressForm', () => {
     });
 
     it('deletes resource if deletion is confirmed', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -2002,7 +1996,7 @@ describe('AddressForm', () => {
     });
 
     it('keeps resource if deletion is cancelled', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -2015,7 +2009,7 @@ describe('AddressForm', () => {
     });
 
     it("doesn't render if form is hidden", async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data} hidden></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -2026,7 +2020,7 @@ describe('AddressForm', () => {
     it('doesn\'t render if hiddencontrols includes "delete"', async () => {
       const element = await fixture<AddressForm>(html`
         <foxy-address-form
-          .data=${await getTestData<Data>('https://demo.foxycart.com/s/admin/customer_addresses/0')}
+          .data=${await getTestData<Data>('./hapi/customer_addresses/0')}
           hiddencontrols="delete"
         >
         </foxy-address-form>
@@ -2036,7 +2030,7 @@ describe('AddressForm', () => {
     });
 
     it('renders with "delete:before" slot by default', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -2046,7 +2040,7 @@ describe('AddressForm', () => {
     });
 
     it('replaces "delete:before" slot with template "delete:before" if available and rendered', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const name = 'delete:before';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AddressForm>(html`
@@ -2063,7 +2057,7 @@ describe('AddressForm', () => {
     });
 
     it('renders with "delete:after" slot by default', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
@@ -2073,7 +2067,7 @@ describe('AddressForm', () => {
     });
 
     it('replaces "delete:after" slot with template "delete:after" if available and rendered', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_addresses/0';
+      const href = 'https://demo.api/hapi/customer_addresses/0';
       const name = 'delete:after';
       const value = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<AddressForm>(html`
@@ -2092,8 +2086,16 @@ describe('AddressForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
-      const layout = html`<foxy-address-form href=${href} lang="es"></foxy-address-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-address-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-address-form>
+      `;
+
       const element = await fixture<AddressForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
@@ -2105,13 +2107,21 @@ describe('AddressForm', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
-      const layout = html`<foxy-address-form href=${href} lang="es"></foxy-address-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-address-form
+          href="https://demo.api/virtual/empty?status=404"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-address-form>
+      `;
+
       const element = await fixture<AddressForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
@@ -2120,7 +2130,7 @@ describe('AddressForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/admin/customer_addresses/0');
+      const data = await getTestData('./hapi/customer_addresses/0');
       const layout = html`<foxy-address-form .data=${data}></foxy-address-form>`;
       const element = await fixture<AddressForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

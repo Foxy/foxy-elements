@@ -20,9 +20,11 @@ import { getByName } from '../../../testgen/getByName';
 import { getByTestClass } from '../../../testgen/getByTestClass';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
-import { router } from '../../../server';
+import { createRouter } from '../../../server/hapi';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+
+const router = createRouter();
 
 describe('Customer', () => {
   it('extends NucleonElement', () => {
@@ -101,7 +103,7 @@ describe('Customer', () => {
     });
 
     it('once loaded, renders full name in header', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
 
       data.first_name = 'Justice';
       data.last_name = 'Witt';
@@ -260,7 +262,7 @@ describe('Customer', () => {
         });
 
         it('is enabled once loaded', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const layout = html`<foxy-customer .data=${data}></foxy-customer>`;
           const element = await fixture<Customer>(layout);
           const control = await getByTestId(element, 'header:actions:edit');
@@ -269,7 +271,7 @@ describe('Customer', () => {
         });
 
         it('once loaded, is disabled if element is disabled', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const layout = html`<foxy-customer .data=${data} disabled></foxy-customer>`;
           const element = await fixture<Customer>(layout);
           const control = await getByTestId(element, 'header:actions:edit');
@@ -278,7 +280,7 @@ describe('Customer', () => {
         });
 
         it('once loaded, is disabled if disabledcontrols includes "header:actions:edit"', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const element = await fixture<Customer>(html`
             <foxy-customer .data=${data} disabledcontrols="header:actions:edit"></foxy-customer>
           `);
@@ -288,7 +290,7 @@ describe('Customer', () => {
         });
 
         it('opens customer form dialog on click', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const element = await fixture<Customer>(html`
             <foxy-customer
               readonlycontrols="header:actions:edit:form:not=foo,bar"
@@ -550,7 +552,7 @@ describe('Customer', () => {
         });
 
         it('is enabled once loaded', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const layout = html`<foxy-customer .data=${data}></foxy-customer>`;
           const element = await fixture<Customer>(layout);
           const control = await getByTestId(element, 'addresses:actions:create');
@@ -559,7 +561,7 @@ describe('Customer', () => {
         });
 
         it('once loaded, is disabled if element is disabled', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const layout = html`<foxy-customer .data=${data} disabled></foxy-customer>`;
           const element = await fixture<Customer>(layout);
           const control = await getByTestId(element, 'addresses:actions:create');
@@ -568,7 +570,7 @@ describe('Customer', () => {
         });
 
         it('once loaded, is disabled if disabledcontrols includes "addresses:actions:create"', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const element = await fixture<Customer>(html`
             <foxy-customer .data=${data} disabledcontrols="addresses:actions:create">
             </foxy-customer>
@@ -579,7 +581,7 @@ describe('Customer', () => {
         });
 
         it('opens address form dialog on click', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const element = await fixture<Customer>(html`
             <foxy-customer
               readonlycontrols="addresses:actions:create:form:not=foo,bar"
@@ -618,7 +620,7 @@ describe('Customer', () => {
     describe('list', () => {
       describe('card', () => {
         it('renders customer addresses once loaded', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const listHref = data._links['fx:customer_addresses'].href;
           const listData = await getTestData<Core.Resource<Rels.CustomerAddresses>>(listHref);
           const element = await fixture<Customer>(html`
@@ -640,10 +642,14 @@ describe('Customer', () => {
 
           const list = await getByTestId<CollectionPages<any>>(element, 'addresses:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const cards = list!.querySelectorAll('[data-testclass="addresses:list:card"]');
 
@@ -663,7 +669,7 @@ describe('Customer', () => {
         });
 
         it('opens edit dialog on click', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const listHref = data._links['fx:customer_addresses'].href;
           const listData = await getTestData<Core.Resource<Rels.CustomerAddresses>>(listHref);
           const handleFetch = (evt: FetchEvent) => {
@@ -675,10 +681,14 @@ describe('Customer', () => {
           const element = await fixture<Customer>(layout);
           const list = await getByTestId<CollectionPages<any>>(element, 'addresses:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const button = (await getByTestClass(element, 'addresses:list:card'))[0];
           const card = button.firstElementChild as AddressCard;
@@ -1020,7 +1030,7 @@ describe('Customer', () => {
         });
 
         it('is enabled once loaded', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const layout = html`<foxy-customer .data=${data}></foxy-customer>`;
           const element = await fixture<Customer>(layout);
           const control = await getByTestId(element, 'attributes:actions:create');
@@ -1029,7 +1039,7 @@ describe('Customer', () => {
         });
 
         it('once loaded, is disabled if element is disabled', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const layout = html`<foxy-customer .data=${data} disabled></foxy-customer>`;
           const element = await fixture<Customer>(layout);
           const control = await getByTestId(element, 'attributes:actions:create');
@@ -1038,7 +1048,7 @@ describe('Customer', () => {
         });
 
         it('once loaded, is disabled if disabledcontrols includes "attributes:actions:create"', async () => {
-          const data = await getTestData('./s/admin/customers/0');
+          const data = await getTestData('./hapi/customers/0');
           const element = await fixture<Customer>(html`
             <foxy-customer .data=${data} disabledcontrols="attributes:actions:create">
             </foxy-customer>
@@ -1049,7 +1059,7 @@ describe('Customer', () => {
         });
 
         it('opens attribute form dialog on click', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const element = await fixture<Customer>(html`
             <foxy-customer
               readonlycontrols="attributes:actions:create:form:not=foo,bar"
@@ -1088,7 +1098,7 @@ describe('Customer', () => {
     describe('list', () => {
       describe('card', () => {
         it('renders customer attributes once loaded', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const listHref = data._links['fx:attributes'].href;
           const listData = await getTestData<Core.Resource<Rels.Attributes>>(listHref);
           const element = await fixture<Customer>(html`
@@ -1110,10 +1120,14 @@ describe('Customer', () => {
 
           const list = await getByTestId<CollectionPages<any>>(element, 'attributes:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const cards = list!.querySelectorAll('[data-testclass="attributes:list:card"]');
 
@@ -1133,7 +1147,7 @@ describe('Customer', () => {
         });
 
         it('opens edit dialog on click', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const listHref = data._links['fx:attributes'].href;
           const listData = await getTestData<Core.Resource<Rels.Attributes>>(listHref);
           const handleFetch = (evt: FetchEvent) => {
@@ -1145,10 +1159,14 @@ describe('Customer', () => {
           const element = await fixture<Customer>(layout);
           const list = await getByTestId<CollectionPages<any>>(element, 'attributes:list');
 
-          await waitUntil(() => {
-            const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
-            return Array.from(pages).every(page => page.in('idle'));
-          });
+          await waitUntil(
+            () => {
+              const pages = list!.querySelectorAll<CollectionPage<any>>('foxy-collection-page');
+              return Array.from(pages).every(page => page.in('idle'));
+            },
+            undefined,
+            { timeout: 5000 }
+          );
 
           const button = (await getByTestClass(element, 'attributes:list:card'))[0];
           const card = button.firstElementChild as AttributeCard;
@@ -1352,7 +1370,7 @@ describe('Customer', () => {
     describe('list', () => {
       describe('card', () => {
         it('renders default payment method once loaded', async () => {
-          const data = await getTestData<Data>('./s/admin/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0');
           const cardHref = data._links['fx:default_payment_method'].href;
           const cardData = await getTestData<Core.Resource<Rels.DefaultPaymentMethod>>(cardHref);
           const element = await fixture<Customer>(html`
@@ -1460,7 +1478,7 @@ describe('Customer', () => {
 
   describe('transactions', () => {
     it('renders foxy-collection-pages with foxy-transactions-table', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0');
+      const data = await getTestData<Data>('./hapi/customers/0');
       const layout = html`
         <foxy-customer group="foo" lang="es" .data=${data}>
           <template slot="transactions:table:default"></template>
@@ -1609,14 +1627,14 @@ describe('Customer', () => {
         <foxy-customer
           group="foo"
           lang="es"
-          href="https://demo.foxycart.com/s/admin/customers/0"
+          href="https://demo.api/hapi/customers/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
           <template slot="subscriptions:table:default"></template>
         </foxy-customer>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const pages = await getByTestId<CollectionPages<any>>(element, 'subscriptions:pages');
       const firstURL = new URL(element.data!._links['fx:subscriptions'].href);
@@ -1624,9 +1642,11 @@ describe('Customer', () => {
 
       expect(pages).to.have.attribute('first', firstURL.toString());
 
-      await waitUntil(() => pages!.in('idle'));
+      await waitUntil(() => pages!.in('idle'), undefined, { timeout: 5000 });
       const tables = await getByTestClass<Table<any>>(element, 'subscriptions:pages:table');
-      await waitUntil(() => tables.every(table => table.in({ idle: 'snapshot' })));
+      await waitUntil(() => tables.every(table => table.in({ idle: 'snapshot' })), undefined, {
+        timeout: 5000,
+      });
 
       expect(tables).to.be.not.empty;
 
@@ -1663,7 +1683,7 @@ describe('Customer', () => {
           hiddencontrols="subscriptions:form:transactions"
           group="foo"
           lang="es"
-          href="https://demo.foxycart.com/s/admin/customers/0"
+          href="https://demo.api/hapi/customers/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
           <template slot="subscriptions:form:header:before">
@@ -1672,11 +1692,11 @@ describe('Customer', () => {
         </foxy-customer>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
       const pages = await getByTestId<CollectionPages<any>>(element, 'subscriptions:pages');
-      await waitUntil(() => pages!.in('idle'));
+      await waitUntil(() => pages!.in('idle'), undefined, { timeout: 5000 });
       const [table] = await getByTestClass<Table<any>>(element, 'subscriptions:pages:table');
-      await waitUntil(() => table.in({ idle: 'snapshot' }));
+      await waitUntil(() => table.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
       const form = await getByTestId<FormDialog>(element, 'subscriptions:form');
       const showMethod = stub(form!, 'show');
 
@@ -1703,7 +1723,7 @@ describe('Customer', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/sleep';
+      const href = 'https://demo.api/virtual/stall';
       const layout = html`<foxy-customer href=${href} lang="es"></foxy-customer>`;
       const element = await fixture<Customer>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
@@ -1716,13 +1736,13 @@ describe('Customer', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/not-found';
+      const href = 'https://demo.api/virtual/empty?status=404';
       const layout = html`<foxy-customer href=${href} lang="es"></foxy-customer>`;
       const element = await fixture<Customer>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
@@ -1731,7 +1751,7 @@ describe('Customer', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/admin/customers/0');
+      const data = await getTestData('./hapi/customers/0');
       const layout = html`<foxy-customer .data=${data}></foxy-customer>`;
       const element = await fixture<Customer>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');

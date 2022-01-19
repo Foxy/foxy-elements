@@ -47,7 +47,7 @@ Donation form is a web component that aims to provide customizable donation form
 The first thing you'll need to do is add the JavaScript call and basic donation component to your page:
 
 ```html
-<script type="module" src="https://unpkg.com/@foxy.io/elements/dist/cdn/foxy-donation.js"></script>
+<script type="module" src="https://unpkg.com/@foxy.io/elements@1/dist/cdn/foxy-donation.js"></script>
 <foxy-donation 
   currency="usd"
   amount="25" 
@@ -137,7 +137,6 @@ You can aggregate multiple designation under categories, for example: `designati
 
 If an aggregated designation is to be the default choice, set the `designation` attribute as `ParentDesignation: ChildDesignation`. Here is an example to set `Daily Meals` as the default in the list used above example: `designation: "Nutrition: Daily Meals"`.
 
-
 <Canvas
   mdxSource={dedent`
     <foxy-donation
@@ -156,7 +155,11 @@ If an aggregated designation is to be the default choice, set the `designation` 
   <Story
     name="Designation options"
     args={{
-      designations: ['Medical Care', ['Nutrition', ['Daily Meals', 'Infant Nutrition Aid', 'Elderly Nutrition Suplement']], 'Housing'],
+      designations: [
+        'Medical Care',
+        ['Nutrition', ['Daily Meals', 'Infant Nutrition Aid', 'Elderly Nutrition Suplement']],
+        'Housing',
+      ],
       designation: 'Nutrition: Daily Meals',
       amounts: [25, 50, 75],
       custom: ['amount'],
@@ -165,7 +168,6 @@ If an aggregated designation is to be the default choice, set the `designation` 
     {args => html`${getTemplate(args)}`}
   </Story>
 </Canvas>
-
 
 Just like with the amount, you can enable custom designations by adding "designation" to the `custom` attribute array: `custom='["amount", "designation"]'`. This works both in single and multiple selection modes.
 
@@ -221,7 +223,7 @@ You can easily allow your website visitors to commit to a recurrent contribution
     name="Recurrent donation"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: "Housing",
+      designation: 'Housing',
       frequency: '1m',
       amounts: [25, 50, 75],
       custom: ['amount', 'designation'],
@@ -330,7 +332,7 @@ Giving your donors an option to remain anonymous is often a reasonable idea. Whi
     name="Anonymity"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: "Housing",
+      designation: 'Housing',
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
@@ -369,7 +371,7 @@ You can also enable anonymous donations by default by setting the `anonymous` at
     name="Anonymous by default"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: "Housing",
+      designation: 'Housing',
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
@@ -413,7 +415,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
     name="Cart display"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: "Housing",
+      designation: 'Housing',
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,
@@ -431,7 +433,7 @@ You can use the `name`, `image` and `url` attributes to customize how the donati
 
 ## Add your own markup
 
-You can insert your own content in a number of pre-defined places called slots.  This element has 3 of them: `amount`, `designation` and `comment`, and you can assign any element node to any of them by setting an attribute on it like so: `slot="comment"`. Please note that your content will be displayed only if the relevant group is present on the screen. You can see the position of each one of them below:
+You can insert your own content in a number of pre-defined places called slots. This element has 3 of them: `amount`, `designation` and `comment`, and you can assign any element node to any of them by setting an attribute on it like so: `slot="comment"`. Please note that your content will be displayed only if the relevant group is present on the screen. You can see the position of each one of them below:
 
 <Canvas
   mdxSource={dedent`
@@ -462,7 +464,7 @@ You can insert your own content in a number of pre-defined places called slots. 
     name="Slots"
     args={{
       designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: "Housing",
+      designation: 'Housing',
       frequencies: [' ', '.5m', '1m', '1y'],
       frequency: '1m',
       anonymity: true,

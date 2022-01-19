@@ -16,7 +16,7 @@ type Refs = {
 };
 
 const url =
-  'https://demo.foxycart.com/s/admin/stores/0/subscriptions?customer_id=0&zoom=last_transaction,transaction_template:items';
+  'https://demo.api/hapi/subscriptions?customer_id=0&zoom=last_transaction,transaction_template:items';
 
 describe('SubscriptionsTable', () => {
   generateTests<Data, SubscriptionsTable, Refs>({

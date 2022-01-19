@@ -5,7 +5,7 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  base: 'https://demo.foxycart.com/s/customer/',
+  base: 'https://demo.api/portal/',
   localName: 'foxy-customer-portal',
   translatable: true,
   configurable: {

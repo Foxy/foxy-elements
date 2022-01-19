@@ -24,7 +24,7 @@ describe('InternalCustomerPortalTransactions', () => {
 
   describe('header', () => {
     it('renders custom header:before template if present', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const element = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions
           .templates=${{ 'header:before': () => html`Test` }}
@@ -38,7 +38,7 @@ describe('InternalCustomerPortalTransactions', () => {
     });
 
     it('renders custom header:after template if present', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const element = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions
           .templates=${{ 'header:after': () => html`Test` }}
@@ -52,7 +52,7 @@ describe('InternalCustomerPortalTransactions', () => {
     });
 
     it('renders custom foxy-i18n header with key "transaction_plural"', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const view = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions lang="es" .customer=${customer}>
         </foxy-internal-customer-portal-transactions>
@@ -67,7 +67,7 @@ describe('InternalCustomerPortalTransactions', () => {
     });
 
     it('hides header if hiddencontrols matches "header"', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const view = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions hiddencontrols="header" .customer=${customer}>
         </foxy-internal-customer-portal-transactions>
@@ -79,7 +79,7 @@ describe('InternalCustomerPortalTransactions', () => {
 
   describe('list', () => {
     it('renders custom list:before template if present', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const view = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions
           .templates=${{ 'list:before': () => html`Test` }}
@@ -93,7 +93,7 @@ describe('InternalCustomerPortalTransactions', () => {
     });
 
     it('renders custom list:after template if present', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const view = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions
           .templates=${{ 'list:after': () => html`Test` }}
@@ -107,7 +107,7 @@ describe('InternalCustomerPortalTransactions', () => {
     });
 
     it('renders custom foxy-collection-pages displaying transactions', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const view = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions
           group="test"
@@ -123,7 +123,7 @@ describe('InternalCustomerPortalTransactions', () => {
 
       expect(pages).to.have.attribute(
         'first',
-        'https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&zoom=items'
+        'https://demo.api/hapi/transactions?customer_id=0&zoom=items'
       );
 
       expect(pages).to.have.attribute('group', 'test');
@@ -135,7 +135,7 @@ describe('InternalCustomerPortalTransactions', () => {
     });
 
     it('hides list if hiddencontrols matches "list"', async () => {
-      const customer = await getTestData('./s/admin/customers/0');
+      const customer = await getTestData('./hapi/customers/0');
       const view = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions hiddencontrols="list" .customer=${customer}>
         </foxy-internal-customer-portal-transactions>

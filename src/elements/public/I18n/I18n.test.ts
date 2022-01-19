@@ -4,7 +4,7 @@ import { expect, fixture, html, oneEvent } from '@open-wc/testing';
 
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { I18n } from './I18n';
-import sinon from 'sinon';
+import { fake } from 'sinon';
 
 describe('I18n', () => {
   it('exposes shared i18next instance as static property', () => {
@@ -12,7 +12,7 @@ describe('I18n', () => {
   });
 
   it('exposes onTranslationChange helper as static property', () => {
-    const handler = sinon.fake();
+    const handler = fake();
     const events = ['initialized', 'loaded'];
     const off = I18n.onTranslationChange(handler);
 

@@ -1,4 +1,11 @@
-import { ArgsTable, Canvas, Story, Subtitle, Props, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import {
+  ArgsTable,
+  Canvas,
+  Story,
+  Subtitle,
+  Props,
+  Meta,
+} from '@web/storybook-prebuilt/addon-docs/blocks.js';
 import { html } from 'lit-html';
 import './index.ts';
 
@@ -13,10 +20,7 @@ import './index.ts';
 Since Table is a nucleon element, the basics are exactly the same: we have `data` property where the entire collection page is stored, we have the `.in()` method to display relevant UI depending on the state, and we have the `href` attribute/property to tell our element where to load the collection page from. Let's list customer's transactions for this demo:
 
 ```html
-<foxy-table
-  id="transactions"
-  href="https://demo.foxycart.com/s/admin/transactions?customer_id=0&limit=10"
->
+<foxy-table id="transactions" href="https://demo.api/hapi/transactions?customer_id=0&limit=10">
 </foxy-table>
 ```
 
@@ -36,7 +40,7 @@ customElements.whenDefined('foxy-table').then(() => {
     {() => html`
       <foxy-table
         class="border rounded px-4"
-        href="https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&limit=10"
+        href="https://demo.api/hapi/transactions?customer_id=0&limit=10"
         .columns=${[
           { cell: ({ html, data }) => html`<span>${data.id}</span>` },
           { cell: ({ html, data }) => html`<span>${data.status}</span>` },
@@ -98,7 +102,7 @@ customElements.whenDefined('foxy-table').then(() => {
     {() => html`
       <foxy-table
         class="border rounded px-4"
-        href="https://demo.foxycart.com/s/admin/stores/0/transactions?customer_id=0&limit=10"
+        href="https://demo.api/hapi/transactions?customer_id=0&limit=10"
         .columns=${[
           {
             header: ({ html }) => html`<span>ID</span>`,

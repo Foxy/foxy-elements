@@ -5,7 +5,7 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  parent: 'https://demo.foxycart.com/s/virtual/recovery',
+  parent: 'https://demo.api/virtual/recovery',
   nucleon: true,
   localName: 'foxy-access-recovery-form',
   translatable: true,
@@ -22,5 +22,5 @@ export const Playground = getStory({ ...summary, code: true });
 export const Error = getStory(summary);
 export const Busy = getStory(summary);
 
-Error.args.href = 'https://demo.foxycart.com/s/admin/not-found';
-Busy.args.href = 'https://demo.foxycart.com/s/admin/sleep';
+Error.args.href = 'https://demo.api/virtual/empty?status=404';
+Busy.args.href = 'https://demo.api/virtual/stall';

@@ -9,7 +9,9 @@ import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
-import { router } from '../../../server';
+import { createRouter } from '../../../server/index';
+
+const router = createRouter();
 
 describe('TaxCard', () => {
   it('extends TwoLineCard', () => {
@@ -29,15 +31,15 @@ describe('TaxCard', () => {
     const layout = html`<foxy-tax-card @fetch=${handleFetch}></foxy-tax-card>`;
     const element = await fixture<TaxCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/stores/0/taxes/0';
-    await waitUntil(() => !!element.data);
+    element.href = 'https://demo.api/hapi/taxes/0';
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'title');
 
     expect(title).to.include.text(element.data!.name);
   });
 
   it('renders tax_global key for global taxes in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
     data.type = 'global';
 
     const element = await fixture<TaxCard>(html`<foxy-tax-card .data=${data}></foxy-tax-card>`);
@@ -47,7 +49,7 @@ describe('TaxCard', () => {
   });
 
   it('renders tax_union key for EU taxes in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.type = 'union';
 
@@ -58,7 +60,7 @@ describe('TaxCard', () => {
   });
 
   it('renders country code for country-wide taxes in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.type = 'country';
     data.country = 'US';
@@ -70,7 +72,7 @@ describe('TaxCard', () => {
   });
 
   it('renders country and region code for regional taxes in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.type = 'region';
     data.country = 'US';
@@ -84,7 +86,7 @@ describe('TaxCard', () => {
   });
 
   it('renders country, region and city for local taxes in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.type = 'local';
     data.country = 'US';
@@ -100,7 +102,7 @@ describe('TaxCard', () => {
   });
 
   it('renders localized % key for fixed rate taxes in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = false;
     data.rate = 10;
@@ -112,7 +114,7 @@ describe('TaxCard', () => {
   });
 
   it('renders custom label for taxes using onesource provider in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
     data.service_provider = 'onesource' as Data['service_provider'];
@@ -124,7 +126,7 @@ describe('TaxCard', () => {
   });
 
   it('renders custom label for taxes using avalara provider in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
     data.service_provider = 'avalara' as Data['service_provider'];
@@ -136,7 +138,7 @@ describe('TaxCard', () => {
   });
 
   it('renders custom label for taxes using taxjar provider in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
     data.service_provider = 'taxjar' as Data['service_provider'];
@@ -148,7 +150,7 @@ describe('TaxCard', () => {
   });
 
   it('renders tax_rate_provider_default key for taxes using default provider in the subtitle', async () => {
-    const data = await getTestData<Data>('./s/admin/stores/0/taxes/0');
+    const data = await getTestData<Data>('./hapi/taxes/0');
 
     data.is_live = true;
     data.service_provider = '' as Data['service_provider'];

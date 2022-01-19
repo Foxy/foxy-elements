@@ -23,7 +23,6 @@
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
     "test": "wtr src/**/*.test.ts",
     "test:watch": "wtr src/**/*.test.ts --watch",
-    "test:playwright": "wtr src/**/*.test.ts --playwright --browsers chromium firefox webkit",
     "prepack": "npm run lint && rimraf dist && node ./.build/compile-for-npm.js && rollup -c"
   },
   "dependencies": {
@@ -35,19 +34,16 @@
     "@vaadin/vaadin": "^15.0.6",
     "cookie-storage": "^6.1.0",
     "dedent": "^0.7.0",
-    "dexie": "^3.0.3",
     "email-validator": "^2.0.4",
-    "halson": "^3.0.0",
     "i18next": "^19.7.0",
     "i18next-http-backend": "^1.0.18",
-    "indexeddb-export-import": "^2.1.2",
     "jsonata": "^1.8.3",
     "lit-element": "^2.4.0",
     "lodash-es": "^4.17.15",
     "service-worker-router": "^1.7.5",
     "traverse": "^0.6.6",
     "webcomponent-qr-code": "^1.0.5",
-    "xstate": "^4.16.2"
+    "xstate": "^4.16.0"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
@@ -74,7 +70,6 @@
     "@web/dev-server-rollup": "^0.3.4",
     "@web/dev-server-storybook": "^0.3.5",
     "@web/test-runner": "^0.12.14",
-    "@web/test-runner-playwright": "^0.8.6",
     "@xstate/test": "^0.4.1",
     "@zoltu/typescript-transformer-append-js-extension": "^1.0.1",
     "autoprefixer": "^10.2.5",

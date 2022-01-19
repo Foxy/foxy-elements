@@ -1,4 +1,3 @@
-import { DemoDatabase, db, router, whenDbReady } from '../../../server/index';
 import { EventObject, State } from 'xstate';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
@@ -12,6 +11,7 @@ import { createModel } from './createModel';
 import { createTestMachine } from './createTestMachine';
 import get from 'lodash-es/get';
 import { html } from 'lit-html';
+import { createRouter } from '../../../server/index';
 
 export function getRefs<TRefs extends Record<string, Element | Element[]>>(
   element: LitElement
@@ -122,6 +122,8 @@ export function generateTests<
   TElement extends NucleonElement<TData>,
   TRefs extends Record<string, Element | Element[]>
 >(config: ElementConfig<TData, TElement, TRefs>): void {
+  const router = createRouter();
+
   const model = createModel<TestContext<TElement>>(
     createTestMachine({
       hasDeleteButton: !!config.actions?.delete,
@@ -595,8 +597,6 @@ export function generateTests<
           );
 
           await path.test({ element, events });
-          await whenDbReady;
-          await DemoDatabase.fill(db.backendDB());
         });
       });
     });

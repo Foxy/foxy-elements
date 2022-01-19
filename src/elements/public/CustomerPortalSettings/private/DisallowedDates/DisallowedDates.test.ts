@@ -136,7 +136,7 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
 
       const newValue = [
         String(newStartDate.getFullYear()).padStart(4, '0'),
-        String(newStartDate.getMonth()).padStart(2, '0'),
+        String(newStartDate.getMonth() + 1).padStart(2, '0'),
         String(newStartDate.getDate()).padStart(2, '0'),
       ].join('-');
 

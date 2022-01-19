@@ -12,10 +12,12 @@ import { InternalCustomerPortalSubscriptions } from './InternalCustomerPortalSub
 import { InternalCustomerPortalTransactions } from './InternalCustomerPortalTransactions';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { NucleonElement } from '../NucleonElement';
+import { createRouter } from '../../../server/index';
 import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
-import { router } from '../../../server/customer';
+
+const router = createRouter();
 
 describe('InternalCustomerPortalLoggedInViewTest', () => {
   it('extends NucleonElement', () => {
@@ -83,7 +85,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
       const customer = (await getByTestId(element, 'customer')) as Customer;
 
-      customer.data = await getTestData('./s/admin/customers/0');
+      customer.data = await getTestData('./hapi/customers/0');
       element.loggingOutState = 'idle';
 
       const templateRenderer = customer.templates['header:actions:after']!;
@@ -103,7 +105,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
       `);
 
       const customer = (await getByTestId(element, 'customer')) as Customer;
-      customer.data = await getTestData('./s/admin/customers/0');
+      customer.data = await getTestData('./hapi/customers/0');
 
       const templateRenderer = customer.templates['header:actions:after']!;
       const renderedTemplate = await fixture(html`<div>${templateRenderer(html, customer)}</div>`);
@@ -112,11 +114,14 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
       button.click();
       expect(element).to.have.property('loggingOutState', 'busy');
 
-      await waitUntil(() =>
-        fetchEvents.some(({ request }) => {
-          const { url, method } = request;
-          return url === 'foxy://customer-api/session' && method === 'DELETE';
-        })
+      await waitUntil(
+        () =>
+          fetchEvents.some(({ request }) => {
+            const { url, method } = request;
+            return url === 'foxy://customer-api/session' && method === 'DELETE';
+          }),
+        undefined,
+        { timeout: 5000 }
       );
     });
 
@@ -127,7 +132,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
       const customer = (await getByTestId(element, 'customer')) as Customer;
 
-      customer.data = await getTestData('./s/admin/customers/0');
+      customer.data = await getTestData('./hapi/customers/0');
       element.loggingOutState = 'busy';
 
       const templateRenderer = customer.templates['header:actions:after']!;
@@ -197,9 +202,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
         <foxy-internal-customer-portal-logged-in-view></foxy-internal-customer-portal-logged-in-view>
       `);
 
-      const data = await getTestData<CustomerFormData>(
-        'https://demo.foxycart.com/s/admin/customers/0'
-      );
+      const data = await getTestData<CustomerFormData>('./hapi/customers/0');
 
       const form = await fixture<CustomerForm>(html`
         <foxy-customer-form .data=${data} lang="es" ns="foo"> </foxy-customer-form>
@@ -312,10 +315,10 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
           readonlycontrols="customer:subscriptions:foo"
           disabledcontrols="customer:subscriptions:bar"
           hiddencontrols="customer:subscriptions:baz"
-          customer="https://demo.foxycart.com/s/customer/"
+          customer="https://demo.api/portal/"
           group="test"
           lang="es"
-          href="https://demo.foxycart.com/s/customer/customer_portal_settings"
+          href="https://demo.api/portal/customer_portal_settings"
           .templates=${{ 'customer:subscriptions:qux': () => html`Test` }}
           @fetch=${(evt: FetchEvent) => {
             const token = `0-${Date.now() + Math.pow(10, 10)}`;
@@ -326,10 +329,10 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
         </foxy-internal-customer-portal-logged-in-view>
       `);
 
-      await waitUntil(() => view.in({ idle: 'snapshot' }));
+      await waitUntil(() => view.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const customer = (await getByTestId(view, 'customer')) as Customer;
-      await waitUntil(() => customer.in({ idle: 'snapshot' }));
+      await waitUntil(() => customer.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const tag = 'foxy-internal-customer-portal-subscriptions';
       const sandbox = (await getByTestId(customer, 'default')) as InternalSandbox;
@@ -400,10 +403,10 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
           readonlycontrols="customer:transactions:foo"
           disabledcontrols="customer:transactions:bar"
           hiddencontrols="customer:transactions:baz"
-          customer="https://demo.foxycart.com/s/customer/"
+          customer="https://demo.api/portal/"
           group="test"
           lang="es"
-          href="https://demo.foxycart.com/s/customer/customer_portal_settings"
+          href="https://demo.api/portal/customer_portal_settings"
           .templates=${{ 'customer:transactions:qux': () => html`Test` }}
           @fetch=${(evt: FetchEvent) => {
             const token = `0-${Date.now() + Math.pow(10, 10)}`;
@@ -414,10 +417,10 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
         </foxy-internal-customer-portal-logged-in-view>
       `);
 
-      await waitUntil(() => view.in({ idle: 'snapshot' }));
+      await waitUntil(() => view.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const customer = (await getByTestId(view, 'customer')) as Customer;
-      await waitUntil(() => customer.in({ idle: 'snapshot' }));
+      await waitUntil(() => customer.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
       const tag = 'foxy-internal-customer-portal-transactions';
       const sandbox = (await getByTestId(customer, 'default')) as InternalSandbox;

@@ -11,8 +11,10 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
-import { router } from '../../../server';
+import { createRouter } from '../../../server/index';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+
+const router = createRouter();
 
 describe('TransactionCard', () => {
   it('extends NucleonElement', () => {
@@ -37,15 +39,15 @@ describe('TransactionCard', () => {
     it('renders total once loaded', async () => {
       const element = await fixture<TransactionCard>(html`
         <foxy-transaction-card
-          href="https://demo.foxycart.com/s/admin/transactions/0?zoom=items"
+          href="https://demo.api/hapi/transactions/0?zoom=items"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
-      const transaction = await getTestData<Data>('./s/admin/transactions/0');
+      const transaction = await getTestData<Data>('./hapi/transactions/0');
       const store = await getTestData<Resource<Rels.Store>>(transaction._links['fx:store'].href);
       const total = await getByKey(element, 'price');
 
@@ -122,15 +124,15 @@ describe('TransactionCard', () => {
     it('renders status once loaded', async () => {
       const element = await fixture<TransactionCard>(html`
         <foxy-transaction-card
-          href="https://demo.foxycart.com/s/admin/transactions/0?zoom=items"
+          href="https://demo.api/hapi/transactions/0?zoom=items"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
-      const transaction = await getTestData<Data>('./s/admin/transactions/0');
+      const transaction = await getTestData<Data>('./hapi/transactions/0');
       const time = await getByKey(element, 'time');
       const icon = await getByTestId(element, 'status-icon');
       const timeOptions = JSON.stringify({ value: transaction.transaction_date });
@@ -206,15 +208,15 @@ describe('TransactionCard', () => {
     it('renders description once loaded', async () => {
       const element = await fixture<TransactionCard>(html`
         <foxy-transaction-card
-          href="https://demo.foxycart.com/s/admin/transactions/0?zoom=items"
+          href="https://demo.api/hapi/transactions/0?zoom=items"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
-      const transaction = await getTestData<Data>('./s/admin/transactions/0?zoom=items');
+      const transaction = await getTestData<Data>('./hapi/transactions/0?zoom=items');
       const items = transaction._embedded['fx:items'];
       const summary = await getByKey(element, 'transaction_summary');
       const options = JSON.stringify({
@@ -294,15 +296,15 @@ describe('TransactionCard', () => {
     it('renders customer once loaded', async () => {
       const element = await fixture<TransactionCard>(html`
         <foxy-transaction-card
-          href="https://demo.foxycart.com/s/admin/transactions/0?zoom=items"
+          href="https://demo.api/hapi/transactions/0?zoom=items"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
         </foxy-transaction-card>
       `);
 
-      await waitUntil(() => element.in({ idle: 'snapshot' }));
+      await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
-      const transaction = await getTestData<Data>('./s/admin/transactions/0?zoom=items');
+      const transaction = await getTestData<Data>('./hapi/transactions/0?zoom=items');
       const customer = await getByTestId(element, 'customer');
       const text = `${transaction.customer_first_name} ${transaction.customer_last_name} (${transaction.customer_email})`;
 
@@ -413,7 +415,7 @@ describe('TransactionCard', () => {
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
@@ -422,7 +424,7 @@ describe('TransactionCard', () => {
     });
 
     it('hides the spinner once loaded', async () => {
-      const data = await getTestData<any>('https://demo.foxycart.com/s/admin/customers/0');
+      const data = await getTestData<any>('./hapi/customers/0');
       const layout = html`<foxy-transaction-card .data=${data}></foxy-transaction-card>`;
       const element = await fixture<TransactionCard>(layout);
       const spinner = await getByTestId(element, 'spinner');

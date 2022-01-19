@@ -32,9 +32,10 @@ export class InternalCustomerPortalSubscriptions extends Base {
   group = '';
 
   private readonly __renderFormHeaderActionsUpdate: Renderer<SubscriptionForm> = (html, host) => {
+    const hasEnded = !!host.data?.end_date && new Date(host.data.end_date).getTime() <= Date.now();
     let billingLink = '';
 
-    if (host.in({ idle: 'snapshot' })) {
+    if (!hasEnded && host.in({ idle: 'snapshot' })) {
       const link = host.data._links['fx:sub_token_url'].href;
       const updateBillingURL = new URL(link);
 
@@ -50,6 +51,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         data-testid="header:actions:update"
         href=${billingLink}
         icon="icons:credit-card"
+        ?disabled=${hasEnded || !host.in('idle')}
       >
         <foxy-i18n lang=${host.lang} key="update_billing" ns=${host.ns}></foxy-i18n>
       </foxy-internal-customer-portal-link>
@@ -59,9 +61,10 @@ export class InternalCustomerPortalSubscriptions extends Base {
   };
 
   private readonly __renderFormHeaderActionsEnd: Renderer<SubscriptionForm> = (html, host) => {
+    const hasEndDate = !!host.data?.end_date;
     let cancelLink = '';
 
-    if (host.in({ idle: 'snapshot' })) {
+    if (!hasEndDate && host.in({ idle: 'snapshot' })) {
       const cancelURL = new URL(host.data._links['fx:sub_token_url'].href);
 
       cancelURL.searchParams.set('sub_cancel', 'true');
@@ -75,6 +78,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         data-testid="header:actions:end"
         href=${cancelLink}
         icon="icons:block"
+        ?disabled=${hasEndDate || !host.in('idle')}
       >
         <foxy-i18n lang=${host.lang} key="end_subscription" ns=${host.ns}></foxy-i18n>
       </foxy-internal-customer-portal-link>
@@ -113,6 +117,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
   private readonly __renderFormItemsActionsUpdate: Renderer<SubscriptionForm> = (html, host) => {
     // @ts-expect-error missing typedef in SDK
     const itemsLink = host.data?._links['fx:sub_modification_url']?.href ?? '';
+    const hasEnded = !!host.data?.end_date && new Date(host.data.end_date).getTime() <= Date.now();
 
     return html`
       ${host.renderTemplateOrSlot('items:actions:update:before')}
@@ -121,6 +126,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         data-testid="items:actions:update"
         class="text-primary"
         href=${itemsLink}
+        ?disabled=${hasEnded || !host.in('idle')}
       >
         <foxy-i18n lang=${host.lang} key="update_items" ns=${host.ns}></foxy-i18n>
       </foxy-internal-customer-portal-link>

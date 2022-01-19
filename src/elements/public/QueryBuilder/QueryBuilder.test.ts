@@ -513,6 +513,7 @@ describe('QueryBuilder', () => {
 
     const element = await fixture<QueryBuilder>(layout);
     const root = element.renderRoot;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [path, first, second, addNew] = [...root.querySelectorAll<HTMLInputElement>('input')];
 
     expect(first).to.have.property('value', 'bar');
@@ -548,6 +549,7 @@ describe('QueryBuilder', () => {
 
     const element = await fixture<QueryBuilder>(layout);
     const root = element.renderRoot;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [path, first, second, addNew] = [...root.querySelectorAll<HTMLInputElement>('input')];
 
     expect(first).to.have.property('value', 'bar');

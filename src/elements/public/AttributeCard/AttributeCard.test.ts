@@ -23,7 +23,7 @@ describe('AttributeCard', () => {
 
   describe('name', () => {
     it('renders attribute name when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+      const href = 'https://demo.api/hapi/attributes/0';
       const data = { ...(await getTestData<Data>(href)), name: 'Foo' };
       const layout = html`<foxy-attribute-card .data=${data}></foxy-attribute-card>`;
       const element = await fixture<AttributeCard>(layout);
@@ -96,7 +96,7 @@ describe('AttributeCard', () => {
 
   describe('value', () => {
     it('renders attribute value when loaded', async () => {
-      const href = 'https://demo.foxycart.com/s/admin/customer_attributes/0';
+      const href = 'https://demo.api/hapi/attributes/0';
       const data = { ...(await getTestData<Data>(href)), value: 'Foo' };
       const layout = html`<foxy-attribute-card .data=${data}></foxy-attribute-card>`;
       const element = await fixture<AttributeCard>(layout);
@@ -198,7 +198,7 @@ describe('AttributeCard', () => {
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(wrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
@@ -207,7 +207,7 @@ describe('AttributeCard', () => {
     });
 
     it('hides the spinner once loaded', async () => {
-      const data = await getTestData('https://demo.foxycart.com/s/admin/customer_attributes/0');
+      const data = await getTestData('./hapi/attributes/0');
       const layout = html`<foxy-attribute-card .data=${data}></foxy-attribute-card>`;
       const element = await fixture<AttributeCard>(layout);
       const spinner = await getByTestId(element, 'spinner');

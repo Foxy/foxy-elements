@@ -11,7 +11,9 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
-import { router } from '../../../server';
+import { createRouter } from '../../../server/index';
+
+const router = createRouter();
 
 describe('DiscountCard', () => {
   it('extends TwoLineCard', () => {
@@ -31,8 +33,8 @@ describe('DiscountCard', () => {
     const layout = html`<foxy-discount-card @fetch=${handleFetch}></foxy-discount-card>`;
     const element = await fixture<DiscountCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/discounts/0';
-    await waitUntil(() => !!element.data);
+    element.href = 'https://demo.api/hapi/discounts/0';
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'title');
 
     expect(title).to.include.text(element.data!.name);
@@ -44,11 +46,11 @@ describe('DiscountCard', () => {
     const layout = html`<foxy-discount-card @fetch=${handleFetch}></foxy-discount-card>`;
     const element = await fixture<DiscountCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/discounts/0';
+    element.href = 'https://demo.api/hapi/discounts/0';
     element.lang = 'es';
     element.ns = 'foo';
 
-    await waitUntil(() => !!element.data);
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const subtitle = (await getByTestId(element, 'subtitle')) as HTMLDivElement;
     const amount = await getByKey(subtitle, 'price');
     const data = element.data!;

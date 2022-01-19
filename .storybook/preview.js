@@ -1,7 +1,7 @@
 import { API } from '@foxy.io/sdk/customer';
 import { FetchEvent } from '../src/elements/public/NucleonElement/FetchEvent.ts';
+import { createRouter } from '../src/server/index.ts';
 import customElements from '../custom-elements.json';
-import { router } from '../src/server/index.ts';
 import { setCustomElements } from '@web/storybook-prebuilt/web-components';
 
 // Remove attribute docs because they aren't analyzed correctly
@@ -14,6 +14,8 @@ window.customElements.whenDefined('foxy-i18n').then(() => {
     values: { authorize: { name: 'Authorize.Net' } },
   });
 });
+
+const router = createRouter();
 
 addEventListener('fetch', async evt => {
   if (evt instanceof FetchEvent && !evt.defaultPrevented) {
@@ -29,7 +31,7 @@ addEventListener('fetch', async evt => {
     let response = null;
 
     if (evt.request.url.startsWith('foxy://customer-api/session')) {
-      const url = 'https://demo.foxycart.com/s/customer/authenticate';
+      const url = 'https://demo.api/portal/authenticate';
 
       if (evt.request.method === 'POST') {
         const { type, credential } = await evt.request.json();
@@ -47,7 +49,7 @@ addEventListener('fetch', async evt => {
           );
         } else {
           const code = apiResponse.status === 401 ? 'invalid_credential_error' : 'unknown_error';
-          const url = `https://demo.foxycart.com/s/virtual/session?code=${code}`;
+          const url = `https://demo.api/virtual/session?code=${code}`;
           response = await router.handleRequest(new Request(url)).handlerPromise;
         }
       }
@@ -59,7 +61,7 @@ addEventListener('fetch', async evt => {
       }
     }
 
-    if (evt.request.url.startsWith('https://demo.foxycart.com/s/customer')) {
+    if (evt.request.url.startsWith('https://demo.api/portal')) {
       const session = JSON.parse(localStorage.getItem(API.SESSION));
       if (session) evt.request.headers.set('Authorization', `Bearer ${session.session_token}`);
     }
@@ -75,7 +77,7 @@ addEventListener('fetch', async evt => {
       ''
     );
 
-    evt.respondWith(new Promise(resolve => setTimeout(() => resolve(response), 1000)));
+    evt.respondWith(new Promise(resolve => setTimeout(() => resolve(response), 300)));
   }
 });
 

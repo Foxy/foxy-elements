@@ -25,7 +25,7 @@ describe('PaymentMethodCard', () => {
   });
 
   it('renders expiry date and last 4 digits once loaded', async () => {
-    const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+    const data = await getTestData<Data>('./hapi/payment_methods/0');
 
     data.cc_exp_month = '01';
     data.cc_exp_year = '2021';
@@ -39,7 +39,7 @@ describe('PaymentMethodCard', () => {
   });
 
   it("doesn't render expiry date if it's null", async () => {
-    const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+    const data = await getTestData<Data>('./hapi/payment_methods/0');
 
     data.cc_exp_month = null;
     data.cc_exp_year = null;
@@ -51,7 +51,7 @@ describe('PaymentMethodCard', () => {
   });
 
   it("doesn't render last 4 digits if it's null", async () => {
-    const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+    const data = await getTestData<Data>('./hapi/payment_methods/0');
 
     data.cc_number_masked = null;
 
@@ -63,7 +63,7 @@ describe('PaymentMethodCard', () => {
 
   describe('actions', () => {
     it('renders actions when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 
@@ -71,7 +71,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('renders "actions:before" slot when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 
@@ -80,7 +80,7 @@ describe('PaymentMethodCard', () => {
 
     it('replaces "actions:before" slot with template "actions:before" if available and loaded', async () => {
       const name = 'actions:before';
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const actions = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card .data=${data}>
@@ -96,7 +96,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('renders "actions:after" slot when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 
@@ -105,7 +105,7 @@ describe('PaymentMethodCard', () => {
 
     it('replaces "actions:after" slot with template "actions:after" if available and loaded', async () => {
       const name = 'actions:after';
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const actions = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card .data=${data}>
@@ -121,7 +121,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('is visible when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
       expect(await getByTestId(element, 'actions')).to.exist;
@@ -130,7 +130,7 @@ describe('PaymentMethodCard', () => {
     it('is hidden when card is hidden', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          .data=${await getTestData<Data>('./s/admin/customers/0/default_payment_method')}
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           hidden
         >
         </foxy-payment-method-card>
@@ -142,7 +142,7 @@ describe('PaymentMethodCard', () => {
     it('is hidden when hiddencontrols includes actions', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          .data=${await getTestData<Data>('./s/admin/customers/0/default_payment_method')}
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           hiddencontrols="actions"
         >
         </foxy-payment-method-card>
@@ -154,7 +154,7 @@ describe('PaymentMethodCard', () => {
 
   describe('actions:delete', () => {
     it('renders actions:delete when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 
@@ -162,7 +162,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('renders "actions:delete:before" slot when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 
@@ -174,7 +174,7 @@ describe('PaymentMethodCard', () => {
 
     it('replaces "actions:delete:before" slot with template "actions:delete:before" if available and loaded', async () => {
       const name = 'actions:delete:before';
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const actions = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card .data=${data}>
@@ -190,7 +190,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('renders "actions:delete:after" slot when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 
@@ -202,7 +202,7 @@ describe('PaymentMethodCard', () => {
 
     it('replaces "actions:delete:after" slot with template "actions:delete:after" if available and loaded', async () => {
       const name = 'actions:delete:after';
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const actions = `<p>Value of the "${name}" template.</p>`;
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card .data=${data}>
@@ -218,7 +218,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('shows deletion confirmation dialog on click', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
       const control = await getByTestId<ButtonElement>(element, 'actions:delete');
@@ -231,7 +231,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('deletes resource if deletion is confirmed', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
       const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
@@ -243,7 +243,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('keeps resource if deletion is cancelled', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
       const confirm = await getByTestId<InternalConfirmDialog>(element, 'confirm');
@@ -255,7 +255,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('is visible when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
       expect(await getByTestId(element, 'actions:delete')).to.exist;
@@ -264,7 +264,7 @@ describe('PaymentMethodCard', () => {
     it('is hidden when card is hidden', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          .data=${await getTestData<Data>('./s/admin/customers/0/default_payment_method')}
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           hidden
         >
         </foxy-payment-method-card>
@@ -276,7 +276,7 @@ describe('PaymentMethodCard', () => {
     it('is hidden when hiddencontrols includes actions:delete', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          .data=${await getTestData<Data>('./s/admin/customers/0/default_payment_method')}
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           hiddencontrols="actions:delete"
         >
         </foxy-payment-method-card>
@@ -286,7 +286,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('is enabled when loaded', async () => {
-      const data = await getTestData<Data>('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData<Data>('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 
@@ -296,7 +296,7 @@ describe('PaymentMethodCard', () => {
     it('is disabled when card is disabled', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          .data=${await getTestData<Data>('./s/admin/customers/0/default_payment_method')}
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           disabled
         >
         </foxy-payment-method-card>
@@ -308,7 +308,7 @@ describe('PaymentMethodCard', () => {
     it('is disabled when disabledcontrols includes actions:delete', async () => {
       const element = await fixture<PaymentMethodCard>(html`
         <foxy-payment-method-card
-          .data=${await getTestData<Data>('./s/admin/customers/0/default_payment_method')}
+          .data=${await getTestData<Data>('./hapi/payment_methods/0')}
           disabledcontrols="actions:delete"
         >
         </foxy-payment-method-card>
@@ -344,7 +344,7 @@ describe('PaymentMethodCard', () => {
       const element = await fixture<PaymentMethodCard>(layout);
       const spinner = await getByTestId(element, 'spinner');
 
-      await waitUntil(() => element.in('fail'));
+      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
       expect(spinner).to.have.attribute('state', 'error');
       expect(spinner).to.have.attribute('lang', 'es');
@@ -352,7 +352,7 @@ describe('PaymentMethodCard', () => {
     });
 
     it('hides the spinner once loaded', async () => {
-      const data = await getTestData('./s/admin/customers/0/default_payment_method');
+      const data = await getTestData('./hapi/payment_methods/0');
       const layout = html`<foxy-payment-method-card .data=${data}></foxy-payment-method-card>`;
       const element = await fixture<PaymentMethodCard>(layout);
 

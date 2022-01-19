@@ -1,9 +1,11 @@
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { Data } from './types';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { SubscriptionCard } from './index';
+import { createRouter } from '../../../server/index';
 import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
@@ -19,7 +21,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders subscription summary', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
     const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
     const element = await fixture<SubscriptionCard>(layout);
@@ -38,7 +40,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders a special status for failed subscriptions', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const date = new Date().toISOString();
     const data = { ...(await getTestData<Data>(href)), first_failed_transaction_date: date };
     const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
@@ -53,7 +55,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders a special status for subscriptions that are about to end', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
 
     data.first_failed_transaction_date = null;
@@ -71,7 +73,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders a special status for subscriptions that have ended', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
 
     data.first_failed_transaction_date = null;
@@ -89,7 +91,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders a special status for active subscriptions', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
 
     data.first_failed_transaction_date = null;
@@ -108,7 +110,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders a special status for inactive subscriptions', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
 
     data.first_failed_transaction_date = null;
@@ -126,7 +128,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders subscription price', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
 
     data._embedded['fx:last_transaction'].total_order = 25;
@@ -146,7 +148,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('once loaded, renders subscription price for ".5m" frequency', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
 
     data._embedded['fx:last_transaction'].total_order = 25;
@@ -190,11 +192,20 @@ describe('SubscriptionCard', () => {
   });
 
   it('renders error foxy-spinner if loading data fails', async () => {
-    const layout = html`<foxy-subscription-card href="/" lang="es"></foxy-subscription-card>`;
+    const router = createRouter();
+    const layout = html`
+      <foxy-subscription-card
+        href="https://demo.api/virtual/empty?status=404"
+        lang="es"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-card>
+    `;
+
     const element = await fixture<SubscriptionCard>(layout);
     const control = await getByTestId(element, 'spinner');
 
-    await waitUntil(() => element.in('fail'));
+    await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
     expect(control!).not.to.have.class('opacity-0');
     expect(control!.firstElementChild).to.have.property('localName', 'foxy-spinner');
@@ -204,7 +215,7 @@ describe('SubscriptionCard', () => {
   });
 
   it('hides foxy-spinner once loaded', async () => {
-    const href = './s/admin/subscriptions/0?zoom=last_transaction,transaction_template:items';
+    const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
     const data = await getTestData<Data>(href);
     const layout = html`<foxy-subscription-card .data=${data}></foxy-subscription-card>`;
     const element = await fixture<SubscriptionCard>(layout);

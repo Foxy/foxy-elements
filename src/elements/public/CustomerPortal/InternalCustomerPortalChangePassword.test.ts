@@ -7,10 +7,12 @@ import { FormDialog } from '../FormDialog/FormDialog';
 import { InternalCustomerPortalChangePassword } from './InternalCustomerPortalChangePassword';
 import { LitElement } from 'lit-element';
 import { SignInForm } from '../SignInForm/SignInForm';
+import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByTag } from '../../../testgen/getByTag';
-import { router } from '../../../server/index';
 import { stub } from 'sinon';
+
+const router = createRouter();
 
 describe('InternalCustomerPortalChangePassword', () => {
   it('extends LitElement', () => {
@@ -85,7 +87,7 @@ describe('InternalCustomerPortalChangePassword', () => {
   it('navigates to step 2 of password change on current password entry', async () => {
     const element = await fixture<InternalCustomerPortalChangePassword>(html`
       <foxy-internal-customer-portal-change-password
-        session="https://demo.foxycart.com/s/virtual/session"
+        session="https://demo.api/virtual/session"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-internal-customer-portal-change-password>
@@ -108,14 +110,14 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
     expect(await getByKey(dialog, 'change_password_step_2')).to.exist;
   });
 
   it("stays on step 1 of password change if current password isn't right", async () => {
     const element = await fixture<InternalCustomerPortalChangePassword>(html`
       <foxy-internal-customer-portal-change-password
-        session="https://demo.foxycart.com/s/virtual/session?code=invalid_credentials_error"
+        session="https://demo.api/virtual/session?code=invalid_credentials_error"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-internal-customer-portal-change-password>
@@ -138,15 +140,15 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
     expect(await getByKey(dialog, 'change_password_step_1')).to.exist;
   });
 
   it('navigates to step 3 of password change on new password entry', async () => {
     const element = await fixture<InternalCustomerPortalChangePassword>(html`
       <foxy-internal-customer-portal-change-password
-        customer="https://demo.foxycart.com/s/admin/customers/0"
-        session="https://demo.foxycart.com/s/virtual/session"
+        customer="https://demo.api/hapi/customers/0"
+        session="https://demo.api/virtual/session"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-internal-customer-portal-change-password>
@@ -169,7 +171,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
 
     form.edit({
       type: 'password',
@@ -181,15 +183,15 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
     expect(await getByKey(dialog, 'change_password_step_3')).to.exist;
   });
 
   it("stays on step 2 of password change if new password can't be set for some reason", async () => {
     const element = await fixture<InternalCustomerPortalChangePassword>(html`
       <foxy-internal-customer-portal-change-password
-        customer="https://demo.foxycart.com/s/admin/not-found"
-        session="https://demo.foxycart.com/s/virtual/session"
+        customer="https://demo.api/virtual/empty?status=404"
+        session="https://demo.api/virtual/session"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-internal-customer-portal-change-password>
@@ -212,7 +214,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
 
     form.edit({
       type: 'password',
@@ -224,7 +226,7 @@ describe('InternalCustomerPortalChangePassword', () => {
     });
 
     form.submit();
-    await waitUntil(() => form.in('idle'));
+    await waitUntil(() => form.in('idle'), undefined, { timeout: 5000 });
 
     expect(await getByKey(dialog, 'change_password_step_2')).to.exist;
   });

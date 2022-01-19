@@ -7,7 +7,9 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { TwoLineCard } from './TwoLineCard';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { html } from 'lit-html';
-import { router } from '../../../server';
+import { createRouter } from '../../../server/index';
+
+const router = createRouter();
 
 describe('CustomFieldCard', () => {
   it('extends TwoLineCard', () => {
@@ -27,8 +29,8 @@ describe('CustomFieldCard', () => {
     const layout = html`<foxy-custom-field-card @fetch=${handleFetch}></foxy-custom-field-card>`;
     const element = await fixture<CustomFieldCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/custom_fields/0';
-    await waitUntil(() => !!element.data);
+    element.href = 'https://demo.api/hapi/custom_fields/0';
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'title');
 
     expect(title).to.include.text(element.data!.name);
@@ -39,8 +41,8 @@ describe('CustomFieldCard', () => {
     const layout = html`<foxy-custom-field-card @fetch=${handleFetch}></foxy-custom-field-card>`;
     const element = await fixture<CustomFieldCard>(layout);
 
-    element.href = 'https://demo.foxycart.com/s/admin/custom_fields/0';
-    await waitUntil(() => !!element.data);
+    element.href = 'https://demo.api/hapi/custom_fields/0';
+    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'subtitle');
 
     expect(title).to.include.text(element.data!.value);

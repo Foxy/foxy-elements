@@ -514,8 +514,10 @@ export class SubscriptionForm extends Base<Data> {
 
   private get __isNextTransactionDateVisible() {
     if (this.hiddenSelector.matches('next-transaction-date', true)) return false;
-    if (this.settings === null) return true;
     if (this.data === null) return false;
+    if (this.data.end_date && new Date(this.data.end_date).getTime() <= Date.now()) return false;
+    if (this.data.is_active === false) return false;
+    if (this.settings === null) return true;
 
     const rules = this.settings.subscriptions.allow_next_date_modification;
     return !!getNextTransactionDateConstraints(this.data, rules);
@@ -523,8 +525,10 @@ export class SubscriptionForm extends Base<Data> {
 
   private get __isFrequencyVisible() {
     if (this.hiddenSelector.matches('frequency', true)) return false;
-    if (this.settings === null) return true;
     if (this.data === null) return false;
+    if (this.data.end_date && new Date(this.data.end_date).getTime() <= Date.now()) return false;
+    if (this.data.is_active === false) return false;
+    if (this.settings === null) return true;
 
     const allowedFrequencies = getAllowedFrequencies({
       subscription: this.data,

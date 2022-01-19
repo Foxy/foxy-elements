@@ -17,8 +17,8 @@ type Refs = {
 
 describe('CustomersTable', () => {
   generateTests<Data, CustomersTable, Refs>({
-    parent: 'https://demo.foxycart.com/s/admin/stores/0/customers',
-    href: 'https://demo.foxycart.com/s/admin/stores/0/customers',
+    parent: 'https://demo.api/hapi/customers',
+    href: 'https://demo.api/hapi/customers',
     tag: 'foxy-customers-table',
     isEmptyValid: true,
     maxTestsPerState: 5,

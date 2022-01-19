@@ -222,7 +222,7 @@ describe('CustomerApi', () => {
     });
 
     child.dispatchEvent(event);
-    await nextFrame();
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     expect(apiSendPasswordResetEmailMethod).to.have.been.calledWith(detail);
     expect(resolveCallback).to.have.been.called;

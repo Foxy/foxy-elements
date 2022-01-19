@@ -40,7 +40,7 @@ describe('CustomFieldCard', () => {
 
     describe('title', () => {
       it('renders title content once loaded if provided', async () => {
-        const data = await getTestData<any>('https://demo.foxycart.com/s/admin/custom_fields/0');
+        const data = await getTestData<any>('./hapi/custom_fields/0');
         const layout = html`<test-two-line-card .data=${data}></test-two-line-card>`;
         const element = await fixture<TestTwoLineCard>(layout);
         const title = await getByTestId(element, 'title');
@@ -113,7 +113,7 @@ describe('CustomFieldCard', () => {
 
     describe('subtitle', () => {
       it('renders subtitle content once loaded if provided', async () => {
-        const data = await getTestData<any>('https://demo.foxycart.com/s/admin/custom_fields/0');
+        const data = await getTestData<any>('./hapi/custom_fields/0');
         const layout = html`<test-two-line-card .data=${data}></test-two-line-card>`;
         const element = await fixture<TestTwoLineCard>(layout);
         const title = await getByTestId(element, 'subtitle');
@@ -215,7 +215,7 @@ describe('CustomFieldCard', () => {
         const spinner = await getByTestId(element, 'spinner');
         const wrapper = spinner!.parentElement;
 
-        await waitUntil(() => element.in('fail'));
+        await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
 
         expect(wrapper).not.to.have.class('opacity-0');
         expect(spinner).to.have.attribute('state', 'error');
@@ -224,7 +224,7 @@ describe('CustomFieldCard', () => {
       });
 
       it('hides the spinner once loaded', async () => {
-        const data = await getTestData<any>('https://demo.foxycart.com/s/admin/custom_fields/0');
+        const data = await getTestData<any>('./hapi/custom_fields/0');
         const layout = html`<test-two-line-card .data=${data}></test-two-line-card>`;
         const element = await fixture<TestTwoLineCard>(layout);
         const spinner = await getByTestId(element, 'spinner');
