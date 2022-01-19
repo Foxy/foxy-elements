@@ -1,0 +1,35 @@
+{
+  "access-recovery-form": {
+    "unknown_error": "我們目前無法為此帳戶發送一次性代碼。 如果您已要求驗證碼，請等待幾分鐘後再試。"
+  },
+  "customer": {
+    "subscription-card": {
+      "spinner": {
+        "loading_empty": "沒有訂閱"
+      }
+    },
+    "transactions-table": {
+      "spinner": {
+        "loading_empty": "沒有交易"
+      }
+    },
+    "address-card": {
+      "spinner": {
+        "loading_empty": "沒有地址"
+      }
+    },
+    "customer-form": {
+      "invalid_credential_error": "密碼錯誤。 請確保您已輸入現時或臨時密碼，然後重試。",
+      "change_password_step_1": "讓我們從您現時的密碼開始。 如果您有臨時密碼，也可以使用臨時密碼。",
+      "change_password_step_2": "現在輸入一個新密碼並點擊繼續, 將更改應用到您的帳戶。",
+      "change_password_step_3": "完成！ 您現在可以使用新密碼登錄。",
+      "change_password": "更改密碼",
+      "sign_in": "繼續"
+    },
+    "payment-method-card": {
+      "spinner": {
+        "loading_empty": "沒有付款方式"
+      }
+    }
+  }
+}
