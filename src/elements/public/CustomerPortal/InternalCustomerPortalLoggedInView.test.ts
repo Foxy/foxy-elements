@@ -41,12 +41,11 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
     const customer = (await getByTestId(element, 'customer')) as Customer;
     const hiddenByDefault = [
-      'header:actions:edit:form:delete',
       'attributes',
       'transactions',
       'subscriptions',
       'addresses:actions:create',
-      'payment-methods:list:card',
+      'header:actions:edit:form:delete',
     ];
 
     expect(customer).to.be.instanceOf(Customer);

@@ -129,14 +129,30 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector.zoom('customer');
-    const extendedhiddencontrolsArray = [
-      hiddenSelector.toString(),
-      'header:actions:edit:form:delete',
+    const optionallyHiddenInCustomer = ['payment-methods'];
+    const alwaysHiddenInCustomer = [
       'attributes',
       'transactions',
       'subscriptions',
       'addresses:actions:create',
-      'payment-methods:list:card',
+      'header:actions:edit:form:delete',
+    ];
+
+    const customerHiddenControls = [
+      ...optionallyHiddenInCustomer
+        .filter(id => hiddenSelector.matches(id))
+        .map(id => `${id}:${hiddenSelector.zoom(id)}`),
+
+      ...alwaysHiddenInCustomer.map(id => {
+        const splitId = id.split(':');
+
+        for (let i = 0; i < splitId.length; ++i) {
+          const hostId = splitId.slice(0, i + 1).join(':');
+          if (hiddenSelector.matches(hostId, true)) return hostId;
+        }
+
+        return id;
+      }),
     ];
 
     const templates: CustomerTemplates = this.getNestedTemplates('customer');
@@ -145,7 +161,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     const originalDefaultTemplate = templates['default'];
 
     templates['header:actions:after'] = (html, host) => {
-      const isSignOutHidden = host.hiddenSelector.matches('header:actions:sign-out', true);
+      const isSignOutHidden = hiddenSelector.matches('header:actions:sign-out', true);
       return html`
         <div style="display:flex">
           ${isSignOutHidden ? '' : this.__renderHeaderActionsSignOut()}
@@ -206,7 +222,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       <foxy-customer
         readonlycontrols=${this.readonlySelector.zoom('customer').toString()}
         disabledcontrols=${this.disabledSelector.zoom('customer').toString()}
-        hiddencontrols=${extendedhiddencontrolsArray.join(' ').trim()}
+        hiddencontrols=${customerHiddenControls.join(' ')}
         data-testid="customer"
         group=${this.group}
         href=${this.customer}
