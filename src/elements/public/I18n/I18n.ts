@@ -119,7 +119,7 @@ export class I18n extends TranslatableMixin(LitElement, '') {
 }
 
 I18n.i18next.init({
-  interpolation: { format },
+  interpolation: { format, escapeValue: false },
   fallbackLng: 'en',
   fallbackNS: 'shared',
   defaultNS: 'shared',
