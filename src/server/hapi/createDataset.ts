@@ -584,4 +584,26 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2012-08-10T11:58:54-0700',
     },
   ],
+
+  coupons: [
+    {
+      id: 0,
+      store_id: 0,
+      name: 'October Sale',
+      start_date: '2020-03-29T13:57:40-0700',
+      end_date: null,
+      number_of_uses_allowed: 100,
+      number_of_uses_to_date: 31,
+      number_of_uses_allowed_per_code: 0,
+      coupon_discount_type: 'quantity_percentage',
+      coupon_discount_details: 'repeat|6-10',
+      combinable: true,
+      multiple_codes_allowed: true,
+      exclude_category_discounts: false,
+      exclude_line_item_discounts: false,
+      is_taxable: true,
+      date_created: '2014-04-21T13:40:45-0700',
+      date_modified: '2015-03-16T12:30:58-0700',
+    },
+  ],
 });
