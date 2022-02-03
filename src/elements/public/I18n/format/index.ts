@@ -1,11 +1,13 @@
 import { FormatFunction } from 'i18next';
 import { date } from './date';
+import { ordinal } from './ordinal';
 import { percent } from './percent';
 import { price } from './price';
 import { time } from './time';
 
 const formatters: Record<string, FormatFunction> = {
   percent,
+  ordinal,
   price,
   date,
   time,
