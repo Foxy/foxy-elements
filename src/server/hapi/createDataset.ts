@@ -606,4 +606,10 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2015-03-16T12:30:58-0700',
     },
   ],
+  generate_codes: [
+    {
+      id: 0,
+      message: 'All codes added successfully.',
+    },
+  ],
 });

@@ -410,4 +410,8 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+  generate_codes: () => ({
+    id: increment('generate_codes'),
+    message: 'All codes added successfully.',
+  }),
 };

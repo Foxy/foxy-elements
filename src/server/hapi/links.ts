@@ -173,7 +173,8 @@ export const links: Links = {
   coupons: ({ store_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:coupon_codes': { href: `./coupon_codes?coupon_id=${id}` },
-    'fx:generate_codes': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:generate_codes': { href: './generate_codes' },
     'fx:coupon_item_categories': { href: `./coupon_item_categories?coupon_id=${id}` },
   }),
+  generate_codes: () => ({}),
 };
