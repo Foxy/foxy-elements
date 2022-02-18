@@ -22,6 +22,7 @@ function cssVar(foxy, fallback) {
 
 const colorsMap = {
   transparent: 'transparent',
+  current: 'currentColor',
   base: cssVar('base-color', '#fff'),
   tint: {
     5: cssVar('tint-5pct', 'hsla(0, 0%, 100%, 0.3)'),
