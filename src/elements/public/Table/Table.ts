@@ -33,14 +33,30 @@ export class Table<TData extends Collection> extends Base<TData> {
 
   /** @readonly */
   render(): TemplateResult {
+    const hasHeaders = this.columns.some(column => !!column.header);
+
     return html`
-      <div data-testid="wrapper" class="relative" aria-busy=${this.in('busy')} aria-live="polite">
+      <div
+        data-testid="wrapper"
+        aria-busy=${this.in('busy')}
+        aria-live="polite"
+        class="relative font-lumo text-m"
+      >
         <table class="table-fixed w-full" data-testid="table">
-          <thead class="sr-only">
+          <thead class=${hasHeaders ? 'border-b border-contrast-10' : 'sr-only'}>
             <tr>
-              ${this.columns.map(column => {
+              ${this.columns.map((column, columnIndex) => {
                 return html`
-                  <th>
+                  <th
+                    class=${classMap({
+                      'truncate h-l text-tertiary text-m text-left font-medium': true,
+                      'text-right': columnIndex === this.columns.length - 1,
+                      'hidden sm-table-cell': column.hideBelow === 'sm',
+                      'hidden md-table-cell': column.hideBelow === 'md',
+                      'hidden lg-table-cell': column.hideBelow === 'lg',
+                      'hidden xl-table-cell': column.hideBelow === 'xl',
+                    })}
+                  >
                     ${column.header?.({ html, lang: this.lang, data: this.data, ns: this.ns })}
                   </th>
                 `;
@@ -61,7 +77,7 @@ export class Table<TData extends Collection> extends Base<TData> {
                           'hidden md-table-cell': column.hideBelow === 'md',
                           'hidden lg-table-cell': column.hideBelow === 'lg',
                           'hidden xl-table-cell': column.hideBelow === 'xl',
-                          'truncate h-l font-lumo text-body text-m': true,
+                          'truncate h-l text-body': true,
                         })}
                       >
                         ${resource
