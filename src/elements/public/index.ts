@@ -28,6 +28,7 @@ export { GenerateCodesForm } from './GenerateCodesForm/GenerateCodesForm';
 export { I18n } from './I18n/I18n';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
 export { NucleonElement } from './NucleonElement/NucleonElement';
+export { Pagination } from './Pagination/Pagination';
 export { PaymentCard } from './PaymentCard/PaymentCard';
 export { PaymentMethodCard } from './PaymentMethodCard/PaymentMethodCard';
 export { QueryBuilder } from './QueryBuilder/QueryBuilder';
