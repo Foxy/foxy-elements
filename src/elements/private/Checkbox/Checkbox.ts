@@ -28,13 +28,25 @@ export class Checkbox extends ThemeableMixin(LitElement) {
     return [
       super.styles,
       css`
+        :host {
+          --check-size: 1.125rem;
+        }
+
+        label {
+          margin: calc(((1rem * var(--lumo-line-height-s)) - var(--check-size)) / -2) 0;
+        }
+
+        label > :first-child {
+          height: calc(1rem * var(--lumo-line-height-s));
+        }
+
         .ml-xxl {
-          margin-left: calc(var(--lumo-space-m) + 1.125rem);
+          margin-left: calc(var(--lumo-space-m) + var(--check-size));
         }
 
         .check {
-          height: 1.125rem;
-          width: 1.125rem;
+          height: var(--check-size);
+          width: var(--check-size);
         }
       `,
     ];
@@ -50,52 +62,54 @@ export class Checkbox extends ThemeableMixin(LitElement) {
     return html`
       <label
         class=${classMap({
-          'flex group transition-colors': true,
+          'flex items-start group transition-colors': true,
           'cursor-default': this.disabled || this.readonly,
           'text-disabled': this.disabled,
           'text-secondary': this.readonly,
           'cursor-pointer': !this.disabled,
         })}
       >
-        <div
-          class=${classMap({
-            'flex-shrink-0 check transition-colors rounded-s border': true,
-            'focus-within-shadow-outline': true,
-            'bg-primary text-primary-contrast': !this.readonly && this.checked,
-            'border-dashed border-contrast-30': this.readonly,
-            'border-transparent': !this.readonly,
-            'opacity-50': this.disabled,
-            'text-secondary bg-contrast-20': !this.readonly && !this.checked,
-            'group-hover-bg-contrast-30': !this.readonly && !this.checked,
-          })}
-        >
-          <iron-icon
-            icon="lumo:checkmark"
+        <div class="flex items-center">
+          <div
             class=${classMap({
-              'block w-full h-full transition-transform transform': true,
-              'scale-100': this.checked,
-              'scale-0': !this.checked,
+              'flex-shrink-0 check transition-colors rounded-s border': true,
+              'focus-within-shadow-outline': true,
+              'bg-primary text-primary-contrast': !this.readonly && this.checked,
+              'border-dashed border-contrast-30': this.readonly,
+              'border-transparent': !this.readonly,
+              'opacity-50': this.disabled,
+              'text-secondary bg-contrast-20': !this.readonly && !this.checked,
+              'group-hover-bg-contrast-30': !this.readonly && !this.checked,
             })}
           >
-          </iron-icon>
+            <iron-icon
+              icon="lumo:checkmark"
+              class=${classMap({
+                'block w-full h-full transition-transform transform': true,
+                'scale-100': this.checked,
+                'scale-0': !this.checked,
+              })}
+            >
+            </iron-icon>
 
-          <input
-            type="checkbox"
-            class="sr-only"
-            .checked=${this.checked}
-            ?disabled=${this.disabled}
-            data-testid="input"
-            @change=${(evt: Event) => {
-              if (this.readonly) return evt.preventDefault();
+            <input
+              type="checkbox"
+              class="sr-only"
+              .checked=${this.checked}
+              ?disabled=${this.disabled}
+              data-testid="input"
+              @change=${(evt: Event) => {
+                if (this.readonly) return evt.preventDefault();
 
-              evt.stopPropagation();
-              this.checked = !this.checked;
-              this.dispatchEvent(new CheckboxChangeEvent(this.checked));
-            }}
-          />
+                evt.stopPropagation();
+                this.checked = !this.checked;
+                this.dispatchEvent(new CheckboxChangeEvent(this.checked));
+              }}
+            />
+          </div>
         </div>
 
-        <div class="flex-1 font-lumo leading-m -mt-xs ml-m">
+        <div class="flex-1 font-lumo leading-s ml-m">
           <slot></slot>
         </div>
       </label>
