@@ -87,40 +87,27 @@ export class CouponCard extends Base<Data> {
   }
 
   private __renderDescription() {
-    let descriptions: TemplateResult[];
+    let summary: TemplateResult | null = null;
 
     if (this.data) {
-      const methods = ['allunits', 'incremental', 'repeat', 'single'];
-      const factor = this.data.coupon_discount_type.endsWith('_percentage') ? 0.01 : 1;
-      const tiers = this.data.coupon_discount_details.split('|');
-      const method = methods.includes(tiers[0]) ? tiers.shift() : 'single';
-      const i18nKey = `${method}_${this.data.coupon_discount_type}_discount_summary`;
+      const details = this.data.coupon_discount_details;
+      const type = this.data.coupon_discount_type;
 
-      descriptions = tiers.map((tier, index) => {
-        const signIndex = /[-+]/.exec(tier)?.index ?? -1;
-        const adjustment = parseFloat(tier.substring(signIndex)) * factor;
-        const from = parseFloat(tier.substring(0, signIndex));
-
-        return html`
-          ${index === 0 ? '' : html`&bull;`}
-
-          <foxy-i18n
-            options=${JSON.stringify({ adjustment, from })}
-            lang=${this.lang}
-            key=${i18nKey}
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-        `;
-      });
-    } else {
-      descriptions = [html`&ZeroWidthSpace;`];
+      summary = html`
+        <foxy-i18n
+          options=${JSON.stringify({ params: { details, type } })}
+          lang=${this.lang}
+          key="discount_summary"
+          ns=${this.ns}
+        >
+        </foxy-i18n>
+      `;
     }
 
     return html`
       <div>
         ${this.renderTemplateOrSlot('description:before')}
-        <div class="truncate text-s text-secondary">${descriptions}</div>
+        <div class="truncate text-s text-secondary">${summary ?? html`&ZeroWidthSpace;`}</div>
         ${this.renderTemplateOrSlot('description:after')}
       </div>
     `;
