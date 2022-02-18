@@ -184,4 +184,16 @@ export const links: Links = {
   }),
 
   generate_codes: () => ({}),
+
+  item_categories: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:email_templates': { href: `./email_templates?store_id=${store_id}` },
+    'fx:tax_item_categories': { href: `./tax_item_categories?item_category_id=${id}` },
+  }),
+
+  coupon_item_categories: ({ item_category_id, coupon_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:item_category': { href: `./item_categories/${item_category_id}` },
+  }),
 };
