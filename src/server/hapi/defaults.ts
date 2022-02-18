@@ -410,6 +410,17 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  coupon_codes: query => ({
+    id: increment('coupon_codes'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    coupon_id: parseInt(query.get('coupon_id') ?? '0'),
+    code: '',
+    number_of_uses_to_date: 0,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   generate_codes: () => ({
     id: increment('generate_codes'),
     message: 'All codes added successfully.',

@@ -606,6 +606,17 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2015-03-16T12:30:58-0700',
     },
   ],
+
+  coupon_codes: new Array(100).fill(0).map((_, id) => ({
+    id,
+    store_id: 0,
+    coupon_id: 0,
+    code: `OCTBRSL22${id}`,
+    number_of_uses_to_date: Math.floor(Math.random() * 100),
+    date_created: '2014-04-21T13:40:45-0700',
+    date_modified: '2022-02-16T12:30:58-0700',
+  })),
+
   generate_codes: [
     {
       id: 0,

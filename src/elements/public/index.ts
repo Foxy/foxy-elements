@@ -8,6 +8,7 @@ export { CancellationForm } from './CancellationForm/CancellationForm';
 export { CollectionPage } from './CollectionPage/CollectionPage';
 export { CollectionPages } from './CollectionPages/CollectionPages';
 export { CouponCard } from './CouponCard/CouponCard';
+export { CouponCodeForm } from './CouponCodeForm/CouponCodeForm';
 export { Customer } from './Customer/Customer';
 export { CustomerApi } from './CustomerApi/CustomerApi';
 export { CustomerCard } from './CustomerCard/CustomerCard';
