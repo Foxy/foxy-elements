@@ -669,4 +669,15 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2015-03-16T12:30:58-0700',
     },
   ],
+
+  gift_card_codes: new Array(100).fill(0).map((_, id) => ({
+    id,
+    store_id: 0,
+    gift_card_id: 0,
+    code: `GIFTCARD${id}`,
+    end_date: Math.random() > 0.5 ? '2022-02-16T12:30:58-0700' : null,
+    current_balance: Math.round(Math.random() * 100),
+    date_created: '2014-04-21T13:40:45-0700',
+    date_modified: '2022-02-16T12:30:58-0700',
+  })),
 });

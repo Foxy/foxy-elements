@@ -478,4 +478,15 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  gift_card_codes: query => ({
+    id: increment('gift_card_codes'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
+    code: '',
+    end_date: null,
+    current_balance: 0,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };
