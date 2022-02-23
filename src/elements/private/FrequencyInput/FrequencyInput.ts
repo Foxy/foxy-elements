@@ -1,5 +1,6 @@
-import '@vaadin/vaadin-combo-box';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
+import '@vaadin/vaadin-custom-field';
+import '@vaadin/vaadin-combo-box';
 import '../../public/I18n/index';
 
 import {
@@ -11,7 +12,7 @@ import {
   css,
   html,
 } from 'lit-element';
-import { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
+import type { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
 
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
 import { live } from '@open-wc/lit-helpers';
@@ -41,6 +42,7 @@ export class FrequencyInput extends LitElement {
         width: 100%;
         font-size: 0;
         line-height: 0;
+        padding-top: 0 !important;
       }
 
       vaadin-custom-field::part(label) {

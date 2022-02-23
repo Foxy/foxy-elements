@@ -29,6 +29,7 @@ export { GenerateCodesForm } from './GenerateCodesForm/GenerateCodesForm';
 export { GiftCardCard } from './GiftCardCard/GiftCardCard';
 export { GiftCardCodeForm } from './GiftCardCodeForm/GiftCardCodeForm';
 export { GiftCardCodesForm } from './GiftCardCodesForm/GiftCardCodesForm';
+export { GiftCardForm } from './GiftCardForm/GiftCardForm';
 export { I18n } from './I18n/I18n';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
 export { NucleonElement } from './NucleonElement/NucleonElement';
