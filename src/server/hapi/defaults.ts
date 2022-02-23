@@ -467,4 +467,15 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  gift_cards: query => ({
+    id: increment('coupon_item_categories'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    name: '',
+    currency_code: '',
+    expires_after: null,
+    product_code_restrictions: null,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };

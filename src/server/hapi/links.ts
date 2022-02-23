@@ -196,4 +196,11 @@ export const links: Links = {
     'fx:coupon': { href: `./coupons/${coupon_id}` },
     'fx:item_category': { href: `./item_categories/${item_category_id}` },
   }),
+
+  gift_cards: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:generate_codes': { href: './generate_codes' },
+    'fx:gift_card_codes': { href: `./gift_card_codes?gift_card_id=${id}` },
+    'fx:gift_card_item_categories': { href: `./gift_card_item_categories?gift_card_id=${id}` },
+  }),
 };

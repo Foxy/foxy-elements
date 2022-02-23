@@ -26,6 +26,7 @@ export { EmailTemplateForm } from './EmailTemplateForm/EmailTemplateForm';
 export { ErrorEntryCard } from './ErrorEntryCard/ErrorEntryCard';
 export { FormDialog } from './FormDialog/FormDialog';
 export { GenerateCodesForm } from './GenerateCodesForm/GenerateCodesForm';
+export { GiftCardCard } from './GiftCardCard/GiftCardCard';
 export { I18n } from './I18n/I18n';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
 export { NucleonElement } from './NucleonElement/NucleonElement';

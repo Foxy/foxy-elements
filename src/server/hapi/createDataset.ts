@@ -656,4 +656,17 @@ export const createDataset: () => Dataset = () => ({
   })),
 
   coupon_item_categories: [],
+
+  gift_cards: [
+    {
+      id: 0,
+      store_id: 0,
+      name: 'Silver Gift Card (US)',
+      currency_code: 'USD',
+      expires_after: '5y',
+      product_code_restrictions: 'abc123,fun_*,*_small,-foobar,-*_example,-test_code',
+      date_created: '2014-04-21T13:40:45-0700',
+      date_modified: '2015-03-16T12:30:58-0700',
+    },
+  ],
 });
