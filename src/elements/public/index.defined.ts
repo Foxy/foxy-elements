@@ -28,6 +28,7 @@ export { FormDialog } from './FormDialog/index';
 export { GenerateCodesForm } from './GenerateCodesForm/index';
 export { GiftCardCard } from './GiftCardCard/index';
 export { GiftCardCodeForm } from './GiftCardCodeForm/index';
+export { GiftCardCodesForm } from './GiftCardCodesForm/index';
 export { I18n } from './I18n/index';
 export { ItemsForm, Item } from './ItemsForm/index';
 export { NucleonElement } from './NucleonElement/index';
