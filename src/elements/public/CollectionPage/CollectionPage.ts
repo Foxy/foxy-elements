@@ -117,7 +117,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
     return html`${repeat(
       items,
       item => item.key,
-      item =>
+      (item, index) =>
         this.__renderItem?.({
           disabledControls: this.disabledControls,
           readonlyControls: this.readonlyControls,
@@ -125,6 +125,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
           templates: this.templates,
           disabled: this.disabled,
           readonly: this.readonly,
+          previous: items[index - 1]?.data ?? null,
           hidden: this.hidden,
           parent: this.href,
           spread: spread,
@@ -133,6 +134,7 @@ export class CollectionPage<TPage extends Page> extends ConfigurableMixin(Nucleo
           lang: this.lang,
           data: item.data,
           href: item.href,
+          next: items[index + 1]?.data ?? null,
           ns: this.ns,
           html,
         })
