@@ -1,21 +1,8 @@
-import { Data as GiftCardCode } from '../GiftCardCodeForm/types';
+import { Rels } from '@foxy.io/sdk/backend';
+import { Resource } from '@foxy.io/sdk/core';
 
-export { Data } from '../GiftCardCard/types';
-
-export type GiftCardCodes = {
-  _embedded: { 'fx:gift_card_codes': GiftCardCode[] };
-  _links: {
-    first: { href: string };
-    prev: { href: string };
-    next: { href: string };
-    last: { href: string };
-    self: { href: string };
-  };
-  returned_items: number;
-  total_items: number;
-  offset: number;
-  limit: number;
-};
+export type Data = Resource<Rels.GiftCard>;
+export type GiftCardCodes = Resource<Rels.GiftCardCodes>;
 
 export type RulesTierParams = {
   source: string;

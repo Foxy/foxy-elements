@@ -1207,8 +1207,6 @@ export class CouponForm extends Base<Data> {
                   endDate = serializeDate(new Date(oneMonthFromToday));
                 }
 
-                // TODO: remove ts directive when sdk types are fixed
-                // @ts-expect-error sdk types don't include null
                 this.edit({ start_date: startDate, end_date: endDate });
               }
             }}

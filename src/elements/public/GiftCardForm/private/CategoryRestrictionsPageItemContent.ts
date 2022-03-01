@@ -1,19 +1,17 @@
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
-import { ConfigurableMixin } from '../../../../mixins/configurable';
-import { ThemeableMixin } from '../../../../mixins/themeable';
-import { TranslatableMixin } from '../../../../mixins/translatable';
+import { TemplateResult, html } from 'lit-html';
+
 import { Checkbox } from '../../../private/Checkbox/Checkbox';
 import { CheckboxChangeEvent } from '../../../private/events';
+import { ConfigurableMixin } from '../../../../mixins/configurable';
 import { NucleonElement } from '../../NucleonElement/NucleonElement';
+import { PropertyDeclarations } from 'lit-element';
+import { Rels } from '@foxy.io/sdk/backend';
+import { Resource } from '@foxy.io/sdk/core';
+import { ThemeableMixin } from '../../../../mixins/themeable';
+import { TranslatableMixin } from '../../../../mixins/translatable';
 
-type Data = {
-  _links: { self: { href: string } };
-  item_category_uri: string;
-  gift_card_uri: string;
-};
-
+type Data = Resource<Rels.GiftCardItemCategory>;
 const Base = ConfigurableMixin(
   ScopedElementsMixin(ThemeableMixin(TranslatableMixin(NucleonElement)))
 );

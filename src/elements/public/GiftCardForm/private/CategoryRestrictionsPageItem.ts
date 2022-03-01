@@ -1,19 +1,18 @@
-import { ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { PropertyDeclarations } from 'lit-element';
-import { html, TemplateResult } from 'lit-html';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import { TemplateResult, html } from 'lit-html';
+
+import { CategoryRestrictionsPageItemContent } from './CategoryRestrictionsPageItemContent';
 import { ConfigurableMixin } from '../../../../mixins/configurable';
+import { NucleonElement } from '../../NucleonElement/NucleonElement';
+import { PropertyDeclarations } from 'lit-element';
+import { Rels } from '@foxy.io/sdk/backend';
+import { Resource } from '@foxy.io/sdk/core';
+import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ThemeableMixin } from '../../../../mixins/themeable';
 import { TranslatableMixin } from '../../../../mixins/translatable';
-import { NucleonElement } from '../../NucleonElement/NucleonElement';
-import { CategoryRestrictionsPageItemContent } from './CategoryRestrictionsPageItemContent';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
-type Data = {
-  _links: { self: { href: string } };
-  _embedded: { 'fx:gift_card_item_categories': { _links: { self: { href: string } } }[] };
-};
-
+type Data = Resource<Rels.GiftCardItemCategories>;
 const Base = ConfigurableMixin(
   ScopedElementsMixin(ThemeableMixin(TranslatableMixin(NucleonElement)))
 );

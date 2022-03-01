@@ -12,9 +12,12 @@ import { ThemeableMixin } from '../../../../mixins/themeable';
 import { TranslatableMixin } from '../../../../mixins/translatable';
 import { classMap } from '../../../../utils/class-map';
 
-export class CategoryRestrictionsPage extends ConfigurableMixin(
+type Data = Resource<Rels.ItemCategories>;
+const Base = ConfigurableMixin(
   ScopedElementsMixin(ThemeableMixin(TranslatableMixin(NucleonElement)))
-)<Resource<Rels.ItemCategories>> {
+);
+
+export class CategoryRestrictionsPage extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-spinner': customElements.get('foxy-spinner'),

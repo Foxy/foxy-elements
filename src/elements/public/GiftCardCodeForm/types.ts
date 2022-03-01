@@ -1,20 +1,9 @@
-import { Renderer } from '../../../mixins/configurable';
 import { GiftCardCodeForm } from './GiftCardCodeForm';
+import { Rels } from '@foxy.io/sdk/backend';
+import { Renderer } from '../../../mixins/configurable';
+import { Resource } from '@foxy.io/sdk/core';
 
-export type Data = {
-  _links: {
-    'curies': [{ href: string }];
-    'self': { href: string };
-    'fx:store': { href: string };
-    'fx:gift_card': { href: string };
-    'fx:gift_card_code_logs': { href: string };
-  };
-  code: string;
-  current_balance: number;
-  end_date: string | null;
-  date_created: string | null;
-  date_modified: string | null;
-};
+export type Data = Resource<Rels.GiftCardCode>;
 
 export type Templates = {
   'code:before'?: Renderer<GiftCardCodeForm>;
