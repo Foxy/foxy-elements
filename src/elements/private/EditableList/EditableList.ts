@@ -95,6 +95,7 @@ export class EditableList extends TranslatableMixin(ConfigurableMixin(ThemeableM
           ?disabled=${this.disabled}
           ?readonly=${this.readonly}
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && addItem()}
+          @change=${(evt: Event) => evt.stopPropagation()}
           @input=${(evt: InputEvent) => {
             this.__newItem = (evt.currentTarget as HTMLInputElement).value.trim();
           }}
