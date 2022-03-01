@@ -6,6 +6,7 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { EditableList } from '../../private/EditableList/EditableList';
 import { Group } from '../../private/Group/Group';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { NucleonV8N } from '../NucleonElement/types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
@@ -40,6 +41,10 @@ export class CouponCodesForm extends Base<Data> {
       'x-editable-list': EditableList,
       'x-group': Group,
     };
+  }
+
+  static get v8n(): NucleonV8N<Data> {
+    return [({ coupon_codes: v }) => (v && v.length > 0) || 'coupon_codes_required'];
   }
 
   templates: Templates = {};
@@ -203,6 +208,10 @@ export class CouponCodesForm extends Base<Data> {
   }
 
   private __renderImport() {
+    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isValid = isTemplateValid || isSnapshotValid;
+
     return html`
       <div>
         ${this.renderTemplateOrSlot('import:before')}
@@ -210,7 +219,7 @@ export class CouponCodesForm extends Base<Data> {
         <vaadin-button
           class="w-full mb-xs"
           theme="primary success"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('import', true)}
+          ?disabled=${!isValid || !this.in('idle') || this.disabledSelector.matches('import', true)}
           @click=${this.submit}
         >
           <foxy-i18n ns=${this.ns} key="import" lang=${this.lang}></foxy-i18n>
