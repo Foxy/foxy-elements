@@ -4,10 +4,12 @@ import { discount } from './discount';
 import { ordinal } from './ordinal';
 import { percent } from './percent';
 import { price } from './price';
+import { relative } from './relative';
 import { time } from './time';
 
 const formatters: Record<string, FormatFunction> = {
   discount,
+  relative,
   percent,
   ordinal,
   price,
