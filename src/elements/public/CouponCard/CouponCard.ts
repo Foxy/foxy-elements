@@ -65,7 +65,7 @@ export class CouponCard extends Base<Data> {
     const total = this.data?.number_of_uses_allowed ?? 0;
 
     return html`
-      <div>
+      <div data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
 
         <div class="flex items-center justify-between">
@@ -105,7 +105,7 @@ export class CouponCard extends Base<Data> {
     }
 
     return html`
-      <div>
+      <div data-testid="description">
         ${this.renderTemplateOrSlot('description:before')}
         <div class="truncate text-s text-secondary">${summary ?? html`&ZeroWidthSpace;`}</div>
         ${this.renderTemplateOrSlot('description:after')}
@@ -118,7 +118,7 @@ export class CouponCard extends Base<Data> {
     const type = start && end ? 'complete' : start ? 'from' : end ? 'until' : 'any';
 
     return html`
-      <div>
+      <div data-testid="status">
         ${this.renderTemplateOrSlot('status:before')}
 
         <foxy-i18n
