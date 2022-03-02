@@ -100,7 +100,7 @@ export class GiftCardCard extends Base<Data> {
       options = JSON.stringify({ value });
       key = 'expires_after_value';
     } else {
-      options = '';
+      options = '{}';
       key = 'never_expires';
     }
 

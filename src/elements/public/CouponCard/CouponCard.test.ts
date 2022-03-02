@@ -20,6 +20,10 @@ describe('CouponCard', () => {
     expect(customElements.get('foxy-coupon-card')).to.equal(CouponCard);
   });
 
+  it('has a default i18next namespace "coupon-card"', () => {
+    expect(new CouponCard()).to.have.property('ns', 'coupon-card');
+  });
+
   describe('title', () => {
     it('is visible by default', async () => {
       const data = await getTestData<Data>('./hapi/coupons/0');
