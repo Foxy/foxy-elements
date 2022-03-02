@@ -282,7 +282,7 @@
   "error": "Error",
   "expires": "Expires",
   "expires_after": "Expires after",
-  "expires_after_value": "Expires {{value}}",
+  "expires_after_value": "Expires {{value, relative}}",
   "field": "Field",
   "field_plural": "Fields",
   "filter": "Filter",

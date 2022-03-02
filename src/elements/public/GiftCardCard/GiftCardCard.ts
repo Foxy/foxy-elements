@@ -6,7 +6,6 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
-import { parseDuration } from '../../../utils/parse-duration';
 
 const NS = 'gift-card-card';
 const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)));
@@ -77,42 +76,17 @@ export class GiftCardCard extends Base<Data> {
   }
 
   private __renderStatus() {
-    let options: string;
-    let key: string;
-
-    if (this.data?.expires_after) {
-      let value: string;
-
-      try {
-        const rtf = new Intl.RelativeTimeFormat(this.lang);
-        let { count, units } = parseDuration(this.data.expires_after, true);
-
-        if (count === 0.5 && units === 'month') {
-          count = 2;
-          units = 'week';
-        }
-
-        value = rtf.format(count, units as Intl.RelativeTimeFormatUnit);
-      } catch {
-        value = this.data.expires_after;
-      }
-
-      options = JSON.stringify({ value });
-      key = 'expires_after_value';
-    } else {
-      options = '{}';
-      key = 'never_expires';
-    }
+    const expiresAfter = this.data?.expires_after;
 
     return html`
       <div>
         ${this.renderTemplateOrSlot('status:before')}
 
         <foxy-i18n
-          options=${options}
+          options=${JSON.stringify({ value: expiresAfter })}
           class="block truncate text-s text-tertiary"
           lang=${this.lang}
-          key=${key}
+          key=${expiresAfter ? 'expires_after_value' : 'never_expires'}
           ns=${this.ns}
         >
         </foxy-i18n>
