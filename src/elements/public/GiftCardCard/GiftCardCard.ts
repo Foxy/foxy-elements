@@ -62,7 +62,7 @@ export class GiftCardCard extends Base<Data> {
     const code = this.data?.currency_code ?? html`&ZeroWidthSpace;`;
 
     return html`
-      <div>
+      <div data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
 
         <div class="flex items-center justify-between">
@@ -79,7 +79,7 @@ export class GiftCardCard extends Base<Data> {
     const expiresAfter = this.data?.expires_after;
 
     return html`
-      <div>
+      <div data-testid="status">
         ${this.renderTemplateOrSlot('status:before')}
 
         <foxy-i18n
