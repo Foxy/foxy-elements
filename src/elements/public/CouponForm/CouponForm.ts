@@ -761,7 +761,9 @@ export class CouponForm extends Base<Data> {
       <foxy-form-dialog
         disabledcontrols=${disabledSelector.zoom('codes:generate:form').toString()}
         readonlycontrols=${this.readonlySelector.zoom('codes:generate:form').toString()}
-        hiddencontrols="save-button ${this.hiddenSelector.zoom('codes:generate:form').toString()}"
+        hiddencontrols="save-button current-balance ${this.hiddenSelector
+          .zoom('codes:generate:form')
+          .toString()}"
         related=${JSON.stringify([url.toString()])}
         header="generate"
         parent=${data?._links['fx:generate_codes'].href ?? ''}

@@ -5,6 +5,7 @@ import { TemplateResult, html } from 'lit-html';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { EditableList } from '../../private/EditableList/EditableList';
 import { Group } from '../../private/Group/Group';
+import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
 import { ThemeableMixin } from '../../../mixins/themeable';
@@ -22,6 +23,9 @@ const Base = ConfigurableMixin(
  * @slot codes:before
  * @slot codes:after
  *
+ * @slot current-balance:before
+ * @slot current-balance:after
+ *
  * @slot import:before
  * @slot import:after
  *
@@ -31,6 +35,7 @@ const Base = ConfigurableMixin(
 export class GiftCardCodesForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
       'vaadin-button': customElements.get('vaadin-button'),
       'iron-icon': customElements.get('iron-icon'),
 
@@ -44,7 +49,10 @@ export class GiftCardCodesForm extends Base<Data> {
   }
 
   static get v8n(): NucleonV8N<Data> {
-    return [({ gift_card_codes: v }) => (v && v.length > 0) || 'gift_card_codes_required'];
+    return [
+      ({ gift_card_codes: v }) => (v && v.length > 0) || 'gift_card_codes_required',
+      ({ current_balance: v }) => !v || v >= 0 || 'current_balance_negative',
+    ];
   }
 
   templates: Templates = {};
@@ -70,6 +78,7 @@ export class GiftCardCodesForm extends Base<Data> {
           })}
         >
           ${hiddenSelector.matches('codes', true) ? '' : this.__renderCodes()}
+          ${hiddenSelector.matches('current-balance', true) ? '' : this.__renderCurrentBalance()}
           ${hiddenSelector.matches('import', true) ? '' : this.__renderImport()}
         </div>
 
@@ -106,6 +115,15 @@ export class GiftCardCodesForm extends Base<Data> {
         </div>
       </div>
     `;
+  }
+
+  private __getErrorMessage(prefix: string) {
+    const error = this.errors.find(err => err.startsWith(prefix));
+    return error ? this.t(error.replace(prefix, 'v8n')) : '';
+  }
+
+  private __getValidator(prefix: string) {
+    return () => !this.errors.some(err => err.startsWith(prefix));
   }
 
   private __renderCodes() {
@@ -203,6 +221,36 @@ export class GiftCardCodesForm extends Base<Data> {
         </foxy-i18n>
 
         ${this.renderTemplateOrSlot('codes:after')}
+      </div>
+    `;
+  }
+
+  private __renderCurrentBalance() {
+    const isTemplate = this.in({ idle: 'template' });
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot('current-balance:before')}
+
+        <vaadin-integer-field
+          error-message=${this.__getErrorMessage('current_balance')}
+          label=${this.t('balance')}
+          class="w-full"
+          min="0"
+          ?disabled=${!isTemplate || this.disabledSelector.matches('current-balance', true)}
+          ?readonly=${this.readonlySelector.matches('current-balance', true)}
+          prevent-invalid-input
+          has-controls
+          .checkValidity=${this.__getValidator('current_balance')}
+          .value=${isTemplate ? this.form.current_balance ?? 0 : ''}
+          @change=${(evt: CustomEvent) => {
+            const field = evt.currentTarget as IntegerFieldElement;
+            this.edit({ current_balance: parseInt(field.value) });
+          }}
+        >
+        </vaadin-integer-field>
+
+        ${this.renderTemplateOrSlot('current-balance:after')}
       </div>
     `;
   }

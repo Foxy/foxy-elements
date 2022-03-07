@@ -1,3 +1,4 @@
+import '@vaadin/vaadin-text-field/vaadin-integer-field';
 import '@vaadin/vaadin-button';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';

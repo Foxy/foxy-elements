@@ -25,6 +25,9 @@ const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, 
  * @slot prefix:before
  * @slot prefix:after
  *
+ * @slot current-balance:before
+ * @slot current-balance:after
+ *
  * @slot generate:before
  * @slot generate:after
  *
@@ -35,6 +38,7 @@ export class GenerateCodesForm extends Base<Data> {
   static get v8n(): NucleonV8N<Data> {
     return [
       ({ number_of_codes: v }) => (v && v > 0) || 'number_of_codes_required',
+      ({ current_balance: v }) => !v || v >= 0 || 'current_balance_negative',
       ({ length: v }) => (v && v > 0) || 'length_required',
     ];
   }
@@ -63,6 +67,7 @@ export class GenerateCodesForm extends Base<Data> {
         >
           ${hiddenSelector.matches('length', true) ? '' : this.__renderLength()}
           ${hiddenSelector.matches('number-of-codes', true) ? '' : this.__renderNumberOfCodes()}
+          ${hiddenSelector.matches('current-balance', true) ? '' : this.__renderCurrentBalance()}
           ${hiddenSelector.matches('prefix', true) ? '' : this.__renderPrefix()}
           ${hiddenSelector.matches('generate', true) ? '' : this.__renderGenerate()}
         </div>
@@ -164,6 +169,34 @@ export class GenerateCodesForm extends Base<Data> {
       </vaadin-integer-field>
 
       ${this.renderTemplateOrSlot('number-of-codes:after')}
+    `;
+  }
+
+  private __renderCurrentBalance() {
+    const isTemplate = this.in({ idle: 'template' });
+
+    return html`
+      ${this.renderTemplateOrSlot('current-balance:before')}
+
+      <vaadin-integer-field
+        error-message=${this.__getErrorMessage('current_balance')}
+        label=${this.t('balance')}
+        class="w-full col-span-2"
+        min="0"
+        ?disabled=${!isTemplate || this.disabledSelector.matches('current-balance', true)}
+        ?readonly=${this.readonlySelector.matches('current-balance', true)}
+        prevent-invalid-input
+        has-controls
+        .checkValidity=${this.__getValidator('current_balance')}
+        .value=${isTemplate ? this.form.current_balance ?? 0 : ''}
+        @change=${(evt: CustomEvent) => {
+          const field = evt.currentTarget as IntegerFieldElement;
+          this.edit({ current_balance: parseInt(field.value) });
+        }}
+      >
+      </vaadin-integer-field>
+
+      ${this.renderTemplateOrSlot('current-balance:after')}
     `;
   }
 
