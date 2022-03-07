@@ -142,10 +142,10 @@ export class GiftCardForm extends Base<Data> {
     },
     {
       hideBelow: 'sm',
-      header: c => html`<foxy-i18n lang=${c.lang} key="date_modified" ns=${c.ns}></foxy-i18n>`,
+      header: c => html`<foxy-i18n lang=${c.lang} key="end_date" ns=${c.ns}></foxy-i18n>`,
       cell: ctx => html`
         <foxy-i18n
-          options=${JSON.stringify({ value: ctx.data.date_modified })}
+          options=${JSON.stringify({ value: ctx.data.end_date })}
           class="text-tertiary"
           lang=${ctx.lang}
           key="date"
@@ -155,8 +155,19 @@ export class GiftCardForm extends Base<Data> {
       `,
     },
     {
-      header: c => html`<foxy-i18n lang=${c.lang} key="used_codes" ns=${c.ns}></foxy-i18n>`,
-      cell: ctx => html`${ctx.data.current_balance}`,
+      header: c => html`<foxy-i18n lang=${c.lang} key="current_balance" ns=${c.ns}></foxy-i18n>`,
+      cell: ctx => html`
+        <foxy-i18n
+          options=${JSON.stringify({
+            amount: `${ctx.data.current_balance} ${this.data?.currency_code}`,
+            currencyDisplay: this.__currencyDisplay,
+          })}
+          lang=${ctx.lang}
+          key="price"
+          ns=${ctx.ns}
+        >
+        </foxy-i18n>
+      `,
     },
   ];
 
@@ -169,6 +180,8 @@ export class GiftCardForm extends Base<Data> {
   ];
 
   private __codesTableQuery: string | null = null;
+
+  private __currencyDisplay = '';
 
   private __itemCategories = '';
 
@@ -226,6 +239,7 @@ export class GiftCardForm extends Base<Data> {
     const categoriesURL = new URL(store._links['fx:item_categories'].href);
 
     categoriesURL.searchParams.set('limit', '5');
+    this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
     this.__itemCategories = categoriesURL.toString();
 
     return giftCard;
