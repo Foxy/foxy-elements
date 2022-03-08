@@ -70,7 +70,7 @@ describe('SubscriptionForm', () => {
       `);
 
       const control = await getByTestId(element, 'header-title');
-      const options = { count: null, units: 'monthly', amount: '25 eur' };
+      const options = { count: 0.5, units: 'monthly', amount: '25 eur' };
 
       expect(control).to.have.property('localName', 'foxy-i18n');
       expect(control).to.have.attribute('options', JSON.stringify(options));
