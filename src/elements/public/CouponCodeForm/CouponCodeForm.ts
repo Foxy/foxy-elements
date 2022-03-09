@@ -141,7 +141,7 @@ export class CouponCodeForm extends Base<Data> {
         >
         </vaadin-text-field>
 
-        ${this.renderTemplateOrSlot('name:after')}
+        ${this.renderTemplateOrSlot('code:after')}
       </div>
     `;
   }
@@ -186,7 +186,7 @@ export class CouponCodeForm extends Base<Data> {
           class="w-full"
           theme="primary success"
           ?disabled=${isBusy || isInvalid || this.disabledSelector.matches('create', true)}
-          @click=${this.submit}
+          @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} key="create" lang=${this.lang}></foxy-i18n>
         </vaadin-button>
