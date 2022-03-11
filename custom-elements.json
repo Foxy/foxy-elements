@@ -7658,6 +7658,12 @@
           "name": "prefix:after"
         },
         {
+          "name": "current-balance:before"
+        },
+        {
+          "name": "current-balance:after"
+        },
+        {
           "name": "generate:before"
         },
         {
@@ -8388,6 +8394,12 @@
         },
         {
           "name": "codes:after"
+        },
+        {
+          "name": "current-balance:before"
+        },
+        {
+          "name": "current-balance:after"
         },
         {
           "name": "import:before"
