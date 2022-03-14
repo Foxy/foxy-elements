@@ -185,14 +185,14 @@ export class GenerateCodesForm extends Base<Data> {
     const isTemplate = this.in({ idle: 'template' });
 
     return html`
-      <div>
+      <div class="col-span-2">
         ${this.renderTemplateOrSlot('current-balance:before')}
 
         <vaadin-integer-field
           error-message=${this.__getErrorMessage('current_balance')}
           data-testid="current-balance"
           label=${this.t('balance')}
-          class="w-full col-span-2"
+          class="w-full"
           min="0"
           ?disabled=${!isTemplate || this.disabledSelector.matches('current-balance', true)}
           ?readonly=${this.readonlySelector.matches('current-balance', true)}
@@ -217,14 +217,14 @@ export class GenerateCodesForm extends Base<Data> {
     const isTemplate = this.in({ idle: 'template' });
 
     return html`
-      <div>
+      <div class="col-span-2">
         ${this.renderTemplateOrSlot('prefix:before')}
 
         <vaadin-text-field
           helper-text=${this.t('leave_empty_for_random_codes')}
           data-testid="prefix"
           label=${this.t('prefix')}
-          class="col-span-2"
+          class="w-full"
           min="1"
           ?disabled=${!isTemplate || this.disabledSelector.matches('prefix', true)}
           ?readonly=${this.readonlySelector.matches('prefix', true)}
@@ -247,12 +247,12 @@ export class GenerateCodesForm extends Base<Data> {
     const isValidTemplate = this.in({ idle: { template: { dirty: 'valid' } } });
 
     return html`
-      <div>
+      <div class="col-span-2 mt-m">
         ${this.renderTemplateOrSlot('generate:before')}
 
         <vaadin-button
           data-testid="generate"
-          class="col-span-2"
+          class="w-full"
           theme="success primary"
           ?disabled=${!isValidTemplate || this.disabledSelector.matches('generate', true)}
           @click=${() => this.submit()}
