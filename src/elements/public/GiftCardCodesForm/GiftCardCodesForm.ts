@@ -98,6 +98,7 @@ export class GiftCardCodesForm extends Base<Data> {
         </div>
 
         <div
+          data-testid="spinner"
           class=${classMap({
             'absolute inset-0 flex': true,
             [transition]: true,
@@ -159,13 +160,14 @@ export class GiftCardCodesForm extends Base<Data> {
     });
 
     return html`
-      <div>
+      <div data-testid="codes">
         ${this.renderTemplateOrSlot('codes:before')}
 
         <x-group class="mb-xs" frame>
           <foxy-i18n slot="header" lang=${this.lang} key="code_plural" ns=${this.ns}></foxy-i18n>
 
           <x-editable-list
+            data-testid="codes:list"
             lang=${this.lang}
             ns=${this.ns}
             ?disabled=${!this.in('idle') || this.disabledSelector.matches('codes', true)}
@@ -181,7 +183,7 @@ export class GiftCardCodesForm extends Base<Data> {
 
               const text = evt.clipboardData?.getData('text') ?? '';
               const pastedCodes = text
-                .split(' ')
+                .split(/\s/)
                 .map(code => code.trim())
                 .filter(code => code.length > 0);
 
@@ -234,6 +236,7 @@ export class GiftCardCodesForm extends Base<Data> {
 
         <vaadin-integer-field
           error-message=${this.__getErrorMessage('current_balance')}
+          data-testid="current-balance"
           label=${this.t('balance')}
           class="w-full"
           min="0"
@@ -243,6 +246,7 @@ export class GiftCardCodesForm extends Base<Data> {
           has-controls
           .checkValidity=${this.__getValidator('current_balance')}
           .value=${isTemplate ? this.form.current_balance ?? 0 : ''}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
           @change=${(evt: CustomEvent) => {
             const field = evt.currentTarget as IntegerFieldElement;
             this.edit({ current_balance: parseInt(field.value) });
@@ -265,10 +269,11 @@ export class GiftCardCodesForm extends Base<Data> {
         ${this.renderTemplateOrSlot('import:before')}
 
         <vaadin-button
+          data-testid="import"
           class="w-full mb-xs"
           theme="primary success"
           ?disabled=${!isValid || !this.in('idle') || this.disabledSelector.matches('import', true)}
-          @click=${this.submit}
+          @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} key="import" lang=${this.lang}></foxy-i18n>
         </vaadin-button>
