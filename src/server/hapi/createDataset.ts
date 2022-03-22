@@ -680,4 +680,6 @@ export const createDataset: () => Dataset = () => ({
     date_created: '2014-04-21T13:40:45-0700',
     date_modified: '2022-02-16T12:30:58-0700',
   })),
+
+  gift_card_item_categories: [],
 });

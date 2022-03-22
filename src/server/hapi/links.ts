@@ -209,4 +209,10 @@ export const links: Links = {
     'fx:gift_card': { href: `./gift_cards/${coupon_id}` },
     'fx:gift_card_code_logs': { href: `./transactions?gift_card_id=${id}` },
   }),
+
+  gift_card_item_categories: ({ item_category_id, gift_card_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
+    'fx:item_category': { href: `./item_categories/${item_category_id}` },
+  }),
 };
