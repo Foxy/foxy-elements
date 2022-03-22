@@ -9,12 +9,9 @@ import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { ThemeableMixin } from '../../../../mixins/themeable';
-import { TranslatableMixin } from '../../../../mixins/translatable';
 
 type Data = Resource<Rels.GiftCardItemCategory>;
-const Base = ConfigurableMixin(
-  ScopedElementsMixin(ThemeableMixin(TranslatableMixin(NucleonElement)))
-);
+const Base = ConfigurableMixin(ScopedElementsMixin(ThemeableMixin(NucleonElement)));
 
 export class CategoryRestrictionsPageItemContent extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
@@ -39,6 +36,7 @@ export class CategoryRestrictionsPageItemContent extends Base<Data> {
     return html`
       <div class="h-full flex items-center">
         <x-checkbox
+          data-testid="checkbox"
           ?disabled=${!this.in('idle') || this.disabled}
           ?readonly=${this.readonly}
           ?checked=${!!this.data}

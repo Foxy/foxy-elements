@@ -1,3 +1,4 @@
+import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { CategoryRestrictionsPageItem } from './CategoryRestrictionsPageItem';
@@ -6,8 +7,6 @@ import { NucleonElement } from '../../NucleonElement/NucleonElement';
 import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
-import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
-import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ThemeableMixin } from '../../../../mixins/themeable';
 import { TranslatableMixin } from '../../../../mixins/translatable';
 import { classMap } from '../../../../utils/class-map';
@@ -74,13 +73,12 @@ export class CategoryRestrictionsPage extends Base<Data> {
 
             return html`
               <x-category-restrictions-page-item
+                data-testclass="item"
                 item-category=${category._links.self.href}
                 gift-card=${this.giftCard}
                 class="h-l"
                 group=${this.group}
                 href=${href}
-                lang=${this.lang}
-                ns=${this.ns}
                 ?disabled=${!this.in('idle') || this.disabled}
                 ?readonly=${this.readonly}
               >
@@ -91,6 +89,7 @@ export class CategoryRestrictionsPage extends Base<Data> {
         </div>
 
         <div
+          data-testid="spinner"
           class=${classMap({
             'pointer-events-none absolute inset-0 flex transition-opacity': true,
             'opacity-0': !!this.data,

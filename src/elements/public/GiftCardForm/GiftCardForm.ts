@@ -115,6 +115,7 @@ export class GiftCardForm extends Base<Data> {
         <vaadin-button
           theme="tertiary contrast"
           class="p-0"
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('codes', true)}
           @click=${(evt: CustomEvent) => {
             const dialog = this.renderRoot.querySelector<FormDialog>('#code-dialog')!;
             const button = evt.currentTarget as ButtonElement;
@@ -292,6 +293,7 @@ export class GiftCardForm extends Base<Data> {
           item-label-path="label"
           item-value-path="value"
           item-id-path="value"
+          data-testid="currency"
           class="w-full"
           label=${this.t('currency')}
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('currency', true)}
@@ -322,6 +324,7 @@ export class GiftCardForm extends Base<Data> {
           class="w-full"
           label=${this.t('expires_after')}
           placeholder=${this.t('select')}
+          data-testid="expires"
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('expires', true)}
           ?readonly=${this.readonlySelector.matches('expires', true)}
           .value=${this.form.expires_after ?? ''}
@@ -338,7 +341,7 @@ export class GiftCardForm extends Base<Data> {
   }
 
   private __renderCodes() {
-    const { disabledSelector, group, data, lang, ns } = this;
+    const { disabledSelector, readonlySelector, hiddenSelector, group, data, lang, ns } = this;
 
     const isDisabled = !this.in('idle') || disabledSelector.matches('codes', true);
     const filters = this.__codesTableQuery;
@@ -351,51 +354,51 @@ export class GiftCardForm extends Base<Data> {
     const filterButtonIcon = `icons:${filters === null ? 'filter-list' : 'clear'}`;
 
     return html`
-      <foxy-form-dialog
-        disabledcontrols=${disabledSelector.zoom('codes:generate:form').toString()}
-        readonlycontrols=${this.readonlySelector.zoom('codes:generate:form').toString()}
-        hiddencontrols="save-button ${this.hiddenSelector.zoom('codes:generate:form').toString()}"
-        header="generate"
-        parent=${data?._links['fx:generate_codes'].href ?? ''}
-        group=${group}
-        lang=${lang}
-        form="foxy-generate-codes-form"
-        ns=${ns}
-        id="generate-codes-dialog"
-        alert
-        .related=${[url.toString()]}
-      >
-      </foxy-form-dialog>
+      <div data-testid="codes">
+        <foxy-form-dialog
+          disabledcontrols=${disabledSelector.zoom('codes:generate:form').toString()}
+          readonlycontrols=${readonlySelector.zoom('codes:generate:form').toString()}
+          hiddencontrols="save-button ${hiddenSelector.zoom('codes:generate:form').toString()}"
+          header="generate"
+          parent=${data?._links['fx:generate_codes'].href ?? ''}
+          group=${group}
+          lang=${lang}
+          form="foxy-generate-codes-form"
+          ns=${ns}
+          id="generate-codes-dialog"
+          alert
+          .related=${[url.toString()]}
+        >
+        </foxy-form-dialog>
 
-      <foxy-form-dialog
-        disabledcontrols=${disabledSelector.zoom('codes:form').toString()}
-        readonlycontrols=${this.readonlySelector.zoom('codes:form').toString()}
-        hiddencontrols=${this.hiddenSelector.zoom('codes:form').toString()}
-        header="code"
-        parent=${url.toString()}
-        group=${group}
-        lang=${lang}
-        form="foxy-gift-card-code-form"
-        ns=${ns}
-        id="code-dialog"
-      >
-      </foxy-form-dialog>
+        <foxy-form-dialog
+          disabledcontrols=${disabledSelector.zoom('codes:form').toString()}
+          readonlycontrols=${readonlySelector.zoom('codes:form').toString()}
+          hiddencontrols=${hiddenSelector.zoom('codes:form').toString()}
+          header="code"
+          parent=${url.toString()}
+          group=${group}
+          lang=${lang}
+          form="foxy-gift-card-code-form"
+          ns=${ns}
+          id="code-dialog"
+        >
+        </foxy-form-dialog>
 
-      <foxy-form-dialog
-        disabledcontrols=${disabledSelector.zoom('codes:import:form').toString()}
-        readonlycontrols=${this.readonlySelector.zoom('codes:import:form').toString()}
-        hiddencontrols="save-button ${this.hiddenSelector.zoom('codes:generate:form').toString()}"
-        header="import"
-        parent=${data!._links['fx:gift_card_codes'].href}
-        group=${group}
-        lang=${lang}
-        form="foxy-gift-card-codes-form"
-        ns=${ns}
-        id="import-dialog"
-      >
-      </foxy-form-dialog>
+        <foxy-form-dialog
+          disabledcontrols=${disabledSelector.zoom('codes:import:form').toString()}
+          readonlycontrols=${readonlySelector.zoom('codes:import:form').toString()}
+          hiddencontrols="save-button ${hiddenSelector.zoom('codes:import:form').toString()}"
+          header="import"
+          parent=${data!._links['fx:gift_card_codes'].href}
+          group=${group}
+          lang=${lang}
+          form="foxy-gift-card-codes-form"
+          ns=${ns}
+          id="import-dialog"
+        >
+        </foxy-form-dialog>
 
-      <div>
         ${this.renderTemplateOrSlot('codes:before')}
 
         <div class="flex items-center justify-between mb-xs space-x-s">
@@ -408,6 +411,7 @@ export class GiftCardForm extends Base<Data> {
           </foxy-i18n>
 
           <vaadin-button
+            data-testid="codes:generate-button"
             theme="success tertiary small"
             ?disabled=${isDisabled}
             @click=${(evt: CustomEvent) => {
@@ -421,6 +425,7 @@ export class GiftCardForm extends Base<Data> {
           </vaadin-button>
 
           <vaadin-button
+            data-testid="codes:import-button"
             theme="contrast tertiary small"
             ?disabled=${isDisabled}
             @click=${(evt: CustomEvent) => {
@@ -434,6 +439,7 @@ export class GiftCardForm extends Base<Data> {
           </vaadin-button>
 
           <vaadin-button
+            data-testid="codes:filter-button"
             theme="contrast ${filters === null ? 'tertiary' : ''} small"
             ?disabled=${isDisabled}
             @click=${() => (this.__codesTableQuery = filters === null ? '' : null)}
@@ -496,7 +502,7 @@ export class GiftCardForm extends Base<Data> {
     }
 
     return html`
-      <div>
+      <div data-testid="product-restrictions">
         ${this.renderTemplateOrSlot('product-restrictions:before')}
 
         <div class="space-y-s">
@@ -524,6 +530,7 @@ export class GiftCardForm extends Base<Data> {
                     </foxy-i18n>
 
                     <x-editable-list
+                      data-testid="product-restrictions:${group.header}"
                       lang=${this.lang}
                       ns=${this.ns}
                       ?disabled=${isDisabled}
@@ -576,50 +583,52 @@ export class GiftCardForm extends Base<Data> {
     const scope = 'category-restrictions';
     const isDisabled = !this.in('idle') || this.disabledSelector.matches(scope, true);
     const isReadonly = this.readonlySelector.matches(scope, true);
+    const giftCardItemCategories = this.data?._links['fx:gift_card_item_categories'].href;
 
     return html`
-      ${this.renderTemplateOrSlot('category-restrictions:before')}
+      <div data-testid="category-restrictions">
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
 
-      <div class="space-y-xs">
-        <foxy-pagination
-          first=${this.__itemCategories}
-          lang=${this.lang}
-          ns=${this.ns}
-          ?disabled=${isDisabled}
-        >
-          <foxy-i18n
-            class="block text-s font-medium text-secondary leading-none mb-s"
-            lang=${this.lang}
-            key="category_restrictions"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          <x-category-restrictions-page
-            gift-card-item-categories=${ifDefined(
-              this.data?._links['fx:gift_card_item_categories'].href
-            )}
-            gift-card=${this.href}
-            class="border border-contrast-10 rounded-t-l rounded-b-l mb-s"
-            group=${this.group}
+        <div class="space-y-xs">
+          <foxy-pagination
+            first=${this.__itemCategories}
             lang=${this.lang}
             ns=${this.ns}
             ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
           >
-          </x-category-restrictions-page>
-        </foxy-pagination>
+            <foxy-i18n
+              class="block text-s font-medium text-secondary leading-none mb-s"
+              lang=${this.lang}
+              key="category_restrictions"
+              ns=${this.ns}
+            >
+            </foxy-i18n>
 
-        <foxy-i18n
-          class="block text-xs leading-s text-secondary"
-          lang=${this.lang}
-          key="gift_card_category_restrictions_helper_text"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
+            <x-category-restrictions-page
+              gift-card-item-categories=${ifDefined(giftCardItemCategories)}
+              data-testid="category-restrictions:page"
+              gift-card=${this.href}
+              class="border border-contrast-10 rounded-t-l rounded-b-l mb-s"
+              group=${this.group}
+              lang=${this.lang}
+              ns=${this.ns}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+            >
+            </x-category-restrictions-page>
+          </foxy-pagination>
+
+          <foxy-i18n
+            class="block text-xs leading-s text-secondary"
+            lang=${this.lang}
+            key="gift_card_category_restrictions_helper_text"
+            ns=${this.ns}
+          >
+          </foxy-i18n>
+        </div>
+
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
-
-      ${this.renderTemplateOrSlot('category-restrictions:after')}
     `;
   }
 
