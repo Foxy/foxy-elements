@@ -1,0 +1,35 @@
+{
+  "access-recovery-form": {
+    "unknown_error": "W tej chwili nie możemy wygenerować jednorazowego kodu dla tego konta. Jeśli już zażądałeś kodu, odczekaj kilka minut, zanim spróbujesz ponownie."
+  },
+  "customer": {
+    "subscription-card": {
+      "spinner": {
+        "loading_empty": "Brak subskrypcji"
+      }
+    },
+    "transactions-table": {
+      "spinner": {
+        "loading_empty": "Brak transakcji"
+      }
+    },
+    "address-card": {
+      "spinner": {
+        "loading_empty": "Brak adresów"
+      }
+    },
+    "customer-form": {
+      "invalid_credential_error": "Niepoprawne hasło. Upewnij się, że wpisałeś swoje obecne lub tymczasowe hasło i spróbuj ponownie.",
+      "change_password_step_1": "Zacznijmy od Twojego aktualnego hasła. Hasło tymczasowe również działa, jeśli je posiadasz.",
+      "change_password_step_2": "Teraz wprowadź nowe hasło i naciśnij Kontynuuj, aby zastosować zmiany na swoim koncie.",
+      "change_password_step_3": "Wszystko gotowe! Możesz teraz używać nowego hasła podczas logowania.",
+      "change_password": "Zmień hasło",
+      "sign_in": "Kontynuuj"
+    },
+    "payment-method-card": {
+      "spinner": {
+        "loading_empty": "Brak metod płatności"
+      }
+    }
+  }
+}
