@@ -1,9 +1,15 @@
 import { LitElement } from 'lit-element';
 
 export async function getByTestClass<T extends HTMLElement>(
-  element: LitElement,
+  element: Element,
   testClass: string
 ): Promise<T[]> {
-  await element.updateComplete;
-  return Array.from(element.renderRoot.querySelectorAll(`[data-testclass="${testClass}"]`)) as T[];
+  let root: Element | DocumentFragment = element;
+
+  if (element instanceof LitElement) {
+    await element.updateComplete;
+    root = element.renderRoot;
+  }
+
+  return Array.from(root.querySelectorAll(`[data-testclass~="${testClass}"]`)) as T[];
 }
