@@ -80,6 +80,7 @@ export class Pagination extends Base {
       <div class="grid grid-cols-3 gap-s items-center">
         <div class="flex items-center space-x-s">
           <vaadin-button
+            data-testid="first"
             theme="contrast tertiary-inline"
             ?disabled=${!canGoBack}
             @click=${() => this.__goTo('first')}
@@ -89,6 +90,7 @@ export class Pagination extends Base {
           </vaadin-button>
 
           <vaadin-button
+            data-testid="prev"
             theme="contrast tertiary-inline"
             ?disabled=${!canGoBack}
             @click=${() => this.__goTo('prev')}
@@ -116,6 +118,7 @@ export class Pagination extends Base {
 
         <div class="flex items-center justify-end space-x-s">
           <vaadin-button
+            data-testid="next"
             theme="contrast tertiary-inline"
             ?disabled=${!canGoForth}
             @click=${() => this.__goTo('next')}
@@ -125,6 +128,7 @@ export class Pagination extends Base {
           </vaadin-button>
 
           <vaadin-button
+            data-testid="last"
             theme="contrast tertiary-inline"
             ?disabled=${!canGoForth}
             @click=${() => this.__goTo('last')}
