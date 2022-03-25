@@ -9,12 +9,12 @@ import { Resource } from '@foxy.io/sdk/core';
 import { ScopedElementsMap } from '@open-wc/scoped-elements/src/types';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ThemeableMixin } from '../../../../mixins/themeable';
-import { TranslatableMixin } from '../../../../mixins/translatable';
 import { ifDefined } from 'lit-html/directives/if-defined';
 
-export class CategoryRestrictionsPageItem extends ConfigurableMixin(
-  ScopedElementsMixin(ThemeableMixin(TranslatableMixin(NucleonElement)))
-)<Resource<Rels.CouponItemCategories>> {
+type Data = Resource<Rels.CouponItemCategories>;
+const Base = ConfigurableMixin(ScopedElementsMixin(ThemeableMixin(NucleonElement)));
+
+export class CategoryRestrictionsPageItem extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -42,13 +42,12 @@ export class CategoryRestrictionsPageItem extends ConfigurableMixin(
     return html`
       <x-category-restrictions-page-item-content
         item-category=${this.itemCategory}
+        data-testid="content"
         coupon=${this.coupon}
         parent=${ifDefined(parent)}
         class="h-full"
         group=${this.group}
         href=${ifDefined(href)}
-        lang=${this.lang}
-        ns=${this.ns}
         ?disabled=${!this.in('idle') || this.disabled}
         ?readonly=${this.readonly}
       >

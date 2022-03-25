@@ -296,6 +296,7 @@ export class CouponForm extends Base<Data> {
 
     return html`
       <label
+        data-testid="rules:preset"
         class=${classMap({
           'whitespace-nowrap block ring-primary-50 rounded px-xs -mx-xs transition-colors': true,
           'text-body hover-text-primary focus-within-ring-2': !isDisabled && !isReadonly,
@@ -315,6 +316,8 @@ export class CouponForm extends Base<Data> {
           <iron-icon class="icon-inline text-xl ml-xs -mr-xs" icon="icons:expand-more"></iron-icon>
 
           <select
+            data-testclass="interactive editable"
+            data-testid="rules:preset:select"
             class="opacity-0 absolute inset-0 focus-outline-none"
             ?disabled=${isDisabled || isReadonly}
             @change=${(evt: Event) => {
@@ -366,6 +369,7 @@ export class CouponForm extends Base<Data> {
           <iron-icon class="icon-inline text-xl ml-xs" icon="icons:expand-more"></iron-icon>
 
           <select
+            data-testclass="interactive editable"
             class="opacity-0 absolute inset-0 focus-outline-none"
             ?disabled=${!isInteractive}
             @change=${(evt: Event) => {
@@ -425,6 +429,7 @@ export class CouponForm extends Base<Data> {
                 </foxy-i18n>
 
                 <input
+                  data-testclass="interactive editable"
                   class="sr-only"
                   value=${option}
                   name=${name}
@@ -458,6 +463,7 @@ export class CouponForm extends Base<Data> {
       <label>
         <foxy-i18n class="sr-only" lang=${this.lang} key=${label} ns=${this.ns}></foxy-i18n>
         <input
+          data-testclass="interactive editable"
           class=${classMap({
             'transition-colors border p-xs h-xs font-medium text-m rounded w-xl': true,
             'ring-primary-50 text-body bg-contrast-10': isInteractive,
@@ -490,6 +496,7 @@ export class CouponForm extends Base<Data> {
 
     return html`
       <div
+        data-testclass="rules:tier"
         aria-label=${this.t('tier')}
         class=${classMap({
           'flex items-start justify-between rounded-t-l rounded-b-l': true,
@@ -580,6 +587,7 @@ export class CouponForm extends Base<Data> {
         ${params.tier
           ? html`
               <button
+                data-testclass="interactive"
                 aria-label=${this.t('delete')}
                 class=${classMap({
                   'w-s h-s m-s flex-shrink-0 rounded transition-colors ring-primary-50': true,
@@ -606,7 +614,7 @@ export class CouponForm extends Base<Data> {
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
 
     return html`
-      <div class="text-xs flex space-x-xs leading-m">
+      <div data-testid="rules:url" class="text-xs flex space-x-xs leading-m">
         <span
           class=${classMap({
             'flex-shrink-0 transition-colors': true,
@@ -628,6 +636,8 @@ export class CouponForm extends Base<Data> {
         </code>
 
         <button
+          data-testclass="interactive"
+          data-testid="rules:url:copy"
           class=${classMap({
             'flex-shrink-0 transition-colors font-medium rounded px-xs': true,
             'ring-primary-50 bg-primary-10 text-primary': !isDisabled,
@@ -656,7 +666,7 @@ export class CouponForm extends Base<Data> {
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
 
     return html`
-      <div class="text-xs leading-m">
+      <div data-testid="rules:description" class="text-xs leading-m">
         <span class="transition-colors ${isDisabled ? 'text-disabled' : 'text-tertiary'}">
           <foxy-i18n lang=${this.lang} key="description" ns=${this.ns}></foxy-i18n>&#58;
         </span>
@@ -679,12 +689,13 @@ export class CouponForm extends Base<Data> {
     const details = this.form.coupon_discount_details ?? '';
     const tiers = details.split('|').filter(v => !!v.trim());
     const method = (/[-+]/.test(tiers[0]) ? null : tiers.shift()) ?? 'single';
+    const renderedTiers = method === 'repeat' ? [tiers[0]] : [...tiers, undefined];
 
     const type = this.form.coupon_discount_type ?? 'quantity_amount';
     const [source, units] = type.split('_');
 
     return html`
-      <div>
+      <div data-testid="rules">
         ${this.renderTemplateOrSlot('rules:before')}
 
         <div>
@@ -705,7 +716,7 @@ export class CouponForm extends Base<Data> {
           </div>
 
           <div class="space-y-s">
-            ${repeat([...tiers, undefined], (tier, tierIndex) => {
+            ${repeat(renderedTiers, (tier, tierIndex) => {
               const onChange = (changedParams: Partial<RulesTierParams>) => {
                 const newMethod = changedParams.method ?? method;
                 const newSource = changedParams.source ?? source;
@@ -758,53 +769,54 @@ export class CouponForm extends Base<Data> {
     const filterButtonIcon = `icons:${filters === null ? 'filter-list' : 'clear'}`;
 
     return html`
-      <foxy-form-dialog
-        disabledcontrols=${disabledSelector.zoom('codes:generate:form').toString()}
-        readonlycontrols=${this.readonlySelector.zoom('codes:generate:form').toString()}
-        hiddencontrols="save-button current-balance ${this.hiddenSelector
-          .zoom('codes:generate:form')
-          .toString()}"
-        related=${JSON.stringify([url.toString()])}
-        header="generate"
-        parent=${data?._links['fx:generate_codes'].href ?? ''}
-        group=${group}
-        lang=${lang}
-        form="foxy-generate-codes-form"
-        ns=${ns}
-        id="generate-codes-dialog"
-        alert
-      >
-      </foxy-form-dialog>
+      <div data-testid="codes">
+        <foxy-form-dialog
+          disabledcontrols=${disabledSelector.zoom('codes:generate:form').toString()}
+          readonlycontrols=${this.readonlySelector.zoom('codes:generate:form').toString()}
+          hiddencontrols="save-button current-balance ${this.hiddenSelector
+            .zoom('codes:generate:form')
+            .toString()}"
+          related=${JSON.stringify([url.toString()])}
+          header="generate"
+          parent=${data?._links['fx:generate_codes'].href ?? ''}
+          group=${group}
+          lang=${lang}
+          form="foxy-generate-codes-form"
+          ns=${ns}
+          id="generate-codes-dialog"
+          alert
+          .related=${[url.toString()]}
+        >
+        </foxy-form-dialog>
 
-      <foxy-form-dialog
-        disabledcontrols=${disabledSelector.zoom('codes:form').toString()}
-        readonlycontrols=${this.readonlySelector.zoom('codes:form').toString()}
-        hiddencontrols=${this.hiddenSelector.zoom('codes:form').toString()}
-        header="code"
-        parent=${url.toString()}
-        group=${group}
-        lang=${lang}
-        form="foxy-coupon-code-form"
-        ns=${ns}
-        id="code-dialog"
-      >
-      </foxy-form-dialog>
+        <foxy-form-dialog
+          disabledcontrols=${disabledSelector.zoom('codes:form').toString()}
+          readonlycontrols=${this.readonlySelector.zoom('codes:form').toString()}
+          hiddencontrols=${this.hiddenSelector.zoom('codes:form').toString()}
+          header="code"
+          parent=${url.toString()}
+          group=${group}
+          lang=${lang}
+          form="foxy-coupon-code-form"
+          ns=${ns}
+          id="code-dialog"
+        >
+        </foxy-form-dialog>
 
-      <foxy-form-dialog
-        disabledcontrols=${disabledSelector.zoom('codes:import:form').toString()}
-        readonlycontrols=${this.readonlySelector.zoom('codes:import:form').toString()}
-        hiddencontrols="save-button ${this.hiddenSelector.zoom('codes:generate:form').toString()}"
-        header="import"
-        parent=${data!._links['fx:coupon_codes'].href}
-        group=${group}
-        lang=${lang}
-        form="foxy-coupon-codes-form"
-        ns=${ns}
-        id="import-dialog"
-      >
-      </foxy-form-dialog>
+        <foxy-form-dialog
+          disabledcontrols=${disabledSelector.zoom('codes:import:form').toString()}
+          readonlycontrols=${this.readonlySelector.zoom('codes:import:form').toString()}
+          hiddencontrols="save-button ${this.hiddenSelector.zoom('codes:import:form').toString()}"
+          header="import"
+          parent=${data!._links['fx:coupon_codes'].href}
+          group=${group}
+          lang=${lang}
+          form="foxy-coupon-codes-form"
+          ns=${ns}
+          id="import-dialog"
+        >
+        </foxy-form-dialog>
 
-      <div>
         ${this.renderTemplateOrSlot('codes:before')}
 
         <div class="flex items-center justify-between mb-xs space-x-s">
@@ -817,6 +829,7 @@ export class CouponForm extends Base<Data> {
           </foxy-i18n>
 
           <vaadin-button
+            data-testid="codes:generate-button"
             theme="success tertiary small"
             ?disabled=${isDisabled}
             @click=${(evt: CustomEvent) => {
@@ -830,6 +843,7 @@ export class CouponForm extends Base<Data> {
           </vaadin-button>
 
           <vaadin-button
+            data-testid="codes:import-button"
             theme="contrast tertiary small"
             ?disabled=${isDisabled}
             @click=${(evt: CustomEvent) => {
@@ -843,6 +857,7 @@ export class CouponForm extends Base<Data> {
           </vaadin-button>
 
           <vaadin-button
+            data-testid="codes:filter-button"
             theme="contrast ${filters === null ? 'tertiary' : ''} small"
             ?disabled=${isDisabled}
             @click=${() => (this.__codesTableQuery = filters === null ? '' : null)}
@@ -891,96 +906,101 @@ export class CouponForm extends Base<Data> {
     const usesPerCouponCode = this.form.number_of_uses_allowed_per_code ?? 0;
 
     return html`
-      ${this.renderTemplateOrSlot('usage:before')}
+      <div data-testid="usage">
+        ${this.renderTemplateOrSlot('usage:before')}
 
-      <div class="space-y-s">
-        <div class="grid gap-m grid-cols-3">
-          <vaadin-integer-field
-            placeholder=${this.t('unlimited')}
-            label=${this.t('uses_per_coupon')}
-            class="w-full"
-            min="0"
-            prevent-invalid-input
-            has-controls
-            .value=${usesPerCoupon || ''}
-            ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
-            @change=${(evt: CustomEvent) => {
-              const field = evt.currentTarget as IntegerFieldElement;
-              this.edit({ number_of_uses_allowed: parseInt(field.value) });
-            }}
-          >
-          </vaadin-integer-field>
+        <div class="space-y-s">
+          <div class="grid gap-m grid-cols-3">
+            <vaadin-integer-field
+              placeholder=${this.t('unlimited')}
+              data-testid="usage:per-coupon"
+              label=${this.t('uses_per_coupon')}
+              class="w-full"
+              min="0"
+              prevent-invalid-input
+              has-controls
+              .value=${usesPerCoupon || ''}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+              @change=${(evt: CustomEvent) => {
+                const field = evt.currentTarget as IntegerFieldElement;
+                this.edit({ number_of_uses_allowed: parseInt(field.value) });
+              }}
+            >
+            </vaadin-integer-field>
 
-          <vaadin-integer-field
-            placeholder=${this.t('unlimited')}
-            label=${this.t('uses_per_coupon_code')}
-            class="w-full"
-            min="0"
-            prevent-invalid-input
-            has-controls
-            .value=${usesPerCouponCode || ''}
-            ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
-            @change=${(evt: CustomEvent) => {
-              const field = evt.currentTarget as IntegerFieldElement;
-              this.edit({ number_of_uses_allowed_per_code: parseInt(field.value) });
-            }}
-          >
-          </vaadin-integer-field>
+            <vaadin-integer-field
+              placeholder=${this.t('unlimited')}
+              data-testid="usage:per-coupon-code"
+              label=${this.t('uses_per_coupon_code')}
+              class="w-full"
+              min="0"
+              prevent-invalid-input
+              has-controls
+              .value=${usesPerCouponCode || ''}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+              @change=${(evt: CustomEvent) => {
+                const field = evt.currentTarget as IntegerFieldElement;
+                this.edit({ number_of_uses_allowed_per_code: parseInt(field.value) });
+              }}
+            >
+            </vaadin-integer-field>
 
-          <vaadin-integer-field
-            placeholder=${this.t('unlimited')}
-            label=${this.t('uses_per_customer')}
-            class="w-full"
-            min="0"
-            prevent-invalid-input
-            has-controls
-            .value=${usesPerCustomer || ''}
-            ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
-            @change=${(evt: CustomEvent) => {
-              const field = evt.currentTarget as IntegerFieldElement;
-              this.edit({ number_of_uses_allowed_per_customer: parseInt(field.value) });
-            }}
+            <vaadin-integer-field
+              placeholder=${this.t('unlimited')}
+              data-testid="usage:per-customer"
+              label=${this.t('uses_per_customer')}
+              class="w-full"
+              min="0"
+              prevent-invalid-input
+              has-controls
+              .value=${usesPerCustomer || ''}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+              @change=${(evt: CustomEvent) => {
+                const field = evt.currentTarget as IntegerFieldElement;
+                this.edit({ number_of_uses_allowed_per_customer: parseInt(field.value) });
+              }}
+            >
+            </vaadin-integer-field>
+          </div>
+
+          <div
+            class=${classMap({
+              'transition-colors text-xs leading-s': true,
+              'text-secondary': !isDisabled,
+              'text-disabled': isDisabled,
+            })}
           >
-          </vaadin-integer-field>
+            <foxy-i18n
+              options=${JSON.stringify({ count: usesPerCoupon })}
+              lang=${this.lang}
+              key="uses_per_coupon_summary${usesPerCoupon ? '' : '_0'}"
+              ns=${this.ns}
+            >
+            </foxy-i18n>
+
+            <foxy-i18n
+              options=${JSON.stringify({ count: usesPerCouponCode })}
+              lang=${this.lang}
+              key="uses_per_coupon_code_summary${usesPerCouponCode ? '' : '_0'}"
+              ns=${this.ns}
+            >
+            </foxy-i18n>
+
+            <foxy-i18n
+              options=${JSON.stringify({ count: usesPerCustomer })}
+              lang=${this.lang}
+              key="uses_per_customer_summary${usesPerCustomer ? '' : '_0'}"
+              ns=${this.ns}
+            >
+            </foxy-i18n>
+          </div>
         </div>
 
-        <div
-          class=${classMap({
-            'transition-colors text-xs leading-s': true,
-            'text-secondary': !isDisabled,
-            'text-disabled': isDisabled,
-          })}
-        >
-          <foxy-i18n
-            options=${JSON.stringify({ count: usesPerCoupon })}
-            lang=${this.lang}
-            key="uses_per_coupon_summary${usesPerCoupon ? '' : '_0'}"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          <foxy-i18n
-            options=${JSON.stringify({ count: usesPerCouponCode })}
-            lang=${this.lang}
-            key="uses_per_coupon_code_summary${usesPerCouponCode ? '' : '_0'}"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          <foxy-i18n
-            options=${JSON.stringify({ count: usesPerCustomer })}
-            lang=${this.lang}
-            key="uses_per_customer_summary${usesPerCustomer ? '' : '_0'}"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-        </div>
+        ${this.renderTemplateOrSlot('usage:after')}
       </div>
-
-      ${this.renderTemplateOrSlot('usage:after')}
     `;
   }
 
@@ -1006,7 +1026,7 @@ export class CouponForm extends Base<Data> {
     }
 
     return html`
-      <div>
+      <div data-testid="product-restrictions">
         ${this.renderTemplateOrSlot('product-restrictions:before')}
 
         <div class="space-y-s">
@@ -1034,6 +1054,7 @@ export class CouponForm extends Base<Data> {
                     </foxy-i18n>
 
                     <x-editable-list
+                      data-testid="product-restrictions:${group.header}"
                       lang=${this.lang}
                       ns=${this.ns}
                       ?disabled=${isDisabled}
@@ -1088,46 +1109,51 @@ export class CouponForm extends Base<Data> {
     const isReadonly = this.readonlySelector.matches(scope, true);
 
     return html`
-      ${this.renderTemplateOrSlot('category-restrictions:before')}
+      <div data-testid="category-restrictions">
+        ${this.renderTemplateOrSlot('category-restrictions:before')}
 
-      <div class="space-y-xs">
-        <foxy-pagination
-          first=${this.__itemCategories}
-          lang=${this.lang}
-          ns=${this.ns}
-          ?disabled=${isDisabled}
-        >
-          <foxy-i18n
-            class="block text-s font-medium text-secondary leading-none mb-s"
-            lang=${this.lang}
-            key="category_restrictions"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          <x-category-restrictions-page
-            coupon-item-categories=${ifDefined(this.data?._links['fx:coupon_item_categories'].href)}
-            coupon=${this.href}
-            class="border border-contrast-10 rounded-t-l rounded-b-l mb-s"
-            group=${this.group}
+        <div class="space-y-xs">
+          <foxy-pagination
+            first=${this.__itemCategories}
             lang=${this.lang}
             ns=${this.ns}
             ?disabled=${isDisabled}
-            ?readonly=${isReadonly}
           >
-          </x-category-restrictions-page>
-        </foxy-pagination>
+            <foxy-i18n
+              class="block text-s font-medium text-secondary leading-none mb-s"
+              lang=${this.lang}
+              key="category_restrictions"
+              ns=${this.ns}
+            >
+            </foxy-i18n>
 
-        <foxy-i18n
-          class="block text-xs leading-s text-tertiary"
-          lang=${this.lang}
-          key="category_restrictions_helper_text"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
+            <x-category-restrictions-page
+              coupon-item-categories=${ifDefined(
+                this.data?._links['fx:coupon_item_categories'].href
+              )}
+              data-testid="category-restrictions:page"
+              coupon=${this.href}
+              class="border border-contrast-10 rounded-t-l rounded-b-l mb-s"
+              group=${this.group}
+              lang=${this.lang}
+              ns=${this.ns}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+            >
+            </x-category-restrictions-page>
+          </foxy-pagination>
+
+          <foxy-i18n
+            class="block text-xs leading-s text-tertiary"
+            lang=${this.lang}
+            key="category_restrictions_helper_text"
+            ns=${this.ns}
+          >
+          </foxy-i18n>
+        </div>
+
+        ${this.renderTemplateOrSlot('category-restrictions:after')}
       </div>
-
-      ${this.renderTemplateOrSlot('category-restrictions:after')}
     `;
   }
 
@@ -1145,7 +1171,7 @@ export class CouponForm extends Base<Data> {
     ];
 
     return html`
-      <div>
+      <div data-testid="options">
         ${this.renderTemplateOrSlot('options:before')}
 
         <x-group frame>
@@ -1165,6 +1191,8 @@ export class CouponForm extends Base<Data> {
 
             return html`
               <x-checkbox
+                data-testclass="inputs"
+                data-testid="options:${option.param.replace(/_/g, '-')}"
                 ?disabled=${isDisabled}
                 ?readonly=${isReadonly}
                 ?checked=${option.flip ? !value : value}
@@ -1192,6 +1220,8 @@ export class CouponForm extends Base<Data> {
           })}
 
           <x-checkbox
+            data-testclass="inputs"
+            data-testid="options:dates"
             ?disabled=${isDisabled}
             ?readonly=${isReadonly}
             ?checked=${this.form.start_date || this.form.end_date}
@@ -1233,6 +1263,8 @@ export class CouponForm extends Base<Data> {
 
                       return html`
                         <vaadin-date-picker
+                          data-testclass="inputs"
+                          data-testid="options:${property.replace('_', '-')}"
                           placeholder=${this.t('select')}
                           label=${this.t(property)}
                           clear-button-visible

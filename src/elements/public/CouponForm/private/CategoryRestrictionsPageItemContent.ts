@@ -9,11 +9,11 @@ import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { ThemeableMixin } from '../../../../mixins/themeable';
-import { TranslatableMixin } from '../../../../mixins/translatable';
 
-export class CategoryRestrictionsPageItemContent extends ConfigurableMixin(
-  ScopedElementsMixin(ThemeableMixin(TranslatableMixin(NucleonElement)))
-)<Resource<Rels.CouponItemCategory>> {
+type Data = Resource<Rels.CouponItemCategory>;
+const Base = ConfigurableMixin(ScopedElementsMixin(ThemeableMixin(NucleonElement)));
+
+export class CategoryRestrictionsPageItemContent extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'x-checkbox': Checkbox,
@@ -36,6 +36,7 @@ export class CategoryRestrictionsPageItemContent extends ConfigurableMixin(
     return html`
       <div class="h-full flex items-center">
         <x-checkbox
+          data-testid="checkbox"
           ?disabled=${!this.in('idle') || this.disabled}
           ?readonly=${this.readonly}
           ?checked=${!!this.data}
