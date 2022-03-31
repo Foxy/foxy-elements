@@ -85,7 +85,7 @@ export class GiftCardCodeForm extends Base<Data> {
           data-testid="spinner"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !this.in('busy') && !this.in('fail'),
+            'opacity-0 pointer-events-none': this.in('idle'),
           })}
         >
           <foxy-spinner
@@ -149,7 +149,7 @@ export class GiftCardCodeForm extends Base<Data> {
           .checkValidity=${this.__getValidator('code')}
           .errorMessage=${this.__getErrorMessage('code')}
           .value=${this.form.code}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('code', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('code', true)}
           ?readonly=${this.readonlySelector.matches('code', true)}
           required
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
@@ -178,7 +178,7 @@ export class GiftCardCodeForm extends Base<Data> {
           .checkValidity=${this.__getValidator('current_balance')}
           .errorMessage=${this.__getErrorMessage('current_balance')}
           .value=${this.form.current_balance}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('current-balance', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('current-balance', true)}
           ?readonly=${this.readonlySelector.matches('current-balance', true)}
           prevent-invalid-input
           has-controls
@@ -209,7 +209,7 @@ export class GiftCardCodeForm extends Base<Data> {
           .checkValidity=${this.__getValidator('end_date')}
           .errorMessage=${this.__getErrorMessage('end_date')}
           .value=${this.form.end_date}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('end-date', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('end-date', true)}
           ?readonly=${this.readonlySelector.matches('end-date', true)}
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
           @change=${(evt: CustomEvent) => {
@@ -253,7 +253,7 @@ export class GiftCardCodeForm extends Base<Data> {
     const isTemplateInvalid = isCleanTemplateInvalid || isDirtyTemplateInvalid;
     const isSnaphotInvalid = isCleanSnapshotInvalid || isDirtySnapshotInvalid;
     const isInvalid = isTemplateInvalid || isSnaphotInvalid;
-    const isBusy = this.in('busy');
+    const isIdle = this.in('idle');
 
     return html`
       <div>
@@ -263,7 +263,7 @@ export class GiftCardCodeForm extends Base<Data> {
           data-testid="create"
           class="w-full"
           theme="primary success"
-          ?disabled=${isBusy || isInvalid || this.disabledSelector.matches('create', true)}
+          ?disabled=${!isIdle || isInvalid || this.disabledSelector.matches('create', true)}
           @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} key="create" lang=${this.lang}></foxy-i18n>
