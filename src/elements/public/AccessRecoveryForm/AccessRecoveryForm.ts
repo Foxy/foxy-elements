@@ -96,7 +96,7 @@ export class AccessRecoveryForm extends Base<Data> {
         ${this.renderTemplateOrSlot('message:before')}
 
         <p class="leading-s flex items-start text-s rounded p-s ${color}">
-          <iron-icon class="flex-shrink-0 mr-s" icon=${icon}></iron-icon>
+          <iron-icon class="flex-shrink-0 icon-inline text-l mr-s" icon=${icon}></iron-icon>
           <foxy-i18n lang=${this.lang} key=${key} ns=${this.ns} data-testid="message"></foxy-i18n>
         </p>
 
