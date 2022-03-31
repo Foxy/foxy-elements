@@ -1,35 +1,223 @@
 {
   "access-recovery-form": {
-    "unknown_error": "我們目前無法為此帳戶發送一次性代碼。 如果您已要求驗證碼，請等待幾分鐘後再試。"
+    "back": "回去",
+    "email": "電子郵件",
+    "recover_access": "獲取一次性代碼",
+    "recover_access_hint": "輸入您的電子郵件，我們將向您發送一個臨時密碼。",
+    "recover_access_success": "完成！請檢查您的電子郵件以獲取進一步說明。",
+    "unknown_error": "我們目前無法為此帳戶發送一次性代碼。 如果您已要求驗證碼，請等待幾分鐘後再試。",
+    "v8n_invalid_email": "電子郵件地址不合規",
+    "v8n_required": "必需的",
+    "spinner": {
+      "loading_busy": "載入中",
+      "loading_error": "加載失敗"
+    }
   },
   "customer": {
-    "subscription-card": {
-      "spinner": {
-        "loading_empty": "沒有訂閱"
-      }
-    },
-    "transactions-table": {
-      "spinner": {
-        "loading_empty": "沒有交易"
-      }
-    },
+    "address_plural": "地址",
+    "cancel": "取消",
+    "close": "關閉",
+    "payment_method_plural": "支付方式",
+    "save": "儲存",
+    "subscription_plural": "訂閱",
+    "transaction_plural": "交易",
+    "undo_cancel": "審核",
+    "undo_confirm": "丟棄",
+    "undo_header": "未保存的更改",
+    "undo_message": "看起來您沒有保存更改！你想如何處理它們？",
+    "update": "更新",
     "address-card": {
+      "default_billing_address": "預設賬單地址",
+      "default_shipping_address": "預設送貨地址",
+      "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
+      "full_name": "{{first_name}} {{last_name}}",
       "spinner": {
-        "loading_empty": "沒有地址"
+        "loading_busy": "載入中",
+        "loading_empty": "沒有地址",
+        "loading_end": "沒有更多數據",
+        "loading_error": "加載失敗"
+      }
+    },
+    "address-form": {
+      "address_name": "地址名稱",
+      "address1": "地址第一行",
+      "address2": "地址第二行",
+      "cancel": "取消",
+      "city": "城市",
+      "company": "公司",
+      "country": "國家",
+      "date": "{{value, date}}",
+      "date_created": "建立於",
+      "date_modified": "最近更新時間",
+      "delete": "刪除",
+      "delete_prompt": "此資源將被永久刪除。你確定嗎？",
+      "first_name": "名",
+      "last_name": "姓",
+      "phone": "電話",
+      "postal_code": "郵政編碼",
+      "region": "地區",
+      "v8n_required": "必需的",
+      "v8n_too_long": "太長",
+      "spinner": {
+        "loading_busy": "載入中",
+        "loading_empty": "沒有數據",
+        "loading_error": "加載失敗"
       }
     },
     "customer-form": {
-      "invalid_credential_error": "密碼錯誤。 請確保您已輸入現時或臨時密碼，然後重試。",
+      "cancel": "取消",
+      "change_password": "更改密碼",
       "change_password_step_1": "讓我們從您現時的密碼開始。 如果您有臨時密碼，也可以使用臨時密碼。",
       "change_password_step_2": "現在輸入一個新密碼並點擊繼續, 將更改應用到您的帳戶。",
       "change_password_step_3": "完成！ 您現在可以使用新密碼登錄。",
-      "change_password": "更改密碼",
-      "sign_in": "繼續"
+      "close": "關閉",
+      "date": "{{value, date}}",
+      "date_created": "建立於",
+      "date_modified": "最近更新時間",
+      "email": "電子郵件",
+      "first_name": "名",
+      "invalid_credential_error": "密碼錯誤。 請確保您已輸入現時或臨時密碼，然後重試。",
+      "last_name": "姓",
+      "sign_in": "繼續",
+      "tax_id": "稅務編號",
+      "undo_cancel": "審核",
+      "undo_confirm": "丟棄",
+      "undo_header": "未保存的更改",
+      "undo_message": "看起來您沒有保存更改！你想如何處理它們？",
+      "v8n_invalid_email": "電子郵件地址不合規",
+      "v8n_required": "必需的",
+      "v8n_too_long": "太長",
+      "sign-in-form": {
+        "new_password": "新密碼",
+        "password": "密碼",
+        "spinner": {
+          "loading_busy": "載入中",
+          "loading_error": "加載失敗"
+        }
+      },
+      "spinner": {
+        "loading_busy": "載入中",
+        "loading_empty": "沒有數據",
+        "loading_error": "加載失敗"
+      }
     },
     "payment-method-card": {
+      "cancel": "取消",
+      "delete": "刪除",
+      "delete_prompt": "此資源將被永久刪除。你確定嗎？",
       "spinner": {
-        "loading_empty": "沒有付款方式"
+        "loading_busy": "載入中",
+        "loading_empty": "沒有付款方式",
+        "loading_error": "加載失敗"
       }
+    },
+    "spinner": {
+      "loading_busy": "載入中",
+      "loading_error": "加載失敗"
+    },
+    "subscription-card": {
+      "daily": "每天",
+      "daily_plural": "每 {{count}} 天",
+      "frequency": "$t(customer.subscription-card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "monthly": "每月",
+      "monthly_plural": "每 {{count}} 個月",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-card.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "下次付款在 {{date, date}}",
+      "subscription_cancelled": "於 {{date, date}} 結束",
+      "subscription_failed": "{{date, date}} 付款失敗",
+      "subscription_inactive": "閒置",
+      "subscription_will_be_cancelled": "於 {{date, date}} 結束",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "twice_a_month": "一個月兩次",
+      "weekly": "每星期",
+      "weekly_plural": "每 {{count}} 星期",
+      "yearly": "每年",
+      "yearly_plural": "每 {{count}} 年",
+      "spinner": {
+        "loading_busy": "載入中",
+        "loading_empty": "沒有訂閱",
+        "loading_end": "沒有更多數據",
+        "loading_error": "加載失敗"
+      }
+    },
+    "subscription-form": {
+      "daily": "每天",
+      "daily_plural": "每 {{count}} 天",
+      "end_subscription": "結束訂閱",
+      "frequency": "$t(customer.subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "frequency_label": "頻率",
+      "item_plural": "項目",
+      "monthly": "每月",
+      "monthly_plural": "每 {{count}} 個月",
+      "next_transaction_date": "下一個交易日期",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "下次付款在 {{date, date}}",
+      "subscription_cancelled": "於 {{date, date}} 結束",
+      "subscription_failed": "{{date, date}} 付款失敗",
+      "subscription_inactive": "閒置",
+      "subscription_will_be_cancelled": "於 {{date, date}} 結束",
+      "transaction_plural": "交易",
+      "twice_a_month": "一個月兩次",
+      "update_billing": "更新賬單",
+      "update_items": "編輯",
+      "weekly": "每星期",
+      "weekly_plural": "每 {{count}} 星期",
+      "yearly": "每年",
+      "yearly_plural": "每 {{count}} 年",
+      "spinner": {
+        "loading_busy": "載入中",
+        "loading_error": "加載失敗"
+      },
+      "transactions-table": {
+        "date": "{{value, date}}",
+        "price": "{{amount, price}}",
+        "receipt": "收據",
+        "spinner": {
+          "loading_busy": "載入中",
+          "loading_empty": "沒有交易",
+          "loading_error": "加載失敗"
+        }
+      }
+    },
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "收據",
+      "transaction_approved": "得到正式認可的",
+      "transaction_authorized": "已授權",
+      "transaction_captured": "已截獲",
+      "transaction_completed": "已完成",
+      "transaction_declined": "被拒絕",
+      "transaction_pending": "代辦中",
+      "transaction_refunded": "已退款",
+      "transaction_rejected": "被拒絕",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "交易總結",
+      "transaction_verified": "已驗證",
+      "transaction_voided": "已作廢",
+      "spinner": {
+        "loading_busy": "載入中",
+        "loading_empty": "沒有交易",
+        "loading_end": "沒有更多數據",
+        "loading_error": "加載失敗"
+      }
+    }
+  },
+  "sign-in-form": {
+    "email": "電子郵件",
+    "invalid_credential_error": "錯誤的電子郵件或密碼。請檢查您的輸入，然後重試。",
+    "password": "密碼",
+    "recover_access": "獲取一次性代碼",
+    "sign_in": "登入",
+    "sign_in_hint": "請輸入您的電子郵件和密碼",
+    "unknown_error": "發生未知錯誤。請稍後再試。",
+    "v8n_invalid_email": "電子郵件地址不合規",
+    "v8n_required": "必需的",
+    "spinner": {
+      "loading_busy": "載入中",
+      "loading_error": "加載失敗"
     }
   }
 }

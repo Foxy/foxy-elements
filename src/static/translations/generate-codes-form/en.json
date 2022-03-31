@@ -1,0 +1,19 @@
+{
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "balance": "Balance",
+  "current_balance": "Current balance",
+  "generate": "Generate",
+  "generate_codes_done": "All done! We've added new codes for you.",
+  "leave_empty_for_random_codes": "Leave empty to generate completely random codes.",
+  "length": "Length",
+  "number_of_codes": "Number of codes",
+  "prefix": "Prefix",
+  "template": "Template",
+  "v8n_negative": "Negative values are not allowed",
+  "v8n_required": "Required",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

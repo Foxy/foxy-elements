@@ -1,35 +1,223 @@
 {
   "access-recovery-form": {
-    "unknown_error": "No podemos emitir un código de una sola vez para esta cuenta en este momento. Si ya solicitó el código, espere unos minutos antes de volver a intentarlo."
+    "back": "Volver",
+    "email": "Correo electrónico",
+    "recover_access": "Obtener contraseña temporal",
+    "recover_access_hint": "Ingrese su correo electrónico y le enviaremos una contraseña temporal",
+    "recover_access_success": "¡Hecho! Consulte su correo electrónico para obtener más instrucciones.",
+    "unknown_error": "No podemos emitir un código de una sola vez para esta cuenta en este momento. Si ya solicitó el código, espere unos minutos antes de volver a intentarlo.",
+    "v8n_invalid_email": "Correo electrónico no válido",
+    "v8n_required": "Obligatorio",
+    "spinner": {
+      "loading_busy": "Cargando",
+      "loading_error": "No se pudo cargar"
+    }
   },
   "customer": {
-    "subscription-card": {
-      "spinner": {
-        "loading_empty": "Sin suscripciones"
-      }
-    },
-    "transactions-table": {
-      "spinner": {
-        "loading_empty": "Sin transacciones"
-      }
-    },
+    "address_plural": "Direcciones",
+    "cancel": "Cancelar",
+    "close": "Cerca",
+    "payment_method_plural": "Métodos de pago",
+    "save": "Guardar",
+    "subscription_plural": "Suscripciones",
+    "transaction_plural": "Transacciones",
+    "undo_cancel": "Revisar",
+    "undo_confirm": "Descarte",
+    "undo_header": "Cambios no guardados",
+    "undo_message": "¡Parece que no guardó los cambios! ¿Qué te gustaría hacer con ellos?",
+    "update": "Actualizar",
     "address-card": {
+      "default_billing_address": "Dirección de facturación",
+      "default_shipping_address": "Dirección de entrega",
+      "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
+      "full_name": "{{first_name}} {{last_name}}",
       "spinner": {
-        "loading_empty": "Sin direcciones"
+        "loading_busy": "Cargando",
+        "loading_empty": "Sin direcciones",
+        "loading_end": "No más datos",
+        "loading_error": "No se pudo cargar"
+      }
+    },
+    "address-form": {
+      "address_name": "Nombre de la dirección",
+      "address1": "Línea de dirección 1",
+      "address2": "Línea de dirección 2",
+      "cancel": "Cancelar",
+      "city": "Ciudad",
+      "company": "Empresa",
+      "country": "País",
+      "date": "{{value, date}}",
+      "date_created": "Creado el",
+      "date_modified": "Última actualización",
+      "delete": "Eliminar",
+      "delete_prompt": "Este recurso se eliminará de forma permanente. ¿Estás seguro?",
+      "first_name": "Nombre",
+      "last_name": "Apellido",
+      "phone": "Phone",
+      "postal_code": "Código postal",
+      "region": "Region",
+      "v8n_required": "Obligatorio",
+      "v8n_too_long": "Demasiado largo",
+      "spinner": {
+        "loading_busy": "Cargando",
+        "loading_empty": "Sin datos",
+        "loading_error": "No se pudo cargar"
       }
     },
     "customer-form": {
-      "invalid_credential_error": "Contraseña incorrecta. Asegúrese de haber ingresado su contraseña actual o temporal y vuelva a intentarlo.",
+      "cancel": "Cancelar",
+      "change_password": "Cambiar la contraseña",
       "change_password_step_1": "Comencemos con su contraseña actual. Una contraseña temporal también funciona si tiene una.",
       "change_password_step_2": "Ahora ingrese una nueva contraseña y presione Continuar para aplicar los cambios a su cuenta.",
       "change_password_step_3": "¡Todo listo! Ahora puede usar su nueva contraseña al iniciar sesión.",
-      "change_password": "Cambiar la contraseña",
-      "sign_in": "Continuar"
+      "close": "Cerca",
+      "date": "{{value, date}}",
+      "date_created": "Creado el",
+      "date_modified": "Última actualización",
+      "email": "Correo electrónico",
+      "first_name": "Vorname",
+      "invalid_credential_error": "Contraseña incorrecta. Asegúrese de haber ingresado su contraseña actual o temporal y vuelva a intentarlo.",
+      "last_name": "Nachname",
+      "sign_in": "Continuar",
+      "tax_id": "Número de identificación fiscal",
+      "undo_cancel": "Revisar",
+      "undo_confirm": "Descarte",
+      "undo_header": "Cambios no guardados",
+      "undo_message": "¡Parece que no guardó los cambios! ¿Qué te gustaría hacer con ellos?",
+      "v8n_invalid_email": "Correo electrónico no válido",
+      "v8n_required": "Obligatorio",
+      "v8n_too_long": "Demasiado largo",
+      "sign-in-form": {
+        "new_password": "Nueva contraseña",
+        "password": "Contraseña",
+        "spinner": {
+          "loading_busy": "Cargando",
+          "loading_error": "No se pudo cargar"
+        }
+      },
+      "spinner": {
+        "loading_busy": "Cargando",
+        "loading_empty": "Sin datos",
+        "loading_error": "No se pudo cargar"
+      }
     },
     "payment-method-card": {
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "delete_prompt": "Este recurso se eliminará de forma permanente. ¿Estás seguro?",
       "spinner": {
-        "loading_empty": "Sin métodos de pago"
+        "loading_busy": "Cargando",
+        "loading_empty": "Sin métodos de pago",
+        "loading_error": "No se pudo cargar"
       }
+    },
+    "spinner": {
+      "loading_busy": "Cargando",
+      "loading_error": "No se pudo cargar"
+    },
+    "subscription-card": {
+      "daily": "Diariamente",
+      "daily_plural": "Cada {{count}} días",
+      "frequency": "$t(customer.subscription-card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "monthly": "Mensual",
+      "monthly_plural": "Cada {{count}} meses",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-card.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Próximo pago el {{date, date}}",
+      "subscription_cancelled": "Finalizó el {{date, date}}",
+      "subscription_failed": "Error en el pago el {{date, date}}",
+      "subscription_inactive": "Inactiva",
+      "subscription_will_be_cancelled": "Finaliza el {{date, date}}",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "twice_a_month": "Dos veces al mes",
+      "weekly": "Semanal",
+      "weekly_plural": "Cada {{count}} semanas",
+      "yearly": "Anual",
+      "yearly_plural": "Cada {{count}} años",
+      "spinner": {
+        "loading_busy": "Cargando",
+        "loading_empty": "Sin suscripciones",
+        "loading_end": "No más datos",
+        "loading_error": "No se pudo cargar"
+      }
+    },
+    "subscription-form": {
+      "daily": "Diariamente",
+      "daily_plural": "Cada {{count}} días",
+      "end_subscription": "Finalizar suscripción",
+      "frequency": "$t(customer.subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "frequency_label": "Frecuencia",
+      "item_plural": "Items",
+      "monthly": "Mensual",
+      "monthly_plural": "Cada {{count}} meses",
+      "next_transaction_date": "Fecha de la próxima transacción",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Próximo pago el {{date, date}}",
+      "subscription_cancelled": "Finalizó el {{date, date}}",
+      "subscription_failed": "Error en el pago el {{date, date}}",
+      "subscription_inactive": "Inactiva",
+      "subscription_will_be_cancelled": "Finaliza el {{date, date}}",
+      "transaction_plural": "Actas",
+      "twice_a_month": "Dos veces al mes",
+      "update_billing": "Actualizar facturación",
+      "update_items": "Editar",
+      "weekly": "Semanal",
+      "weekly_plural": "Cada {{count}} semanas",
+      "yearly": "Anual",
+      "yearly_plural": "Cada {{count}} años",
+      "spinner": {
+        "loading_busy": "Cargando",
+        "loading_error": "No se pudo cargar"
+      },
+      "transactions-table": {
+        "date": "{{value, date}}",
+        "price": "{{amount, price}}",
+        "receipt": "Recibo",
+        "spinner": {
+          "loading_busy": "Cargando",
+          "loading_empty": "Sin transacciones",
+          "loading_error": "No se pudo cargar"
+        }
+      }
+    },
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "Recibo",
+      "transaction_approved": "Aprobado",
+      "transaction_authorized": "Autorizado",
+      "transaction_captured": "Capturado",
+      "transaction_completed": "Completado",
+      "transaction_declined": "Rechazado",
+      "transaction_pending": "Pendiente",
+      "transaction_refunded": "Reintegrado",
+      "transaction_rejected": "Rechazado",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} y {{count}} más",
+      "transaction_verified": "Verificado",
+      "transaction_voided": "Anulado",
+      "spinner": {
+        "loading_busy": "Cargando",
+        "loading_empty": "Sin transacciones",
+        "loading_end": "No más datos",
+        "loading_error": "No se pudo cargar"
+      }
+    }
+  },
+  "sign-in-form": {
+    "email": "Correo electrónico",
+    "invalid_credential_error": "Correo electrónico o contraseña incorrectos. Verifique sus credenciales y vuelva a intentarlo.",
+    "password": "Contraseña",
+    "recover_access": "Obtener contraseña temporal",
+    "sign_in": "Iniciar sesión",
+    "sign_in_hint": "Por favor, introduzca su correo electrónico y contraseña",
+    "unknown_error": "Se ha producido un error desconocido. Inténtelo de nuevo más tarde.",
+    "v8n_invalid_email": "Correo electrónico no válido",
+    "v8n_required": "Obligatorio",
+    "spinner": {
+      "loading_busy": "Cargando",
+      "loading_error": "No se pudo cargar"
     }
   }
 }

@@ -1,0 +1,247 @@
+{
+  "address_plural": "Addresses",
+  "attribute_plural": "Attributes",
+  "cancel": "Cancel",
+  "close": "Close",
+  "create": "Create",
+  "customer": "Customer",
+  "delete_prompt": "This resource will be permanently removed. Are you sure?",
+  "payment_method_plural": "Payment methods",
+  "save": "Save",
+  "subscription_plural": "Subscriptions",
+  "transaction_plural": "Transactions",
+  "undo_cancel": "Review",
+  "undo_confirm": "Discard",
+  "undo_header": "Unsaved changes",
+  "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+  "update": "Update",
+  "address-card": {
+    "default_billing_address": "Default billing address",
+    "default_shipping_address": "Default shipping address",
+    "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
+    "full_name": "{{first_name}} {{last_name}}",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_empty": "No data",
+      "loading_error": "Failed to load"
+    }
+  },
+  "address-form": {
+    "address_name": "Address name",
+    "address1": "Address Line 1",
+    "address2": "Address Line 2",
+    "cancel": "Cancel",
+    "city": "City",
+    "company": "Company",
+    "confirm": "Confirm",
+    "country": "Country",
+    "create": "Create",
+    "date": "{{value, date}}",
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "delete": "Delete",
+    "delete_prompt": "This resource will be permanently removed. Are you sure?",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "phone": "Phone",
+    "postal_code": "Postal code",
+    "region": "Region",
+    "v8n_required": "Required",
+    "v8n_too_long": "Too long",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "attribute-card": {
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_empty": "No data",
+      "loading_error": "Failed to load"
+    }
+  },
+  "attribute-form": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "create": "Create",
+    "date": "{{value, date}}",
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "delete": "Delete",
+    "delete_prompt": "This resource will be permanently removed. Are you sure?",
+    "name": "Name",
+    "v8n_required": "Required",
+    "v8n_too_long": "Too long",
+    "value": "Value",
+    "visibility": "Visibility",
+    "visibility_private": "Only me",
+    "visibility_public": "Everyone",
+    "visibility_restricted": "Store admins",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "customer-form": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "create": "Create",
+    "date": "{{value, date}}",
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "delete": "Delete",
+    "delete_prompt": "This resource will be permanently removed. Are you sure?",
+    "email": "Email",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "tax_id": "Tax ID",
+    "v8n_invalid_email": "Invalid email",
+    "v8n_required": "Required",
+    "v8n_too_long": "Too long",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "payment-method-card": {
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "delete_prompt": "This resource will be permanently removed. Are you sure?",
+    "expires": "Expires",
+    "last_4_digits": "Last 4 digits",
+    "unknown": "Unknown",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_empty": "No data",
+      "loading_error": "Failed to load"
+    }
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  },
+  "subscription-form": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "currency": "Currency",
+    "daily": "Daily",
+    "daily_plural": "Every {{count}} days",
+    "day": "Day",
+    "day_plural": "Days",
+    "end_subscription": "End subscription",
+    "frequency": "$t(subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })",
+    "frequency_label": "Frequency",
+    "item_plural": "Items",
+    "month": "Month",
+    "month_plural": "Months",
+    "monthly": "Monthly",
+    "monthly_plural": "Every {{count}} months",
+    "next_transaction_date": "Next transaction date",
+    "price_recurring": "{{amount, price}} $t(subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" })",
+    "price_twice_a_month": "{{amount, price}} $t(subscription-form.twice_a_month, { \"ns\": \"customer\" })",
+    "subscription_active": "Next payment on {{date, date}}",
+    "subscription_cancelled": "Ended on {{date, date}}",
+    "subscription_failed": "Payment failed on {{date, date}}",
+    "subscription_inactive": "Inactive",
+    "subscription_will_be_cancelled": "Ends on {{date, date}}",
+    "transaction_plural": "Transactions",
+    "twice_a_month": "Twice a month",
+    "undo_cancel": "Review",
+    "undo_confirm": "Discard",
+    "undo_header": "Unsaved changes",
+    "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+    "week": "Week",
+    "week_plural": "Weeks",
+    "weekly": "Weekly",
+    "weekly_plural": "Every {{count}} weeks",
+    "year": "Year",
+    "year_plural": "Years",
+    "yearly": "Yearly",
+    "yearly_plural": "Every {{count}} years",
+    "cancellation-form": {
+      "end_date": "End date",
+      "end_subscription": "End subscription",
+      "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
+      "v8n_required": "Required",
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_error": "Failed to load"
+      }
+    },
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    },
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "Receipt",
+      "transaction_approved": "Approved",
+      "transaction_authorized": "Authorized",
+      "transaction_captured": "Captured",
+      "transaction_completed": "Completed",
+      "transaction_declined": "Declined",
+      "transaction_pending": "Pending",
+      "transaction_refunded": "Refunded",
+      "transaction_rejected": "Rejected",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count}} more",
+      "transaction_verified": "Verified",
+      "transaction_voided": "Voided",
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "No data",
+        "loading_error": "Failed to load"
+      }
+    }
+  },
+  "subscriptions-table": {
+    "daily": "Daily",
+    "daily_plural": "Every {{count}} days",
+    "frequency": "$t(subscriptions-table.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })",
+    "monthly": "Monthly",
+    "monthly_plural": "Every {{count}} months",
+    "price_recurring": "{{amount, price}} $t(subscriptions-table.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" })",
+    "price_twice_a_month": "{{amount, price}} $t(subscriptions-table.twice_a_month, { \"ns\": \"customer\" })",
+    "subscription_active": "Next payment on {{date, date}}",
+    "subscription_cancelled": "Ended on {{date, date}}",
+    "subscription_failed": "Payment failed on {{date, date}}",
+    "subscription_inactive": "Inactive",
+    "subscription_will_be_cancelled": "Ends on {{date, date}}",
+    "transaction_summary": "{{most_expensive_item.name}}",
+    "twice_a_month": "Twice a month",
+    "update": "Update",
+    "weekly": "Weekly",
+    "weekly_plural": "Every {{count}} weeks",
+    "yearly": "Yearly",
+    "yearly_plural": "Every {{count}} years",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_empty": "No data",
+      "loading_error": "Failed to load"
+    }
+  },
+  "transactions-table": {
+    "date": "{{value, date}}",
+    "price": "{{amount, price}}",
+    "receipt": "Receipt",
+    "transaction_approved": "Approved",
+    "transaction_authorized": "Authorized",
+    "transaction_captured": "Captured",
+    "transaction_completed": "Completed",
+    "transaction_declined": "Declined",
+    "transaction_pending": "Pending",
+    "transaction_refunded": "Refunded",
+    "transaction_rejected": "Rejected",
+    "transaction_summary": "{{most_expensive_item.name}}",
+    "transaction_summary_plural": "{{most_expensive_item.name}} and {{count}} more",
+    "transaction_verified": "Verified",
+    "transaction_voided": "Voided",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_empty": "No data",
+      "loading_error": "Failed to load"
+    }
+  }
+}

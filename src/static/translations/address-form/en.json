@@ -1,0 +1,27 @@
+{
+  "address_name": "Address name",
+  "address1": "Address Line 1",
+  "address2": "Address Line 2",
+  "cancel": "Cancel",
+  "city": "City",
+  "company": "Company",
+  "confirm": "Confirm",
+  "country": "Country",
+  "create": "Create",
+  "date": "{{value, date}}",
+  "date_created": "Created on",
+  "date_modified": "Last updated",
+  "delete": "Delete",
+  "delete_prompt": "This resource will be permanently removed. Are you sure?",
+  "first_name": "First name",
+  "last_name": "Last name",
+  "phone": "Phone",
+  "postal_code": "Postal code",
+  "region": "Region",
+  "v8n_required": "Required",
+  "v8n_too_long": "Too long",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

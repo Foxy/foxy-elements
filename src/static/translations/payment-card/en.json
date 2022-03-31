@@ -1,0 +1,12 @@
+{
+  "code": "Code",
+  "date": "{{value, date}}",
+  "fraud_risk": "Fraud risk: {{ score }}",
+  "price": "{{amount, price}}",
+  "unknown": "Unknown",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}
