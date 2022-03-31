@@ -22,5 +22,5 @@ export const Playground = getStory({ ...summary, code: true });
 export const Error = getStory(summary);
 export const Busy = getStory(summary);
 
-Error.args.href = 'https://demo.api/virtual/empty?status=404';
-Busy.args.href = 'https://demo.api/virtual/stall';
+Error.args.parent = 'https://demo.api/virtual/empty?status=404';
+Busy.args.parent = 'https://demo.api/virtual/stall';
