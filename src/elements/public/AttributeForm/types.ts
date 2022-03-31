@@ -1,7 +1,7 @@
-import { Rels } from '@foxy.io/sdk/customer';
-import { Resource } from '@foxy.io/sdk/core';
-import { Renderer } from '../../../mixins/configurable';
 import { AttributeForm } from './AttributeForm';
+import { Rels } from '@foxy.io/sdk/backend';
+import { Renderer } from '../../../mixins/configurable';
+import { Resource } from '@foxy.io/sdk/core';
 
 export type Data = Resource<Rels.Attribute>;
 export type TextFieldParams = { field: keyof Data };
