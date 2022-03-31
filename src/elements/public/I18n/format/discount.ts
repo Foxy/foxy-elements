@@ -1,12 +1,12 @@
 import { FormatFunction } from 'i18next';
 
-type Value = { type: string; details: string };
+type Value = { ns: string; type: string; details: string };
 
 /**
  * i18next formatter that returns a human-readable discount description for an API value.
  * @see https://www.i18next.com/translation-function/formatting
  */
-export const discount: FormatFunction = ({ type, details }: Value, format, lang): string => {
+export const discount: FormatFunction = ({ ns, type, details }: Value, format, lang): string => {
   const methods = ['allunits', 'incremental', 'repeat', 'single'];
   const factor = type.endsWith('_percentage') ? 0.01 : 1;
   const tiers = details.split('|');
@@ -18,7 +18,7 @@ export const discount: FormatFunction = ({ type, details }: Value, format, lang)
     const adjustment = parseFloat(tier.substring(signIndex)) * factor;
     const from = parseFloat(tier.substring(0, signIndex));
 
-    return `$t(${i18nKey}, ${JSON.stringify({ adjustment, from })})`;
+    return `$t(${i18nKey}, ${JSON.stringify({ adjustment, from, ns })})`;
   });
 
   return translatedTiers.join('; ');
