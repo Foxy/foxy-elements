@@ -413,7 +413,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               expect(link).to.have.attribute('href', url.toString());
 
               expect(text).to.have.attribute('lang', 'es');
-              expect(text).to.have.attribute('ns', 'customer-portal');
+              expect(text).to.have.attribute('ns', 'customer-portal subscription-form');
             });
 
             it('disables fx:sub_token_url link with ?cart=checkout&sub_restart=auto if subscription has ended', async () => {
@@ -565,7 +565,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               expect(link).to.have.attribute('href', url.toString());
 
               expect(text).to.have.attribute('lang', 'es');
-              expect(text).to.have.attribute('ns', 'customer-portal');
+              expect(text).to.have.attribute('ns', 'customer-portal subscription-form');
             });
 
             it('disables fx:sub_token_url link with ?sub_cancel=true if subscription has an end date', async () => {
@@ -732,7 +732,7 @@ describe('InternalCustomerPortalSubscriptions', () => {
               );
 
               expect(text).to.have.attribute('lang', 'es');
-              expect(text).to.have.attribute('ns', 'customer-portal');
+              expect(text).to.have.attribute('ns', 'customer-portal subscription-form');
             });
 
             it('disables fx:sub_modification_url link if subscription has ended', async () => {

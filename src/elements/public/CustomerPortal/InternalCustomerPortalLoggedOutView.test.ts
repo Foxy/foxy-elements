@@ -174,7 +174,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
-        expect(title).to.have.attribute('ns', 'customer-portal');
+        expect(title).to.have.attribute('ns', 'customer-portal sign-in-form');
       });
 
       it('renders foxy-i18n hint with key "sign_in_hint"', async () => {
@@ -188,7 +188,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
-        expect(title).to.have.attribute('ns', 'customer-portal');
+        expect(title).to.have.attribute('ns', 'customer-portal sign-in-form');
       });
     });
 
@@ -409,7 +409,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
-        expect(title).to.have.attribute('ns', 'customer-portal');
+        expect(title).to.have.attribute('ns', 'customer-portal sign-in-form');
       });
 
       it('opens access recovery page on click', async () => {
@@ -604,7 +604,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
-        expect(title).to.have.attribute('ns', 'customer-portal');
+        expect(title).to.have.attribute('ns', 'customer-portal access-recovery-form');
       });
 
       it('renders foxy-i18n hint with key "recover_access_hint"', async () => {
@@ -622,7 +622,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
-        expect(title).to.have.attribute('ns', 'customer-portal');
+        expect(title).to.have.attribute('ns', 'customer-portal access-recovery-form');
       });
     });
 
@@ -874,7 +874,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(title).to.exist;
         expect(title).to.have.attribute('lang', 'es');
-        expect(title).to.have.attribute('ns', 'customer-portal');
+        expect(title).to.have.attribute('ns', 'customer-portal access-recovery-form');
       });
 
       it('opens access sign-iny page on click', async () => {
