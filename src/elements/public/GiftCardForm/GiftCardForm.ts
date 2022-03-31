@@ -321,10 +321,12 @@ export class GiftCardForm extends Base<Data> {
         ${this.renderTemplateOrSlot('expires:before')}
 
         <x-frequency-input
-          class="w-full"
-          label=${this.t('expires_after')}
           placeholder=${this.t('select')}
           data-testid="expires"
+          label=${this.t('expires_after')}
+          class="w-full"
+          lang=${this.lang}
+          ns=${this.ns}
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('expires', true)}
           ?readonly=${this.readonlySelector.matches('expires', true)}
           .value=${this.form.expires_after ?? ''}
@@ -452,7 +454,7 @@ export class GiftCardForm extends Base<Data> {
         <foxy-query-builder
           class="bg-contrast-5 rounded-tl-l rounded-tr-s rounded-b-l p-m mb-s"
           lang=${lang}
-          ns=${ns}
+          ns="${ns} ${customElements.get('foxy-query-builder')?.defaultNS ?? ''}"
           ?disabled=${isDisabled}
           ?hidden=${filters === null}
           .options=${GiftCardForm.__codesQueryOptions}
@@ -464,7 +466,12 @@ export class GiftCardForm extends Base<Data> {
         >
         </foxy-query-builder>
 
-        <foxy-pagination first=${url.toString()} lang=${lang} ns=${ns} ?disabled=${isDisabled}>
+        <foxy-pagination
+          first=${url.toString()}
+          lang=${lang}
+          ns="${ns} ${customElements.get('foxy-pagination')?.defaultNS ?? ''}"
+          ?disabled=${isDisabled}
+        >
           <foxy-table
             class="px-m mb-s border border-contrast-10 rounded-t-l rounded-b-l"
             group=${group}
@@ -593,7 +600,7 @@ export class GiftCardForm extends Base<Data> {
           <foxy-pagination
             first=${this.__itemCategories}
             lang=${this.lang}
-            ns=${this.ns}
+            ns="${this.ns} ${customElements.get('foxy-pagination')?.defaultNS ?? ''}"
             ?disabled=${isDisabled}
           >
             <foxy-i18n

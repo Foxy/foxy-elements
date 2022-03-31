@@ -902,7 +902,7 @@ describe('GiftCardForm', () => {
       const builder = control.querySelector('foxy-query-builder') as QueryBuilder;
 
       expect(builder).to.have.attribute('lang', 'es');
-      expect(builder).to.have.attribute('ns', 'foo');
+      expect(builder).to.have.attribute('ns', 'foo query-builder');
 
       builder.value = 'foo=bar&baz:in=1,2';
       builder.dispatchEvent(new CustomEvent('change'));
@@ -929,7 +929,7 @@ describe('GiftCardForm', () => {
 
       expect(pagination).to.have.attribute('first', paginationURL.toString());
       expect(pagination).to.have.attribute('lang', 'es');
-      expect(pagination).to.have.attribute('ns', 'foo');
+      expect(pagination).to.have.attribute('ns', 'foo pagination');
     });
 
     it('renders codes table inside of foxy-pagination', async () => {
@@ -1717,7 +1717,7 @@ describe('GiftCardForm', () => {
 
       expect(pagination).to.have.attribute('first', paginationURL.toString());
       expect(pagination).to.have.attribute('lang', 'es');
-      expect(pagination).to.have.attribute('ns', 'foo');
+      expect(pagination).to.have.attribute('ns', 'foo pagination');
     });
 
     it('renders private CategoryRestrictionsPage element inside pagination', async () => {
