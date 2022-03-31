@@ -74,7 +74,7 @@ export class CouponCodeForm extends Base<Data> {
           data-testid="spinner"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !this.in('busy') && !this.in('fail'),
+            'opacity-0 pointer-events-none': this.in('idle'),
           })}
         >
           <foxy-spinner
@@ -130,7 +130,7 @@ export class CouponCodeForm extends Base<Data> {
           value=${ifDefined(this.form.code)}
           .checkValidity=${this.__getValidator('code')}
           .errorMessage=${this.__getErrorMessage('code')}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('code', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('code', true)}
           ?readonly=${this.readonlySelector.matches('code', true)}
           required
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
@@ -175,7 +175,7 @@ export class CouponCodeForm extends Base<Data> {
     const isTemplateInvalid = isCleanTemplateInvalid || isDirtyTemplateInvalid;
     const isSnaphotInvalid = isCleanSnapshotInvalid || isDirtySnapshotInvalid;
     const isInvalid = isTemplateInvalid || isSnaphotInvalid;
-    const isBusy = this.in('busy');
+    const isIdle = this.in('idle');
 
     return html`
       <div>
@@ -185,7 +185,7 @@ export class CouponCodeForm extends Base<Data> {
           data-testid="create"
           class="w-full"
           theme="primary success"
-          ?disabled=${isBusy || isInvalid || this.disabledSelector.matches('create', true)}
+          ?disabled=${!isIdle || isInvalid || this.disabledSelector.matches('create', true)}
           @click=${() => this.submit()}
         >
           <foxy-i18n ns=${this.ns} key="create" lang=${this.lang}></foxy-i18n>
@@ -219,7 +219,7 @@ export class CouponCodeForm extends Base<Data> {
           data-testid="delete"
           theme="primary error"
           class="w-full"
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('delete', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${(evt: CustomEvent) => {
             const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
             confirm.show(evt.currentTarget as ButtonElement);
