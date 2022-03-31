@@ -163,7 +163,7 @@ export class UserForm extends Base<Data> {
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${this.lang}
-            ns=${this.ns}
+            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
           </foxy-spinner>
         </div>
