@@ -15,20 +15,21 @@ import {
 import type { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
 
 import { FrequencyInputChangeEvent } from './FrequencyInputChangeEvent';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { live } from '@open-wc/lit-helpers';
 import memoize from 'lodash-es/memoize';
 import { parseDuration } from '../../../utils/parse-duration';
 
-export class FrequencyInput extends LitElement {
+export class FrequencyInput extends TranslatableMixin(LitElement) {
   static get properties(): PropertyDeclarations {
     return {
+      ...super.properties,
       checkValidity: { attribute: false },
       errorMessage: { type: String, attribute: 'error-message' },
       disabled: { type: Boolean, reflect: true },
       readonly: { type: Boolean, reflect: true },
       label: { type: String },
       value: { type: String },
-      lang: { type: String },
     };
   }
 
@@ -91,22 +92,12 @@ export class FrequencyInput extends LitElement {
     const count = parseDuration(value).count;
 
     return [
-      { value: 'd', label: this.__t('day', { count }) },
-      { value: 'w', label: this.__t('week', { count }) },
-      { value: 'm', label: this.__t('month', { count }) },
-      { value: 'y', label: this.__t('year', { count }) },
+      { value: 'd', label: this.t('day', { count }) },
+      { value: 'w', label: this.t('week', { count }) },
+      { value: 'm', label: this.t('month', { count }) },
+      { value: 'y', label: this.t('year', { count }) },
     ];
   });
-
-  private __untrackTranslations?: () => void;
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    this.__untrackTranslations = customElements.get('foxy-i18n').onTranslationChange(() => {
-      this.__getItems.cache.clear?.();
-      this.requestUpdate();
-    });
-  }
 
   render(): TemplateResult {
     return html`
@@ -153,17 +144,8 @@ export class FrequencyInput extends LitElement {
     if (field.value !== this.value) field.value = this.value;
   }
 
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__untrackTranslations?.();
-  }
-
   checkValidity(): boolean {
     return true;
-  }
-
-  private get __t() {
-    return customElements.get('foxy-i18n').i18next.getFixedT(this.lang);
   }
 
   private __handleChange(evt: CustomEvent<void>) {
