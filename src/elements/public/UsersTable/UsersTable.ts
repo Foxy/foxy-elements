@@ -5,9 +5,10 @@ import { Column } from '../Table/types';
 import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
 import { Table } from '../Table/Table';
+import { TranslatableMixin } from '../../../mixins/translatable';
 import { roles } from '../UserForm/roles';
 
-export class UsersTable extends Table<Data> {
+export class UsersTable extends TranslatableMixin(Table, 'users-table')<Data> {
   static nameColumn: Column<Data> = {
     cell: ctx => html`
       <span data-testclass="name" class="text-m font-medium">
