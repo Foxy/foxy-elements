@@ -3,9 +3,9 @@ import { HandlerContext, Router } from 'service-worker-router';
 export function createRouter(): Router {
   const router = new Router();
 
-  router.get('/:prefix/stall', () => new Promise(() => void 0));
+  router.all('/:prefix/stall', () => new Promise(() => void 0));
 
-  router.get('/:prefix/empty', async ({ url }: HandlerContext) => {
+  router.all('/:prefix/empty', async ({ url }: HandlerContext) => {
     const status = parseInt(url.searchParams.get('status') ?? '200');
     return new Response(null, { status });
   });
