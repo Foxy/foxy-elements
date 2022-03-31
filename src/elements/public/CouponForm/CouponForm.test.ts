@@ -521,7 +521,7 @@ describe('CouponForm', () => {
       expect(summary).to.have.attribute('ns', 'foo');
       expect(summary).to.have.attribute(
         'options',
-        JSON.stringify({ params: { details: '1-2|3-4', type: 'price_amount' } })
+        JSON.stringify({ params: { details: '1-2|3-4', type: 'price_amount', ns: 'foo' } })
       );
     });
 
@@ -1275,7 +1275,7 @@ describe('CouponForm', () => {
       const builder = control.querySelector('foxy-query-builder') as QueryBuilder;
 
       expect(builder).to.have.attribute('lang', 'es');
-      expect(builder).to.have.attribute('ns', 'foo');
+      expect(builder).to.have.attribute('ns', 'foo query-builder');
 
       builder.value = 'foo=bar&baz:in=1,2';
       builder.dispatchEvent(new CustomEvent('change'));
@@ -1302,7 +1302,7 @@ describe('CouponForm', () => {
 
       expect(pagination).to.have.attribute('first', paginationURL.toString());
       expect(pagination).to.have.attribute('lang', 'es');
-      expect(pagination).to.have.attribute('ns', 'foo');
+      expect(pagination).to.have.attribute('ns', 'foo pagination');
     });
 
     it('renders codes table inside of foxy-pagination', async () => {
@@ -2386,7 +2386,7 @@ describe('CouponForm', () => {
 
       expect(pagination).to.have.attribute('first', paginationURL.toString());
       expect(pagination).to.have.attribute('lang', 'es');
-      expect(pagination).to.have.attribute('ns', 'foo');
+      expect(pagination).to.have.attribute('ns', 'foo pagination');
     });
 
     it('renders private CategoryRestrictionsPage element inside pagination', async () => {

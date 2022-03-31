@@ -309,7 +309,7 @@ export class CouponForm extends Base<Data> {
         <span class="relative font-medium flex items-center">
           <span class="truncate">
             ${selectedPreset
-              ? this.t('discount_summary', { params: selectedPreset })
+              ? this.t('discount_summary', { params: { ...selectedPreset, ns: this.ns } })
               : this.t('custom_discount')}
           </span>
 
@@ -333,7 +333,7 @@ export class CouponForm extends Base<Data> {
             ${presets.map(option => {
               return html`
                 <option value=${option.details} ?selected=${option === selectedPreset}>
-                  ${this.t('discount_summary', { params: option })}
+                  ${this.t('discount_summary', { params: { ...option, ns: this.ns } })}
                 </option>
               `;
             })}
@@ -672,7 +672,7 @@ export class CouponForm extends Base<Data> {
         </span>
 
         <foxy-i18n
-          options=${JSON.stringify({ params: { details, type } })}
+          options=${JSON.stringify({ params: { details, type, ns: this.ns } })}
           class="transition-colors ${isDisabled ? 'text-disabled' : 'text-secondary'}"
           lang=${this.lang}
           key="discount_summary"
@@ -870,7 +870,7 @@ export class CouponForm extends Base<Data> {
         <foxy-query-builder
           class="bg-contrast-5 rounded-tl-l rounded-tr-s rounded-b-l p-m mb-s"
           lang=${lang}
-          ns=${ns}
+          ns="${ns} ${customElements.get('foxy-query-builder')?.defaultNS ?? ''}"
           ?disabled=${isDisabled}
           ?hidden=${filters === null}
           .options=${CouponForm.__codesQueryOptions}
@@ -882,7 +882,12 @@ export class CouponForm extends Base<Data> {
         >
         </foxy-query-builder>
 
-        <foxy-pagination first=${url.toString()} lang=${lang} ns=${ns} ?disabled=${isDisabled}>
+        <foxy-pagination
+          first=${url.toString()}
+          lang=${lang}
+          ns="${ns} ${customElements.get('foxy-pagination')?.defaultNS ?? ''}"
+          ?disabled=${isDisabled}
+        >
           <foxy-table
             class="px-m mb-s border border-contrast-10 rounded-t-l rounded-b-l"
             group=${group}
@@ -1116,7 +1121,7 @@ export class CouponForm extends Base<Data> {
           <foxy-pagination
             first=${this.__itemCategories}
             lang=${this.lang}
-            ns=${this.ns}
+            ns="${this.ns} ${customElements.get('foxy-pagination')?.defaultNS ?? ''}"
             ?disabled=${isDisabled}
           >
             <foxy-i18n
