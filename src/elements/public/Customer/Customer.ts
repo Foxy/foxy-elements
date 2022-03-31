@@ -677,7 +677,7 @@ export class Customer extends Base<Data> {
         group=${ctx.group}
         href=${ctx.href}
         lang=${ctx.lang}
-        ns=${ctx.ns}
+        ns="${ctx.ns} subscriptions-table"
         .columns=${this.__subscriptionsTableColumns}
         .templates=${ctx.templates}
       >
