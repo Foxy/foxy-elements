@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "confirm": {
+      "default": "Confirm",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "email": {
+      "default": "Email",
+      "type": "string"
+    },
+    "first_name": {
+      "default": "First name",
+      "type": "string"
+    },
+    "last_name": {
+      "default": "Last name",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "tax_id": {
+      "default": "Tax ID",
+      "type": "string"
+    },
+    "v8n_invalid_email": {
+      "default": "Invalid email",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    },
+    "v8n_too_long": {
+      "default": "Too long",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "confirm",
+    "create",
+    "date",
+    "date_created",
+    "date_modified",
+    "delete",
+    "delete_prompt",
+    "email",
+    "first_name",
+    "last_name",
+    "tax_id",
+    "v8n_invalid_email",
+    "v8n_required",
+    "v8n_too_long",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

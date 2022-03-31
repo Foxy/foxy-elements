@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "percent": {
+      "default": "{{fraction, percent}}",
+      "type": "string"
+    },
+    "price": {
+      "default": "{{amount, price}}",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_empty": {
+          "$ref": "spinner.json#/properties/loading_empty"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["percent", "price", "spinner"],
+  "additionalProperties": false
+}

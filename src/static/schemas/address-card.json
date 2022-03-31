@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "default_billing_address": {
+      "default": "Default billing address",
+      "type": "string"
+    },
+    "default_shipping_address": {
+      "default": "Default shipping address",
+      "type": "string"
+    },
+    "full_address": {
+      "default": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
+      "type": "string"
+    },
+    "full_name": {
+      "default": "{{first_name}} {{last_name}}",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_empty": {
+          "$ref": "spinner.json#/properties/loading_empty"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "default_billing_address",
+    "default_shipping_address",
+    "full_address",
+    "full_name",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

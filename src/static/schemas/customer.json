@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "address_plural": {
+      "default": "Addresses",
+      "type": "string"
+    },
+    "address-card": {
+      "$ref": "address-card.json"
+    },
+    "address-form": {
+      "$ref": "address-form.json"
+    },
+    "attribute_plural": {
+      "default": "Attributes",
+      "type": "string"
+    },
+    "attribute-card": {
+      "$ref": "attribute-card.json"
+    },
+    "attribute-form": {
+      "$ref": "attribute-form.json"
+    },
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "close": {
+      "default": "Close",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "customer": {
+      "default": "Customer",
+      "type": "string"
+    },
+    "customer-form": {
+      "$ref": "customer-form.json"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "payment_method_plural": {
+      "default": "Payment methods",
+      "type": "string"
+    },
+    "payment-method-card": {
+      "$ref": "payment-method-card.json"
+    },
+    "save": {
+      "default": "Save",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "subscription_plural": {
+      "default": "Subscriptions",
+      "type": "string"
+    },
+    "subscription-form": {
+      "$ref": "subscription-form.json"
+    },
+    "subscriptions-table": {
+      "$ref": "subscriptions-table.json"
+    },
+    "transaction_plural": {
+      "default": "Transactions",
+      "type": "string"
+    },
+    "transactions-table": {
+      "$ref": "transactions-table.json"
+    },
+    "undo_cancel": {
+      "default": "Review",
+      "type": "string"
+    },
+    "undo_confirm": {
+      "default": "Discard",
+      "type": "string"
+    },
+    "undo_header": {
+      "default": "Unsaved changes",
+      "type": "string"
+    },
+    "undo_message": {
+      "default": "Looks like you didn't save your changes! What would you like to do with them?",
+      "type": "string"
+    },
+    "update": {
+      "default": "Update",
+      "type": "string"
+    }
+  },
+  "required": [
+    "address_plural",
+    "attribute_plural",
+    "cancel",
+    "close",
+    "create",
+    "customer",
+    "delete_prompt",
+    "payment_method_plural",
+    "save",
+    "subscription_plural",
+    "transaction_plural",
+    "undo_cancel",
+    "undo_confirm",
+    "undo_header",
+    "undo_message",
+    "update",
+    "address-card",
+    "address-form",
+    "attribute-card",
+    "attribute-form",
+    "customer-form",
+    "payment-method-card",
+    "spinner",
+    "subscription-form",
+    "transactions-table",
+    "subscriptions-table"
+  ],
+  "additionalProperties": false
+}

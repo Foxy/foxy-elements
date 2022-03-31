@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "code": {
+      "default": "Code",
+      "type": "string"
+    },
+    "customer": {
+      "$ref": "customer-portal.json#/properties/customer"
+    },
+    "description": {
+      "default": "Description",
+      "type": "string"
+    },
+    "price": {
+      "default": "{{amount, price}}",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_empty": {
+          "$ref": "spinner.json#/properties/loading_empty"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"],
+      "additionalProperties": false
+    },
+    "time": {
+      "default": "{{value, time}}",
+      "type": "string"
+    },
+    "transaction_approved": {
+      "default": "Approved",
+      "type": "string"
+    },
+    "transaction_authorized": {
+      "default": "Authorized",
+      "type": "string"
+    },
+    "transaction_captured": {
+      "default": "Captured",
+      "type": "string"
+    },
+    "transaction_completed": {
+      "default": "Completed",
+      "type": "string"
+    },
+    "transaction_declined": {
+      "default": "Declined",
+      "type": "string"
+    },
+    "transaction_pending": {
+      "default": "Pending",
+      "type": "string"
+    },
+    "transaction_plural": {
+      "default": "Transactions",
+      "type": "string"
+    },
+    "transaction_refunded": {
+      "default": "Refunded",
+      "type": "string"
+    },
+    "transaction_rejected": {
+      "default": "Rejected",
+      "type": "string"
+    },
+    "transaction_summary": {
+      "default": "{{most_expensive_item.name}}",
+      "type": "string"
+    },
+    "transaction_summary_plural": {
+      "default": "{{most_expensive_item.name}} and {{count}} more",
+      "type": "string"
+    },
+    "transaction_verified": {
+      "default": "Verified",
+      "type": "string"
+    },
+    "transaction_voided": {
+      "default": "Voided",
+      "type": "string"
+    }
+  },
+  "required": [
+    "code",
+    "customer",
+    "description",
+    "price",
+    "time",
+    "transaction_approved",
+    "transaction_authorized",
+    "transaction_captured",
+    "transaction_completed",
+    "transaction_declined",
+    "transaction_pending",
+    "transaction_plural",
+    "transaction_refunded",
+    "transaction_rejected",
+    "transaction_summary",
+    "transaction_summary_plural",
+    "transaction_verified",
+    "transaction_voided",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

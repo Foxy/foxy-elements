@@ -1,0 +1,1519 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "allow": {
+      "default": "Allow",
+      "type": "string"
+    },
+    "block": {
+      "default": "Block",
+      "type": "string"
+    },
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "category_restrictions": {
+      "default": "Category restrictions",
+      "type": "string"
+    },
+    "clear_filters": {
+      "default": "Clear filters",
+      "type": "string"
+    },
+    "close": {
+      "default": "Close",
+      "type": "string"
+    },
+    "code": {
+      "default": "Code",
+      "type": "string"
+    },
+    "code_plural": {
+      "default": "Codes",
+      "type": "string"
+    },
+    "confirm": {
+      "default": "Confirm",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "currency": {
+      "default": "Currency",
+      "type": "string"
+    },
+    "currency_aed": {
+      "default": "United Arab Emirates Dirham",
+      "type": "string"
+    },
+    "currency_afn": {
+      "default": "Afghan Afghani",
+      "type": "string"
+    },
+    "currency_all": {
+      "default": "Albanian Lek",
+      "type": "string"
+    },
+    "currency_amd": {
+      "default": "Armenian Dram",
+      "type": "string"
+    },
+    "currency_ang": {
+      "default": "Netherlands Antillean Guilder",
+      "type": "string"
+    },
+    "currency_aoa": {
+      "default": "Angolan Kwanza",
+      "type": "string"
+    },
+    "currency_ars": {
+      "default": "Argentine Peso",
+      "type": "string"
+    },
+    "currency_aud": {
+      "default": "Australian Dollar",
+      "type": "string"
+    },
+    "currency_awg": {
+      "default": "Aruban Florin",
+      "type": "string"
+    },
+    "currency_azn": {
+      "default": "Azerbaijani Manat",
+      "type": "string"
+    },
+    "currency_bam": {
+      "default": "Bosnia-Herzegovina Convertible Mark",
+      "type": "string"
+    },
+    "currency_bbd": {
+      "default": "Barbadian Dollar",
+      "type": "string"
+    },
+    "currency_bdt": {
+      "default": "Bangladeshi Taka",
+      "type": "string"
+    },
+    "currency_bgn": {
+      "default": "Bulgarian Lev",
+      "type": "string"
+    },
+    "currency_bhd": {
+      "default": "Bahraini Dinar",
+      "type": "string"
+    },
+    "currency_bif": {
+      "default": "Burundian Franc",
+      "type": "string"
+    },
+    "currency_bmd": {
+      "default": "Bermudan Dollar",
+      "type": "string"
+    },
+    "currency_bnd": {
+      "default": "Brunei Dollar",
+      "type": "string"
+    },
+    "currency_bob": {
+      "default": "Bolivian Boliviano",
+      "type": "string"
+    },
+    "currency_brl": {
+      "default": "Brazilian Real",
+      "type": "string"
+    },
+    "currency_bsd": {
+      "default": "Bahamian Dollar",
+      "type": "string"
+    },
+    "currency_btc": {
+      "default": "Bitcoin",
+      "type": "string"
+    },
+    "currency_btn": {
+      "default": "Bhutanese Ngultrum",
+      "type": "string"
+    },
+    "currency_bwp": {
+      "default": "Botswanan Pula",
+      "type": "string"
+    },
+    "currency_byn": {
+      "default": "Belarusian Ruble",
+      "type": "string"
+    },
+    "currency_bzd": {
+      "default": "Belize Dollar",
+      "type": "string"
+    },
+    "currency_cad": {
+      "default": "Canadian Dollar",
+      "type": "string"
+    },
+    "currency_cdf": {
+      "default": "Congolese Franc",
+      "type": "string"
+    },
+    "currency_chf": {
+      "default": "Swiss Franc",
+      "type": "string"
+    },
+    "currency_clf": {
+      "default": "Chilean Unit of Account (UF)",
+      "type": "string"
+    },
+    "currency_clp": {
+      "default": "Chilean Peso",
+      "type": "string"
+    },
+    "currency_cnh": {
+      "default": "Chinese Yuan (Offshore)",
+      "type": "string"
+    },
+    "currency_cny": {
+      "default": "Chinese Yuan",
+      "type": "string"
+    },
+    "currency_cop": {
+      "default": "Colombian Peso",
+      "type": "string"
+    },
+    "currency_crc": {
+      "default": "Costa Rican Colón",
+      "type": "string"
+    },
+    "currency_cuc": {
+      "default": "Cuban Convertible Peso",
+      "type": "string"
+    },
+    "currency_cup": {
+      "default": "Cuban Peso",
+      "type": "string"
+    },
+    "currency_cve": {
+      "default": "Cape Verdean Escudo",
+      "type": "string"
+    },
+    "currency_czk": {
+      "default": "Czech Republic Koruna",
+      "type": "string"
+    },
+    "currency_djf": {
+      "default": "Djiboutian Franc",
+      "type": "string"
+    },
+    "currency_dkk": {
+      "default": "Danish Krone",
+      "type": "string"
+    },
+    "currency_dop": {
+      "default": "Dominican Peso",
+      "type": "string"
+    },
+    "currency_dzd": {
+      "default": "Algerian Dinar",
+      "type": "string"
+    },
+    "currency_egp": {
+      "default": "Egyptian Pound",
+      "type": "string"
+    },
+    "currency_ern": {
+      "default": "Eritrean Nakfa",
+      "type": "string"
+    },
+    "currency_etb": {
+      "default": "Ethiopian Birr",
+      "type": "string"
+    },
+    "currency_eur": {
+      "default": "Euro",
+      "type": "string"
+    },
+    "currency_fjd": {
+      "default": "Fijian Dollar",
+      "type": "string"
+    },
+    "currency_fkp": {
+      "default": "Falkland Islands Pound",
+      "type": "string"
+    },
+    "currency_gbp": {
+      "default": "British Pound Sterling",
+      "type": "string"
+    },
+    "currency_gel": {
+      "default": "Georgian Lari",
+      "type": "string"
+    },
+    "currency_ggp": {
+      "default": "Guernsey Pound",
+      "type": "string"
+    },
+    "currency_ghs": {
+      "default": "Ghanaian Cedi",
+      "type": "string"
+    },
+    "currency_gip": {
+      "default": "Gibraltar Pound",
+      "type": "string"
+    },
+    "currency_gmd": {
+      "default": "Gambian Dalasi",
+      "type": "string"
+    },
+    "currency_gnf": {
+      "default": "Guinean Franc",
+      "type": "string"
+    },
+    "currency_gtq": {
+      "default": "Guatemalan Quetzal",
+      "type": "string"
+    },
+    "currency_gyd": {
+      "default": "Guyanaese Dollar",
+      "type": "string"
+    },
+    "currency_hkd": {
+      "default": "Hong Kong Dollar",
+      "type": "string"
+    },
+    "currency_hnl": {
+      "default": "Honduran Lempira",
+      "type": "string"
+    },
+    "currency_hrk": {
+      "default": "Croatian Kuna",
+      "type": "string"
+    },
+    "currency_htg": {
+      "default": "Haitian Gourde",
+      "type": "string"
+    },
+    "currency_huf": {
+      "default": "Hungarian Forint",
+      "type": "string"
+    },
+    "currency_idr": {
+      "default": "Indonesian Rupiah",
+      "type": "string"
+    },
+    "currency_ils": {
+      "default": "Israeli New Sheqel",
+      "type": "string"
+    },
+    "currency_imp": {
+      "default": "Manx pound",
+      "type": "string"
+    },
+    "currency_inr": {
+      "default": "Indian Rupee",
+      "type": "string"
+    },
+    "currency_iqd": {
+      "default": "Iraqi Dinar",
+      "type": "string"
+    },
+    "currency_irr": {
+      "default": "Iranian Rial",
+      "type": "string"
+    },
+    "currency_isk": {
+      "default": "Icelandic Króna",
+      "type": "string"
+    },
+    "currency_jep": {
+      "default": "Jersey Pound",
+      "type": "string"
+    },
+    "currency_jmd": {
+      "default": "Jamaican Dollar",
+      "type": "string"
+    },
+    "currency_jod": {
+      "default": "Jordanian Dinar",
+      "type": "string"
+    },
+    "currency_jpy": {
+      "default": "Japanese Yen",
+      "type": "string"
+    },
+    "currency_kes": {
+      "default": "Kenyan Shilling",
+      "type": "string"
+    },
+    "currency_kgs": {
+      "default": "Kyrgystani Som",
+      "type": "string"
+    },
+    "currency_khr": {
+      "default": "Cambodian Riel",
+      "type": "string"
+    },
+    "currency_kmf": {
+      "default": "Comorian Franc",
+      "type": "string"
+    },
+    "currency_kpw": {
+      "default": "North Korean Won",
+      "type": "string"
+    },
+    "currency_krw": {
+      "default": "South Korean Won",
+      "type": "string"
+    },
+    "currency_kwd": {
+      "default": "Kuwaiti Dinar",
+      "type": "string"
+    },
+    "currency_kyd": {
+      "default": "Cayman Islands Dollar",
+      "type": "string"
+    },
+    "currency_kzt": {
+      "default": "Kazakhstani Tenge",
+      "type": "string"
+    },
+    "currency_lak": {
+      "default": "Laotian Kip",
+      "type": "string"
+    },
+    "currency_lbp": {
+      "default": "Lebanese Pound",
+      "type": "string"
+    },
+    "currency_lkr": {
+      "default": "Sri Lankan Rupee",
+      "type": "string"
+    },
+    "currency_lrd": {
+      "default": "Liberian Dollar",
+      "type": "string"
+    },
+    "currency_lsl": {
+      "default": "Lesotho Loti",
+      "type": "string"
+    },
+    "currency_lyd": {
+      "default": "Libyan Dinar",
+      "type": "string"
+    },
+    "currency_mad": {
+      "default": "Moroccan Dirham",
+      "type": "string"
+    },
+    "currency_mdl": {
+      "default": "Moldovan Leu",
+      "type": "string"
+    },
+    "currency_mga": {
+      "default": "Malagasy Ariary",
+      "type": "string"
+    },
+    "currency_mkd": {
+      "default": "Macedonian Denar",
+      "type": "string"
+    },
+    "currency_mmk": {
+      "default": "Myanma Kyat",
+      "type": "string"
+    },
+    "currency_mnt": {
+      "default": "Mongolian Tugrik",
+      "type": "string"
+    },
+    "currency_mop": {
+      "default": "Macanese Pataca",
+      "type": "string"
+    },
+    "currency_mru": {
+      "default": "Mauritanian Ouguiya",
+      "type": "string"
+    },
+    "currency_mur": {
+      "default": "Mauritian Rupee",
+      "type": "string"
+    },
+    "currency_mvr": {
+      "default": "Maldivian Rufiyaa",
+      "type": "string"
+    },
+    "currency_mwk": {
+      "default": "Malawian Kwacha",
+      "type": "string"
+    },
+    "currency_mxn": {
+      "default": "Mexican Peso",
+      "type": "string"
+    },
+    "currency_myr": {
+      "default": "Malaysian Ringgit",
+      "type": "string"
+    },
+    "currency_mzn": {
+      "default": "Mozambican Metical",
+      "type": "string"
+    },
+    "currency_nad": {
+      "default": "Namibian Dollar",
+      "type": "string"
+    },
+    "currency_ngn": {
+      "default": "Nigerian Naira",
+      "type": "string"
+    },
+    "currency_nio": {
+      "default": "Nicaraguan Córdoba",
+      "type": "string"
+    },
+    "currency_nok": {
+      "default": "Norwegian Krone",
+      "type": "string"
+    },
+    "currency_npr": {
+      "default": "Nepalese Rupee",
+      "type": "string"
+    },
+    "currency_nzd": {
+      "default": "New Zealand Dollar",
+      "type": "string"
+    },
+    "currency_omr": {
+      "default": "Omani Rial",
+      "type": "string"
+    },
+    "currency_pab": {
+      "default": "Panamanian Balboa",
+      "type": "string"
+    },
+    "currency_pen": {
+      "default": "Peruvian Nuevo Sol",
+      "type": "string"
+    },
+    "currency_pgk": {
+      "default": "Papua New Guinean Kina",
+      "type": "string"
+    },
+    "currency_php": {
+      "default": "Philippine Peso",
+      "type": "string"
+    },
+    "currency_pkr": {
+      "default": "Pakistani Rupee",
+      "type": "string"
+    },
+    "currency_pln": {
+      "default": "Polish Zloty",
+      "type": "string"
+    },
+    "currency_pyg": {
+      "default": "Paraguayan Guarani",
+      "type": "string"
+    },
+    "currency_qar": {
+      "default": "Qatari Rial",
+      "type": "string"
+    },
+    "currency_ron": {
+      "default": "Romanian Leu",
+      "type": "string"
+    },
+    "currency_rsd": {
+      "default": "Serbian Dinar",
+      "type": "string"
+    },
+    "currency_rub": {
+      "default": "Russian Ruble",
+      "type": "string"
+    },
+    "currency_rwf": {
+      "default": "Rwandan Franc",
+      "type": "string"
+    },
+    "currency_sar": {
+      "default": "Saudi Riyal",
+      "type": "string"
+    },
+    "currency_sbd": {
+      "default": "Solomon Islands Dollar",
+      "type": "string"
+    },
+    "currency_scr": {
+      "default": "Seychellois Rupee",
+      "type": "string"
+    },
+    "currency_sdg": {
+      "default": "Sudanese Pound",
+      "type": "string"
+    },
+    "currency_sek": {
+      "default": "Swedish Krona",
+      "type": "string"
+    },
+    "currency_sgd": {
+      "default": "Singapore Dollar",
+      "type": "string"
+    },
+    "currency_shp": {
+      "default": "Saint Helena Pound",
+      "type": "string"
+    },
+    "currency_sll": {
+      "default": "Sierra Leonean Leone",
+      "type": "string"
+    },
+    "currency_sos": {
+      "default": "Somali Shilling",
+      "type": "string"
+    },
+    "currency_srd": {
+      "default": "Surinamese Dollar",
+      "type": "string"
+    },
+    "currency_ssp": {
+      "default": "South Sudanese Pound",
+      "type": "string"
+    },
+    "currency_std": {
+      "default": "São Tomé and Príncipe Dobra (pre-2018)",
+      "type": "string"
+    },
+    "currency_stn": {
+      "default": "São Tomé and Príncipe Dobra",
+      "type": "string"
+    },
+    "currency_svc": {
+      "default": "Salvadoran Colón",
+      "type": "string"
+    },
+    "currency_syp": {
+      "default": "Syrian Pound",
+      "type": "string"
+    },
+    "currency_szl": {
+      "default": "Swazi Lilangeni",
+      "type": "string"
+    },
+    "currency_thb": {
+      "default": "Thai Baht",
+      "type": "string"
+    },
+    "currency_tjs": {
+      "default": "Tajikistani Somoni",
+      "type": "string"
+    },
+    "currency_tmt": {
+      "default": "Turkmenistani Manat",
+      "type": "string"
+    },
+    "currency_tnd": {
+      "default": "Tunisian Dinar",
+      "type": "string"
+    },
+    "currency_top": {
+      "default": "Tongan Pa'anga",
+      "type": "string"
+    },
+    "currency_try": {
+      "default": "Turkish Lira",
+      "type": "string"
+    },
+    "currency_ttd": {
+      "default": "Trinidad and Tobago Dollar",
+      "type": "string"
+    },
+    "currency_twd": {
+      "default": "New Taiwan Dollar",
+      "type": "string"
+    },
+    "currency_tzs": {
+      "default": "Tanzanian Shilling",
+      "type": "string"
+    },
+    "currency_uah": {
+      "default": "Ukrainian Hryvnia",
+      "type": "string"
+    },
+    "currency_ugx": {
+      "default": "Ugandan Shilling",
+      "type": "string"
+    },
+    "currency_usd": {
+      "default": "United States Dollar",
+      "type": "string"
+    },
+    "currency_uyu": {
+      "default": "Uruguayan Peso",
+      "type": "string"
+    },
+    "currency_uzs": {
+      "default": "Uzbekistan Som",
+      "type": "string"
+    },
+    "currency_vef": {
+      "default": "Venezuelan Bolívar Fuerte (Old)",
+      "type": "string"
+    },
+    "currency_ves": {
+      "default": "Venezuelan Bolívar Soberano",
+      "type": "string"
+    },
+    "currency_vnd": {
+      "default": "Vietnamese Dong",
+      "type": "string"
+    },
+    "currency_vuv": {
+      "default": "Vanuatu Vatu",
+      "type": "string"
+    },
+    "currency_wst": {
+      "default": "Samoan Tala",
+      "type": "string"
+    },
+    "currency_xaf": {
+      "default": "CFA Franc BEAC",
+      "type": "string"
+    },
+    "currency_xag": {
+      "default": "Silver Ounce",
+      "type": "string"
+    },
+    "currency_xau": {
+      "default": "Gold Ounce",
+      "type": "string"
+    },
+    "currency_xcd": {
+      "default": "East Caribbean Dollar",
+      "type": "string"
+    },
+    "currency_xdr": {
+      "default": "Special Drawing Rights",
+      "type": "string"
+    },
+    "currency_xof": {
+      "default": "CFA Franc BCEAO",
+      "type": "string"
+    },
+    "currency_xpd": {
+      "default": "Palladium Ounce",
+      "type": "string"
+    },
+    "currency_xpf": {
+      "default": "CFP Franc",
+      "type": "string"
+    },
+    "currency_xpt": {
+      "default": "Platinum Ounce",
+      "type": "string"
+    },
+    "currency_yer": {
+      "default": "Yemeni Rial",
+      "type": "string"
+    },
+    "currency_zar": {
+      "default": "South African Rand",
+      "type": "string"
+    },
+    "currency_zmw": {
+      "default": "Zambian Kwacha",
+      "type": "string"
+    },
+    "currency_zwl": {
+      "default": "Zimbabwean Dollar",
+      "type": "string"
+    },
+    "current_balance": {
+      "default": "Current balance",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "day": {
+      "default": "Day",
+      "type": "string"
+    },
+    "day_plural": {
+      "default": "Days",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "end_date": {
+      "default": "End date",
+      "type": "string"
+    },
+    "expires": {
+      "default": "Expires",
+      "type": "string"
+    },
+    "expires_after": {
+      "default": "Expires after",
+      "type": "string"
+    },
+    "filter": {
+      "default": "Filter",
+      "type": "string"
+    },
+    "generate": {
+      "default": "Generate",
+      "type": "string"
+    },
+    "generate-codes-form": {
+      "properties": {
+        "balance": {
+          "$ref": "generate-codes-form.json#/properties/balance"
+        },
+        "cancel": {
+          "$ref": "generate-codes-form.json#/properties/cancel"
+        },
+        "confirm": {
+          "$ref": "generate-codes-form.json#/properties/confirm"
+        },
+        "current_balance": {
+          "$ref": "generate-codes-form.json#/properties/current_balance"
+        },
+        "generate": {
+          "$ref": "generate-codes-form.json#/properties/generate"
+        },
+        "generate_codes_done": {
+          "$ref": "generate-codes-form.json#/properties/generate_codes_done"
+        },
+        "leave_empty_for_random_codes": {
+          "$ref": "generate-codes-form.json#/properties/leave_empty_for_random_codes"
+        },
+        "length": {
+          "$ref": "generate-codes-form.json#/properties/length"
+        },
+        "number_of_codes": {
+          "$ref": "generate-codes-form.json#/properties/number_of_codes"
+        },
+        "prefix": {
+          "$ref": "generate-codes-form.json#/properties/prefix"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": ["loading_busy", "loading_error"],
+          "additionalProperties": false
+        },
+        "template": {
+          "$ref": "generate-codes-form.json#/properties/template"
+        },
+        "v8n_negative": {
+          "$ref": "generate-codes-form.json#/properties/v8n_negative"
+        },
+        "v8n_required": {
+          "$ref": "generate-codes-form.json#/properties/v8n_required"
+        }
+      },
+      "required": [
+        "balance",
+        "cancel",
+        "confirm",
+        "current_balance",
+        "generate",
+        "generate_codes_done",
+        "leave_empty_for_random_codes",
+        "length",
+        "number_of_codes",
+        "prefix",
+        "template",
+        "v8n_negative",
+        "v8n_required",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "gift_card_category_restrictions_helper_text": {
+      "default": "Select which item categories this gift card can be applied to. If you’d like this gift card to be available to all items regardless of the category, keep your selection empty. All changes are saved automatically.",
+      "type": "string"
+    },
+    "gift_card_name_helper_text": {
+      "default": "Gift card names are displayed to the customer.",
+      "type": "string"
+    },
+    "gift_card_product_restrictions_explainer": {
+      "default": "If you want to limit which products can use this gift card, you can enter full product codes or partial product codes using * as a wild card at the beginning or end of the value. So abc123, fun_*, *-small would match abc123, fun_ and fun_times, and example-small. It wouldn't match abc12, abc1234, fun, or good-smalls.",
+      "type": "string"
+    },
+    "gift-card-code-form": {
+      "properties": {
+        "cancel": {
+          "$ref": "gift-card-code-form.json#/properties/cancel"
+        },
+        "code": {
+          "$ref": "gift-card-code-form.json#/properties/code"
+        },
+        "confirm": {
+          "$ref": "gift-card-code-form.json#/properties/confirm"
+        },
+        "create": {
+          "$ref": "gift-card-code-form.json#/properties/create"
+        },
+        "current_balance": {
+          "$ref": "gift-card-code-form.json#/properties/current_balance"
+        },
+        "date": {
+          "$ref": "gift-card-code-form.json#/properties/date"
+        },
+        "date_created": {
+          "$ref": "gift-card-code-form.json#/properties/date_created"
+        },
+        "date_modified": {
+          "$ref": "gift-card-code-form.json#/properties/date_modified"
+        },
+        "delete": {
+          "$ref": "gift-card-code-form.json#/properties/delete"
+        },
+        "delete_prompt": {
+          "$ref": "gift-card-code-form.json#/properties/delete_prompt"
+        },
+        "end_date": {
+          "$ref": "gift-card-code-form.json#/properties/end_date"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": ["loading_busy", "loading_error"],
+          "additionalProperties": false
+        },
+        "v8n_required": {
+          "$ref": "gift-card-code-form.json#/properties/v8n_required"
+        },
+        "v8n_too_long": {
+          "$ref": "gift-card-code-form.json#/properties/v8n_too_long"
+        }
+      },
+      "required": [
+        "cancel",
+        "code",
+        "confirm",
+        "create",
+        "current_balance",
+        "date",
+        "date_created",
+        "date_modified",
+        "delete",
+        "delete_prompt",
+        "end_date",
+        "v8n_required",
+        "v8n_too_long",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "gift-card-codes-form": {
+      "properties": {
+        "balance": {
+          "$ref": "gift-card-codes-form.json#/properties/balance"
+        },
+        "cancel": {
+          "$ref": "gift-card-codes-form.json#/properties/cancel"
+        },
+        "code": {
+          "$ref": "gift-card-codes-form.json#/properties/code"
+        },
+        "code_import_hint": {
+          "$ref": "gift-card-codes-form.json#/properties/code_import_hint"
+        },
+        "code_plural": {
+          "$ref": "gift-card-codes-form.json#/properties/code_plural"
+        },
+        "confirm": {
+          "$ref": "gift-card-codes-form.json#/properties/confirm"
+        },
+        "current_balance": {
+          "$ref": "gift-card-codes-form.json#/properties/current_balance"
+        },
+        "duplicate": {
+          "$ref": "gift-card-codes-form.json#/properties/duplicate"
+        },
+        "hidden_codes_explainer": {
+          "$ref": "gift-card-codes-form.json#/properties/hidden_codes_explainer"
+        },
+        "hidden_codes_header": {
+          "$ref": "gift-card-codes-form.json#/properties/hidden_codes_header"
+        },
+        "hidden_codes_header_plural": {
+          "$ref": "gift-card-codes-form.json#/properties/hidden_codes_header_plural"
+        },
+        "import": {
+          "$ref": "gift-card-codes-form.json#/properties/import"
+        },
+        "import_codes_done": {
+          "$ref": "gift-card-codes-form.json#/properties/import_codes_done"
+        },
+        "loading_busy": {
+          "$ref": "gift-card-codes-form.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "gift-card-codes-form.json#/properties/loading_error"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": ["loading_busy", "loading_error"],
+          "additionalProperties": false
+        },
+        "type_here": {
+          "$ref": "gift-card-codes-form.json#/properties/type_here"
+        },
+        "unique": {
+          "$ref": "gift-card-codes-form.json#/properties/unique"
+        },
+        "v8n_negative": {
+          "$ref": "gift-card-codes-form.json#/properties/v8n_negative"
+        },
+        "v8n_required": {
+          "$ref": "gift-card-codes-form.json#/properties/v8n_required"
+        }
+      },
+      "required": [
+        "balance",
+        "cancel",
+        "code",
+        "code_import_hint",
+        "code_plural",
+        "confirm",
+        "current_balance",
+        "duplicate",
+        "hidden_codes_explainer",
+        "hidden_codes_header",
+        "hidden_codes_header_plural",
+        "import",
+        "import_codes_done",
+        "loading_busy",
+        "loading_error",
+        "type_here",
+        "unique",
+        "v8n_negative",
+        "v8n_required",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "import": {
+      "default": "Import",
+      "type": "string"
+    },
+    "month": {
+      "default": "Month",
+      "type": "string"
+    },
+    "month_plural": {
+      "default": "Months",
+      "type": "string"
+    },
+    "name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "pagination": {
+      "properties": {
+        "first": {
+          "$ref": "pagination.json#/properties/first"
+        },
+        "last": {
+          "$ref": "pagination.json#/properties/last"
+        },
+        "next": {
+          "$ref": "pagination.json#/properties/next"
+        },
+        "pagination": {
+          "$ref": "pagination.json#/properties/pagination"
+        },
+        "previous": {
+          "$ref": "pagination.json#/properties/previous"
+        }
+      },
+      "required": ["first", "last", "next", "pagination", "previous"],
+      "additionalProperties": false
+    },
+    "price": {
+      "default": "{{amount, price}}",
+      "type": "string"
+    },
+    "product_restrictions": {
+      "default": "Product restrictions",
+      "type": "string"
+    },
+    "query-builder": {
+      "properties": {
+        "add_or_clause": {
+          "$ref": "query-builder.json#/properties/add_or_clause"
+        },
+        "add_value": {
+          "$ref": "query-builder.json#/properties/add_value"
+        },
+        "code": {
+          "default": "Code",
+          "type": "string"
+        },
+        "current_balance": {
+          "default": "Current balance",
+          "type": "string"
+        },
+        "date": {
+          "$ref": "query-builder.json#/properties/date"
+        },
+        "date_created": {
+          "default": "Created on",
+          "type": "string"
+        },
+        "date_modified": {
+          "default": "Last updated",
+          "type": "string"
+        },
+        "delete": {
+          "$ref": "query-builder.json#/properties/delete"
+        },
+        "end_date": {
+          "default": "End date",
+          "type": "string"
+        },
+        "field": {
+          "$ref": "query-builder.json#/properties/field"
+        },
+        "hidden": {
+          "$ref": "query-builder.json#/properties/hidden"
+        },
+        "is_defined_false": {
+          "$ref": "query-builder.json#/properties/is_defined_false"
+        },
+        "is_defined_true": {
+          "$ref": "query-builder.json#/properties/is_defined_true"
+        },
+        "name": {
+          "$ref": "query-builder.json#/properties/name"
+        },
+        "operator_equal": {
+          "$ref": "query-builder.json#/properties/operator_equal"
+        },
+        "operator_greaterthan": {
+          "$ref": "query-builder.json#/properties/operator_greaterthan"
+        },
+        "operator_greaterthanorequal": {
+          "$ref": "query-builder.json#/properties/operator_greaterthanorequal"
+        },
+        "operator_in": {
+          "$ref": "query-builder.json#/properties/operator_in"
+        },
+        "operator_isdefined": {
+          "$ref": "query-builder.json#/properties/operator_isdefined"
+        },
+        "operator_lessthan": {
+          "$ref": "query-builder.json#/properties/operator_lessthan"
+        },
+        "operator_lessthanorequal": {
+          "$ref": "query-builder.json#/properties/operator_lessthanorequal"
+        },
+        "operator_not": {
+          "$ref": "query-builder.json#/properties/operator_not"
+        },
+        "or": {
+          "$ref": "query-builder.json#/properties/or"
+        },
+        "query_builder_group": {
+          "$ref": "query-builder.json#/properties/query_builder_group"
+        },
+        "query_builder_rule": {
+          "$ref": "query-builder.json#/properties/query_builder_rule"
+        },
+        "range_from": {
+          "$ref": "query-builder.json#/properties/range_from"
+        },
+        "range_to": {
+          "$ref": "query-builder.json#/properties/range_to"
+        },
+        "type": {
+          "$ref": "query-builder.json#/properties/type"
+        },
+        "type_any": {
+          "$ref": "query-builder.json#/properties/type_any"
+        },
+        "type_attribute": {
+          "$ref": "query-builder.json#/properties/type_attribute"
+        },
+        "type_date": {
+          "$ref": "query-builder.json#/properties/type_date"
+        },
+        "type_here": {
+          "$ref": "query-builder.json#/properties/type_here"
+        },
+        "type_number": {
+          "$ref": "query-builder.json#/properties/type_number"
+        },
+        "type_string": {
+          "$ref": "query-builder.json#/properties/type_string"
+        },
+        "value": {
+          "$ref": "query-builder.json#/properties/value"
+        }
+      },
+      "required": [
+        "add_or_clause",
+        "add_value",
+        "code",
+        "current_balance",
+        "date_created",
+        "date_modified",
+        "date",
+        "delete",
+        "end_date",
+        "field",
+        "hidden",
+        "is_defined_false",
+        "is_defined_true",
+        "name",
+        "operator_equal",
+        "operator_greaterthan",
+        "operator_greaterthanorequal",
+        "operator_in",
+        "operator_isdefined",
+        "operator_lessthan",
+        "operator_lessthanorequal",
+        "operator_not",
+        "or",
+        "query_builder_group",
+        "query_builder_rule",
+        "range_from",
+        "range_to",
+        "type_any",
+        "type_attribute",
+        "type_date",
+        "type_here",
+        "type_number",
+        "type_string",
+        "type",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "save": {
+      "default": "Save",
+      "type": "string"
+    },
+    "select": {
+      "default": "Select...",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "type_here": {
+      "default": "Type here...",
+      "type": "string"
+    },
+    "undo_cancel": {
+      "default": "Review",
+      "type": "string"
+    },
+    "undo_confirm": {
+      "default": "Discard",
+      "type": "string"
+    },
+    "undo_header": {
+      "default": "Unsaved changes",
+      "type": "string"
+    },
+    "undo_message": {
+      "default": "Looks like you didn't save your changes! What would you like to do with them?",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    },
+    "v8n_too_long": {
+      "default": "Too long",
+      "type": "string"
+    },
+    "week": {
+      "default": "Week",
+      "type": "string"
+    },
+    "week_plural": {
+      "default": "Weeks",
+      "type": "string"
+    },
+    "year": {
+      "default": "Year",
+      "type": "string"
+    },
+    "year_plural": {
+      "default": "Years",
+      "type": "string"
+    }
+  },
+  "required": [
+    "allow",
+    "block",
+    "cancel",
+    "category_restrictions",
+    "clear_filters",
+    "close",
+    "code_plural",
+    "code",
+    "confirm",
+    "create",
+    "currency_aed",
+    "currency_afn",
+    "currency_all",
+    "currency_amd",
+    "currency_ang",
+    "currency_aoa",
+    "currency_ars",
+    "currency_aud",
+    "currency_awg",
+    "currency_azn",
+    "currency_bam",
+    "currency_bbd",
+    "currency_bdt",
+    "currency_bgn",
+    "currency_bhd",
+    "currency_bif",
+    "currency_bmd",
+    "currency_bnd",
+    "currency_bob",
+    "currency_brl",
+    "currency_bsd",
+    "currency_btc",
+    "currency_btn",
+    "currency_bwp",
+    "currency_byn",
+    "currency_bzd",
+    "currency_cad",
+    "currency_cdf",
+    "currency_chf",
+    "currency_clf",
+    "currency_clp",
+    "currency_cnh",
+    "currency_cny",
+    "currency_cop",
+    "currency_crc",
+    "currency_cuc",
+    "currency_cup",
+    "currency_cve",
+    "currency_czk",
+    "currency_djf",
+    "currency_dkk",
+    "currency_dop",
+    "currency_dzd",
+    "currency_egp",
+    "currency_ern",
+    "currency_etb",
+    "currency_eur",
+    "currency_fjd",
+    "currency_fkp",
+    "currency_gbp",
+    "currency_gel",
+    "currency_ggp",
+    "currency_ghs",
+    "currency_gip",
+    "currency_gmd",
+    "currency_gnf",
+    "currency_gtq",
+    "currency_gyd",
+    "currency_hkd",
+    "currency_hnl",
+    "currency_hrk",
+    "currency_htg",
+    "currency_huf",
+    "currency_idr",
+    "currency_ils",
+    "currency_imp",
+    "currency_inr",
+    "currency_iqd",
+    "currency_irr",
+    "currency_isk",
+    "currency_jep",
+    "currency_jmd",
+    "currency_jod",
+    "currency_jpy",
+    "currency_kes",
+    "currency_kgs",
+    "currency_khr",
+    "currency_kmf",
+    "currency_kpw",
+    "currency_krw",
+    "currency_kwd",
+    "currency_kyd",
+    "currency_kzt",
+    "currency_lak",
+    "currency_lbp",
+    "currency_lkr",
+    "currency_lrd",
+    "currency_lsl",
+    "currency_lyd",
+    "currency_mad",
+    "currency_mdl",
+    "currency_mga",
+    "currency_mkd",
+    "currency_mmk",
+    "currency_mnt",
+    "currency_mop",
+    "currency_mru",
+    "currency_mur",
+    "currency_mvr",
+    "currency_mwk",
+    "currency_mxn",
+    "currency_myr",
+    "currency_mzn",
+    "currency_nad",
+    "currency_ngn",
+    "currency_nio",
+    "currency_nok",
+    "currency_npr",
+    "currency_nzd",
+    "currency_omr",
+    "currency_pab",
+    "currency_pen",
+    "currency_pgk",
+    "currency_php",
+    "currency_pkr",
+    "currency_pln",
+    "currency_pyg",
+    "currency_qar",
+    "currency_ron",
+    "currency_rsd",
+    "currency_rub",
+    "currency_rwf",
+    "currency_sar",
+    "currency_sbd",
+    "currency_scr",
+    "currency_sdg",
+    "currency_sek",
+    "currency_sgd",
+    "currency_shp",
+    "currency_sll",
+    "currency_sos",
+    "currency_srd",
+    "currency_ssp",
+    "currency_std",
+    "currency_stn",
+    "currency_svc",
+    "currency_syp",
+    "currency_szl",
+    "currency_thb",
+    "currency_tjs",
+    "currency_tmt",
+    "currency_tnd",
+    "currency_top",
+    "currency_try",
+    "currency_ttd",
+    "currency_twd",
+    "currency_tzs",
+    "currency_uah",
+    "currency_ugx",
+    "currency_usd",
+    "currency_uyu",
+    "currency_uzs",
+    "currency_vef",
+    "currency_ves",
+    "currency_vnd",
+    "currency_vuv",
+    "currency_wst",
+    "currency_xaf",
+    "currency_xag",
+    "currency_xau",
+    "currency_xcd",
+    "currency_xdr",
+    "currency_xof",
+    "currency_xpd",
+    "currency_xpf",
+    "currency_xpt",
+    "currency_yer",
+    "currency_zar",
+    "currency_zmw",
+    "currency_zwl",
+    "currency",
+    "current_balance",
+    "date_created",
+    "date_modified",
+    "date",
+    "day_plural",
+    "day",
+    "delete_prompt",
+    "delete",
+    "end_date",
+    "expires_after",
+    "expires",
+    "filter",
+    "generate-codes-form",
+    "generate",
+    "gift_card_category_restrictions_helper_text",
+    "gift_card_name_helper_text",
+    "gift_card_product_restrictions_explainer",
+    "gift-card-code-form",
+    "gift-card-codes-form",
+    "import",
+    "month_plural",
+    "month",
+    "name",
+    "pagination",
+    "price",
+    "product_restrictions",
+    "query-builder",
+    "save",
+    "select",
+    "spinner",
+    "type_here",
+    "undo_cancel",
+    "undo_confirm",
+    "undo_header",
+    "undo_message",
+    "v8n_required",
+    "v8n_too_long",
+    "week_plural",
+    "week",
+    "year_plural",
+    "year"
+  ],
+  "additionalProperties": false
+}

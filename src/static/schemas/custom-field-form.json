@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "show_on_receipt": {
+      "default": "Show on receipt",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    },
+    "v8n_too_long": {
+      "default": "Too long",
+      "type": "string"
+    },
+    "value": {
+      "default": "Value",
+      "type": "string"
+    },
+    "visibility": {
+      "default": "Visibility",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "create",
+    "date",
+    "date_created",
+    "date_modified",
+    "delete",
+    "delete_prompt",
+    "name",
+    "show_on_receipt",
+    "v8n_required",
+    "v8n_too_long",
+    "value",
+    "visibility",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

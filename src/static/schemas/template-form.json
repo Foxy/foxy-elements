@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cache": {
+      "default": "Cache",
+      "type": "string"
+    },
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "default": {
+      "default": "Default",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "description": {
+      "default": "Description",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "template": {
+      "default": "Template",
+      "type": "string"
+    },
+    "template_clipboard": {
+      "default": "From clipboard",
+      "type": "string"
+    },
+    "template_clipboard_explainer": {
+      "default": "Paste the template here to use it",
+      "type": "string"
+    },
+    "template_default": {
+      "default": "Default",
+      "type": "string"
+    },
+    "template_default_explainer": {
+      "default": "Use the default template",
+      "type": "string"
+    },
+    "template_url": {
+      "default": "From URL",
+      "type": "string"
+    },
+    "template_url_explainer": {
+      "default": "Fetch the template from a public URL",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cache",
+    "cancel",
+    "create",
+    "date",
+    "date_created",
+    "date_modified",
+    "default",
+    "delete",
+    "delete_prompt",
+    "description",
+    "template",
+    "template_clipboard",
+    "template_clipboard_explainer",
+    "template_default",
+    "template_default_explainer",
+    "template_url",
+    "template_url_explainer",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

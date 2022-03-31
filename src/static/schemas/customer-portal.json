@@ -1,0 +1,848 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "access-recovery-form": {
+      "properties": {
+        "back": {
+          "default": "Back",
+          "type": "string"
+        },
+        "email": {
+          "$ref": "access-recovery-form.json#/properties/email"
+        },
+        "recover_access": {
+          "$ref": "access-recovery-form.json#/properties/recover_access"
+        },
+        "recover_access_hint": {
+          "default": "Enter your email and we'll send you a temporary password",
+          "type": "string"
+        },
+        "recover_access_success": {
+          "$ref": "access-recovery-form.json#/properties/recover_access_success"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": ["loading_busy", "loading_error"],
+          "additionalProperties": false
+        },
+        "unknown_error": {
+          "$ref": "access-recovery-form.json#/properties/unknown_error"
+        },
+        "v8n_invalid_email": {
+          "$ref": "access-recovery-form.json#/properties/v8n_invalid_email"
+        },
+        "v8n_required": {
+          "$ref": "access-recovery-form.json#/properties/v8n_required"
+        }
+      },
+      "required": [
+        "back",
+        "email",
+        "recover_access",
+        "recover_access_hint",
+        "recover_access_success",
+        "unknown_error",
+        "v8n_invalid_email",
+        "v8n_required",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "customer": {
+      "properties": {
+        "address_plural": {
+          "$ref": "customer.json#/properties/address_plural"
+        },
+        "address-card": {
+          "properties": {
+            "default_billing_address": {
+              "$ref": "address-card.json#/properties/default_billing_address"
+            },
+            "default_shipping_address": {
+              "$ref": "address-card.json#/properties/default_shipping_address"
+            },
+            "full_address": {
+              "$ref": "address-card.json#/properties/full_address"
+            },
+            "full_name": {
+              "$ref": "address-card.json#/properties/full_name"
+            },
+            "spinner": {
+              "properties": {
+                "loading_busy": {
+                  "$ref": "spinner.json#/properties/loading_busy"
+                },
+                "loading_empty": {
+                  "$ref": "spinner.json#/properties/loading_empty"
+                },
+                "loading_end": {
+                  "$ref": "spinner.json#/properties/loading_end"
+                },
+                "loading_error": {
+                  "$ref": "spinner.json#/properties/loading_error"
+                }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_end", "loading_error"],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "default_billing_address",
+            "default_shipping_address",
+            "full_address",
+            "full_name",
+            "spinner"
+          ],
+          "additionalProperties": false
+        },
+        "address-form": {
+          "properties": {
+            "address_name": {
+              "$ref": "address-form.json#/properties/address_name"
+            },
+            "address1": {
+              "$ref": "address-form.json#/properties/address1"
+            },
+            "address2": {
+              "$ref": "address-form.json#/properties/address2"
+            },
+            "cancel": {
+              "$ref": "address-form.json#/properties/cancel"
+            },
+            "city": {
+              "$ref": "address-form.json#/properties/city"
+            },
+            "company": {
+              "$ref": "address-form.json#/properties/company"
+            },
+            "country": {
+              "$ref": "address-form.json#/properties/country"
+            },
+            "date": {
+              "$ref": "address-form.json#/properties/date"
+            },
+            "date_created": {
+              "$ref": "address-form.json#/properties/date_created"
+            },
+            "date_modified": {
+              "$ref": "address-form.json#/properties/date_modified"
+            },
+            "delete": {
+              "$ref": "address-form.json#/properties/delete"
+            },
+            "delete_prompt": {
+              "$ref": "address-form.json#/properties/delete_prompt"
+            },
+            "first_name": {
+              "$ref": "address-form.json#/properties/first_name"
+            },
+            "last_name": {
+              "$ref": "address-form.json#/properties/last_name"
+            },
+            "phone": {
+              "$ref": "address-form.json#/properties/phone"
+            },
+            "postal_code": {
+              "$ref": "address-form.json#/properties/postal_code"
+            },
+            "region": {
+              "$ref": "address-form.json#/properties/region"
+            },
+            "spinner": {
+              "properties": {
+                "loading_busy": {
+                  "$ref": "spinner.json#/properties/loading_busy"
+                },
+                "loading_empty": {
+                  "$ref": "spinner.json#/properties/loading_empty"
+                },
+                "loading_error": {
+                  "$ref": "spinner.json#/properties/loading_error"
+                }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_error"],
+              "additionalProperties": false
+            },
+            "v8n_required": {
+              "$ref": "address-form.json#/properties/v8n_required"
+            },
+            "v8n_too_long": {
+              "$ref": "address-form.json#/properties/v8n_too_long"
+            }
+          },
+          "required": [
+            "address_name",
+            "address1",
+            "address2",
+            "cancel",
+            "city",
+            "company",
+            "country",
+            "date",
+            "date_created",
+            "date_modified",
+            "delete",
+            "delete_prompt",
+            "first_name",
+            "last_name",
+            "phone",
+            "postal_code",
+            "region",
+            "v8n_required",
+            "v8n_too_long",
+            "spinner"
+          ],
+          "additionalProperties": false
+        },
+        "cancel": {
+          "$ref": "customer.json#/properties/cancel"
+        },
+        "close": {
+          "$ref": "customer.json#/properties/close"
+        },
+        "customer-form": {
+          "properties": {
+            "cancel": {
+              "$ref": "customer-form.json#/properties/cancel"
+            },
+            "change_password": {
+              "default": "Change password",
+              "type": "string"
+            },
+            "change_password_step_1": {
+              "default": "Let's start with your current password. A temporary password also works if you have one.",
+              "type": "string"
+            },
+            "change_password_step_2": {
+              "default": "Now enter a new password and hit Continue to apply changes to your account.",
+              "type": "string"
+            },
+            "change_password_step_3": {
+              "default": "All done! You can now use your new password when logging in.",
+              "type": "string"
+            },
+            "close": {
+              "default": "Close",
+              "type": "string"
+            },
+            "date": {
+              "$ref": "customer-form.json#/properties/date"
+            },
+            "date_created": {
+              "$ref": "customer-form.json#/properties/date_created"
+            },
+            "date_modified": {
+              "$ref": "customer-form.json#/properties/date_modified"
+            },
+            "email": {
+              "$ref": "customer-form.json#/properties/email"
+            },
+            "first_name": {
+              "$ref": "customer-form.json#/properties/first_name"
+            },
+            "invalid_credential_error": {
+              "default": "Incorrect password. Please make sure you've entered your current or temporary password and try again.",
+              "type": "string"
+            },
+            "last_name": {
+              "$ref": "customer-form.json#/properties/last_name"
+            },
+            "sign_in": {
+              "default": "Continue",
+              "type": "string"
+            },
+            "sign-in-form": {
+              "properties": {
+                "new_password": {
+                  "$ref": "sign-in-form.json#/properties/new_password"
+                },
+                "password": {
+                  "$ref": "sign-in-form.json#/properties/password"
+                },
+                "spinner": {
+                  "properties": {
+                    "loading_busy": {
+                      "$ref": "spinner.json#/properties/loading_busy"
+                    },
+                    "loading_error": {
+                      "$ref": "spinner.json#/properties/loading_error"
+                    }
+                  },
+                  "required": ["loading_busy", "loading_error"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["new_password", "password", "spinner"],
+              "additionalProperties": false
+            },
+            "spinner": {
+              "properties": {
+                "loading_busy": {
+                  "$ref": "spinner.json#/properties/loading_busy"
+                },
+                "loading_empty": {
+                  "$ref": "spinner.json#/properties/loading_empty"
+                },
+                "loading_error": {
+                  "$ref": "spinner.json#/properties/loading_error"
+                }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_error"],
+              "additionalProperties": false
+            },
+            "tax_id": {
+              "$ref": "customer-form.json#/properties/tax_id"
+            },
+            "undo_cancel": {
+              "default": "Review",
+              "type": "string"
+            },
+            "undo_confirm": {
+              "default": "Discard",
+              "type": "string"
+            },
+            "undo_header": {
+              "default": "Unsaved changes",
+              "type": "string"
+            },
+            "undo_message": {
+              "default": "Looks like you didn't save your changes! What would you like to do with them?",
+              "type": "string"
+            },
+            "v8n_invalid_email": {
+              "$ref": "customer-form.json#/properties/v8n_invalid_email"
+            },
+            "v8n_required": {
+              "$ref": "customer-form.json#/properties/v8n_required"
+            },
+            "v8n_too_long": {
+              "$ref": "customer-form.json#/properties/v8n_too_long"
+            }
+          },
+          "required": [
+            "cancel",
+            "change_password",
+            "change_password_step_1",
+            "change_password_step_2",
+            "change_password_step_3",
+            "close",
+            "date",
+            "date_created",
+            "date_modified",
+            "email",
+            "first_name",
+            "invalid_credential_error",
+            "last_name",
+            "sign_in",
+            "tax_id",
+            "undo_cancel",
+            "undo_confirm",
+            "undo_header",
+            "undo_message",
+            "v8n_invalid_email",
+            "v8n_required",
+            "v8n_too_long",
+            "sign-in-form",
+            "spinner"
+          ],
+          "additionalProperties": false
+        },
+        "payment_method_plural": {
+          "$ref": "customer.json#/properties/payment_method_plural"
+        },
+        "payment-method-card": {
+          "properties": {
+            "cancel": {
+              "$ref": "payment-method-card.json#/properties/cancel"
+            },
+            "delete": {
+              "$ref": "payment-method-card.json#/properties/delete"
+            },
+            "delete_prompt": {
+              "$ref": "payment-method-card.json#/properties/delete_prompt"
+            },
+            "spinner": {
+              "properties": {
+                "loading_busy": {
+                  "$ref": "spinner.json#/properties/loading_busy"
+                },
+                "loading_empty": {
+                  "$ref": "spinner.json#/properties/loading_empty"
+                },
+                "loading_error": {
+                  "$ref": "spinner.json#/properties/loading_error"
+                }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_error"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["cancel", "delete", "delete_prompt", "spinner"],
+          "additionalProperties": false
+        },
+        "save": {
+          "$ref": "customer.json#/properties/save"
+        },
+        "subscription_plural": {
+          "$ref": "customer.json#/properties/subscription_plural"
+        },
+        "subscription-card": {
+          "properties": {
+            "daily": {
+              "$ref": "subscription-card.json#/properties/daily"
+            },
+            "daily_plural": {
+              "$ref": "subscription-card.json#/properties/daily_plural"
+            },
+            "frequency": {
+              "$ref": "subscription-card.json#/properties/frequency"
+            },
+            "monthly": {
+              "$ref": "subscription-card.json#/properties/monthly"
+            },
+            "monthly_plural": {
+              "$ref": "subscription-card.json#/properties/monthly_plural"
+            },
+            "price_recurring": {
+              "$ref": "subscription-card.json#/properties/price_recurring"
+            },
+            "price_twice_a_month": {
+              "$ref": "subscription-card.json#/properties/price_twice_a_month"
+            },
+            "spinner": {
+              "properties": {
+                "loading_busy": {
+                  "$ref": "spinner.json#/properties/loading_busy"
+                },
+                "loading_empty": {
+                  "$ref": "spinner.json#/properties/loading_empty"
+                },
+                "loading_end": {
+                  "$ref": "spinner.json#/properties/loading_end"
+                },
+                "loading_error": {
+                  "$ref": "spinner.json#/properties/loading_error"
+                }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_end", "loading_error"],
+              "additionalProperties": false
+            },
+            "subscription_active": {
+              "$ref": "subscription-card.json#/properties/subscription_active"
+            },
+            "subscription_cancelled": {
+              "$ref": "subscription-card.json#/properties/subscription_cancelled"
+            },
+            "subscription_failed": {
+              "$ref": "subscription-card.json#/properties/subscription_failed"
+            },
+            "subscription_inactive": {
+              "$ref": "subscription-card.json#/properties/subscription_inactive"
+            },
+            "subscription_will_be_cancelled": {
+              "$ref": "subscription-card.json#/properties/subscription_will_be_cancelled"
+            },
+            "transaction_summary": {
+              "$ref": "subscription-card.json#/properties/transaction_summary"
+            },
+            "twice_a_month": {
+              "$ref": "subscription-card.json#/properties/twice_a_month"
+            },
+            "weekly": {
+              "$ref": "subscription-card.json#/properties/weekly"
+            },
+            "weekly_plural": {
+              "$ref": "subscription-card.json#/properties/weekly_plural"
+            },
+            "yearly": {
+              "$ref": "subscription-card.json#/properties/yearly"
+            },
+            "yearly_plural": {
+              "$ref": "subscription-card.json#/properties/yearly_plural"
+            }
+          },
+          "required": [
+            "daily",
+            "daily_plural",
+            "frequency",
+            "monthly",
+            "monthly_plural",
+            "price_recurring",
+            "price_twice_a_month",
+            "subscription_active",
+            "subscription_cancelled",
+            "subscription_failed",
+            "subscription_inactive",
+            "subscription_will_be_cancelled",
+            "transaction_summary",
+            "twice_a_month",
+            "weekly",
+            "weekly_plural",
+            "yearly",
+            "yearly_plural",
+            "spinner"
+          ],
+          "additionalProperties": false
+        },
+        "subscription-form": {
+          "properties": {
+            "daily": {
+              "$ref": "subscription-form.json#/properties/daily"
+            },
+            "daily_plural": {
+              "$ref": "subscription-form.json#/properties/daily_plural"
+            },
+            "end_subscription": {
+              "$ref": "subscription-form.json#/properties/end_subscription"
+            },
+            "frequency": {
+              "$ref": "subscription-form.json#/properties/frequency"
+            },
+            "frequency_label": {
+              "$ref": "subscription-form.json#/properties/frequency_label"
+            },
+            "item_plural": {
+              "$ref": "subscription-form.json#/properties/item_plural"
+            },
+            "monthly": {
+              "$ref": "subscription-form.json#/properties/monthly"
+            },
+            "monthly_plural": {
+              "$ref": "subscription-form.json#/properties/monthly_plural"
+            },
+            "next_transaction_date": {
+              "$ref": "subscription-form.json#/properties/next_transaction_date"
+            },
+            "price_recurring": {
+              "$ref": "subscription-form.json#/properties/price_recurring"
+            },
+            "price_twice_a_month": {
+              "$ref": "subscription-form.json#/properties/price_twice_a_month"
+            },
+            "spinner": {
+              "properties": {
+                "loading_busy": {
+                  "$ref": "spinner.json#/properties/loading_busy"
+                },
+                "loading_error": {
+                  "$ref": "spinner.json#/properties/loading_error"
+                }
+              },
+              "required": ["loading_busy", "loading_error"],
+              "additionalProperties": false
+            },
+            "subscription_active": {
+              "$ref": "subscription-form.json#/properties/subscription_active"
+            },
+            "subscription_cancelled": {
+              "$ref": "subscription-form.json#/properties/subscription_cancelled"
+            },
+            "subscription_failed": {
+              "$ref": "subscription-form.json#/properties/subscription_failed"
+            },
+            "subscription_inactive": {
+              "$ref": "subscription-form.json#/properties/subscription_inactive"
+            },
+            "subscription_will_be_cancelled": {
+              "$ref": "subscription-form.json#/properties/subscription_will_be_cancelled"
+            },
+            "transaction_plural": {
+              "$ref": "subscription-form.json#/properties/transaction_plural"
+            },
+            "transactions-table": {
+              "properties": {
+                "date": {
+                  "$ref": "transactions-table.json#/properties/date"
+                },
+                "price": {
+                  "$ref": "transactions-table.json#/properties/price"
+                },
+                "receipt": {
+                  "$ref": "transactions-table.json#/properties/receipt"
+                },
+                "spinner": {
+                  "properties": {
+                    "loading_busy": {
+                      "$ref": "spinner.json#/properties/loading_busy"
+                    },
+                    "loading_empty": {
+                      "$ref": "spinner.json#/properties/loading_empty"
+                    },
+                    "loading_error": {
+                      "$ref": "spinner.json#/properties/loading_error"
+                    }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["date", "price", "receipt", "spinner"],
+              "additionalProperties": false
+            },
+            "twice_a_month": {
+              "$ref": "subscription-form.json#/properties/twice_a_month"
+            },
+            "update_billing": {
+              "default": "Update billing",
+              "type": "string"
+            },
+            "update_items": {
+              "default": "Edit",
+              "type": "string"
+            },
+            "weekly": {
+              "$ref": "subscription-form.json#/properties/weekly"
+            },
+            "weekly_plural": {
+              "$ref": "subscription-form.json#/properties/weekly_plural"
+            },
+            "yearly": {
+              "$ref": "subscription-form.json#/properties/yearly"
+            },
+            "yearly_plural": {
+              "$ref": "subscription-form.json#/properties/yearly_plural"
+            }
+          },
+          "required": [
+            "daily",
+            "daily_plural",
+            "end_subscription",
+            "frequency",
+            "frequency_label",
+            "item_plural",
+            "monthly",
+            "monthly_plural",
+            "next_transaction_date",
+            "price_recurring",
+            "price_twice_a_month",
+            "subscription_active",
+            "subscription_cancelled",
+            "subscription_failed",
+            "subscription_inactive",
+            "subscription_will_be_cancelled",
+            "transaction_plural",
+            "twice_a_month",
+            "update_billing",
+            "update_items",
+            "weekly",
+            "weekly_plural",
+            "yearly",
+            "yearly_plural",
+            "spinner",
+            "transactions-table"
+          ],
+          "additionalProperties": false
+        },
+        "transaction_plural": {
+          "$ref": "customer.json#/properties/transaction_plural"
+        },
+        "transactions-table": {
+          "properties": {
+            "date": {
+              "$ref": "transactions-table.json#/properties/date"
+            },
+            "price": {
+              "$ref": "transactions-table.json#/properties/price"
+            },
+            "receipt": {
+              "$ref": "transactions-table.json#/properties/receipt"
+            },
+            "spinner": {
+              "properties": {
+                "loading_busy": {
+                  "$ref": "spinner.json#/properties/loading_busy"
+                },
+                "loading_empty": {
+                  "$ref": "spinner.json#/properties/loading_empty"
+                },
+                "loading_end": {
+                  "$ref": "spinner.json#/properties/loading_end"
+                },
+                "loading_error": {
+                  "$ref": "spinner.json#/properties/loading_error"
+                }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_end", "loading_error"],
+              "additionalProperties": false
+            },
+            "transaction_approved": {
+              "$ref": "transactions-table.json#/properties/transaction_approved"
+            },
+            "transaction_authorized": {
+              "$ref": "transactions-table.json#/properties/transaction_authorized"
+            },
+            "transaction_captured": {
+              "$ref": "transactions-table.json#/properties/transaction_captured"
+            },
+            "transaction_completed": {
+              "$ref": "transactions-table.json#/properties/transaction_completed"
+            },
+            "transaction_declined": {
+              "$ref": "transactions-table.json#/properties/transaction_declined"
+            },
+            "transaction_pending": {
+              "$ref": "transactions-table.json#/properties/transaction_pending"
+            },
+            "transaction_refunded": {
+              "$ref": "transactions-table.json#/properties/transaction_refunded"
+            },
+            "transaction_rejected": {
+              "$ref": "transactions-table.json#/properties/transaction_rejected"
+            },
+            "transaction_summary": {
+              "$ref": "transactions-table.json#/properties/transaction_summary"
+            },
+            "transaction_summary_plural": {
+              "$ref": "transactions-table.json#/properties/transaction_summary_plural"
+            },
+            "transaction_verified": {
+              "$ref": "transactions-table.json#/properties/transaction_verified"
+            },
+            "transaction_voided": {
+              "$ref": "transactions-table.json#/properties/transaction_voided"
+            }
+          },
+          "required": [
+            "date",
+            "price",
+            "receipt",
+            "transaction_approved",
+            "transaction_authorized",
+            "transaction_captured",
+            "transaction_completed",
+            "transaction_declined",
+            "transaction_pending",
+            "transaction_refunded",
+            "transaction_rejected",
+            "transaction_summary",
+            "transaction_summary_plural",
+            "transaction_verified",
+            "transaction_voided",
+            "spinner"
+          ],
+          "additionalProperties": false
+        },
+        "undo_cancel": {
+          "$ref": "customer.json#/properties/undo_cancel"
+        },
+        "undo_confirm": {
+          "$ref": "customer.json#/properties/undo_confirm"
+        },
+        "undo_header": {
+          "$ref": "customer.json#/properties/undo_header"
+        },
+        "undo_message": {
+          "$ref": "customer.json#/properties/undo_message"
+        },
+        "update": {
+          "$ref": "customer.json#/properties/update"
+        },
+        "spinner": {
+          "$ref": "customer.json#/properties/spinner"
+        }
+      },
+      "required": [
+        "address_plural",
+        "address-card",
+        "address-form",
+        "cancel",
+        "close",
+        "customer-form",
+        "payment_method_plural",
+        "payment-method-card",
+        "save",
+        "spinner",
+        "subscription_plural",
+        "subscription-card",
+        "subscription-form",
+        "transaction_plural",
+        "transactions-table",
+        "undo_cancel",
+        "undo_confirm",
+        "undo_header",
+        "undo_message",
+        "update"
+      ],
+      "additionalProperties": false
+    },
+    "sign-in-form": {
+      "properties": {
+        "email": {
+          "$ref": "sign-in-form.json#/properties/email"
+        },
+        "invalid_credential_error": {
+          "$ref": "sign-in-form.json#/properties/invalid_credential_error"
+        },
+        "password": {
+          "$ref": "sign-in-form.json#/properties/password"
+        },
+        "recover_access": {
+          "default": "Get one-time code",
+          "type": "string"
+        },
+        "sign_in": {
+          "$ref": "sign-in-form.json#/properties/sign_in"
+        },
+        "sign_in_hint": {
+          "default": "Please enter your email and password",
+          "type": "string"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": ["loading_busy", "loading_error"],
+          "additionalProperties": false
+        },
+        "unknown_error": {
+          "$ref": "sign-in-form.json#/properties/unknown_error"
+        },
+        "v8n_invalid_email": {
+          "$ref": "sign-in-form.json#/properties/v8n_invalid_email"
+        },
+        "v8n_required": {
+          "$ref": "sign-in-form.json#/properties/v8n_required"
+        }
+      },
+      "required": [
+        "email",
+        "invalid_credential_error",
+        "password",
+        "recover_access",
+        "sign_in",
+        "sign_in_hint",
+        "unknown_error",
+        "v8n_invalid_email",
+        "v8n_required",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["access-recovery-form", "customer", "sign-in-form"],
+  "additionalProperties": false
+}

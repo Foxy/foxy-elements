@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "balance": {
+      "default": "Balance",
+      "type": "string"
+    },
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "confirm": {
+      "default": "Confirm",
+      "type": "string"
+    },
+    "current_balance": {
+      "default": "Current balance",
+      "type": "string"
+    },
+    "generate": {
+      "default": "Generate",
+      "type": "string"
+    },
+    "generate_codes_done": {
+      "default": "All done! We've added new codes for you.",
+      "type": "string"
+    },
+    "leave_empty_for_random_codes": {
+      "default": "Leave empty to generate completely random codes.",
+      "type": "string"
+    },
+    "length": {
+      "default": "Length",
+      "type": "string"
+    },
+    "number_of_codes": {
+      "default": "Number of codes",
+      "type": "string"
+    },
+    "prefix": {
+      "default": "Prefix",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "template": {
+      "default": "Template",
+      "type": "string"
+    },
+    "v8n_negative": {
+      "default": "Negative values are not allowed",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "confirm",
+    "balance",
+    "current_balance",
+    "generate",
+    "generate_codes_done",
+    "leave_empty_for_random_codes",
+    "length",
+    "number_of_codes",
+    "prefix",
+    "template",
+    "v8n_negative",
+    "v8n_required",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

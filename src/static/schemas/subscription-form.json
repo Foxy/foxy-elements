@@ -1,0 +1,332 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "cancellation-form": {
+      "properties": {
+        "end_date": {
+          "$ref": "cancellation-form.json#/properties/end_date"
+        },
+        "end_subscription": {
+          "$ref": "cancellation-form.json#/properties/end_subscription"
+        },
+        "end_subscription_explainer": {
+          "$ref": "cancellation-form.json#/properties/end_subscription_explainer"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": ["loading_busy", "loading_error"],
+          "additionalProperties": false
+        },
+        "v8n_required": {
+          "$ref": "cancellation-form.json#/properties/v8n_required"
+        }
+      },
+      "required": [
+        "end_date",
+        "end_subscription",
+        "end_subscription_explainer",
+        "v8n_required",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "close": {
+      "default": "Close",
+      "type": "string"
+    },
+    "confirm": {
+      "default": "Confirm",
+      "type": "string"
+    },
+    "currency": {
+      "default": "Currency",
+      "type": "string"
+    },
+    "daily": {
+      "default": "Daily",
+      "type": "string"
+    },
+    "daily_plural": {
+      "default": "Every {{count}} days",
+      "type": "string"
+    },
+    "day": {
+      "default": "Day",
+      "type": "string"
+    },
+    "day_plural": {
+      "default": "Days",
+      "type": "string"
+    },
+    "end_subscription": {
+      "default": "End subscription",
+      "type": "string"
+    },
+    "frequency": {
+      "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })",
+      "type": "string"
+    },
+    "frequency_label": {
+      "default": "Frequency",
+      "type": "string"
+    },
+    "item_plural": {
+      "default": "Items",
+      "type": "string"
+    },
+    "month": {
+      "default": "Month",
+      "type": "string"
+    },
+    "month_plural": {
+      "default": "Months",
+      "type": "string"
+    },
+    "monthly": {
+      "default": "Monthly",
+      "type": "string"
+    },
+    "monthly_plural": {
+      "default": "Every {{count}} months",
+      "type": "string"
+    },
+    "next_transaction_date": {
+      "default": "Next transaction date",
+      "type": "string"
+    },
+    "price_recurring": {
+      "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })",
+      "type": "string"
+    },
+    "price_twice_a_month": {
+      "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "subscription_active": {
+      "default": "Next payment on {{date, date}}",
+      "type": "string"
+    },
+    "subscription_cancelled": {
+      "default": "Ended on {{date, date}}",
+      "type": "string"
+    },
+    "subscription_failed": {
+      "default": "Payment failed on {{date, date}}",
+      "type": "string"
+    },
+    "subscription_inactive": {
+      "default": "Inactive",
+      "type": "string"
+    },
+    "subscription_will_be_cancelled": {
+      "default": "Ends on {{date, date}}",
+      "type": "string"
+    },
+    "transaction_plural": {
+      "default": "Transactions",
+      "type": "string"
+    },
+    "transactions-table": {
+      "properties": {
+        "date": {
+          "$ref": "transactions-table.json#/properties/date"
+        },
+        "price": {
+          "$ref": "transactions-table.json#/properties/price"
+        },
+        "receipt": {
+          "$ref": "transactions-table.json#/properties/receipt"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_empty": {
+              "$ref": "spinner.json#/properties/loading_empty"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": ["loading_busy", "loading_empty", "loading_error"],
+          "additionalProperties": false
+        },
+        "transaction_approved": {
+          "$ref": "transactions-table.json#/properties/transaction_approved"
+        },
+        "transaction_authorized": {
+          "$ref": "transactions-table.json#/properties/transaction_authorized"
+        },
+        "transaction_captured": {
+          "$ref": "transactions-table.json#/properties/transaction_captured"
+        },
+        "transaction_completed": {
+          "$ref": "transactions-table.json#/properties/transaction_completed"
+        },
+        "transaction_declined": {
+          "$ref": "transactions-table.json#/properties/transaction_declined"
+        },
+        "transaction_pending": {
+          "$ref": "transactions-table.json#/properties/transaction_pending"
+        },
+        "transaction_refunded": {
+          "$ref": "transactions-table.json#/properties/transaction_refunded"
+        },
+        "transaction_rejected": {
+          "$ref": "transactions-table.json#/properties/transaction_rejected"
+        },
+        "transaction_summary": {
+          "$ref": "transactions-table.json#/properties/transaction_summary"
+        },
+        "transaction_summary_plural": {
+          "$ref": "transactions-table.json#/properties/transaction_summary_plural"
+        },
+        "transaction_verified": {
+          "$ref": "transactions-table.json#/properties/transaction_verified"
+        },
+        "transaction_voided": {
+          "$ref": "transactions-table.json#/properties/transaction_voided"
+        }
+      },
+      "required": [
+        "date",
+        "price",
+        "receipt",
+        "transaction_approved",
+        "transaction_authorized",
+        "transaction_captured",
+        "transaction_completed",
+        "transaction_declined",
+        "transaction_pending",
+        "transaction_refunded",
+        "transaction_rejected",
+        "transaction_summary",
+        "transaction_summary_plural",
+        "transaction_verified",
+        "transaction_voided",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "twice_a_month": {
+      "default": "Twice a month",
+      "type": "string"
+    },
+    "undo_cancel": {
+      "default": "Review",
+      "type": "string"
+    },
+    "undo_confirm": {
+      "default": "Discard",
+      "type": "string"
+    },
+    "undo_header": {
+      "default": "Unsaved changes",
+      "type": "string"
+    },
+    "undo_message": {
+      "default": "Looks like you didn't save your changes! What would you like to do with them?",
+      "type": "string"
+    },
+    "week": {
+      "default": "Week",
+      "type": "string"
+    },
+    "week_plural": {
+      "default": "Weeks",
+      "type": "string"
+    },
+    "weekly": {
+      "default": "Weekly",
+      "type": "string"
+    },
+    "weekly_plural": {
+      "default": "Every {{count}} weeks",
+      "type": "string"
+    },
+    "year": {
+      "default": "Year",
+      "type": "string"
+    },
+    "year_plural": {
+      "default": "Years",
+      "type": "string"
+    },
+    "yearly": {
+      "default": "Yearly",
+      "type": "string"
+    },
+    "yearly_plural": {
+      "default": "Every {{count}} years",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "cancellation-form",
+    "close",
+    "confirm",
+    "currency",
+    "daily_plural",
+    "daily",
+    "day_plural",
+    "day",
+    "end_subscription",
+    "frequency_label",
+    "frequency",
+    "item_plural",
+    "month_plural",
+    "month",
+    "monthly_plural",
+    "monthly",
+    "next_transaction_date",
+    "price_recurring",
+    "price_twice_a_month",
+    "spinner",
+    "subscription_active",
+    "subscription_cancelled",
+    "subscription_failed",
+    "subscription_inactive",
+    "subscription_will_be_cancelled",
+    "transaction_plural",
+    "transactions-table",
+    "twice_a_month",
+    "undo_cancel",
+    "undo_confirm",
+    "undo_header",
+    "undo_message",
+    "week_plural",
+    "week",
+    "weekly_plural",
+    "weekly",
+    "year_plural",
+    "year",
+    "yearly_plural",
+    "yearly"
+  ],
+  "additionalProperties": false
+}
