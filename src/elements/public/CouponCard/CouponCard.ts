@@ -92,10 +92,11 @@ export class CouponCard extends Base<Data> {
     if (this.data) {
       const details = this.data.coupon_discount_details;
       const type = this.data.coupon_discount_type;
+      const ns = this.ns;
 
       summary = html`
         <foxy-i18n
-          options=${JSON.stringify({ params: { details, type } })}
+          options=${JSON.stringify({ params: { details, type, ns } })}
           lang=${this.lang}
           key="discount_summary"
           ns=${this.ns}

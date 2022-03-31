@@ -202,6 +202,7 @@ describe('CouponCard', () => {
           params: {
             details: '2-25|4-50',
             type: 'quantity_amount',
+            ns: 'foo',
           },
         })
       );
