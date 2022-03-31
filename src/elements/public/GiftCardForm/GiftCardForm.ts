@@ -268,7 +268,7 @@ export class GiftCardForm extends Base<Data> {
           label=${this.t('name')}
           .checkValidity=${this.__getValidator('name')}
           .value=${this.form.name ?? ''}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('name', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('name', true)}
           ?readonly=${this.readonlySelector.matches('name', true)}
           required
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
@@ -705,7 +705,7 @@ export class GiftCardForm extends Base<Data> {
           data-testid="delete"
           theme="primary error"
           class="w-full"
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('delete', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${(evt: CustomEvent) => {
             const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
             confirm.show(evt.currentTarget as ButtonElement);
