@@ -214,7 +214,7 @@ export class TaxForm extends Base<Data> {
           data-testid="spinner"
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !this.in('busy') && !this.in('fail'),
+            'opacity-0 pointer-events-none': this.in('idle'),
           })}
         >
           <foxy-spinner
@@ -336,7 +336,7 @@ export class TaxForm extends Base<Data> {
           value=${ifDefined(this.form.name)}
           .checkValidity=${this.__getValidator('name')}
           .errorMessage=${this.__getErrorMessage('name')}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('name', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('name', true)}
           ?readonly=${this.readonlySelector.matches('name', true)}
           required
           @keydown=${this.__submitOnEnter}
@@ -366,7 +366,7 @@ export class TaxForm extends Base<Data> {
           class="w-full"
           .items=${['global', 'union', 'country', 'region', 'local']}
           .getText=${(value: string) => this.t(`tax_${value}`)}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('type', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('type', true)}
           ?readonly=${this.readonlySelector.matches('type', true)}
           @change=${(evt: DropdownChangeEvent) => {
             this.edit({
@@ -394,6 +394,7 @@ export class TaxForm extends Base<Data> {
     const isLoadingItems = this.__countriesService.state.matches('busy');
     const isLoadingData = this.in('busy');
     const isLoading = isLoadingItems || isLoadingData;
+    const isFail = this.in('fail');
     const json = this.__countriesService.state.context.data as Resource<Rels.Countries> | null;
     const items = Object.values(json?.values ?? {});
 
@@ -413,7 +414,7 @@ export class TaxForm extends Base<Data> {
           .errorMessage=${this.__getErrorMessage('country')}
           .items=${items}
           ?allow-custom-value=${items.length === 0}
-          ?disabled=${isLoading || this.disabledSelector.matches('country', true)}
+          ?disabled=${isFail || isLoading || this.disabledSelector.matches('country', true)}
           ?readonly=${this.readonlySelector.matches('country', true)}
           required
           @change=${(evt: CustomEvent) => {
@@ -440,6 +441,7 @@ export class TaxForm extends Base<Data> {
     const isLoadingItems = this.__regionsService.state.matches('busy');
     const isLoadingData = this.in('busy');
     const isLoading = isLoadingItems || isLoadingData;
+    const isFail = this.in('fail');
     const json = this.__regionsService.state.context.data as Resource<Rels.Regions> | null;
     const items = Object.values(json?.values ?? {});
 
@@ -459,7 +461,7 @@ export class TaxForm extends Base<Data> {
           .errorMessage=${this.__getErrorMessage('region')}
           .items=${items}
           ?allow-custom-value=${items.length === 0}
-          ?disabled=${isLoading || this.disabledSelector.matches('region', true)}
+          ?disabled=${isFail || isLoading || this.disabledSelector.matches('region', true)}
           ?readonly=${this.readonlySelector.matches('region', true)}
           required
           @change=${(evt: CustomEvent) => {
@@ -486,7 +488,7 @@ export class TaxForm extends Base<Data> {
           value=${ifDefined(this.form.city)}
           .checkValidity=${this.__getValidator('city')}
           .errorMessage=${this.__getErrorMessage('city')}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('city', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('city', true)}
           ?readonly=${this.readonlySelector.matches('city', true)}
           required
           @keydown=${this.__submitOnEnter}
@@ -528,7 +530,7 @@ export class TaxForm extends Base<Data> {
           class="w-full"
           .items=${items.map(item => item.value)}
           .getText=${(value: string) => items.find(item => item.value === value)?.label}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('provider', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('provider', true)}
           ?readonly=${this.readonlySelector.matches('provider', true)}
           @change=${(evt: DropdownChangeEvent) => {
             const newValue = evt.detail as string;
@@ -569,7 +571,7 @@ export class TaxForm extends Base<Data> {
           has-controls
           .checkValidity=${this.__getValidator('rate')}
           .errorMessage=${this.__getErrorMessage('rate')}
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('rate', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('rate', true)}
           ?readonly=${this.readonlySelector.matches('rate', true)}
           required
           @keydown=${this.__submitOnEnter}
@@ -593,7 +595,7 @@ export class TaxForm extends Base<Data> {
         <x-checkbox
           data-testid="apply-to-shipping"
           class="leading-s"
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('apply-to-shipping', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('apply-to-shipping', true)}
           ?readonly=${this.readonlySelector.matches('apply-to-shipping', true)}
           ?checked=${!!this.form.apply_to_shipping}
           @change=${(evt: CheckboxChangeEvent) => this.edit({ apply_to_shipping: evt.detail })}
@@ -628,7 +630,7 @@ export class TaxForm extends Base<Data> {
         <x-checkbox
           data-testid="use-origin-rates"
           class="leading-s"
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('use-origin-rates', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('use-origin-rates', true)}
           ?readonly=${this.readonlySelector.matches('use-origin-rates', true)}
           ?checked=${!!this.form.use_origin_rates}
           @change=${(evt: CheckboxChangeEvent) => this.edit({ use_origin_rates: evt.detail })}
@@ -665,7 +667,7 @@ export class TaxForm extends Base<Data> {
         <x-checkbox
           data-testid="${scope}"
           class="leading-s"
-          ?disabled=${this.in('busy') || this.disabledSelector.matches(scope, true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(scope, true)}
           ?readonly=${this.readonlySelector.matches(scope, true)}
           ?checked=${!!this.form.exempt_all_customer_tax_ids}
           @change=${(evt: CheckboxChangeEvent) => {
@@ -723,7 +725,7 @@ export class TaxForm extends Base<Data> {
     const isTemplateInvalid = isCleanTemplateInvalid || isDirtyTemplateInvalid;
     const isSnaphotInvalid = isCleanSnapshotInvalid || isDirtySnapshotInvalid;
     const isInvalid = isTemplateInvalid || isSnaphotInvalid;
-    const isBusy = this.in('busy');
+    const isIdle = this.in('idle');
 
     return html`
       <div>
@@ -733,7 +735,7 @@ export class TaxForm extends Base<Data> {
           data-testid="create"
           class="w-full"
           theme="primary success"
-          ?disabled=${isBusy || isInvalid || this.disabledSelector.matches('create', true)}
+          ?disabled=${!isIdle || isInvalid || this.disabledSelector.matches('create', true)}
           @click=${this.submit}
         >
           <foxy-i18n ns=${this.ns} key="create" lang=${this.lang}></foxy-i18n>
@@ -767,7 +769,7 @@ export class TaxForm extends Base<Data> {
           data-testid="delete"
           theme="primary error"
           class="w-full"
-          ?disabled=${this.in('busy') || this.disabledSelector.matches('delete', true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${(evt: CustomEvent) => {
             const confirm = this.renderRoot.querySelector('#confirm') as InternalConfirmDialog;
             confirm.show(evt.currentTarget as ButtonElement);
