@@ -374,7 +374,7 @@ export class SubscriptionForm extends Base<Data> {
           default-custom-value="1d"
           data-testid="frequency"
           type="frequency"
-          ns=${SubscriptionForm.defaultNS}
+          ns=${ns}
           ?custom=${this.settings === null}
           .items=${this.__frequencies}
           .value=${this.form.frequency ?? null}
