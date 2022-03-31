@@ -256,7 +256,7 @@ export class AttributeForm extends Base<Data> {
             class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
             state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
             lang=${lang}
-            ns=${ns}
+            ns="${ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
           >
           </foxy-spinner>
         </div>
