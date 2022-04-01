@@ -89,7 +89,7 @@ export class TemplateForm extends Base<Data> {
     const isFail = this.in('fail');
 
     return html`
-      <div class="space-y-m">
+      <div class="space-y-m relative">
         ${hiddenSelector.matches('description', true) ? '' : this.__renderDescription()}
         ${hiddenSelector.matches('content', true) ? '' : this.__renderContent()}
         ${hiddenSelector.matches('timestamps', true) || !href ? '' : this.__renderTimestamps()}

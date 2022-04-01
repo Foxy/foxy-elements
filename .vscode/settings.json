@@ -1,0 +1,180 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["/src/static/translations/access-recovery-form/*.json"],
+      "url": "./src/static/schemas/access-recovery-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/access-recovery-form/*.json"],
+      "url": "./src/static/schemas/access-recovery-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/address-card/*.json"],
+      "url": "./src/static/schemas/address-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/address-form/*.json"],
+      "url": "./src/static/schemas/address-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/applied-tax-card/*.json"],
+      "url": "./src/static/schemas/applied-tax-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/attribute-card/*.json"],
+      "url": "./src/static/schemas/attribute-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/attribute-form/*.json"],
+      "url": "./src/static/schemas/attribute-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/cancellation-form/*.json"],
+      "url": "./src/static/schemas/cancellation-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/coupon-card/*.json"],
+      "url": "./src/static/schemas/coupon-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/coupon-code-form/*.json"],
+      "url": "./src/static/schemas/coupon-code-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/coupon-codes-form/*.json"],
+      "url": "./src/static/schemas/coupon-codes-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/coupon-form/*.json"],
+      "url": "./src/static/schemas/coupon-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/custom-field-card/*.json"],
+      "url": "./src/static/schemas/custom-field-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/custom-field-form/*.json"],
+      "url": "./src/static/schemas/custom-field-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/customer/*.json"],
+      "url": "./src/static/schemas/customer.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/customer-card/*.json"],
+      "url": "./src/static/schemas/customer-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/customer-form/*.json"],
+      "url": "./src/static/schemas/customer-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/customer-portal/*.json"],
+      "url": "./src/static/schemas/customer-portal.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/customers-table/*.json"],
+      "url": "./src/static/schemas/customers-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/discount-card/*.json"],
+      "url": "./src/static/schemas/discount-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/email-template-form/*.json"],
+      "url": "./src/static/schemas/email-template-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/error-entry-card/*.json"],
+      "url": "./src/static/schemas/error-entry-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/generate-codes-form/*.json"],
+      "url": "./src/static/schemas/generate-codes-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/gift-card-card/*.json"],
+      "url": "./src/static/schemas/gift-card-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/gift-card-code-form/*.json"],
+      "url": "./src/static/schemas/gift-card-code-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/gift-card-codes-form/*.json"],
+      "url": "./src/static/schemas/gift-card-codes-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/gift-card-form/*.json"],
+      "url": "./src/static/schemas/gift-card-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/pagination/*.json"],
+      "url": "./src/static/schemas/pagination.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/payment-card/*.json"],
+      "url": "./src/static/schemas/payment-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/payment-method-card/*.json"],
+      "url": "./src/static/schemas/payment-method-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/query-builder/*.json"],
+      "url": "./src/static/schemas/query-builder.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/sign-in-form/*.json"],
+      "url": "./src/static/schemas/sign-in-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/spinner/*.json"],
+      "url": "./src/static/schemas/spinner.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/subscription-card/*.json"],
+      "url": "./src/static/schemas/subscription-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/subscription-form/*.json"],
+      "url": "./src/static/schemas/subscription-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/subscriptions-table/*.json"],
+      "url": "./src/static/schemas/subscriptions-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/tax-card/*.json"],
+      "url": "./src/static/schemas/tax-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/tax-form/*.json"],
+      "url": "./src/static/schemas/tax-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/template-config-form/*.json"],
+      "url": "./src/static/schemas/template-config-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/template-form/*.json"],
+      "url": "./src/static/schemas/template-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/transaction-card/*.json"],
+      "url": "./src/static/schemas/transaction-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/transactions-table/*.json"],
+      "url": "./src/static/schemas/transactions-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/user-form/*.json"],
+      "url": "./src/static/schemas/user-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/users-table/*.json"],
+      "url": "./src/static/schemas/users-table.json"
+    }
+  ]
+}

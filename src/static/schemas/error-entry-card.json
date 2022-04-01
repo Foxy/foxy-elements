@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "client": {
+      "default": "Client",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "error": {
+      "default": "Error",
+      "type": "string"
+    },
+    "request": {
+      "default": "Request",
+      "type": "string"
+    },
+    "time": {
+      "default": "{{value, time}}",
+      "type": "string"
+    }
+  },
+  "required": ["client", "date", "error", "request", "time"],
+  "additionalProperties": false
+}

@@ -1,0 +1,7 @@
+{
+  "first": "First",
+  "last": "Last",
+  "next": "Next",
+  "pagination": "{{from}}-{{to}} out of {{total}}",
+  "previous": "Previous"
+}

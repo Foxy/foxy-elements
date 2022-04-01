@@ -1,0 +1,22 @@
+{
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "create": "Create",
+  "date": "{{value, date}}",
+  "date_created": "Created on",
+  "date_modified": "Last updated",
+  "delete": "Delete",
+  "delete_prompt": "This resource will be permanently removed. Are you sure?",
+  "name": "Name",
+  "v8n_required": "Required",
+  "v8n_too_long": "Too long",
+  "value": "Value",
+  "visibility": "Visibility",
+  "visibility_private": "Only me",
+  "visibility_public": "Everyone",
+  "visibility_restricted": "Store admins",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

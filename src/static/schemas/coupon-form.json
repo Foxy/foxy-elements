@@ -1,0 +1,907 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "allow": {
+      "default": "Allow",
+      "type": "string"
+    },
+    "allunits_price_amount_discount_summary": {
+      "default": "{{adjustment}}¤ each after {{from}}",
+      "type": "string"
+    },
+    "allunits_price_percentage_discount_summary": {
+      "default": "{{adjustment, percent}} after {{from}}",
+      "type": "string"
+    },
+    "allunits_quantity_amount_discount_summary": {
+      "default": "{{adjustment}}¤ each on orders of {{from}}+",
+      "type": "string"
+    },
+    "allunits_quantity_percentage_discount_summary": {
+      "default": "{{adjustment, percent}} on orders of {{from}}+",
+      "type": "string"
+    },
+    "apply_taxes_before_coupon": {
+      "default": "Apply taxes before this coupon",
+      "type": "string"
+    },
+    "apply_taxes_before_coupon_explainer": {
+      "default": "Calculate taxes before applying this coupon.",
+      "type": "string"
+    },
+    "block": {
+      "default": "Block",
+      "type": "string"
+    },
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "category_restrictions": {
+      "default": "Category restrictions",
+      "type": "string"
+    },
+    "category_restrictions_helper_text": {
+      "default": "Select which item categories this coupon can be applied to. If you’d like this coupon to be available to all items regardless of the category, keep your selection empty. All changes are saved automatically.",
+      "type": "string"
+    },
+    "clear_filters": {
+      "default": "Clear filters",
+      "type": "string"
+    },
+    "close": {
+      "default": "Close",
+      "type": "string"
+    },
+    "code": {
+      "default": "Code",
+      "type": "string"
+    },
+    "code_plural": {
+      "default": "Codes",
+      "type": "string"
+    },
+    "combinable": {
+      "default": "Combine with other coupons",
+      "type": "string"
+    },
+    "combinable_explainer": {
+      "default": "Let customers apply this coupon when there are other coupons in the cart.",
+      "type": "string"
+    },
+    "combine_with_category_discounts": {
+      "default": "Combine with category discounts",
+      "type": "string"
+    },
+    "combine_with_category_discounts_explainer": {
+      "default": "Let customers apply this coupon when category discounts are applied to the cart.",
+      "type": "string"
+    },
+    "combine_with_line_discounts": {
+      "default": "Combine with line item discounts",
+      "type": "string"
+    },
+    "combine_with_line_discounts_explainer": {
+      "default": "Let customers apply this coupon when line item discounts are applied to the cart.",
+      "type": "string"
+    },
+    "confirm": {
+      "default": "Confirm",
+      "type": "string"
+    },
+    "copied": {
+      "default": "Copied",
+      "type": "string"
+    },
+    "copy": {
+      "default": "Copy",
+      "type": "string"
+    },
+    "coupon_name_helper_text": {
+      "default": "Coupon name is visible to the customers.",
+      "type": "string"
+    },
+    "coupon-code-form": {
+      "properties": {
+        "cancel": {
+          "$ref": "coupon-code-form.json#/properties/cancel"
+        },
+        "code": {
+          "$ref": "coupon-code-form.json#/properties/code"
+        },
+        "confirm": {
+          "$ref": "coupon-code-form.json#/properties/confirm"
+        },
+        "create": {
+          "$ref": "coupon-code-form.json#/properties/create"
+        },
+        "date": {
+          "$ref": "coupon-code-form.json#/properties/date"
+        },
+        "date_created": {
+          "$ref": "coupon-code-form.json#/properties/date_created"
+        },
+        "date_modified": {
+          "$ref": "coupon-code-form.json#/properties/date_modified"
+        },
+        "delete": {
+          "$ref": "coupon-code-form.json#/properties/delete"
+        },
+        "delete_prompt": {
+          "$ref": "coupon-code-form.json#/properties/delete_prompt"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": [
+            "loading_busy",
+            "loading_error"
+          ],
+          "additionalProperties": false
+        },
+        "v8n_required": {
+          "$ref": "coupon-code-form.json#/properties/v8n_required"
+        },
+        "v8n_too_long": {
+          "$ref": "coupon-code-form.json#/properties/v8n_too_long"
+        }
+      },
+      "required": [
+        "cancel",
+        "code",
+        "confirm",
+        "create",
+        "date",
+        "date_created",
+        "date_modified",
+        "delete",
+        "delete_prompt",
+        "v8n_required",
+        "v8n_too_long",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "coupon-codes-form": {
+      "properties": {
+        "code": {
+          "$ref": "coupon-codes-form.json#/properties/code"
+        },
+        "code_import_hint": {
+          "$ref": "coupon-codes-form.json#/properties/code_import_hint"
+        },
+        "code_plural": {
+          "$ref": "coupon-codes-form.json#/properties/code_plural"
+        },
+        "duplicate": {
+          "$ref": "coupon-codes-form.json#/properties/duplicate"
+        },
+        "hidden_codes_explainer": {
+          "$ref": "coupon-codes-form.json#/properties/hidden_codes_explainer"
+        },
+        "hidden_codes_header": {
+          "$ref": "coupon-codes-form.json#/properties/hidden_codes_header"
+        },
+        "hidden_codes_header_plural": {
+          "$ref": "coupon-codes-form.json#/properties/hidden_codes_header_plural"
+        },
+        "import": {
+          "$ref": "coupon-codes-form.json#/properties/import"
+        },
+        "import_codes_done": {
+          "$ref": "coupon-codes-form.json#/properties/import_codes_done"
+        },
+        "loading_busy": {
+          "$ref": "coupon-codes-form.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "coupon-codes-form.json#/properties/loading_error"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": [
+            "loading_busy",
+            "loading_error"
+          ],
+          "additionalProperties": false
+        },
+        "type_here": {
+          "$ref": "coupon-codes-form.json#/properties/type_here"
+        },
+        "unique": {
+          "$ref": "coupon-codes-form.json#/properties/unique"
+        },
+        "v8n_required": {
+          "$ref": "coupon-codes-form.json#/properties/v8n_required"
+        }
+      },
+      "required": [
+        "code",
+        "code_import_hint",
+        "code_plural",
+        "duplicate",
+        "hidden_codes_explainer",
+        "hidden_codes_header",
+        "hidden_codes_header_plural",
+        "import",
+        "import_codes_done",
+        "loading_busy",
+        "loading_error",
+        "type_here",
+        "unique",
+        "v8n_required",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "custom_discount": {
+      "default": "Custom discount",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "description": {
+      "default": "Description",
+      "type": "string"
+    },
+    "discount_summary": {
+      "default": "{{params, discount}}",
+      "type": "string"
+    },
+    "end_date": {
+      "default": "End date",
+      "type": "string"
+    },
+    "filter": {
+      "default": "Filter",
+      "type": "string"
+    },
+    "generate": {
+      "default": "Generate",
+      "type": "string"
+    },
+    "generate-codes-form": {
+      "properties": {
+        "balance": {
+          "$ref": "generate-codes-form.json#/properties/balance"
+        },
+        "cancel": {
+          "$ref": "generate-codes-form.json#/properties/cancel"
+        },
+        "confirm": {
+          "$ref": "generate-codes-form.json#/properties/confirm"
+        },
+        "current_balance": {
+          "$ref": "generate-codes-form.json#/properties/current_balance"
+        },
+        "generate": {
+          "$ref": "generate-codes-form.json#/properties/generate"
+        },
+        "generate_codes_done": {
+          "$ref": "generate-codes-form.json#/properties/generate_codes_done"
+        },
+        "leave_empty_for_random_codes": {
+          "$ref": "generate-codes-form.json#/properties/leave_empty_for_random_codes"
+        },
+        "length": {
+          "$ref": "generate-codes-form.json#/properties/length"
+        },
+        "number_of_codes": {
+          "$ref": "generate-codes-form.json#/properties/number_of_codes"
+        },
+        "prefix": {
+          "$ref": "generate-codes-form.json#/properties/prefix"
+        },
+        "spinner": {
+          "properties": {
+            "loading_busy": {
+              "$ref": "spinner.json#/properties/loading_busy"
+            },
+            "loading_error": {
+              "$ref": "spinner.json#/properties/loading_error"
+            }
+          },
+          "required": [
+            "loading_busy",
+            "loading_error"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "balance",
+        "cancel",
+        "confirm",
+        "current_balance",
+        "generate",
+        "generate_codes_done",
+        "leave_empty_for_random_codes",
+        "length",
+        "number_of_codes",
+        "prefix",
+        "spinner"
+      ],
+      "additionalProperties": false
+    },
+    "import": {
+      "default": "Import",
+      "type": "string"
+    },
+    "incremental_price_amount_discount_summary": {
+      "default": "{{adjustment}}¤ each on orders of {{from}}+",
+      "type": "string"
+    },
+    "incremental_price_percentage_discount_summary": {
+      "default": "{{adjustment, percent}} on orders of {{from}}+",
+      "type": "string"
+    },
+    "incremental_quantity_amount_discount_summary": {
+      "default": "{{adjustment}}¤ each on items {{from}}+",
+      "type": "string"
+    },
+    "incremental_quantity_percentage_discount_summary": {
+      "default": "{{adjustment, percent}} on items {{from}}+",
+      "type": "string"
+    },
+    "multiple_codes_allowed": {
+      "default": "Allow multiple codes per customer",
+      "type": "string"
+    },
+    "multiple_codes_allowed_explainer": {
+      "default": "Let customers apply this coupon multiple times to the same order.",
+      "type": "string"
+    },
+    "name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "option_plural": {
+      "default": "Options",
+      "type": "string"
+    },
+    "ordinal_few": {
+      "default": "rd",
+      "type": "string"
+    },
+    "ordinal_many": {
+      "default": "th",
+      "type": "string"
+    },
+    "ordinal_one": {
+      "default": "st",
+      "type": "string"
+    },
+    "ordinal_other": {
+      "default": "th",
+      "type": "string"
+    },
+    "ordinal_two": {
+      "default": "nd",
+      "type": "string"
+    },
+    "ordinal_zero": {
+      "default": "th",
+      "type": "string"
+    },
+    "pagination": {
+      "properties": {
+        "first": {
+          "$ref": "pagination.json#/properties/first"
+        },
+        "last": {
+          "$ref": "pagination.json#/properties/last"
+        },
+        "next": {
+          "$ref": "pagination.json#/properties/next"
+        },
+        "pagination": {
+          "$ref": "pagination.json#/properties/pagination"
+        },
+        "previous": {
+          "$ref": "pagination.json#/properties/previous"
+        }
+      },
+      "required": [
+        "first",
+        "last",
+        "next",
+        "pagination",
+        "previous"
+      ],
+      "additionalProperties": false
+    },
+    "price": {
+      "default": "{{amount, price}}",
+      "type": "string"
+    },
+    "product_restrictions": {
+      "default": "Product restrictions",
+      "type": "string"
+    },
+    "product_restrictions_explainer": {
+      "default": "If you want to limit which products can use this coupon, you can enter full product codes or partial product codes using * as a wild card at the beginning or end of the value. So abc123, fun_*, *-small would match abc123, fun_ and fun_times, and example-small. It wouldn't match abc12, abc1234, fun, or good-smalls.",
+      "type": "string"
+    },
+    "query-builder": {
+      "properties": {
+        "add_or_clause": {
+          "$ref": "query-builder.json#/properties/add_or_clause"
+        },
+        "add_value": {
+          "$ref": "query-builder.json#/properties/add_value"
+        },
+        "code": {
+          "default": "Code",
+          "type": "string"
+        },
+        "date": {
+          "$ref": "query-builder.json#/properties/date"
+        },
+        "date_created": {
+          "default": "Created on",
+          "type": "string"
+        },
+        "date_modified": {
+          "default": "Last updated",
+          "type": "string"
+        },
+        "delete": {
+          "$ref": "query-builder.json#/properties/delete"
+        },
+        "field": {
+          "$ref": "query-builder.json#/properties/field"
+        },
+        "hidden": {
+          "$ref": "query-builder.json#/properties/hidden"
+        },
+        "is_defined_false": {
+          "$ref": "query-builder.json#/properties/is_defined_false"
+        },
+        "is_defined_true": {
+          "$ref": "query-builder.json#/properties/is_defined_true"
+        },
+        "name": {
+          "$ref": "query-builder.json#/properties/name"
+        },
+        "operator_equal": {
+          "$ref": "query-builder.json#/properties/operator_equal"
+        },
+        "operator_greaterthan": {
+          "$ref": "query-builder.json#/properties/operator_greaterthan"
+        },
+        "operator_greaterthanorequal": {
+          "$ref": "query-builder.json#/properties/operator_greaterthanorequal"
+        },
+        "operator_in": {
+          "$ref": "query-builder.json#/properties/operator_in"
+        },
+        "operator_isdefined": {
+          "$ref": "query-builder.json#/properties/operator_isdefined"
+        },
+        "operator_lessthan": {
+          "$ref": "query-builder.json#/properties/operator_lessthan"
+        },
+        "operator_lessthanorequal": {
+          "$ref": "query-builder.json#/properties/operator_lessthanorequal"
+        },
+        "operator_not": {
+          "$ref": "query-builder.json#/properties/operator_not"
+        },
+        "or": {
+          "$ref": "query-builder.json#/properties/or"
+        },
+        "query_builder_group": {
+          "$ref": "query-builder.json#/properties/query_builder_group"
+        },
+        "query_builder_rule": {
+          "$ref": "query-builder.json#/properties/query_builder_rule"
+        },
+        "range_from": {
+          "$ref": "query-builder.json#/properties/range_from"
+        },
+        "range_to": {
+          "$ref": "query-builder.json#/properties/range_to"
+        },
+        "type": {
+          "$ref": "query-builder.json#/properties/type"
+        },
+        "type_any": {
+          "$ref": "query-builder.json#/properties/type_any"
+        },
+        "type_attribute": {
+          "$ref": "query-builder.json#/properties/type_attribute"
+        },
+        "type_date": {
+          "$ref": "query-builder.json#/properties/type_date"
+        },
+        "type_here": {
+          "$ref": "query-builder.json#/properties/type_here"
+        },
+        "type_number": {
+          "$ref": "query-builder.json#/properties/type_number"
+        },
+        "type_string": {
+          "$ref": "query-builder.json#/properties/type_string"
+        },
+        "used_codes": {
+          "default": "Codes used",
+          "type": "string"
+        },
+        "value": {
+          "$ref": "query-builder.json#/properties/value"
+        }
+      },
+      "required": [
+        "add_or_clause",
+        "add_value",
+        "code",
+        "date_created",
+        "date_modified",
+        "date",
+        "delete",
+        "field",
+        "hidden",
+        "is_defined_false",
+        "is_defined_true",
+        "name",
+        "operator_equal",
+        "operator_greaterthan",
+        "operator_greaterthanorequal",
+        "operator_in",
+        "operator_isdefined",
+        "operator_lessthan",
+        "operator_lessthanorequal",
+        "operator_not",
+        "or",
+        "query_builder_group",
+        "query_builder_rule",
+        "range_from",
+        "range_to",
+        "type_any",
+        "type_attribute",
+        "type_date",
+        "type_here",
+        "type_number",
+        "type_string",
+        "type",
+        "used_codes",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "repeat_price_amount_discount_summary": {
+      "default": "for each {{from}}, {{adjustment}}¤ on the next item",
+      "type": "string"
+    },
+    "repeat_price_percentage_discount_summary": {
+      "default": "for each {{from}}, {{adjustment, percent}} on the next item",
+      "type": "string"
+    },
+    "repeat_quantity_amount_discount_summary": {
+      "default": "{{adjustment}}¤ on each {{from, ordinal}} item",
+      "type": "string"
+    },
+    "repeat_quantity_percentage_discount_summary": {
+      "default": "{{adjustment, percent}} on each {{from, ordinal}} item",
+      "type": "string"
+    },
+    "rule_plural": {
+      "default": "Rules",
+      "type": "string"
+    },
+    "save": {
+      "default": "Save",
+      "type": "string"
+    },
+    "select": {
+      "default": "Select...",
+      "type": "string"
+    },
+    "set_time_constraints": {
+      "default": "Set time constraints",
+      "type": "string"
+    },
+    "set_time_constraints_explainer": {
+      "default": "Limit when your customers can apply this coupon.",
+      "type": "string"
+    },
+    "single_price_amount_discount_summary": {
+      "default": "{{adjustment}}¤ after {{from}}",
+      "type": "string"
+    },
+    "single_price_percentage_discount_summary": {
+      "default": "{{adjustment, percent}} after {{from}}",
+      "type": "string"
+    },
+    "single_quantity_amount_discount_summary": {
+      "default": "{{adjustment}}¤ after {{from}} items",
+      "type": "string"
+    },
+    "single_quantity_percentage_discount_summary": {
+      "default": "{{adjustment, percent}} after {{from}} items",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": [
+        "loading_busy",
+        "loading_error"
+      ],
+      "additionalProperties": false
+    },
+    "start_date": {
+      "default": "Start date",
+      "type": "string"
+    },
+    "tier": {
+      "default": "Tier",
+      "type": "string"
+    },
+    "tier_allunits": {
+      "default": "price of each item",
+      "type": "string"
+    },
+    "tier_by": {
+      "default": "by",
+      "type": "string"
+    },
+    "tier_if": {
+      "default": "if",
+      "type": "string"
+    },
+    "tier_incremental": {
+      "default": "price of additional items",
+      "type": "string"
+    },
+    "tier_repeat": {
+      "default": "price of next item",
+      "type": "string"
+    },
+    "tier_single": {
+      "default": "order total",
+      "type": "string"
+    },
+    "tier_then": {
+      "default": "then",
+      "type": "string"
+    },
+    "type_here": {
+      "default": "Type here...",
+      "type": "string"
+    },
+    "undo_cancel": {
+      "default": "Review",
+      "type": "string"
+    },
+    "undo_confirm": {
+      "default": "Discard",
+      "type": "string"
+    },
+    "undo_header": {
+      "default": "Unsaved changes",
+      "type": "string"
+    },
+    "undo_message": {
+      "default": "Looks like you didn't save your changes! What would you like to do with them?",
+      "type": "string"
+    },
+    "unlimited": {
+      "default": "Unlimited",
+      "type": "string"
+    },
+    "url_parameter": {
+      "default": "URL parameter",
+      "type": "string"
+    },
+    "used_codes": {
+      "default": "Codes used",
+      "type": "string"
+    },
+    "uses_per_coupon": {
+      "default": "Uses per coupon",
+      "type": "string"
+    },
+    "uses_per_coupon_code": {
+      "default": "Uses per code",
+      "type": "string"
+    },
+    "uses_per_coupon_code_summary": {
+      "default": "Each coupon code can be used only one time.",
+      "type": "string"
+    },
+    "uses_per_coupon_code_summary_0": {
+      "default": "Each coupon code can be used unlimited times.",
+      "type": "string"
+    },
+    "uses_per_coupon_code_summary_plural": {
+      "default": "Each coupon code can be used only {{count}} times.",
+      "type": "string"
+    },
+    "uses_per_coupon_summary": {
+      "default": "Only the first customer can use this coupon.",
+      "type": "string"
+    },
+    "uses_per_coupon_summary_0": {
+      "default": "All customers can use this coupon.",
+      "type": "string"
+    },
+    "uses_per_coupon_summary_plural": {
+      "default": "Only the first {{count}} customers can use this coupon.",
+      "type": "string"
+    },
+    "uses_per_customer": {
+      "default": "Uses per customer",
+      "type": "string"
+    },
+    "uses_per_customer_summary": {
+      "default": "Customers can use this coupon for one order only.",
+      "type": "string"
+    },
+    "uses_per_customer_summary_0": {
+      "default": "Customers can use this coupon for as many orders as they like.",
+      "type": "string"
+    },
+    "uses_per_customer_summary_plural": {
+      "default": "Customers can use this coupon for {{count}} orders only.",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    },
+    "v8n_too_long": {
+      "default": "Too long",
+      "type": "string"
+    }
+  },
+  "required": [
+    "allow",
+    "allunits_price_amount_discount_summary",
+    "allunits_price_percentage_discount_summary",
+    "allunits_quantity_amount_discount_summary",
+    "allunits_quantity_percentage_discount_summary",
+    "apply_taxes_before_coupon",
+    "apply_taxes_before_coupon_explainer",
+    "block",
+    "cancel",
+    "category_restrictions",
+    "category_restrictions_helper_text",
+    "clear_filters",
+    "close",
+    "code",
+    "code_plural",
+    "combinable",
+    "combinable_explainer",
+    "combine_with_category_discounts",
+    "combine_with_category_discounts_explainer",
+    "combine_with_line_discounts",
+    "combine_with_line_discounts_explainer",
+    "confirm",
+    "copied",
+    "copy",
+    "coupon_name_helper_text",
+    "create",
+    "custom_discount",
+    "date",
+    "date_created",
+    "date_modified",
+    "delete",
+    "delete_prompt",
+    "description",
+    "discount_summary",
+    "end_date",
+    "filter",
+    "generate",
+    "import",
+    "incremental_price_amount_discount_summary",
+    "incremental_price_percentage_discount_summary",
+    "incremental_quantity_amount_discount_summary",
+    "incremental_quantity_percentage_discount_summary",
+    "multiple_codes_allowed",
+    "multiple_codes_allowed_explainer",
+    "name",
+    "option_plural",
+    "ordinal_few",
+    "ordinal_many",
+    "ordinal_one",
+    "ordinal_other",
+    "ordinal_two",
+    "ordinal_zero",
+    "price",
+    "product_restrictions",
+    "product_restrictions_explainer",
+    "repeat_price_amount_discount_summary",
+    "repeat_price_percentage_discount_summary",
+    "repeat_quantity_amount_discount_summary",
+    "repeat_quantity_percentage_discount_summary",
+    "rule_plural",
+    "save",
+    "select",
+    "set_time_constraints",
+    "set_time_constraints_explainer",
+    "single_price_amount_discount_summary",
+    "single_price_percentage_discount_summary",
+    "single_quantity_amount_discount_summary",
+    "single_quantity_percentage_discount_summary",
+    "start_date",
+    "tier",
+    "tier_allunits",
+    "tier_by",
+    "tier_if",
+    "tier_incremental",
+    "tier_repeat",
+    "tier_single",
+    "tier_then",
+    "type_here",
+    "undo_cancel",
+    "undo_confirm",
+    "undo_header",
+    "undo_message",
+    "unlimited",
+    "url_parameter",
+    "used_codes",
+    "uses_per_coupon",
+    "uses_per_coupon_code",
+    "uses_per_coupon_code_summary",
+    "uses_per_coupon_code_summary_0",
+    "uses_per_coupon_code_summary_plural",
+    "uses_per_coupon_summary",
+    "uses_per_coupon_summary_0",
+    "uses_per_coupon_summary_plural",
+    "uses_per_customer",
+    "uses_per_customer_summary",
+    "uses_per_customer_summary_0",
+    "uses_per_customer_summary_plural",
+    "v8n_required",
+    "v8n_too_long",
+    "coupon-code-form",
+    "coupon-codes-form",
+    "generate-codes-form",
+    "pagination",
+    "query-builder",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

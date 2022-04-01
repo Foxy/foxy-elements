@@ -1,0 +1,26 @@
+{
+  "daily": "Daily",
+  "daily_plural": "Every {{count}} days",
+  "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscriptions-table\" })",
+  "monthly": "Monthly",
+  "monthly_plural": "Every {{count}} months",
+  "price_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscriptions-table\" })",
+  "price_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscriptions-table\" })",
+  "subscription_active": "Next payment on {{date, date}}",
+  "subscription_cancelled": "Ended on {{date, date}}",
+  "subscription_failed": "Payment failed on {{date, date}}",
+  "subscription_inactive": "Inactive",
+  "subscription_will_be_cancelled": "Ends on {{date, date}}",
+  "transaction_summary": "{{most_expensive_item.name}}",
+  "twice_a_month": "Twice a month",
+  "update": "Update",
+  "weekly": "Weekly",
+  "weekly_plural": "Every {{count}} weeks",
+  "yearly": "Yearly",
+  "yearly_plural": "Every {{count}} years",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

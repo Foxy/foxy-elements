@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "city": {
+      "default": "City",
+      "type": "string"
+    },
+    "country": {
+      "default": "Country",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "default": {
+      "default": "Default",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "error": {
+      "default": "Error",
+      "type": "string"
+    },
+    "loading_busy": {
+      "default": "Loading",
+      "type": "string"
+    },
+    "name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "region": {
+      "default": "Region",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "tax_apply_to_shipping": {
+      "default": "Apply to shipping",
+      "type": "string"
+    },
+    "tax_apply_to_shipping_explainer": {
+      "default": "Check to apply this tax to the shipping costs.",
+      "type": "string"
+    },
+    "tax_country": {
+      "default": "Country tax",
+      "type": "string"
+    },
+    "tax_exempt_all_customer_tax_ids": {
+      "default": "Exempt all customers with Tax ID",
+      "type": "string"
+    },
+    "tax_exempt_all_customer_tax_ids_explainer": {
+      "default": "Check to skip tax collection for customers with Tax ID on file.",
+      "type": "string"
+    },
+    "tax_global": {
+      "default": "Global tax",
+      "type": "string"
+    },
+    "tax_local": {
+      "default": "Local tax",
+      "type": "string"
+    },
+    "tax_rate": {
+      "default": "Rate (%)",
+      "type": "string"
+    },
+    "tax_rate_provider": {
+      "default": "Rate provider",
+      "type": "string"
+    },
+    "tax_rate_provider_default": {
+      "default": "Default (Thomson Reuters; others)",
+      "type": "string"
+    },
+    "tax_rate_provider_none": {
+      "default": "None (custom rate)",
+      "type": "string"
+    },
+    "tax_region": {
+      "default": "Regional tax",
+      "type": "string"
+    },
+    "tax_union": {
+      "default": "European Union tax",
+      "type": "string"
+    },
+    "tax_use_origin_rates": {
+      "default": "Use origin tax rates",
+      "type": "string"
+    },
+    "tax_use_origin_rates_explainer": {
+      "default": "Check to use the tax rate of your country regardless of where customers are located.",
+      "type": "string"
+    },
+    "type": {
+      "default": "Type",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    },
+    "v8n_too_long": {
+      "default": "Too long",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "city",
+    "country",
+    "create",
+    "date_created",
+    "date_modified",
+    "date",
+    "default",
+    "delete_prompt",
+    "delete",
+    "error",
+    "loading_busy",
+    "name",
+    "region",
+    "spinner",
+    "tax_apply_to_shipping_explainer",
+    "tax_apply_to_shipping",
+    "tax_country",
+    "tax_exempt_all_customer_tax_ids_explainer",
+    "tax_exempt_all_customer_tax_ids",
+    "tax_global",
+    "tax_local",
+    "tax_rate_provider_default",
+    "tax_rate_provider_none",
+    "tax_rate_provider",
+    "tax_rate",
+    "tax_region",
+    "tax_union",
+    "tax_use_origin_rates_explainer",
+    "tax_use_origin_rates",
+    "type",
+    "v8n_required",
+    "v8n_too_long"
+  ],
+  "additionalProperties": false
+}

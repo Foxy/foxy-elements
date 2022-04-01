@@ -71,7 +71,11 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
                   state=${state === 'fail' ? 'error' : 'busy'}
                   style="margin: auto"
                   lang=${this.lang}
-                  ns="${this.ns} ${customElements.get('foxy-customer')?.defaultNS ?? ''}"
+                  ns=${[
+                    this.ns,
+                    customElements.get('foxy-customer')?.defaultNS ?? '',
+                    customElements.get('foxy-spinner')?.defaultNS ?? '',
+                  ].join(' ')}
                 >
                 </foxy-spinner>
               `}

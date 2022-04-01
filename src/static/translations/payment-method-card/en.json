@@ -1,0 +1,13 @@
+{
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "delete_prompt": "This resource will be permanently removed. Are you sure?",
+  "expires": "Expires",
+  "last_4_digits": "Last 4 digits",
+  "unknown": "Unknown",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

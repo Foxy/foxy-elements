@@ -279,12 +279,13 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   /** POSTs to `element.parent`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendPost(edits: Partial<TData>): Promise<TData> {
+    this.__destroyRumour();
+
     const body = JSON.stringify(edits);
     const data = await this._fetch(this.parent, { body, method: 'POST' });
     const rumour = NucleonElement.Rumour(this.group);
     const related = [...this.related, this.parent];
 
-    this.__destroyRumour();
     rumour.share({ data, related, source: data._links.self.href });
     this.__createRumour();
 
@@ -293,10 +294,11 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   /** GETs `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendGet(): Promise<TData> {
+    this.__destroyRumour();
+
     const data = await this._fetch(this.href);
     const rumour = NucleonElement.Rumour(this.group);
 
-    this.__destroyRumour();
     rumour.share({ data, source: this.href });
     this.__createRumour();
 
@@ -305,11 +307,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   /** PATCHes `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendPatch(edits: Partial<TData>): Promise<TData> {
+    this.__destroyRumour();
+
     const body = JSON.stringify(edits);
     const data = await this._fetch(this.href, { body, method: 'PATCH' });
     const rumour = NucleonElement.Rumour(this.group);
 
-    this.__destroyRumour();
     rumour.share({ data, source: this.href, related: this.related });
     this.__createRumour();
 
@@ -318,11 +321,12 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
 
   /** DELETEs `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendDelete(): Promise<TData> {
+    this.__destroyRumour();
+
     const data = await this._fetch(this.href, { method: 'DELETE' });
     const rumour = NucleonElement.Rumour(this.group);
     const related = [...this.related, this.parent];
 
-    this.__destroyRumour();
     rumour.share({ data: null, source: this.href, related });
     this.__createRumour();
 

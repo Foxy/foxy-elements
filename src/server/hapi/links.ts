@@ -169,4 +169,50 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
     'fx:template_sets': { href: `./template_sets?template_config_id=${id}` },
   }),
+
+  coupons: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon_codes': { href: `./coupon_codes?coupon_id=${id}` },
+    'fx:generate_codes': { href: './generate_codes' },
+    'fx:coupon_item_categories': { href: `./coupon_item_categories?coupon_id=${id}` },
+  }),
+
+  coupon_codes: ({ coupon_id, store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:coupon_code_transactions': { href: `./transactions?coupon_code_id=${id}` },
+  }),
+
+  generate_codes: () => ({}),
+
+  item_categories: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:email_templates': { href: `./email_templates?store_id=${store_id}` },
+    'fx:tax_item_categories': { href: `./tax_item_categories?item_category_id=${id}` },
+  }),
+
+  coupon_item_categories: ({ item_category_id, coupon_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:item_category': { href: `./item_categories/${item_category_id}` },
+  }),
+
+  gift_cards: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:generate_codes': { href: './generate_codes' },
+    'fx:gift_card_codes': { href: `./gift_card_codes?gift_card_id=${id}` },
+    'fx:gift_card_item_categories': { href: `./gift_card_item_categories?gift_card_id=${id}` },
+  }),
+
+  gift_card_codes: ({ coupon_id, store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${coupon_id}` },
+    'fx:gift_card_code_logs': { href: `./transactions?gift_card_id=${id}` },
+  }),
+
+  gift_card_item_categories: ({ item_category_id, gift_card_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
+    'fx:item_category': { href: `./item_categories/${item_category_id}` },
+  }),
 };

@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "balance": {
+      "default": "Balance",
+      "type": "string"
+    },
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "code": {
+      "default": "Code",
+      "type": "string"
+    },
+    "code_import_hint": {
+      "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
+      "type": "string"
+    },
+    "code_plural": {
+      "default": "Codes",
+      "type": "string"
+    },
+    "confirm": {
+      "default": "Confirm",
+      "type": "string"
+    },
+    "current_balance": {
+      "default": "Current balance",
+      "type": "string"
+    },
+    "duplicate": {
+      "default": "Duplicate",
+      "type": "string"
+    },
+    "hidden_codes_explainer": {
+      "default": "We’ve hidden some of your codes because there were too many of them. Don’t worry – we’ll import them anyway.",
+      "type": "string"
+    },
+    "hidden_codes_header": {
+      "default": "{{count}} code is hidden",
+      "type": "string"
+    },
+    "hidden_codes_header_plural": {
+      "default": "{{count}} codes are hidden",
+      "type": "string"
+    },
+    "import": {
+      "default": "Import",
+      "type": "string"
+    },
+    "import_codes_done": {
+      "default": "All done! We've imported your codes into the system.",
+      "type": "string"
+    },
+    "loading_busy": {
+      "default": "Loading",
+      "type": "string"
+    },
+    "loading_error": {
+      "default": "Failed to load",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "type_here": {
+      "default": "Type here...",
+      "type": "string"
+    },
+    "unique": {
+      "default": "Unique",
+      "type": "string"
+    },
+    "v8n_negative": {
+      "default": "Negative values are not allowed",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    }
+  },
+  "required": [
+    "balance",
+    "cancel",
+    "code",
+    "code_import_hint",
+    "code_plural",
+    "confirm",
+    "current_balance",
+    "duplicate",
+    "hidden_codes_explainer",
+    "hidden_codes_header",
+    "hidden_codes_header_plural",
+    "import",
+    "import_codes_done",
+    "loading_busy",
+    "loading_error",
+    "type_here",
+    "unique",
+    "v8n_negative",
+    "v8n_required",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

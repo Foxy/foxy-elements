@@ -1,35 +1,223 @@
 {
   "access-recovery-form": {
-    "unknown_error": "Im Moment können wir für dieses Konto keinen einmaligen Code vergeben. Wenn Sie den Code bereits angefordert haben, warten Sie bitte ein paar Minuten, bevor Sie es erneut versuchen."
+    "back": "Zurückkehren",
+    "email": "Email",
+    "recover_access": "Einmaligen Code erhalten",
+    "recover_access_hint": "Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen ein temporäres Passwort zu",
+    "recover_access_success": "Erledigt! Bitte prüfen Sie Ihre E-Mail für weitere Anweisungen.",
+    "unknown_error": "Im Moment können wir für dieses Konto keinen einmaligen Code vergeben. Wenn Sie den Code bereits angefordert haben, warten Sie bitte ein paar Minuten, bevor Sie es erneut versuchen.",
+    "v8n_invalid_email": "Ungültige E-Mail",
+    "v8n_required": "Erforderlich",
+    "spinner": {
+      "loading_busy": "Wird geladen",
+      "loading_error": "Wurde nicht geladen"
+    }
   },
   "customer": {
-    "subscription-card": {
-      "spinner": {
-        "loading_empty": "Keine Abonnements"
-      }
-    },
-    "transactions-table": {
-      "spinner": {
-        "loading_empty": "Keine Transaktionen"
-      }
-    },
+    "address_plural": "Adressen",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "payment_method_plural": "Zahlungsmöglichkeiten",
+    "save": "Speichern",
+    "subscription_plural": "Abonnements",
+    "transaction_plural": "Transaktionen",
+    "undo_cancel": "Überprüfung",
+    "undo_confirm": "Verwerfen",
+    "undo_header": "Nicht gespeicherte Änderungen",
+    "undo_message": "Sieht so aus, als hätten Sie Ihre Änderungen nicht gespeichert! Was möchten Sie mit ihnen machen?",
+    "update": "Aktualisieren",
     "address-card": {
+      "default_billing_address": "Vorgegebene Rechnungsadresse",
+      "default_shipping_address": "Vorgegebene Lieferadresse",
+      "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
+      "full_name": "{{first_name}} {{last_name}}",
       "spinner": {
-        "loading_empty": "Keine Adressen"
+        "loading_busy": "Wird geladen",
+        "loading_empty": "Keine Adressen",
+        "loading_end": "Keine Daten mehr",
+        "loading_error": "Wurde nicht geladen"
+      }
+    },
+    "address-form": {
+      "address_name": "Name Adresse",
+      "address1": "Adresse Zeile 1",
+      "address2": "Adresse Zeile 2",
+      "cancel": "Abbrechen",
+      "city": "Stadt",
+      "company": "Firma",
+      "country": "Land",
+      "date": "{{value, date}}",
+      "date_created": "Erstellt am",
+      "date_modified": "Letzte Änderung",
+      "delete": "Löschen",
+      "delete_prompt": "Diese Ressource wird endgültig gelöscht. Sind Sie sicher?",
+      "first_name": "Vorname",
+      "last_name": "Nachname",
+      "phone": "Telefon",
+      "postal_code": "Postleitzahl",
+      "region": "Region",
+      "v8n_required": "Erforderlich",
+      "v8n_too_long": "Zu lang",
+      "spinner": {
+        "loading_busy": "Wird geladen",
+        "loading_empty": "Keine Adressen",
+        "loading_error": "Wurde nicht geladen"
       }
     },
     "customer-form": {
-      "invalid_credential_error": "Falsches Passwort. Bitte vergewissern Sie sich, dass Sie Ihr aktuelles oder temporäres Passwort eingegeben haben und versuchen Sie es erneut.",
+      "cancel": "Abbrechen",
+      "change_password": "Passwort ändern",
       "change_password_step_1": "Lass uns mit Ihrem aktuellen Passwort beginnen. Ein temporäres Passwort funktioniert auch, wenn Sie eines haben.",
       "change_password_step_2": "Geben Sie nun ein neues Passwort ein und klicken Sie auf Weiter, um die Änderungen an Ihrem Konto vorzunehmen.",
       "change_password_step_3": "Das war's! Sie können sich jetzt mit Ihrem neuen Passwort anmelden.",
-      "change_password": "Passwort ändern",
-      "sign_in": "Weiter"
+      "close": "Schließen",
+      "date": "{{value, date}}",
+      "date_created": "Erstellt am",
+      "date_modified": "Letzte Änderung",
+      "email": "Email",
+      "first_name": "Vorname",
+      "invalid_credential_error": "Falsches Passwort. Bitte vergewissern Sie sich, dass Sie Ihr aktuelles oder temporäres Passwort eingegeben haben und versuchen Sie es erneut.",
+      "last_name": "Nachname",
+      "sign_in": "Weiter",
+      "tax_id": "Steuer-ID",
+      "undo_cancel": "Überprüfung",
+      "undo_confirm": "Verwerfen",
+      "undo_header": "Nicht gespeicherte Änderungen",
+      "undo_message": "Sieht so aus, als hätten Sie Ihre Änderungen nicht gespeichert! Was möchten Sie mit ihnen machen?",
+      "v8n_invalid_email": "Ungültige E-Mail",
+      "v8n_required": "Erforderlich",
+      "v8n_too_long": "Zu lang",
+      "sign-in-form": {
+        "new_password": "Neues Passwort",
+        "password": "Passwort",
+        "spinner": {
+          "loading_busy": "Wird geladen",
+          "loading_error": "Wurde nicht geladen"
+        }
+      },
+      "spinner": {
+        "loading_busy": "Wird geladen",
+        "loading_empty": "Keine Daten",
+        "loading_error": "Wurde nicht geladen"
+      }
     },
     "payment-method-card": {
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "delete_prompt": "Diese Ressource wird endgültig gelöscht. Sind Sie sicher?",
       "spinner": {
-        "loading_empty": "Keine Zahlungsmethoden"
+        "loading_busy": "Wird geladen",
+        "loading_empty": "Keine Zahlungsmethoden",
+        "loading_error": "Wurde nicht geladen"
       }
+    },
+    "spinner": {
+      "loading_busy": "Wird geladen",
+      "loading_error": "Wurde nicht geladen"
+    },
+    "subscription-card": {
+      "daily": "täglich",
+      "daily_plural": "Jede {{count}} Tage",
+      "frequency": "$t(customer.subscription-card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "monthly": "Monatlich",
+      "monthly_plural": "Jede {{count}} Monate",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-card.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Nächste Zahlung am {{date, date}}",
+      "subscription_cancelled": "Beendet am {{date, date}}",
+      "subscription_failed": "Zahlung fehlgeschlagen am {{date, date}}",
+      "subscription_inactive": "Inaktiv",
+      "subscription_will_be_cancelled": "Wird beendet am {{date, date}}",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "twice_a_month": "Zweimal im Monat",
+      "weekly": "Wöchentlich",
+      "weekly_plural": "Alle {{count}} Wochen",
+      "yearly": "Jährlich",
+      "yearly_plural": "Alle {{count}} Jahre",
+      "spinner": {
+        "loading_busy": "Wird geladen",
+        "loading_empty": "Keine Abonnements",
+        "loading_end": "Keine Daten mehr",
+        "loading_error": "Wurde nicht geladen"
+      }
+    },
+    "subscription-form": {
+      "daily": "täglich",
+      "daily_plural": "Jede {{count}} Tage",
+      "end_subscription": "End Subskription",
+      "frequency": "$t(customer.subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "frequency_label": "Frequenz",
+      "item_plural": "Artikel",
+      "monthly": "Monatlich",
+      "monthly_plural": "Jede {{count}} Monate",
+      "next_transaction_date": "Nächstes Transaktionsdatum",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Nächste Zahlung am {{date, date}}",
+      "subscription_cancelled": "Beendet am {{date, date}}",
+      "subscription_failed": "Zahlung fehlgeschlagen am {{date, date}}",
+      "subscription_inactive": "Inaktiv",
+      "subscription_will_be_cancelled": "Wird beendet am {{date, date}}",
+      "transaction_plural": "Transaktionen",
+      "twice_a_month": "Zweimal im Monat",
+      "update_billing": "Abrechnung aktualisieren",
+      "update_items": "Bearbeiten",
+      "weekly": "Wöchentlich",
+      "weekly_plural": "Alle {{count}} Wochen",
+      "yearly": "Jährlich",
+      "yearly_plural": "Alle {{count}} Jahre",
+      "spinner": {
+        "loading_busy": "Wird geladen",
+        "loading_error": "Wurde nicht geladen"
+      },
+      "transactions-table": {
+        "date": "{{value, date}}",
+        "price": "{{amount, price}}",
+        "receipt": "Kassenbon",
+        "spinner": {
+          "loading_busy": "Wird geladen",
+          "loading_empty": "Keine Transaktionen",
+          "loading_error": "Wurde nicht geladen"
+        }
+      }
+    },
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "Quittung",
+      "transaction_approved": "Zugelassen",
+      "transaction_authorized": "Autorisiert",
+      "transaction_captured": "Erfasst",
+      "transaction_completed": "Abgeschlossen",
+      "transaction_declined": "Abgelehnt",
+      "transaction_pending": "Anstehend",
+      "transaction_refunded": "Erstattet",
+      "transaction_rejected": "Zurückgewiesen",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} und {{count}} mehr",
+      "transaction_verified": "Überprüft",
+      "transaction_voided": "Storniert",
+      "spinner": {
+        "loading_busy": "Wird geladen",
+        "loading_empty": "Keine Transaktionen",
+        "loading_end": "Keine Daten mehr",
+        "loading_error": "Wurde nicht geladen"
+      }
+    }
+  },
+  "sign-in-form": {
+    "email": "Email",
+    "invalid_credential_error": "Falsche E-Mail oder falsches Passwort. Bitte überprüfen Sie Ihre Anmeldedaten und versuchen Sie es erneut.",
+    "password": "Passwort",
+    "recover_access": "Einmaligen Code erhalten",
+    "sign_in": "Sich anmelden",
+    "sign_in_hint": "Bitte geben Sie Ihre E-Mail und Ihr Passwort ein",
+    "unknown_error": "Es ist ein unbekannter Fehler aufgetreten. Bitte versuchen Sie es später noch einmal.",
+    "v8n_invalid_email": "Ungültige E-Mail",
+    "v8n_required": "Erforderlich",
+    "spinner": {
+      "loading_busy": "Wird geladen",
+      "loading_error": "Wurde nicht geladen"
     }
   }
 }

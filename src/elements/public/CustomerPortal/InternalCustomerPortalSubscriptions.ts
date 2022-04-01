@@ -169,7 +169,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         group=${ctx.dialog.group}
         lang=${ctx.dialog.lang}
         href=${ctx.dialog.href}
-        ns=${ctx.dialog.ns}
+        ns="${ctx.dialog.ns} ${customElements.get('foxy-subscription-form')?.defaultNS ?? ''}"
         id="form"
         .templates=${templates}
         @update=${ctx.handleUpdate}

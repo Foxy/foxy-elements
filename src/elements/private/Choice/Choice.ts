@@ -294,6 +294,7 @@ export class Choice extends Translatable {
       'value': this.__service.state.context.customValue,
       'max': this.max,
       'min': this.min,
+      'ns': this.ns,
       '?disabled': this.disabled,
       '?readonly': this.readonly,
       'data-testid': 'field',

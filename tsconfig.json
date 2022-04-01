@@ -4,7 +4,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
-    "lib": ["ES2017", "DOM", "DOM.Iterable"],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": false,

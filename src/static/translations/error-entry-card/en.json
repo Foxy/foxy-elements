@@ -1,0 +1,7 @@
+{
+  "client": "Client",
+  "date": "{{value, date}}",
+  "error": "Error",
+  "request": "Request",
+  "time": "{{value, time}}"
+}

@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "email": {
+      "default": "Email",
+      "type": "string"
+    },
+    "invalid_credential_error": {
+      "default": "Incorrect email or password. Please check your credentials and try again.",
+      "type": "string"
+    },
+    "mfa_remember_device": {
+      "default": "Trust this device",
+      "type": "string"
+    },
+    "mfa_remember_device_hint": {
+      "default": "Don't require a verification code when signing in from this device in the future",
+      "type": "string"
+    },
+    "mfa_totp_code": {
+      "default": "One-time code",
+      "type": "string"
+    },
+    "mfa_totp_code_hint": {
+      "default": "Scan the image below with your authenticator app to receive the verification code",
+      "type": "string"
+    },
+    "mfa_totp_code_invalid_error": {
+      "default": "The one-time code you entered is invalid. Please try again.",
+      "type": "string"
+    },
+    "new_password": {
+      "default": "New password",
+      "type": "string"
+    },
+    "new_password_format_error": {
+      "default": "The new password you've chosen is too weak. Please enter a secure new password.",
+      "type": "string"
+    },
+    "new_password_required_error": {
+      "default": "To keep your account secure, please change your password before logging in this time.",
+      "type": "string"
+    },
+    "password": {
+      "default": "Password",
+      "type": "string"
+    },
+    "sign_in": {
+      "default": "Sign in",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "unknown_error": {
+      "default": "An unknown error has occured. Please try again later.",
+      "type": "string"
+    },
+    "v8n_invalid_email": {
+      "default": "Invalid email",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    }
+  },
+  "required": [
+    "email",
+    "invalid_credential_error",
+    "mfa_remember_device",
+    "mfa_remember_device_hint",
+    "mfa_totp_code",
+    "mfa_totp_code_hint",
+    "mfa_totp_code_invalid_error",
+    "new_password",
+    "new_password_format_error",
+    "new_password_required_error",
+    "password",
+    "sign_in",
+    "unknown_error",
+    "v8n_invalid_email",
+    "v8n_required",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

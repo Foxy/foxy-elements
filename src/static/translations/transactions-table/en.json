@@ -1,0 +1,22 @@
+{
+  "date": "{{value, date}}",
+  "price": "{{amount, price}}",
+  "receipt": "Receipt",
+  "transaction_approved": "Approved",
+  "transaction_authorized": "Authorized",
+  "transaction_captured": "Captured",
+  "transaction_completed": "Completed",
+  "transaction_declined": "Declined",
+  "transaction_pending": "Pending",
+  "transaction_refunded": "Refunded",
+  "transaction_rejected": "Rejected",
+  "transaction_summary": "{{most_expensive_item.name}}",
+  "transaction_summary_plural": "{{most_expensive_item.name}} and {{count}} more",
+  "transaction_verified": "Verified",
+  "transaction_voided": "Voided",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

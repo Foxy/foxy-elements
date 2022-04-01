@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "daily": {
+      "default": "Daily",
+      "type": "string"
+    },
+    "daily_plural": {
+      "default": "Every {{count}} days",
+      "type": "string"
+    },
+    "frequency": {
+      "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-card\" })",
+      "type": "string"
+    },
+    "monthly": {
+      "default": "Monthly",
+      "type": "string"
+    },
+    "monthly_plural": {
+      "default": "Every {{count}} months",
+      "type": "string"
+    },
+    "price_recurring": {
+      "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-card\" })",
+      "type": "string"
+    },
+    "price_twice_a_month": {
+      "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-card\" })",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_empty": {
+          "$ref": "spinner.json#/properties/loading_empty"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"],
+      "additionalProperties": false
+    },
+    "subscription_active": {
+      "default": "Next payment on {{date, date}}",
+      "type": "string"
+    },
+    "subscription_cancelled": {
+      "default": "Ended on {{date, date}}",
+      "type": "string"
+    },
+    "subscription_failed": {
+      "default": "Payment failed on {{date, date}}",
+      "type": "string"
+    },
+    "subscription_inactive": {
+      "default": "Inactive",
+      "type": "string"
+    },
+    "subscription_plural": {
+      "default": "Subscriptions",
+      "type": "string"
+    },
+    "subscription_will_be_cancelled": {
+      "default": "Ends on {{date, date}}",
+      "type": "string"
+    },
+    "transaction_summary": {
+      "default": "{{most_expensive_item.name}}",
+      "type": "string"
+    },
+    "twice_a_month": {
+      "default": "Twice a month",
+      "type": "string"
+    },
+    "weekly": {
+      "default": "Weekly",
+      "type": "string"
+    },
+    "weekly_plural": {
+      "default": "Every {{count}} weeks",
+      "type": "string"
+    },
+    "yearly": {
+      "default": "Yearly",
+      "type": "string"
+    },
+    "yearly_plural": {
+      "default": "Every {{count}} years",
+      "type": "string"
+    }
+  },
+  "required": [
+    "daily",
+    "daily_plural",
+    "frequency",
+    "monthly",
+    "monthly_plural",
+    "price_recurring",
+    "price_twice_a_month",
+    "subscription_active",
+    "subscription_cancelled",
+    "subscription_failed",
+    "subscription_inactive",
+    "subscription_plural",
+    "subscription_will_be_cancelled",
+    "transaction_summary",
+    "twice_a_month",
+    "weekly",
+    "weekly_plural",
+    "yearly",
+    "yearly_plural",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

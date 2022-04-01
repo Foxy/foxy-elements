@@ -1,0 +1,21 @@
+{
+  "email": "Email",
+  "invalid_credential_error": "Incorrect email or password. Please check your credentials and try again.",
+  "mfa_remember_device": "Trust this device",
+  "mfa_remember_device_hint": "Don't require a verification code when signing in from this device in the future",
+  "mfa_totp_code": "One-time code",
+  "mfa_totp_code_hint": "Scan the image below with your authenticator app to receive the verification code",
+  "mfa_totp_code_invalid_error": "The one-time code you entered is invalid. Please try again.",
+  "new_password": "New password",
+  "new_password_format_error": "The new password you've chosen is too weak. Please enter a secure new password.",
+  "new_password_required_error": "To keep your account secure, please change your password before logging in this time.",
+  "password": "Password",
+  "sign_in": "Sign in",
+  "unknown_error": "An unknown error has occured. Please try again later.",
+  "v8n_invalid_email": "Invalid email",
+  "v8n_required": "Required",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

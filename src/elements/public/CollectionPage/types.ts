@@ -15,6 +15,7 @@ export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource>
   templates: Partial<Record<string, Renderer<any>>>;
   readonly: boolean;
   disabled: boolean;
+  previous: TItem | null;
   hidden: boolean;
   parent: string;
   spread: typeof spread;
@@ -24,6 +25,7 @@ export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource>
   lang: string;
   href: string;
   data: TItem | null;
+  next: TItem | null;
   ns: string;
 };
 

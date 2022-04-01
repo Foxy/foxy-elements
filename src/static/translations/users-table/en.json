@@ -1,0 +1,44 @@
+{
+  "cancel": "Cancel",
+  "close": "Close",
+  "confirm": "Confirm",
+  "date": "{{value, date}}",
+  "save": "Save",
+  "time": "{{value, time}}",
+  "undo_cancel": "Review",
+  "undo_confirm": "Discard",
+  "undo_header": "Unsaved changes",
+  "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+  "update": "Update",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  },
+  "user-form": {
+    "backend_developer": "Backend developer",
+    "backend_developer_explainer": "Manages server-side code in PHP, Python, Ruby, etc.",
+    "cancel": "Cancel",
+    "create": "Create",
+    "delete": "Delete",
+    "delete_prompt": "This resource will be permanently removed. Are you sure?",
+    "designer": "Designer",
+    "designer_explainer": "Manages appearance, art and user interface.",
+    "email": "Email",
+    "first_name": "First name",
+    "frontend_developer": "Frontend developer",
+    "frontend_developer_explainer": "Manages client-side code in JS, CSS, HTML, etc.",
+    "hidden": "Hidden",
+    "last_name": "Last name",
+    "merchant": "Merchant",
+    "merchant_explainer": "Manages items, finances and this store in general.",
+    "phone": "Phone",
+    "v8n_invalid_email": "Invalid email",
+    "v8n_required": "Required",
+    "v8n_too_long": "Too long",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  }
+}

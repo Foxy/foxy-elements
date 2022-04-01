@@ -1,0 +1,9 @@
+{
+  "expires_after_value": "Expires {{value, relative}}",
+  "never_expires": "Never expires",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

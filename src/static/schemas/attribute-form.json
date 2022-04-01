@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "confirm": {
+      "default": "Confirm",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "This resource will be permanently removed. Are you sure?",
+      "type": "string"
+    },
+    "name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    },
+    "v8n_too_long": {
+      "default": "Too long",
+      "type": "string"
+    },
+    "value": {
+      "default": "Value",
+      "type": "string"
+    },
+    "visibility": {
+      "default": "Visibility",
+      "type": "string"
+    },
+    "visibility_private": {
+      "default": "Only me",
+      "type": "string"
+    },
+    "visibility_public": {
+      "default": "Everyone",
+      "type": "string"
+    },
+    "visibility_restricted": {
+      "default": "Store admins",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "confirm",
+    "create",
+    "date",
+    "date_created",
+    "date_modified",
+    "delete",
+    "delete_prompt",
+    "name",
+    "v8n_required",
+    "v8n_too_long",
+    "value",
+    "visibility",
+    "visibility_private",
+    "visibility_public",
+    "visibility_restricted",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

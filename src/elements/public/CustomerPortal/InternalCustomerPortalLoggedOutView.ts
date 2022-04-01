@@ -53,7 +53,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
           lang=${lang}
           key="recover_access"
-          ns=${ns}
+          ns="${ns} ${customElements.get('foxy-access-recovery-form')?.defaultNS ?? ''}"
         >
         </foxy-i18n>
 
@@ -61,7 +61,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           class="text-l ${isBusy ? 'text-disabled' : 'text-secondary'}"
           lang=${lang}
           key="recover_access_hint"
-          ns=${ns}
+          ns="${ns} ${customElements.get('foxy-access-recovery-form')?.defaultNS ?? ''}"
         >
         </foxy-i18n>
 
@@ -86,7 +86,12 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           ?disabled=${!!form?.in('busy') || disabledSelector.matches('back', true)}
           @click=${() => (this.page = 'sign-in')}
         >
-          <foxy-i18n ns=${this.ns} lang=${this.lang} key="back"></foxy-i18n>
+          <foxy-i18n
+            lang=${this.lang}
+            key="back"
+            ns="${this.ns} ${customElements.get('foxy-access-recovery-form')?.defaultNS ?? ''}"
+          >
+          </foxy-i18n>
         </vaadin-button>
 
         ${this.renderTemplateOrSlot('access-recovery:back:after')}
@@ -159,7 +164,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
           lang=${lang}
           key="sign_in"
-          ns=${ns}
+          ns="${ns} ${customElements.get('foxy-sign-in-form')?.defaultNS ?? ''}"
         >
         </foxy-i18n>
 
@@ -167,7 +172,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           class="text-l ${isBusy ? 'text-disabled' : 'text-secondary'}"
           lang=${lang}
           key="sign_in_hint"
-          ns=${ns}
+          ns="${ns} ${customElements.get('foxy-sign-in-form')?.defaultNS ?? ''}"
         >
         </foxy-i18n>
 
@@ -191,7 +196,12 @@ export class InternalCustomerPortalLoggedOutView extends Base {
           ?disabled=${!!form?.in('busy') || disabledSelector.matches('recover', true)}
           @click=${() => (this.page = 'access-recovery')}
         >
-          <foxy-i18n ns=${this.ns} lang=${this.lang} key="recover_access"></foxy-i18n>
+          <foxy-i18n
+            lang=${this.lang}
+            key="recover_access"
+            ns="${this.ns} ${customElements.get('foxy-sign-in-form')?.defaultNS ?? ''}"
+          >
+          </foxy-i18n>
         </vaadin-button>
 
         ${this.renderTemplateOrSlot('sign-in:recover:after')}

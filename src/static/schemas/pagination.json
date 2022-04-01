@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "first": {
+      "default": "First",
+      "type": "string"
+    },
+    "last": {
+      "default": "Last",
+      "type": "string"
+    },
+    "next": {
+      "default": "Next",
+      "type": "string"
+    },
+    "pagination": {
+      "default": "{{from}}-{{to}} out of {{total}}",
+      "type": "string"
+    },
+    "previous": {
+      "default": "Previous",
+      "type": "string"
+    }
+  },
+  "required": ["first", "last", "next", "pagination", "previous"],
+  "additionalProperties": false
+}

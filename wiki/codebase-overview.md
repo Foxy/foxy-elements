@@ -31,11 +31,7 @@ This section will give you an overview of the Elements codebase organization, it
 ## Translations (`/src/static/translations`)
 
 - [admin](../src/static/translations/admin) - i18n files for the Foxy Admin (deprecated).
-- [country](../src/static/translations/country) - localized country names (deprecated).
-- [customer-portal](../src/static/translations/customer-portal) - translations specific to the [Customer Portal](../src/elements/public/CustomerPortal).
-- [customer-portal-settings](../src/static/translations/customer-portal-settings) - translations specific to the [Customer Portal Settings](../src/elements/public/CustomerPortalSettings).
-- [donation](../src/static/translations/donation) - translations specific to the [Donation Form](../src/elements/public/DonationForm).
 - [global](../src/static/translations/global) - common translations for pre-Nucleon elements (deprecated).
-- [items-form](../src/static/translations/items-form) - translations specific to the [Items Form](../src/elements/public/ItemsForm).
 - [region](../src/static/translations/region) - localized region names (deprecated).
-- [shared](../src/static/translations/shared) - common translations, fallbacks.
+- [country](../src/static/translations/country) - localized country names (deprecated).
+- other – translations specific to a particular element (e.g. `customer-portal` will hold i18n files for `foxy-customer-portal` element); see schemas [here](../src/static/schemas).

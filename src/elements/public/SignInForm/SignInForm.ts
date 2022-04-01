@@ -315,7 +315,7 @@ export class SignInForm extends Base<Data> {
         ${this.renderTemplateOrSlot('error:before')}
 
         <p class="leading-s flex items-start text-s rounded p-s bg-error-10 text-error">
-          <iron-icon class="flex-shrink-0 mr-s" icon="lumo:error"></iron-icon>
+          <iron-icon class="flex-shrink-0 mr-s icon-inline text-l" icon="lumo:error"></iron-icon>
           <foxy-i18n data-testid="error" lang=${this.lang} key=${this.errors[0]} ns=${this.ns}>
           </foxy-i18n>
         </p>

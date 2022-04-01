@@ -1,6 +1,6 @@
 ## editors
 /.idea
-/.vscode
+/.nova
 
 ## system files
 .DS_Store
@@ -8,6 +8,7 @@
 ## npm
 /node_modules/
 /npm-debug.log
+/*.tgz
 
 ## testing
 /coverage/

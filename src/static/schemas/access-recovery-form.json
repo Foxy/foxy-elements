@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "email": {
+      "default": "Email",
+      "type": "string"
+    },
+    "recover_access": {
+      "default": "Get one-time code",
+      "type": "string"
+    },
+    "recover_access_success": {
+      "default": "Done! Please check your email for further instructions.",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "unknown_error": {
+      "default": "An unknown error has occured. Please try again later.",
+      "type": "string"
+    },
+    "v8n_invalid_email": {
+      "default": "Invalid email",
+      "type": "string"
+    },
+    "v8n_required": {
+      "default": "Required",
+      "type": "string"
+    }
+  },
+  "required": [
+    "email",
+    "recover_access",
+    "recover_access_success",
+    "unknown_error",
+    "v8n_invalid_email",
+    "v8n_required",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

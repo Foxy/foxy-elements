@@ -1,0 +1,25 @@
+{
+  "cache": "Cache",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "create": "Create",
+  "date": "{{value, date}}",
+  "date_created": "Created on",
+  "date_modified": "Last updated",
+  "default": "Default",
+  "delete": "Delete",
+  "delete_prompt": "This resource will be permanently removed. Are you sure?",
+  "description": "Description",
+  "html_template": "HTML template",
+  "template_clipboard": "From clipboard",
+  "template_clipboard_explainer": "Paste the template here to use it",
+  "template_default": "Default",
+  "template_default_explainer": "Use the default template",
+  "template_url": "From URL",
+  "template_url_explainer": "Fetch the template from a public URL",
+  "text_template": "Text template",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

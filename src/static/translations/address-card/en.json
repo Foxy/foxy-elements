@@ -1,0 +1,11 @@
+{
+  "default_billing_address": "Default billing address",
+  "default_shipping_address": "Default shipping address",
+  "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
+  "full_name": "{{first_name}} {{last_name}}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}
