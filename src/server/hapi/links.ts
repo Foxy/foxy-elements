@@ -209,4 +209,9 @@ export const links: Links = {
     'fx:gift_card': { href: `./gift_cards/${coupon_id}` },
     'fx:gift_card_code_logs': { href: `./transactions?gift_card_id=${id}` },
   }),
+
+  reports: ({ user_id }) => ({
+    'fx:download_url': { href: `s3.amazonaws.com` },
+    'fx:user': { href: `./users/${user_id}` },
+  }),
 };

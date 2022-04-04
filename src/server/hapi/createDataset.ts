@@ -680,4 +680,17 @@ export const createDataset: () => Dataset = () => ({
     date_created: '2014-04-21T13:40:45-0700',
     date_modified: '2022-02-16T12:30:58-0700',
   })),
+
+  reports: [
+    {
+      id: 0,
+      name: 'report number one',
+      version: 'customers',
+      datetime_start: '2022-01-01T00:00:00-0800',
+      datetime_end: '2022-12-31T00:00:00-0800',
+      status: 'ready',
+      date_created: '2022-01-01T00:00:00-0800',
+      date_modified: '2022-01-01T00:00:00-0800',
+    },
+  ],
 });

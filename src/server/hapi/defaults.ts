@@ -489,4 +489,14 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  reports: () => ({
+    name: `report number ${increment('reports')}`,
+    version: 'customers',
+    datetime_start: '2022-01-01T00:00:00-0800',
+    datetime_end: '2022-12-31T00:00:00-0800',
+    status: 'ready',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };
