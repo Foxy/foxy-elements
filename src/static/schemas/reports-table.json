@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "created_on": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "download": {
+      "default": "Download",
+      "type": "string"
+    },
+    "link": {
+      "default": "Link",
+      "type": "string"
+    },
+    "link-spinner": {
+      "properties": {
+        "loading_busy": {
+          "default": "Preparing",
+          "type": "string"
+        },
+        "loading_error": {
+          "default": "Failed to create",
+          "type": "string"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "range_end": {
+      "default": "End",
+      "type": "string"
+    },
+    "range_start": {
+      "default": "Start",
+      "type": "string"
+    },
+    "report_name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "report_name_complete": {
+      "default": "Complete",
+      "type": "string"
+    },
+    "report_name_customers": {
+      "default": "Customers",
+      "type": "string"
+    },
+    "report_name_customers_ltv": {
+      "default": "Lifetime value",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "./spinner.json#/properties/loading_busy"
+        },
+        "loading_empty": {
+          "$ref": "./spinner.json#/properties/loading_empty"
+        },
+        "loading_error": {
+          "$ref": "./spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "created_on",
+    "date",
+    "download",
+    "link",
+    "range_end",
+    "range_start",
+    "report_name",
+    "report_name_complete",
+    "report_name_customers",
+    "report_name_customers_ltv",
+    "link-spinner",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

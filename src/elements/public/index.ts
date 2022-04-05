@@ -22,6 +22,7 @@ export { CustomFieldCard } from './CustomFieldCard/CustomFieldCard';
 export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
 export { DiscountCard } from './DiscountCard/DiscountCard';
 export { ReportForm } from './ReportForm/ReportForm';
+export { ReportsTable } from './ReportsTable/ReportsTable';
 export { Donation } from './Donation/Donation';
 export { EmailTemplateForm } from './EmailTemplateForm/EmailTemplateForm';
 export { ErrorEntryCard } from './ErrorEntryCard/ErrorEntryCard';
