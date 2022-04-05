@@ -499,9 +499,12 @@ export const defaults: Defaults = {
     item_category_uri: '',
   }),
 
-  reports: () => ({
-    name: `report number ${increment('reports')}`,
-    version: 'customers',
+  reports: query => ({
+    id: increment('reports'),
+    user_id: parseInt(query.get('user_id') ?? '0'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    name: 'customers',
+    version: '1',
     datetime_start: '2022-01-01T00:00:00-0800',
     datetime_end: '2022-12-31T00:00:00-0800',
     status: 'ready',

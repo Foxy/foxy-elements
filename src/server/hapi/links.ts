@@ -217,7 +217,7 @@ export const links: Links = {
   }),
 
   reports: ({ user_id }) => ({
-    'fx:download_url': { href: `s3.amazonaws.com` },
+    'fx:download_url': { href: 'about:blank' },
     'fx:user': { href: `./users/${user_id}` },
   }),
 };
