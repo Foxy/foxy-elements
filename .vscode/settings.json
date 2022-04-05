@@ -175,6 +175,10 @@
     {
       "fileMatch": ["/src/static/translations/users-table/*.json"],
       "url": "./src/static/schemas/users-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/report-form/*.json"],
+      "url": "./src/static/schemas/report-form.json"
     }
   ]
 }

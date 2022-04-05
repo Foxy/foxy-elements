@@ -1,12 +1,21 @@
-import * as FoxySDK from '@foxy.io/sdk';
+import { Rels } from '@foxy.io/sdk/backend';
+import { Renderer } from '../../../mixins/configurable';
+import { ReportForm } from './ReportForm';
+import { Resource } from '@foxy.io/sdk/core';
 
-export type Rel = FoxySDK.Backend.Rels.Report;
-export type Data = FoxySDK.Core.Resource<Rel, undefined>;
-export type TextFieldParams = { field: keyof Data };
-export type DateTimePickerParams = { 
-    fieldDate: string,
-    fieldTime: string,
-    handleFunction: Function,
-    param: string,
-    min?: string
+export type Data = Resource<Rels.Report>;
+
+export type Templates = {
+  'name:before'?: Renderer<ReportForm>;
+  'name:after'?: Renderer<ReportForm>;
+  'start:before'?: Renderer<ReportForm>;
+  'start:after'?: Renderer<ReportForm>;
+  'end:before'?: Renderer<ReportForm>;
+  'end:after'?: Renderer<ReportForm>;
+  'timestamps:before'?: Renderer<ReportForm>;
+  'timestamps:after'?: Renderer<ReportForm>;
+  'delete:before'?: Renderer<ReportForm>;
+  'delete:after'?: Renderer<ReportForm>;
+  'create:before'?: Renderer<ReportForm>;
+  'create:after'?: Renderer<ReportForm>;
 };

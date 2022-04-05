@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "If you proceed, this report will be deleted forever. Are you sure?",
+      "type": "string"
+    },
+    "end": {
+      "default": "End",
+      "type": "string"
+    },
+    "end_required": {
+      "default": "End date and time are required",
+      "type": "string"
+    },
+    "name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "name_complete": {
+      "default": "Complete",
+      "type": "string"
+    },
+    "name_complete_explainer": {
+      "default": "Transactions, coupon usage, subscription forecasts etc.",
+      "type": "string"
+    },
+    "name_customers": {
+      "default": "Customers",
+      "type": "string"
+    },
+    "name_customers_explainer": {
+      "default": "Exports customers to import somewhere else.",
+      "type": "string"
+    },
+    "name_customers_ltv": {
+      "default": "Lifetime value",
+      "type": "string"
+    },
+    "name_customers_ltv_explainer": {
+      "default": "Customers with lifetime value info.",
+      "type": "string"
+    },
+    "select_date": {
+      "default": "DD/MM/YYYY",
+      "type": "string"
+    },
+    "select_time": {
+      "default": "HH:MM:SS",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "start": {
+      "default": "Start",
+      "type": "string"
+    },
+    "start_required": {
+      "default": "Start date and time are required",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "create",
+    "date",
+    "date_created",
+    "date_modified",
+    "delete",
+    "delete_prompt",
+    "end",
+    "end_required",
+    "name",
+    "name_complete",
+    "name_complete_explainer",
+    "name_customers",
+    "name_customers_explainer",
+    "name_customers_ltv",
+    "name_customers_ltv_explainer",
+    "select_date",
+    "select_time",
+    "start",
+    "start_required",
+    "spinner"
+  ],
+  "additionalProperties": false
+}
