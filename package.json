@@ -21,7 +21,7 @@
     "format": "npm run format:eslint && npm run format:prettier",
     "format:eslint": "eslint --ext .ts,.html . --fix --ignore-path .gitignore",
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
-    "test": "wtr src/**/*.test.ts",
+    "test": "wtr src/elements/public/ReportCard/ReportCard.test.ts --debug=true",
     "test:watch": "wtr src/**/*.test.ts --watch",
     "prepack": "npm run lint && rimraf dist && node ./.build/compile-for-npm.js && rollup -c"
   },

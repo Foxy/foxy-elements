@@ -682,4 +682,17 @@ export const createDataset: () => Dataset = () => ({
   })),
 
   gift_card_item_categories: [],
+
+  reports: [
+    {
+      id: 0,
+      name: 'report number one',
+      version: 'customers',
+      datetime_start: '2022-01-01T00:00:00-0800',
+      datetime_end: '2022-12-31T00:00:00-0800',
+      status: 'ready',
+      date_created: '2022-01-01T00:00:00-0800',
+      date_modified: '2022-01-01T00:00:00-0800',
+    },
+  ],
 });

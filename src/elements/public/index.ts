@@ -21,6 +21,8 @@ export { CustomersTable } from './CustomersTable/CustomersTable';
 export { CustomFieldCard } from './CustomFieldCard/CustomFieldCard';
 export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
 export { DiscountCard } from './DiscountCard/DiscountCard';
+export { ReportCard } from './ReportCard/ReportCard';
+export { ReportForm } from './ReportForm/index';
 export { Donation } from './Donation/Donation';
 export { EmailTemplateForm } from './EmailTemplateForm/EmailTemplateForm';
 export { ErrorEntryCard } from './ErrorEntryCard/ErrorEntryCard';

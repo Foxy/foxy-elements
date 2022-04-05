@@ -497,6 +497,14 @@ export const defaults: Defaults = {
     item_category_id: parseInt(query.get('item_category_id') ?? '0'),
     gift_card_uri: '',
     item_category_uri: '',
+  }),
+
+  reports: () => ({
+    name: `report number ${increment('reports')}`,
+    version: 'customers',
+    datetime_start: '2022-01-01T00:00:00-0800',
+    datetime_end: '2022-12-31T00:00:00-0800',
+    status: 'ready',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

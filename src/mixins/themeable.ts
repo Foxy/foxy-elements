@@ -60,6 +60,14 @@ export const ThemeableMixin = <TBase extends Base>(
             padding-bottom: 0;
           }
 
+          vaadin-time-picker {
+            width: 100%;
+          }
+
+          vaadin-date-time-picker {
+            width: 100%;
+          }
+
           vaadin-button {
             margin: 0;
           }
