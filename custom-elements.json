@@ -10519,16 +10519,10 @@
           "name": "name:after"
         },
         {
-          "name": "start:before"
+          "name": "range:before"
         },
         {
-          "name": "start:after"
-        },
-        {
-          "name": "end:before"
-        },
-        {
-          "name": "end:after"
+          "name": "range:after"
         },
         {
           "name": "timestamps:before"
