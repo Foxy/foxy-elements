@@ -1,9 +1,23 @@
 import { Choice, Group, PropertyTable } from '../../private/index';
 import { Data, Templates } from './types';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-element';
+import {
+  getCurrentMonth,
+  getCurrentQuarter,
+  getCurrentYear,
+  getLast30Days,
+  getLast365Days,
+  getPreviousMonth,
+  getPreviousQuarter,
+  getPreviousYear,
+  toAPIDateTime,
+  toDatePickerValue,
+  toDateTimePickerValue,
+} from './utils';
 
 import { ButtonElement } from '@vaadin/vaadin-button';
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { ChoiceChangeEvent } from '../../private/Choice/ChoiceChangeEvent';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DateTimePicker } from '@vaadin/vaadin-date-time-picker';
@@ -11,13 +25,19 @@ import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { SelectElement } from '@vaadin/vaadin-select';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { live } from 'lit-html/directives/live';
+import { render } from 'lit-html';
 
 const Base = ScopedElementsMixin(
-  ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 'report-form')))
+  ResponsiveMixin(
+    ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 'report-form')))
+  )
 );
 
 /**
@@ -26,11 +46,8 @@ const Base = ScopedElementsMixin(
  * @slot name:before
  * @slot name:after
  *
- * @slot start:before
- * @slot start:after
- *
- * @slot end:before
- * @slot end:after
+ * @slot range:before
+ * @slot range:after
  *
  * @slot timestamps:before
  * @slot timestamps:after
@@ -47,10 +64,14 @@ const Base = ScopedElementsMixin(
 export class ReportForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-date-time-picker': DateTimePicker,
+      'vaadin-date-time-picker': customElements.get('vaadin-date-time-picker'),
+      'vaadin-date-picker': customElements.get('vaadin-date-picker'),
+      'vaadin-checkbox': customElements.get('vaadin-checkbox'),
+      'vaadin-select': customElements.get('vaadin-select'),
       'vaadin-button': customElements.get('vaadin-button'),
 
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
 
@@ -60,15 +81,24 @@ export class ReportForm extends Base<Data> {
     };
   }
 
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      __showRangeTime: { attribute: false },
+    };
+  }
+
   static get v8n(): NucleonV8N<Data> {
     return [
       ({ name: v }) => !!v || 'name_required',
-      ({ datetime_start: v }) => !!v || 'start_required',
-      ({ datetime_end: v }) => !!v || 'end_required',
+      ({ datetime_start: v }) => !!v || 'datetime_start_required',
+      ({ datetime_end: v }) => !!v || 'datetime_end_required',
     ];
   }
 
   templates: Templates = {};
+
+  private __showRangeTime = false;
 
   render(): TemplateResult {
     const hidden = this.hiddenSelector;
@@ -82,8 +112,7 @@ export class ReportForm extends Base<Data> {
       >
         <div class="space-y-m">
           ${hidden.matches('name', true) ? '' : this.__renderName()}
-          ${hidden.matches('start', true) ? '' : this.__renderStart()}
-          ${hidden.matches('end', true) ? '' : this.__renderEnd()}
+          ${hidden.matches('range', true) ? '' : this.__renderRange()}
           ${hidden.matches('timestamps', true) || !this.data ? '' : this.__renderTimestamps()}
           ${hidden.matches('create', true) || this.data ? '' : this.__renderCreate()}
           ${hidden.matches('delete', true) || !this.data ? '' : this.__renderDelete()}
@@ -120,17 +149,10 @@ export class ReportForm extends Base<Data> {
         ${this.renderTemplateOrSlot(`${scope}:before`)}
 
         <x-group frame>
-          <foxy-i18n
-            class=${classMap({ 'transition-colors': true, 'text-disabled': isDisabled })}
-            lang=${this.lang}
-            slot="header"
-            key="name"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
+          <foxy-i18n lang=${this.lang} slot="header" key="name" ns=${this.ns}></foxy-i18n>
 
           <x-choice
-            data-testid="content-type"
+            data-testid="name-choice"
             .value=${this.form.name}
             .items=${items}
             ?readonly=${isReadonly}
@@ -165,68 +187,165 @@ export class ReportForm extends Base<Data> {
     `;
   }
 
-  private __renderStart() {
-    const error = this.errors.find(error => error.startsWith('start_'));
-    const value = this.form.datetime_start;
+  private __renderRangePreset() {
+    const options = [
+      [
+        { value: '0', label: 'preset_previous_quarter', ...getPreviousQuarter() },
+        { value: '1', label: 'preset_previous_month', ...getPreviousMonth() },
+        { value: '2', label: 'preset_previous_year', ...getPreviousYear() },
+      ],
+      [
+        { value: '3', label: 'preset_this_quarter', ...getCurrentQuarter() },
+        { value: '4', label: 'preset_this_month', ...getCurrentMonth() },
+        { value: '5', label: 'preset_this_year', ...getCurrentYear() },
+      ],
+      [
+        { value: '6', label: 'preset_last_365_days', ...getLast365Days() },
+        { value: '7', label: 'preset_last_30_days', ...getLast30Days() },
+      ],
+    ];
+
+    const currentOption = options.flat(1).find(option => {
+      const { datetime_end: end, datetime_start: start } = this.form;
+      return (
+        start && end && toAPIDateTime(option.start) === start && toAPIDateTime(option.end) === end
+      );
+    });
+
+    const renderer = (root: Element) => {
+      const custom = html`<vaadin-item value="custom">${this.t('preset_custom')}</vaadin-item>`;
+      const separator = html`<hr />`;
+      const predefined = options.map(group => {
+        const items = group.map(({ value, label }) => {
+          return html`<vaadin-item value=${value}>${this.t(label)}</vaadin-item>`;
+        });
+
+        return html`${items}${separator}`;
+      });
+
+      if (!root.firstElementChild) root.appendChild(document.createElement('vaadin-list-box'));
+      render(html`${predefined}${custom}`, root.firstElementChild as Element);
+    };
 
     return html`
       <div>
-        ${this.renderTemplateOrSlot('start:before')}
-
-        <vaadin-date-time-picker
-          date-placeholder=${this.t('select_date')}
-          time-placeholder=${this.t('select_time')}
-          error-message=${ifDefined(error ? this.t(error) : undefined)}
-          data-testid="start"
-          class="-mt-m"
-          label=${this.t('start')}
-          step="1"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('start', true)}
-          ?readonly=${this.readonlySelector.matches('start', true)}
-          .checkValidity=${() => !error}
-          .value=${value ? this.__convertFormValueToPickerValue(value) : ''}
-          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+        <vaadin-select
+          data-testid="range:preset"
+          label=${this.t('preset')}
+          class="w-full -mt-m -mb-xs"
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
+          ?readonly=${this.readonlySelector.matches('range', true)}
+          .value=${live(currentOption?.value ?? 'custom')}
+          .renderer=${renderer}
           @change=${(evt: CustomEvent) => {
-            const picker = evt.currentTarget as DateTimePicker;
-            this.edit({ datetime_start: picker.value });
+            const select = evt.currentTarget as SelectElement;
+            const option = options.flat(1).find(option => option.value === select.value);
+
+            if (option) {
+              this.edit({
+                datetime_start: toAPIDateTime(option.start),
+                datetime_end: toAPIDateTime(option.end),
+              });
+            }
           }}
         >
-        </vaadin-date-time-picker>
-
-        ${this.renderTemplateOrSlot('start:after')}
+        </vaadin-select>
       </div>
     `;
   }
 
-  private __renderEnd() {
-    const error = this.errors.find(error => error.startsWith('end_'));
-    const value = this.form.datetime_end;
+  private __renderRangeDateTimePicker(type: 'start' | 'end') {
+    const field = type === 'end' ? 'datetime_end' : 'datetime_start';
+    const error = this.errors.find(error => error.startsWith(`${field}_`));
+    const value = this.form[field as keyof Data] as string;
 
     return html`
-      <div>
-        ${this.renderTemplateOrSlot('end:before')}
+      <vaadin-date-time-picker
+        date-placeholder=${this.t('select_date')}
+        time-placeholder=${this.t('select_time')}
+        error-message=${ifDefined(error ? this.t(error) : undefined)}
+        data-testid="range:${type}"
+        class="w-full"
+        label=${this.t(type)}
+        step="1"
+        ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
+        ?readonly=${this.readonlySelector.matches('range', true)}
+        .checkValidity=${() => !error}
+        .value=${value ? toDateTimePickerValue(value) : ''}
+        @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+        @change=${(evt: CustomEvent) => {
+          const picker = evt.currentTarget as DateTimePicker;
+          this.edit({ [field]: picker.value });
+        }}
+      >
+      </vaadin-date-time-picker>
+    `;
+  }
 
-        <vaadin-date-time-picker
-          date-placeholder=${this.t('select_date')}
-          time-placeholder=${this.t('select_time')}
-          error-message=${ifDefined(error ? this.t(error) : undefined)}
-          data-testid="end"
-          label=${this.t('end')}
-          class="-mt-m"
-          step="1"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('end', true)}
-          ?readonly=${this.readonlySelector.matches('end', true)}
-          .checkValidity=${() => !error}
-          .value=${value ? this.__convertFormValueToPickerValue(value) : ''}
-          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-          @change=${(evt: CustomEvent) => {
-            const picker = evt.currentTarget as DateTimePicker;
-            this.edit({ datetime_end: picker.value });
-          }}
-        >
-        </vaadin-date-time-picker>
+  private __renderRangeDatePicker(type: 'start' | 'end') {
+    const field = type === 'end' ? 'datetime_end' : 'datetime_start';
+    const error = this.errors.find(error => error.startsWith(`${field}_`));
+    const value = this.form[field as keyof Data] as string;
 
-        ${this.renderTemplateOrSlot('end:after')}
+    return html`
+      <vaadin-date-picker
+        error-message=${ifDefined(error ? this.t(error) : undefined)}
+        placeholder=${this.t('select_date')}
+        data-testid="range:${type}"
+        class="w-full"
+        label=${this.t(type)}
+        step="1"
+        ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
+        ?readonly=${this.readonlySelector.matches('range', true)}
+        .checkValidity=${() => !error}
+        .value=${value ? toDatePickerValue(value) : ''}
+        @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+        @change=${(evt: CustomEvent) => {
+          const picker = evt.currentTarget as DateTimePicker;
+          const time = type === 'end' ? '23:59:59' : '00:00:00';
+
+          this.edit({ [field]: `${picker.value}T${time}` });
+        }}
+      >
+      </vaadin-date-picker>
+    `;
+  }
+
+  private __renderRange() {
+    const renderer = this.__showRangeTime
+      ? this.__renderRangeDateTimePicker
+      : this.__renderRangeDatePicker;
+
+    return html`
+      <div data-testid="range">
+        ${this.renderTemplateOrSlot('range:before')}
+
+        <x-group frame>
+          <foxy-i18n slot="header" lang=${this.lang} key="range" ns=${this.ns}></foxy-i18n>
+
+          <div class="p-m grid gap-m ${this.__showRangeTime ? 'grid-cols-1' : 'sm-grid-cols-2'}">
+            <div class=${this.__showRangeTime ? 'col-span-1' : 'sm-col-span-2'}>
+              ${this.__renderRangePreset()}
+            </div>
+
+            ${renderer.call(this, 'start')} ${renderer.call(this, 'end')}
+
+            <vaadin-checkbox
+              data-testid="range:toggle"
+              class="-my-xs w-full ${this.__showRangeTime ? 'col-span-1' : 'sm-col-span-2'}"
+              ?disabled=${!this.in('idle') || this.disabledSelector.matches('range', true)}
+              ?checked=${this.__showRangeTime}
+              @change=${(evt: CustomEvent) => {
+                const checkbox = evt.currentTarget as CheckboxElement;
+                this.__showRangeTime = checkbox.checked;
+              }}
+            >
+              <foxy-i18n lang=${this.lang} key="use_precise_time" ns=${this.ns}></foxy-i18n>
+            </vaadin-checkbox>
+          </div>
+        </x-group>
+
+        ${this.renderTemplateOrSlot('range:after')}
       </div>
     `;
   }
@@ -316,9 +435,5 @@ export class ReportForm extends Base<Data> {
         ${this.renderTemplateOrSlot('delete:after')}
       </div>
     `;
-  }
-
-  private __convertFormValueToPickerValue(formValue: string) {
-    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.exec(formValue)?.[0] ?? '';
   }
 }

@@ -8,10 +8,8 @@ export type Data = Resource<Rels.Report>;
 export type Templates = {
   'name:before'?: Renderer<ReportForm>;
   'name:after'?: Renderer<ReportForm>;
-  'start:before'?: Renderer<ReportForm>;
-  'start:after'?: Renderer<ReportForm>;
-  'end:before'?: Renderer<ReportForm>;
-  'end:after'?: Renderer<ReportForm>;
+  'range:before'?: Renderer<ReportForm>;
+  'range:after'?: Renderer<ReportForm>;
   'timestamps:before'?: Renderer<ReportForm>;
   'timestamps:after'?: Renderer<ReportForm>;
   'delete:before'?: Renderer<ReportForm>;

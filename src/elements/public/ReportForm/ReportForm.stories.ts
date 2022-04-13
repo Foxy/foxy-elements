@@ -10,7 +10,11 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-report-form',
   translatable: true,
-  configurable: { sections: ['title', 'subtitle'] },
+  configurable: {
+    inputs: ['name', 'range'],
+    buttons: ['delete', 'create'],
+    sections: ['timestamps'],
+  },
 };
 
 export default getMeta(summary);
