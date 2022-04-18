@@ -44,6 +44,7 @@ export { Spinner } from './Spinner/Spinner';
 export { SubscriptionCard } from './SubscriptionCard/SubscriptionCard';
 export { SubscriptionForm } from './SubscriptionForm/SubscriptionForm';
 export { SubscriptionsTable } from './SubscriptionsTable/SubscriptionsTable';
+export { SwipeActions } from './SwipeActions/SwipeActions';
 export { Table } from './Table/Table';
 export { TaxCard } from './TaxCard/TaxCard';
 export { TaxForm } from './TaxForm/TaxForm';
