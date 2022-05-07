@@ -29,8 +29,22 @@ export const links: Links = {
     'fx:transaction': { href: `./transactions/${transaction_id}` },
   }),
 
-  attributes: ({ store_id }) => ({
+  customer_attributes: ({ store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+  }),
+
+  item_attributes: ({ item_id }) => ({
+    'fx:item': { href: `./items/${item_id}` },
+  }),
+
+  shipment_attributes: ({ shipment_id }) => ({
+    'fx:shipment': { href: `./shipments/${shipment_id}` },
+  }),
+
+  item_options: ({ item_id, store_id, transaction_id }) => ({
+    'fx:item': { href: `./items/${item_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:transaction': { href: `./transactions/${transaction_id}` },
   }),
 
   customer_addresses: ({ store_id, customer_id }) => ({
@@ -60,11 +74,20 @@ export const links: Links = {
     'fx:transaction_template': { href: `./carts/${transaction_template_id}` },
   }),
 
-  transactions: ({ id, store_id, customer_id }) => ({
-    'fx:void': { href: 'https://demo.api/virtual/empty?status=200' },
+  transactions: ({ id, status, is_editable, store_id, customer_id }) => ({
+    ...(is_editable
+      ? status === 'completed'
+        ? {
+            'fx:refund': { href: 'https://demo.api/virtual/empty?status=200' },
+          }
+        : {
+            'fx:void': { href: 'https://demo.api/virtual/empty?status=200' },
+            'fx:capture': { href: 'https://demo.api/virtual/empty?status=200' },
+          }
+      : {}),
+
     'fx:store': { href: `./stores/${store_id}` },
     'fx:items': { href: `./items?transaction_id=${id}` },
-    'fx:capture': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:receipt': { href: 'about:blank' },
     'fx:customer': { href: `./customers/${customer_id}` },
     'fx:payments': { href: `./payments?transaction_id=${id}` },
@@ -119,15 +142,19 @@ export const links: Links = {
     'fx:process_subscription_webhook': { href: 'https://demo.api/virtual/empty?status=200' },
   }),
 
-  items: ({ store_id, transaction_id, item_category_id, shipment_id, id }) => ({
+  items: ({ store_id, subscription_id, transaction_id, item_category_id, shipment_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:shipment': { href: `./shipments/${shipment_id}` },
-    'fx:attributes': { href: `./attributes?item_id=${id}` },
+    'fx:attributes': { href: `./item_attributes?item_id=${id}` },
     'fx:transaction': { href: `./transactions/${transaction_id}` },
     'fx:item_options': { href: `./item_options?item_id=${id}` },
     'fx:item_category': { href: `./item_categories/${item_category_id}` },
     'fx:coupon_details': { href: `./coupon_details?coupon_id=${id}` },
     'fx:discount_details': { href: `./discount_details?item_id=${id}` },
+
+    ...(typeof subscription_id === 'number'
+      ? { 'fx:subscription': { href: `./subscriptions/${subscription_id}` } }
+      : {}),
   }),
 
   carts: ({ id, store_id, template_set_id, customer_id }) => ({
@@ -219,5 +246,30 @@ export const links: Links = {
   reports: ({ user_id }) => ({
     'fx:download_url': { href: 'about:blank' },
     'fx:user': { href: `./users/${user_id}` },
+  }),
+
+  discount_details: ({ transaction_id, store_id, item_id }) => ({
+    'fx:item': { href: `./item/${item_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:transaction': { href: `./transactions/${transaction_id}` },
+  }),
+
+  coupon_details: ({ transaction_id, store_id, item_id }) => ({
+    'fx:item': { href: `./item/${item_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon': { href: `./coupons/${store_id}` },
+    'fx:coupon_code': { href: `./coupon_codes/${store_id}` },
+    'fx:transaction': { href: `./transactions/${transaction_id}` },
+  }),
+
+  shipments: ({ id, store_id, customer_id, transaction_id, customer_address_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:items': { href: `./items?shipment_id=${id}` },
+    'fx:custom_fields': { href: `./custom_fields?shipment_id=${id}` },
+    'fx:attributes': { href: `./shipment_attributes?shipment_id=${id}` },
+    'fx:transaction': { href: `./transactions/${transaction_id}` },
+    'fx:shipments': { href: `./shipments?transaction_id=${transaction_id}` },
+    'fx:customer': { href: `./customers/${customer_id}` },
+    'fx:customer_address': { href: `./customer_addresses/${customer_address_id}` },
   }),
 };
