@@ -24,6 +24,7 @@ export { CustomFieldCard } from './CustomFieldCard/CustomFieldCard';
 export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
 export { DiscountBuilder } from './DiscountBuilder/DiscountBuilder';
 export { DiscountCard } from './DiscountCard/DiscountCard';
+export { DiscountDetailCard } from './DiscountDetailCard/DiscountDetailCard';
 export { ReportForm } from './ReportForm/ReportForm';
 export { ReportsTable } from './ReportsTable/ReportsTable';
 export { Donation } from './Donation/Donation';
