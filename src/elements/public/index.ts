@@ -22,6 +22,7 @@ export { CustomerPortalSettings } from './CustomerPortalSettings/CustomerPortalS
 export { CustomersTable } from './CustomersTable/CustomersTable';
 export { CustomFieldCard } from './CustomFieldCard/CustomFieldCard';
 export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
+export { DiscountBuilder } from './DiscountBuilder/DiscountBuilder';
 export { DiscountCard } from './DiscountCard/DiscountCard';
 export { ReportForm } from './ReportForm/ReportForm';
 export { ReportsTable } from './ReportsTable/ReportsTable';
