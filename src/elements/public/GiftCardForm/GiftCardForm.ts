@@ -111,22 +111,36 @@ export class GiftCardForm extends Base<Data> {
   private __codesTableColumns: Column<GiftCardCodes>[] = [
     {
       header: ctx => html`<foxy-i18n lang=${ctx.lang} key="code" ns=${ctx.ns}></foxy-i18n>`,
-      cell: ctx => html`
-        <vaadin-button
-          theme="tertiary contrast"
-          class="p-0"
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('codes', true)}
-          @click=${(evt: CustomEvent) => {
-            const dialog = this.renderRoot.querySelector<FormDialog>('#code-dialog')!;
-            const button = evt.currentTarget as ButtonElement;
+      cell: ctx => {
+        const isDisabled = !this.in('idle') || this.disabledSelector.matches('codes', true);
 
-            dialog.href = ctx.data._links.self.href;
-            dialog.show(button);
-          }}
-        >
-          <span class="font-tnum">${ctx.data.code}</span>
-        </vaadin-button>
-      `,
+        return html`
+          <div class="flex items-center gap-xs">
+            <vaadin-button
+              theme="tertiary-inline contrast"
+              class="p-0"
+              ?disabled=${isDisabled}
+              @click=${(evt: CustomEvent) => {
+                const dialog = this.renderRoot.querySelector<FormDialog>('#code-dialog')!;
+                const button = evt.currentTarget as ButtonElement;
+
+                dialog.href = ctx.data._links.self.href;
+                dialog.show(button);
+              }}
+            >
+              <span class="font-tnum">${ctx.data.code}</span>
+            </vaadin-button>
+
+            <foxy-copy-to-clipboard
+              ?disabled=${isDisabled}
+              text=${ctx.data.code}
+              lang=${ctx.lang}
+              ns="${ctx.ns} copy-to-clipboard"
+            >
+            </foxy-copy-to-clipboard>
+          </div>
+        `;
+      },
     },
     {
       header: ctx => html`<foxy-i18n lang=${ctx.lang} key="date_created" ns=${ctx.ns}></foxy-i18n>`,

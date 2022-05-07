@@ -215,6 +215,12 @@
   "week_plural": "Weeks",
   "year": "Year",
   "year_plural": "Years",
+  "copy-to-clipboard": {
+    "click_to_copy": "Click to copy",
+    "copying": "Copying",
+    "done": "Done",
+    "failed_to_copy": "Failed to copy"
+  },
   "generate-codes-form": {
     "balance": "Balance",
     "cancel": "Cancel",
