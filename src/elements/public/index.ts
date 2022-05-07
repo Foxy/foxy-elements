@@ -60,6 +60,7 @@ export { TaxForm } from './TaxForm/TaxForm';
 export { TemplateForm } from './TemplateForm/TemplateForm';
 export { TemplateConfigForm } from './TemplateConfigForm/TemplateConfigForm';
 export { TransactionCard } from './TransactionCard/TransactionCard';
+export { Transaction } from './Transaction/Transaction';
 export { TransactionsTable } from './TransactionsTable/TransactionsTable';
 export { UserForm } from './UserForm/UserForm';
 export { UsersTable } from './UsersTable/UsersTable';
