@@ -19,8 +19,9 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { live } from '@open-wc/lit-helpers';
 import memoize from 'lodash-es/memoize';
 import { parseDuration } from '../../../utils/parse-duration';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
-export class FrequencyInput extends TranslatableMixin(LitElement) {
+export class FrequencyInput extends TranslatableMixin(InferrableMixin(LitElement)) {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

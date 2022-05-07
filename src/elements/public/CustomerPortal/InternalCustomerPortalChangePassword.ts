@@ -9,6 +9,7 @@ import { SignInForm } from '../SignInForm/SignInForm';
 import { Data as SignInFormData } from '../SignInForm/types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
 const enum Steps {
   CurrentPassword = 1,
@@ -16,7 +17,7 @@ const enum Steps {
   Done = 3,
 }
 
-const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(LitElement)));
+const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement))));
 
 type UpdateEvent = InstanceType<typeof SignInForm.UpdateEvent>;
 type FetchEvent = InstanceType<typeof SignInForm.API.FetchEvent>;

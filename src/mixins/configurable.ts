@@ -4,6 +4,7 @@ import { Constructor, LitElement, PropertyDeclarations, TemplateResult, html } f
 
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { InferrableMixinHost } from './inferrable';
 
 export declare class ConfigurableMixinHost {
   /** Template render functions mapped to their name. */
@@ -110,9 +111,9 @@ export declare class ConfigurableMixinHost {
    * For empty name looks for a "default" template first and renders it if found – otherwise renders a default slot.
    *
    * @param name Name of the template/slot to render.
-   * @param __noSandbox INTERNAL - if true, doesn't isolate template content in a sandbox.
+   * @param context Context to provide template renderer with.
    */
-  renderTemplateOrSlot(name?: string, __noSandbox?: boolean): void;
+  renderTemplateOrSlot(name?: string, context?: any): void;
 
   /**
    * Zooms into templates with complex names. For example, zooming on `customer` in `customer:header:before`
@@ -123,14 +124,31 @@ export declare class ConfigurableMixinHost {
   getNestedTemplates<T extends Partial<Record<string, Renderer<any>>>>(id: string): T;
 }
 
-type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
+type Base = Constructor<InferrableMixinHost> &
+  Constructor<LitElement> & { properties?: PropertyDeclarations; inferredProperties: string[] };
+
 type TemplateFunction = typeof html;
+
 export type Renderer<THost> = (html: TemplateFunction, host: THost) => TemplateResult;
 
 export const ConfigurableMixin = <TBase extends Base>(
   BaseElement: TBase
 ): TBase & Constructor<ConfigurableMixinHost> => {
   return class ConfigurableElement extends BaseElement {
+    static get inferredProperties(): string[] {
+      return [
+        ...super.inferredProperties,
+        'disabledSelector',
+        'readonlySelector',
+        'hiddenSelector',
+        'templates',
+        'disabled',
+        'readonly',
+        'hidden',
+        'mode',
+      ];
+    }
+
     static get properties(): PropertyDeclarations {
       return {
         ...super.properties,
@@ -230,7 +248,7 @@ export const ConfigurableMixin = <TBase extends Base>(
       this.templates = templates;
     }
 
-    renderTemplateOrSlot(name?: string, __noSandbox = false) {
+    renderTemplateOrSlot(name?: string, context?: any) {
       const templateName = name ?? 'default';
       const template = this.templates[templateName];
 
@@ -239,14 +257,14 @@ export const ConfigurableMixin = <TBase extends Base>(
       const renderer = () => {
         try {
           const target = {} as unknown as this;
-          const proxy = new Proxy(target, { get: (_, p) => this[p as keyof this] });
+          const resolvedContext = context ?? this;
+          const proxy = new Proxy(target, { get: (_, key) => resolvedContext[key] });
+
           return template?.(html, proxy);
         } catch (err) {
           console.error(err);
         }
       };
-
-      if (__noSandbox) return renderer();
 
       return html`
         <foxy-internal-sandbox data-testid=${templateName} .render=${renderer}>
@@ -265,6 +283,41 @@ export const ConfigurableMixin = <TBase extends Base>(
       });
 
       return nestedTemplates;
+    }
+
+    applyInferredProperties(context: Map<string, unknown>): void {
+      super.applyInferredProperties(context);
+
+      type Templates = ConfigurableMixinHost['templates'];
+      type Mode = ConfigurableMixinHost['mode'];
+
+      if (this.infer === null) return;
+
+      const disabledSelector = context.get('disabledSelector') as BooleanSelector | undefined;
+      const disabled = context.get('disabled') as boolean | undefined;
+
+      const readonlySelector = context.get('readonlySelector') as BooleanSelector | undefined;
+      const readonly = context.get('readonly') as boolean | undefined;
+
+      const hiddenSelector = context.get('hiddenSelector') as BooleanSelector | undefined;
+      const hidden = context.get('hidden') as boolean | undefined;
+
+      const templates = context.get('templates') as Templates | undefined;
+      const mode = context.get('mode') as Mode | undefined;
+
+      this.disabledControls = disabledSelector?.zoom(this.infer) ?? BooleanSelector.False;
+      this.disabled = disabledSelector?.matches(this.infer, true) ?? disabled ?? false;
+
+      this.readonlyControls = readonlySelector?.zoom(this.infer) ?? BooleanSelector.False;
+      this.readonly = readonlySelector?.matches(this.infer, true) ?? readonly ?? false;
+
+      this.hiddenControls = hiddenSelector?.zoom(this.infer) ?? BooleanSelector.False;
+      this.hidden = hiddenSelector?.matches(this.infer, true) ?? hidden ?? false;
+
+      this.templates = templates ?? {};
+      this.templates = this.getNestedTemplates(this.infer);
+
+      this.mode = mode ?? 'production';
     }
 
     private __observe() {

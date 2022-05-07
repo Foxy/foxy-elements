@@ -10,6 +10,9 @@ import { machine } from './machine';
 import { repeat } from 'lit-html/directives/repeat';
 import { serveFromCache } from '../NucleonElement/serveFromCache';
 import { spread } from '@open-wc/lit-helpers';
+import { InferrableMixin } from '../../../mixins/inferrable';
+
+const Base = ConfigurableMixin(InferrableMixin(LitElement));
 
 /**
  * Renders an element for each page in a collection.
@@ -20,7 +23,7 @@ import { spread } from '@open-wc/lit-helpers';
  * @element foxy-collection-pages
  * @since 1.1.0
  */
-export class CollectionPages<TPage extends Page> extends ConfigurableMixin(LitElement) {
+export class CollectionPages<TPage extends Page> extends Base {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {

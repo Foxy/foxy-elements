@@ -10,10 +10,11 @@ import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
-export abstract class Dialog extends TranslatableMixin(
-  ConfigurableMixin(ThemeableMixin(LitElement))
-) {
+const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(InferrableMixin(LitElement))));
+
+export abstract class Dialog extends Base {
   /**
    * Selector of an element that will serve as a mounting point to all dialog windows.
    * It's `<body>` by default, but you can add your own element with `id="foxy-dialog-windows-host"`

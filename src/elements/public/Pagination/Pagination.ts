@@ -7,9 +7,12 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import get from 'lodash-es/get';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
 const NS = 'pagination';
-const Base = ResponsiveMixin(ConfigurableMixin(ThemeableMixin(TranslatableMixin(LitElement, NS))));
+const Base = ResponsiveMixin(
+  ConfigurableMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)))
+);
 
 /**
  * Helper element that adds pagination controls to elements
@@ -77,7 +80,7 @@ export class Pagination extends Base {
     return html`
       <slot @slotchange=${this.__connectPageElement}></slot>
 
-      <div class="grid grid-cols-3 gap-s items-center">
+      <div class="grid grid-cols-3 gap-s items-center -mx-xs">
         <div class="flex items-center space-x-s">
           <vaadin-button
             data-testid="first"

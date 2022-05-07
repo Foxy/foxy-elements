@@ -4,6 +4,7 @@ import { API } from '@foxy.io/sdk/customer';
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { cookieStorage } from './cookieStorage';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
 /**
  * Element connector for Customer API.
@@ -14,7 +15,7 @@ import { cookieStorage } from './cookieStorage';
  * @element foxy-customer-api
  * @since 1.4.0
  */
-export class CustomerApi extends ConfigurableMixin(LitElement) {
+export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) {
   static readonly SignOutEvent = class extends CustomEvent<void> {};
 
   static readonly SignInEvent = class extends CustomEvent<void> {};

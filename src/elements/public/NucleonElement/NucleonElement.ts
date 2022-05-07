@@ -8,6 +8,7 @@ import { FetchEvent } from './FetchEvent';
 import { UpdateEvent } from './UpdateEvent';
 import memoize from 'lodash-es/memoize';
 import { serveFromCache } from './serveFromCache';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
 /**
  * Base class for custom elements working with remote HAL+JSON resources.
@@ -18,7 +19,7 @@ import { serveFromCache } from './serveFromCache';
  * @element foxy-nucleon
  * @since 1.1.0
  */
-export class NucleonElement<TData extends HALJSONResource> extends LitElement {
+export class NucleonElement<TData extends HALJSONResource> extends InferrableMixin(LitElement) {
   /**
    * Instances of this event are dispatched on an element whenever it changes its
    * state (e.g. when going from `busy` to `idle` or on `form` data change).
@@ -41,6 +42,10 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
    * @readonly
    */
   static readonly API = API;
+
+  static get inferredProperties(): string[] {
+    return [...super.inferredProperties, 'group', 'lang'];
+  }
 
   /** @readonly */
   static get properties(): PropertyDeclarations {
@@ -268,6 +273,15 @@ export class NucleonElement<TData extends HALJSONResource> extends LitElement {
     this.__destroyRumour();
     this.__destroyServer();
     this.__flushFetchEventQueue('parent element was disconnected');
+  }
+
+  applyInferredProperties(context: Map<string, unknown>): void {
+    super.applyInferredProperties(context);
+
+    if (this.infer === null) return;
+
+    this.group = (context.get('group') as string | undefined) ?? '';
+    this.lang = (context.get('lang') as string | undefined) ?? '';
   }
 
   /** Sends API request. Throws an error on non-2XX response. */

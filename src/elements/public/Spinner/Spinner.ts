@@ -1,11 +1,14 @@
 import { html, LitElement, PropertyDeclarations, svg, TemplateResult } from 'lit-element';
+import { InferrableMixin } from '../../../mixins/inferrable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 
 export type SpinnerLayout = 'vertical' | 'horizontal' | 'no-label';
 export type SpinnerState = 'end' | 'busy' | 'error' | 'empty' | 'paused';
 
-export class Spinner extends TranslatableMixin(ThemeableMixin(LitElement), 'spinner') {
+const Base = TranslatableMixin(ThemeableMixin(InferrableMixin(LitElement)), 'spinner');
+
+export class Spinner extends Base {
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {

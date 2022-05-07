@@ -6,8 +6,11 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { live } from 'lit-html/directives/live';
 import { repeat } from 'lit-html/directives/repeat';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
-export class EditableList extends TranslatableMixin(ConfigurableMixin(ThemeableMixin(LitElement))) {
+const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(InferrableMixin(LitElement))));
+
+export class EditableList extends Base {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

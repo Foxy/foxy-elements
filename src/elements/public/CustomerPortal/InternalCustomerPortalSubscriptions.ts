@@ -12,8 +12,9 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
-const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(LitElement)));
+const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(InferrableMixin(LitElement))));
 
 export class InternalCustomerPortalSubscriptions extends Base {
   static get properties(): PropertyDeclarations {
