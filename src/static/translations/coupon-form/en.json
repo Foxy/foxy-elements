@@ -21,8 +21,6 @@
   "combine_with_line_discounts": "Combine with line item discounts",
   "combine_with_line_discounts_explainer": "Let customers apply this coupon when line item discounts are applied to the cart.",
   "confirm": "Confirm",
-  "copied": "Copied",
-  "copy": "Copy",
   "coupon_name_helper_text": "Coupon name is visible to the customers.",
   "create": "Create",
   "custom_discount": "Custom discount",
@@ -98,6 +96,12 @@
   "uses_per_customer_summary_plural": "Customers can use this coupon for {{count}} orders only.",
   "v8n_required": "Required",
   "v8n_too_long": "Too long",
+  "copy-to-clipboard": {
+    "click_to_copy": "Click to copy",
+    "copying": "Copying",
+    "done": "Done",
+    "failed_to_copy": "Failed to copy"
+  },
   "coupon-code-form": {
     "cancel": "Cancel",
     "code": "Code",

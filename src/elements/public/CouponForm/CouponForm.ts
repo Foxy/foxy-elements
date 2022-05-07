@@ -92,6 +92,7 @@ export class CouponForm extends Base<Data> {
       'iron-icon': customElements.get('iron-icon'),
 
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-copy-to-clipboard': customElements.get('foxy-copy-to-clipboard'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-query-builder': customElements.get('foxy-query-builder'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
@@ -126,21 +127,36 @@ export class CouponForm extends Base<Data> {
   private __codesTableColumns: Column<Resource<Rels.CouponCodes>>[] = [
     {
       header: ctx => html`<foxy-i18n lang=${ctx.lang} key="code" ns=${ctx.ns}></foxy-i18n>`,
-      cell: ctx => html`
-        <vaadin-button
-          theme="tertiary contrast"
-          class="p-0"
-          @click=${(evt: CustomEvent) => {
-            const dialog = this.renderRoot.querySelector<FormDialog>('#code-dialog')!;
-            const button = evt.currentTarget as ButtonElement;
+      cell: ctx => {
+        const isDisabled = !this.in('idle') || this.disabledSelector.matches('codes', true);
 
-            dialog.href = ctx.data._links.self.href;
-            dialog.show(button);
-          }}
-        >
-          <span class="font-tnum">${ctx.data.code}</span>
-        </vaadin-button>
-      `,
+        return html`
+          <div class="flex items-center gap-xs">
+            <vaadin-button
+              theme="tertiary-inline contrast"
+              class="p-0"
+              ?disabled=${isDisabled}
+              @click=${(evt: CustomEvent) => {
+                const dialog = this.renderRoot.querySelector<FormDialog>('#code-dialog')!;
+                const button = evt.currentTarget as ButtonElement;
+
+                dialog.href = ctx.data._links.self.href;
+                dialog.show(button);
+              }}
+            >
+              <span class="font-tnum">${ctx.data.code}</span>
+            </vaadin-button>
+
+            <foxy-copy-to-clipboard
+              ?disabled=${isDisabled}
+              text=${ctx.data.code}
+              lang=${ctx.lang}
+              ns="${ctx.ns} copy-to-clipboard"
+            >
+            </foxy-copy-to-clipboard>
+          </div>
+        `;
+      },
     },
     {
       header: ctx => html`<foxy-i18n lang=${ctx.lang} key="date_created" ns=${ctx.ns}></foxy-i18n>`,
@@ -614,7 +630,7 @@ export class CouponForm extends Base<Data> {
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
 
     return html`
-      <div data-testid="rules:url" class="text-xs flex space-x-xs leading-m">
+      <div data-testid="rules:url" class="text-xs flex space-x-xs">
         <span
           class=${classMap({
             'flex-shrink-0 transition-colors': true,
@@ -627,7 +643,7 @@ export class CouponForm extends Base<Data> {
 
         <code
           class=${classMap({
-            'bg-contrast-5 transition-colors monospace truncate rounded px-xs': true,
+            'bg-contrast-5 transition-colors font-lumo truncate rounded px-xs': true,
             'text-secondary': !isDisabled,
             'text-disabled': isDisabled,
           })}
@@ -635,27 +651,13 @@ export class CouponForm extends Base<Data> {
           ${urlParameter}
         </code>
 
-        <button
-          data-testclass="interactive"
-          data-testid="rules:url:copy"
-          class=${classMap({
-            'flex-shrink-0 transition-colors font-medium rounded px-xs': true,
-            'ring-primary-50 bg-primary-10 text-primary': !isDisabled,
-            'text-disabled bg-contrast-5': isDisabled,
-            'focus-outline-none focus-ring-2': !isDisabled,
-            'hover-bg-primary hover-text-primary-contrast': !isDisabled,
-          })}
+        <foxy-copy-to-clipboard
+          text=${urlParameter}
+          lang=${this.lang}
+          ns="${this.ns} copy-to-clipboard"
           ?disabled=${isDisabled}
-          @click=${({ currentTarget }: { currentTarget: HTMLButtonElement }) => {
-            navigator.clipboard
-              .writeText(urlParameter)
-              .then(() => (currentTarget.textContent = this.t('copied')))
-              .catch(() => (currentTarget.textContent = this.t('error')))
-              .then(() => setTimeout(() => (currentTarget.textContent = this.t('copy')), 2000));
-          }}
         >
-          ${this.t('copy')}
-        </button>
+        </foxy-copy-to-clipboard>
       </div>
     `;
   }

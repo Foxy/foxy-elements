@@ -89,14 +89,7 @@
       "default": "Confirm",
       "type": "string"
     },
-    "copied": {
-      "default": "Copied",
-      "type": "string"
-    },
-    "copy": {
-      "default": "Copy",
-      "type": "string"
-    },
+
     "coupon_name_helper_text": {
       "default": "Coupon name is visible to the customers.",
       "type": "string"
@@ -139,10 +132,7 @@
               "$ref": "spinner.json#/properties/loading_error"
             }
           },
-          "required": [
-            "loading_busy",
-            "loading_error"
-          ],
+          "required": ["loading_busy", "loading_error"],
           "additionalProperties": false
         },
         "v8n_required": {
@@ -212,10 +202,7 @@
               "$ref": "spinner.json#/properties/loading_error"
             }
           },
-          "required": [
-            "loading_busy",
-            "loading_error"
-          ],
+          "required": ["loading_busy", "loading_error"],
           "additionalProperties": false
         },
         "type_here": {
@@ -336,10 +323,7 @@
               "$ref": "spinner.json#/properties/loading_error"
             }
           },
-          "required": [
-            "loading_busy",
-            "loading_error"
-          ],
+          "required": ["loading_busy", "loading_error"],
           "additionalProperties": false
         }
       },
@@ -436,13 +420,7 @@
           "$ref": "pagination.json#/properties/previous"
         }
       },
-      "required": [
-        "first",
-        "last",
-        "next",
-        "pagination",
-        "previous"
-      ],
+      "required": ["first", "last", "next", "pagination", "previous"],
       "additionalProperties": false
     },
     "price": {
@@ -665,10 +643,7 @@
           "$ref": "spinner.json#/properties/loading_error"
         }
       },
-      "required": [
-        "loading_busy",
-        "loading_error"
-      ],
+      "required": ["loading_busy", "loading_error"],
       "additionalProperties": false
     },
     "start_date": {
@@ -794,6 +769,9 @@
     "v8n_too_long": {
       "default": "Too long",
       "type": "string"
+    },
+    "copy-to-clipboard": {
+      "$ref": "copy-to-clipboard.json"
     }
   },
   "required": [
@@ -802,45 +780,47 @@
     "allunits_price_percentage_discount_summary",
     "allunits_quantity_amount_discount_summary",
     "allunits_quantity_percentage_discount_summary",
-    "apply_taxes_before_coupon",
     "apply_taxes_before_coupon_explainer",
+    "apply_taxes_before_coupon",
     "block",
     "cancel",
-    "category_restrictions",
     "category_restrictions_helper_text",
+    "category_restrictions",
     "clear_filters",
     "close",
-    "code",
     "code_plural",
-    "combinable",
+    "code",
     "combinable_explainer",
-    "combine_with_category_discounts",
+    "combinable",
     "combine_with_category_discounts_explainer",
-    "combine_with_line_discounts",
+    "combine_with_category_discounts",
     "combine_with_line_discounts_explainer",
+    "combine_with_line_discounts",
     "confirm",
-    "copied",
-    "copy",
+    "copy-to-clipboard",
     "coupon_name_helper_text",
+    "coupon-code-form",
+    "coupon-codes-form",
     "create",
     "custom_discount",
-    "date",
     "date_created",
     "date_modified",
-    "delete",
+    "date",
     "delete_prompt",
+    "delete",
     "description",
     "discount_summary",
     "end_date",
     "filter",
+    "generate-codes-form",
     "generate",
     "import",
     "incremental_price_amount_discount_summary",
     "incremental_price_percentage_discount_summary",
     "incremental_quantity_amount_discount_summary",
     "incremental_quantity_percentage_discount_summary",
-    "multiple_codes_allowed",
     "multiple_codes_allowed_explainer",
+    "multiple_codes_allowed",
     "name",
     "option_plural",
     "ordinal_few",
@@ -849,9 +829,11 @@
     "ordinal_other",
     "ordinal_two",
     "ordinal_zero",
+    "pagination",
     "price",
-    "product_restrictions",
     "product_restrictions_explainer",
+    "product_restrictions",
+    "query-builder",
     "repeat_price_amount_discount_summary",
     "repeat_price_percentage_discount_summary",
     "repeat_quantity_amount_discount_summary",
@@ -859,14 +841,14 @@
     "rule_plural",
     "save",
     "select",
-    "set_time_constraints",
     "set_time_constraints_explainer",
+    "set_time_constraints",
     "single_price_amount_discount_summary",
     "single_price_percentage_discount_summary",
     "single_quantity_amount_discount_summary",
     "single_quantity_percentage_discount_summary",
+    "spinner",
     "start_date",
-    "tier",
     "tier_allunits",
     "tier_by",
     "tier_if",
@@ -874,6 +856,7 @@
     "tier_repeat",
     "tier_single",
     "tier_then",
+    "tier",
     "type_here",
     "undo_cancel",
     "undo_confirm",
@@ -882,26 +865,20 @@
     "unlimited",
     "url_parameter",
     "used_codes",
-    "uses_per_coupon",
-    "uses_per_coupon_code",
-    "uses_per_coupon_code_summary",
     "uses_per_coupon_code_summary_0",
     "uses_per_coupon_code_summary_plural",
-    "uses_per_coupon_summary",
+    "uses_per_coupon_code_summary",
+    "uses_per_coupon_code",
     "uses_per_coupon_summary_0",
     "uses_per_coupon_summary_plural",
-    "uses_per_customer",
-    "uses_per_customer_summary",
+    "uses_per_coupon_summary",
+    "uses_per_coupon",
     "uses_per_customer_summary_0",
     "uses_per_customer_summary_plural",
+    "uses_per_customer_summary",
+    "uses_per_customer",
     "v8n_required",
-    "v8n_too_long",
-    "coupon-code-form",
-    "coupon-codes-form",
-    "generate-codes-form",
-    "pagination",
-    "query-builder",
-    "spinner"
+    "v8n_too_long"
   ],
   "additionalProperties": false
 }
