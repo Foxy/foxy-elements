@@ -38,6 +38,7 @@ export { GiftCardCodesForm } from './GiftCardCodesForm/GiftCardCodesForm';
 export { GiftCardForm } from './GiftCardForm/GiftCardForm';
 export { I18n } from './I18n/I18n';
 export { ItemCard } from './ItemCard/ItemCard';
+export { ItemForm } from './ItemForm/ItemForm';
 export { ItemOptionCard } from './ItemOptionCard/ItemOptionCard';
 export { ItemOptionForm } from './ItemOptionForm/ItemOptionForm';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
