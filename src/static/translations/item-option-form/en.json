@@ -1,0 +1,43 @@
+{
+  "name": {
+    "label": "Name",
+    "helper_text": "",
+    "placeholder": "Color",
+    "v8n_required": "Name is required",
+    "v8n_too_long": "Name mustn't exceed 100 characters"
+  },
+  "value": {
+    "label": "Value",
+    "helper_text": "",
+    "placeholder": "Red",
+    "v8n_required": "Value is required",
+    "v8n_too_long": "Value mustn't exceed 1024 characters"
+  },
+  "price-mod": {
+    "label": "Price",
+    "helper_text": "Same currency as item",
+    "placeholder": "10"
+  },
+  "weight-mod": {
+    "label": "Weight",
+    "helper_text": "Arbitrary units",
+    "placeholder": "5"
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  }
+}
