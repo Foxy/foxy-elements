@@ -44,6 +44,7 @@ export { ItemsForm, Item } from './ItemsForm/index';
 export { NucleonElement } from './NucleonElement/index';
 export { Pagination } from './Pagination/index';
 export { PaymentCard } from './PaymentCard/index';
+export { ShipmentCard } from './ShipmentCard/index';
 export { PaymentMethodCard } from './PaymentMethodCard/index';
 export { QueryBuilder } from './QueryBuilder/index';
 export { SignInForm } from './SignInForm/index';
