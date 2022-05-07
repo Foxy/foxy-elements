@@ -11,6 +11,7 @@ export { CopyToClipboard } from './CopyToClipboard/CopyToClipboard';
 export { CouponCard } from './CouponCard/CouponCard';
 export { CouponCodeForm } from './CouponCodeForm/CouponCodeForm';
 export { CouponCodesForm } from './CouponCodesForm/CouponCodesForm';
+export { CouponDetailCard } from './CouponDetailCard/index';
 export { CouponForm } from './CouponForm/CouponForm';
 export { Customer } from './Customer/Customer';
 export { CustomerApi } from './CustomerApi/CustomerApi';
