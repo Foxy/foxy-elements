@@ -65,6 +65,7 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
             readonlycontrols=\${ctx.readonlyControls.toString()}
             hiddencontrols=\${ctx.hiddenControls.toString()}
             data-testclass="items"
+            related=\${JSON.stringify(ctx.related)}
             parent=\${ctx.parent}
             group=\${ctx.group}
             href=\${ctx.href}
@@ -126,6 +127,7 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
           disabled: this.disabled,
           readonly: this.readonly,
           previous: items[index - 1]?.data ?? null,
+          related: this.related,
           hidden: this.hidden,
           parent: this.href,
           spread: spread,
