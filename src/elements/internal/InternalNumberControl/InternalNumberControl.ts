@@ -1,7 +1,9 @@
-import { NumberFieldElement } from '@vaadin/vaadin-text-field/vaadin-number-field';
-import { TemplateResult, html } from 'lit-element';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import type { NumberFieldElement } from '@vaadin/vaadin-text-field/vaadin-number-field';
+import type { TemplateResult } from 'lit-element';
+
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-element';
 
 export class InternalNumberControl extends InternalEditableControl {
   renderControl(): TemplateResult {

@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-number-field';
 import '../InternalEditableControl/index';
-import { InternalNumberControl } from './InternalNumberControl';
+import { InternalNumberControl as Control } from './InternalNumberControl';
 
-customElements.define('foxy-internal-number-control', InternalNumberControl);
+customElements.define('foxy-internal-number-control', Control);
 
-export { InternalNumberControl };
+export { Control as InternalNumberControl };
