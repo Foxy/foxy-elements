@@ -37,6 +37,7 @@ export class InternalDateControl extends InternalEditableControl {
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
         .value=${value}
+        @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as DatePickerElement;
           const fieldValue = field.value;
