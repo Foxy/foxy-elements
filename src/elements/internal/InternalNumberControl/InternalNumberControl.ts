@@ -17,7 +17,7 @@ export class InternalNumberControl extends InternalEditableControl {
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
-        .value=${this._value}
+        .value=${String(this._value)}
         has-controls
         @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         @change=${(evt: CustomEvent) => {
@@ -27,5 +27,13 @@ export class InternalNumberControl extends InternalEditableControl {
       >
       </vaadin-number-field>
     `;
+  }
+
+  protected get _value(): number {
+    return (super._value as number | undefined) ?? 0;
+  }
+
+  protected set _value(newValue: number) {
+    super._value = newValue as unknown | undefined;
   }
 }
