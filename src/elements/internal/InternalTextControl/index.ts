@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 import '../InternalEditableControl/index';
-import { InternalTextControl } from './InternalTextControl';
+import { InternalTextControl as Control } from './InternalTextControl';
 
-customElements.define('foxy-internal-text-control', InternalTextControl);
+customElements.define('foxy-internal-text-control', Control);
 
-export { InternalTextControl };
+export { Control as InternalTextControl };
