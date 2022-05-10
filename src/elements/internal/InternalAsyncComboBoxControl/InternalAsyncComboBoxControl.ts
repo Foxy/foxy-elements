@@ -26,21 +26,25 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
   }
 
   /** Same as `itemLabelPath` property of Vaadin's `ComboBoxElement`. */
-  itemLabelPath = '';
+  itemLabelPath: string | null = null;
 
   /** Same as `itemValuePath` property of Vaadin's `ComboBoxElement`. */
-  itemValuePath = '';
+  itemValuePath: string | null = null;
 
   /** URL of the first page of the hAPI collection serving as a source for items. */
-  first = '';
+  first: string | null = null;
 
   renderControl(): TemplateResult {
     const dataProvider: ComboBoxDataProvider = async (params, callback) => {
-      const url = new URL(this.first);
+      if (!this.first) return callback([], 0);
 
+      const url = new URL(this.first);
       url.searchParams.set('offset', String(params.page * params.pageSize));
       url.searchParams.set('limit', String(params.pageSize));
-      if (params.filter) url.searchParams.set(this.itemLabelPath, `*${params.filter}*`);
+
+      if (params.filter && this.itemLabelPath) {
+        url.searchParams.set(this.itemLabelPath, `*${params.filter}*`);
+      }
 
       const response = await new API(this).fetch(url.toString());
       if (!response.ok) throw new Error(await response.text());
@@ -53,8 +57,8 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
 
     return html`
       <vaadin-combo-box
-        item-value-path=${this.itemValuePath}
-        item-label-path=${this.itemLabelPath}
+        item-value-path=${ifDefined(this.itemValuePath ?? undefined)}
+        item-label-path=${ifDefined(this.itemLabelPath ?? undefined)}
         error-message=${ifDefined(this._errorMessage)}
         item-id-path="_links.self.href"
         helper-text=${this.helperText}
