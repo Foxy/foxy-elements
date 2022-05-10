@@ -1,9 +1,12 @@
-import { html, TemplateResult } from 'lit-html';
-import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
-import { ComboBoxDataProvider, ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { API } from '../../public/NucleonElement/API';
+import type { ComboBoxDataProvider, ComboBoxElement } from '@vaadin/vaadin-combo-box';
+import type { TemplateResult } from 'lit-html';
+
 import { PropertyDeclarations } from 'lit-element';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
+
+import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { API } from '../../public/NucleonElement/API';
 
 export class InternalAsyncComboBoxControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {

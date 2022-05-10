@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-combo-box';
 import '../InternalEditableControl/index';
-import { InternalAsyncComboBoxControl } from './InternalAsyncComboBoxControl';
+import { InternalAsyncComboBoxControl as Control } from './InternalAsyncComboBoxControl';
 
-customElements.define('foxy-internal-async-combo-box-control', InternalAsyncComboBoxControl);
+customElements.define('foxy-internal-async-combo-box-control', Control);
 
-export { InternalAsyncComboBoxControl };
+export { Control as InternalAsyncComboBoxControl };
