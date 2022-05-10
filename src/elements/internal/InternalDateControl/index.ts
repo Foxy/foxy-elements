@@ -1,7 +1,7 @@
 import '@vaadin/vaadin-date-picker';
 import '../InternalEditableControl/index';
-import { InternalDateControl } from './InternalDateControl';
+import { InternalDateControl as Control } from './InternalDateControl';
 
-customElements.define('foxy-internal-date-control', InternalDateControl);
+customElements.define('foxy-internal-date-control', Control);
 
-export { InternalDateControl };
+export { Control as InternalDateControl };

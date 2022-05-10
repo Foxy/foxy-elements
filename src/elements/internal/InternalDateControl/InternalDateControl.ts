@@ -1,8 +1,11 @@
-import { DatePickerElement } from '@vaadin/vaadin-date-picker';
-import { TemplateResult, html, PropertyDeclarations } from 'lit-element';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { serializeDate } from '../../../utils/serialize-date';
+import type { TemplateResult, PropertyDeclarations } from 'lit-element';
+import type { DatePickerElement } from '@vaadin/vaadin-date-picker';
+
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { serializeDate } from '../../../utils/serialize-date';
+import { parseDate } from '../../../utils/parse-date';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-element';
 
 export class InternalDateControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
