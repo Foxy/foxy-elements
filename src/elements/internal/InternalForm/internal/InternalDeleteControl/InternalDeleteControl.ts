@@ -1,9 +1,9 @@
-import type { InternalConfirmDialog } from '../InternalConfirmDialog/InternalConfirmDialog';
-import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import type { InternalConfirmDialog } from '../../../InternalConfirmDialog/InternalConfirmDialog';
+import type { DialogHideEvent } from '../../../../private/Dialog/DialogHideEvent';
 import type { TemplateResult } from 'lit-element';
 import type { ButtonElement } from '@vaadin/vaadin-button';
 
-import { InternalControl } from '../InternalControl/InternalControl';
+import { InternalControl } from '../../../InternalControl/InternalControl';
 import { html } from 'lit-element';
 
 export class InternalDeleteControl extends InternalControl {

@@ -1,7 +1,7 @@
 import { css, CSSResultArray } from 'lit-element';
 import { html, TemplateResult } from 'lit-html';
 import { get } from 'lodash-es';
-import { InternalControl } from '../InternalControl/InternalControl';
+import { InternalControl } from '../../../InternalControl/InternalControl';
 
 export class InternalTimestampsControl extends InternalControl {
   static get styles(): CSSResultArray {

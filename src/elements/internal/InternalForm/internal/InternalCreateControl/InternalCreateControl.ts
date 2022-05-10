@@ -1,6 +1,6 @@
 import type { TemplateResult } from 'lit-element';
 
-import { InternalControl } from '../InternalControl/InternalControl';
+import { InternalControl } from '../../../InternalControl/InternalControl';
 import { html } from 'lit-element';
 
 export class InternalCreateControl extends InternalControl {
