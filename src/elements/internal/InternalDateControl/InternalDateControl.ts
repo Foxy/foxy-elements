@@ -30,6 +30,7 @@ export class InternalDateControl extends InternalEditableControl {
       <vaadin-date-picker
         error-message=${ifDefined(this._errorMessage)}
         placeholder=${this.placeholder}
+        helper-text=${this.helperText}
         label=${this.label}
         class="w-full"
         ?disabled=${this.disabled}
