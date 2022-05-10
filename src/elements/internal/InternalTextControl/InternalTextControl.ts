@@ -5,6 +5,12 @@ import { InternalEditableControl } from '../InternalEditableControl/InternalEdit
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-element';
 
+/**
+ * Internal control displaying a basic text box.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-text-control
+ */
 export class InternalTextControl extends InternalEditableControl {
   renderControl(): TemplateResult {
     return html`
@@ -26,5 +32,13 @@ export class InternalTextControl extends InternalEditableControl {
       >
       </vaadin-text-field>
     `;
+  }
+
+  protected get _value(): string {
+    return (super._value as string | undefined) ?? '';
+  }
+
+  protected set _value(newValue: string) {
+    super._value = newValue as unknown | undefined;
   }
 }
