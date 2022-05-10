@@ -5,6 +5,12 @@ import { InternalEditableControl } from '../InternalEditableControl/InternalEdit
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-element';
 
+/**
+ * Internal control displaying a basic number box.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-number-control
+ */
 export class InternalNumberControl extends InternalEditableControl {
   renderControl(): TemplateResult {
     return html`
