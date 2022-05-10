@@ -7,6 +7,12 @@ import { parseDate } from '../../../utils/parse-date';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-element';
 
+/**
+ * Internal control displaying a basic date picker box.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-date-control
+ */
 export class InternalDateControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
@@ -15,6 +21,7 @@ export class InternalDateControl extends InternalEditableControl {
     };
   }
 
+  /** Date format. If `unix`, expects and outputs a UNIX timestamp (number), otherwise defaults to ISO 8601 date. */
   format: 'unix' | null = null;
 
   renderControl(): TemplateResult {
