@@ -8,6 +8,13 @@ import { html } from 'lit-html';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { API } from '../../public/NucleonElement/API';
 
+/**
+ * Internal control displaying a combo box where items are loaded from
+ * a hAPI collection.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-async-combo-box-control
+ */
 export class InternalAsyncComboBoxControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
@@ -18,10 +25,13 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
     };
   }
 
+  /** Same as `itemLabelPath` property of Vaadin's `ComboBoxElement`. */
   itemLabelPath = '';
 
+  /** Same as `itemValuePath` property of Vaadin's `ComboBoxElement`. */
   itemValuePath = '';
 
+  /** URL of the first page of the hAPI collection serving as a source for items. */
   first = '';
 
   renderControl(): TemplateResult {
