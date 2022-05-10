@@ -15,13 +15,13 @@ export class InternalDateControl extends InternalEditableControl {
     };
   }
 
-  format = 'unix';
+  format: 'unix' | null = null;
 
   renderControl(): TemplateResult {
     let value: string;
 
     if (this.format === 'unix') {
-      value = serializeDate(new Date((this._value as number) ?? 0));
+      value = serializeDate(new Date(((this._value as number) ?? 0) * 1000));
     } else {
       value = this._value as string;
     }
@@ -40,10 +40,11 @@ export class InternalDateControl extends InternalEditableControl {
         @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as DatePickerElement;
-          const fieldValue = field.value;
 
           if (this.format === 'unix') {
-            this.nucleon?.edit({ [this.property]: new Date(fieldValue).getTime() });
+            this._value = Math.floor((parseDate(field.value)?.getTime() ?? 0) / 1000);
+          } else {
+            this._value = field.value;
           }
         }}
       >
