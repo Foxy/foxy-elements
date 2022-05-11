@@ -5,6 +5,12 @@ import { InternalEditableControl } from '../InternalEditableControl/InternalEdit
 import { parseDuration } from '../../../utils/parse-duration';
 import { css, html } from 'lit-element';
 
+/**
+ * Internal control displaying a custom field for frequency input.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-frequency-control
+ */
 export class InternalFrequencyControl extends InternalEditableControl {
   static get styles(): CSSResultArray {
     return [
