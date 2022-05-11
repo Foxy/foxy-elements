@@ -1,16 +1,12 @@
-import type { HALJSONResource } from '../../public/NucleonElement/types';
+import type { HALJSONResource as Data } from '../../public/NucleonElement/types';
 import type { TemplateResult } from 'lit-html';
 
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { TranslatableMixin } from '../../../mixins/translatable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
-const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
-
-export class InternalCard<TData extends HALJSONResource> extends Base<TData> {
+export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElement)<TData> {
   renderBody(): TemplateResult {
     return html``;
   }
@@ -35,10 +31,9 @@ export class InternalCard<TData extends HALJSONResource> extends Base<TData> {
         >
           <foxy-spinner
             layout=${this.in('busy') ? 'no-label' : 'horizontal'}
-            class="m-auto"
             state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
-            lang=${this.lang}
-            ns="${this.ns} spinner"
+            class="m-auto"
+            infer="spinner"
           >
           </foxy-spinner>
         </div>

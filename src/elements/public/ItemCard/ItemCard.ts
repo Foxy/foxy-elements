@@ -8,8 +8,12 @@ import { Resource } from '@foxy.io/sdk/core';
 import { Rels } from '@foxy.io/sdk/backend';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 
-export class ItemCard extends TranslatableMixin(InternalCard, 'item-card')<Data> {
+const NS = 'item-card';
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
+
+export class ItemCard extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -60,7 +64,7 @@ export class ItemCard extends TranslatableMixin(InternalCard, 'item-card')<Data>
                     currencyDisplay: this.__currencyDisplay,
                   })}
                   key="price"
-                  infer
+                  infer=""
                 >
                 </foxy-i18n>
 
@@ -72,7 +76,7 @@ export class ItemCard extends TranslatableMixin(InternalCard, 'item-card')<Data>
                     currencyDisplay: this.__currencyDisplay,
                   })}
                   key="price"
-                  infer
+                  infer=""
                 >
                 </foxy-i18n>
               </div>
@@ -109,7 +113,7 @@ export class ItemCard extends TranslatableMixin(InternalCard, 'item-card')<Data>
                                     currencyDisplay: this.__currencyDisplay,
                                   })}
                                   key="price"
-                                  infer
+                                  infer=""
                                 >
                                 </foxy-i18n>
                               </div>
@@ -123,7 +127,7 @@ export class ItemCard extends TranslatableMixin(InternalCard, 'item-card')<Data>
                                   : 'text-error'} rounded px-xs"
                               >
                                 ${option.weight_mod}
-                                <foxy-i18n key="wgt" infer></foxy-i18n>
+                                <foxy-i18n key="wgt" infer=""></foxy-i18n>
                               </div>
                             `
                           : ''}

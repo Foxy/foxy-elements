@@ -9,8 +9,12 @@ import { Rels } from '@foxy.io/sdk/backend';
 import { PropertyDeclarations } from 'lit-element';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { FormRenderer } from '../FormDialog/types';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 
-export class ShipmentCard extends TranslatableMixin(InternalCard, 'shipment-card')<Data> {
+const NS = 'shipment-card';
+const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
+
+export class ShipmentCard extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -90,7 +94,7 @@ export class ShipmentCard extends TranslatableMixin(InternalCard, 'shipment-card
                   currencyDisplay: this.__currencyDisplay,
                 })}
                 key="price"
-                infer
+                infer=""
               >
               </foxy-i18n>
             </span>
@@ -103,7 +107,7 @@ export class ShipmentCard extends TranslatableMixin(InternalCard, 'shipment-card
           limit="5"
           item="foxy-item-card"
           open
-          .form=${itemFormRenderer}
+          .form=${itemFormRenderer as any}
         >
         </foxy-internal-collection-card>
       </div>
