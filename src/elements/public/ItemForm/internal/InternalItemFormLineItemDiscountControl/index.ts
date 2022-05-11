@@ -1,5 +1,5 @@
 import '../../../../internal/InternalAsyncComboBoxControl/index';
-import '../../../../internal/InternalCollapsibleCard/index';
+import '../../../../internal/InternalDetailsControl/index';
 import '../../../../internal/InternalTextControl/index';
 import '../../../../internal/InternalControl/index';
 import '../../../DiscountBuilder/index';

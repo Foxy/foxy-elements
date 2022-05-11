@@ -1,14 +1,16 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 
-import { html, LitElement } from 'lit-element';
-import { InferrableMixin } from '../../../mixins/inferrable';
-import { ThemeableMixin } from '../../../mixins/themeable';
-import { TranslatableMixin } from '../../../mixins/translatable';
+import { InternalControl } from '../InternalControl/InternalControl';
 import { classMap } from '../../../utils/class-map';
+import { html } from 'lit-element';
 
-export class InternalCollapsibleCard extends ThemeableMixin(
-  TranslatableMixin(InferrableMixin(LitElement))
-) {
+/**
+ * Internal details/summary control.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-details-control
+ */
+export class InternalDetailsControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -17,11 +19,13 @@ export class InternalCollapsibleCard extends ThemeableMixin(
     };
   }
 
-  summary = '';
+  /** i18n key for summary text. */
+  summary: string | null = null;
 
+  /** Same as `HTMLDetailsElement['open']`. */
   open = false;
 
-  render(): TemplateResult {
+  renderControl(): TemplateResult {
     return html`
       <details
         class="w-full border border-contrast-10 rounded-t-l rounded-b-l"
@@ -42,8 +46,8 @@ export class InternalCollapsibleCard extends ThemeableMixin(
             <div class="flex items-center flex-1">
               <foxy-i18n
                 class="flex items-center text-xs tracking-wide uppercase font-bold text-body"
-                key=${this.summary}
-                infer
+                infer=""
+                key=${this.summary ?? ''}
               >
               </foxy-i18n>
 

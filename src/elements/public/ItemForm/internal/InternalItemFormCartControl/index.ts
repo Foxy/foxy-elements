@@ -1,4 +1,4 @@
-import '../../../../internal/InternalCollapsibleCard/index';
+import '../../../../internal/InternalDetailsControl/index';
 import '../../../../internal/InternalIntegerControl/index';
 import '../../../../internal/InternalTextControl/index';
 import '../../../../internal/InternalDateControl/index';

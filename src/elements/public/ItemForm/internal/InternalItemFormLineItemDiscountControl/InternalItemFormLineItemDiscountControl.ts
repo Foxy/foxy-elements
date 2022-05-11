@@ -12,7 +12,7 @@ export class InternalItemFormLineItemDiscountControl extends InternalControl {
 
   renderControl(): TemplateResult {
     return html`
-      <foxy-internal-collapsible-card summary="title" infer>
+      <foxy-internal-details-control summary="title" infer>
         <div class="space-y-m p-m">
           <foxy-internal-async-combo-box-control
             item-value-path="_links.self.href"
@@ -44,7 +44,7 @@ export class InternalItemFormLineItemDiscountControl extends InternalControl {
           >
           </foxy-discount-builder>
         </div>
-      </foxy-internal-collapsible-card>
+      </foxy-internal-details-control>
     `;
   }
 }

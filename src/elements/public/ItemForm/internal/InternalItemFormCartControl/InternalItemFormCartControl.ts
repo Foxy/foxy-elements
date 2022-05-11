@@ -8,7 +8,7 @@ export class InternalItemFormCartControl extends InternalControl {
 
   renderControl(): TemplateResult {
     return html`
-      <foxy-internal-collapsible-card summary="title" lang=${this.lang} ns=${this.ns}>
+      <foxy-internal-details-control summary="title" lang=${this.lang} ns=${this.ns}>
         <div class="grid grid-cols-2 gap-m p-m">
           <foxy-internal-date-control class="col-span-2" infer="expires" format="unix">
           </foxy-internal-date-control>
@@ -17,7 +17,7 @@ export class InternalItemFormCartControl extends InternalControl {
           <foxy-internal-integer-control infer="quantity-min"></foxy-internal-integer-control>
           <foxy-internal-integer-control infer="quantity-max"></foxy-internal-integer-control>
         </div>
-      </foxy-internal-collapsible-card>
+      </foxy-internal-details-control>
     `;
   }
 }

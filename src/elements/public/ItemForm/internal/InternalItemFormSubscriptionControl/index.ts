@@ -1,5 +1,5 @@
 import '../../../../internal/InternalFrequencyControl/index';
-import '../../../../internal/InternalCollapsibleCard/index';
+import '../../../../internal/InternalDetailsControl/index';
 import '../../../../internal/InternalDateControl/index';
 import '../../../SubscriptionCard/index';
 import '../../../SubscriptionForm/index';

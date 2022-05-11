@@ -78,7 +78,7 @@ export class InternalCollectionCard extends InternalControl {
     };
 
     return html`
-      <foxy-internal-collapsible-card
+      <foxy-internal-details-control
         summary="title"
         infer
         ?open=${this.open}
@@ -131,7 +131,7 @@ export class InternalCollectionCard extends InternalControl {
           >
           </foxy-collection-page>
         </foxy-pagination>
-      </foxy-internal-collapsible-card>
+      </foxy-internal-details-control>
     `;
   }
 }

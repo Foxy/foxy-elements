@@ -1,4 +1,4 @@
-import '../../../../internal/InternalCollapsibleCard/index';
+import '../../../../internal/InternalDetailsControl/index';
 import '../../../../internal/InternalControl/index';
 
 import '../../../CustomerCard/index';
