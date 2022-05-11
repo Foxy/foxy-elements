@@ -60,55 +60,50 @@ export class InternalFrequencyControl extends InternalEditableControl {
     },
   };
 
-  private __getItems = memoize((value: string) => {
-    const count = parseDuration(value).count;
-
-    return [
-      { value: 'd', label: this.t('day', { count }) },
-      { value: 'w', label: this.t('week', { count }) },
-      { value: 'm', label: this.t('month', { count }) },
-      { value: 'y', label: this.t('year', { count }) },
-    ];
-  });
-
   renderControl(): TemplateResult {
     const value = (this._value ?? '') as string;
+    const count = parseDuration(value).count;
 
     return html`
       <vaadin-custom-field
-        data-testid="field"
-        .i18n=${this.__i18n}
-        .label=${this.label}
-        .value=${value}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
-        .errorMessage=${this._errorMessage}
         .checkValidity=${this._checkValidity}
+        .errorMessage=${this._errorMessage ?? ''}
+        .helperText=${this.helperText}
+        .label=${this.label}
+        .value=${value}
+        .i18n=${this.__i18n}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as CustomFieldElement;
           this._value = field.value as string;
         }}
       >
         <vaadin-integer-field
-          data-testid="value"
-          min="1"
           max="999"
-          has-controls
+          min="1"
           prevent-invalid-input
-          ?invalid=${!!this._error}
+          has-controls
           ?disabled=${this.disabled}
           ?readonly=${this.readonly}
+          ?invalid=${!this._checkValidity()}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         >
         </vaadin-integer-field>
 
         <vaadin-combo-box
-          data-testid="units"
           item-value-path="value"
           item-label-path="label"
-          .items=${this.__getItems(value)}
-          ?invalid=${!!this._error}
           ?disabled=${this.disabled}
           ?readonly=${this.readonly}
+          ?invalid=${!this._checkValidity()}
+          .items=${[
+            { value: 'd', label: this.t('day', { count }) },
+            { value: 'w', label: this.t('week', { count }) },
+            { value: 'm', label: this.t('month', { count }) },
+            { value: 'y', label: this.t('year', { count }) },
+          ]}
+          @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         >
         </vaadin-combo-box>
       </vaadin-custom-field>
@@ -117,10 +112,7 @@ export class InternalFrequencyControl extends InternalEditableControl {
 
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
-
     const field = this.renderRoot.firstElementChild as CustomFieldElement;
-    const value = this.nucleon?.form[this.property];
-
-    if (field.value !== value) field.value = value;
+    if (field.value !== this._value) field.value = this._value as string;
   }
 }
