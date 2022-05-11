@@ -1,9 +1,9 @@
-import { CSSResultArray, TemplateResult, css, html } from 'lit-element';
 import type { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
+import type { CSSResultArray, TemplateResult } from 'lit-element';
 
-import memoize from 'lodash-es/memoize';
-import { parseDuration } from '../../../utils/parse-duration';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { parseDuration } from '../../../utils/parse-duration';
+import { css, html } from 'lit-element';
 
 export class InternalFrequencyControl extends InternalEditableControl {
   static get styles(): CSSResultArray {
