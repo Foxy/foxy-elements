@@ -6,7 +6,17 @@ import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
+/**
+ * Internal base element for cards.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-card
+ */
 export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElement)<TData> {
+  /**
+   * Invoked together with `.render()` to obtain a template for card contents.
+   * When extending `InternalCard`, prefer overriding this method to `.render()`.
+   */
   renderBody(): TemplateResult {
     return html``;
   }
