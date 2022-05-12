@@ -2,13 +2,12 @@ import type { HALJSONResource } from '../../public/NucleonElement/types';
 import type { TemplateResult } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { TranslatableMixin } from '../../../mixins/translatable';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
-const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
+const Base = ConfigurableMixin(ThemeableMixin(NucleonElement));
 
 export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
   renderBody(): TemplateResult {
