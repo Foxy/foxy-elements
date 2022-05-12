@@ -1,0 +1,8 @@
+{
+  "date": "{{value, date}}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load",
+    "loading_empty": "No data"
+  }
+}
