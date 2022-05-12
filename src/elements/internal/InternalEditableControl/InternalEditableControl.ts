@@ -83,7 +83,7 @@ export class InternalEditableControl extends InternalControl {
   }
 
   protected get _errorMessage(): string | undefined {
-    return this._error ? this.t(this._error.substring(0, this.v8nPrefix.length)) : undefined;
+    return this._error ? this.t(this._error.substring(this.v8nPrefix.length)) : undefined;
   }
 
   protected get _checkValidity(): () => boolean {
