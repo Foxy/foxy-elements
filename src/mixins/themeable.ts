@@ -51,6 +51,8 @@ export const ThemeableMixin = <TBase extends Base>(
           vaadin-custom-field,
           vaadin-integer-field,
           vaadin-password-field,
+          vaadin-checkbox-group,
+          vaadin-radio-group,
           vaadin-combo-box::part(text-field) {
             padding-top: 0;
             padding-bottom: 0;
