@@ -1,8 +1,9 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 
-import { InternalControl } from '../InternalControl/InternalControl';
+import { html, LitElement } from 'lit-element';
+import { InferrableMixin } from '../../../mixins/inferrable';
+import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
-import { html } from 'lit-element';
 
 /**
  * Internal details/summary control.
@@ -10,7 +11,7 @@ import { html } from 'lit-element';
  * @since 1.17.0
  * @tag foxy-internal-details-control
  */
-export class InternalDetailsControl extends InternalControl {
+export class InternalDetailsControl extends ThemeableMixin(InferrableMixin(LitElement)) {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -25,7 +26,7 @@ export class InternalDetailsControl extends InternalControl {
   /** Same as `HTMLDetailsElement['open']`. */
   open = false;
 
-  renderControl(): TemplateResult {
+  render(): TemplateResult {
     return html`
       <details
         class="w-full border border-contrast-10 rounded-t-l rounded-b-l"
