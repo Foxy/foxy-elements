@@ -23,7 +23,11 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
 
   render(): TemplateResult {
     return html`
-      <div aria-busy=${this.in('busy')} aria-live="polite" class="relative">
+      <div
+        aria-busy=${this.in('busy')}
+        aria-live="polite"
+        class="relative leading-m text-body text-m font-lumo"
+      >
         <div
           class=${classMap({
             'transition duration-500 ease-in-out': true,
