@@ -65,3 +65,4 @@ export { TransactionsTable } from './TransactionsTable/index';
 export { UserForm } from './UserForm/index';
 export { UsersTable } from './UsersTable/index';
 export { WebhookCard } from './WebhookCard/index';
+export { WebhookStatusCard } from './WebhookStatusCard/index';
