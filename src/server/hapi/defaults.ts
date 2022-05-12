@@ -596,4 +596,41 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  webhooks: query => ({
+    id: increment('webhooks'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    format: 'json',
+    version: 2,
+    name: '',
+    url: '',
+    query: '',
+    encryption_key: '',
+    event_resource: 'transaction',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  webhook_statuses: query => ({
+    id: increment('webhook_statuses'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    webhook_id: parseInt(query.get('webhook_id') ?? '0'),
+    resource_id: parseInt(query.get('resource_id') ?? '0'),
+    resource_type: 'transaction',
+    status: 'pending',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  webhook_logs: query => ({
+    id: increment('webhook_logs'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    webhook_id: parseInt(query.get('webhook_id') ?? '0'),
+    resource_id: parseInt(query.get('resource_id') ?? '0'),
+    resource_type: 'transaction',
+    response_body: '',
+    response_code: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };

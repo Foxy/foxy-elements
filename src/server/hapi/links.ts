@@ -272,4 +272,23 @@ export const links: Links = {
     'fx:customer': { href: `./customers/${customer_id}` },
     'fx:customer_address': { href: `./customer_addresses/${customer_address_id}` },
   }),
+
+  webhooks: ({ id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:webhooks': { href: `./webhooks?store_id=${store_id}` },
+    'fx:statuses': { href: `./webhook_statuses?webhook_id=${id}` },
+    'fx:logs': { href: `./webhook_logs?webhook_id=${id}` },
+  }),
+
+  webhook_statuses: ({ store_id, webhook_id, resource_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:webhook': { href: `./webhooks${webhook_id}` },
+    'fx:resource': { href: `./transactions/${resource_id}` },
+  }),
+
+  webhook_logs: ({ store_id, webhook_id, resource_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:webhook': { href: `./webhooks${webhook_id}` },
+    'fx:resource': { href: `./transactions/${resource_id}` },
+  }),
 };

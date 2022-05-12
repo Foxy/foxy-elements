@@ -891,4 +891,47 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2015-04-15T08:46:39-0700',
     },
   ],
+
+  webhooks: [
+    {
+      id: 0,
+      store_id: 0,
+      format: 'json',
+      version: 2,
+      name: 'My JSON endpoint',
+      url: 'https://example.com',
+      query: 'zoom=items',
+      encryption_key: 'HNL978XVXXCM66DM5N2T78D5MT66BC6D',
+      event_resource: 'transaction',
+      date_created: '2020-10-28T07:03:19-0700',
+      date_modified: '2020-10-28T08:45:46-0700',
+    },
+  ],
+
+  webhook_statuses: [
+    {
+      id: 0,
+      store_id: 0,
+      webhook_id: 0,
+      resource_id: 0,
+      resource_type: 'transaction',
+      status: 'pending',
+      date_created: '2020-10-28T07:03:19-0700',
+      date_modified: '2020-10-28T08:45:46-0700',
+    },
+  ],
+
+  webhook_logs: [
+    {
+      id: 0,
+      store_id: 0,
+      webhook_id: 0,
+      resource_id: 0,
+      resource_type: 'transaction',
+      response_body: JSON.stringify({ status: 'OK', timestamp: Date.now() }),
+      response_code: '200',
+      date_created: '2020-10-28T07:03:19-0700',
+      date_modified: '2020-10-28T08:45:46-0700',
+    },
+  ],
 });
