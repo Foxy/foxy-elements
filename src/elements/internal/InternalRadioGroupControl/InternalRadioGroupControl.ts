@@ -28,7 +28,7 @@ export class InternalRadioGroupControl extends InternalEditableControl {
         theme=${ifDefined(this.theme ?? undefined)}
         ?disabled=${this.disabled || this.readonly}
         .checkValidity=${this._checkValidity}
-        .value=${String(this._value)}
+        .value=${this._value as string | null}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as RadioGroupElement;
           this._value = field.value;
