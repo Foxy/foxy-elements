@@ -11,7 +11,7 @@ import { classMap } from '../../../utils/class-map';
  * @since 1.17.0
  * @tag foxy-internal-details
  */
-export class InternalDetailsControl extends ThemeableMixin(InferrableMixin(LitElement)) {
+export class InternalDetails extends ThemeableMixin(InferrableMixin(LitElement)) {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,

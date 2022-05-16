@@ -1,6 +1,6 @@
 import './index';
 
-import { InternalDetailsControl as Control } from './InternalDetails';
+import { InternalDetails as Control } from './InternalDetails';
 import { expect, fixture, html } from '@open-wc/testing';
 import { LitElement } from 'lit-element';
 import { I18n } from '../../public/I18n/I18n';
