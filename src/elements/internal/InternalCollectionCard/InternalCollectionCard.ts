@@ -80,7 +80,7 @@ export class InternalCollectionCard extends InternalControl {
     return html`
       <foxy-internal-details
         summary="title"
-        infer
+        infer=""
         ?open=${this.open}
         @toggle=${(evt: Event) => {
           this.open = (evt.currentTarget as InternalCollectionCard).open;
@@ -89,12 +89,12 @@ export class InternalCollectionCard extends InternalControl {
         ${this.form
           ? html`
               <foxy-form-dialog
-                related=${JSON.stringify(this.related)}
                 parent=${first}
                 group=${ifDefined(this.nucleon?.group)}
                 infer="dialog"
                 id="form"
-                .form=${this.form}
+                .related=${this.related}
+                .form=${this.form as any}
               >
               </foxy-form-dialog>
 
@@ -123,11 +123,11 @@ export class InternalCollectionCard extends InternalControl {
 
         <foxy-pagination class="px-m pb-s" first=${first} infer="pagination">
           <foxy-collection-page
-            related=${JSON.stringify(this.related)}
             class="-mx-m block divide-y divide-contrast-10 mb-s"
             group=${ifDefined(this.nucleon?.group)}
             infer="card"
-            .item=${itemRenderer}
+            .related=${this.related}
+            .item=${itemRenderer as any}
           >
           </foxy-collection-page>
         </foxy-pagination>
