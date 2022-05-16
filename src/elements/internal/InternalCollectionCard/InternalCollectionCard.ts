@@ -4,7 +4,6 @@ import type { ItemRenderer } from '../../public/CollectionPage/types';
 import type { FormDialog } from '../../index';
 
 import { InternalControl } from '../InternalControl/InternalControl';
-import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-element';
 
@@ -46,6 +45,33 @@ export class InternalCollectionCard extends InternalControl {
   /** Same as the `open` property of `InternalDetails`. */
   open = false;
 
+  private __itemRenderer: ItemRenderer = ctx => {
+    if (!this.form || !ctx.data) return this.__cardRenderer(ctx);
+
+    const isDisabled = this.disabledSelector.matches('card', true);
+
+    return html`
+      <button
+        ?disabled=${isDisabled}
+        class=${classMap({
+          'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
+          'text-left w-full block transition-colors': true,
+          'hover-bg-contrast-5': !isDisabled,
+        })}
+        @click=${(evt: Event) => {
+          const button = evt.currentTarget as HTMLButtonElement;
+          const dialog = this.__dialog;
+
+          dialog.header = 'header_update';
+          dialog.href = ctx.href;
+          dialog.show(button);
+        }}
+      >
+        ${this.__cardRenderer(ctx)}
+      </button>
+    `;
+  };
+
   renderControl(): TemplateResult {
     let first: string;
 
@@ -57,54 +83,17 @@ export class InternalCollectionCard extends InternalControl {
       first = this.first;
     }
 
-    const cardRenderer = new Function(
-      'ctx',
-      `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} class="p-m" infer href=\${ctx.href}></${this.item}>\``
-    ) as ItemRenderer;
-
-    const itemRenderer: ItemRenderer = ctx => {
-      if (this.form && !!ctx.data) {
-        const isDisabled = this.disabledSelector.matches('card', true);
-
-        return html`
-          <button
-            ?disabled=${isDisabled}
-            class=${classMap({
-              'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
-              'text-left w-full block transition-colors': true,
-              'hover-bg-contrast-5': !isDisabled,
-            })}
-            @click=${(evt: Event) => {
-              const dialog = this.renderRoot.querySelector('#form') as FormDialog;
-              const button = evt.currentTarget as HTMLButtonElement;
-
-              dialog.header = 'header_update';
-              dialog.href = ctx.href;
-              dialog.show(button);
-            }}
-          >
-            ${cardRenderer(ctx)}
-          </button>
-        `;
-      }
-
-      return cardRenderer(ctx);
-    };
-
     return html`
       <foxy-internal-details
         summary="title"
         infer=""
         ?open=${this.open}
-        @toggle=${(evt: Event) => {
-          this.open = (evt.currentTarget as InternalCollectionCard).open;
-        }}
+        @toggle=${(evt: Event) => (this.open = (evt.currentTarget as InternalCollectionCard).open)}
       >
         ${this.form
           ? html`
               <foxy-form-dialog
                 parent=${first}
-                group=${ifDefined(this.nucleon?.group)}
                 infer="dialog"
                 id="form"
                 .related=${this.related}
@@ -122,11 +111,12 @@ export class InternalCollectionCard extends InternalControl {
                         evt.preventDefault();
                         evt.stopPropagation();
 
-                        const dialog = this.renderRoot.querySelector('#form') as FormDialog;
+                        const dialog = this.__dialog;
+                        const button = evt.currentTarget as HTMLButtonElement;
 
                         dialog.header = 'header_create';
                         dialog.href = '';
-                        dialog.show(evt.currentTarget as HTMLButtonElement);
+                        dialog.show(button);
                       }}
                     >
                       <iron-icon class="icon-inline" icon="icons:add"></iron-icon>
@@ -138,14 +128,24 @@ export class InternalCollectionCard extends InternalControl {
         <foxy-pagination class="px-m pb-s" first=${first} infer="pagination">
           <foxy-collection-page
             class="-mx-m block divide-y divide-contrast-10 mb-s"
-            group=${ifDefined(this.nucleon?.group)}
             infer="card"
             .related=${this.related}
-            .item=${itemRenderer as any}
+            .item=${this.__itemRenderer as any}
           >
           </foxy-collection-page>
         </foxy-pagination>
       </foxy-internal-details>
     `;
+  }
+
+  private get __dialog() {
+    return this.renderRoot.querySelector('#form') as FormDialog;
+  }
+
+  private get __cardRenderer() {
+    return new Function(
+      'ctx',
+      `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} class="p-m" infer href=\${ctx.href}></${this.item}>\``
+    ) as ItemRenderer;
   }
 }
