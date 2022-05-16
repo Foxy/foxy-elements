@@ -1,12 +1,20 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { CollectionPage } from '../../public';
+import type { ItemRenderer } from '../../public/CollectionPage/types';
 import type { FormDialog } from '../../index';
 
-import { html } from 'lit-element';
 import { InternalControl } from '../InternalControl/InternalControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { ItemRenderer } from '../../public/CollectionPage/types';
 import { classMap } from '../../../utils/class-map';
+import { html } from 'lit-element';
 
+/**
+ * Internal control displaying a collapsible card with
+ * optionally editable hAPI collection items.
+ *
+ * @tag foxy-internal-collection-card
+ * @since 1.17.0
+ */
 export class InternalCollectionCard extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
@@ -20,16 +28,22 @@ export class InternalCollectionCard extends InternalControl {
     };
   }
 
+  /** Same as the `related` property of `NucleonElement`. */
   related = [] as string[];
 
+  /** Limit query parameter to apply to the `first` URL. */
   limit = 20;
 
+  /** URI of the first page of the hAPI collection to display. */
   first = '';
 
+  /** Same as the `form` property of `FormDialog`. If set, will open a dialog on item click. */
   form: FormDialog['form'] = '';
 
-  item = '';
+  /** Same as the `item` property of `CollectionPage`. */
+  item: CollectionPage<any>['item'] = '';
 
+  /** Same as the `open` property of `InternalDetails`. */
   open = false;
 
   renderControl(): TemplateResult {
