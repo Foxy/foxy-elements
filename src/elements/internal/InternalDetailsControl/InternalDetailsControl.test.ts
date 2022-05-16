@@ -1,8 +1,8 @@
 import './index';
 
 import { InternalDetailsControl as Control } from './InternalDetailsControl';
-import { InternalControl } from '../InternalControl/InternalControl';
 import { expect, fixture, html } from '@open-wc/testing';
+import { LitElement } from 'lit-element';
 import { I18n } from '../../public/I18n/I18n';
 
 describe('InternalDetailsControl', () => {
@@ -14,16 +14,12 @@ describe('InternalDetailsControl', () => {
     expect(customElements.get('foxy-i18n')).to.equal(I18n);
   });
 
-  it('imports and defines foxy-internal-control', () => {
-    expect(customElements.get('foxy-internal-control')).to.equal(InternalControl);
-  });
-
   it('imports and defines itself as foxy-internal-details-control', () => {
     expect(customElements.get('foxy-internal-details-control')).to.equal(Control);
   });
 
-  it('extends InternalControl', () => {
-    expect(new Control()).to.be.instanceOf(InternalControl);
+  it('extends LitElement', () => {
+    expect(new Control()).to.be.instanceOf(LitElement);
   });
 
   it('defines a reactive property for "summary" (String)', () => {
