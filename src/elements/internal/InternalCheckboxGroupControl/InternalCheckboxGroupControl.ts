@@ -1,10 +1,17 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { CheckboxGroupElement } from '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
+import type { Option } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
+/**
+ * Internal control wrapper for `vaadin-checkbox-group` element.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-checkbox-group-control
+ */
 export class InternalCheckboxGroupControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
@@ -14,8 +21,10 @@ export class InternalCheckboxGroupControl extends InternalEditableControl {
     };
   }
 
-  options: { label: string; value: string }[] = [];
+  /** List of checkboxes to render. */
+  options: Option[] = [];
 
+  /** Same as the "theme" attribute/property of `vaadin-checkbox-group`. */
   theme: string | null = null;
 
   renderControl(): TemplateResult {
