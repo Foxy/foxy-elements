@@ -101,7 +101,7 @@ export class ShipmentCard extends Base<Data> {
           </div>
         </foxy-address-card>
 
-        <foxy-internal-collection-card
+        <foxy-internal-async-details-control
           infer="items"
           first=${ifDefined(itemsLink)}
           limit="5"
@@ -109,7 +109,7 @@ export class ShipmentCard extends Base<Data> {
           open
           .form=${itemFormRenderer as any}
         >
-        </foxy-internal-collection-card>
+        </foxy-internal-async-details-control>
       </div>
     `;
   }

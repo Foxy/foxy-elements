@@ -3,7 +3,7 @@ import '../ItemForm/index';
 import '../ItemCard/index';
 import '../I18n/index';
 
-import '../../internal/InternalCollectionCard/index';
+import '../../internal/InternalAsyncDetailsControl/index';
 
 import { ShipmentCard } from './ShipmentCard';
 

@@ -54,32 +54,32 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
 
       ${this.data
         ? html`
-            <foxy-internal-collection-card
+            <foxy-internal-async-details-control
               infer="discount-details"
               first=${this.data._links['fx:discount_details'].href}
               limit="5"
               item="foxy-discount-detail-card"
             >
-            </foxy-internal-collection-card>
+            </foxy-internal-async-details-control>
 
-            <foxy-internal-collection-card
+            <foxy-internal-async-details-control
               infer="coupon-details"
               first=${this.data._links['fx:coupon_details'].href}
               limit="5"
               item="foxy-coupon-detail-card"
             >
-            </foxy-internal-collection-card>
+            </foxy-internal-async-details-control>
 
-            <foxy-internal-collection-card
+            <foxy-internal-async-details-control
               infer="attributes"
               first=${this.data._links['fx:attributes'].href}
               limit="5"
               item="foxy-attribute-card"
               form="foxy-attribute-form"
             >
-            </foxy-internal-collection-card>
+            </foxy-internal-async-details-control>
 
-            <foxy-internal-collection-card
+            <foxy-internal-async-details-control
               related=${JSON.stringify([
                 this.data._links['fx:transaction'].href,
                 this.data._links['fx:shipment'],
@@ -91,7 +91,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
               item="foxy-item-option-card"
               form="foxy-item-option-form"
             >
-            </foxy-internal-collection-card>
+            </foxy-internal-async-details-control>
           `
         : ''}
       ${super.renderBody()}

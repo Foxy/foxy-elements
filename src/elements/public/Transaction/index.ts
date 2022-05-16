@@ -13,7 +13,7 @@ import '../PaymentCard/index';
 import '../ItemForm/index';
 import '../I18n/index';
 
-import '../../internal/InternalCollectionCard/index';
+import '../../internal/InternalAsyncDetailsControl/index';
 
 import './internal/InternalTransactionCustomerControl/index';
 import './internal/InternalTransactionActionsControl/index';

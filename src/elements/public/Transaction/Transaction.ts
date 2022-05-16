@@ -35,13 +35,13 @@ export class Transaction extends TranslatableMixin(InternalForm, 'transaction')<
   renderBody(): TemplateResult {
     return html`
       <div id="body" class="gap-m">
-        <foxy-internal-collection-card
+        <foxy-internal-async-details-control
           infer="shipments"
           first=${ifDefined(this.data?._links['fx:shipments'].href)}
           item="foxy-shipment-card"
           open
         >
-        </foxy-internal-collection-card>
+        </foxy-internal-async-details-control>
 
         <div class="grid gap-m self-start">
           <foxy-internal-transaction-summary-control infer="summary">
@@ -50,7 +50,7 @@ export class Transaction extends TranslatableMixin(InternalForm, 'transaction')<
           <foxy-internal-transaction-customer-control infer="customer">
           </foxy-internal-transaction-customer-control>
 
-          <foxy-internal-collection-card
+          <foxy-internal-async-details-control
             infer="payments"
             class="max-w-full overflow-hidden"
             first=${ifDefined(this.data?._links['fx:payments'].href)}
@@ -58,25 +58,25 @@ export class Transaction extends TranslatableMixin(InternalForm, 'transaction')<
             item="foxy-payment-card"
             open
           >
-          </foxy-internal-collection-card>
+          </foxy-internal-async-details-control>
 
-          <foxy-internal-collection-card
+          <foxy-internal-async-details-control
             infer="discounts"
             first=${ifDefined(this.data?._links['fx:discounts'].href)}
             limit="5"
             item="foxy-discount-card"
           >
-          </foxy-internal-collection-card>
+          </foxy-internal-async-details-control>
 
-          <foxy-internal-collection-card
+          <foxy-internal-async-details-control
             infer="applied-taxes"
             first=${ifDefined(this.data?._links['fx:applied_taxes'].href)}
             limit="5"
             item="foxy-applied-tax-card"
           >
-          </foxy-internal-collection-card>
+          </foxy-internal-async-details-control>
 
-          <foxy-internal-collection-card
+          <foxy-internal-async-details-control
             related=${JSON.stringify([this.href])}
             infer="custom-fields"
             first=${ifDefined(this.data?._links['fx:custom_fields'].href)}
@@ -84,9 +84,9 @@ export class Transaction extends TranslatableMixin(InternalForm, 'transaction')<
             form="foxy-custom-field-form"
             item="foxy-custom-field-card"
           >
-          </foxy-internal-collection-card>
+          </foxy-internal-async-details-control>
 
-          <foxy-internal-collection-card
+          <foxy-internal-async-details-control
             related=${JSON.stringify([this.href])}
             infer="attributes"
             first=${ifDefined(this.data?._links['fx:attributes'].href)}
@@ -94,7 +94,7 @@ export class Transaction extends TranslatableMixin(InternalForm, 'transaction')<
             form="foxy-attribute-form"
             item="foxy-attribute-card"
           >
-          </foxy-internal-collection-card>
+          </foxy-internal-async-details-control>
 
           <foxy-internal-transaction-actions-control infer="actions">
           </foxy-internal-transaction-actions-control>

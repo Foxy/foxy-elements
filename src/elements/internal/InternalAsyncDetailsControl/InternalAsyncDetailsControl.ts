@@ -11,10 +11,10 @@ import { html } from 'lit-element';
  * Internal control displaying a collapsible card with
  * optionally editable hAPI collection items.
  *
- * @tag foxy-internal-collection-card
+ * @tag foxy-internal-async-details-control
  * @since 1.17.0
  */
-export class InternalCollectionCard extends InternalControl {
+export class InternalAsyncDetailsControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -88,7 +88,8 @@ export class InternalCollectionCard extends InternalControl {
         summary="title"
         infer=""
         ?open=${this.open}
-        @toggle=${(evt: Event) => (this.open = (evt.currentTarget as InternalCollectionCard).open)}
+        @toggle=${(evt: Event) =>
+          (this.open = (evt.currentTarget as InternalAsyncDetailsControl).open)}
       >
         ${this.form
           ? html`

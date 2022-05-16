@@ -49,21 +49,21 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
 
       ${this.data
         ? html`
-            <foxy-internal-collection-card
+            <foxy-internal-async-details-control
               first=${this.data._links['fx:statuses'].href}
               infer="statuses"
               limit="10"
               item="foxy-webhook-status-card"
             >
-            </foxy-internal-collection-card>
+            </foxy-internal-async-details-control>
 
-            <foxy-internal-collection-card
+            <foxy-internal-async-details-control
               first=${this.data._links['fx:logs'].href}
               infer="logs"
               limit="5"
               item="foxy-webhook-log-card"
             >
-            </foxy-internal-collection-card>
+            </foxy-internal-async-details-control>
           `
         : ''}
       ${super.renderBody()}
