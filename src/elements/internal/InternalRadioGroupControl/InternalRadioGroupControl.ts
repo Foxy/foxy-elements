@@ -1,10 +1,17 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { RadioGroupElement } from '@vaadin/vaadin-radio-button/vaadin-radio-group';
+import type { Option } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
+/**
+ * Internal control wrapper for `vaadin-radio-group` element.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-radio-group-control
+ */
 export class InternalRadioGroupControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
@@ -14,8 +21,10 @@ export class InternalRadioGroupControl extends InternalEditableControl {
     };
   }
 
-  options: { label: string; value: string }[] = [];
+  /** List of radio buttons to render. */
+  options: Option[] = [];
 
+  /** Same as the "theme" attribute/property of `vaadin-radio-group`. */
   theme: string | null = null;
 
   renderControl(): TemplateResult {
