@@ -10,7 +10,7 @@ export class InternalItemFormShippingControl extends InternalControl {
 
   renderControl(): TemplateResult {
     return html`
-      <foxy-internal-details-control summary="title" lang=${this.lang} ns=${this.ns}>
+      <foxy-internal-details summary="title" lang=${this.lang} ns=${this.ns}>
         <div class="grid grid-cols-2 gap-m p-m">
           <foxy-internal-async-combo-box-control
             item-value-path="address_name"
@@ -26,7 +26,7 @@ export class InternalItemFormShippingControl extends InternalControl {
           <foxy-internal-integer-control infer="length"></foxy-internal-integer-control>
           <foxy-internal-integer-control infer="weight"></foxy-internal-integer-control>
         </div>
-      </foxy-internal-details-control>
+      </foxy-internal-details>
     `;
   }
 }

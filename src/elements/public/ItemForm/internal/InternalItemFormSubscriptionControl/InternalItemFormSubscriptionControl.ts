@@ -22,7 +22,7 @@ export class InternalItemFormSubscriptionControl extends InternalControl {
     }
 
     return html`
-      <foxy-internal-details-control summary="title" lang=${this.lang} ns=${this.ns}>
+      <foxy-internal-details summary="title" lang=${this.lang} ns=${this.ns}>
         ${subscriptionLink
           ? html`
               <foxy-form-dialog
@@ -72,7 +72,7 @@ export class InternalItemFormSubscriptionControl extends InternalControl {
                 </foxy-internal-date-control>
               </div>
             `}
-      </foxy-internal-details-control>
+      </foxy-internal-details>
     `;
   }
 }

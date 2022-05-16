@@ -1,6 +1,6 @@
 import './index';
 
-import { InternalDetailsControl as Control } from './InternalDetailsControl';
+import { InternalDetailsControl as Control } from './InternalDetails';
 import { expect, fixture, html } from '@open-wc/testing';
 import { LitElement } from 'lit-element';
 import { I18n } from '../../public/I18n/I18n';
@@ -14,8 +14,8 @@ describe('InternalDetailsControl', () => {
     expect(customElements.get('foxy-i18n')).to.equal(I18n);
   });
 
-  it('imports and defines itself as foxy-internal-details-control', () => {
-    expect(customElements.get('foxy-internal-details-control')).to.equal(Control);
+  it('imports and defines itself as foxy-internal-details', () => {
+    expect(customElements.get('foxy-internal-details')).to.equal(Control);
   });
 
   it('extends LitElement', () => {
@@ -33,7 +33,7 @@ describe('InternalDetailsControl', () => {
   });
 
   it('renders details/summary', async () => {
-    const layout = html`<foxy-internal-details-control></foxy-internal-details-control>`;
+    const layout = html`<foxy-internal-details></foxy-internal-details>`;
     const control = await fixture<Control>(layout);
 
     expect(control.renderRoot.querySelector('details')).to.exist;
@@ -41,7 +41,7 @@ describe('InternalDetailsControl', () => {
   });
 
   it('syncs the value of "open" with the same property on details', async () => {
-    const layout = html`<foxy-internal-details-control></foxy-internal-details-control>`;
+    const layout = html`<foxy-internal-details></foxy-internal-details>`;
     const control = await fixture<Control>(layout);
     const details = control.renderRoot.querySelector('details')!;
 
@@ -62,7 +62,7 @@ describe('InternalDetailsControl', () => {
   });
 
   it('renders translatable summary', async () => {
-    const layout = html`<foxy-internal-details-control></foxy-internal-details-control>`;
+    const layout = html`<foxy-internal-details></foxy-internal-details>`;
     const control = await fixture<Control>(layout);
     const label = control.renderRoot.querySelector('summary foxy-i18n')!;
 
@@ -77,7 +77,7 @@ describe('InternalDetailsControl', () => {
   });
 
   it('renders a slot for details content', async () => {
-    const layout = html`<foxy-internal-details-control></foxy-internal-details-control>`;
+    const layout = html`<foxy-internal-details></foxy-internal-details>`;
     const control = await fixture<Control>(layout);
     const slot = control.renderRoot.querySelector('slot:not([name])')!;
 

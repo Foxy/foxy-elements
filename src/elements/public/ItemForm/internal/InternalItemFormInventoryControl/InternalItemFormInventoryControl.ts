@@ -10,7 +10,7 @@ export class InternalItemFormInventoryControl extends InternalControl {
 
   renderControl(): TemplateResult {
     return html`
-      <foxy-internal-details-control summary="title" lang=${this.lang} ns=${this.ns}>
+      <foxy-internal-details summary="title" lang=${this.lang} ns=${this.ns}>
         <div class="grid grid-cols-2 gap-m p-m">
           <foxy-internal-async-combo-box-control
             item-value-path="_links.self.href"
@@ -25,7 +25,7 @@ export class InternalItemFormInventoryControl extends InternalControl {
           <foxy-internal-text-control infer="code"></foxy-internal-text-control>
           <foxy-internal-text-control infer="parent-code"></foxy-internal-text-control>
         </div>
-      </foxy-internal-details-control>
+      </foxy-internal-details>
     `;
   }
 }

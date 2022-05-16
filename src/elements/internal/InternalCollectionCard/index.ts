@@ -3,7 +3,7 @@ import '../../public/FormDialog/index';
 import '../../public/Pagination/index';
 import '../../public/I18n/index';
 
-import '../InternalDetailsControl/index';
+import '../InternalDetails/index';
 
 import { InternalCollectionCard } from './InternalCollectionCard';
 

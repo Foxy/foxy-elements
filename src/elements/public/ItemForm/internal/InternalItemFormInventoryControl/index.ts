@@ -1,5 +1,5 @@
 import '../../../../internal/InternalAsyncComboBoxControl/index';
-import '../../../../internal/InternalDetailsControl/index';
+import '../../../../internal/InternalDetails/index';
 import '../../../../internal/InternalTextControl/index';
 import { InternalItemFormInventoryControl as Control } from './InternalItemFormInventoryControl';
 

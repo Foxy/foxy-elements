@@ -6,7 +6,7 @@ import { FormDialog } from '../../../FormDialog/FormDialog';
 export class InternalTransactionCustomerControl extends InternalControl {
   renderControl(): TemplateResult {
     return html`
-      <foxy-internal-details-control summary="customer" infer open>
+      <foxy-internal-details summary="customer" infer open>
         <foxy-form-dialog
           header="header"
           infer="dialog"
@@ -30,7 +30,7 @@ export class InternalTransactionCustomerControl extends InternalControl {
           >
           </foxy-customer-card>
         </button>
-      </foxy-internal-details-control>
+      </foxy-internal-details>
     `;
   }
 }
