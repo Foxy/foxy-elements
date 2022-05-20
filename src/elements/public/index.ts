@@ -1,6 +1,7 @@
 export { AccessRecoveryForm } from './AccessRecoveryForm/AccessRecoveryForm';
 export { AddressCard } from './AddressCard/AddressCard';
 export { AddressForm } from './AddressForm/AddressForm';
+export { ApiBrowser } from './ApiBrowser/ApiBrowser';
 export { AppliedTaxCard } from './AppliedTaxCard/AppliedTaxCard';
 export { AttributeCard } from './AttributeCard/AttributeCard';
 export { AttributeForm } from './AttributeForm/AttributeForm';

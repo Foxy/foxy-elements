@@ -1,0 +1,22 @@
+{
+  "go_back": "Go back",
+  "go_home": "Go home",
+  "refresh": "Refresh",
+  "first": "First",
+  "last": "Last",
+  "next": "Next",
+  "pagination": "{{from}}-{{to}} out of {{total}}",
+  "previous": "Previous",
+  "delete": "Delete",
+  "submit": "Submit",
+  "undo": "Undo",
+  "copy-to-clipboard": {
+    "click_to_copy": "Click to copy",
+    "copying": "Copying",
+    "done": "Done",
+    "failed_to_copy": "Failed to copy"
+  },
+  "spinner": {
+    "loading_busy": "Loading"
+  }
+}
