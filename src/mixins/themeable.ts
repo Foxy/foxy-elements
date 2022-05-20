@@ -53,28 +53,18 @@ export const ThemeableMixin = <TBase extends Base>(
           vaadin-password-field,
           vaadin-checkbox-group,
           vaadin-radio-group,
-          vaadin-combo-box::part(text-field) {
-            padding-top: 0;
-            padding-bottom: 0;
-          }
-
+          vaadin-combo-box::part(text-field),
           vaadin-date-picker::part(text-field) {
             padding-top: 0;
             padding-bottom: 0;
           }
 
-          vaadin-time-picker {
-            width: 100%;
-          }
-
+          vaadin-time-picker,
           vaadin-date-time-picker {
             width: 100%;
           }
 
-          vaadin-button {
-            margin: 0;
-          }
-
+          vaadin-button,
           vaadin-checkbox::part(checkbox) {
             margin: 0;
           }
