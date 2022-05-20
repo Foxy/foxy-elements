@@ -28,6 +28,9 @@ export const ThemeableMixin = <TBase extends Base>(
 
           :host {
             display: block;
+            color: var(--lumo-body-text-color);
+            line-height: var(--lumo-line-height-m);
+            font: normal var(--lumo-font-size-m) var(--lumo-font-family);
           }
 
           details > summary::-webkit-details-marker {
