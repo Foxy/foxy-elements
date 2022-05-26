@@ -42,6 +42,10 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
           grid-column-start: 1;
           grid-column-end: -2;
         }
+
+        textarea::selection {
+          background: var(--lumo-contrast-10pct);
+        }
       `,
     ];
   }
@@ -58,15 +62,23 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
   renderBody(): TemplateResult {
     return html`
       <details
-        class="rounded-t-l rounded-b-l overflow-hidden border border-contrast-10"
+        class="select-none rounded-t-l rounded-b-l overflow-hidden border border-contrast-10"
         ?open=${this.open}
         @toggle=${(evt: Event) => {
           const details = evt.currentTarget as HTMLDetailsElement;
           this.open = details.open;
         }}
       >
-        <summary>
-          <div class="flex items-center space-x-s p-s pr-m bg-contrast-5">
+        <summary
+          class=${classMap({
+            'ring-inset ring-primary-50 rounded-t-l': true,
+            'focus-outline-none focus-ring-2': true,
+            'rounded-b-l': !this.open,
+          })}
+        >
+          <div
+            class="flex items-center space-x-s p-s pr-m transition-colors cursor-pointer bg-contrast-5 hover-bg-contrast-10"
+          >
             <foxy-copy-to-clipboard infer="copy-to-clipboard" text=${this.href || this.parent}>
             </foxy-copy-to-clipboard>
 
@@ -194,7 +206,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
             <textarea
               class=${classMap({
                 'whitespace-pre leading-s text-s focus-outline-none': true,
-                'monospace resize-none p-m block w-full': true,
+                'monospace resize-none p-m block w-full select-text': true,
                 'bg-error-10': this.errors.length > 0,
                 'bg-base': this.errors.length === 0,
               })}
