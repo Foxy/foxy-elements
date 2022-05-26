@@ -1,13 +1,22 @@
-import type { InternalConfirmDialog } from '../../../InternalConfirmDialog/InternalConfirmDialog';
-import type { DialogHideEvent } from '../../../../private/Dialog/DialogHideEvent';
-import type { TemplateResult } from 'lit-element';
+import type { InternalConfirmDialog } from '../InternalConfirmDialog/InternalConfirmDialog';
+import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { ButtonElement } from '@vaadin/vaadin-button';
 
-import { InternalControl } from '../../../InternalControl/InternalControl';
+import { InternalControl } from '../InternalControl/InternalControl';
 import { html } from 'lit-element';
 
 export class InternalDeleteControl extends InternalControl {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      theme: { type: String },
+    };
+  }
+
   infer = 'delete';
+
+  theme = 'primary error';
 
   renderControl(): TemplateResult {
     return html`
@@ -27,7 +36,7 @@ export class InternalDeleteControl extends InternalControl {
 
       <vaadin-button
         data-testid="delete"
-        theme="primary error"
+        theme=${this.theme}
         class="w-full"
         ?disabled=${this.disabled || this.readonly}
         @click=${(evt: CustomEvent) => {

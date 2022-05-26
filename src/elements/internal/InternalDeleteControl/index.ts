@@ -1,5 +1,5 @@
-import '../../../InternalConfirmDialog/index';
-import '../../../../public/I18n/index';
+import '../InternalConfirmDialog/index';
+import '../../public/I18n/index';
 import '@vaadin/vaadin-button';
 import { InternalDeleteControl } from './InternalDeleteControl';
 

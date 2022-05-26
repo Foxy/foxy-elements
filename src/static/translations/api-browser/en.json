@@ -7,7 +7,6 @@
   "next": "Next",
   "pagination": "{{from}}-{{to}} out of {{total}}",
   "previous": "Previous",
-  "delete": "Delete",
   "submit": "Submit",
   "undo": "Undo",
   "copy-to-clipboard": {
@@ -18,5 +17,10 @@
   },
   "spinner": {
     "loading_busy": "Loading"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this resource? You won't be able to bring it back."
   }
 }

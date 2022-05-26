@@ -110,13 +110,8 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
               : ''}
             ${this.in({ idle: 'snapshot' })
               ? html`
-                  <vaadin-button
-                    theme="tertiary-inline error"
-                    class="px-xs"
-                    @click=${() => this.delete()}
-                  >
-                    <foxy-i18n infer="" key="delete"></foxy-i18n>
-                  </vaadin-button>
+                  <foxy-internal-delete-control infer="delete" theme="tertiary-inline error">
+                  </foxy-internal-delete-control>
                 `
               : ''}
           </div>
