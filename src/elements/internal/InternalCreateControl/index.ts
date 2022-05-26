@@ -1,4 +1,4 @@
-import '../../../../public/I18n/index';
+import '../../public/I18n/index';
 import '@vaadin/vaadin-button';
 import { InternalCreateControl } from './InternalCreateControl';
 

@@ -87,14 +87,8 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
 
             ${this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: 'template' })
               ? html`
-                  <vaadin-button
-                    theme="tertiary-inline success"
-                    class="px-xs"
-                    ?disabled=${this.errors.length > 0}
-                    @click=${() => this.submit()}
-                  >
-                    <foxy-i18n infer="" key="submit"></foxy-i18n>
-                  </vaadin-button>
+                  <foxy-internal-create-control infer="create" theme="tertiary-inline success">
+                  </foxy-internal-create-control>
                 `
               : ''}
             ${this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: { template: 'dirty' } })

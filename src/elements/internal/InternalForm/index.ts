@@ -1,5 +1,5 @@
 import '../../public/Spinner/index';
-import './internal/InternalCreateControl/index';
+import '../InternalCreateControl/index';
 import '../InternalDeleteControl/index';
 import './internal/InternalTimestampsControl/index';
 import { InternalForm } from './InternalForm';

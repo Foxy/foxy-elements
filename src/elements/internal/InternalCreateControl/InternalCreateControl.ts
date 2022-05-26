@@ -1,17 +1,26 @@
-import type { TemplateResult } from 'lit-element';
+import type { TemplateResult, PropertyDeclarations } from 'lit-element';
 
-import { InternalControl } from '../../../InternalControl/InternalControl';
+import { InternalControl } from '../InternalControl/InternalControl';
 import { html } from 'lit-element';
 
 export class InternalCreateControl extends InternalControl {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      theme: { type: String },
+    };
+  }
+
   infer = 'create';
+
+  theme = 'primary success';
 
   renderControl(): TemplateResult {
     return html`
       <vaadin-button
         data-testid="create"
         class="w-full"
-        theme="primary success"
+        theme=${this.theme}
         ?disabled=${this.disabled || this.__isInvalid}
         @click=${() => this.nucleon?.submit()}
       >
