@@ -193,7 +193,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
 
             <textarea
               class=${classMap({
-                'whitespace-nowrap leading-s text-s focus-outline-none': true,
+                'whitespace-pre leading-s text-s focus-outline-none': true,
                 'monospace resize-none p-m block w-full': true,
                 'bg-error-10': this.errors.length > 0,
                 'bg-base': this.errors.length === 0,
