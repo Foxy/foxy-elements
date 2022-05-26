@@ -224,9 +224,18 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
   }
 
   private get __links() {
-    return Object.entries(this.data?._links ?? {}).filter(
+    const linksAsEntries = Object.entries(this.data?._links ?? {});
+    const relevantLinks = linksAsEntries.filter(
       ([curie, link]) => curie !== 'self' && !Array.isArray(link) && !(link as any).templated
     );
+
+    try {
+      relevantLinks.sort(([curie1], [curie2]) => curie1.localeCompare(curie2, this.lang));
+    } catch {
+      relevantLinks.sort(([curie1], [curie2]) => curie1.localeCompare(curie2));
+    }
+
+    return relevantLinks;
   }
 
   private get __formAsString() {
