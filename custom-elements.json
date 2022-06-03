@@ -879,9 +879,11 @@
     {
       "name": "foxy-api-browser",
       "path": "./src/elements/public/ApiBrowser/index.ts",
+      "description": "Interactive hAPI explorer.",
       "attributes": [
         {
           "name": "home",
+          "description": "Bookmark URL of your API.",
           "type": "string"
         },
         {
@@ -927,6 +929,7 @@
         {
           "name": "home",
           "attribute": "home",
+          "description": "Bookmark URL of your API.",
           "type": "string"
         },
         {
