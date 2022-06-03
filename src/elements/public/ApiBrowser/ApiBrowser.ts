@@ -15,6 +15,12 @@ import debounce from 'lodash-es/debounce';
 const NS = 'api-browser';
 const Base = ThemeableMixin(TranslatableMixin(NucleonElement, NS));
 
+/**
+ * Interactive hAPI explorer.
+ *
+ * @element foxy-api-explorer
+ * @since 1.17.0
+ */
 export class ApiBrowser extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -24,6 +30,7 @@ export class ApiBrowser extends Base<Data> {
     };
   }
 
+  /** Bookmark URL of your API. */
   home: string | null = null;
 
   private __history: { href: string; parent: string }[] = [];
