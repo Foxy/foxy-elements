@@ -10,6 +10,8 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { html } from 'lit-element';
 
+import debounce from 'lodash-es/debounce';
+
 const NS = 'api-browser';
 const Base = ThemeableMixin(TranslatableMixin(NucleonElement, NS));
 
@@ -25,6 +27,8 @@ export class ApiBrowser extends Base<Data> {
   home: string | null = null;
 
   private __history: { href: string; parent: string }[] = [];
+
+  private __debounce = debounce((callback: () => void) => callback(), 250);
 
   private __renderItem = ({ href, html }: ItemRendererContext<Data>) => {
     if (!href) return html``;
@@ -86,7 +90,10 @@ export class ApiBrowser extends Base<Data> {
             .value=${this.href || this.parent}
             @input=${(evt: CustomEvent) => {
               const field = evt.currentTarget as TextFieldElement;
-              this[this.href ? 'href' : 'parent'] = field.value;
+              const value = field.value;
+              const property = this.href ? 'href' : 'parent';
+
+              this.__debounce(() => (this[property] = value));
             }}
           >
           </vaadin-text-field>
