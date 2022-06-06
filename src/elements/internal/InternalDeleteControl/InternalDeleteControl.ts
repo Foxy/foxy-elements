@@ -21,14 +21,12 @@ export class InternalDeleteControl extends InternalControl {
   renderControl(): TemplateResult {
     return html`
       <foxy-internal-confirm-dialog
-        data-testid="confirm"
         message="delete_prompt"
         confirm="delete"
         cancel="cancel"
         header="delete"
         theme="primary error"
-        lang=${this.lang}
-        ns=${this.ns}
+        infer=""
         id="confirm"
         @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && this.nucleon?.delete()}
       >
@@ -44,7 +42,7 @@ export class InternalDeleteControl extends InternalControl {
           confirm.show(evt.currentTarget as ButtonElement);
         }}
       >
-        <foxy-i18n ns=${this.ns} key="delete" lang=${this.lang}></foxy-i18n>
+        <foxy-i18n infer="" key="delete"></foxy-i18n>
       </vaadin-button>
     `;
   }
