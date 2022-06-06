@@ -5,6 +5,12 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { html } from 'lit-html';
 
+/**
+ * Basic card displaying webhook log (`fx:webhook_log`) info.
+ *
+ * @element foxy-webhook-log-card
+ * @since 1.17.0
+ */
 export class WebhookLogCard extends TranslatableMixin(InternalCard, 'webhook-log-card')<Data> {
   renderBody(): TemplateResult {
     return html`
