@@ -1,5 +1,6 @@
 import '@vaadin/vaadin-button';
 
+import '../../../../internal/InternalConfirmDialog/index';
 import '../../../../internal/InternalControl/index';
 import '../../../I18n/index';
 

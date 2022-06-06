@@ -279,22 +279,46 @@
     "capture": {
       "idle": "Capture",
       "busy": "Capturing...",
-      "fail": "Failed to capture"
+      "fail": "Failed to capture",
+      "confirm": {
+        "header": "Capture",
+        "message": "Are you sure you'd like to capture this transaction?",
+        "confirm": "Yes",
+        "cancel": "No"
+      }
     },
     "void": {
       "idle": "Void",
       "busy": "Voiding...",
-      "fail": "Failed to void"
+      "fail": "Failed to void",
+      "confirm": {
+        "header": "Void",
+        "message": "Are you sure you'd like to void this transaction?",
+        "confirm": "Yes",
+        "cancel": "No"
+      }
     },
     "refund": {
       "idle": "Refund",
       "busy": "Refunding...",
-      "fail": "Failed to refund"
+      "fail": "Failed to refund",
+      "confirm": {
+        "header": "Refund",
+        "message": "Are you sure you'd like to refund this transaction?",
+        "confirm": "Yes",
+        "cancel": "No"
+      }
     },
     "send-emails": {
       "idle": "Send emails",
       "busy": "Sending emails...",
-      "fail": "Failed to send emails"
+      "fail": "Failed to send emails",
+      "confirm": {
+        "header": "Send emails",
+        "message": "Are you sure you'd like to send emails for this transaction?",
+        "confirm": "Yes",
+        "cancel": "No"
+      }
     }
   },
   "spinner": {
