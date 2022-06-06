@@ -6,6 +6,39 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
+/**
+ * Form element for creating or editing webhooks (`fx:webhook`).
+ *
+ * @slot name:before
+ * @slot name:after
+ *
+ * @slot event-resource:before
+ * @slot event-resource:after
+ *
+ * @slot query:before
+ * @slot query:after
+ *
+ * @slot url:before
+ * @slot url:after
+ *
+ * @slot format:before
+ * @slot format:after
+ *
+ * @slot encryption-key:before
+ * @slot encryption-key:after
+ *
+ * @slot version:before
+ * @slot version:after
+ *
+ * @slot statuses:before
+ * @slot statuses:after
+ *
+ * @slot logs:before
+ * @slot logs:after
+ *
+ * @element foxy-webhook-form
+ * @since 1.17.0
+ */
 export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')<Data> {
   static get v8n(): NucleonV8N<Data> {
     return [
