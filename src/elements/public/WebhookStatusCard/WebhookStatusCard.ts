@@ -9,6 +9,12 @@ import { classMap } from '../../../utils/class-map';
 const NS = 'webhook-status-card';
 const Base = TranslatableMixin(InternalCard, NS);
 
+/**
+ * Basic card displaying webhook status (`fx:webhook_status`) info.
+ *
+ * @element foxy-webhook-status-card
+ * @since 1.17.0
+ */
 export class WebhookStatusCard extends Base<Data> {
   renderBody(): TemplateResult {
     const status = this.data?.status;
