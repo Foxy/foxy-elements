@@ -6,6 +6,13 @@ import type { ButtonElement } from '@vaadin/vaadin-button';
 import { InternalControl } from '../InternalControl/InternalControl';
 import { html } from 'lit-element';
 
+/**
+ * Internal control displaying a "Delete" button that triggers resource
+ * deletion in Nucleon on click.
+ *
+ * @since 1.17.0
+ * @tag foxy-internal-delete-control
+ */
 export class InternalDeleteControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
@@ -14,8 +21,7 @@ export class InternalDeleteControl extends InternalControl {
     };
   }
 
-  infer = 'delete';
-
+  /** Same as the "theme" attribute of the `vaadin-button` element. */
   theme = 'primary error';
 
   renderControl(): TemplateResult {
