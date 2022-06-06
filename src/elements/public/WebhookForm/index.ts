@@ -1,8 +1,5 @@
-import '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
-import '@vaadin/vaadin-checkbox/vaadin-checkbox';
-
-import '../../internal/InternalRadioGroupControl/index';
 import '../../internal/InternalAsyncDetailsControl/index';
+import '../../internal/InternalRadioGroupControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
