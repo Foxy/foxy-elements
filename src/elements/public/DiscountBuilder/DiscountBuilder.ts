@@ -147,7 +147,7 @@ export class DiscountBuilder extends Base {
           'bg-contrast-5 text-secondary': this.readonly && !this.disabled,
         })}
       >
-        <foxy-i18n class="sr-only" lang=${this.lang} key=${label} ns=${this.ns}></foxy-i18n>
+        <foxy-i18n class="sr-only" infer="" key=${label}></foxy-i18n>
 
         <span class="relative leading-none font-medium flex items-center h-full">
           <span class="truncate">${this.t(options[value])}</span>
@@ -205,9 +205,8 @@ export class DiscountBuilder extends Base {
               <label>
                 <foxy-i18n
                   class=${classMap({ 'sr-only': optionIndex !== value })}
-                  lang=${this.lang}
+                  infer=""
                   key=${option}
-                  ns=${this.ns}
                 >
                 </foxy-i18n>
 
@@ -242,7 +241,7 @@ export class DiscountBuilder extends Base {
 
     return html`
       <label>
-        <foxy-i18n class="sr-only" lang=${this.lang} key=${label} ns=${this.ns}></foxy-i18n>
+        <foxy-i18n class="sr-only" infer="" key=${label}></foxy-i18n>
         <input
           data-testclass="interactive editable"
           class=${classMap({
@@ -290,13 +289,7 @@ export class DiscountBuilder extends Base {
             'text-disabled': this.disabled,
           })}
         >
-          <foxy-i18n
-            class="uppercase text-s font-semibold"
-            lang=${this.lang}
-            key="tier_if"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_if"></foxy-i18n>
 
           ${this.__renderSwitch({
             options: ['total', 'quantity'],
@@ -312,13 +305,7 @@ export class DiscountBuilder extends Base {
             onChange: v => params.onChange({ tier: `${v}${sign}${adjustment}` }),
           })}
 
-          <foxy-i18n
-            class="uppercase text-s font-semibold"
-            lang=${this.lang}
-            key="tier_then"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_then"></foxy-i18n>
 
           ${this.__renderSwitch({
             options: ['reduce', 'increase'],
@@ -340,13 +327,7 @@ export class DiscountBuilder extends Base {
             onChange: v => params.onChange({ method: v }),
           })}
 
-          <foxy-i18n
-            class="uppercase text-s font-semibold"
-            lang=${this.lang}
-            key="tier_by"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_by"></foxy-i18n>
 
           ${this.__renderField({
             label: 'adjustment',
