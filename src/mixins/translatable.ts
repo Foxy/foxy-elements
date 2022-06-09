@@ -223,7 +223,9 @@ export const TranslatableMixin = <T extends Base>(
       if (!I18nElement) return key;
 
       const keys = [
-        ...[defaultNS, ...this.ns.split(' ').reverse()]
+        ...this.ns
+          .split(' ')
+          .reverse()
           .map(v => v.trim())
           .filter(v => v.length > 0)
           .reverse()
