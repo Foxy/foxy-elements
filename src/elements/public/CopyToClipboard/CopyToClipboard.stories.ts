@@ -17,10 +17,10 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
   <div class="flex items-center gap-2 text-m mb-4 text-gray-500">
     <span>${args.text}</span>
     <foxy-copy-to-clipboard
-      text=${args.text}
-      lang=${args.lang}
-      ns=${args.ns}
-      ?disabled=${args.disabled}
+      text=${args.text as string}
+      lang=${args.lang as string}
+      ns=${args.ns as string}
+      ?disabled=${args.disabled as boolean}
     >
     </foxy-copy-to-clipboard>
   </div>
@@ -28,10 +28,10 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
   <div class="flex items-center gap-2 text-xl font-semibold mb-4">
     <span>${args.text}</span>
     <foxy-copy-to-clipboard
-      text=${args.text}
-      lang=${args.lang}
-      ns=${args.ns}
-      ?disabled=${args.disabled}
+      text=${args.text as string}
+      lang=${args.lang as string}
+      ns=${args.ns as string}
+      ?disabled=${args.disabled as boolean}
     >
     </foxy-copy-to-clipboard>
   </div>
@@ -40,9 +40,9 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
     <span>${new Array(16).fill(args.text).join(' ')}</span>
     <foxy-copy-to-clipboard
       text=${new Array(16).fill(args.text).join(' ')}
-      lang=${args.lang}
-      ns=${args.ns}
-      ?disabled=${args.disabled}
+      lang=${args.lang as string}
+      ns=${args.ns as string}
+      ?disabled=${args.disabled as boolean}
     >
     </foxy-copy-to-clipboard>
   </div>
