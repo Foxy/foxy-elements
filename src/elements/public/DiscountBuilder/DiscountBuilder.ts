@@ -1,5 +1,12 @@
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
+import {
+  DiscountType,
+  ParsedValue,
+  RulesTierParams,
+  RulesTierSelectParams,
+  RulesTierSwitchParams,
+  RulesTierFieldParams,
+} from './types';
+
 import { html, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { repeat } from 'lit-html/directives/repeat';
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -8,37 +15,6 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { operatorGreaterThanOrEqual } from '../QueryBuilder/icons/operatorGreaterThanOrEqual';
-
-type DiscountType = Resource<Rels.Coupon>['coupon_discount_type'];
-type ParsedValue = { name: string; type: DiscountType; details: string };
-
-type RulesTierParams = {
-  source: string;
-  method: string;
-  units: string;
-  tier?: string;
-  onChange: (newParams: Partial<RulesTierParams>) => void;
-  onDelete: () => void;
-};
-
-type RulesTierFieldParams = {
-  value: string;
-  label: string;
-  onChange: (newValue: string) => void;
-};
-
-type RulesTierSwitchParams = {
-  value: number;
-  options: [string, string];
-  onChange: (newValueIndex: number) => void;
-};
-
-type RulesTierSelectParams = {
-  label: string;
-  value: string;
-  options: Record<string, string>;
-  onChange: (newValue: string) => void;
-};
 
 const NS = 'discount-builder';
 const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)));
