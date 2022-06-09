@@ -14,7 +14,7 @@ export default {
 };
 
 export const Playground = (args: Record<string, unknown>): TemplateResult => html`
-  <div class="flex items-center gap-2 text-m mb-4 text-gray-500">
+  <div class="flex items-center gap-2 text-m mb-4" style="color: var(--lumo-secondary-text-color)">
     <span>${args.text}</span>
     <foxy-copy-to-clipboard
       text=${args.text as string}
@@ -25,7 +25,10 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
     </foxy-copy-to-clipboard>
   </div>
 
-  <div class="flex items-center gap-2 text-xl font-semibold mb-4">
+  <div
+    class="flex items-center gap-2 text-xl font-semibold mb-4"
+    style="color: var(--lumo-body-text-color)"
+  >
     <span>${args.text}</span>
     <foxy-copy-to-clipboard
       text=${args.text as string}
@@ -36,7 +39,10 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
     </foxy-copy-to-clipboard>
   </div>
 
-  <div class="flex items-start gap-2 text-2xl font-bold text-blue-500">
+  <div
+    class="flex items-start gap-2 text-2xl font-bold"
+    style="color: var(--lumo-primary-text-color)"
+  >
     <span>${new Array(16).fill(args.text).join(' ')}</span>
     <foxy-copy-to-clipboard
       text=${new Array(16).fill(args.text).join(' ')}
