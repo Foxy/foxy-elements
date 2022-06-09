@@ -73,6 +73,7 @@ export const InferrableMixin = <TBase extends Base>(
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     applyInferredProperties(context: Map<string, unknown>): void {
       //
     }
