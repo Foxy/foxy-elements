@@ -72,7 +72,7 @@ export class DiscountBuilder extends Base {
       const detailsEnd = value.lastIndexOf('}');
 
       if (detailsStart !== -1 && detailsEnd !== -1) {
-        details = value.substring(detailsStart, detailsEnd);
+        details = value.substring(detailsStart + 1, detailsEnd);
         name = value.substring(0, detailsStart);
       }
     } catch {
