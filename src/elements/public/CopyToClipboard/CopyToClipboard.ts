@@ -13,6 +13,13 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 
 const Base = ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement), 'copy-to-clipboard'));
 
+/**
+ * A simple "click to copy" button that takes the size of the font
+ * your text is written in (considering that the font styles are applied to container).
+ *
+ * @element foxy-copy-to-clipboard
+ * @since 1.17.0
+ */
 export class CopyToClipboard extends Base {
   static get properties(): PropertyDeclarations {
     return {
@@ -78,6 +85,7 @@ export class CopyToClipboard extends Base {
     `;
   }
 
+  /** Text to copy. */
   text: string | null = null;
 
   private __state: 'idle' | 'busy' | 'fail' | 'done' = 'idle';
