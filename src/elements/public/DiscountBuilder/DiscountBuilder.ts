@@ -19,6 +19,13 @@ import { operatorGreaterThanOrEqual } from '../QueryBuilder/icons/operatorGreate
 const NS = 'discount-builder';
 const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)));
 
+/**
+ * Visual builder for discount URL parameters in coupons and more.
+ * Learn more about discounts here: [Foxy Wiki](https://wiki.foxycart.com/v/2.0/coupons_and_discounts).
+ *
+ * @element foxy-discount-builder
+ * @since 1.17.0
+ */
 export class DiscountBuilder extends Base {
   static get properties(): PropertyDeclarations {
     return {
@@ -27,6 +34,18 @@ export class DiscountBuilder extends Base {
     };
   }
 
+  /**
+   * Discount URL parameter.
+   *
+   * Note that if you set this value, it **must be encoded** for the
+   * builder to work correctly. You can use either `encodeURIComponent` or `URLSearchParams` like so:
+   *
+   * ```ts
+   * discountBuilder.value = new URLSearchParams([
+   *   ['discount_amount_percentage', 'Test{allunits|1-2|3-4}']
+   * ]).toString();
+   * ```
+   */
   value: string | null = null;
 
   get parsedValue(): ParsedValue {
@@ -57,7 +76,7 @@ export class DiscountBuilder extends Base {
         name = value.substring(0, detailsStart);
       }
     } catch {
-      //
+      // ignore and use the defaults
     }
 
     return { type, name, details };
