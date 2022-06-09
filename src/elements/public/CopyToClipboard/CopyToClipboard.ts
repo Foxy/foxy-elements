@@ -6,9 +6,9 @@ import {
   css,
   html,
 } from 'lit-element';
+
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { InferrableMixin } from '../../../mixins/inferrable';
-
 import { TranslatableMixin } from '../../../mixins/translatable';
 
 const Base = ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement), 'copy-to-clipboard'));
