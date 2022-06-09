@@ -79,6 +79,8 @@ export class DiscountBuilder extends Base {
       // ignore and use the defaults
     }
 
+    if (name.length === 0) name = 'Discount';
+
     return { type, name, details };
   }
 
