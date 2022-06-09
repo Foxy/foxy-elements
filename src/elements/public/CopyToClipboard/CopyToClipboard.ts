@@ -78,7 +78,7 @@ export class CopyToClipboard extends Base {
     `;
   }
 
-  text = '';
+  text: string | null = null;
 
   private __state: 'idle' | 'busy' | 'fail' | 'done' = 'idle';
 
@@ -109,7 +109,7 @@ export class CopyToClipboard extends Base {
             this.__state = 'busy';
 
             navigator.clipboard
-              .writeText(this.text)
+              .writeText(this.text ?? '')
               .then(() => (this.__state = 'done'))
               .catch(() => (this.__state = 'fail'))
               .then(() => setTimeout(() => (this.__state = 'idle'), 2000));
