@@ -11,7 +11,7 @@ import { html } from 'lit-element';
  * Internal control displaying a collapsible card with
  * optionally editable hAPI collection items.
  *
- * @tag foxy-internal-async-details-control
+ * @element foxy-internal-async-details-control
  * @since 1.17.0
  */
 export class InternalAsyncDetailsControl extends InternalControl {

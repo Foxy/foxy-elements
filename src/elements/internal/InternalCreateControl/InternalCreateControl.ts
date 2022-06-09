@@ -8,7 +8,7 @@ import { html } from 'lit-element';
  * submission on click. The button is disabled if the form is invalid.
  *
  * @since 1.17.0
- * @tag foxy-internal-create-control
+ * @element foxy-internal-create-control
  */
 export class InternalCreateControl extends InternalControl {
   static get properties(): PropertyDeclarations {

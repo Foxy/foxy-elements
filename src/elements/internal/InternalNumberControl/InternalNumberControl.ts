@@ -9,7 +9,7 @@ import { html } from 'lit-element';
  * Internal control displaying a basic number box.
  *
  * @since 1.17.0
- * @tag foxy-internal-number-control
+ * @element foxy-internal-number-control
  */
 export class InternalNumberControl extends InternalEditableControl {
   renderControl(): TemplateResult {

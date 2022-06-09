@@ -10,7 +10,7 @@ import { html } from 'lit-html';
  * Internal base element for cards.
  *
  * @since 1.17.0
- * @tag foxy-internal-card
+ * @element foxy-internal-card
  */
 export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElement)<TData> {
   /**

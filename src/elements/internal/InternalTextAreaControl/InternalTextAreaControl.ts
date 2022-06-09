@@ -9,7 +9,7 @@ import { html } from 'lit-element';
  * Internal control displaying a basic text area box.
  *
  * @since 1.17.0
- * @tag foxy-internal-text-area-control
+ * @element foxy-internal-text-area-control
  */
 export class InternalTextAreaControl extends InternalEditableControl {
   renderControl(): TemplateResult {

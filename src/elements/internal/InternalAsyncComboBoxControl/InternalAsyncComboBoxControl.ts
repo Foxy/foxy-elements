@@ -13,7 +13,7 @@ import { API } from '../../public/NucleonElement/API';
  * a hAPI collection.
  *
  * @since 1.17.0
- * @tag foxy-internal-async-combo-box-control
+ * @element foxy-internal-async-combo-box-control
  */
 export class InternalAsyncComboBoxControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {

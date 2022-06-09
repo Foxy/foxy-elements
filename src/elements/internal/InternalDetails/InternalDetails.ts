@@ -9,7 +9,7 @@ import { classMap } from '../../../utils/class-map';
  * Internal details/summary control.
  *
  * @since 1.17.0
- * @tag foxy-internal-details
+ * @element foxy-internal-details
  */
 export class InternalDetails extends ThemeableMixin(InferrableMixin(LitElement)) {
   static get properties(): PropertyDeclarations {

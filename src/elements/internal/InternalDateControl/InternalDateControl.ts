@@ -11,7 +11,7 @@ import { html } from 'lit-element';
  * Internal control displaying a basic date picker box.
  *
  * @since 1.17.0
- * @tag foxy-internal-date-control
+ * @element foxy-internal-date-control
  */
 export class InternalDateControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {

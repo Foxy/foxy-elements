@@ -9,7 +9,7 @@ import { html } from 'lit-element';
  * Internal control displaying a basic integer box.
  *
  * @since 1.17.0
- * @tag foxy-internal-integer-control
+ * @element foxy-internal-integer-control
  */
 export class InternalIntegerControl extends InternalEditableControl {
   renderControl(): TemplateResult {

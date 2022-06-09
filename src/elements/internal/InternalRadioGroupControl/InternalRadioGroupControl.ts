@@ -10,7 +10,7 @@ import { html } from 'lit-html';
  * Internal control wrapper for `vaadin-radio-group` element.
  *
  * @since 1.17.0
- * @tag foxy-internal-radio-group-control
+ * @element foxy-internal-radio-group-control
  */
 export class InternalRadioGroupControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {

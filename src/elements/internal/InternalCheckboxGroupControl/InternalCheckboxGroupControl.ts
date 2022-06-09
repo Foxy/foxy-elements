@@ -10,7 +10,7 @@ import { html } from 'lit-html';
  * Internal control wrapper for `vaadin-checkbox-group` element.
  *
  * @since 1.17.0
- * @tag foxy-internal-checkbox-group-control
+ * @element foxy-internal-checkbox-group-control
  */
 export class InternalCheckboxGroupControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {

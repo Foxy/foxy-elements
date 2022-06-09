@@ -11,7 +11,7 @@ import { html } from 'lit-element';
  * deletion in Nucleon on click.
  *
  * @since 1.17.0
- * @tag foxy-internal-delete-control
+ * @element foxy-internal-delete-control
  */
 export class InternalDeleteControl extends InternalControl {
   static get properties(): PropertyDeclarations {
