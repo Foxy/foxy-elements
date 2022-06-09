@@ -27,7 +27,7 @@ export class DiscountBuilder extends Base {
     };
   }
 
-  value = '';
+  value: string | null = null;
 
   get parsedValue(): ParsedValue {
     let details = '';
@@ -35,7 +35,7 @@ export class DiscountBuilder extends Base {
     let type: DiscountType = 'quantity_amount';
 
     try {
-      const [[key, value]] = Array.from(new URLSearchParams(this.value).entries());
+      const [[key, value]] = Array.from(new URLSearchParams(this.value ?? '').entries());
 
       const parsedType = key.substring('discount_'.length);
       const allowedTypes = [
