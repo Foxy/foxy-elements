@@ -1,10 +1,12 @@
-import { html, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { render } from 'lit-html';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
+import { html, LitElement } from 'lit-element';
 import { InferrableMixin } from '../../../mixins/inferrable';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { NucleonElement } from '../../public/NucleonElement/NucleonElement';
+import { render } from 'lit-html';
 
 export class InternalControl extends ConfigurableMixin(
   TranslatableMixin(ThemeableMixin(InferrableMixin(LitElement)))
