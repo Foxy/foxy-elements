@@ -72,6 +72,36 @@ export class InternalEditableControl extends InternalControl {
     this.__label = newValue;
   }
 
+  /** Restores the default placeholder translation. */
+  resetPlaceholder(): void {
+    this.requestUpdate('placeholder', this.__placeholder);
+    this.__placeholder = null;
+  }
+
+  /** Restores the default helper text translation. */
+  resetHelperText(): void {
+    this.requestUpdate('helperText', this.__helperText);
+    this.__helperText = null;
+  }
+
+  /** Restores the default v8n prefix for errors. */
+  resetV8nPrefix(): void {
+    this.requestUpdate('v8nPrefix', this.__v8nPrefix);
+    this.__v8nPrefix = null;
+  }
+
+  /** Restores the default property name. */
+  resetProperty(): void {
+    this.requestUpdate('property', this.__property);
+    this.__property = null;
+  }
+
+  /** Restores the default label translation. */
+  resetLabel(): void {
+    this.requestUpdate('label', this.__label);
+    this.__label = null;
+  }
+
   protected get _value(): unknown | undefined {
     return this.nucleon?.form[this.property];
   }
