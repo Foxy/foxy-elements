@@ -5,11 +5,6 @@ export class InternalEditableControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      __placeholder: { attribute: false },
-      __helperText: { attribute: false },
-      __v8nPrefix: { attribute: false },
-      __property: { attribute: false },
-      __label: { attribute: false },
       placeholder: { type: String, noAccessor: true },
       helperText: { type: String, attribute: 'helper-text', noAccessor: true },
       v8nPrefix: { type: String, attribute: 'v8n-prefix', noAccessor: true },
@@ -33,6 +28,7 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set placeholder(newValue: string) {
+    this.requestUpdate('placeholder', this.__placeholder);
     this.__placeholder = newValue;
   }
 
@@ -41,22 +37,29 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set helperText(newValue: string) {
+    this.requestUpdate('helperText', this.__helperText);
     this.__helperText = newValue;
   }
 
   get v8nPrefix(): string {
-    return typeof this.__v8nPrefix === 'string' ? this.__v8nPrefix : `${this.infer}:`;
+    if (typeof this.__v8nPrefix === 'string') return this.__v8nPrefix;
+    if (typeof this.infer === 'string') return `${this.infer}:`;
+    return '';
   }
 
   set v8nPrefix(newValue: string) {
+    this.requestUpdate('v8nPrefix', this.__v8nPrefix);
     this.__v8nPrefix = newValue;
   }
 
   get property(): string {
-    return typeof this.__property === 'string' ? this.__property : this.infer.replace(/-/g, '_');
+    if (typeof this.__property === 'string') return this.__property;
+    if (typeof this.infer === 'string') return this.infer.replace(/-/g, '_');
+    return '';
   }
 
   set property(newValue: string) {
+    this.requestUpdate('property', this.__property);
     this.__property = newValue;
   }
 
@@ -65,6 +68,7 @@ export class InternalEditableControl extends InternalControl {
   }
 
   set label(newValue: string) {
+    this.requestUpdate('label', this.__label);
     this.__label = newValue;
   }
 
