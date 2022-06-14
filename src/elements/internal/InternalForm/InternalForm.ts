@@ -9,7 +9,19 @@ import { html } from 'lit-html';
 
 const Base = ConfigurableMixin(ThemeableMixin(NucleonElement));
 
+/**
+ * An internal base class for any nucleon-powered form. Renders create/delete
+ * buttons and timestamps by default, displays a spinner in non-idle states.
+ *
+ * @element foxy-internal-form
+ * @since 1.17.0
+ */
 export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
+  /**
+   * Renders form body. This is the method you should implement in your forms
+   * instead of `.render()`. If you'd like to keep the submit button and the timestamps,
+   * don't forget to add `super.renderBody()` to your template.
+   */
   renderBody(): TemplateResult {
     return this.data
       ? html`
@@ -19,6 +31,10 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
       : html`<foxy-internal-create-control infer="create"></foxy-internal-create-control>`;
   }
 
+  /**
+   * Renders the entire form. You should probably implement `.renderBody()`
+   * instead of this method in your form to keep the spinner and the common layout features.
+   */
   render(): TemplateResult {
     const isSpinnerVisible = !this.in('idle') && (!this.in({ busy: 'fetching' }) || !this.data);
 
@@ -35,6 +51,7 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
         </div>
 
         <div
+          data-testid="spinner"
           class=${classMap({
             'transition-opacity absolute inset-0 flex': true,
             'opacity-0 pointer-events-none': !isSpinnerVisible,
