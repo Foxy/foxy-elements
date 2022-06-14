@@ -1,6 +1,15 @@
 import type { PropertyDeclarations } from 'lit-element';
 import { InternalControl } from '../InternalControl/InternalControl';
 
+/**
+ * An internal base class for controls that have editing functionality, e.g. a text field.
+ * Instances of this class will provide shortcuts for translatable placeholder, label, helper
+ * text and more. Unlike a regular control, editable control can not only read from a NucleonElement
+ * instance up the DOM tree, but also send changes to it and trigger validation process.
+ *
+ * @element foxy-internal-editable-control
+ * @since 1.17.0
+ */
 export class InternalEditableControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
@@ -23,6 +32,11 @@ export class InternalEditableControl extends InternalControl {
 
   private __label: string | null = null;
 
+  /**
+   * Translated placeholder text for this control. You can set your own placeholder text
+   * if the default key in the inferred namespace doesn't work for you. Use `.resetPlaceholder()`
+   * to restore the default translation.
+   */
   get placeholder(): string {
     return typeof this.__placeholder === 'string' ? this.__placeholder : this.t('placeholder');
   }
@@ -32,6 +46,11 @@ export class InternalEditableControl extends InternalControl {
     this.__placeholder = newValue;
   }
 
+  /**
+   * Translated helper text for this control. You can set your own helper text
+   * if the default key in the inferred namespace doesn't work for you. Use `.resetHelperText()`
+   * to restore the default translation.
+   */
   get helperText(): string {
     return typeof this.__helperText === 'string' ? this.__helperText : this.t('helper_text');
   }
@@ -41,6 +60,11 @@ export class InternalEditableControl extends InternalControl {
     this.__helperText = newValue;
   }
 
+  /**
+   * A prefix for all v8n errors related to this control. You can set your own v8n prefix
+   * if the default one doesn't work for you. Use `.resetV8nPrefix()`
+   * to restore the default v8n prefix.
+   */
   get v8nPrefix(): string {
     if (typeof this.__v8nPrefix === 'string') return this.__v8nPrefix;
     if (typeof this.infer === 'string') return `${this.infer}:`;
@@ -52,6 +76,11 @@ export class InternalEditableControl extends InternalControl {
     this.__v8nPrefix = newValue;
   }
 
+  /**
+   * Name of the property to bind to inferred from the control name by converting it to snake_case.
+   * You can set your own property name if the default inference method produces an incorrect result.
+   * Use `.resetProperty()` to restore the default property name.
+   */
   get property(): string {
     if (typeof this.__property === 'string') return this.__property;
     if (typeof this.infer === 'string') return this.infer.replace(/-/g, '_');
@@ -63,6 +92,10 @@ export class InternalEditableControl extends InternalControl {
     this.__property = newValue;
   }
 
+  /**
+   * Translated label for this control. You can set your own label if the default key in the inferred
+   * namespace doesn't work for you. Use `.resetLabel()` to restore the default translation.
+   */
   get label(): string {
     return typeof this.__label === 'string' ? this.__label : this.t('label');
   }
@@ -102,6 +135,13 @@ export class InternalEditableControl extends InternalControl {
     this.__label = null;
   }
 
+  /**
+   * A shortcut to get the inferred value from the NucleonElement instance
+   * up the DOM tree. If no such value or instance exists, returns `undefined`.
+   * Assigning a value to this property will dispatch a cancelable `change` event
+   * with the new value in the detail and write changes to the NucleonElement instance if permitted.
+   */
+
   protected get _value(): unknown | undefined {
     return this.nucleon?.form[this.property];
   }
@@ -111,14 +151,17 @@ export class InternalEditableControl extends InternalControl {
     const useDefaultAction = this.dispatchEvent(event);
     if (useDefaultAction) this.nucleon?.edit({ [this.property]: newValue });
   }
+  /** A shortcut returning the first v8n error associated with this control. */
 
   protected get _error(): string | undefined {
     return this.nucleon?.errors.find(v => v.startsWith(this.v8nPrefix));
   }
+  /** A shortcut returning the localized text of the first v8n error associated with this control. */
 
   protected get _errorMessage(): string | undefined {
     return this._error ? this.t(this._error.substring(this.v8nPrefix.length)) : undefined;
   }
+  /** A helper returning a `.checkValidity()` function for use with Vaadin elements. */
 
   protected get _checkValidity(): () => boolean {
     return () => !this._error;
