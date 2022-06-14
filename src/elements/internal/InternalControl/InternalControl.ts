@@ -22,8 +22,6 @@ export class InternalControl extends ConfigurableMixin(
 
   nucleon: NucleonElement<any> | null = null;
 
-  infer = '';
-
   inferFromElement(key: string, element: HTMLElement): unknown | undefined {
     if (key === 'nucleon' && element instanceof NucleonElement) return element;
     return super.inferFromElement(key, element);
@@ -37,15 +35,14 @@ export class InternalControl extends ConfigurableMixin(
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
 
-    this.style.display = this.hidden ? 'none' : '';
-
-    render(
-      html`
+    if (typeof this.infer === 'string') {
+      const lightDomTemplate = html`
         <slot name="${this.infer}:before" slot="before"></slot>
         <slot name="${this.infer}:after" slot="after"></slot>
-      `,
-      this
-    );
+      `;
+
+      render(lightDomTemplate, this);
+    }
   }
 
   renderControl(): TemplateResult {
