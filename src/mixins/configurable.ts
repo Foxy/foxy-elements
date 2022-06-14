@@ -224,6 +224,8 @@ export const ConfigurableMixin = <TBase extends Base>(
     protected updated(changes: Map<keyof this, unknown>): void {
       super.updated(changes);
 
+      this.style.display = this.hidden ? 'none' : '';
+
       if (changes.has('mode')) {
         this.__observer.disconnect();
         if (this.mode === 'development') this.__observe();
