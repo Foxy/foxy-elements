@@ -9,6 +9,45 @@ import { html } from 'lit-html';
 import { Resource } from '@foxy.io/sdk/core';
 import { Rels } from '@foxy.io/sdk/backend';
 
+/**
+ * Form element for creating or editing items (`fx:item`).
+ *
+ * @slot name:before
+ * @slot name:after
+ *
+ * @slot price:before
+ * @slot price:after
+ *
+ * @slot quantity:before
+ * @slot quantity:after
+ *
+ * @slot subscription:before
+ * @slot subscription:after
+ *
+ * @slot line-item-discount:before
+ * @slot line-item-discount:after
+ *
+ * @slot cart:before
+ * @slot cart:after
+ *
+ * @slot shipping:before
+ * @slot shipping:after
+ *
+ * @slot inventory:before
+ * @slot inventory:after
+ *
+ * @slot timestamps:before
+ * @slot timestamps:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @element foxy-item-form
+ * @since 1.17.0
+ */
 export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -29,11 +68,11 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
     ];
   }
 
-  customerAddresses = '';
+  /** Link to the collection of customer addresses that can be used with this item. */
 
-  itemCategories = '';
+  /** Link to the collection of item categories that can be used with this item. */
 
-  coupons = '';
+  /** Link to the collection of coupons that can be used with this item. */
 
   private __itemsLink = '';
 
