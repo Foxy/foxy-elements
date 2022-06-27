@@ -7,6 +7,7 @@ import { InternalDateControl as Control } from './index';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { NucleonElement } from '../../public/NucleonElement/index';
 import { stub } from 'sinon';
+import { parseDate } from '../../../utils/parse-date';
 
 class TestControl extends Control {
   static get properties() {
@@ -215,7 +216,8 @@ describe('InternalDateControl', () => {
     field.value = '2020-01-01';
     field.dispatchEvent(new CustomEvent('change'));
 
-    expect(control).to.have.property('testValue', 1577826000);
+    const expectedValue = Math.floor((parseDate('2020-01-01')?.getTime() ?? 0) / 1000);
+    expect(control).to.have.property('testValue', expectedValue);
   });
 
   it('submits the host nucleon form on Enter', async () => {
