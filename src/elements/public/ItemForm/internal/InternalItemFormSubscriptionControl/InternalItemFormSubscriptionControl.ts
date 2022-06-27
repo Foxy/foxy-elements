@@ -22,7 +22,7 @@ export class InternalItemFormSubscriptionControl extends InternalControl {
     }
 
     return html`
-      <foxy-internal-details summary="title" lang=${this.lang} ns=${this.ns}>
+      <foxy-internal-details summary="title" infer="">
         ${subscriptionLink
           ? html`
               <foxy-form-dialog
