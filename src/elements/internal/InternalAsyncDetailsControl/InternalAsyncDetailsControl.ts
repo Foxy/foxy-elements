@@ -45,6 +45,11 @@ export class InternalAsyncDetailsControl extends InternalControl {
   /** Same as the `open` property of `InternalDetails`. */
   open = false;
 
+  private __cachedCardRenderer: {
+    item: InternalAsyncDetailsControl['item'];
+    render: ItemRenderer;
+  } | null = null;
+
   private __itemRenderer: ItemRenderer = ctx => {
     if (!this.form || !ctx.data) return this.__cardRenderer(ctx);
 
@@ -108,6 +113,7 @@ export class InternalAsyncDetailsControl extends InternalControl {
                     <button
                       class="h-xs w-xs rounded-full text-success flex items-center justify-center text-l focus-outline-none focus-ring-2 focus-ring-primary-50"
                       slot="actions"
+                      ?disabled=${this.disabled}
                       @click=${(evt: Event) => {
                         evt.preventDefault();
                         evt.stopPropagation();
@@ -144,9 +150,16 @@ export class InternalAsyncDetailsControl extends InternalControl {
   }
 
   private get __cardRenderer() {
-    return new Function(
-      'ctx',
-      `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} class="p-m" infer href=\${ctx.href}></${this.item}>\``
-    ) as ItemRenderer;
+    if (this.__cachedCardRenderer?.item !== this.item) {
+      this.__cachedCardRenderer = {
+        item: this.item,
+        render: new Function(
+          'ctx',
+          `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} class="p-m" infer href=\${ctx.href}></${this.item}>\``
+        ) as ItemRenderer,
+      };
+    }
+
+    return this.__cachedCardRenderer.render;
   }
 }
