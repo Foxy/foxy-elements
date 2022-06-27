@@ -10,7 +10,7 @@ export class InternalItemFormShippingControl extends InternalControl {
 
   renderControl(): TemplateResult {
     return html`
-      <foxy-internal-details summary="title" lang=${this.lang} ns=${this.ns}>
+      <foxy-internal-details summary="title" infer="">
         <div class="grid grid-cols-2 gap-m p-m">
           <foxy-internal-async-combo-box-control
             item-value-path="address_name"
