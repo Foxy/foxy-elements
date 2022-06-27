@@ -26,11 +26,11 @@ export class InternalItemFormSubscriptionControl extends InternalControl {
         ${subscriptionLink
           ? html`
               <foxy-form-dialog
-                related=${this.nucleon?.href ? JSON.stringify([this.nucleon.href]) : ''}
                 header="update"
                 infer="form"
                 href=${subscriptionLink}
                 form="foxy-subscription-form"
+                .related=${this.nucleon?.href ? [this.nucleon.href] : []}
               >
               </foxy-form-dialog>
 
