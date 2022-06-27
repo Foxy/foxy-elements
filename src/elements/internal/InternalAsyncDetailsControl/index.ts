@@ -3,6 +3,7 @@ import '../../public/FormDialog/index';
 import '../../public/Pagination/index';
 import '../../public/I18n/index';
 
+import '../InternalControl/index';
 import '../InternalDetails/index';
 
 import { InternalAsyncDetailsControl as Control } from './InternalAsyncDetailsControl';
