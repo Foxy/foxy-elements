@@ -22,7 +22,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      open: { type: Boolean },
+      open: { type: Boolean, reflect: true },
     };
   }
 
