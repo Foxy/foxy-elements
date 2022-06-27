@@ -15,7 +15,7 @@ export class InternalItemFormShippingControl extends InternalControl {
           <foxy-internal-async-combo-box-control
             item-value-path="address_name"
             item-label-path="address_name"
-            first=${ifDefined((this.nucleon as ItemForm | null)?.customerAddresses)}
+            first=${ifDefined((this.nucleon as ItemForm | null)?.customerAddresses ?? undefined)}
             class="col-span-2"
             infer="shipto"
           >
