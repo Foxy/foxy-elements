@@ -122,16 +122,16 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
             </foxy-internal-async-details-control>
 
             <foxy-internal-async-details-control
-              related=${JSON.stringify([
-                this.data._links['fx:transaction'].href,
-                this.data._links['fx:shipment'],
-                this.__itemsLink,
-              ])}
               infer="item-options"
               first=${this.data._links['fx:item_options'].href}
               limit="5"
               item="foxy-item-option-card"
               form="foxy-item-option-form"
+              .related=${[
+                this.data._links['fx:transaction'].href,
+                this.data._links['fx:shipment'].href,
+                this.__itemsLink,
+              ]}
             >
             </foxy-internal-async-details-control>
           `
