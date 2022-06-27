@@ -69,10 +69,13 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   }
 
   /** Link to the collection of customer addresses that can be used with this item. */
+  customerAddresses: string | null = null;
 
   /** Link to the collection of item categories that can be used with this item. */
+  itemCategories: string | null = null;
 
   /** Link to the collection of coupons that can be used with this item. */
+  coupons: string | null = null;
 
   private __itemsLink = '';
 
