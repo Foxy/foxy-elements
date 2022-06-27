@@ -101,6 +101,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
             ${this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: { template: 'dirty' } })
               ? html`
                   <vaadin-button
+                    data-testid="undo"
                     theme="tertiary-inline contrast"
                     class="px-xs"
                     @click=${() => this.undo()}
@@ -271,7 +272,10 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
 
   private __renderLink(curie: string, href: string, title?: string) {
     return html`
-      <li class="m-xs rounded overflow-hidden transition-colors hover-bg-contrast-5">
+      <li
+        data-testclass="link"
+        class="m-xs rounded overflow-hidden transition-colors hover-bg-contrast-5"
+      >
         <foxy-swipe-actions>
           <button
             class=${classMap({
