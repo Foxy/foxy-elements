@@ -887,6 +887,38 @@
           "type": "string"
         },
         {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
@@ -931,6 +963,61 @@
           "attribute": "home",
           "description": "Bookmark URL of your API.",
           "type": "string"
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "ns",
@@ -10274,6 +10361,7 @@
     {
       "name": "foxy-item-card",
       "path": "./src/elements/public/ItemCard/index.ts",
+      "description": "Basic card displaying an item.",
       "attributes": [
         {
           "name": "mode",
@@ -10505,21 +10593,22 @@
     {
       "name": "foxy-item-form",
       "path": "./src/elements/public/ItemForm/index.ts",
+      "description": "Form element for creating or editing items (`fx:item`).",
       "attributes": [
         {
           "name": "customer-addresses",
-          "type": "string",
-          "default": "\"\""
+          "description": "Link to the collection of customer addresses that can be used with this item.",
+          "type": "string"
         },
         {
           "name": "item-categories",
-          "type": "string",
-          "default": "\"\""
+          "description": "Link to the collection of item categories that can be used with this item.",
+          "type": "string"
         },
         {
           "name": "coupons",
-          "type": "string",
-          "default": "\"\""
+          "description": "Link to the collection of coupons that can be used with this item.",
+          "type": "string"
         },
         {
           "name": "ns",
@@ -10596,20 +10685,20 @@
         {
           "name": "customerAddresses",
           "attribute": "customer-addresses",
-          "type": "string",
-          "default": "\"\""
+          "description": "Link to the collection of customer addresses that can be used with this item.",
+          "type": "string"
         },
         {
           "name": "itemCategories",
           "attribute": "item-categories",
-          "type": "string",
-          "default": "\"\""
+          "description": "Link to the collection of item categories that can be used with this item.",
+          "type": "string"
         },
         {
           "name": "coupons",
           "attribute": "coupons",
-          "type": "string",
-          "default": "\"\""
+          "description": "Link to the collection of coupons that can be used with this item.",
+          "type": "string"
         },
         {
           "name": "ns",
@@ -10763,6 +10852,74 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "name:before"
+        },
+        {
+          "name": "name:after"
+        },
+        {
+          "name": "price:before"
+        },
+        {
+          "name": "price:after"
+        },
+        {
+          "name": "quantity:before"
+        },
+        {
+          "name": "quantity:after"
+        },
+        {
+          "name": "subscription:before"
+        },
+        {
+          "name": "subscription:after"
+        },
+        {
+          "name": "line-item-discount:before"
+        },
+        {
+          "name": "line-item-discount:after"
+        },
+        {
+          "name": "cart:before"
+        },
+        {
+          "name": "cart:after"
+        },
+        {
+          "name": "shipping:before"
+        },
+        {
+          "name": "shipping:after"
+        },
+        {
+          "name": "inventory:before"
+        },
+        {
+          "name": "inventory:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
         }
       ]
     },
@@ -13249,6 +13406,7 @@
     {
       "name": "foxy-shipment-card",
       "path": "./src/elements/public/ShipmentCard/index.ts",
+      "description": "Basic card displaying a shipment.",
       "attributes": [
         {
           "name": "mode",
@@ -14635,7 +14793,8 @@
     },
     {
       "name": "foxy-swipe-actions",
-      "path": "./src/elements/public/SwipeActions/index.ts"
+      "path": "./src/elements/public/SwipeActions/index.ts",
+      "description": "A utility element for adding swipe actions to cards or list items. Usage:\n\n```html\n<foxy-swipe-actions>\n   <foxy-customer-card></foxy-customer-card>\n   <button slot=\"action\">Edit</button>\n   <button slot=\"action\">Delete</button>\n</foxy-swipe-actions>\n```"
     },
     {
       "name": "foxy-table",
