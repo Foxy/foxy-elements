@@ -17,7 +17,7 @@ export class InternalItemFormLineItemDiscountControl extends InternalControl {
           <foxy-internal-async-combo-box-control
             item-value-path="_links.self.href"
             item-label-path="name"
-            first=${ifDefined((this.nucleon as ItemForm | null)?.coupons)}
+            first=${ifDefined((this.nucleon as ItemForm | null)?.coupons ?? undefined)}
             infer="coupon"
             @change=${(evt: CustomEvent) => {
               evt.preventDefault();
