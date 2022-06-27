@@ -1,12 +1,8 @@
-import '@vaadin/vaadin-button';
-import '@polymer/iron-icons/communication-icons';
-import '@polymer/iron-icons';
-
 import '../AttributeCard/index';
 import '../AttributeForm/index';
 import '../CustomFieldForm/index';
-import '../AppliedTaxCard/index';
 import '../CustomFieldCard/index';
+import '../AppliedTaxCard/index';
 import '../DiscountCard/index';
 import '../ShipmentCard/index';
 import '../PaymentCard/index';
@@ -14,6 +10,7 @@ import '../ItemForm/index';
 import '../I18n/index';
 
 import '../../internal/InternalAsyncDetailsControl/index';
+import '../../internal/InternalForm/index';
 
 import './internal/InternalTransactionCustomerControl/index';
 import './internal/InternalTransactionActionsControl/index';
