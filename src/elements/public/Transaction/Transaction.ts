@@ -7,6 +7,12 @@ import { ifDefined } from 'lit-html/directives/if-defined';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 
+/**
+ * Transaction summary page (`fx:transaction`).
+ *
+ * @element foxy-transaction
+ * @since 1.17.0
+ */
 export class Transaction extends TranslatableMixin(InternalForm, 'transaction')<Data> {
   static get styles(): CSSResultArray {
     return [
