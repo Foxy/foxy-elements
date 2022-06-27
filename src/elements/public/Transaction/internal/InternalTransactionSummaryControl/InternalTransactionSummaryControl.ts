@@ -45,37 +45,26 @@ export class InternalTransactionSummaryControl extends InternalControl {
 
     if (!data) return html`--`;
 
-    return html`
-      <foxy-i18n
-        options=${JSON.stringify({ amount: `${data.total_order} ${currency}` })}
-        key="price"
-        infer
-      >
-      </foxy-i18n>
-    `;
+    const options = { amount: `${data.total_order} ${currency}` };
+    return html`<foxy-i18n infer="" key="price" .options=${options}></foxy-i18n>`;
   }
 
   private __renderTotals() {
+    const keys = ['total_item_price', 'total_shipping', 'total_tax'] as const;
     const data = this.nucleon?.data;
     const currency = data?.currency_code;
-    const keys = ['total_item_price', 'total_shipping', 'total_tax'] as const;
 
-    return keys.map(
-      key => html`
+    return keys.map(key => {
+      const options = { amount: `${data?.[key]} ${currency}` };
+
+      return html`
         <div class="flex justify-between text-m text-secondary">
-          <foxy-i18n key=${key} infer></foxy-i18n>
+          <foxy-i18n key=${key} infer=""></foxy-i18n>
           ${data
-            ? html`
-                <foxy-i18n
-                  options=${JSON.stringify({ amount: `${data[key]} ${currency}` })}
-                  key="price"
-                  infer
-                >
-                </foxy-i18n>
-              `
+            ? html`<foxy-i18n infer="" key="price" .options=${options}></foxy-i18n>`
             : html`<span>--</span>`}
         </div>
-      `
-    );
+      `;
+    });
   }
 }
