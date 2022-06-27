@@ -7,6 +7,7 @@ import '../../../../internal/InternalCreateControl/index';
 import '../../../../internal/InternalForm/index';
 import '../../../CopyToClipboard/index';
 import '../../../SwipeActions/index';
+import '../../../I18n/index';
 
 import { InternalApiBrowserResourceForm as Form } from './InternalApiBrowserResourceForm';
 
