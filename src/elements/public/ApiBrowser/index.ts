@@ -5,6 +5,7 @@ import '@polymer/iron-icon';
 
 import '../CollectionPage/index';
 import '../Pagination/index';
+import '../I18n/index';
 
 import './internal/InternalApiBrowserResourceForm/index';
 
