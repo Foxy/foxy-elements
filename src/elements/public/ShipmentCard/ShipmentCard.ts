@@ -68,16 +68,12 @@ export class ShipmentCard extends Base<Data> {
 
     const itemFormRenderer: FormRenderer = ({ html, dialog, handleFetch, handleUpdate }) => html`
       <foxy-item-form
-        disabledcontrols=${dialog.disabledSelector.toString()}
-        readonlycontrols=${dialog.readonlySelector.toString()}
-        hiddencontrols=${dialog.hiddenSelector.toString()}
         customer-addresses=${this.__customerAddresses}
         item-categories=${this.__itemCategories}
         coupons=${this.__coupons}
         parent=${dialog.parent}
         href=${dialog.href}
-        lang=${dialog.lang}
-        ns=${dialog.ns}
+        infer=""
         @fetch=${handleFetch}
         @update=${handleUpdate}
       >
