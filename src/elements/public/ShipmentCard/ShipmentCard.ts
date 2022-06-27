@@ -14,6 +14,12 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 const NS = 'shipment-card';
 const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
+/**
+ * Basic card displaying a shipment.
+ *
+ * @element foxy-shipment-card
+ * @since 1.17.0
+ */
 export class ShipmentCard extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
