@@ -32,9 +32,8 @@ export class InternalTransactionSummaryControl extends InternalControl {
     return html`
       <foxy-i18n
         class="flex items-center h-xs px-s text-s font-semibold rounded ${color}"
-        lang=${this.lang}
+        infer=""
         key="transaction_${status}"
-        ns=${this.ns}
       >
       </foxy-i18n>
     `;
