@@ -7,6 +7,20 @@ import {
   html,
 } from 'lit-element';
 
+/**
+ * A utility element for adding swipe actions to cards or list items. Usage:
+ *
+ * ```html
+ * <foxy-swipe-actions>
+ *   <foxy-customer-card></foxy-customer-card>
+ *   <button slot="action">Edit</button>
+ *   <button slot="action">Delete</button>
+ * </foxy-swipe-actions>
+ * ```
+ *
+ * @element foxy-swipe-actions
+ * @since 1.17.0
+ */
 export class SwipeActions extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
