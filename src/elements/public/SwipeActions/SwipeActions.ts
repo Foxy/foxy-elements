@@ -1,11 +1,5 @@
-import {
-  CSSResult,
-  LitElement,
-  PropertyDeclarations,
-  TemplateResult,
-  css,
-  html,
-} from 'lit-element';
+import type { CSSResult, PropertyDeclarations, TemplateResult } from 'lit-element';
+import { LitElement, css, html } from 'lit-element';
 
 /**
  * A utility element for adding swipe actions to cards or list items. Usage:
