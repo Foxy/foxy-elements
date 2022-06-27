@@ -66,7 +66,7 @@ export const links: Links = {
   subscriptions: ({ id, store_id, customer_id, last_transaction_id, transaction_template_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:customer': { href: `./customers/${customer_id}` },
-    'fx:attributes': { href: `./attributes?subscription_id=${id}` },
+    'fx:attributes': { href: `./subscription_attributes?subscription_id=${id}` },
     'fx:transactions': { href: `./transactions?subscription_id=${id}` },
     'fx:sub_token_url': { href: 'about:blank' },
     'fx:last_transaction': { href: `./transactions/${last_transaction_id}` },
@@ -93,7 +93,7 @@ export const links: Links = {
     'fx:payments': { href: `./payments?transaction_id=${id}` },
     'fx:discounts': { href: `./discounts?transaction_id=${id}` },
     'fx:shipments': { href: `./shipments?transaction_id=${id}` },
-    'fx:attributes': { href: `./attributes?transaction_id=${id}` },
+    'fx:attributes': { href: `./transaction_attributes?transaction_id=${id}` },
     'fx:send_emails': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:applied_taxes': { href: `./applied_taxes?transaction_id=${id}` },
     'fx:custom_fields': { href: `./custom_fields?transaction_id=${id}` },
@@ -105,7 +105,7 @@ export const links: Links = {
 
   customers: document => ({
     'fx:store': { href: `./stores/${document.store_id}` },
-    'fx:attributes': { href: `./attributes?customer_id=${document.id}` },
+    'fx:attributes': { href: `./customer_attributes?customer_id=${document.id}` },
     'fx:transactions': { href: `./transactions?customer_id=${document.id}` },
     'fx:subscriptions': { href: `./subscriptions?customer_id=${document.id}` },
     'fx:customer_addresses': { href: `./customer_addresses?customer_id=${document.id}` },
@@ -120,7 +120,7 @@ export const links: Links = {
     'fx:taxes': { href: `./taxes?store_id=${id}` },
     'fx:coupons': { href: `./coupons?store_id=${id}` },
     'fx:customers': { href: `./customers?store_id=${id}` },
-    'fx:attributes': { href: `./attributes?store_id=${id}` },
+    'fx:attributes': { href: `./store_attributes?store_id=${id}` },
     'fx:transactions': { href: `./transactions?store_id=${id}` },
     'fx:store_version': { href: `./store_versions?store_id=${id}` },
     'fx:user_accesses': { href: `./user_accesses?store_id=${id}` },
@@ -162,7 +162,7 @@ export const links: Links = {
     'fx:items': { href: `./items?cart_id=${id}` },
     'fx:customer': { href: `./customers/${customer_id}` },
     'fx:discounts': { href: `./discounts?cart_id=${id}` },
-    'fx:attributes': { href: `./attributes?cart_id=${id}` },
+    'fx:attributes': { href: `./cart_attributes?cart_id=${id}` },
     'fx:template_set': { href: `./template_sets/${template_set_id}` },
     'fx:custom_fields': { href: `./custom_fields?cart_id=${id}` },
     'fx:create_session': { href: 'https://demo.api/virtual/empty?status=200' },
@@ -188,7 +188,7 @@ export const links: Links = {
 
   users: ({ id, default_store_id }) => ({
     'fx:stores': { href: `./stores?user_id=${id}` },
-    'fx:attributes': { href: `./attributes?user_id=${id}` },
+    'fx:attributes': { href: `./user_attributes?user_id=${id}` },
     'fx:default_store': { href: `./stores/${default_store_id}` },
   }),
 

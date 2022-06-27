@@ -53,7 +53,7 @@ describe('CollectionPages', () => {
   });
 
   it('renders first page from default tag name when loaded', async () => {
-    const first = 'https://demo.api/hapi/attributes';
+    const first = 'https://demo.api/hapi/customer_attributes';
     const element = await fixture<CollectionPages<any>>(html`
       <foxy-collection-pages first=${first} @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
       </foxy-collection-pages>
@@ -77,7 +77,7 @@ describe('CollectionPages', () => {
 
   it('renders first page from custom tag name when its url is set', async () => {
     const page = 'test-page test-item';
-    const first = 'https://demo.api/hapi/attributes';
+    const first = 'https://demo.api/hapi/customer_attributes';
     const element = await fixture<CollectionPages<any>>(html`
       <foxy-collection-pages
         page=${page}
@@ -109,7 +109,7 @@ describe('CollectionPages', () => {
       </test-page>
     `;
 
-    const first = 'https://demo.api/hapi/attributes';
+    const first = 'https://demo.api/hapi/customer_attributes';
     const element = await fixture<CollectionPages<any>>(html`
       <foxy-collection-pages
         first=${first}
@@ -136,7 +136,7 @@ describe('CollectionPages', () => {
   });
 
   it('passes custom group and lang props down to children', async () => {
-    const first = 'https://demo.api/hapi/attributes';
+    const first = 'https://demo.api/hapi/customer_attributes';
     const group = 'test-group';
     const page = 'test-page-element test-item-element';
     const lang = 'ru';

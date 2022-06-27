@@ -255,7 +255,10 @@ describe('Transaction', () => {
     expect(control).to.have.property('form', 'foxy-attribute-form');
     expect(control).to.have.property('item', 'foxy-attribute-card');
     expect(control).to.have.property('open', false);
-    expect(control).to.have.property('first', 'https://demo.api/hapi/attributes?transaction_id=0');
+    expect(control).to.have.property(
+      'first',
+      'https://demo.api/hapi/transaction_attributes?transaction_id=0'
+    );
   });
 
   it('renders transaction actions as control', async () => {
