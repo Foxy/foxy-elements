@@ -42,12 +42,7 @@ export class InternalItemFormSubscriptionControl extends InternalControl {
                   dialog.show(button);
                 }}
               >
-                <foxy-subscription-card
-                  hiddencontrols=${this.hiddenSelector.zoom('card').toString()}
-                  class="p-m"
-                  infer="card"
-                  href=${subscriptionLink}
-                >
+                <foxy-subscription-card class="p-m" infer="card" href=${subscriptionLink}>
                 </foxy-subscription-card>
               </button>
             `
