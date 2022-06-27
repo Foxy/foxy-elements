@@ -1,3 +1,4 @@
+import type { DiscountBuilder } from '../../../DiscountBuilder/DiscountBuilder';
 import type { TemplateResult } from 'lit-html';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { ItemForm } from '../../ItemForm';
@@ -40,6 +41,16 @@ export class InternalItemFormLineItemDiscountControl extends InternalControl {
               type: this.nucleon?.form.discount_type,
               name: this.nucleon?.form.discount_name,
               details: this.nucleon?.form.discount_details,
+            }}
+            @change=${(evt: CustomEvent) => {
+              const builder = evt.currentTarget as DiscountBuilder;
+              const value = builder.parsedValue;
+
+              this.nucleon?.edit({
+                discount_name: value.name,
+                discount_type: value.type,
+                discount_details: value.details,
+              });
             }}
           >
           </foxy-discount-builder>
