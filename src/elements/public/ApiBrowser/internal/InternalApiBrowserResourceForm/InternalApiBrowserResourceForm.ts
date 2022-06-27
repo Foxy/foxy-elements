@@ -12,6 +12,12 @@ import { css } from 'lit-element';
 const InvalidValueSymbol = Symbol() as symbol;
 const ValidValueSymbol = Symbol() as symbol;
 
+/**
+ * Internal raw resource JSON editor for use with ApiBrowser.
+ *
+ * @element foxy-internal-api-browser-resource-form
+ * @since 1.17.0
+ */
 export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalForm)<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -57,6 +63,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
     ];
   }
 
+  /** Same as the "open" attribute/property of the details element. */
   open = false;
 
   renderBody(): TemplateResult {
