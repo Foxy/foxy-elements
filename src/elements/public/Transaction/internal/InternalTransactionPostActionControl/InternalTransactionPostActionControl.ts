@@ -9,23 +9,20 @@ export class InternalTransactionPostActionControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      __state: { type: String },
       theme: { type: String },
-      state: { type: String },
       href: { type: String },
-      icon: { type: String },
     };
   }
 
-  theme = '';
+  theme: string | null = null;
 
-  state = 'idle';
+  href: string | null = null;
 
-  href = '';
-
-  icon = '';
+  private __state = 'idle';
 
   renderControl(): TemplateResult {
-    const state = this.state;
+    const state = this.__state;
     const theme = state === 'fail' ? 'error' : state === 'idle' ? this.theme : '';
 
     return html`
@@ -33,7 +30,7 @@ export class InternalTransactionPostActionControl extends InternalControl {
         header="header"
         infer="confirm"
         id="confirm"
-        @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && this.submit()}
+        @hide=${(evt: DialogHideEvent) => !evt.detail.cancelled && this.__submit()}
       >
       </foxy-internal-confirm-dialog>
 
@@ -51,16 +48,19 @@ export class InternalTransactionPostActionControl extends InternalControl {
     `;
   }
 
-  async submit(): Promise<void> {
-    if (this.state === 'busy') return;
+  private async __submit(): Promise<void> {
+    if (this.__state === 'busy') return;
 
     try {
-      this.state = 'busy';
-      const response = await new NucleonElement.API(this).fetch(this.href, { method: 'POST' });
-      this.state = response.ok ? 'idle' : 'fail';
+      this.__state = 'busy';
+
+      const api = new NucleonElement.API(this);
+      const response = await api.fetch(this.href ?? '', { method: 'POST' });
+
+      this.__state = response.ok ? 'idle' : 'fail';
       if (response.ok) this.dispatchEvent(new CustomEvent('done'));
     } catch {
-      this.state = 'fail';
+      this.__state = 'fail';
     }
   }
 }
