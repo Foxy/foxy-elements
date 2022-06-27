@@ -133,7 +133,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
       const request = args[0] instanceof Request ? args[0] : new Request(...args);
       if (request.method !== 'POST') return await super._fetch(...args);
 
-      const body = (this.form as any)[ValidValueSymbol];
+      const body = (this.form as any)[ValidValueSymbol] ?? JSON.stringify(this.form);
       return await super._fetch(request.url, { method: 'POST', body });
     } catch (err) {
       throw ['invalid_json'];
