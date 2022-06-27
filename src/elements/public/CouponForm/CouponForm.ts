@@ -652,6 +652,7 @@ export class CouponForm extends Base<Data> {
         </code>
 
         <foxy-copy-to-clipboard
+          data-testid="rules:url:copy"
           text=${urlParameter}
           lang=${this.lang}
           ns="${this.ns} copy-to-clipboard"
