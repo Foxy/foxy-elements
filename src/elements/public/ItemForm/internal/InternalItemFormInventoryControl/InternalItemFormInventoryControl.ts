@@ -16,7 +16,7 @@ export class InternalItemFormInventoryControl extends InternalControl {
             item-value-path="_links.self.href"
             item-label-path="name"
             property="item_category_uri"
-            first=${ifDefined((this.nucleon as ItemForm | null)?.itemCategories)}
+            first=${ifDefined((this.nucleon as ItemForm | null)?.itemCategories ?? undefined)}
             class="col-span-2"
             infer="category"
           >
