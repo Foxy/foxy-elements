@@ -5,6 +5,7 @@ import type { FetchEvent } from '../NucleonElement/FetchEvent';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -13,7 +14,7 @@ import { html } from 'lit-element';
 import debounce from 'lodash-es/debounce';
 
 const NS = 'api-browser';
-const Base = ThemeableMixin(TranslatableMixin(NucleonElement, NS));
+const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)));
 
 /**
  * Interactive hAPI explorer.
@@ -75,7 +76,7 @@ export class ApiBrowser extends Base<Data> {
             title=${this.t('go_back')}
             theme="icon contrast"
             class="p-0"
-            ?disabled=${!this.__canGoBack}
+            ?disabled=${this.disabled || !this.__canGoBack}
             @click=${() => this.__goBack()}
           >
             <iron-icon class="icon-inline text-m" icon="icons:arrow-back"></iron-icon>
@@ -85,7 +86,7 @@ export class ApiBrowser extends Base<Data> {
             title=${this.t('go_home')}
             theme="icon contrast"
             class="p-0"
-            ?disabled=${!this.__canGoHome}
+            ?disabled=${this.disabled || !this.__canGoHome}
             @click=${() => this.__goHome()}
           >
             <iron-icon class="icon-inline text-m" icon="icons:home"></iron-icon>
@@ -93,7 +94,10 @@ export class ApiBrowser extends Base<Data> {
 
           <vaadin-text-field
             placeholder="https://api.foxy.io/stores/0"
+            aria-label=${this.t('current_url')}
             class="flex-1"
+            ?disabled=${this.disabled}
+            ?readonly=${this.readonly}
             .value=${this.href || this.parent}
             @input=${(evt: CustomEvent) => {
               const field = evt.currentTarget as TextFieldElement;
@@ -109,7 +113,7 @@ export class ApiBrowser extends Base<Data> {
             title=${this.t('refresh')}
             theme="icon contrast"
             class="p-0"
-            ?disabled=${this.in('busy')}
+            ?disabled=${this.disabled || this.in('busy')}
             @click=${() => this.refresh()}
           >
             <iron-icon class="icon-inline text-m" icon="icons:refresh"></iron-icon>
@@ -117,18 +121,20 @@ export class ApiBrowser extends Base<Data> {
 
           <div class="grid grid-cols-2">
             <vaadin-button
+              title=${this.t('get_mode')}
               theme=${this.href ? 'contrast primary' : 'contrast'}
               class="rounded-r-none p-0"
-              ?disabled=${this.__mode === 'get'}
+              ?disabled=${this.disabled || this.__mode === 'get'}
               @click=${() => (this.__mode = 'get')}
             >
               GET
             </vaadin-button>
 
             <vaadin-button
+              title=${this.t('post_mode')}
               theme=${this.href ? 'contrast' : 'contrast primary'}
               class="rounded-l-none p-0"
-              ?disabled=${this.__mode === 'post'}
+              ?disabled=${this.disabled || this.__mode === 'post'}
               @click=${() => (this.__mode = 'post')}
             >
               POST
