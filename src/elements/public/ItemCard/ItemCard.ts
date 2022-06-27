@@ -104,7 +104,10 @@ export class ItemCard extends Base<Data> {
                 <div class="mt-s">
                   ${options.map(
                     option => html`
-                      <div class="flex items-center text-m space-x-xs leading-m">
+                      <div
+                        data-testclass="option"
+                        class="flex items-center text-m space-x-xs leading-m"
+                      >
                         <div class="flex-1 text-tertiary">${option.name}: ${option.value}</div>
                         ${option.price_mod
                           ? html`
