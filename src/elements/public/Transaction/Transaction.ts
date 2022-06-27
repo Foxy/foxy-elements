@@ -83,22 +83,22 @@ export class Transaction extends TranslatableMixin(InternalForm, 'transaction')<
           </foxy-internal-async-details-control>
 
           <foxy-internal-async-details-control
-            related=${JSON.stringify([this.href])}
             infer="custom-fields"
             first=${ifDefined(this.data?._links['fx:custom_fields'].href)}
             limit="5"
             form="foxy-custom-field-form"
             item="foxy-custom-field-card"
+            .related=${[this.href]}
           >
           </foxy-internal-async-details-control>
 
           <foxy-internal-async-details-control
-            related=${JSON.stringify([this.href])}
             infer="attributes"
             first=${ifDefined(this.data?._links['fx:attributes'].href)}
             limit="5"
             form="foxy-attribute-form"
             item="foxy-attribute-card"
+            .related=${[this.href]}
           >
           </foxy-internal-async-details-control>
 
