@@ -13,6 +13,12 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 const NS = 'item-card';
 const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
+/**
+ * Basic card displaying an item.
+ *
+ * @element foxy-item-card
+ * @since 1.17.0
+ */
 export class ItemCard extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
