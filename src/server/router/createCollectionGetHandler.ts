@@ -40,8 +40,9 @@ export function createCollectionGetHandler(router: Router, dataset: Dataset) {
     const last = new URL('', url);
     last.searchParams.set('offset', Math.max(matchingDocuments.length - limit, 0).toString());
 
+    const rel = params.collection.endsWith('_attributes') ? 'attributes' : params.collection;
     const responseBody = {
-      _embedded: { [`fx:${params.collection}`]: itemsToReturn },
+      _embedded: { [`fx:${rel}`]: itemsToReturn },
       _links: {
         first: { href: first.toString() },
         self: { href: url.toString() },

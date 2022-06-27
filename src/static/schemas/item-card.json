@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "price": {
+      "type": "string",
+      "default": "{{amount, price}}"
+    },
+    "wgt": {
+      "type": "string",
+      "default": "WGT"
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": {
+          "type": "string",
+          "default": "Loading"
+        },
+        "loading_empty": {
+          "type": "string",
+          "default": "No items"
+        },
+        "loading_error": {
+          "type": "string",
+          "default": "Failed to load"
+        }
+      },
+      "required": [
+        "loading_busy",
+        "loading_empty",
+        "loading_error"
+      ]
+    }
+  },
+  "required": [
+    "price",
+    "wgt",
+    "spinner"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema"
+}

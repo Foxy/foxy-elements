@@ -8,6 +8,7 @@ import '../../internal/InternalSandbox/index';
 import '../GenerateCodesForm/index';
 import '../GiftCardCodesForm/index';
 import '../GiftCardCodeForm/index';
+import '../CopyToClipboard/index';
 import '../QueryBuilder/index';
 import '../Pagination/index';
 import '../FormDialog/index';

@@ -16,6 +16,7 @@ export type ItemRendererContext<TItem extends HALJSONResource = HALJSONResource>
   readonly: boolean;
   disabled: boolean;
   previous: TItem | null;
+  related: string[];
   hidden: boolean;
   parent: string;
   spread: typeof spread;

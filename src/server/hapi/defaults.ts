@@ -3,7 +3,7 @@ import { increment } from '../router/utils';
 
 export const defaults: Defaults = {
   applied_taxes: query => ({
-    id: increment('applied_taxes'),
+    id: increment('applied_taxes', 1),
     tax_id: parseInt(query.get('tax_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
@@ -19,7 +19,7 @@ export const defaults: Defaults = {
   }),
 
   discounts: query => ({
-    id: increment('discounts'),
+    id: increment('discounts', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
@@ -36,7 +36,7 @@ export const defaults: Defaults = {
   }),
 
   payments: query => ({
-    id: increment('payments'),
+    id: increment('payments', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     type: '',
@@ -57,7 +57,7 @@ export const defaults: Defaults = {
   }),
 
   error_entries: query => ({
-    id: increment('error_entries'),
+    id: increment('error_entries', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     url: '',
@@ -74,7 +74,7 @@ export const defaults: Defaults = {
   }),
 
   custom_fields: query => ({
-    id: increment('custom_fields'),
+    id: increment('custom_fields', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     name: '',
@@ -85,7 +85,7 @@ export const defaults: Defaults = {
   }),
 
   customer_attributes: query => ({
-    id: increment('customer_attributes'),
+    id: increment('customer_attributes', 1),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     name: '',
     value: '',
@@ -94,8 +94,41 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  item_attributes: query => ({
+    id: increment('item_attributes', 1),
+    item_id: parseInt(query.get('item_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  shipment_attributes: query => ({
+    id: increment('shipment_attributes', 1),
+    shipment_id: parseInt(query.get('shipment_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  item_options: query => ({
+    id: increment('item_options', 3),
+    item_id: parseInt(query.get('item_id') ?? '0'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    transaction_id: parseInt(query.get('transaction_id') ?? '0'),
+    name: 'color',
+    value: 'blue',
+    price_mod: 11.98,
+    weight_mod: 5,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   customer_addresses: query => ({
-    id: increment('customer_addresses'),
+    id: increment('customer_addresses', 4),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     address_name: '',
@@ -117,7 +150,7 @@ export const defaults: Defaults = {
   }),
 
   email_templates: query => ({
-    id: increment('email_templates'),
+    id: increment('email_templates', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: '',
     subject: '',
@@ -130,7 +163,7 @@ export const defaults: Defaults = {
   }),
 
   payment_methods: query => ({
-    id: increment('payment_methods'),
+    id: increment('payment_methods', 1),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     save_cc: true,
     cc_type: '',
@@ -142,7 +175,7 @@ export const defaults: Defaults = {
   }),
 
   subscriptions: query => ({
-    id: increment('subscriptions'),
+    id: increment('subscriptions', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     transaction_template_id: parseInt(query.get('transaction_template_id') ?? '0'),
@@ -160,7 +193,7 @@ export const defaults: Defaults = {
   }),
 
   transactions: query => ({
-    id: increment('transactions'),
+    id: increment('transactions', 2),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     subscription_id: parseInt(query.get('subscription_id') ?? '0'),
@@ -188,7 +221,7 @@ export const defaults: Defaults = {
   }),
 
   customers: query => ({
-    id: increment('customers'),
+    id: increment('customers', 5),
     store_id: parseInt(query.get('store_id') ?? '0'),
     tax_id: '',
     last_login_date: new Date().toISOString(),
@@ -207,7 +240,7 @@ export const defaults: Defaults = {
   }),
 
   stores: () => ({
-    id: increment('stores'),
+    id: increment('stores', 1),
     store_version_uri: '',
     store_name: '',
     store_domain: '',
@@ -254,7 +287,7 @@ export const defaults: Defaults = {
   }),
 
   items: query => ({
-    id: increment('items'),
+    id: increment('items', 20),
     cart_id: parseInt(query.get('cart_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
@@ -287,7 +320,7 @@ export const defaults: Defaults = {
   }),
 
   carts: query => ({
-    id: increment('items'),
+    id: increment('items', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     template_set_id: parseInt(query.get('template_set_id') ?? '0'),
@@ -325,7 +358,7 @@ export const defaults: Defaults = {
   }),
 
   cart_templates: query => ({
-    id: increment('cart_templates'),
+    id: increment('cart_templates', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: '',
     content: '',
@@ -335,7 +368,7 @@ export const defaults: Defaults = {
   }),
 
   customer_portal_settings: query => ({
-    id: increment('customer_portal_settings'),
+    id: increment('customer_portal_settings', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     session_lifespan_in_minutes: 0,
     allowed_origins: [],
@@ -349,7 +382,7 @@ export const defaults: Defaults = {
   }),
 
   taxes: query => ({
-    id: increment('taxes'),
+    id: increment('taxes', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     name: '',
     type: 'global',
@@ -367,7 +400,7 @@ export const defaults: Defaults = {
   }),
 
   users: query => ({
-    id: increment('users'),
+    id: increment('users', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     first_name: '',
     last_name: '',
@@ -383,7 +416,7 @@ export const defaults: Defaults = {
   }),
 
   template_configs: query => ({
-    id: increment('template_configs'),
+    id: increment('template_configs', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: 'Template Config',
     json: '{"cart_type":"default","checkout_type":"default_account","csc_requirements":"all_cards","tos_checkbox_settings":{"usage":"none","initial_state":"unchecked","is_hidden":false,"url":""},"eu_secure_data_transfer_consent":{"usage":"required"},"newsletter_subscribe":{"usage":"none"},"analytics_config":{"usage":"none","google_analytics":{"usage":"none","account_id":"","include_on_site":false},"segment_io":{"usage":"none","account_id":""}},"colors":{"usage":"none","primary":"4D4D4D","secondary":"FFFFFF","tertiary":"FFFFFF"},"use_checkout_confirmation_window":{"usage":"none"},"supported_payment_cards":["visa","mastercard","discover","amex"],"custom_checkout_field_requirements":{"cart_controls":"enabled","coupon_entry":"enabled","billing_first_name":"required","billing_last_name":"required","billing_company":"optional","billing_tax_id":"hidden","billing_phone":"optional","billing_address1":"required","billing_address2":"optional","billing_city":"required","billing_region":"default","billing_postal_code":"required","billing_country":"required"},"cart_display_config":{"usage":"none","show_product_weight":true,"show_product_category":true,"show_product_code":true,"show_product_options":true,"show_sub_frequency":true,"show_sub_startdate":true,"show_sub_nextdate":true,"show_sub_enddate":true,"hidden_product_options":[]},"foxycomplete":{"usage":"required","show_combobox":true,"combobox_open":"\\u25bc","combobox_close":"\\u25b2","show_flags":true},"custom_script_values":{"header":"","footer":"","checkout_fields":"","multiship_checkout_fields":""},"http_receipt":false,"custom_config":{},"debug":{"usage":"none"},"location_filtering":{"usage":"none","shipping_filter_type":"blacklist","billing_filter_type":"blacklist","shipping_filter_values":{},"billing_filter_values":{}},"postal_code_lookup":{"usage":"enabled"}}',
@@ -392,7 +425,7 @@ export const defaults: Defaults = {
   }),
 
   coupons: query => ({
-    id: increment('coupons'),
+    id: increment('coupons', 12),
     store_id: parseInt(query.get('store_id') ?? '0'),
     name: 'e',
     start_date: null,
@@ -413,7 +446,7 @@ export const defaults: Defaults = {
   }),
 
   coupon_codes: query => ({
-    id: increment('coupon_codes'),
+    id: increment('coupon_codes', 100),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     code: '',
@@ -423,12 +456,12 @@ export const defaults: Defaults = {
   }),
 
   generate_codes: () => ({
-    id: increment('generate_codes'),
+    id: increment('generate_codes', 1),
     message: 'All codes added successfully.',
   }),
 
   item_categories: query => ({
-    id: increment('item_categories'),
+    id: increment('item_categories', 12),
     store_id: parseInt(query.get('store_id') ?? '0'),
     admin_email_template_uri: '',
     customer_email_template_uri: '',
@@ -458,7 +491,7 @@ export const defaults: Defaults = {
   }),
 
   coupon_item_categories: query => ({
-    id: increment('coupon_item_categories'),
+    id: increment('coupon_item_categories', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     item_category_id: parseInt(query.get('item_category_id') ?? '0'),
@@ -469,7 +502,7 @@ export const defaults: Defaults = {
   }),
 
   gift_cards: query => ({
-    id: increment('coupon_item_categories'),
+    id: increment('coupon_item_categories', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     name: '',
     currency_code: '',
@@ -480,7 +513,7 @@ export const defaults: Defaults = {
   }),
 
   gift_card_codes: query => ({
-    id: increment('gift_card_codes'),
+    id: increment('gift_card_codes', 100),
     store_id: parseInt(query.get('store_id') ?? '0'),
     gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
     code: '',
@@ -491,12 +524,112 @@ export const defaults: Defaults = {
   }),
 
   gift_card_item_categories: query => ({
-    id: increment('gift_card_item_categories'),
+    id: increment('gift_card_item_categories', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
     gift_card_id: parseInt(query.get('coupon_id') ?? '0'),
     item_category_id: parseInt(query.get('item_category_id') ?? '0'),
     gift_card_uri: '',
     item_category_uri: '',
+  }),
+
+  reports: query => ({
+    id: increment('reports', 3),
+    user_id: parseInt(query.get('user_id') ?? '0'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    name: 'customers',
+    version: '1',
+    datetime_start: '2022-01-01T00:00:00-0800',
+    datetime_end: '2022-12-31T00:00:00-0800',
+    status: 'ready',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  discount_details: query => ({
+    id: increment('discount_details', 3),
+    item_id: parseInt(query.get('item_id') ?? '0'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    transaction_id: parseInt(query.get('transaction_id') ?? '0'),
+    name: '',
+    amount_per: 0,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  coupon_details: query => ({
+    id: increment('coupon_details', 3),
+    item_id: parseInt(query.get('item_id') ?? '0'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    coupon_id: parseInt(query.get('coupon_id') ?? '0'),
+    coupon_code_id: parseInt(query.get('coupon_code_id') ?? '0'),
+    transaction_id: parseInt(query.get('transaction_id') ?? '0'),
+    name: '',
+    code: '',
+    amount_per: 0,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  shipments: query => ({
+    id: increment('shipments', 2),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    transaction_id: parseInt(query.get('transaction_id') ?? '0'),
+    customer_id: parseInt(query.get('customer_id') ?? '0'),
+    customer_address_id: parseInt(query.get('customer_address_id') ?? '0'),
+    address_name: '',
+    first_name: '',
+    last_name: '',
+    company: '',
+    address1: '',
+    address2: '',
+    city: '',
+    region: '',
+    postal_code: '',
+    country: '',
+    phone: '',
+    shipping_service_id: 0,
+    shipping_service_description: '',
+    total_item_price: 0,
+    total_tax: 0,
+    total_shipping: 0,
+    total_price: 0,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  webhooks: query => ({
+    id: increment('webhooks', 1),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    format: 'json',
+    version: 2,
+    name: '',
+    url: '',
+    query: '',
+    encryption_key: '',
+    event_resource: 'transaction',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  webhook_statuses: query => ({
+    id: increment('webhook_statuses', 1),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    webhook_id: parseInt(query.get('webhook_id') ?? '0'),
+    resource_id: parseInt(query.get('resource_id') ?? '0'),
+    resource_type: 'transaction',
+    status: 'pending',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  webhook_logs: query => ({
+    id: increment('webhook_logs', 1),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    webhook_id: parseInt(query.get('webhook_id') ?? '0'),
+    resource_id: parseInt(query.get('resource_id') ?? '0'),
+    resource_type: 'transaction',
+    response_body: '',
+    response_code: '',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

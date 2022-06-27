@@ -5,6 +5,7 @@ import HttpApi from 'i18next-http-backend';
 import { I18n } from '../elements/public/I18n/I18n';
 import { Themeable } from './themeable';
 import { cdn } from '../env';
+import { InferrableMixinHost } from './inferrable';
 
 /**
  * One of the base classes for each rel-specific element in the collection,
@@ -169,7 +170,9 @@ export abstract class Translatable extends Themeable {
   }
 }
 
-type Base = Constructor<LitElement> & { properties?: PropertyDeclarations };
+type Base = Constructor<InferrableMixinHost> &
+  Constructor<LitElement> & { properties?: PropertyDeclarations; inferredProperties: string[] };
+
 type Translator = (key: string, options?: StringMap) => string;
 
 export declare class TranslatableMixinHost {
@@ -194,6 +197,10 @@ export const TranslatableMixin = <T extends Base>(
   defaultNS = ''
 ): T & Constructor<TranslatableMixinHost> & { defaultNS: string } => {
   return class TranslatableElement extends BaseElement {
+    static get inferredProperties(): string[] {
+      return [...super.inferredProperties, 'lang', 'ns'];
+    }
+
     static get properties(): PropertyDeclarations {
       return {
         ...super.properties,
@@ -216,9 +223,11 @@ export const TranslatableMixin = <T extends Base>(
       if (!I18nElement) return key;
 
       const keys = [
-        ...[defaultNS, ...this.ns.split(' ').reverse()]
+        ...this.ns
+          .split(' ')
+          .reverse()
           .map(v => v.trim())
-          .filter((v, i, a) => a.indexOf(v) === i && v.length > 0)
+          .filter(v => v.length > 0)
           .reverse()
           .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),
         `shared:${key}`,
@@ -249,6 +258,17 @@ export const TranslatableMixin = <T extends Base>(
     disconnectedCallback(): void {
       super.disconnectedCallback();
       this.__untrackTranslations?.();
+    }
+
+    applyInferredProperties(context: Map<string, unknown>): void {
+      super.applyInferredProperties(context);
+      if (this.infer === null) return;
+
+      const lang = context.get('lang') as string | undefined;
+      const ns = context.get('ns') as string | undefined;
+
+      this.lang = lang ?? '';
+      this.ns = ns ? `${ns} ${this.infer}`.trim() : defaultNS;
     }
   };
 };

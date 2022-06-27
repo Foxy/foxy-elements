@@ -17,6 +17,10 @@
       "url": "./src/static/schemas/address-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/api-browser/*.json"],
+      "url": "./src/static/schemas/api-browser.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/applied-tax-card/*.json"],
       "url": "./src/static/schemas/applied-tax-card.json"
     },
@@ -31,6 +35,10 @@
     {
       "fileMatch": ["/src/static/translations/cancellation-form/*.json"],
       "url": "./src/static/schemas/cancellation-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/copy-to-clipboard/*.json"],
+      "url": "./src/static/schemas/copy-to-clipboard.json"
     },
     {
       "fileMatch": ["/src/static/translations/coupon-card/*.json"],
@@ -77,6 +85,10 @@
       "url": "./src/static/schemas/customers-table.json"
     },
     {
+      "fileMatch": ["/src/static/translations/discount-builder/*.json"],
+      "url": "./src/static/schemas/discount-builder.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/discount-card/*.json"],
       "url": "./src/static/schemas/discount-card.json"
     },
@@ -109,6 +121,18 @@
       "url": "./src/static/schemas/gift-card-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/item-card/*.json"],
+      "url": "./src/static/schemas/item-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/item-form/*.json"],
+      "url": "./src/static/schemas/item-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/item-option-form/*.json"],
+      "url": "./src/static/schemas/item-option-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/pagination/*.json"],
       "url": "./src/static/schemas/pagination.json"
     },
@@ -123,6 +147,18 @@
     {
       "fileMatch": ["/src/static/translations/query-builder/*.json"],
       "url": "./src/static/schemas/query-builder.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/report-form/*.json"],
+      "url": "./src/static/schemas/report-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/reports-table/*.json"],
+      "url": "./src/static/schemas/reports-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/shipment-card/*.json"],
+      "url": "./src/static/schemas/shipment-card.json"
     },
     {
       "fileMatch": ["/src/static/translations/sign-in-form/*.json"],
@@ -161,6 +197,10 @@
       "url": "./src/static/schemas/template-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/transaction/*.json"],
+      "url": "./src/static/schemas/transaction.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/transaction-card/*.json"],
       "url": "./src/static/schemas/transaction-card.json"
     },
@@ -175,6 +215,22 @@
     {
       "fileMatch": ["/src/static/translations/users-table/*.json"],
       "url": "./src/static/schemas/users-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/webhook-card/*.json"],
+      "url": "./src/static/schemas/webhook-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/webhook-form/*.json"],
+      "url": "./src/static/schemas/webhook-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/webhook-log-card/*.json"],
+      "url": "./src/static/schemas/webhook-log-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/webhook-status-card/*.json"],
+      "url": "./src/static/schemas/webhook-status-card.json"
     }
   ]
 }

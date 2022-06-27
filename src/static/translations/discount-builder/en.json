@@ -1,0 +1,14 @@
+{
+  "tier": "Tier",
+  "tier_by": "by",
+  "tier_if": "if",
+  "tier_allunits": "price of each item",
+  "tier_incremental": "price of additional items",
+  "tier_repeat": "price of next item",
+  "tier_single": "order total",
+  "tier_then": "then",
+  "quantity": "quantity",
+  "total": "total",
+  "reduce": "reduce",
+  "increase": "increase"
+}

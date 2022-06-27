@@ -67,7 +67,7 @@ export class PaymentCard extends Base<Data> {
           ${isCardInfoHidden && isFraudRiskHidden
             ? ''
             : html`
-                <div class="my-s flex space-x-s">
+                <div class="my-s flex space-x-s overflow-auto">
                   ${isCardInfoHidden ? '' : this.__renderCardInfo()}
                   ${isFraudRiskHidden ? '' : this.__renderFraudRisk()}
                 </div>

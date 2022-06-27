@@ -12,8 +12,9 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { SignInForm } from '../SignInForm';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
-const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(LitElement)));
+const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(InferrableMixin(LitElement))));
 
 export class InternalCustomerPortalLoggedOutView extends Base {
   static get properties(): PropertyDeclarations {

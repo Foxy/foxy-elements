@@ -14,6 +14,8 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
 
 describe('GiftCardCodeForm', () => {
   it('extends NucleonElement', () => {
@@ -785,13 +787,28 @@ describe('GiftCardCodeForm', () => {
     });
 
     it('renders disabled if form is sending changes', async () => {
-      const href = 'https://demo.api/hapi/gift_card_codes/0';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-gift-card-code-form .data=${data}></foxy-gift-card-code-form>`;
-      const element = await fixture<GiftCardCodeForm>(layout);
+      const router = createRouter();
+      const element = await fixture<GiftCardCodeForm>(html`
+        <foxy-gift-card-code-form
+          href="https://demo.api/hapi/gift_card_codes/0"
+          @fetch=${(evt: FetchEvent) => {
+            if (evt.request.method === 'DELETE') {
+              evt.preventDefault();
+              evt.respondWith(new Promise(() => void 0));
+            } else {
+              router.handleEvent(evt);
+            }
+          }}
+        >
+        </foxy-gift-card-code-form>
+      `);
+
+      await waitUntil(() => element.in({ idle: 'snapshot' }));
 
       element.edit({ code: 'TEST_123' });
       element.submit();
+
+      await waitUntil(() => element.in('busy'));
 
       expect(await getByTestId(element, 'delete')).to.have.attribute('disabled');
     });

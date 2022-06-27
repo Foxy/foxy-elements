@@ -1,0 +1,31 @@
+{
+  "go_back": "Go back",
+  "go_home": "Go home",
+  "current_url": "Current URL",
+  "get_mode": "Click to send GET requests to the selected endpoints",
+  "post_mode": "Click to send POST requests to the selected endpoints",
+  "refresh": "Refresh",
+  "first": "First",
+  "last": "Last",
+  "next": "Next",
+  "pagination": "{{from}}-{{to}} out of {{total}}",
+  "previous": "Previous",
+  "undo": "Undo",
+  "copy-to-clipboard": {
+    "click_to_copy": "Click to copy",
+    "copying": "Copying",
+    "done": "Done",
+    "failed_to_copy": "Failed to copy"
+  },
+  "spinner": {
+    "loading_busy": "Loading"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this resource? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Submit"
+  }
+}

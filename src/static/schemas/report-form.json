@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "cancel": {
+      "default": "Cancel",
+      "type": "string"
+    },
+    "create": {
+      "default": "Create",
+      "type": "string"
+    },
+    "date": {
+      "default": "{{value, date}}",
+      "type": "string"
+    },
+    "date_created": {
+      "default": "Created on",
+      "type": "string"
+    },
+    "date_modified": {
+      "default": "Last updated",
+      "type": "string"
+    },
+    "datetime_end_required": {
+      "default": "End date is required",
+      "type": "string"
+    },
+    "datetime_start_required": {
+      "default": "Start date is required",
+      "type": "string"
+    },
+    "delete": {
+      "default": "Delete",
+      "type": "string"
+    },
+    "delete_prompt": {
+      "default": "If you proceed, this report will be deleted forever. Are you sure?",
+      "type": "string"
+    },
+    "end": {
+      "default": "End",
+      "type": "string"
+    },
+    "name": {
+      "default": "Name",
+      "type": "string"
+    },
+    "name_complete": {
+      "default": "Complete",
+      "type": "string"
+    },
+    "name_complete_explainer": {
+      "default": "Transactions, coupon usage, subscription forecasts etc.",
+      "type": "string"
+    },
+    "name_customers": {
+      "default": "Customers",
+      "type": "string"
+    },
+    "name_customers_explainer": {
+      "default": "Exports customers to import somewhere else.",
+      "type": "string"
+    },
+    "name_customers_ltv": {
+      "default": "Lifetime value",
+      "type": "string"
+    },
+    "name_customers_ltv_explainer": {
+      "default": "Customers with lifetime value info.",
+      "type": "string"
+    },
+    "preset": {
+      "default": "Preset",
+      "type": "string"
+    },
+    "preset_custom": {
+      "default": "Custom",
+      "type": "string"
+    },
+    "preset_last_30_days": {
+      "default": "Last 30 days",
+      "type": "string"
+    },
+    "preset_last_365_days": {
+      "default": "Last 365 days",
+      "type": "string"
+    },
+    "preset_previous_month": {
+      "default": "Previous month",
+      "type": "string"
+    },
+    "preset_previous_quarter": {
+      "default": "Previous quarter",
+      "type": "string"
+    },
+    "preset_previous_year": {
+      "default": "Previous year",
+      "type": "string"
+    },
+    "preset_this_month": {
+      "default": "This month",
+      "type": "string"
+    },
+    "preset_this_quarter": {
+      "default": "This quarter",
+      "type": "string"
+    },
+    "preset_this_year": {
+      "default": "This year",
+      "type": "string"
+    },
+    "range": {
+      "default": "Range",
+      "type": "string"
+    },
+    "select_date": {
+      "default": "DD/MM/YYYY",
+      "type": "string"
+    },
+    "select_time": {
+      "default": "HH:MM:SS",
+      "type": "string"
+    },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_error"],
+      "additionalProperties": false
+    },
+    "start": {
+      "default": "Start",
+      "type": "string"
+    },
+    "use_precise_time": {
+      "default": "Use precise time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "cancel",
+    "create",
+    "date",
+    "date_created",
+    "date_modified",
+    "datetime_end_required",
+    "datetime_start_required",
+    "delete",
+    "delete_prompt",
+    "end",
+    "name",
+    "name_complete",
+    "name_complete_explainer",
+    "name_customers",
+    "name_customers_explainer",
+    "name_customers_ltv",
+    "name_customers_ltv_explainer",
+    "preset",
+    "preset_custom",
+    "preset_last_30_days",
+    "preset_last_365_days",
+    "preset_previous_month",
+    "preset_previous_quarter",
+    "preset_previous_year",
+    "preset_this_month",
+    "preset_this_quarter",
+    "preset_this_year",
+    "range",
+    "select_date",
+    "select_time",
+    "start",
+    "use_precise_time",
+    "spinner"
+  ],
+  "additionalProperties": false
+}

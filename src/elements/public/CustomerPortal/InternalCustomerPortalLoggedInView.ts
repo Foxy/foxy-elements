@@ -36,7 +36,12 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
   private readonly __renderHeaderActionsSignOut = () => {
     const scope = 'customer:header:actions:sign-out';
     const state = this.loggingOutState;
-    const isCustomerLoaded = !!this.__customerElement?.in({ idle: 'snapshot' });
+
+    const isDisabled =
+      this.disabledSelector.matches(scope) ||
+      !this.__customerElement?.in({ idle: 'snapshot' }) ||
+      state !== 'idle';
+
     const handleClick = async () => {
       try {
         this.loggingOutState = 'busy';
@@ -51,6 +56,14 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       }
     };
 
+    const style = {
+      'border-radius': '100%',
+      'padding': 'var(--lumo-space-xs)',
+      'display': 'flex',
+      'margin': '0',
+      'cursor': isDisabled ? 'default' : 'pointer',
+    };
+
     return html`
       <div style="display: flex; margin-left: var(--lumo-space-m)">
         ${this.renderTemplateOrSlot(`${scope}:before`)}
@@ -58,9 +71,9 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         <vaadin-button
           data-testid="sign-out"
           aria-label=${this.t('sign_out').toString()}
-          style="padding: var(--lumo-space-xs); margin: 0; border-radius: 100%; display: flex"
+          style=${Object.entries(style).reduce((p, [k, v]) => `${p}${k}:${v};`, '')}
           theme="icon"
-          ?disabled=${this.disabledSelector.matches(scope) || !isCustomerLoaded || state !== 'idle'}
+          ?disabled=${isDisabled}
           @click=${handleClick}
         >
           ${state === 'idle'

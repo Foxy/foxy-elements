@@ -1,0 +1,21 @@
+{
+  "created_on": "Created on",
+  "date": "{{value, date}}",
+  "download": "Download",
+  "link": "Link",
+  "range_end": "End",
+  "range_start": "Start",
+  "report_name": "Name",
+  "report_name_complete": "Complete",
+  "report_name_customers": "Customers",
+  "report_name_customers_ltv": "Lifetime value",
+  "link-spinner": {
+    "loading_busy": "Preparing",
+    "loading_error": "Failed to create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

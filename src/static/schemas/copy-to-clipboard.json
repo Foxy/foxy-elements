@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "click_to_copy": {
+      "default": "Click to copy",
+      "type": "string"
+    },
+    "copying": {
+      "default": "Copying",
+      "type": "string"
+    },
+    "done": {
+      "default": "Done",
+      "type": "string"
+    },
+    "failed_to_copy": {
+      "default": "Failed to copy",
+      "type": "string"
+    }
+  },
+  "required": ["click_to_copy", "copying", "done", "failed_to_copy"],
+  "additionalProperties": false
+}

@@ -27,7 +27,7 @@ export default {
     (context, next) => {
       const url = context.url;
       const prefix = '/src/static';
-      const staticPaths = ['/translations', '/images', '/logo.png'];
+      const staticPaths = ['/translations', '/images', '/logo-light.png', '/logo-dark.png'];
       if (staticPaths.some(path => url.startsWith(path))) context.url = `${prefix}${url}`;
       return next();
     },

@@ -1,0 +1,101 @@
+{
+  "name": {
+    "label": "Name",
+    "placeholder": "My JSON Webhook",
+    "helper_text": "The name of this webhook.",
+    "v8n_required": "Webhook name is required",
+    "v8n_too_long": "Webhook name cannot exceed 255 characters"
+  },
+  "format": {
+    "label": "Format",
+    "helper_text": "The type of this webhook.",
+    "v8n_required": "Please select a format"
+  },
+  "version": {
+    "label": "Version",
+    "placeholder": "2",
+    "helper_text": "Version of the webhook. Enter 2 for latest or use other if you have specific instructions from Foxy.",
+    "v8n_required": "Version is required"
+  },
+  "url": {
+    "label": "URL",
+    "placeholder": "https://example.com/webhook",
+    "helper_text": "The endpoint where we will send the webhook data.",
+    "v8n_too_long": "URL cannot exceed 1000 characters"
+  },
+  "query": {
+    "label": "Query",
+    "placeholder": "zoom=items,items:options,customer",
+    "helper_text": "The webhook payload mirrors the API, and you can include more or less data according to your needs using zoom and other modifiers.",
+    "v8n_too_long": "Query cannot exceed 1000 characters"
+  },
+  "encryption-key": {
+    "label": "Encryption key",
+    "placeholder": "HNL978XVXXCM66DM5N2T78D5MT66BC6D",
+    "helper_text": "The JSON webhooks are encrypted in certain situations. This key is also used to generate a signature to verify the integrity of the payload.",
+    "v8n_too_long": "Encryption key cannot exceed 1000 characters"
+  },
+  "event-resource": {
+    "label": "Resource",
+    "helper_text": "Changes in selected resource type will trigger this webhook.",
+    "event_resource_subscription": "Subscription",
+    "event_resource_transaction": "Transaction",
+    "event_resource_customer": "Customer"
+  },
+  "statuses": {
+    "title": "Statuses",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "status_successful": "Successful",
+        "status_pending": "Pending",
+        "status_failed": "Failed",
+        "date": "{{value, date}}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_error": "Failed to load",
+          "loading_empty": "No data"
+        }
+      }
+    }
+  },
+  "logs": {
+    "title": "Logs",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "date": "{{value, date}}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_error": "Failed to load",
+          "loading_empty": "No data"
+        }
+      }
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this webhook? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

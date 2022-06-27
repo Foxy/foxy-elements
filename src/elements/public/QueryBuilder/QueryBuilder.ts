@@ -8,9 +8,10 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { parse } from './utils/parse';
 import { stringify } from './utils/stringify';
 import { styles } from './styles';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
 const NS = 'query-builder';
-const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(LitElement, NS)));
+const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)));
 
 /**
  * UI component for creating Foxy hAPI filters visually. Compatible with

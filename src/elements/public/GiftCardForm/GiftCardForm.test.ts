@@ -974,7 +974,6 @@ describe('GiftCardForm', () => {
       expect(header).to.have.attribute('key', 'code');
       expect(header).to.have.attribute('ns', 'foo');
 
-      expect(cell).to.be.instanceOf(customElements.get('vaadin-button'));
       expect(cell).to.include.text(code.code);
     });
 
@@ -998,7 +997,8 @@ describe('GiftCardForm', () => {
 
       const column = table.columns[0];
       const cellTemplate = column.cell?.({ html, data: code, lang, ns }) as TemplateResult;
-      const button = await fixture(cellTemplate);
+      const cell = await fixture(cellTemplate);
+      const button = cell.querySelector('vaadin-button')!;
 
       button.dispatchEvent(new CustomEvent('click'));
 

@@ -1,0 +1,9 @@
+{
+  "price": "{{amount, price}}",
+  "wgt": "WGT",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No items",
+    "loading_error": "Failed to load"
+  }
+}

@@ -37,6 +37,9 @@
       "default": "Confirm",
       "type": "string"
     },
+    "copy-to-clipboard": {
+      "$ref": "copy-to-clipboard.json"
+    },
     "create": {
       "default": "Create",
       "type": "string"
@@ -1301,6 +1304,7 @@
     "code_plural",
     "code",
     "confirm",
+    "copy-to-clipboard",
     "create",
     "currency_aed",
     "currency_afn",

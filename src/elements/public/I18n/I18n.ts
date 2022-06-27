@@ -6,6 +6,7 @@ import { Gateways } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { backend } from './backend';
 import { format } from './format/index';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
 /**
  * Custom element for effortless localization with i18next.
@@ -15,7 +16,7 @@ import { format } from './format/index';
  * @element foxy-i18n
  * @since 1.1.0
  */
-export class I18n extends TranslatableMixin(LitElement, '') {
+export class I18n extends TranslatableMixin(InferrableMixin(LitElement), '') {
   /** Instances of this event are dispatched on an element before each translation request. */
   static readonly FetchEvent = FetchEvent;
 

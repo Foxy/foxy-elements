@@ -4,6 +4,7 @@ import { CSSResult, CSSResultArray, Constructor, LitElement, css } from 'lit-ele
 
 import { ResponsiveMixin } from './responsive';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles';
 
 type Base = Constructor<LitElement> & { styles?: CSSResult | CSSResultArray | CSSStyleSheet };
 
@@ -27,6 +28,9 @@ export const ThemeableMixin = <TBase extends Base>(
 
           :host {
             display: block;
+            color: var(--lumo-body-text-color);
+            line-height: var(--lumo-line-height-m);
+            font: normal var(--lumo-font-size-m) var(--lumo-font-family);
           }
 
           details > summary::-webkit-details-marker {
@@ -50,20 +54,20 @@ export const ThemeableMixin = <TBase extends Base>(
           vaadin-custom-field,
           vaadin-integer-field,
           vaadin-password-field,
-          vaadin-combo-box::part(text-field) {
-            padding-top: 0;
-            padding-bottom: 0;
-          }
-
+          vaadin-checkbox-group,
+          vaadin-radio-group,
+          vaadin-combo-box::part(text-field),
           vaadin-date-picker::part(text-field) {
             padding-top: 0;
             padding-bottom: 0;
           }
 
-          vaadin-button {
-            margin: 0;
+          vaadin-time-picker,
+          vaadin-date-time-picker {
+            width: 100%;
           }
 
+          vaadin-button,
           vaadin-checkbox::part(checkbox) {
             margin: 0;
           }
@@ -138,6 +142,44 @@ export const ThemeableMixin = <TBase extends Base>(
     }
   };
 };
+
+registerStyles(
+  'vaadin-date-time-picker',
+  css`
+    vaadin-date-time-picker-custom-field {
+      --lumo-text-field-size: auto;
+      padding: 0;
+    }
+
+    vaadin-date-time-picker-custom-field::part(label) {
+      padding-bottom: 0.5em;
+    }
+  `
+);
+
+registerStyles(
+  'vaadin-date-time-picker-date-picker',
+  css`
+    :host {
+      --lumo-text-field-size: auto;
+    }
+    vaadin-date-time-picker-date-text-field {
+      padding: 0;
+    }
+  `
+);
+
+registerStyles(
+  'vaadin-date-time-picker-time-picker',
+  css`
+    :host {
+      --lumo-text-field-size: auto;
+    }
+    vaadin-date-time-picker-time-text-field {
+      padding: 0;
+    }
+  `
+);
 
 /**
  * One of the base classes for each rel-specific element in the collection

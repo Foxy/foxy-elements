@@ -19,11 +19,11 @@ async function addEmbeds(router: Router, result: Document, zoom: string[][]) {
 
       if (isCollection) {
         await Promise.all(
-          response._embedded[curieForTopRel].map((nestedResult: Document) => {
+          response._embedded[curieForTopRel]?.map((nestedResult: Document) => {
             return addEmbeds(router, nestedResult, [rels.slice(1)]);
-          })
+          }) ?? []
         );
-        embeds[curieForTopRel] = response._embedded[curieForTopRel];
+        embeds[curieForTopRel] = response._embedded[curieForTopRel] ?? [];
       } else {
         await addEmbeds(router, response, [rels.slice(1)]);
         embeds[curieForTopRel] = response;

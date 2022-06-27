@@ -1098,7 +1098,7 @@ describe('Customer', () => {
     describe('list', () => {
       describe('card', () => {
         it('renders customer attributes once loaded', async () => {
-          const data = await getTestData<Data>('./hapi/customers/0');
+          const data = await getTestData<Data>('./hapi/customers/0?zoom=attributes');
           const listHref = data._links['fx:attributes'].href;
           const listData = await getTestData<Core.Resource<Rels.Attributes>>(listHref);
           const element = await fixture<Customer>(html`
@@ -1131,6 +1131,7 @@ describe('Customer', () => {
 
           const cards = list!.querySelectorAll('[data-testclass="attributes:list:card"]');
 
+          console.log(listData, cards);
           for (let index = 0; index < cards.length; ++index) {
             const wrapper = cards[index];
             const card = wrapper.firstElementChild as AttributeCard;

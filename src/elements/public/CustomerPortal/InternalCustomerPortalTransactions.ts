@@ -5,9 +5,10 @@ import { Graph } from '@foxy.io/sdk/customer';
 import { Resource } from '@foxy.io/sdk/core';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { InferrableMixin } from '../../../mixins/inferrable';
 
 const NS = 'customer-portal';
-const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(LitElement, NS)));
+const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)));
 
 export class InternalCustomerPortalTransactions extends Base {
   static get properties(): PropertyDeclarations {
