@@ -20,8 +20,7 @@ export class InternalTransactionActionsControl extends InternalControl {
         infer="send-emails"
         theme="contrast"
         href=${ifDefined(this.nucleon?.data?._links['fx:send_emails'].href)}
-        key="send_emails"
-        @done=${this.nucleon?.refresh}
+        @done=${() => this.nucleon?.refresh()}
       >
       </foxy-internal-transaction-post-action-control>
     `;
@@ -33,8 +32,7 @@ export class InternalTransactionActionsControl extends InternalControl {
         theme="success"
         infer="capture"
         href=${ifDefined(this.nucleon?.data?._links['fx:capture'].href)}
-        key="capture"
-        @done=${this.nucleon?.refresh}
+        @done=${() => this.nucleon?.refresh()}
       >
       </foxy-internal-transaction-post-action-control>
     `;
@@ -46,8 +44,7 @@ export class InternalTransactionActionsControl extends InternalControl {
         theme="error"
         infer="void"
         href=${ifDefined(this.nucleon?.data?._links['fx:void']?.href)}
-        key="void"
-        @done=${this.nucleon?.refresh}
+        @done=${() => this.nucleon?.refresh()}
       >
       </foxy-internal-transaction-post-action-control>
     `;
@@ -59,8 +56,7 @@ export class InternalTransactionActionsControl extends InternalControl {
         theme="contrast"
         infer="refund"
         href=${ifDefined(this.nucleon?.data?._links['fx:refund']?.href)}
-        key="refund"
-        @done=${this.nucleon?.refresh}
+        @done=${() => this.nucleon?.refresh()}
       >
       </foxy-internal-transaction-post-action-control>
     `;
