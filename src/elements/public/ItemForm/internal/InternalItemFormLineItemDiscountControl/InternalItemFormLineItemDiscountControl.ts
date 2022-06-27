@@ -12,7 +12,7 @@ export class InternalItemFormLineItemDiscountControl extends InternalControl {
 
   renderControl(): TemplateResult {
     return html`
-      <foxy-internal-details summary="title" infer>
+      <foxy-internal-details summary="title" infer="">
         <div class="space-y-m p-m">
           <foxy-internal-async-combo-box-control
             item-value-path="_links.self.href"
