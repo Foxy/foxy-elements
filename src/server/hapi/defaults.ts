@@ -633,4 +633,81 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  store_shipping_methods: query => {
+    const method = parseInt(query.get('shipping_method_id') ?? '0');
+    const dropType = parseInt(query.get('shipping_drop_type_id') ?? '0');
+    const container = parseInt(query.get('shipping_container_id') ?? '0');
+
+    return {
+      id: increment('store_shipping_methods', 2),
+      store_id: parseInt(query.get('store_id') ?? '0'),
+      shipping_method_id: method,
+      shipping_container_id: container,
+      shipping_drop_type_id: dropType,
+      shipping_method_uri: `https://demo.api/hapi/shipping_methods/${method}`,
+      shipping_container_uri: `https://demo.api/hapi/shipping_containers/${container}`,
+      shipping_drop_type_uri: `https://demo.api/hapi/shipping_drop_types/${dropType}`,
+      accountid: '',
+      password: '',
+      meter_number: '',
+      authentication_key: '',
+      use_for_domestic: false,
+      use_for_international: false,
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+    };
+  },
+
+  store_shipping_services: query => {
+    const method = parseInt(query.get('shipping_method_id') ?? '0');
+    const service = parseInt(query.get('shipping_service_id') ?? '0');
+
+    return {
+      id: increment('store_shipping_services', 1),
+      store_id: parseInt(query.get('store_id') ?? '0'),
+      shipping_method_id: method,
+      shipping_service_id: service,
+      shipping_method_uri: `https://demo.api/hapi/shipping_methods/${method}`,
+      shipping_service_uri: `https://demo.api/hapi/shipping_drop_types/${service}`,
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+    };
+  },
+
+  shipping_methods: () => ({
+    id: increment('shipping_methods', 2),
+    name: '',
+    code: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  shipping_containers: query => ({
+    id: increment('shipping_containers', 1),
+    shipping_method_id: parseInt(query.get('shipping_method_id') ?? '0'),
+    name: '',
+    code: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  shipping_drop_types: query => ({
+    id: increment('shipping_drop_types', 1),
+    shipping_method_id: parseInt(query.get('shipping_method_id') ?? '0'),
+    name: '',
+    code: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  shipping_services: query => ({
+    id: increment('shipping_services', 1),
+    shipping_method_id: parseInt(query.get('shipping_method_id') ?? '0'),
+    name: '',
+    code: '',
+    is_international: false,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };

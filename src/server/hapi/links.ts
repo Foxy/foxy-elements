@@ -291,4 +291,80 @@ export const links: Links = {
     'fx:webhook': { href: `./webhooks${webhook_id}` },
     'fx:resource': { href: `./transactions/${resource_id}` },
   }),
+
+  store_shipping_methods: doc => ({
+    'fx:store': {
+      href: `./stores/${doc.store_id}`,
+    },
+    'fx:shipping_method': {
+      href: `./shipping_methods/${doc.shipping_method_id}`,
+    },
+    'fx:shipping_methods': {
+      href: `./shipping_methods`,
+    },
+    'fx:shipping_container': {
+      href: `./shipping_containers/${doc.shipping_container_id}`,
+    },
+    'fx:shipping_drop_type': {
+      href: `./shipping_drop_types/${doc.shipping_drop_type_id}`,
+    },
+    'fx:shipping_drop_types': {
+      href: `./shipping_drop_types?shipping_method_id=${doc.shipping_method_id}`,
+    },
+    'fx:shipping_services': {
+      href: `./shipping_services?shipping_method_id=${doc.shipping_method_id}`,
+    },
+    'fx:shipping_containers': {
+      href: `./shipping_containers?shipping_method_id=${doc.shipping_method_id}`,
+    },
+    'fx:store_shipping_services': {
+      href: `./store_shipping_services?shipping_method_id=${doc.shipping_method_id}`,
+    },
+  }),
+
+  store_shipping_services: doc => ({
+    'fx:store': {
+      href: `./stores/${doc.store_id}`,
+    },
+    'fx:shipping_method': {
+      href: `./shipping_methods/${doc.shipping_method_id}`,
+    },
+    'fx:shipping_service': {
+      href: `./shipping_services/${doc.shipping_service_id}`,
+    },
+    'fx:shipping_methods': {
+      href: `./shipping_methods`,
+    },
+    'fx:shipping_services': {
+      href: `./shipping_services?shipping_method_id=${doc.shipping_method_id}`,
+    },
+  }),
+
+  shipping_methods: ({ id }) => ({
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:shipping_services': { href: `./shipping_services?shipping_method_id=${id}` },
+    'fx:shipping_containers': { href: `./shipping_containers?shipping_method_id=${id}` },
+    'fx:shipping_drop_types': { href: `./shipping_drop_types?shipping_method_id=${id}` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
+
+  shipping_containers: ({ shipping_method_id }) => ({
+    'fx:shipping_containers': { href: `./shipping_containers` },
+    'fx:shipping_method': { href: `./shipping_methods/${shipping_method_id}` },
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
+
+  shipping_drop_types: ({ shipping_method_id }) => ({
+    'fx:shipping_drop_types': { href: `./shipping_drop_types` },
+    'fx:shipping_method': { href: `./shipping_methods/${shipping_method_id}` },
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
+
+  shipping_services: ({ shipping_method_id }) => ({
+    'fx:shipping_method': { href: `./shipping_methods/${shipping_method_id}` },
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
 };

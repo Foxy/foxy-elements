@@ -934,4 +934,102 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2020-10-28T08:45:46-0700',
     },
   ],
+
+  store_shipping_methods: [
+    {
+      id: 0,
+      store_id: 0,
+      shipping_method_id: 0,
+      shipping_container_id: 0,
+      shipping_drop_type_id: 0,
+      shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0',
+      shipping_container_uri: 'https://demo.api/hapi/shipping_containers/0',
+      shipping_drop_type_uri: 'https://demo.api/hapi/shipping_drop_types/0',
+      accountid: 'my-account-123',
+      password: 'super-secret-password',
+      meter_number: '',
+      authentication_key: '',
+      use_for_domestic: true,
+      use_for_international: false,
+      date_created: '2020-10-28T07:03:19-0700',
+      date_modified: '2020-10-28T08:45:46-0700',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      shipping_method_id: 1,
+      shipping_method_uri: 'https://demo.api/hapi/shipping_methods/1',
+      use_for_domestic: true,
+      use_for_international: true,
+      deployment_status: 'deployed',
+      custom_code:
+        "rates.add(10002, 5, '', 'Ground Custom 2002');\r\nrates.add(10012, 50, '', 'Expensive');\r\n\r\nif (!rates.exists()) {\r\n\trates.add(10001, 15, '', 'Fallback Shipping');\r\n}",
+      date_created: '2020-10-28T07:03:19-0700',
+      date_modified: '2020-10-28T08:45:46-0700',
+    },
+  ],
+
+  store_shipping_services: [
+    {
+      id: 0,
+      store_id: 0,
+      shipping_method_id: 0,
+      shipping_service_id: 0,
+      shipping_method_uri: 'https://demo.api/hapi/shipping_methods/0',
+      shipping_service_uri: 'https://demo.api/hapi/shipping_services/0',
+      date_created: '2020-10-28T07:03:19-0700',
+      date_modified: '2020-10-28T08:45:46-0700',
+    },
+  ],
+
+  shipping_methods: [
+    {
+      id: 0,
+      name: 'United States Postal Service',
+      code: 'USPS',
+      date_created: null,
+      date_modified: null,
+    },
+    {
+      id: 1,
+      name: 'Custom Shipping Code',
+      code: 'CUSTOM-CODE',
+      date_created: null,
+      date_modified: null,
+    },
+  ],
+
+  shipping_containers: [
+    {
+      id: 0,
+      shipping_method_id: 0,
+      name: 'Regular Size',
+      code: 'VARIABLE',
+      date_created: null,
+      date_modified: null,
+    },
+  ],
+
+  shipping_drop_types: [
+    {
+      id: 0,
+      shipping_method_id: 0,
+      name: 'Regular Pickup',
+      code: 'REGULARPICKUP',
+      date_created: null,
+      date_modified: null,
+    },
+  ],
+
+  shipping_services: [
+    {
+      id: 0,
+      shipping_method_id: 0,
+      name: 'Priority Mail',
+      code: '1',
+      is_international: true,
+      date_created: null,
+      date_modified: null,
+    },
+  ],
 });
