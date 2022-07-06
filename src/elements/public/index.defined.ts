@@ -52,6 +52,7 @@ export { QueryBuilder } from './QueryBuilder/index';
 export { SignInForm } from './SignInForm/index';
 export { Spinner } from './Spinner/index';
 export { StoreShippingMethodCard } from './StoreShippingMethodCard/index';
+export { StoreShippingMethodForm } from './StoreShippingMethodForm/index';
 export { SubscriptionCard } from './SubscriptionCard/index';
 export { SubscriptionForm } from './SubscriptionForm/index';
 export { SubscriptionsTable } from './SubscriptionsTable/index';
