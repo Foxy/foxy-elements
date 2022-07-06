@@ -1,4 +1,4 @@
-import type { ComboBoxDataProvider, ComboBoxElement } from '@vaadin/vaadin-combo-box';
+import type { ComboBoxDataProvider, ComboBoxElement, ComboBoxItem } from '@vaadin/vaadin-combo-box';
 import type { TemplateResult } from 'lit-html';
 
 import { PropertyDeclarations } from 'lit-element';
@@ -21,6 +21,7 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
       ...super.properties,
       itemLabelPath: { type: String, attribute: 'item-label-path' },
       itemValuePath: { type: String, attribute: 'item-value-path' },
+      selectedItem: { attribute: false },
       first: { type: String },
     };
   }
@@ -30,6 +31,8 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
 
   /** Same as `itemValuePath` property of Vaadin's `ComboBoxElement`. */
   itemValuePath: string | null = null;
+
+  selectedItem: ComboBoxItem | string | undefined = undefined;
 
   /** URL of the first page of the hAPI collection serving as a source for items. */
   first: string | null = null;
@@ -69,10 +72,18 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
         .dataProvider=${dataProvider}
+        .selectedItem=${this.selectedItem}
         .value=${this._value}
         @change=${(evt: CustomEvent) => {
           const comboBox = evt.currentTarget as ComboBoxElement;
           this._value = comboBox.value;
+
+          if (this._value === comboBox.value) {
+            this.selectedItem = comboBox.selectedItem;
+            this.dispatchEvent(new CustomEvent('selected-item-changed'));
+          } else {
+            comboBox.value = this._value;
+          }
         }}
       >
       </vaadin-combo-box>
