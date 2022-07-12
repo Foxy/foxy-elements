@@ -10,7 +10,7 @@ export class InternalStoreShippingMethodFormServicesControl extends InternalCont
     if (!data) return html``;
 
     const firstURL = new URL(data._links['fx:shipping_services'].href);
-    firstURL.searchParams.set('limit', '5');
+    firstURL.searchParams.set('limit', '10');
 
     return html`
       <foxy-pagination first=${firstURL.toString()} infer="">
