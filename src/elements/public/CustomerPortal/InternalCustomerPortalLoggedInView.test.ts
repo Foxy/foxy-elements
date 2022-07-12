@@ -50,7 +50,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
     expect(customer).to.be.instanceOf(Customer);
     expect(customer).to.have.attribute('disabledcontrols', '');
-    expect(customer).to.have.attribute('readonlycontrols', 'header:actions:edit:form:not=*');
+    expect(customer).to.have.attribute('readonlycontrols', 'header:actions:edit:form');
     expect(customer).to.have.attribute('hiddencontrols', hiddenByDefault.join(' '));
     expect(customer).to.have.attribute('group', 'foo');
     expect(customer).to.have.attribute('lang', 'es');
@@ -339,9 +339,9 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
       expect(element).to.exist;
 
-      expect(element).to.have.attribute('readonlycontrols', 'foo:not=*');
-      expect(element).to.have.attribute('disabledcontrols', 'bar:not=*');
-      expect(element).to.have.attribute('hiddencontrols', 'baz:not=*');
+      expect(element).to.have.attribute('readonlycontrols', 'foo');
+      expect(element).to.have.attribute('disabledcontrols', 'bar');
+      expect(element).to.have.attribute('hiddencontrols', 'baz');
       expect(element).to.have.attribute('group', 'test');
       expect(element).to.have.attribute('lang', 'es');
 
@@ -427,9 +427,9 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
       expect(element).to.exist;
 
-      expect(element).to.have.attribute('readonlycontrols', 'foo:not=*');
-      expect(element).to.have.attribute('disabledcontrols', 'bar:not=*');
-      expect(element).to.have.attribute('hiddencontrols', 'baz:not=*');
+      expect(element).to.have.attribute('readonlycontrols', 'foo');
+      expect(element).to.have.attribute('disabledcontrols', 'bar');
+      expect(element).to.have.attribute('hiddencontrols', 'baz');
       expect(element).to.have.attribute('group', 'test');
       expect(element).to.have.attribute('lang', 'es');
 

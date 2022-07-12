@@ -561,7 +561,7 @@ describe('SubscriptionForm', () => {
       element.setAttribute('disabledcontrols', 'end-date:form:submit');
       await element.updateComplete;
 
-      expect(control).to.have.attribute('disabledcontrols', 'submit:not=*');
+      expect(control).to.have.attribute('disabledcontrols', 'submit');
     });
 
     it('passes readonly selector to the cancellation dialog', async () => {
@@ -580,7 +580,7 @@ describe('SubscriptionForm', () => {
       element.setAttribute('readonlycontrols', 'end-date:form:end-date');
       await element.updateComplete;
 
-      expect(control).to.have.attribute('readonlycontrols', 'end-date:not=*');
+      expect(control).to.have.attribute('readonlycontrols', 'end-date');
     });
 
     it('passes hidden selector to the cancellation dialog', async () => {
@@ -589,7 +589,7 @@ describe('SubscriptionForm', () => {
       `);
 
       const control = await getByTestId(element, 'cancellation-form');
-      expect(control).to.have.attribute('hiddencontrols', 'save-button submit:not=*');
+      expect(control).to.have.attribute('hiddencontrols', 'save-button submit');
     });
 
     it('passes templates to the cancellation dialog', async () => {

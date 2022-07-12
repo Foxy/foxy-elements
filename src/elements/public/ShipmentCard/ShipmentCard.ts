@@ -46,7 +46,7 @@ export class ShipmentCard extends Base<Data> {
   __coupons = '';
 
   get hiddenSelector(): BooleanSelector {
-    return new BooleanSelector(`${super.hiddenSelector.toString()} address:not=full-address`);
+    return new BooleanSelector(`address:not=full-address ${super.hiddenSelector.toString()}`);
   }
 
   get readonlySelector(): BooleanSelector {

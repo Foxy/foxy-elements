@@ -235,9 +235,9 @@ describe('InternalCustomerPortalSubscriptions', () => {
         const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
         const alwaysHidden = 'end-date';
 
-        expect(form).to.have.attribute('disabledcontrols', 'end-date:not=*');
-        expect(form).to.have.attribute('readonlycontrols', 'frequency:not=*');
-        expect(form).to.have.attribute('hiddencontrols', `header:not=* ${alwaysHidden}`);
+        expect(form).to.have.attribute('disabledcontrols', 'end-date');
+        expect(form).to.have.attribute('readonlycontrols', 'frequency');
+        expect(form).to.have.attribute('hiddencontrols', `header ${alwaysHidden}`);
         expect(form).to.have.attribute('parent', dialog.parent);
         expect(form).to.have.attribute('group', 'foo');
         expect(form).to.have.attribute('lang', 'es');
