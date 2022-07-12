@@ -90,6 +90,18 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
     `;
   }
 
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+
+    if (changes.has('first')) {
+      const comboBox = this.renderRoot.querySelector('vaadin-combo-box') as ComboBoxElement;
+
+      // this forces reload
+      comboBox.size = 0;
+      comboBox.size = 1;
+    }
+  }
+
   protected get _value(): string {
     return (super._value as string | undefined) ?? '';
   }
