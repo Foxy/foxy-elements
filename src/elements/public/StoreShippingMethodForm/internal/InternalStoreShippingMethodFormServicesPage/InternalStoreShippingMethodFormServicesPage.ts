@@ -68,7 +68,7 @@ export class InternalStoreShippingMethodFormServicesPage extends Base<Data> {
                 shipping-service-uri=${service._links.self.href}
                 shipping-method-uri=${ifDefined(this.shippingMethodUri ?? void 0)}
                 data-testclass="item"
-                class="min-h-l"
+                class="h-l truncate"
                 infer=""
                 href=${href}
                 ?international-allowed=${this.internationalAllowed}
