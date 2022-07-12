@@ -45,8 +45,7 @@ export class StoreShippingMethodForm extends Base<Data> {
     ];
   }
 
-  // shippingMethods: string | null = null;
-  shippingMethods = 'https://demo.api/hapi/shipping_methods';
+  shippingMethods: string | null = null;
 
   private __destinations = [
     { value: 'domestic', label: 'domestic' },
