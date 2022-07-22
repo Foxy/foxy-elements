@@ -90,7 +90,7 @@ export class CustomFieldForm extends ConfigurableMixin(NucleonElement)<Data> {
 
 <!-- Disable only the name input -->
 <foxy-custom-field-form disabledcontrols="name"></foxy-custom-field-form>
-<foxy-custom-field-form disabledcontrols=":not=value"></foxy-custom-field-form>
+<foxy-custom-field-form disabledcontrols="not=value"></foxy-custom-field-form>
 ```
 
 ### Add Custom Content
