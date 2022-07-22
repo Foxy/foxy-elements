@@ -124,7 +124,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   constructor() {
     super();
     this.__createService();
-    this.__createRumour();
   }
 
   /**
@@ -267,6 +266,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     super.connectedCallback();
     if (this.href) this.refresh();
 
+    this.__createRumour();
     this.__createServer();
     this.__processFetchEventQueue();
   }
@@ -275,6 +275,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   disconnectedCallback(): void {
     super.disconnectedCallback();
 
+    this.__destroyRumour();
     this.__destroyServer();
     this.__flushFetchEventQueue('parent element was disconnected');
   }
