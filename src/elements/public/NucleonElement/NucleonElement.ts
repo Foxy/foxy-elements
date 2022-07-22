@@ -50,6 +50,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      __state: { type: String, reflect: true, attribute: 'state' },
       related: { type: Array },
       parent: { type: String },
       group: { type: String, noAccessor: true },
@@ -347,12 +348,16 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     return data;
   }
 
+  // this getter is used by LitElement to set the "state" attribute
+  private get __state(): string {
+    const state = this.__service.state;
+    const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
+    return [...new Set(flags)].join(' ');
+  }
+
   private __createService() {
     this.__service.onTransition(state => {
       if (!state.changed) return;
-
-      const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
-      this.setAttribute('state', [...new Set(flags)].join(' '));
 
       this.requestUpdate();
       this.dispatchEvent(new UpdateEvent());
