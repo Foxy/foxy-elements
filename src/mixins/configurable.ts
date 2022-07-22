@@ -307,17 +307,26 @@ export const ConfigurableMixin = <TBase extends Base>(
       const templates = context.get('templates') as Templates | undefined;
       const mode = context.get('mode') as Mode | undefined;
 
-      this.disabledControls = disabledSelector?.zoom(this.infer) ?? BooleanSelector.False;
-      this.disabled = disabledSelector?.matches(this.infer, true) ?? disabled ?? false;
+      const trueAsString = BooleanSelector.True.toString();
+      const simplify = (selector: BooleanSelector, fallback?: boolean) => {
+        return selector.toString() === trueAsString || (fallback ?? false);
+      };
 
-      this.readonlyControls = readonlySelector?.zoom(this.infer) ?? BooleanSelector.False;
-      this.readonly = readonlySelector?.matches(this.infer, true) ?? readonly ?? false;
+      const zoomIfNested = (selector?: BooleanSelector) => {
+        return (this.infer ? selector?.zoom(this.infer) : selector) ?? BooleanSelector.False;
+      };
 
-      this.hiddenControls = hiddenSelector?.zoom(this.infer) ?? BooleanSelector.False;
-      this.hidden = hiddenSelector?.matches(this.infer, true) ?? hidden ?? false;
+      this.disabledControls = zoomIfNested(disabledSelector);
+      this.disabled = simplify(this.disabledControls, disabled);
+
+      this.readonlyControls = zoomIfNested(readonlySelector);
+      this.readonly = simplify(this.readonlyControls, readonly);
+
+      this.hiddenControls = zoomIfNested(hiddenSelector);
+      this.hidden = simplify(this.hiddenControls, hidden);
 
       this.templates = templates ?? {};
-      this.templates = this.getNestedTemplates(this.infer);
+      if (this.infer) this.templates = this.getNestedTemplates(this.infer);
 
       this.mode = mode ?? 'production';
     }
