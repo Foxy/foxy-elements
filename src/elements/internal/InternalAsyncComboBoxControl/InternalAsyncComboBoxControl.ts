@@ -96,11 +96,13 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
     super.updated(changes);
 
     if (changes.has('first')) {
-      const comboBox = this.renderRoot.querySelector('vaadin-combo-box') as ComboBoxElement;
+      const comboBox = this.renderRoot.querySelector<ComboBoxElement>('vaadin-combo-box');
 
       // this forces reload
-      comboBox.size = 0;
-      comboBox.size = 1;
+      if (comboBox) {
+        comboBox.size = 0;
+        comboBox.size = 1;
+      }
     }
   }
 
