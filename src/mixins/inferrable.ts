@@ -37,30 +37,32 @@ export const InferrableMixin = <TBase extends Base>(
     }
 
     inferProperties(): void {
-      const context = new Map<string, unknown>();
-      const constructor = this.constructor as typeof InferrableElement;
-      const contextKeysToInfer = new Set(constructor.inferredProperties);
+      this.updateComplete.then(() => {
+        const context = new Map<string, unknown>();
+        const constructor = this.constructor as typeof InferrableElement;
+        const contextKeysToInfer = new Set(constructor.inferredProperties);
 
-      const processNode = (node: Node | null): void => {
-        if (node) {
-          if (node instanceof ShadowRoot) {
-            processNode(node.host);
-          } else if (node instanceof HTMLElement) {
-            contextKeysToInfer.forEach(key => {
-              const value = this.inferFromElement(key, node);
-              if (value !== undefined) {
-                context.set(key, value);
-                contextKeysToInfer.delete(key);
-              }
-            });
+        const processNode = (node: Node | null): void => {
+          if (node) {
+            if (node instanceof ShadowRoot) {
+              processNode(node.host);
+            } else if (node instanceof HTMLElement) {
+              contextKeysToInfer.forEach(key => {
+                const value = this.inferFromElement(key, node);
+                if (value !== undefined) {
+                  context.set(key, value);
+                  contextKeysToInfer.delete(key);
+                }
+              });
 
-            if (contextKeysToInfer.size > 0) processNode(node.parentNode);
+              if (contextKeysToInfer.size > 0) processNode(node.parentNode);
+            }
           }
-        }
-      };
+        };
 
-      processNode(this.parentNode);
-      this.applyInferredProperties?.(context);
+        processNode(this.parentNode);
+        this.applyInferredProperties?.(context);
+      });
     }
 
     inferPropertiesInDescendants(): void {
