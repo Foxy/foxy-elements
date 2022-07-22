@@ -75,6 +75,8 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
         .selectedItem=${this.selectedItem}
         .value=${this._value}
         @change=${(evt: CustomEvent) => {
+          evt.stopPropagation();
+
           const comboBox = evt.currentTarget as ComboBoxElement;
           this._value = comboBox.value;
 
