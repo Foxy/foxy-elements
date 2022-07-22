@@ -121,6 +121,12 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     })
   );
 
+  constructor() {
+    super();
+    this.__createService();
+    this.__createRumour();
+  }
+
   /**
    * If network request returns non-2XX code, the entire error response
    * will be available via this getter.
@@ -259,9 +265,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** @readonly */
   connectedCallback(): void {
     super.connectedCallback();
+    if (this.href) this.refresh();
 
-    this.__createService();
-    this.__createRumour();
     this.__createServer();
     this.__processFetchEventQueue();
   }
@@ -270,8 +275,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   disconnectedCallback(): void {
     super.disconnectedCallback();
 
-    this.__destroyService();
-    this.__destroyRumour();
     this.__destroyServer();
     this.__flushFetchEventQueue('parent element was disconnected');
   }
@@ -371,10 +374,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     });
 
     this.__service.start();
-  }
-
-  private __destroyService() {
-    this.__service.stop();
   }
 
   private __createRumour() {
