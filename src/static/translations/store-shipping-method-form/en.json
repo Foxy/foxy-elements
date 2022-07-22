@@ -14,7 +14,8 @@
   "shipping-drop-type-uri": {
     "label": "Drop Type",
     "placeholder": "Select pickup",
-    "helper_text": ""
+    "helper_text": "",
+    "required": "Please select a drop type."
   },
   "destinations": {
     "label": "Destinations",
@@ -39,6 +40,12 @@
     "placeholder": "N/A",
     "helper_text": "If using account specific rates, enter your shipping account id here.",
     "too_long": "Account ID must be 50 characters or less."
+  },
+  "endpoint": {
+    "label": "Endpoint URL",
+    "placeholder": "https://example.com/rates",
+    "helper_text": "Enter a URL that we'll poll for shipping rates.",
+    "required": "Please enter a valid endpoint URL."
   },
   "password": {
     "label": "Password",

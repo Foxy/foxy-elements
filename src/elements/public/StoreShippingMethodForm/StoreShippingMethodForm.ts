@@ -4,6 +4,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
@@ -42,6 +43,38 @@ export class StoreShippingMethodForm extends Base<Data> {
       ({ meter_number: v }) => !v || v.length <= 50 || 'meter-number:too_long',
       ({ authentication_key: v }) => !v || v.length <= 50 || 'authentication-key:too_long',
       ({ custom_code: v }) => !v || getKbSize(v) <= 64 || 'custom-code:too_long',
+
+      form => {
+        if (form._embedded?.['fx:shipping_method'].code === 'CUSTOM-ENDPOINT-POST') {
+          return (form.accountid && isURL(form.accountid)) || 'endpoint:required';
+        } else {
+          return true;
+        }
+      },
+
+      form => {
+        const url = form.shipping_container_uri;
+        const code = form._embedded?.['fx:shipping_method'].code;
+        const codes = ['USPS', 'FedEx', 'UPS'];
+
+        if (code && codes.includes(code)) {
+          return (url && isURL(url)) || 'shipping-container-uri:required';
+        } else {
+          return true;
+        }
+      },
+
+      form => {
+        const url = form.shipping_drop_type_uri;
+        const code = form._embedded?.['fx:shipping_method'].code;
+        const codes = ['FedEx', 'UPS'];
+
+        if (code && codes.includes(code)) {
+          return (url && isURL(url)) || 'shipping-drop-type-uri:required';
+        } else {
+          return true;
+        }
+      },
     ];
   }
 
@@ -71,7 +104,33 @@ export class StoreShippingMethodForm extends Base<Data> {
     });
   };
 
+  get hiddenSelector(): BooleanSelector {
+    const code = this.form._embedded?.['fx:shipping_method'].code;
+    if (!code) return new BooleanSelector('not=shipping-method-uri,timestamps,create,delete');
+
+    const orgControls = ['shipping-container-uri', 'shipping-drop-type-uri', 'destinations'];
+    const authControls = ['authentication-key', 'meter-number', 'accountid', 'password'];
+    const codeToControls: Record<string, string[]> = {
+      'CUSTOM-ENDPOINT-POST': ['endpoint'],
+      'CUSTOM-CODE': ['custom-code'],
+      'CUSTOM': ['destinations', 'services'],
+      'FedEx': [...orgControls, ...authControls, 'services'],
+      'USPS': [...orgControls, 'services'],
+      'UPS': [...orgControls, ...authControls, 'services'],
+    };
+
+    if (codeToControls[code]) {
+      const controls = codeToControls[code];
+      const set = ['shipping-method-uri', ...controls, 'timestamps', 'delete', 'create'];
+      return new BooleanSelector(`not=${set.join()} ${super.hiddenSelector}`);
+    } else {
+      return super.hiddenSelector;
+    }
+  }
+
   renderBody(): TemplateResult {
+    const method = this.form._embedded?.['fx:shipping_method'];
+
     return html`
       <foxy-internal-async-combo-box-control
         item-value-path="_links.self.href"
@@ -91,23 +150,7 @@ export class StoreShippingMethodForm extends Base<Data> {
         }}
       >
       </foxy-internal-async-combo-box-control>
-      ${this.form._embedded?.['fx:shipping_method'].code === 'CUSTOM-CODE'
-        ? this.__renderCustomCodeMethodLayout()
-        : this.__renderGenericMethodLayout()}
-      ${super.renderBody()}
-    `;
-  }
 
-  private __renderCustomCodeMethodLayout() {
-    return html`
-      <foxy-internal-text-area-control infer="custom-code"></foxy-internal-text-area-control>
-    `;
-  }
-
-  private __renderGenericMethodLayout() {
-    const method = this.form._embedded?.['fx:shipping_method'];
-
-    return html`
       <foxy-internal-async-combo-box-control
         item-value-path="_links.self.href"
         item-label-path="name"
@@ -144,17 +187,22 @@ export class StoreShippingMethodForm extends Base<Data> {
       >
       </foxy-internal-checkbox-group-control>
 
-      <foxy-internal-text-control infer="authentication-key"></foxy-internal-text-control>
+      <foxy-internal-text-control infer="authentication-key"> </foxy-internal-text-control>
       <foxy-internal-text-control infer="meter-number"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="accountid"></foxy-internal-text-control>
-      <foxy-internal-text-control infer="password"></foxy-internal-text-control>
 
-      ${this.data && this.data.shipping_method_uri === this.form.shipping_method_uri
-        ? html`
-            <foxy-internal-store-shipping-method-form-services-control infer="services">
-            </foxy-internal-store-shipping-method-form-services-control>
-          `
-        : ''}
+      <foxy-internal-text-control
+        infer=${method?.code === 'CUSTOM-ENDPOINT-POST' ? 'endpoint' : 'accountid'}
+        property="accountid"
+      >
+      </foxy-internal-text-control>
+
+      <foxy-internal-text-control infer="password"></foxy-internal-text-control>
+      <foxy-internal-text-area-control infer="custom-code"></foxy-internal-text-area-control>
+
+      <foxy-internal-store-shipping-method-form-services-control infer="services">
+      </foxy-internal-store-shipping-method-form-services-control>
+
+      ${super.renderBody()}
     `;
   }
 }
