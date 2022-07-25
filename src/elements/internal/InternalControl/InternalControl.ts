@@ -43,6 +43,8 @@ export class InternalControl extends ConfigurableMixin(
 
   applyInferredProperties(context: Map<string, unknown>): void {
     super.applyInferredProperties(context);
+
+    this.disabled = this.nucleon?.in('idle') === false || super.disabled;
     this.nucleon = (context.get('nucleon') as NucleonElement<any> | undefined) ?? null;
   }
 
