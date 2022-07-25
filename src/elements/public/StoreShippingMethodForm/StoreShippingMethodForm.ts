@@ -94,12 +94,7 @@ export class StoreShippingMethodForm extends Base<Data> {
 
   private __setDestinations = (newValue: string[]) => {
     this.edit({
-      // TODO remove error directive after SDK types are fixed
-      // @ts-expect-error SDK types are wrong
       use_for_domestic: newValue.includes('domestic'),
-
-      // TODO remove error directive after SDK types are fixed
-      // @ts-expect-error SDK types are wrong
       use_for_international: newValue.includes('international'),
     });
   };
