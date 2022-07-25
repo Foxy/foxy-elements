@@ -215,6 +215,31 @@
   "week_plural": "Weeks",
   "year": "Year",
   "year_plural": "Years",
+  "provisioning": {
+    "toggle": {
+      "label": "Provisioning",
+      "text": "Allow customers to buy this gift card",
+      "helper_text": ""
+    },
+    "sku": {
+      "label": "SKU",
+      "placeholder": "E.g. 100-usd",
+      "helper_text": "You'll use this value to add this gift card to a customer's online cart.",
+      "v8n_required": "SKU is required for auto-provisioning"
+    },
+    "min-balance": {
+      "label": "Min balance",
+      "placeholder": "0",
+      "helper_text": "Customers won't be able to load this card with a balance less than this value.",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "max-balance": {
+      "label": "Max balance",
+      "placeholder": "0",
+      "helper_text": "Customers won't be able to load this card with a balance greater than this value.",
+      "v8n_negative": "Please enter a positive number"
+    }
+  },
   "copy-to-clipboard": {
     "click_to_copy": "Click to copy",
     "copying": "Copying",

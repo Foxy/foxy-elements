@@ -1077,6 +1077,96 @@
       "default": "Product restrictions",
       "type": "string"
     },
+    "provisioning": {
+      "properties": {
+        "max-balance": {
+          "properties": {
+            "helper_text": {
+              "default": "Customers won't be able to load this card with a balance greater than this value.",
+              "type": "string"
+            },
+            "label": {
+              "default": "Max balance",
+              "type": "string"
+            },
+            "placeholder": {
+              "default": "0",
+              "type": "string"
+            },
+            "v8n_negative": {
+              "default": "Please enter a positive number",
+              "type": "string"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_negative"],
+          "additionalProperties": false
+        },
+        "min-balance": {
+          "properties": {
+            "helper_text": {
+              "default": "Customers won't be able to load this card with a balance less than this value.",
+              "type": "string"
+            },
+            "label": {
+              "default": "Min balance",
+              "type": "string"
+            },
+            "placeholder": {
+              "default": "0",
+              "type": "string"
+            },
+            "v8n_negative": {
+              "default": "Please enter a positive number",
+              "type": "string"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_negative"],
+          "additionalProperties": false
+        },
+        "sku": {
+          "properties": {
+            "helper_text": {
+              "default": "You'll use this value to add this gift card to a customer's online cart.",
+              "type": "string"
+            },
+            "label": {
+              "default": "SKU",
+              "type": "string"
+            },
+            "placeholder": {
+              "default": "E.g. 100-usd",
+              "type": "string"
+            },
+            "v8n_required": {
+              "default": "SKU is required for auto-provisioning",
+              "type": "string"
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required"],
+          "additionalProperties": false
+        },
+        "toggle": {
+          "properties": {
+            "helper_text": {
+              "default": "",
+              "type": "string"
+            },
+            "label": {
+              "default": "Provisioning",
+              "type": "string"
+            },
+            "text": {
+              "default": "Allow customers to buy this gift card",
+              "type": "string"
+            }
+          },
+          "required": ["label", "text", "helper_text"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["toggle", "sku", "min-balance", "max-balance"],
+      "additionalProperties": false
+    },
     "query-builder": {
       "properties": {
         "add_or_clause": {
@@ -1503,6 +1593,7 @@
     "pagination",
     "price",
     "product_restrictions",
+    "provisioning",
     "query-builder",
     "save",
     "select",

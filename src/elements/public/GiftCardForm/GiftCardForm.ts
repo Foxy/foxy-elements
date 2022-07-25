@@ -76,6 +76,10 @@ export class GiftCardForm extends Base<Data> {
 
       'iron-icon': customElements.get('iron-icon'),
 
+      'foxy-internal-gift-card-form-provisioning-control': customElements.get(
+        'foxy-internal-gift-card-form-provisioning-control'
+      ),
+
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-query-builder': customElements.get('foxy-query-builder'),
@@ -105,6 +109,31 @@ export class GiftCardForm extends Base<Data> {
     return [
       ({ name: v }) => !!v || 'name_required',
       ({ name: v }) => !v || v.length <= 50 || 'name_too_long',
+
+      form => {
+        if (form.provisioning_config?.allow_autoprovisioning) {
+          if (!form.sku) return 'sku:v8n_required';
+          if (form.sku.length > 200) return 'sku:v8n_too_long';
+        }
+
+        return true;
+      },
+
+      form => {
+        if (form.provisioning_config?.allow_autoprovisioning) {
+          if (form.provisioning_config.initial_balance_min <= 0) return 'min-balance:v8n_negative';
+        }
+
+        return true;
+      },
+
+      form => {
+        if (form.provisioning_config?.allow_autoprovisioning) {
+          if (form.provisioning_config.initial_balance_max <= 0) return 'max-balance:v8n_negative';
+        }
+
+        return true;
+      },
     ];
   }
 
@@ -217,6 +246,10 @@ export class GiftCardForm extends Base<Data> {
                 ${isExpiresHidden ? '' : this.__renderExpires()}
               </div>
             `}
+
+        <foxy-internal-gift-card-form-provisioning-control infer="provisioning">
+        </foxy-internal-gift-card-form-provisioning-control>
+
         ${hidden.matches('codes', true) || !this.data ? '' : this.__renderCodes()}
         ${hidden.matches('product-restrictions', true) ? '' : this.__renderProductRestrictions()}
         ${hidden.matches('category-restrictions', true) || !this.data
