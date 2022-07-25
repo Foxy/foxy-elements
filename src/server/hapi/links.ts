@@ -231,10 +231,13 @@ export const links: Links = {
     'fx:gift_card_item_categories': { href: `./gift_card_item_categories?gift_card_id=${id}` },
   }),
 
-  gift_card_codes: ({ coupon_id, store_id, id }) => ({
+  gift_card_codes: ({ transaction_id, coupon_id, store_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:gift_card': { href: `./gift_cards/${coupon_id}` },
     'fx:gift_card_code_logs': { href: `./transactions?gift_card_id=${id}` },
+    ...(typeof transaction_id === 'number'
+      ? { 'fx:provisioned_by_transaction_detail_id': { href: `./transactions/${transaction_id}` } }
+      : null),
   }),
 
   gift_card_item_categories: ({ item_category_id, gift_card_id, store_id }) => ({

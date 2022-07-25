@@ -45,6 +45,15 @@
       "default": "End date",
       "type": "string"
     },
+    "transaction": {
+      "additionalProperties": false,
+      "required": ["title", "click_action", "transaction-card"],
+      "properties": {
+        "title": { "type": "string", "default": "Transaction" },
+        "click_action": { "type": "string", "default": "Go to transaction" },
+        "transaction-card": { "$ref": "transaction-card.json" }
+      }
+    },
     "spinner": {
       "properties": {
         "loading_busy": {
@@ -80,6 +89,7 @@
     "end_date",
     "v8n_required",
     "v8n_too_long",
+    "transaction",
     "spinner"
   ],
   "additionalProperties": false

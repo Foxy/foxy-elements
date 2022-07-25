@@ -769,6 +769,7 @@ export const createDataset: () => Dataset = () => ({
     current_balance: Math.round(Math.random() * 100),
     date_created: '2014-04-21T13:40:45-0700',
     date_modified: '2022-02-16T12:30:58-0700',
+    ...(id % 2 > 0 ? { transaction_id: 0 } : null),
   })),
 
   gift_card_item_categories: [],

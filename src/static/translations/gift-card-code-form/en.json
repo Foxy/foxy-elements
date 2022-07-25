@@ -12,6 +12,35 @@
   "end_date": "End date",
   "v8n_required": "Required",
   "v8n_too_long": "Too long",
+  "transaction": {
+    "title": "Transaction",
+    "click_action": "Go to transaction",
+    "transaction-card": {
+      "code": "Code",
+      "customer": "Customer",
+      "description": "Description",
+      "price": "{{amount, price}}",
+      "time": "{{value, time}}",
+      "transaction_approved": "Approved",
+      "transaction_authorized": "Authorized",
+      "transaction_captured": "Captured",
+      "transaction_completed": "Completed",
+      "transaction_declined": "Declined",
+      "transaction_pending": "Pending",
+      "transaction_plural": "Transactions",
+      "transaction_refunded": "Refunded",
+      "transaction_rejected": "Rejected",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count}} more",
+      "transaction_verified": "Verified",
+      "transaction_voided": "Voided",
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "No data",
+        "loading_error": "Failed to load"
+      }
+    }
+  },
   "spinner": {
     "loading_busy": "Loading",
     "loading_error": "Failed to load"

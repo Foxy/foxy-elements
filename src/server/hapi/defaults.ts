@@ -521,6 +521,9 @@ export const defaults: Defaults = {
     current_balance: 0,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
+    ...(query.has('transaction_id')
+      ? { transaction_id: parseInt(query.get('transaction_id')!) }
+      : null),
   }),
 
   gift_card_item_categories: query => ({

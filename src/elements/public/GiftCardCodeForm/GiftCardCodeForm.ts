@@ -51,6 +51,10 @@ export class GiftCardCodeForm extends Base<Data> {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-button': customElements.get('vaadin-button'),
 
+      'foxy-internal-gift-card-code-form-transaction-control': customElements.get(
+        'foxy-internal-gift-card-code-form-transaction-control'
+      ),
+
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -77,6 +81,7 @@ export class GiftCardCodeForm extends Base<Data> {
         ${this.__isCodeHidden ? null : this.__renderCode()}
         ${this.__isCurrentBalanceHidden ? null : this.__renderCurrentBalance()}
         ${this.__isEndDateHidden ? null : this.__renderEndDate()}
+        ${this.__isTransactionHidden ? null : this.__renderTransaction()}
         ${this.__isTimestampsHidden ? null : this.__renderTimestamps()}
         ${this.__isCreateHidden ? null : this.__renderCreate()}
         ${this.__isDeleteHidden ? null : this.__renderDelete()}
@@ -111,6 +116,10 @@ export class GiftCardCodeForm extends Base<Data> {
 
   private get __isEndDateHidden(): boolean {
     return this.hiddenSelector.matches('end-date', true);
+  }
+
+  private get __isTransactionHidden(): boolean {
+    return !this.form._links?.['fx:provisioned_by_transaction_detail_id'];
   }
 
   private get __isTimestampsHidden(): boolean {
@@ -221,6 +230,13 @@ export class GiftCardCodeForm extends Base<Data> {
 
         ${this.renderTemplateOrSlot('end-date:after')}
       </div>
+    `;
+  }
+
+  private __renderTransaction(): TemplateResult {
+    return html`
+      <foxy-internal-gift-card-code-form-transaction-control infer="transaction">
+      </foxy-internal-gift-card-code-form-transaction-control>
     `;
   }
 
