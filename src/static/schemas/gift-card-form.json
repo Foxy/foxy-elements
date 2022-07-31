@@ -1134,7 +1134,7 @@
               "type": "string"
             },
             "placeholder": {
-              "default": "E.g. 100-usd",
+              "default": "E.g. 100_usd",
               "type": "string"
             },
             "v8n_required": {
