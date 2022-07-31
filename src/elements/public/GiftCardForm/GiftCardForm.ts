@@ -120,19 +120,13 @@ export class GiftCardForm extends Base<Data> {
       },
 
       form => {
-        if (form.provisioning_config?.allow_autoprovisioning) {
-          if (form.provisioning_config.initial_balance_min <= 0) return 'min-balance:v8n_negative';
-        }
-
-        return true;
+        const v = form.provisioning_config?.initial_balance_min;
+        return typeof v === 'number' && v <= 0 ? 'min-balance:v8n_negative' : true;
       },
 
       form => {
-        if (form.provisioning_config?.allow_autoprovisioning) {
-          if (form.provisioning_config.initial_balance_max <= 0) return 'max-balance:v8n_negative';
-        }
-
-        return true;
+        const v = form.provisioning_config?.initial_balance_max;
+        return typeof v === 'number' && v <= 0 ? 'max-balance:v8n_negative' : true;
       },
     ];
   }
