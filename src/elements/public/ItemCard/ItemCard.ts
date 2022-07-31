@@ -57,11 +57,11 @@ export class ItemCard extends Base<Data> {
           <div class="border border-contrast-10 absolute inset-0 rounded"></div>
         </div>
 
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
           <div class="flex-1 h-l flex items-center">
             <div class="flex-1 leading-s">
-              <div class="font-semibold text-m">${this.data?.name}</div>
-              <div class="text-secondary text-m">
+              <div class="font-semibold text-m truncate">${this.data?.name}</div>
+              <div class="text-secondary text-m truncate">
                 ${quantity} &times;
 
                 <foxy-i18n
@@ -108,13 +108,15 @@ export class ItemCard extends Base<Data> {
                         data-testclass="option"
                         class="flex items-center text-m space-x-xs leading-m"
                       >
-                        <div class="flex-1 text-tertiary">${option.name}: ${option.value}</div>
+                        <div class="flex-1 text-tertiary truncate">
+                          ${option.name}: ${option.value}
+                        </div>
                         ${option.price_mod
                           ? html`
                               <div
                                 class="${option.price_mod > 0
                                   ? 'text-success'
-                                  : 'text-error'} rounded px-xs"
+                                  : 'text-error'} rounded px-xs truncate"
                               >
                                 <foxy-i18n
                                   options=${JSON.stringify({
@@ -133,7 +135,7 @@ export class ItemCard extends Base<Data> {
                               <div
                                 class="${option.price_mod > 0
                                   ? 'text-success'
-                                  : 'text-error'} rounded px-xs"
+                                  : 'text-error'} rounded px-xs truncate"
                               >
                                 ${option.weight_mod}
                                 <foxy-i18n key="wgt" infer=""></foxy-i18n>
