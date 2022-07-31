@@ -32,7 +32,7 @@ export class API extends CoreAPI<any> {
           });
 
           target.dispatchEvent(event);
-          if (!event.defaultPrevented) fetch(request).then(resolve).catch(reject);
+          if (!event.defaultPrevented) resolve(new Response(null, { status: 500 }));
         }),
     });
   }
