@@ -1,0 +1,10 @@
+{
+  "status_updated_via_api": "Updated via API",
+  "status_used": "Used on checkout",
+  "title": "{{date, date}}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

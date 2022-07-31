@@ -35,6 +35,7 @@ export { FormDialog } from './FormDialog/FormDialog';
 export { GenerateCodesForm } from './GenerateCodesForm/GenerateCodesForm';
 export { GiftCardCard } from './GiftCardCard/GiftCardCard';
 export { GiftCardCodeForm } from './GiftCardCodeForm/GiftCardCodeForm';
+export { GiftCardCodeLogCard } from './GiftCardCodeLogCard/GiftCardCodeLogCard';
 export { GiftCardCodesForm } from './GiftCardCodesForm/GiftCardCodesForm';
 export { GiftCardForm } from './GiftCardForm/GiftCardForm';
 export { ItemCategoryCard } from './ItemCategoryCard/ItemCategoryCard';
