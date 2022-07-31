@@ -22,6 +22,7 @@ export class InternalTextControl extends InternalEditableControl {
         class="w-full"
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
+        clear-button-visible
         .checkValidity=${this._checkValidity}
         .value=${this._value}
         @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}

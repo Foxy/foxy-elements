@@ -24,7 +24,7 @@ export class InternalNumberControl extends InternalEditableControl {
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
         .value=${String(this._value)}
-        has-controls
+        clear-button-visible
         @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as NumberFieldElement;

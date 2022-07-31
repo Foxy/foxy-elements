@@ -70,6 +70,7 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
         class="w-full"
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
+        clear-button-visible
         .checkValidity=${this._checkValidity}
         .dataProvider=${dataProvider}
         .selectedItem=${this.selectedItem}
