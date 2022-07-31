@@ -646,7 +646,26 @@ export const createDataset: () => Dataset = () => ({
       date_created: '2013-08-19T10:58:39-0700',
       date_modified: '2013-08-19T10:58:39-0700',
     },
+    {
+      id: 1,
+      store_id: 0,
+      name: 'Sample tax',
+      type: 'region',
+      country: 'US',
+      region: 'TN',
+      city: '',
+      is_live: true,
+      service_provider: 'avalara',
+      apply_to_shipping: true,
+      use_origin_rates: true,
+      exempt_all_customer_tax_ids: true,
+      rate: 1,
+      date_created: '2013-08-19T10:58:39-0700',
+      date_modified: '2013-08-19T10:58:39-0700',
+    },
   ],
+
+  tax_item_categories: [],
 
   users: [
     {
@@ -769,8 +788,37 @@ export const createDataset: () => Dataset = () => ({
     current_balance: Math.round(Math.random() * 100),
     date_created: '2014-04-21T13:40:45-0700',
     date_modified: '2022-02-16T12:30:58-0700',
-    ...(id % 2 > 0 ? { transaction_id: 0 } : null),
+    ...(id % 2 === 0 ? { item_id: 0 } : null),
   })),
+
+  gift_card_code_logs: [
+    {
+      id: 0,
+      store_id: 0,
+      gift_card_id: 0,
+      gift_card_code_id: 0,
+      transaction_id: 0,
+      external_id: null,
+      balance_adjustment: -40.3,
+      user_id: null,
+      source: null,
+      date_created: '2021-11-15T19:30:33-0800',
+      date_modified: '2021-11-15T19:30:35-0800',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      gift_card_id: 0,
+      gift_card_code_id: 0,
+      transaction_id: null,
+      external_id: null,
+      balance_adjustment: 20,
+      user_id: 0,
+      source: null,
+      date_created: '2021-10-08T12:30:33-0800',
+      date_modified: '2021-10-08T12:30:35-0800',
+    },
+  ],
 
   gift_card_item_categories: [],
 

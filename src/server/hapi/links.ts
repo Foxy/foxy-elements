@@ -186,6 +186,12 @@ export const links: Links = {
     'fx:native_integrations': { href: `./native_integrations?tax_id=${id}` },
   }),
 
+  tax_item_categories: ({ tax_id, store_id, item_category_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:tax': { href: `./taxes/${tax_id}` },
+    'fx:item_category': { href: `./item_categories/${item_category_id}` },
+  }),
+
   users: ({ id, default_store_id }) => ({
     'fx:stores': { href: `./stores?user_id=${id}` },
     'fx:attributes': { href: `./user_attributes?user_id=${id}` },
@@ -231,12 +237,21 @@ export const links: Links = {
     'fx:gift_card_item_categories': { href: `./gift_card_item_categories?gift_card_id=${id}` },
   }),
 
-  gift_card_codes: ({ transaction_id, coupon_id, store_id, id }) => ({
+  gift_card_codes: ({ gift_card_id, store_id, item_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
-    'fx:gift_card': { href: `./gift_cards/${coupon_id}` },
-    'fx:gift_card_code_logs': { href: `./transactions?gift_card_id=${id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
+    'fx:gift_card_code_logs': { href: `./gift_card_code_logs?gift_card_id=${id}` },
+    ...(typeof item_id === 'number'
+      ? { 'fx:provisioned_by_transaction_detail_id': { href: `./items/${item_id}` } }
+      : null),
+  }),
+
+  gift_card_code_logs: ({ transaction_id, gift_card_id, gift_card_code_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
+    'fx:gift_card_code': { href: `./gift_card_codes/${gift_card_code_id}` },
     ...(typeof transaction_id === 'number'
-      ? { 'fx:provisioned_by_transaction_detail_id': { href: `./transactions/${transaction_id}` } }
+      ? { 'fx:transaction': { href: `./transactions/${transaction_id}` } }
       : null),
   }),
 

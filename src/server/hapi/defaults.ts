@@ -399,6 +399,15 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  tax_item_categories: query => ({
+    id: increment('tax_item_categories', 0),
+    tax_id: parseInt(query.get('tax_id') ?? '0'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    item_category_id: parseInt(query.get('item_category_id') ?? '0'),
+    tax_uri: '',
+    item_category_uri: '',
+  }),
+
   users: query => ({
     id: increment('users', 1),
     store_id: parseInt(query.get('store_id') ?? '0'),
@@ -521,9 +530,21 @@ export const defaults: Defaults = {
     current_balance: 0,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
-    ...(query.has('transaction_id')
-      ? { transaction_id: parseInt(query.get('transaction_id')!) }
-      : null),
+    ...(query.has('item_id') ? { item_id: parseInt(query.get('item_id')!) } : null),
+  }),
+
+  gift_card_code_logs: query => ({
+    id: increment('gift_card_code_logs', 2),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
+    gift_card_code_id: parseInt(query.get('gift_card_code_id') ?? '0'),
+    transaction_id: null,
+    external_id: null,
+    balance_adjustment: 0,
+    user_id: null,
+    source: null,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
   }),
 
   gift_card_item_categories: query => ({
