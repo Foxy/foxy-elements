@@ -1,0 +1,196 @@
+{
+  "name": {
+    "label": "Name",
+    "placeholder": "Books",
+    "helper_text": "Category description for admins.",
+    "v8n_required": "Item category name is required",
+    "v8n_too_long": "Item category name can't exceed 50 characters"
+  },
+  "code": {
+    "label": "Code",
+    "placeholder": "MY_BOOKS_CATEGORY",
+    "helper_text": "Unique identifier for the cart.",
+    "v8n_required": "Item category code is required",
+    "v8n_too_long": "Item categoty code can't exceed 50 characters"
+  },
+  "taxes": {
+    "title": "Taxes",
+    "helper_text": "Select taxes that will apply to the products in this category. Changes here are saved immediately.",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "tax-card": {
+        "percent": "{{fraction, percent}}",
+        "tax_global": "Global tax",
+        "tax_rate_provider_default": "Default (Thomson Reuters; others)",
+        "tax_union": "European Union tax",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Failed to load"
+        }
+      }
+    }
+  },
+  "item-delivery-type": {
+    "label": "Delivery",
+    "option_shipped": "Shipped using live rates",
+    "option_flat_rate": "Shipped using a flat rate",
+    "option_downloaded": "Downloaded by the customer",
+    "option_pickup": "Picked up by the customer",
+    "option_notshipped": "Not shipped",
+    "placeholder": "Not shipped",
+    "helper_text": "",
+    "v8n_required": "Please select a delivery type"
+  },
+  "default-weight": {
+    "label": "Default weight",
+    "placeholder": "1",
+    "helper_text": "",
+    "v8n_required": "This field is required",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "default-weight-unit": {
+    "label": "Default weight unit",
+    "placeholder": "Select...",
+    "option_kgs": "KG",
+    "option_lbs": "LG",
+    "helper_text": "",
+    "v8n_required": "Please select a unit"
+  },
+  "default-length-unit": {
+    "label": "Default length unit",
+    "placeholder": "Select...",
+    "option_cm": "CM",
+    "option_in": "IN",
+    "helper_text": "",
+    "v8n_required": "Please select a unit"
+  },
+  "max-downloads-per-customer": {
+    "label": "Max downloads",
+    "placeholder": "3",
+    "helper_text": "",
+    "v8n_required": "This field is required",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "max-downloads-time-period": {
+    "label": "Access duration (hrs)",
+    "placeholder": "24",
+    "helper_text": "",
+    "v8n_required": "This field is required",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "shipping-flat-rate": {
+    "label": "Rate",
+    "placeholder": "0",
+    "helper_text": "",
+    "v8n_required": "This field is required",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "shipping-flat-rate-type": {
+    "label": "Applies",
+    "placeholder": "Select...",
+    "option_per_order": "Per order",
+    "option_per_shipment": "Per shipment",
+    "helper_text": "",
+    "v8n_required": "Please select a value"
+  },
+  "customs-value": {
+    "label": "Customs value",
+    "placeholder": "0",
+    "helper_text": "Enter a dollar amount here for the declared customs value for international shipments. If you leave this blank, the sale price of the item will be used.",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "handling-fee-type": {
+    "label": "Handling fee",
+    "option_none": "No handling fee",
+    "option_flat_per_order": "Flat fee per shipment",
+    "option_flat_per_item": "Flat fee per product",
+    "option_flat_percent": "Flat fee per shipment + % of price",
+    "option_flat_percent_with_minimum": "Flat fee per shipment or % of price, whichever is greater",
+    "placeholder": "No handling fee",
+    "helper_text": "",
+    "v8n_required": "Please select a value"
+  },
+  "handling-fee": {
+    "label": "Amount",
+    "placeholder": "0",
+    "helper_text": "",
+    "v8n_required": "This field is required",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "handling-fee-minimum": {
+    "label": "Minimum fee",
+    "placeholder": "0",
+    "helper_text": "",
+    "v8n_required": "This field is required",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "handling-fee-percentage": {
+    "label": "Percentage of price",
+    "placeholder": "0",
+    "helper_text": "",
+    "v8n_required": "This field is required",
+    "v8n_negative": "Please enter a positive number"
+  },
+  "discount-name": {
+    "label": "Discount",
+    "placeholder": "Name your discount to open the builder",
+    "helper_text": ""
+  },
+  "discount-builder": {
+    "tier": "Tier",
+    "tier_by": "by",
+    "tier_if": "if",
+    "tier_allunits": "price of each item",
+    "tier_incremental": "price of additional items",
+    "tier_repeat": "price of next item",
+    "tier_single": "order total",
+    "tier_then": "then",
+    "quantity": "quantity",
+    "total": "total",
+    "reduce": "reduce",
+    "increase": "increase"
+  },
+  "admin-email-template-uri": {
+    "label": "Email to admin",
+    "placeholder": "None (don't send)",
+    "helper_text": ""
+  },
+  "admin-email": {
+    "label": "Send to",
+    "placeholder": "admin@example.com",
+    "helper_text": "",
+    "v8n_required": "Please enter an email"
+  },
+  "customer-email-template-uri": {
+    "label": "Email to customer",
+    "placeholder": "None (don't send)",
+    "helper_text": ""
+  },
+  "gift-recipient-email-template-uri": {
+    "label": "Email to gift recipient",
+    "placeholder": "None (don't send)",
+    "helper_text": ""
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this item category? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}
