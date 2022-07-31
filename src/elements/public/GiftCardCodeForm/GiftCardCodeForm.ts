@@ -12,6 +12,7 @@ import { PropertyTable } from '../../private/index';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 
 const NS = 'gift-card-code-form';
@@ -51,8 +52,12 @@ export class GiftCardCodeForm extends Base<Data> {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-button': customElements.get('vaadin-button'),
 
-      'foxy-internal-gift-card-code-form-transaction-control': customElements.get(
-        'foxy-internal-gift-card-code-form-transaction-control'
+      'foxy-internal-gift-card-code-form-item-control': customElements.get(
+        'foxy-internal-gift-card-code-form-item-control'
+      ),
+
+      'foxy-internal-async-details-control': customElements.get(
+        'foxy-internal-async-details-control'
       ),
 
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
@@ -81,7 +86,8 @@ export class GiftCardCodeForm extends Base<Data> {
         ${this.__isCodeHidden ? null : this.__renderCode()}
         ${this.__isCurrentBalanceHidden ? null : this.__renderCurrentBalance()}
         ${this.__isEndDateHidden ? null : this.__renderEndDate()}
-        ${this.__isTransactionHidden ? null : this.__renderTransaction()}
+        ${this.__isLogsControlHidden ? null : this.__renderLogsControl()}
+        ${this.__isCartItemHidden ? null : this.__renderCartItem()}
         ${this.__isTimestampsHidden ? null : this.__renderTimestamps()}
         ${this.__isCreateHidden ? null : this.__renderCreate()}
         ${this.__isDeleteHidden ? null : this.__renderDelete()}
@@ -118,7 +124,11 @@ export class GiftCardCodeForm extends Base<Data> {
     return this.hiddenSelector.matches('end-date', true);
   }
 
-  private get __isTransactionHidden(): boolean {
+  private get __isLogsControlHidden(): boolean {
+    return !this.form._links?.['fx:gift_card_code_logs'].href;
+  }
+
+  private get __isCartItemHidden(): boolean {
     return !this.form._links?.['fx:provisioned_by_transaction_detail_id'];
   }
 
@@ -233,10 +243,23 @@ export class GiftCardCodeForm extends Base<Data> {
     `;
   }
 
-  private __renderTransaction(): TemplateResult {
+  private __renderLogsControl(): TemplateResult {
     return html`
-      <foxy-internal-gift-card-code-form-transaction-control infer="transaction">
-      </foxy-internal-gift-card-code-form-transaction-control>
+      <foxy-internal-async-details-control
+        infer="logs"
+        first=${ifDefined(this.form._links?.['fx:gift_card_code_logs'].href)}
+        limit="5"
+        item="foxy-gift-card-code-log-card"
+        open
+      >
+      </foxy-internal-async-details-control>
+    `;
+  }
+
+  private __renderCartItem(): TemplateResult {
+    return html`
+      <foxy-internal-gift-card-code-form-item-control infer="cart-item">
+      </foxy-internal-gift-card-code-form-item-control>
     `;
   }
 

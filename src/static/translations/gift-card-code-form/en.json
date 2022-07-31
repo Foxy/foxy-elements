@@ -12,32 +12,35 @@
   "end_date": "End date",
   "v8n_required": "Required",
   "v8n_too_long": "Too long",
-  "transaction": {
-    "title": "Transaction",
-    "click_action": "Go to transaction",
-    "transaction-card": {
-      "code": "Code",
-      "customer": "Customer",
-      "description": "Description",
+  "cart-item": {
+    "title": "Cart item",
+    "item-card": {
       "price": "{{amount, price}}",
-      "time": "{{value, time}}",
-      "transaction_approved": "Approved",
-      "transaction_authorized": "Authorized",
-      "transaction_captured": "Captured",
-      "transaction_completed": "Completed",
-      "transaction_declined": "Declined",
-      "transaction_pending": "Pending",
-      "transaction_plural": "Transactions",
-      "transaction_refunded": "Refunded",
-      "transaction_rejected": "Rejected",
-      "transaction_summary": "{{most_expensive_item.name}}",
-      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count}} more",
-      "transaction_verified": "Verified",
-      "transaction_voided": "Voided",
+      "wgt": "WGT",
       "spinner": {
         "loading_busy": "Loading",
-        "loading_empty": "No data",
+        "loading_empty": "No items",
         "loading_error": "Failed to load"
+      }
+    }
+  },
+  "logs": {
+    "title": "Timeline",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "status_updated_via_api": "Updated via API",
+        "status_used": "Used on checkout",
+        "title": "{{date, date}}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Failed to load"
+        }
       }
     }
   },
