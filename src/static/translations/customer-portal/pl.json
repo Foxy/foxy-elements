@@ -78,6 +78,8 @@
       "first_name": "Imię",
       "invalid_credential_error": "Niepoprawne hasło. Upewnij się, że wpisałeś swoje obecne lub tymczasowe hasło i spróbuj ponownie.",
       "last_name": "Nazwisko",
+      "new_password": "Nowe hasło",
+      "password": "Hasło",
       "sign_in": "Kontynuuj",
       "tax_id": "NIP",
       "undo_cancel": "Przegląd",
@@ -88,8 +90,6 @@
       "v8n_required": "Wymagany",
       "v8n_too_long": "Za długo",
       "sign-in-form": {
-        "new_password": "Nowe hasło",
-        "password": "Hasło",
         "spinner": {
           "loading_busy": "Ładowanie",
           "loading_error": "Nie udało się załadować"

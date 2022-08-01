@@ -78,6 +78,8 @@
       "first_name": "First name",
       "invalid_credential_error": "Incorrect password. Please make sure you've entered your current or temporary password and try again.",
       "last_name": "Last name",
+      "new_password": "New password",
+      "password": "Password",
       "sign_in": "Continue",
       "tax_id": "Tax ID",
       "undo_cancel": "Review",
@@ -88,8 +90,6 @@
       "v8n_required": "Required",
       "v8n_too_long": "Too long",
       "sign-in-form": {
-        "new_password": "New password",
-        "password": "Password",
         "spinner": {
           "loading_busy": "Loading",
           "loading_error": "Failed to load"

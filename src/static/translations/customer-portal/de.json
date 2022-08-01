@@ -78,6 +78,8 @@
       "first_name": "Vorname",
       "invalid_credential_error": "Falsches Passwort. Bitte vergewissern Sie sich, dass Sie Ihr aktuelles oder temporäres Passwort eingegeben haben und versuchen Sie es erneut.",
       "last_name": "Nachname",
+      "new_password": "Neues Passwort",
+      "password": "Passwort",
       "sign_in": "Weiter",
       "tax_id": "Steuer-ID",
       "undo_cancel": "Überprüfung",
@@ -88,8 +90,6 @@
       "v8n_required": "Erforderlich",
       "v8n_too_long": "Zu lang",
       "sign-in-form": {
-        "new_password": "Neues Passwort",
-        "password": "Passwort",
         "spinner": {
           "loading_busy": "Wird geladen",
           "loading_error": "Wurde nicht geladen"

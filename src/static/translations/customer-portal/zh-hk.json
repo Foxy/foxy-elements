@@ -78,6 +78,8 @@
       "first_name": "名",
       "invalid_credential_error": "密碼錯誤。 請確保您已輸入現時或臨時密碼，然後重試。",
       "last_name": "姓",
+      "new_password": "新密碼",
+      "password": "密碼",
       "sign_in": "繼續",
       "tax_id": "稅務編號",
       "undo_cancel": "審核",
@@ -88,8 +90,6 @@
       "v8n_required": "必需的",
       "v8n_too_long": "太長",
       "sign-in-form": {
-        "new_password": "新密碼",
-        "password": "密碼",
         "spinner": {
           "loading_busy": "載入中",
           "loading_error": "加載失敗"
