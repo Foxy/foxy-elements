@@ -78,6 +78,8 @@
       "first_name": "Förnamn",
       "invalid_credential_error": "Fel lösenord. Se till att du har angett ditt nuvarande eller tillfälliga lösenord och försök igen.",
       "last_name": "Efternamn",
+      "new_password": "Nytt lösenord",
+      "password": "Lösenord",
       "sign_in": "Fortsätt",
       "tax_id": "Moms ID",
       "undo_cancel": "Säkerställ info",
@@ -88,8 +90,6 @@
       "v8n_required": "Nödvänding",
       "v8n_too_long": "För lång",
       "sign-in-form": {
-        "new_password": "Nytt lösenord",
-        "password": "Lösenord",
         "spinner": {
           "loading_busy": "Laddar",
           "loading_error": "Lyckades inte ladda"

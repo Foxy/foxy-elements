@@ -254,18 +254,18 @@
             "last_name": {
               "$ref": "customer-form.json#/properties/last_name"
             },
+            "new_password": {
+              "$ref": "sign-in-form.json#/properties/new_password"
+            },
+            "password": {
+              "$ref": "sign-in-form.json#/properties/password"
+            },
             "sign_in": {
               "default": "Continue",
               "type": "string"
             },
             "sign-in-form": {
               "properties": {
-                "new_password": {
-                  "$ref": "sign-in-form.json#/properties/new_password"
-                },
-                "password": {
-                  "$ref": "sign-in-form.json#/properties/password"
-                },
                 "spinner": {
                   "properties": {
                     "loading_busy": {
@@ -279,7 +279,7 @@
                   "additionalProperties": false
                 }
               },
-              "required": ["new_password", "password", "spinner"],
+              "required": ["spinner"],
               "additionalProperties": false
             },
             "spinner": {
@@ -340,6 +340,8 @@
             "first_name",
             "invalid_credential_error",
             "last_name",
+            "new_password",
+            "password",
             "sign_in",
             "tax_id",
             "undo_cancel",
@@ -389,6 +391,9 @@
         },
         "save": {
           "$ref": "customer.json#/properties/save"
+        },
+        "spinner": {
+          "$ref": "customer.json#/properties/spinner"
         },
         "subscription_plural": {
           "$ref": "customer.json#/properties/subscription_plural"
@@ -743,9 +748,6 @@
         },
         "update": {
           "$ref": "customer.json#/properties/update"
-        },
-        "spinner": {
-          "$ref": "customer.json#/properties/spinner"
         }
       },
       "required": [
