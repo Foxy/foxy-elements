@@ -1,0 +1,8 @@
+{
+  "subtitle": "Last updated on {{ date_modified, date }}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}
