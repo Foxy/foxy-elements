@@ -26,6 +26,9 @@ const Base = ScopedElementsMixin(
  * @slot description:before
  * @slot description:after
  *
+ * @slot template-language:before
+ * @slot template-language:after
+ *
  * @slot content:before
  * @slot content:after
  *
@@ -63,6 +66,7 @@ export class EmailTemplateForm extends Base<Data> {
 
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-internal-select-control': customElements.get('foxy-internal-select-control'),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -91,6 +95,19 @@ export class EmailTemplateForm extends Base<Data> {
     return html`
       <div class="space-y-m">
         ${hiddenSelector.matches('description', true) ? '' : this.__renderDescription()}
+
+        <foxy-internal-select-control
+          infer="template-language"
+          .options=${[
+            { label: 'Nunjucks', value: 'nunjucks' },
+            { label: 'Handlebars', value: 'handlebars' },
+            { label: 'Pug', value: 'pug' },
+            { label: 'Twig', value: 'twig' },
+            { label: 'EJS', value: 'ejs' },
+          ]}
+        >
+        </foxy-internal-select-control>
+
         ${hiddenSelector.matches('content', true) ? '' : this.__renderContent()}
         ${hiddenSelector.matches('timestamps', true) || !href ? '' : this.__renderTimestamps()}
         ${hiddenSelector.matches(action) ? '' : this.__renderAction(action)}
