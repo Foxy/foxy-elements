@@ -34,7 +34,9 @@ export function Select(params: SelectParams): TemplateResult {
           }}
         >
           ${isEmpty
-            ? html`<option value disabled ?selected=${isEmpty}>${params.t(params.label)}</option>`
+            ? html`
+                <option value="" disabled ?selected=${isEmpty}>${params.t(params.label)}</option>
+              `
             : ''}
           ${params.list?.map(
             ({ label, value }) =>
