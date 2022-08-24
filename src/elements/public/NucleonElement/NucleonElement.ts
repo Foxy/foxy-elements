@@ -1,5 +1,5 @@
 import { ComputedElementProperties, HALJSONResource, NucleonMachine, NucleonV8N } from './types';
-import { LitElement, PropertyDeclarations } from 'lit-element';
+import { html, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Nucleon, Rumour } from '@foxy.io/sdk/core';
 import { assign, interpret } from 'xstate';
 
@@ -259,6 +259,10 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    */
   refresh(): void {
     this.__service.send({ type: 'REFRESH' });
+  }
+
+  render(): TemplateResult {
+    return html`<slot></slot>`;
   }
 
   /** @readonly */
