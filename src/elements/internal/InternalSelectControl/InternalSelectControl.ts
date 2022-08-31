@@ -40,7 +40,7 @@ export class InternalSelectControl extends InternalEditableControl {
     return html`
       <vaadin-select
         error-message=${ifDefined(this._errorMessage)}
-        placeholder=${this.t('placeholder')}
+        placeholder=${this.placeholder}
         helper-text=${this.helperText}
         class="w-full -mt-m -mb-xs"
         label=${this.label}
