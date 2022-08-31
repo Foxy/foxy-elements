@@ -273,6 +273,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     this.__createRumour();
     this.__createServer();
     this.__processFetchEventQueue();
+
+    this.dispatchEvent(new UpdateEvent());
   }
 
   /** @readonly */
@@ -282,6 +284,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     this.__destroyRumour();
     this.__destroyServer();
     this.__flushFetchEventQueue('parent element was disconnected');
+
+    this.dispatchEvent(new UpdateEvent());
   }
 
   applyInferredProperties(context: Map<string, unknown>): void {
