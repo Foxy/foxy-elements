@@ -57,6 +57,7 @@ export { PaymentsApiFraudProtectionCard } from './PaymentsApiFraudProtectionCard
 export { PaymentsApiFraudProtectionForm } from './PaymentsApiFraudProtectionForm/index';
 export { PaymentsApiPaymentMethodCard } from './PaymentsApiPaymentMethodCard/index';
 export { PaymentsApiPaymentMethodForm } from './PaymentsApiPaymentMethodForm/index';
+export { PaymentsApiPaymentPresetCard } from './PaymentsApiPaymentPresetCard/index';
 export { QueryBuilder } from './QueryBuilder/index';
 export { SignInForm } from './SignInForm/index';
 export { Spinner } from './Spinner/index';
