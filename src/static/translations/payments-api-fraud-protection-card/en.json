@@ -1,0 +1,10 @@
+{
+  "image_alt": "Fraud protection logo",
+  "title_description": "Fraud protection name and/or status",
+  "subtitle_description": "Fraud protection description",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}
