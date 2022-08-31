@@ -1,5 +1,6 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { CheckboxGroupElement } from '@vaadin/vaadin-checkbox/vaadin-checkbox-group';
+import type { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import type { Option } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
@@ -38,14 +39,21 @@ export class InternalCheckboxGroupControl extends InternalEditableControl {
         ?disabled=${this.disabled || this.readonly}
         .checkValidity=${this._checkValidity}
         .value=${this._value as string[]}
-        @change=${(evt: CustomEvent) => {
-          const field = evt.currentTarget as CheckboxGroupElement;
-          this._value = field.value;
-        }}
       >
         ${this.options.map(
           option => html`
-            <vaadin-checkbox value=${option.value}>
+            <vaadin-checkbox
+              value=${option.value}
+              @change=${(evt: CustomEvent) => {
+                const box = evt.currentTarget as CheckboxElement;
+                const field = box.closest('vaadin-checkbox-group') as CheckboxGroupElement;
+                const boxes = field.querySelectorAll<CheckboxElement>('vaadin-checkbox');
+
+                this._value = Array.from(boxes).reduce((value, box) => {
+                  return box.checked ? [...value, box.value as string] : value;
+                }, [] as string[]);
+              }}
+            >
               <foxy-i18n infer="" key=${option.label}></foxy-i18n>
             </vaadin-checkbox>
           `
