@@ -17,20 +17,10 @@ export class EmailTemplateCard extends Base<Data> {
     const extension = languageToExtension[language] ?? `.${language}`;
 
     return html`
-      <div class="flex gap-m leading-s items-center">
-        <div
-          class="w-l h-l rounded bg-contrast-5 flex gap-xs flex-col items-center justify-center text-secondary"
-        >
-          <iron-icon class="icon-inline text-m" icon="editor:insert-drive-file"></iron-icon>
-          <span class="font-bold tracking-wide uppercase text-xxxs leading-none">
-            ${extension}
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1">
-          <span class="font-semibold">${this.data?.description}</span>
-          <foxy-i18n infer="" class="text-secondary" key="subtitle" .options=${this.data ?? {}}>
-          </foxy-i18n>
+      <div class="flex items-center justify-between">
+        <div class="font-semibold">${this.data?.description}&ZeroWidthSpace;</div>
+        <div class="rounded-t-l rounded-b-l px-s py-xs bg-contrast-5">
+          <span class="uppercase text-xs font-bold tracking-wide">${extension}</span>
         </div>
       </div>
     `;
