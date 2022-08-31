@@ -1081,4 +1081,262 @@ export const createDataset: () => Dataset = () => ({
       date_modified: null,
     },
   ],
+
+  payment_gateways: [
+    {
+      id: 0,
+      store_id: 0,
+      description: 'Default payment gateway',
+      type: 'authorize',
+      use_auth_only: false,
+      account_id: '',
+      account_key: '',
+      third_party_key: '',
+      config_3d_secure: '',
+      additional_fields: '',
+      test_account_id: 'BxFSnPy7',
+      test_account_key: '8SPBTpqs4uf2ZwM8',
+      test_third_party_key: '',
+      date_created: '2014-07-17T06:46:00-0700',
+      date_modified: '2014-07-17T06:46:00-0700',
+    },
+  ],
+
+  hosted_payment_gateways: [
+    {
+      id: 0,
+      store_id: 0,
+      payment_method_set_id: 0,
+      description: 'Default hosted payment gateway',
+      type: 'amazon_mws',
+      use_auth_only: false,
+      account_id: '',
+      account_key: '',
+      third_party_key: '',
+      config_3d_secure: '',
+      additional_fields: '',
+      test_account_id: '',
+      test_account_key: '',
+      test_third_party_key: '',
+      date_created: '2015-05-26T17:49:56-0700',
+      date_modified: '2015-05-26T17:49:56-0700',
+    },
+  ],
+
+  fraud_protections: [
+    {
+      id: 0,
+      store_id: 0,
+      payment_method_set_id: 0,
+      type: 'google_recaptcha',
+      description: 'Default fraud protection',
+      json: '{"private_key":"","site_key":"","config":"disabled"}',
+      score_threshold_reject: 0,
+      date_created: '2015-05-27T08:59:54-0700',
+      date_modified: '2015-05-27T08:59:54-0700',
+    },
+  ],
+
+  payment_method_sets: [
+    {
+      id: 0,
+      store_id: 0,
+      payment_gateway_id: 0,
+      gateway_uri: 'https://demo.api/hapi/payment_gateways/0',
+      description: 'Default Payment Method Set',
+      is_live: false,
+      is_purchase_order_enabled: true,
+      date_created: '2012-08-10T11:58:54-0700',
+      date_modified: '2012-08-10T11:58:54-0700',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      gateway_uri: '',
+      description: 'Empty Payment Method Set',
+      is_live: false,
+      is_purchase_order_enabled: true,
+      date_created: '2012-08-10T11:58:54-0700',
+      date_modified: '2012-08-10T11:58:54-0700',
+    },
+  ],
+
+  payment_method_set_hosted_payment_gateways: [
+    {
+      id: 0,
+      store_id: 0,
+      payment_method_set_id: 0,
+      hosted_payment_gateway_id: 0,
+      payment_method_set_uri: 'https://demo.api/hapi/payment_method_sets/0',
+      hosted_payment_gateway_uri: 'https://demo.api/hapi/hosted_payment_gateways/0',
+      date_created: '2012-08-10T11:58:54-0700',
+      date_modified: '2012-08-10T11:58:54-0700',
+    },
+  ],
+
+  payment_method_set_fraud_protections: [
+    {
+      id: 0,
+      store_id: 0,
+      payment_method_set_id: 0,
+      fraud_protection_id: 0,
+      payment_method_set_uri: 'https://demo.api/hapi/payment_method_sets/0',
+      fraud_protection_uri: 'https://demo.api/hapi/fraud_protections/0',
+      date_created: '2012-08-10T11:58:54-0700',
+      date_modified: '2012-08-10T11:58:54-0700',
+    },
+  ],
+
+  property_helpers: [
+    {
+      id: 0,
+      store_id: 0,
+      message: 'fx:payment_gateways property helper',
+      values: {
+        authorize: {
+          name: 'Authorize.net AIM',
+          id_description: 'API ID',
+          test_id: 'BxFSnPy7',
+          key_description: 'Transaction Key',
+          test_key: '8SPBTpqs4uf2ZwM8',
+          third_party_key_description: '',
+          test_third_party_key: '',
+          supports_auth_only: true,
+          supports_3d_secure: true,
+          additional_fields: null,
+        },
+      },
+    },
+    {
+      id: 1,
+      store_id: 0,
+      message: 'fx:hosted_payment_gateways property helper',
+      values: {
+        amazon_mws: {
+          name: 'Amazon Pay',
+          id_description: 'Seller ID',
+          test_id: '',
+          key_description: 'MWS Auth Token',
+          test_key: '',
+          third_party_key_description: 'Client ID',
+          test_third_party_key: '',
+          supports_auth_only: false,
+          supports_3d_secure: false,
+          additional_fields: {
+            blocks: [
+              {
+                id: 'amazon_mws_additonal_fields',
+                parent_id: 'gateway_live_amazon_mws',
+                is_live: true,
+                fields: [
+                  {
+                    id: 'on_amazon_mws_auth',
+                    name: 'Authorize only (do not capture funds)',
+                    type: 'checkbox',
+                    default_value: false,
+                  },
+                ],
+              },
+              {
+                id: 'test_amazon_mws_additonal_fields',
+                parent_id: 'gateway_test_amazon_mws',
+                is_live: false,
+                fields: [
+                  {
+                    id: 'test_on_amazon_mws_auth',
+                    name: 'Authorize only (do not capture funds)',
+                    type: 'checkbox',
+                    default_value: false,
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        klarna: {
+          name: 'Klarna Payments',
+          id_description: 'API username',
+          test_id: 'PK09997_741be585df8f',
+          key_description: 'API password',
+          test_key: 'YOeGaRTZvbvVgm6m',
+          third_party_key_description: '',
+          test_third_party_key: '',
+          supports_auth_only: false,
+          supports_3d_secure: false,
+          additional_fields: {
+            blocks: [
+              {
+                id: 'klarna_additional_fields',
+                parent_id: 'gateway_live_klarna',
+                fields: [
+                  {
+                    id: 'klarna_auth',
+                    name: 'Authorize only (do not capture funds)',
+                    type: 'checkbox',
+                    default_value: false,
+                  },
+                  {
+                    id: 'klarna_continent_endpoint',
+                    name: 'Merchant Account Continent',
+                    description: 'Location of your Klarna account',
+                    type: 'select',
+                    default_value: 'EU',
+                    options: [
+                      {
+                        name: 'Europe',
+                        value: 'EU',
+                      },
+                      {
+                        name: 'North America',
+                        value: 'NA',
+                      },
+                      {
+                        name: 'Oceania',
+                        value: 'OC',
+                      },
+                    ],
+                  },
+                ],
+                is_live: true,
+              },
+              {
+                id: 'test_klarna_additional_fields',
+                parent_id: 'gateway_test_klarna',
+                fields: [
+                  {
+                    id: 'test_klarna_auth',
+                    name: 'Authorize only (do not capture funds)',
+                    type: 'checkbox',
+                    default_value: false,
+                  },
+                  {
+                    id: 'test_klarna_continent_endpoint',
+                    name: 'Merchant Account Continent',
+                    description: 'Location of your Klarna account',
+                    type: 'select',
+                    default_value: 'EU',
+                    options: [
+                      {
+                        name: 'Europe',
+                        value: 'EU',
+                      },
+                      {
+                        name: 'North America',
+                        value: 'NA',
+                      },
+                      {
+                        name: 'Oceania',
+                        value: 'OC',
+                      },
+                    ],
+                  },
+                ],
+                is_live: false,
+              },
+            ],
+          },
+        },
+      },
+    },
+  ],
 });

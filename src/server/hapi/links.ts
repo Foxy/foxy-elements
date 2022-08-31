@@ -385,4 +385,60 @@ export const links: Links = {
     'fx:shipping_methods': { href: `./shipping_methods` },
     'fx:property_helpers': { href: `./property_helpers` },
   }),
+
+  payment_gateways: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?payment_gateway_id=${id}` },
+  }),
+
+  hosted_payment_gateways: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?hosted_payment_gateway_id=${id}` },
+  }),
+
+  fraud_protections: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?fraud_protection_id=${id}` },
+  }),
+
+  payment_method_sets: ({ payment_gateway_id, store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?store_id=${store_id}` },
+    'fx:payment_method_set_hosted_payment_gateways': {
+      href: `./payment_method_set_hosted_payment_gateways?payment_method_set_id=${id}`,
+    },
+    'fx:payment_method_set_fraud_protections': {
+      href: `./payment_method_set_fraud_protections?payment_method_set_id=${id}`,
+    },
+    ...(typeof payment_gateway_id === 'number'
+      ? {
+          'fx:payment_gateway': { href: `./payment_gateways/${payment_gateway_id}` },
+        }
+      : {}),
+  }),
+
+  payment_method_set_hosted_payment_gateways: ({
+    hosted_payment_gateway_id,
+    payment_method_set_id,
+    store_id,
+  }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:hosted_payment_gateway': { href: `./hosted_payment_gateways/${hosted_payment_gateway_id}` },
+    'fx:payment_method_set': { href: `./payment_method_sets/${payment_method_set_id}` },
+  }),
+
+  payment_method_set_fraud_protections: ({
+    fraud_protection_id,
+    payment_method_set_id,
+    store_id,
+  }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:fraud_protection': { href: `./fraud_protections/${fraud_protection_id}` },
+    'fx:payment_method_set': { href: `./payment_method_sets/${payment_method_set_id}` },
+  }),
+
+  property_helpers: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:property_helpers': { href: `./property_helpers?store_id=${store_id}` },
+  }),
 };

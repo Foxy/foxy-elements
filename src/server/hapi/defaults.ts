@@ -734,4 +734,99 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  payment_gateways: query => ({
+    id: increment('payment_gateways', 1),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    description: '',
+    type: '',
+    use_auth_only: false,
+    account_id: '',
+    account_key: '',
+    third_party_key: '',
+    config_3d_secure: '',
+    additional_fields: '',
+    test_account_id: '',
+    test_account_key: '',
+    test_third_party_key: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  hosted_payment_gateways: query => ({
+    id: increment('hosted_payment_gateways', 1),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    description: '',
+    type: '',
+    use_auth_only: false,
+    account_id: '',
+    account_key: '',
+    third_party_key: '',
+    config_3d_secure: '',
+    additional_fields: '',
+    test_account_id: '',
+    test_account_key: '',
+    test_third_party_key: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  fraud_protections: query => ({
+    id: increment('fraud_protections', 1),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    type: '',
+    description: '',
+    json: '',
+    score_threshold_reject: 0,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  payment_method_sets: query => {
+    const gatewayId = parseInt(query.get('payment_gateway_id') ?? '0');
+
+    return {
+      id: increment('payment_method_sets', 2),
+      store_id: parseInt(query.get('store_id') ?? '0'),
+      payment_gateway_id: gatewayId,
+      gateway_uri: `https://demo.api/hapi/payment_gateways/${gatewayId}`,
+      description: 'Default Payment Method Set',
+      is_live: false,
+      is_purchase_order_enabled: false,
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+    };
+  },
+
+  payment_method_set_hosted_payment_gateways: query => {
+    const gatewayId = parseInt(query.get('hosted_payment_gateway_id') ?? '0');
+    const setId = parseInt(query.get('payment_method_set_id') ?? '0');
+
+    return {
+      id: increment('paymepayment_method_set_hosted_payment_gatewaysnt_method_sets', 1),
+      store_id: parseInt(query.get('store_id') ?? '0'),
+      payment_method_set_id: setId,
+      hosted_payment_gateway_id: gatewayId,
+      payment_method_set_uri: `https://demo.api/hapi/payment_method_sets/${setId}`,
+      hosted_payment_gateway_uri: `https://demo.api/hapi/hosted_payment_gateways/${gatewayId}`,
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+    };
+  },
+
+  payment_method_set_fraud_protections: query => {
+    const antifraudId = parseInt(query.get('fraud_protection_id') ?? '0');
+    const setId = parseInt(query.get('payment_method_set_id') ?? '0');
+
+    return {
+      id: increment('paymepayment_method_set_fraud_protectionsnt_method_sets', 1),
+      store_id: parseInt(query.get('store_id') ?? '0'),
+      payment_method_set_id: setId,
+      fraud_protection_id: antifraudId,
+      payment_method_set_uri: `https://demo.api/hapi/payment_method_sets/${setId}`,
+      fraud_protection_uri: `https://demo.api/hapi/fraud_protections/${antifraudId}`,
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+    };
+  },
 };
