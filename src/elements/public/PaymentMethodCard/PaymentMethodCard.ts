@@ -171,13 +171,13 @@ export class PaymentMethodCard extends Base<Data> {
     `;
   }
 
-  protected async _sendDelete(): Promise<Data> {
+  protected async _sendDelete(): Promise<null> {
     const body = JSON.stringify({ save_cc: false });
-    const data = await this._fetch(this.href, { method: 'PATCH', body });
+    await this._fetch(this.href, { method: 'PATCH', body });
     const rumour = NucleonElement.Rumour(this.group);
 
     rumour.share({ data: null, source: this.href, related: [this.parent] });
-    return data;
+    return null;
   }
 
   private __handleDelete(evt: Event) {

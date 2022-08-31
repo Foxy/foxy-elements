@@ -309,7 +309,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     this.__destroyRumour();
 
     const body = JSON.stringify(edits);
-    const data = await this._fetch(this.parent, { body, method: 'POST' });
+    const postData = await this._fetch(this.parent, { body, method: 'POST' });
+    const data = await this._fetch(postData._links.self.href);
     const rumour = NucleonElement.Rumour(this.group);
     const related = [...this.related, this.parent];
 
@@ -347,17 +348,17 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   }
 
   /** DELETEs `element.href`, shares response with the Rumour group and returns parsed JSON. */
-  protected async _sendDelete(): Promise<TData> {
+  protected async _sendDelete(): Promise<null> {
     this.__destroyRumour();
 
-    const data = await this._fetch(this.href, { method: 'DELETE' });
+    await this._fetch(this.href, { method: 'DELETE' });
     const rumour = NucleonElement.Rumour(this.group);
     const related = [...this.related, this.parent];
 
     rumour.share({ data: null, source: this.href, related });
     this.__createRumour();
 
-    return data;
+    return null;
   }
 
   // this getter is used by LitElement to set the "state" attribute
