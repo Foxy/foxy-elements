@@ -1,0 +1,10 @@
+{
+  "image_alt": "Payment gateway logo",
+  "title_description": "Payment gateway description",
+  "subtitle_description": "Payment gateway name",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}
