@@ -64,7 +64,7 @@ export class FormDialog extends Dialog {
 
   private __handleUpdate = (evt: Event) => {
     if (!(evt instanceof UpdateEvent)) return;
-    const target = evt.target as NucleonElement<never>;
+    const target = evt.currentTarget as NucleonElement<never>;
 
     this.closable = !target.in('busy');
     this.editable =
