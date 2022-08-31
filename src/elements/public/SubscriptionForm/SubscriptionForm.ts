@@ -442,7 +442,7 @@ export class SubscriptionForm extends Base<Data> {
         group=${ctx.group}
         lang=${ctx.lang}
         href=${ctx.href}
-        ns="${ctx.ns} ${customElements.get('foxy-transactions-table')?.defaultNS ?? ''}"
+        ns="${ctx.ns} transactions-table"
         .columns=${this.__transactionsTableColumns}
       >
       </foxy-table>
