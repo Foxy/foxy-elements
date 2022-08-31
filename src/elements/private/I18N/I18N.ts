@@ -28,6 +28,9 @@ export class I18N extends Translatable {
       css`
         :host {
           display: inline-block;
+          color: inherit;
+          line-height: inherit;
+          font: inherit;
         }
       `,
     ];
