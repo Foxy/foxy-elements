@@ -308,57 +308,66 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   protected async _sendPost(edits: Partial<TData>): Promise<TData> {
     this.__destroyRumour();
 
-    const body = JSON.stringify(edits);
-    const postData = await this._fetch(this.parent, { body, method: 'POST' });
-    const data = await this._fetch(postData._links.self.href);
-    const rumour = NucleonElement.Rumour(this.group);
-    const related = [...this.related, this.parent];
+    try {
+      const body = JSON.stringify(edits);
+      const postData = await this._fetch(this.parent, { body, method: 'POST' });
+      const data = await this._fetch(postData._links.self.href);
 
-    rumour.share({ data, related, source: data._links.self.href });
-    this.__createRumour();
+      const rumour = NucleonElement.Rumour(this.group);
+      const related = [...this.related, this.parent];
+      rumour.share({ data, related, source: data._links.self.href });
 
-    return data;
+      return data;
+    } finally {
+      this.__createRumour();
+    }
   }
 
   /** GETs `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendGet(): Promise<TData> {
     this.__destroyRumour();
 
-    const data = await this._fetch(this.href);
-    const rumour = NucleonElement.Rumour(this.group);
-
-    rumour.share({ data, source: this.href });
-    this.__createRumour();
-
-    return data;
+    try {
+      const data = await this._fetch(this.href);
+      NucleonElement.Rumour(this.group).share({ data, source: this.href });
+      return data;
+    } finally {
+      this.__createRumour();
+    }
   }
 
   /** PATCHes `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendPatch(edits: Partial<TData>): Promise<TData> {
     this.__destroyRumour();
 
-    const body = JSON.stringify(edits);
-    const data = await this._fetch(this.href, { body, method: 'PATCH' });
-    const rumour = NucleonElement.Rumour(this.group);
+    try {
+      const body = JSON.stringify(edits);
+      const data = await this._fetch(this.href, { body, method: 'PATCH' });
 
-    rumour.share({ data, source: this.href, related: this.related });
-    this.__createRumour();
+      const rumour = NucleonElement.Rumour(this.group);
+      rumour.share({ data, source: this.href, related: this.related });
 
-    return data;
+      return data;
+    } finally {
+      this.__createRumour();
+    }
   }
 
   /** DELETEs `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendDelete(): Promise<null> {
     this.__destroyRumour();
 
-    await this._fetch(this.href, { method: 'DELETE' });
-    const rumour = NucleonElement.Rumour(this.group);
-    const related = [...this.related, this.parent];
+    try {
+      await this._fetch(this.href, { method: 'DELETE' });
 
-    rumour.share({ data: null, source: this.href, related });
-    this.__createRumour();
+      const rumour = NucleonElement.Rumour(this.group);
+      const related = [...this.related, this.parent];
+      rumour.share({ data: null, source: this.href, related });
 
-    return null;
+      return null;
+    } finally {
+      this.__createRumour();
+    }
   }
 
   // this getter is used by LitElement to set the "state" attribute
