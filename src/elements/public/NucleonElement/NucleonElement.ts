@@ -86,7 +86,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    */
   related: string[] = [];
 
-  private __href = '';
+  private __hrefToLoad: string | null = null;
 
   private __group = '';
 
@@ -174,7 +174,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   set data(data: TData | null) {
     this.__service.send({ type: 'SET_DATA', data });
-    this.__href = data?._links.self.href ?? '';
+    this.__hrefToLoad = null;
   }
 
   /**
@@ -196,15 +196,15 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.href = 'https://demo.foxycart.com/s/customer/attributes/0'
    */
   get href(): string {
-    return this.__href;
+    return this.form._links?.self.href ?? this.__hrefToLoad ?? '';
   }
 
   set href(value: string) {
-    this.__href = value;
-
     if (value) {
+      this.__hrefToLoad = value;
       this.__service.send({ type: 'FETCH' });
     } else {
+      this.__hrefToLoad = null;
       this.__service.send({ type: 'SET_DATA', data: null });
     }
   }
@@ -232,6 +232,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.edit({ first_name: 'Alex' })
    */
   edit(data: Partial<TData>): void {
+    if (typeof data._links?.self.href === 'string') this.__hrefToLoad = null;
     this.__service.send({ type: 'EDIT', data });
   }
 
