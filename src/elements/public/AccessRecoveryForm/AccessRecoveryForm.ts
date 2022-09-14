@@ -46,6 +46,7 @@ export class AccessRecoveryForm extends Base<Data> {
   private readonly __renderEmail = () => {
     const isFailed = this.in('fail');
     const isBusy = this.in('busy');
+    const isDone = this.in({ idle: 'snapshot' });
 
     const emailErrors = this.errors.filter(error => error.startsWith('email'));
     const emailErrorKeys = emailErrors.map(error => error.replace('email', 'v8n'));
@@ -72,7 +73,7 @@ export class AccessRecoveryForm extends Base<Data> {
           class="w-full"
           label=${this.t('email').toString()}
           value=${ifDefined(this.form.detail?.email)}
-          ?disabled=${isBusy || isFailed || this.disabledSelector.matches('email', true)}
+          ?disabled=${isBusy || isDone || isFailed || this.disabledSelector.matches('email', true)}
           ?readonly=${this.readonlySelector.matches('email', true)}
           .checkValidity=${this.__checkEmailValidity}
           @input=${handleInput}
@@ -109,6 +110,8 @@ export class AccessRecoveryForm extends Base<Data> {
     const isFailed = this.in('fail');
     const isValid = this.errors.length === 0;
     const isBusy = this.in('busy');
+    const isDone = this.in({ idle: 'snapshot' });
+    const isDisabledByForm = isBusy || isDone || !isValid || isFailed;
 
     return html`
       <div>
@@ -118,10 +121,7 @@ export class AccessRecoveryForm extends Base<Data> {
           data-testid="submit"
           class="w-full"
           theme="primary"
-          ?disabled=${isBusy ||
-          !isValid ||
-          isFailed ||
-          this.disabledSelector.matches('submit', true)}
+          ?disabled=${isDisabledByForm || this.disabledSelector.matches('submit', true)}
           @click=${() => this.submit()}
         >
           <foxy-i18n lang=${this.lang} key="recover_access" ns=${this.ns}></foxy-i18n>
