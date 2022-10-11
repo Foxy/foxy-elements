@@ -471,6 +471,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     event.preventDefault();
     this.__fetchEventQueue.push(event);
 
-    if (!this.in('busy')) this.__processFetchEventQueue();
+    if (!this.__service.state.matches('busy')) this.__processFetchEventQueue();
   }
 }
