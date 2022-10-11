@@ -829,4 +829,40 @@ export const defaults: Defaults = {
       date_modified: new Date().toISOString(),
     };
   },
+
+  template_sets: query => {
+    const cartTemplateId = parseInt(query.get('cart_template_id') ?? '0');
+    const cartIncludeTemplateId = parseInt(query.get('cart_include_template_id') ?? '0');
+    const checkoutTemplateId = parseInt(query.get('checkout_template_id') ?? '0');
+    const receiptTemplateId = parseInt(query.get('receipt_template_id') ?? '0');
+    const emailTemplateId = parseInt(query.get('email_template_id') ?? '0');
+    const paymentMethodSetId = parseInt(query.get('payment_method_set_id') ?? '0');
+    const templateConfigId = parseInt(query.get('template_config_id') ?? '0');
+
+    return {
+      id: increment('template_sets', 1),
+      store_id: parseInt(query.get('store_id') ?? '0'),
+      cart_template_id: cartTemplateId,
+      cart_include_template_id: cartIncludeTemplateId,
+      checkout_template_id: checkoutTemplateId,
+      receipt_template_id: receiptTemplateId,
+      email_template_id: emailTemplateId,
+      payment_method_set_id: paymentMethodSetId,
+      template_config_id: templateConfigId,
+      cart_template_uri: `https://demo.api/hapi/cart_templates/${cartTemplateId}`,
+      cart_include_template_uri: `https://demo.api/hapi/cart_include_templates/${cartIncludeTemplateId}`,
+      checkout_template_uri: `https://demo.api/hapi/checkout_templates/${checkoutTemplateId}`,
+      receipt_template_uri: `https://demo.api/hapi/receipt_templates/${receiptTemplateId}`,
+      email_template_uri: `https://demo.api/hapi/email_templates/${emailTemplateId}`,
+      payment_method_set_uri: `https://demo.api/hapi/payment_method_sets/${paymentMethodSetId}`,
+      template_config_uri: `https://demo.api/hapi/template_configs/${templateConfigId}`,
+      code: '',
+      description: '',
+      language: 'english.inc.php',
+      locale_code: 'en_US',
+      config: '',
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+    };
+  },
 };

@@ -1,0 +1,384 @@
+{
+  "description": {
+    "label": "Description",
+    "placeholder": "Required - e.g. My Template Set",
+    "helper_text": "",
+    "v8n_required": "Please enter a description for this set",
+    "v8n_too_long": "Please reduce this description to 100 characters or less"
+  },
+  "code": {
+    "label": "Code",
+    "placeholder": "Required - e.g. MY-TEMPLATE-SET",
+    "helper_text": "",
+    "v8n_required": "Please enter a code for this set",
+    "v8n_too_long": "Please reduce this code to 50 characters or less"
+  },
+  "cart-template-uri": {
+    "template": "Template",
+    "cache": "Cache",
+    "cancel": "Cancel",
+    "default": "Default",
+    "description": "Description",
+    "template_clipboard": "From clipboard",
+    "template_clipboard_explainer": "Paste the template here to use it",
+    "template_default": "Default",
+    "template_default_explainer": "Use the default template",
+    "template_url": "From URL",
+    "template_url_explainer": "Fetch the template from a public URL",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "cart-include-template-uri": {
+    "template": "Template",
+    "cache": "Cache",
+    "cancel": "Cancel",
+    "default": "Default",
+    "description": "Description",
+    "template_clipboard": "From clipboard",
+    "template_clipboard_explainer": "Paste the template here to use it",
+    "template_default": "Default",
+    "template_default_explainer": "Use the default template",
+    "template_url": "From URL",
+    "template_url_explainer": "Fetch the template from a public URL",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "checkout-template-uri": {
+    "template": "Template",
+    "cache": "Cache",
+    "cancel": "Cancel",
+    "default": "Default",
+    "description": "Description",
+    "template_clipboard": "From clipboard",
+    "template_clipboard_explainer": "Paste the template here to use it",
+    "template_default": "Default",
+    "template_default_explainer": "Use the default template",
+    "template_url": "From URL",
+    "template_url_explainer": "Fetch the template from a public URL",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "receipt-template-uri": {
+    "template": "Template",
+    "cache": "Cache",
+    "cancel": "Cancel",
+    "default": "Default",
+    "description": "Description",
+    "template_clipboard": "From clipboard",
+    "template_clipboard_explainer": "Paste the template here to use it",
+    "template_default": "Default",
+    "template_default_explainer": "Use the default template",
+    "template_url": "From URL",
+    "template_url_explainer": "Fetch the template from a public URL",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "email-template-uri": {
+    "cache": "Cache",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "default": "Default",
+    "html_template": "HTML template",
+    "template_clipboard": "From clipboard",
+    "template_clipboard_explainer": "Paste the template here to use it",
+    "template_default": "Default",
+    "template_default_explainer": "Use the default template",
+    "template_url": "From URL",
+    "template_url_explainer": "Fetch the template from a public URL",
+    "text_template": "Text template",
+    "template-language": {
+      "label": "Language",
+      "placeholder": "Default (Nunjucks)",
+      "helper_text": ""
+    },
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "language": {
+    "label": "Language",
+    "placeholder": "Select language",
+    "helper_text": "",
+    "v8n_required": "Please select a language for this set"
+  },
+  "locale-code": {
+    "label": "Locale",
+    "placeholder": "Select locale",
+    "helper_text": "",
+    "v8n_required": "Please select a locale for this set"
+  },
+  "header_general": "General",
+  "config": {
+    "payment-method-set-uri": {
+      "is-live": {
+        "label": "",
+        "option_live": "Use live credentials",
+        "helper_text": ""
+      },
+      "is-purchase-order-enabled": {
+        "label": "",
+        "option_true": "Allow purchase orders",
+        "helper_text": ""
+      },
+      "payment-methods": {
+        "delete_header": "Remove payment method",
+        "delete_message": "Are you sure you'd like to remove this payment method? You'll need to configure it again if you decide to bring it back.",
+        "delete_confirm": "Remove",
+        "delete_cancel": "Cancel",
+        "title": "Payment methods",
+        "dialog": {
+          "header_update": "Payment method",
+          "header_create": "New payment method",
+          "close": "Close",
+          "cancel": "Cancel",
+          "save": "Save",
+          "undo_header": "Unsaved changes",
+          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard"
+        },
+        "pagination": {
+          "create_button_text": "Add payment method",
+          "card": {
+            "delete_button_text": "Remove"
+          }
+        }
+      },
+      "fraud-protections": {
+        "delete_header": "Remove fraud protection",
+        "delete_message": "Are you sure you'd like to remove this fraud protection? You'll need to configure it again if you decide to bring it back.",
+        "delete_confirm": "Remove",
+        "delete_cancel": "Cancel",
+        "title": "Fraud protections",
+        "dialog": {
+          "header_update": "Fraud protection",
+          "header_create": "New fraud protection",
+          "close": "Close",
+          "cancel": "Cancel",
+          "save": "Save",
+          "undo_header": "Unsaved changes",
+          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard"
+        },
+        "pagination": {
+          "create_button_text": "Add fraud protection",
+          "card": {
+            "delete_button_text": "Remove"
+          }
+        }
+      },
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_error": "Failed to load"
+      }
+    },
+    "template-dialog": {
+      "cart_template_uri_header": "Cart template",
+      "cart_include_template_uri_header": "Cart include template",
+      "checkout_template_uri_header": "Checkout template",
+      "receipt_template_uri_header": "Web receipt template",
+      "email_template_uri_header": "Email receipt template",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard"
+    },
+    "templates_title": "Templates",
+    "templates_helper_text": "Click any of the templates above to customize how those views are presented to your customers. Warning: this functionality is for advanced users only.",
+    "cart-template-uri": {
+      "title": "Cart template",
+      "type_custom_url": "Custom (URL)",
+      "type_custom_text": "Custom (Text)",
+      "type_default": "Default",
+      "spinner": {
+        "loading_busy": "Loading cart template",
+        "loading_empty": "No cart template",
+        "loading_error": "Failed to load cart template"
+      }
+    },
+    "cart-include-template-uri": {
+      "title": "Cart include template",
+      "type_custom_url": "Custom (URL)",
+      "type_custom_text": "Custom (Text)",
+      "type_default": "Default",
+      "spinner": {
+        "loading_busy": "Loading cart include template",
+        "loading_empty": "No cart include template",
+        "loading_error": "Failed to load cart include template"
+      }
+    },
+    "checkout-template-uri": {
+      "title": "Checkout template",
+      "type_custom_url": "Custom (URL)",
+      "type_custom_text": "Custom (Text)",
+      "type_default": "Default",
+      "spinner": {
+        "loading_busy": "Loading checkout template",
+        "loading_empty": "No checkout template",
+        "loading_error": "Failed to load checkout template"
+      }
+    },
+    "receipt-template-uri": {
+      "title": "Web receipt template",
+      "type_custom_url": "Custom (URL)",
+      "type_custom_text": "Custom (Text)",
+      "type_default": "Default",
+      "spinner": {
+        "loading_busy": "Loading web receipt template",
+        "loading_empty": "No web receipt template",
+        "loading_error": "Failed to load web receipt template"
+      }
+    },
+    "email-template-uri": {
+      "title": "Email receipt template",
+      "type_custom_url": "Custom (URL)",
+      "type_custom_text": "Custom (Text)",
+      "type_mixed": "Mixed",
+      "type_default": "Default",
+      "spinner": {
+        "loading_busy": "Loading email receipt template",
+        "loading_empty": "No email receipt template",
+        "loading_error": "Failed to load email receipt template"
+      }
+    },
+    "add_country": "Add country",
+    "add_field": "Add field",
+    "add_region": "Add region",
+    "address1": "Address Line 1",
+    "address2": "Address Line 2",
+    "allow": "Allow",
+    "allowlist": "Allow all except",
+    "billing": "Billing",
+    "block": "Block",
+    "blocklist": "Ban all except",
+    "cart_controls": "Quantity",
+    "cart_type": "Cart display",
+    "cart_type_custom": "Custom",
+    "cart_type_custom_explainer": "Build your own JSONP cart with included config",
+    "cart_type_default": "Sidecart",
+    "cart_type_default_explainer": "Default cart appearance in version 2.0",
+    "cart_type_fullpage": "Full page",
+    "cart_type_fullpage_explainer": "Send all customers to a full page cart while still including minicart functionality",
+    "checked_by_default": "Checked by default",
+    "checkout_type": "Accounts",
+    "checkout_type_account_only": "Allow customer accounts only",
+    "checkout_type_default_account": "Allow both, default to customer",
+    "checkout_type_default_guest": "Allow both, default to guest",
+    "checkout_type_guest_only": "Allow guests only",
+    "checkout_type_helper_text": "If you select Allow guests only, your store will not be able to use subscriptions.",
+    "city": "City",
+    "close": "Close",
+    "close_icon": "Close icon",
+    "company": "Company",
+    "consent": "Consent",
+    "copy": "Copy",
+    "country": "Country",
+    "coupon_entry": "Coupon code",
+    "create": "Create",
+    "custom_config": "Custom config",
+    "custom_config_helper_text": "If you have any custom values you'd like to make available to your twig template, you can add them here as a valid JSON string.",
+    "custom_fields": "Custom fields",
+    "custom_fields_helper_text": "If you have information you'd like to collect from the customer on the checkout page, you can add custom form fields here which will be added to the checkout form. We recommend you follow the same HTML container structure used on other checkout fields for consistency. You can use Twig syntax here.",
+    "custom_footer": "Custom footer",
+    "custom_footer_helper_text": "Any JS snippets or conversion scripts you need to add to the footer can be put here and will be inserted before the </body> tag. You can use Twig syntax here. For conversion scripts you only want to display once on the receipt page, use {% if first_receipt_display %} {# conversion script content here #} {% endif %}.",
+    "custom_header": "Custom header",
+    "custom_header_helper_text": "Any CSS or JS you need to add to the header can be put here and will be inserted before the </head> tag of your templates. Keep in mind all script file references must be through https or run through the Foxy caching system. Twig syntax is not available in the header.",
+    "default": "Default",
+    "delete": "Delete",
+    "delete_prompt": "This resource will be permanently removed. Are you sure?",
+    "disabled": "Disabled",
+    "display_sdta": "Display a Secure Data Transfer agreement to EU customers",
+    "display_sdta_explainer": "If you have customers in the European Union, enable this feature so they can opt in to sending their data to our secure servers in the United States.",
+    "display_tos_link": "Display a link to Terms & Conditions",
+    "display_tos_link_explainer": "Include a checkbox to ask your customers to agree to your Terms of Service.",
+    "enable_postcode_lookup": "Offer city and state suggestions based on postcode",
+    "enabled": "Enabled",
+    "error": "Error",
+    "field_plural": "Fields",
+    "first_name": "First name",
+    "foxycomplete": "Location autocomplete",
+    "foxycomplete_combobox": "Combo Box",
+    "foxycomplete_combobox_explainer": "Expand to browse options, type to search",
+    "foxycomplete_disabled": "Disabled",
+    "foxycomplete_disabled_explainer": "Let customers pick an option from a list",
+    "foxycomplete_search": "Search",
+    "foxycomplete_search_explainer": "Display a «search as you type» field",
+    "ga_account_id": "Account ID",
+    "ga_account_id_explainer": "You can find the ID in the Admin section of your Analytics in Tracking info > Tracking code.",
+    "ga_include_on_site": "Include via loader.js",
+    "ga_include_on_site_explainer": "Enable Google Analytics on any page where the loader.js file is included.",
+    "hidden": "Hidden",
+    "hidden_fields": "Hidden fields",
+    "last_name": "Last name",
+    "location_plural": "Locations",
+    "location_url": "Location (URL)",
+    "newsletter_subscribe": "Allow users to sign up for your newsletter",
+    "newsletter_subscribe_explainer": "This includes a checkbox on your checkout to allow customers to choose to sign up to your newsletter, available in the transaction reports, the API and webhooks.",
+    "open_icon": "Open icon",
+    "optional": "Optional",
+    "phone": "Phone",
+    "postal_code": "Postal code",
+    "product_category": "Product category",
+    "product_code": "Product code",
+    "product_options": "Product options",
+    "product_weight": "Product weight",
+    "region": "Region",
+    "require_consent": "Require consent to proceed",
+    "required": "Required",
+    "same_as_shipping": "Same as shipping",
+    "shipping": "Shipping",
+    "show_country_flags": "Show country flags",
+    "sio_account_id": "Write Key",
+    "sio_account_id_explainer": "You can find the write key in your project set up guide or in the source’s settings.",
+    "skip_csc_for_saved": "Skip CSC for saved cards",
+    "skip_csc_for_sso": "Skip CSC for single sign-on",
+    "sub_enddate": "Subscription end date",
+    "sub_frequency": "Subscription frequency",
+    "sub_nextdate": "Subscription next date",
+    "sub_startdate": "Subscription start date",
+    "supported_cards": "Cards",
+    "supported_cards_disclaimer": "Applies only to payment gateways where the customer enters their payment card information directly on the Foxy checkout. Exceptions: Adyen Embedded, Amazon Pay, Apple Pay, Klarna, Square and Stripe.",
+    "tab_advanced": "Advanced",
+    "tab_analytics": "Analytics",
+    "tab_cart": "Cart",
+    "tab_checkout": "Checkout",
+    "tax_id": "Tax ID",
+    "troubleshooting": "Troubleshooting",
+    "troubleshooting_debug": "Log debug messages in the browser console",
+    "troubleshooting_debug_explainer": "Enable this option to trigger console.log() calls for our JS, which can assist with troubleshooting your store.",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this template set? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

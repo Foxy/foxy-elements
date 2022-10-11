@@ -441,4 +441,26 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
     'fx:property_helpers': { href: `./property_helpers?store_id=${store_id}` },
   }),
+
+  template_sets: ({
+    id,
+    store_id,
+    cart_template_id,
+    cart_include_template_id,
+    checkout_template_id,
+    receipt_template_id,
+    email_template_id,
+    payment_method_set_id,
+    template_config_id,
+  }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:cart_template': { href: `./cart_templates/${cart_template_id}` },
+    'fx:cart_include_template': { href: `./cart_include_templates/${cart_include_template_id}` },
+    'fx:checkout_template': { href: `./checkout_templates/${checkout_template_id}` },
+    'fx:receipt_template': { href: `./receipt_templates/${receipt_template_id}` },
+    'fx:email_template': { href: `./email_templates/${email_template_id}` },
+    'fx:payment_method_set': { href: `./payment_method_sets/${payment_method_set_id}` },
+    'fx:template_config': { href: `./template_configs/${template_config_id}` },
+    'fx:language_overrides': { href: `./language_overrides?template_set_id=${id}` },
+  }),
 };
