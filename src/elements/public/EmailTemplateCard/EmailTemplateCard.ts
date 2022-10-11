@@ -10,18 +10,23 @@ const Base = TranslatableMixin(InternalCard, NS);
 
 export class EmailTemplateCard extends Base<Data> {
   renderBody(): TemplateResult {
-    // TODO remove the directive below once SDK has the types
-    // @ts-expect-error definition for template_language is missing in SDK types
-    const language = this.data?.template_language ?? 'nunjucks';
-    const languageToExtension: Record<string, string> = { nunjucks: '.njk', handlebars: '.hbs' };
-    const extension = languageToExtension[language] ?? `.${language}`;
+    const data = this.data;
+    const type =
+      data?.content_html_url && data.content_html_url
+        ? 'type_custom_url'
+        : data?.content_html && data.content_text
+        ? 'type_custom_text'
+        : data?.content_html ||
+          data?.content_html_url ||
+          data?.content_text ||
+          data?.content_text_url
+        ? 'type_mixed'
+        : 'type_default';
 
     return html`
-      <div class="flex items-center justify-between">
-        <div class="font-semibold">${this.data?.description}&ZeroWidthSpace;</div>
-        <div class="rounded-t-l rounded-b-l px-s py-xs bg-contrast-5">
-          <span class="uppercase text-xs font-bold tracking-wide">${extension}</span>
-        </div>
+      <div class="flex justify-between gap-s">
+        <foxy-i18n class="font-semibold truncate flex-shrink-0" infer="" key="title"></foxy-i18n>
+        <foxy-i18n class="truncate text-tertiary" infer="" key=${type}></foxy-i18n>
       </div>
     `;
   }

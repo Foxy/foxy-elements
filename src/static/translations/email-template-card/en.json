@@ -1,5 +1,9 @@
 {
-  "subtitle": "Last updated on {{ date_modified, date }}",
+  "title": "Email receipt template",
+  "type_custom_url": "Custom (URL)",
+  "type_custom_text": "Custom (Text)",
+  "type_mixed": "Mixed",
+  "type_default": "Default",
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",
