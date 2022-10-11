@@ -1,5 +1,5 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
-import type { SelectElement } from '@vaadin/vaadin-select';
+import type { SelectElement, SelectRenderer } from '@vaadin/vaadin-select';
 import type { Option } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
@@ -27,16 +27,20 @@ export class InternalSelectControl extends InternalEditableControl {
   /** Same as the "theme" attribute/property of `vaadin-select`. */
   theme: string | null = null;
 
+  private __renderer: SelectRenderer = root => {
+    const items = this.options.map(({ label, value }) => {
+      return html`
+        <vaadin-item value=${value}>
+          <foxy-i18n lang=${this.lang} key=${label} ns=${this.ns}></foxy-i18n>
+        </vaadin-item>
+      `;
+    });
+
+    if (!root.firstElementChild) root.appendChild(document.createElement('vaadin-list-box'));
+    render(items, root.firstElementChild as Element);
+  };
+
   renderControl(): TemplateResult {
-    const renderer = (root: Element) => {
-      const items = this.options.map(({ label, value }) => {
-        return html`<vaadin-item value=${value}>${this.t(label)}</vaadin-item>`;
-      });
-
-      if (!root.firstElementChild) root.appendChild(document.createElement('vaadin-list-box'));
-      render(items, root.firstElementChild as Element);
-    };
-
     return html`
       <vaadin-select
         error-message=${ifDefined(this._errorMessage)}
@@ -48,7 +52,7 @@ export class InternalSelectControl extends InternalEditableControl {
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
-        .renderer=${renderer}
+        .renderer=${this.__renderer}
         .value=${this._value as string}
         @change=${(evt: CustomEvent) => {
           const field = evt.currentTarget as SelectElement;
@@ -57,5 +61,13 @@ export class InternalSelectControl extends InternalEditableControl {
       >
       </vaadin-select>
     `;
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+
+    if (changes.has('ns') || changes.has('lang') || changes.has('options')) {
+      this.renderRoot.querySelector<SelectElement>('vaadin-select')?.render();
+    }
   }
 }

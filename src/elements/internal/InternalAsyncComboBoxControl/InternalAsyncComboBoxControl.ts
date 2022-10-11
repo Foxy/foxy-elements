@@ -37,27 +37,27 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
   /** URL of the first page of the hAPI collection serving as a source for items. */
   first: string | null = null;
 
+  private __dataProvider: ComboBoxDataProvider = async (params, callback) => {
+    if (!this.first) return callback([], 0);
+
+    const url = new URL(this.first);
+    url.searchParams.set('offset', String(params.page * params.pageSize));
+    url.searchParams.set('limit', String(params.pageSize));
+
+    if (params.filter && this.itemLabelPath) {
+      url.searchParams.set(this.itemLabelPath, `*${params.filter}*`);
+    }
+
+    const response = await new API(this).fetch(url.toString());
+    if (!response.ok) throw new Error(await response.text());
+
+    const json = await response.json();
+    const items = Array.from(Object.values(json._embedded))[0] as unknown[];
+
+    callback(items, json.total_items);
+  };
+
   renderControl(): TemplateResult {
-    const dataProvider: ComboBoxDataProvider = async (params, callback) => {
-      if (!this.first) return callback([], 0);
-
-      const url = new URL(this.first);
-      url.searchParams.set('offset', String(params.page * params.pageSize));
-      url.searchParams.set('limit', String(params.pageSize));
-
-      if (params.filter && this.itemLabelPath) {
-        url.searchParams.set(this.itemLabelPath, `*${params.filter}*`);
-      }
-
-      const response = await new API(this).fetch(url.toString());
-      if (!response.ok) throw new Error(await response.text());
-
-      const json = await response.json();
-      const items = Array.from(Object.values(json._embedded))[0] as unknown[];
-
-      callback(items, json.total_items);
-    };
-
     return html`
       <vaadin-combo-box
         item-value-path=${ifDefined(this.itemValuePath ?? undefined)}
@@ -72,7 +72,7 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
         ?readonly=${this.readonly}
         clear-button-visible
         .checkValidity=${this._checkValidity}
-        .dataProvider=${dataProvider}
+        .dataProvider=${this.__dataProvider}
         .selectedItem=${this.selectedItem}
         .value=${this._value}
         @change=${(evt: CustomEvent) => {
@@ -96,7 +96,7 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
 
-    if (changes.has('first')) {
+    if (changes.has('first') || changes.has('itemLabelPath')) {
       const comboBox = this.renderRoot.querySelector<ComboBoxElement>('vaadin-combo-box');
 
       // this forces reload
