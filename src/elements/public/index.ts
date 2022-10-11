@@ -70,6 +70,7 @@ export { SwipeActions } from './SwipeActions/SwipeActions';
 export { Table } from './Table/Table';
 export { TaxCard } from './TaxCard/TaxCard';
 export { TaxForm } from './TaxForm/TaxForm';
+export { TemplateCard } from './TemplateCard/TemplateCard';
 export { TemplateForm } from './TemplateForm/TemplateForm';
 export { TemplateConfigForm } from './TemplateConfigForm/TemplateConfigForm';
 export { TransactionCard } from './TransactionCard/TransactionCard';
