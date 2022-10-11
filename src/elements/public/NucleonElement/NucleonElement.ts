@@ -5,7 +5,7 @@ import { assign, interpret } from 'xstate';
 
 import { API } from './API';
 import { FetchEvent } from './FetchEvent';
-import { UpdateEvent } from './UpdateEvent';
+import { UpdateEvent, UpdateResult } from './UpdateEvent';
 import memoize from 'lodash-es/memoize';
 import { serveFromCache } from './serveFromCache';
 import { InferrableMixin } from '../../../mixins/inferrable';
@@ -382,8 +382,18 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     this.__service.onTransition(state => {
       if (!state.changed) return;
 
+      let result: UpdateResult | undefined = undefined;
+
+      if (state.matches('idle')) {
+        if (state.history?.matches({ busy: 'deleting' })) {
+          result = UpdateResult.ResourceDeleted;
+        } else if (state.history?.matches({ busy: 'creating' })) {
+          result = UpdateResult.ResourceCreated;
+        }
+      }
+
       this.requestUpdate();
-      this.dispatchEvent(new UpdateEvent());
+      this.dispatchEvent(new UpdateEvent('update', { detail: { result } }));
 
       if (!state.matches('busy')) this.__processFetchEventQueue();
     });
