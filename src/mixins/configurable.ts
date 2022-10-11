@@ -160,18 +160,27 @@ export const ConfigurableMixin = <TBase extends Base>(
         readonlyControls: {
           attribute: 'readonlycontrols',
           converter: { fromAttribute: value => new BooleanSelector(value ?? '') },
+          hasChanged: (value: BooleanSelector, newValue?: BooleanSelector) => {
+            return value.toString() !== newValue?.toString();
+          },
         },
 
         disabled: { type: Boolean, reflect: true },
         disabledControls: {
           attribute: 'disabledcontrols',
           converter: { fromAttribute: value => new BooleanSelector(value ?? '') },
+          hasChanged: (value: BooleanSelector, newValue?: BooleanSelector) => {
+            return value.toString() !== newValue?.toString();
+          },
         },
 
         hidden: { type: Boolean, reflect: true },
         hiddenControls: {
           attribute: 'hiddencontrols',
           converter: { fromAttribute: value => new BooleanSelector(value ?? '') },
+          hasChanged: (value: BooleanSelector, newValue?: BooleanSelector) => {
+            return value.toString() !== newValue?.toString();
+          },
         },
       };
     }
