@@ -1,5 +1,5 @@
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { TextFieldElement } from '@vaadin/vaadin-text-field';
-import type { TemplateResult } from 'lit-element';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -12,6 +12,18 @@ import { html } from 'lit-element';
  * @element foxy-internal-text-control
  */
 export class InternalTextControl extends InternalEditableControl {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      prefix: {},
+      suffix: {},
+    };
+  }
+
+  prefix: string | null = null;
+
+  suffix: string | null = null;
+
   renderControl(): TemplateResult {
     return html`
       <vaadin-text-field
@@ -20,9 +32,9 @@ export class InternalTextControl extends InternalEditableControl {
         placeholder=${this.placeholder}
         label=${this.label}
         class="w-full"
+        ?clear-button-visible=${!this.suffix}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
-        clear-button-visible
         .checkValidity=${this._checkValidity}
         .value=${this._value}
         @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
@@ -31,6 +43,8 @@ export class InternalTextControl extends InternalEditableControl {
           this._value = field.value;
         }}
       >
+        ${this.prefix ? html`<div slot="prefix">${this.prefix}</div>` : ''}
+        ${this.suffix ? html`<div class="pr-s font-medium" slot="suffix">${this.suffix}</div>` : ''}
       </vaadin-text-field>
     `;
   }
