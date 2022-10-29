@@ -865,4 +865,18 @@ export const defaults: Defaults = {
       date_modified: new Date().toISOString(),
     };
   },
+
+  store_versions: () => ({
+    id: increment('store_versions', 2),
+    version: '',
+    changelog_blog_url: '',
+    changelog_url: '',
+    changelog_content: '',
+    cart_types: {},
+    version_date: new Date().toISOString(),
+    is_visible: true,
+    is_beta: false,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };

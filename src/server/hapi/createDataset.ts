@@ -463,7 +463,7 @@ export const createDataset: () => Dataset = () => ({
   stores: [
     {
       id: 0,
-      store_version_uri: '',
+      store_version_uri: 'https://demo.api/hapi/store_versions/1',
       store_name: 'Acme Corporation',
       store_domain: 'acme',
       use_remote_domain: false,
@@ -491,8 +491,8 @@ export const createDataset: () => Dataset = () => ({
       use_cart_validation: false,
       use_single_sign_on: false,
       single_sign_on_url: '',
-      customer_password_hash_type: 'sha256_salted_suffix',
-      customer_password_hash_config: '48',
+      customer_password_hash_type: 'phpass',
+      customer_password_hash_config: 8,
       features_multiship: false,
       products_require_expires_property: false,
       app_session_time: 0,
@@ -1338,6 +1338,166 @@ export const createDataset: () => Dataset = () => ({
         },
       },
     },
+    {
+      id: 2,
+      message: 'fx:timezones property helper',
+      values: {
+        timezone: [
+          {
+            timezone: 'America/Los_Angeles',
+            description: '(GMT-08:00) Pacific Time (US and Canada)',
+          },
+          {
+            timezone: 'America/Denver',
+            description: '(GMT-07:00) Mountain Time (US and Canada)',
+          },
+          {
+            timezone: 'America/Regina',
+            description: '(GMT-06:00) Saskatchewan',
+          },
+        ],
+      },
+    },
+    {
+      id: 3,
+      message: 'fx:countries property helper',
+      values: {
+        GB: {
+          default: 'United Kingdom',
+          cc2: 'GB',
+          cc3: 'GBR',
+          alternate_values: ['Great Britain', 'England', 'Northern Ireland', 'Britain', 'UK'],
+          boost: 4,
+          has_regions: false,
+          regions_required: false,
+          regions_type: 'county',
+          active: true,
+        },
+        US: {
+          default: 'United States',
+          cc2: 'US',
+          cc3: 'USA',
+          alternate_values: ['USA', 'United States of America', 'America'],
+          boost: 4.5,
+          has_regions: true,
+          regions_required: true,
+          regions_type: 'state',
+          active: true,
+        },
+        UM: {
+          default: 'United States Minor Outlying Islands',
+          cc2: 'UM',
+          cc3: 'UMI',
+          alternate_values: [],
+          boost: 1,
+          has_regions: false,
+          regions_required: false,
+          regions_type: 'state',
+          active: true,
+        },
+      },
+    },
+    {
+      id: 4,
+      message: 'fx:regions property helper',
+      values: {
+        SD: {
+          default: 'South Dakota',
+          code: 'SD',
+          alternate_values: [],
+          boost: 1,
+          active: true,
+        },
+        TN: {
+          default: 'Tennessee',
+          code: 'TN',
+          alternate_values: [],
+          boost: 1,
+          active: true,
+        },
+        TX: {
+          default: 'Texas',
+          code: 'TX',
+          alternate_values: [],
+          boost: 1,
+          active: true,
+        },
+      },
+    },
+    {
+      id: 5,
+      message: 'fx:shipping_address_types property helper',
+      values: {
+        residential: 'Rate as Residential',
+        commercial: 'Rate as Commercial',
+        determine_by_company: 'Rate based on Company field',
+      },
+    },
+    {
+      id: 6,
+      message: 'fx:languages property helper',
+      values: {
+        dutch: 'Dutch',
+        english: 'English',
+        spanish: 'Spanish',
+        swedish: 'Swedish',
+        finnish: 'Finnish',
+        french: 'French',
+        german: 'German',
+        chinese: 'Chinese',
+        norwegian: 'Norwegian',
+        italian: 'Italian',
+      },
+    },
+    {
+      id: 7,
+      message: 'fx:locale_codes property helper',
+      values: {
+        en_AU: 'English locale for Australia (Currency: AUD:$)',
+        en_BW: 'English locale for Botswana (Currency: BWP:Pu)',
+        en_CA: 'English locale for Canada (Currency: CAD:$)',
+        en_DK: 'English locale for Denmark (Currency: DKK:kr)',
+        en_GB: 'English locale for Britain (Currency: GBP:&pound;)',
+        en_HK: 'English locale for Hong Kong (Currency: HKD:HK$)',
+        en_IE: 'English locale for Ireland (Currency: EUR:&euro;)',
+        en_IN: 'English locale for India (Currency: INR:₨)',
+        en_NZ: 'English locale for New Zealand (Currency: NZD:$)',
+        en_PH: 'English locale for Philippines (Currency: PHP:Php)',
+        en_SG: 'English locale for Singapore (Currency: SGD:$)',
+        en_US: 'English locale for the USA (Currency: USD:$)',
+        en_ZA: 'English locale for South Africa (Currency: ZAR:R)',
+        en_ZW: 'English locale for Zimbabwe (Currency: ZWD:Z$)',
+        en_GH: 'English locale for Ghana (Currency: GHS:GHc)',
+      },
+    },
+    {
+      id: 8,
+      message: 'fx:checkout_types property helper',
+      values: {
+        default_account: 'Allow guest and customer accounts, default to account',
+        default_guest: 'Allow guest and customer accounts, default to guest',
+        account_only: 'Allow customer accounts only',
+        guest_only: 'Allow guests only',
+      },
+    },
+    {
+      id: 9,
+      message: 'fx:customer_password_hash_types property helper',
+      values: {
+        concrete5: {
+          description: 'Concrete5',
+          config: "Enter your 'PASSWORD_SALT' from your site.php file here.",
+        },
+        phpass: {
+          description: 'phpass, portable mode (Wordpress, osCommerce 2.3+, etc.)',
+          config: 8,
+        },
+        pbkdf2: {
+          description: 'RSA PBKDF2 (for MODX Revolution)',
+          config: '1000, 32, sha256',
+        },
+      },
+    },
   ],
 
   template_sets: [
@@ -1365,6 +1525,60 @@ export const createDataset: () => Dataset = () => ({
       config: '',
       date_created: '2012-08-10T11:58:54-0700',
       date_modified: '2012-08-10T11:58:54-0700',
+    },
+  ],
+
+  store_versions: [
+    {
+      id: 0,
+      version: '1.1',
+      changelog_blog_url: 'http://www.foxycart.com/blog/1.1',
+      changelog_url: 'https://admin.foxycart.com/v/1.1.0/changelog.html',
+      changelog_content: '',
+      cart_types: {
+        colorbox: {
+          javascript_library: {
+            name: 'JQuery',
+            version: '1.9.0',
+            url: '//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js',
+          },
+          javascript: ['//cdn.foxycart.com/{{ store_domain }}/foxycart.colorbox.js?ver=2'],
+          css: ['//cdn.foxycart.com/static/scripts/colorbox/1.3.23/style1_fc/colorbox.css?ver=1'],
+        },
+        none: {
+          javascript_library: {
+            name: 'JQuery',
+            version: '1.9.0',
+            url: '//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js',
+          },
+          javascript: ['//cdn.foxycart.com/{{ store_domain }}/foxycart.js?ver=2'],
+          css: [],
+        },
+      },
+      version_date: '2013-01-22T15:21:11-08:00',
+      is_visible: true,
+      is_beta: false,
+      date_created: '2013-01-22T15:21:11-08:00',
+      date_modified: '2013-01-22T15:21:11-08:00',
+    },
+    {
+      id: 1,
+      version: '2.0',
+      changelog_blog_url: 'http://www.foxycart.com/blog/2.0',
+      changelog_url: 'https://admin.foxycart.com/v/2.0.0/changelog.html',
+      changelog_content: '',
+      cart_types: {
+        default: {
+          javascript_library: [],
+          javascript: ['https://cdn.foxycart.com/{{ store_domain }}/loader.js'],
+          css: [],
+        },
+      },
+      version_date: '2014-04-21T15:17:36-07:00',
+      is_visible: true,
+      is_beta: false,
+      date_created: '2014-04-21T15:17:36-07:00',
+      date_modified: '2014-04-21T15:17:36-07:00',
     },
   ],
 });

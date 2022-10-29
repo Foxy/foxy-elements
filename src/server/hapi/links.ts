@@ -463,4 +463,6 @@ export const links: Links = {
     'fx:template_config': { href: `./template_configs/${template_config_id}` },
     'fx:language_overrides': { href: `./language_overrides?template_set_id=${id}` },
   }),
+
+  store_versions: () => ({}),
 };
