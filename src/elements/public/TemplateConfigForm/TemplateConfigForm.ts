@@ -3,7 +3,7 @@ import * as logos from '../PaymentMethodCard/logos';
 import { CheckboxChangeEvent, ChoiceChangeEvent } from '../../private/events';
 import { Data, TemplateConfigJSON, Templates } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html, svg } from 'lit-html';
+import { TemplateResult, html } from 'lit-html';
 
 import { Checkbox } from '../../private/Checkbox/Checkbox';
 import { Choice } from '../../private/Choice/Choice';
@@ -25,27 +25,6 @@ const NS = 'template-config-form';
 const Base = ScopedElementsMixin(
   ResponsiveMixin(ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS))))
 );
-
-/* Tab icons by Heroicons (https://heroicons.com) */
-
-const tabs = [
-  {
-    key: 'tab_checkout',
-    icon: svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em"><path fill-rule="evenodd" d="M1 4a1 1 0 011-1h16a1 1 0 011 1v8a1 1 0 01-1 1H2a1 1 0 01-1-1V4zm12 4a3 3 0 11-6 0 3 3 0 016 0zM4 9a1 1 0 100-2 1 1 0 000 2zm13-1a1 1 0 11-2 0 1 1 0 012 0zM1.75 14.5a.75.75 0 000 1.5c4.417 0 8.693.603 12.749 1.73 1.111.309 2.251-.512 2.251-1.696v-.784a.75.75 0 00-1.5 0v.784a.272.272 0 01-.35.25A49.043 49.043 0 001.75 14.5z" clip-rule="evenodd" /></svg>`,
-  },
-  {
-    key: 'tab_cart',
-    icon: svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em"><path d="M1 1.75A.75.75 0 011.75 1h1.628a1.75 1.75 0 011.734 1.51L5.18 3a65.25 65.25 0 0113.36 1.412.75.75 0 01.58.875 48.645 48.645 0 01-1.618 6.2.75.75 0 01-.712.513H6a2.503 2.503 0 00-2.292 1.5H17.25a.75.75 0 010 1.5H2.76a.75.75 0 01-.748-.807 4.002 4.002 0 012.716-3.486L3.626 2.716a.25.25 0 00-.248-.216H1.75A.75.75 0 011 1.75zM6 17.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15.5 19a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" /></svg>`,
-  },
-  {
-    key: 'tab_analytics',
-    icon: svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em"><path fill-rule="evenodd" d="M6.111 11.89A5.5 5.5 0 1115.501 8 .75.75 0 1017 8a7 7 0 10-11.95 4.95.75.75 0 001.06-1.06zm2.121-5.658a2.5 2.5 0 000 3.536.75.75 0 11-1.06 1.06A4 4 0 1114 8a.75.75 0 01-1.5 0 2.5 2.5 0 00-4.268-1.768zm2.534 1.279a.75.75 0 00-1.37.364l-.492 6.861a.75.75 0 001.204.65l1.043-.799.985 3.678a.75.75 0 001.45-.388l-.978-3.646 1.292.204a.75.75 0 00.74-1.16l-3.874-5.764z" clip-rule="evenodd" /></svg>`,
-  },
-  {
-    key: 'tab_advanced',
-    icon: svg`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 1em; height: 1em"><path fill-rule="evenodd" d="M14.5 10a4.5 4.5 0 004.284-5.882c-.105-.324-.51-.391-.752-.15L15.34 6.66a.454.454 0 01-.493.11 3.01 3.01 0 01-1.618-1.616.455.455 0 01.11-.494l2.694-2.692c.24-.241.174-.647-.15-.752a4.5 4.5 0 00-5.873 4.575c.055.873-.128 1.808-.8 2.368l-7.23 6.024a2.724 2.724 0 103.837 3.837l6.024-7.23c.56-.672 1.495-.855 2.368-.8.096.007.193.01.291.01zM5 16a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd" /><path d="M14.5 11.5c.173 0 .345-.007.514-.022l3.754 3.754a2.5 2.5 0 01-3.536 3.536l-4.41-4.41 2.172-2.607c.052-.063.147-.138.342-.196.202-.06.469-.087.777-.067.128.008.257.012.387.012zM6 4.586l2.33 2.33a.452.452 0 01-.08.09L6.8 8.214 4.586 6H3.309a.5.5 0 01-.447-.276l-1.7-3.402a.5.5 0 01.093-.577l.49-.49a.5.5 0 01.577-.094l3.402 1.7A.5.5 0 016 3.31v1.277z" /></svg>`,
-  },
-];
 
 /**
  * Form element for creating or editing template configs (`fx:template_config`).
@@ -103,8 +82,6 @@ export class TemplateConfigForm extends Base<Data> {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-text-area': customElements.get('vaadin-text-area'),
-      'vaadin-tabs': customElements.get('vaadin-tabs'),
-      'vaadin-tab': customElements.get('vaadin-tab'),
       'iron-icon': customElements.get('iron-icon'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -120,7 +97,6 @@ export class TemplateConfigForm extends Base<Data> {
     return {
       ...super.properties,
       __addHiddenFieldInputValue: { attribute: false },
-      __currentTab: { attribute: false },
       countries: { type: String },
       regions: { type: String },
     };
@@ -136,53 +112,23 @@ export class TemplateConfigForm extends Base<Data> {
 
   private __addHiddenFieldInputValue = '';
 
-  private __currentTab = 0;
-
   render(): TemplateResult {
     const hidden = this.hiddenSelector;
     const json: TemplateConfigJSON = this.form.json ? JSON.parse(this.form.json) : getDefaultJSON();
 
     return html`
-      <div class="relative grid gap-l" aria-busy=${this.in('busy')} aria-live="polite">
-        <vaadin-tabs
-          class="shadow-none -mx-l -my-s min-w-0"
-          theme="minimal"
-          @selected-changed=${(evt: CustomEvent<{ value: number }>) => {
-            this.__currentTab = evt.detail.value;
-          }}
-        >
-          ${tabs.map(
-            tab => html`
-              <vaadin-tab>
-                <div class="flex items-center gap-s">
-                  ${tab.icon}
-                  <foxy-i18n infer="" class="font-semibold" key=${tab.key}></foxy-i18n>
-                </div>
-              </vaadin-tab>
-            `
-          )}
-        </vaadin-tabs>
-
-        <div class=${classMap({ 'space-y-l min-w-0': true, 'hidden': this.__currentTab !== 0 })}>
-          ${hidden.matches('cards', true) ? '' : this.__renderCards(json)}
-          ${hidden.matches('checkout-type', true) ? '' : this.__renderCheckoutType(json)}
-          ${hidden.matches('consent', true) ? '' : this.__renderConsent(json)}
-          ${hidden.matches('fields', true) ? '' : this.__renderFields(json)}
-        </div>
-
-        <div class=${classMap({ 'space-y-l min-w-0': true, 'hidden': this.__currentTab !== 1 })}>
+      <div class="relative" aria-busy=${this.in('busy')} aria-live="polite">
+        <div class="space-y-l">
           ${hidden.matches('cart-type', true) ? '' : this.__renderCartType(json)}
           ${hidden.matches('foxycomplete', true) ? '' : this.__renderFoxycomplete(json)}
           ${hidden.matches('locations', true) ? '' : this.__renderLocations(json)}
           ${hidden.matches('hidden-fields', true) ? '' : this.__renderHiddenFields(json)}
-        </div>
-
-        <div class=${classMap({ 'space-y-l min-w-0': true, 'hidden': this.__currentTab !== 2 })}>
+          ${hidden.matches('cards', true) ? '' : this.__renderCards(json)}
+          ${hidden.matches('checkout-type', true) ? '' : this.__renderCheckoutType(json)}
+          ${hidden.matches('consent', true) ? '' : this.__renderConsent(json)}
+          ${hidden.matches('fields', true) ? '' : this.__renderFields(json)}
           ${hidden.matches('google-analytics', true) ? '' : this.__renderGoogleAnalytics(json)}
           ${hidden.matches('segment-io', true) ? '' : this.__renderSegmentIo(json)}
-        </div>
-
-        <div class=${classMap({ 'space-y-l min-w-0': true, 'hidden': this.__currentTab !== 3 })}>
           ${hidden.matches('troubleshooting', true) ? '' : this.__renderTroubleshooting(json)}
           ${hidden.matches('custom-config', true) ? '' : this.__renderCustomConfig(json)}
           ${hidden.matches('header', true) ? '' : this.__renderHeader(json)}
