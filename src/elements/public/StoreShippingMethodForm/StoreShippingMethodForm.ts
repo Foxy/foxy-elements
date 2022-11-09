@@ -1,4 +1,5 @@
 import type { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Data } from './types';
@@ -127,6 +128,31 @@ export class StoreShippingMethodForm extends Base<Data> {
     const method = this.form._embedded?.['fx:shipping_method'];
 
     return html`
+      ${['method', 'container', 'drop_type'].map(tgt => {
+        const curie = `fx:shipping_${tgt}` as keyof Data['_embedded'];
+        const prop = `shipping_${tgt}_uri` as keyof Data;
+
+        if (this.form._embedded?.[curie] || !this.form[prop]) return;
+
+        return html`
+          <foxy-nucleon
+            class="hidden"
+            infer=""
+            href=${this.form[prop]}
+            @update=${(evt: CustomEvent) => {
+              const loader = evt.currentTarget as NucleonElement<any>;
+              const data = loader.data;
+
+              if (data) {
+                const newEmbeds = { ...this.form._embedded, [curie]: data };
+                this.edit({ _embedded: newEmbeds as Data['_embedded'] });
+              }
+            }}
+          >
+          </foxy-nucleon>
+        `;
+      })}
+
       <foxy-internal-async-combo-box-control
         item-value-path="_links.self.href"
         item-label-path="name"
