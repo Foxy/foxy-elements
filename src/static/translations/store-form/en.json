@@ -3,13 +3,6 @@
   "maintenance_mode_off_explainer": "If you're about to make changes that may disrupt the checkout process, we recommend enabling the maintenance mode first. In this mode the checkout page will be completely non-functioning and the customers will see a message asking them to come back later.",
   "enable_maintenance_mode": "Enable maintenance mode",
   "disable_maintenance_mode": "Disable maintenance mode",
-  "general_title": "General",
-  "emails_title": "Email settings",
-  "shipping_title": "Shipping",
-  "language_and_format_title": "Language & format",
-  "cart_and_checkout_title": "Cart & checkout",
-  "customer_login_title": "Customer login",
-  "legacy_title": "Legacy",
   "store-name": {
     "label": "Name",
     "placeholder": "My Store",

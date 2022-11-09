@@ -400,8 +400,6 @@ export class StoreForm extends Base<Data> {
         >
         </foxy-internal-async-combo-box-control>
 
-        ${this.__renderTitle('emails_title')}
-
         <foxy-internal-text-control
           infer="from-email"
           class="sm-col-span-2"
@@ -483,10 +481,6 @@ export class StoreForm extends Base<Data> {
           ? this.__renderWarning('require_signed_shipping_rates_helper_text')
           : ''}
 
-        <!-- -->
-
-        ${this.__renderTitle('language_and_format_title')}
-
         <foxy-internal-select-control infer="language" .options=${languageOptions}>
         </foxy-internal-select-control>
 
@@ -505,11 +499,11 @@ export class StoreForm extends Base<Data> {
 
         <!-- -->
 
-        ${this.__renderTitle('cart_and_checkout_title')}
-
-        <foxy-internal-text-control infer="receipt-continue-url"></foxy-internal-text-control>
+        <foxy-internal-text-control class="sm-col-span-2" infer="receipt-continue-url">
+        </foxy-internal-text-control>
 
         <foxy-internal-frequency-control
+          class="sm-col-span-2"
           infer="app-session-time"
           .getValue=${this.__getAppSessionTimeValue}
           .setValue=${this.__setAppSessionTimeValue}
@@ -545,10 +539,6 @@ export class StoreForm extends Base<Data> {
               caption: 'HMAC Product Verification: Locking Down your Add-To-Cart Links and Forms',
             })
           : ''}
-
-        <!-- -->
-
-        ${this.__renderTitle('customer_login_title')}
 
         <foxy-internal-select-control
           infer="checkout-type"
@@ -589,8 +579,6 @@ export class StoreForm extends Base<Data> {
           .setValue=${this.__setSingleSignOnUrlValue}
         >
         </foxy-internal-text-control>
-
-        ${this.__renderTitle('legacy_title')}
 
         <foxy-internal-text-control
           infer="webhook-url"
@@ -1152,11 +1140,5 @@ export class StoreForm extends Base<Data> {
         </foxy-nucleon>
       `,
     };
-  }
-
-  private __renderTitle(key: string) {
-    return html`
-      <foxy-i18n infer="" class="font-bold text-xl my-s sm-col-span-2" key=${key}></foxy-i18n>
-    `;
   }
 }
