@@ -1,5 +1,4 @@
 {
-  "maintenance_mode_title": "Maintenance mode",
   "maintenance_mode_on_explainer": "Maintenance mode is on. Your customers can't make purchases or use the checkout page in any way. Once you're done making changes, disable this mode to continue getting orders.",
   "maintenance_mode_off_explainer": "If you're about to make changes that may disrupt the checkout process, we recommend enabling the maintenance mode first. In this mode the checkout page will be completely non-functioning and the customers will see a message asking them to come back later.",
   "enable_maintenance_mode": "Enable maintenance mode",

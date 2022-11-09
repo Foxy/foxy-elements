@@ -361,13 +361,7 @@ export class StoreForm extends Base<Data> {
       ${countriesLoader.render(this.countries)} ${languagesLoader.render(this.languages)}
       ${regionsLoader.render(regionsUrl)}
 
-      <!-- -->
-
-      ${this.data ? this.__renderMaintenanceModeSwitch() : ''}
-
       <div class="grid gap-m grid-cols-1 sm-grid-cols-2">
-        ${this.__renderTitle('general_title')}
-
         <foxy-internal-text-control infer="store-name"></foxy-internal-text-control>
 
         <foxy-internal-text-control infer="logo-url"></foxy-internal-text-control>
@@ -605,6 +599,11 @@ export class StoreForm extends Base<Data> {
           .setValue=${this.__setWebhookUrlValue}
         >
         </foxy-internal-text-control>
+        <!-- -->
+
+        ${this.data && !this.hiddenSelector.matches('is-maintenance-mode', true)
+          ? this.__renderMaintenanceModeSwitch()
+          : ''}
       </div>
 
       ${super.renderBody()}
@@ -619,18 +618,16 @@ export class StoreForm extends Base<Data> {
     return html`
       <div
         class=${classMap({
-          'rounded-t-l rounded-b-l p-m leading-m': true,
-          'bg-contrast-5 text-contrast': !isActive,
-          'bg-primary-10 text-primary': isActive,
+          'rounded-t-l rounded-b-l leading-s text-s sm-col-span-2': true,
+          'text-tertiary': !isActive,
+          'text-error': isActive,
         })}
       >
-        <foxy-i18n infer="" class="block font-semibold mb-s" key="maintenance_mode_title">
-        </foxy-i18n>
-
-        <foxy-i18n infer="" class="block mb-m" key=${explainerKey}></foxy-i18n>
+        <foxy-i18n infer="" class="block mb-s" key=${explainerKey}></foxy-i18n>
 
         <vaadin-button
-          theme=${isActive ? 'primary' : 'contrast'}
+          theme="tertiary small ${isActive ? 'contrast' : ''}"
+          class="p-0"
           @click=${() => {
             this.edit({ is_maintenance_mode: !this.form.is_maintenance_mode });
             this.submit();
