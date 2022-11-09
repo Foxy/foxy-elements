@@ -391,8 +391,6 @@ export class StoreForm extends Base<Data> {
         >
         </foxy-internal-select-control>
 
-        <foxy-internal-password-control infer="webhook-key"></foxy-internal-password-control>
-
         <foxy-internal-async-combo-box-control
           item-label-path="version"
           item-value-path="_links.self.href"
@@ -599,6 +597,9 @@ export class StoreForm extends Base<Data> {
           .setValue=${this.__setWebhookUrlValue}
         >
         </foxy-internal-text-control>
+
+        ${this.__renderWebhookKey()}
+
         <!-- -->
 
         ${this.data && !this.hiddenSelector.matches('is-maintenance-mode', true)
@@ -608,6 +609,38 @@ export class StoreForm extends Base<Data> {
 
       ${super.renderBody()}
     `;
+  }
+
+  private __renderWebhookKey() {
+    type ParsedKey = {
+      cart_signing: string;
+      xml_datafeed: string;
+      api_legacy: string;
+      sso: string;
+    };
+
+    let parsedKey: ParsedKey;
+
+    try {
+      parsedKey = JSON.parse(this.form.webhook_key ?? '');
+    } catch {
+      const v = this.form.webhook_key ?? '';
+      parsedKey = { cart_signing: v, xml_datafeed: v, api_legacy: v, sso: v };
+    }
+
+    return Object.keys(parsedKey).map(key => {
+      return html`
+        <foxy-internal-password-control
+          infer="webhook-key-${key.replace('_', '-')}"
+          .getValue=${() => parsedKey[key as keyof ParsedKey]}
+          .setValue=${(newValue: string) => {
+            parsedKey[key as keyof ParsedKey] = newValue;
+            this.edit({ webhook_key: JSON.stringify(parsedKey) });
+          }}
+        >
+        </foxy-internal-password-control>
+      `;
+    });
   }
 
   private __renderMaintenanceModeSwitch() {
