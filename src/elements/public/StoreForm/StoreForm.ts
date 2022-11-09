@@ -443,11 +443,9 @@ export class StoreForm extends Base<Data> {
         >
         </foxy-internal-checkbox-group-control>
 
-        ${this.form.smtp_config ? this.__renderSmtpConfig() : ''}
-
-        <!-- -->
-
-        ${this.__renderTitle('shipping_title')}
+        ${this.form.smtp_config && !this.hiddenSelector.matches('smtp-config', true)
+          ? this.__renderSmtpConfig()
+          : ''}
 
         <foxy-internal-select-control infer="country" .options=${countryOptions}>
         </foxy-internal-select-control>
@@ -495,11 +493,15 @@ export class StoreForm extends Base<Data> {
         <foxy-internal-select-control infer="locale-code" .options=${localeCodeOptions}>
         </foxy-internal-select-control>
 
-        ${this.__renderCurrencyStyleSelector()}
+        ${!this.hiddenSelector.matches('currency-style', true)
+          ? this.__renderCurrencyStyleSelector()
+          : ''}
 
         <!-- -->
 
-        ${this.__renderCustomIDSettings()}
+        ${!this.hiddenSelector.matches('custom-display-id-config', true)
+          ? this.__renderCustomIDSettings()
+          : ''}
 
         <!-- -->
 
