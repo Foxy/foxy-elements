@@ -74,6 +74,7 @@ export { TaxCard } from './TaxCard/TaxCard';
 export { TaxForm } from './TaxForm/TaxForm';
 export { TemplateCard } from './TemplateCard/TemplateCard';
 export { TemplateForm } from './TemplateForm/TemplateForm';
+export { TemplateSetCard } from './TemplateSetCard/TemplateSetCard';
 export { TemplateSetForm } from './TemplateSetForm/TemplateSetForm';
 export { TemplateConfigForm } from './TemplateConfigForm/TemplateConfigForm';
 export { TransactionCard } from './TransactionCard/TransactionCard';
