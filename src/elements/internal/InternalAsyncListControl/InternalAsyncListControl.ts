@@ -13,11 +13,14 @@ export class InternalAsyncListControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      hideDeleteButton: { type: Boolean, attribute: 'hide-delete-button' },
+      hideCreateButton: { type: Boolean, attribute: 'hide-create-button' },
       related: { type: Array },
       first: { type: String },
       limit: { type: Number },
       form: { type: String },
       item: { type: String },
+      wide: { type: Boolean },
     };
   }
 
@@ -36,6 +39,15 @@ export class InternalAsyncListControl extends InternalControl {
   /** Same as the `item` property of `CollectionPage`. */
   item: CollectionPage<any>['item'] = '';
 
+  /** Same as the `wide` property of `FormDialog`. */
+  wide = false;
+
+  /** Hides Delete Swipe Action if true. */
+  hideDeleteButton = false;
+
+  /** Hides Create button if true. */
+  hideCreateButton = false;
+
   private __deletionConfimationCallback: (() => void) | null = null;
 
   private __cachedCardRenderer: {
@@ -48,28 +60,34 @@ export class InternalAsyncListControl extends InternalControl {
 
     const isDisabled = this.disabledSelector.matches('card', true);
 
+    const clickableItem = html`
+      <button
+        ?disabled=${isDisabled}
+        class=${classMap({
+          'rounded-t-l': !ctx.previous,
+          'rounded-b-l': !ctx.next,
+          'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
+          'text-left w-full block transition-colors': true,
+          'hover-bg-contrast-5': !isDisabled,
+        })}
+        @click=${(evt: Event) => {
+          const button = evt.currentTarget as HTMLButtonElement;
+          const dialog = this.__dialog;
+
+          dialog.header = 'header_update';
+          dialog.href = ctx.href;
+          dialog.show(button);
+        }}
+      >
+        ${this.__cardRenderer(ctx)}
+      </button>
+    `;
+
+    if (this.hideDeleteButton) return clickableItem;
+
     return html`
       <foxy-swipe-actions class="block">
-        <button
-          ?disabled=${isDisabled}
-          class=${classMap({
-            'rounded-t-l': !ctx.previous,
-            'rounded-b-l': !ctx.next,
-            'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
-            'text-left w-full block transition-colors': true,
-            'hover-bg-contrast-5': !isDisabled,
-          })}
-          @click=${(evt: Event) => {
-            const button = evt.currentTarget as HTMLButtonElement;
-            const dialog = this.__dialog;
-
-            dialog.header = 'header_update';
-            dialog.href = ctx.href;
-            dialog.show(button);
-          }}
-        >
-          ${this.__cardRenderer(ctx)}
-        </button>
+        ${clickableItem}
 
         <vaadin-button
           theme="primary error"
@@ -114,42 +132,47 @@ export class InternalAsyncListControl extends InternalControl {
               parent=${first}
               infer="dialog"
               id="form"
+              ?wide=${this.wide}
               .related=${this.related}
               .form=${this.form as any}
             >
             </foxy-form-dialog>
 
-            <foxy-internal-confirm-dialog
-              message="delete_message"
-              confirm="delete_confirm"
-              cancel="delete_cancel"
-              header="delete_header"
-              theme="error"
-              lang=${this.lang}
-              ns=${this.ns}
-              id="confirm"
-              @hide=${(evt: DialogHideEvent) => {
-                if (!evt.detail.cancelled) this.__deletionConfimationCallback?.();
-              }}
-            >
-            </foxy-internal-confirm-dialog>
+            ${this.hideDeleteButton
+              ? ''
+              : html`
+                  <foxy-internal-confirm-dialog
+                    message="delete_message"
+                    confirm="delete_confirm"
+                    cancel="delete_cancel"
+                    header="delete_header"
+                    theme="error"
+                    lang=${this.lang}
+                    ns=${this.ns}
+                    id="confirm"
+                    @hide=${(evt: DialogHideEvent) => {
+                      if (!evt.detail.cancelled) this.__deletionConfimationCallback?.();
+                    }}
+                  >
+                  </foxy-internal-confirm-dialog>
+                `}
           `
         : ''}
 
       <foxy-pagination first=${first} infer="pagination">
         <foxy-collection-page
-          class="block divide-y divide-contrast-5 rounded-t-l rounded-b-l overflow-hidden bg-contrast-5"
+          class="mb-s block divide-y divide-contrast-5 rounded-t-l rounded-b-l overflow-hidden bg-contrast-5"
           infer="card"
           .related=${this.related}
           .item=${this.__itemRenderer as any}
         >
         </foxy-collection-page>
 
-        ${!this.form || this.readonly
+        ${!this.form || this.readonly || this.hideCreateButton
           ? ''
           : html`
               <vaadin-button
-                class="my-s bg-success-10 w-full rounded-t-l rounded-b-l"
+                class="mb-s bg-success-10 w-full rounded-t-l rounded-b-l"
                 theme="success"
                 ?disabled=${this.disabled}
                 @click=${(evt: Event) => {
