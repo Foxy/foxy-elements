@@ -124,6 +124,10 @@ export const ThemeableMixin = <TBase extends Base>(
                 max-width: 28rem;
               }
 
+              .max-w-modal-wide {
+                max-width: 50rem;
+              }
+
               .w-narrow-modal {
                 width: 18rem;
               }
