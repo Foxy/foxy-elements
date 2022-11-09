@@ -1028,7 +1028,7 @@ export class TemplateConfigForm extends Base<Data> {
           >
           </foxy-i18n>
 
-          <div class="bg-contrast-10 grid grid-cols-1 md-grid-cols-2" style="gap: 1px">
+          <div class="bg-contrast-10 grid grid-cols-1 sm-grid-cols-2" style="gap: 1px">
             ${Object.entries(options).map(([property, values]) => {
               return html`
                 <label
@@ -1108,7 +1108,7 @@ export class TemplateConfigForm extends Base<Data> {
               `;
             })}
 
-            <div class="bg-base hidden md-block"></div>
+            <div class="bg-base hidden sm-block"></div>
           </div>
         </x-group>
 
