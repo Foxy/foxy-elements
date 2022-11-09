@@ -1,0 +1,11 @@
+{
+  "image_alt": "Shipping method logo",
+  "title_description": "Shipping method description",
+  "subtitle_description": "Shipping method status",
+  "status_active": "Active",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

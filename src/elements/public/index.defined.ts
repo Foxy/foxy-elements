@@ -51,6 +51,7 @@ export { NucleonElement } from './NucleonElement/index';
 export { Pagination } from './Pagination/index';
 export { PaymentCard } from './PaymentCard/index';
 export { ShipmentCard } from './ShipmentCard/index';
+export { ShippingMethodCard } from './ShippingMethodCard/index';
 export { PaymentMethodCard } from './PaymentMethodCard/index';
 export { PaymentsApi } from './PaymentsApi/index';
 export { PaymentsApiFraudProtectionCard } from './PaymentsApiFraudProtectionCard/index';
