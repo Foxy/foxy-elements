@@ -25,7 +25,14 @@ export class EmailTemplateCard extends Base<Data> {
 
     return html`
       <div class="flex justify-between gap-s">
-        <foxy-i18n class="font-semibold truncate flex-shrink-0" infer="" key="title"></foxy-i18n>
+        <foxy-i18n
+          class="font-semibold truncate flex-shrink-0"
+          infer=""
+          key="title"
+          .options=${this.data}
+        >
+        </foxy-i18n>
+
         <foxy-i18n class="truncate text-tertiary" infer="" key=${type}></foxy-i18n>
       </div>
     `;
