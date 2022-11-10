@@ -21,6 +21,7 @@ export class InternalAsyncListControl extends InternalControl {
       form: { type: String },
       item: { type: String },
       wide: { type: Boolean },
+      alert: { type: Boolean },
     };
   }
 
@@ -41,6 +42,9 @@ export class InternalAsyncListControl extends InternalControl {
 
   /** Same as the `wide` property of `FormDialog`. */
   wide = false;
+
+  /** Same as the `alert` property of `FormDialog`. */
+  alert = false;
 
   /** Hides Delete Swipe Action if true. */
   hideDeleteButton = false;
@@ -133,6 +137,7 @@ export class InternalAsyncListControl extends InternalControl {
               infer="dialog"
               id="form"
               ?wide=${this.wide}
+              ?alert=${this.alert}
               .related=${this.related}
               .form=${this.form as any}
             >
