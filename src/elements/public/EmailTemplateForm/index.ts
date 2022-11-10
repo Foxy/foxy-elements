@@ -4,6 +4,7 @@ import '@vaadin/vaadin-button';
 
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalConfirmDialog/index';
+import '../../internal/InternalTextControl/index';
 import '../../internal/InternalSandbox/index';
 
 import '../Spinner/index';

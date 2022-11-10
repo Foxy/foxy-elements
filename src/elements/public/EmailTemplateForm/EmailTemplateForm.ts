@@ -86,6 +86,14 @@ export class EmailTemplateForm extends Base<Data> {
 
   private __contentChoice: 'default' | 'url' | 'clipboard' = 'default';
 
+  private __templateLanguageOptions = [
+    { label: 'Nunjucks', value: 'nunjucks' },
+    { label: 'Handlebars', value: 'handlebars' },
+    { label: 'Pug', value: 'pug' },
+    { label: 'Twig', value: 'twig' },
+    { label: 'EJS', value: 'ejs' },
+  ];
+
   render(): TemplateResult {
     const { hiddenSelector, href, lang, ns } = this;
     const action = href ? 'delete' : 'create';
@@ -96,17 +104,19 @@ export class EmailTemplateForm extends Base<Data> {
       <div class="space-y-m">
         ${hiddenSelector.matches('description', true) ? '' : this.__renderDescription()}
 
-        <foxy-internal-select-control
-          infer="template-language"
-          .options=${[
-            { label: 'Nunjucks', value: 'nunjucks' },
-            { label: 'Handlebars', value: 'handlebars' },
-            { label: 'Pug', value: 'pug' },
-            { label: 'Twig', value: 'twig' },
-            { label: 'EJS', value: 'ejs' },
-          ]}
-        >
-        </foxy-internal-select-control>
+        <foxy-internal-text-control infer="subject"></foxy-internal-text-control>
+
+        ${this.data?.description === 'Email Receipt Template'
+          ? ''
+          : html`
+              <foxy-internal-select-control
+                infer="template-language"
+                .options=${this.__templateLanguageOptions}
+              >
+              </foxy-internal-select-control>
+            `}
+
+        <!-- -->
 
         ${hiddenSelector.matches('content', true) ? '' : this.__renderContent()}
         ${hiddenSelector.matches('timestamps', true) || !href ? '' : this.__renderTimestamps()}
