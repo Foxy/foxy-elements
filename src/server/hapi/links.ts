@@ -465,4 +465,10 @@ export const links: Links = {
   }),
 
   store_versions: () => ({}),
+
+  integrations: ({ client_id, store_id, user_id }) => ({
+    'fx:client': { href: `./clients/${client_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:user': { href: `./users/${user_id}` },
+  }),
 };

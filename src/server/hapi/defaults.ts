@@ -1,6 +1,8 @@
 import { Defaults } from '../router/types';
 import { increment } from '../router/utils';
 
+import uniqueId from 'lodash-es/uniqueId';
+
 export const defaults: Defaults = {
   applied_taxes: query => ({
     id: increment('applied_taxes', 1),
@@ -879,4 +881,28 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  integrations: query => {
+    const user = parseInt(query.get('user_id') ?? '0');
+    const store = parseInt(query.get('store_id') ?? '0');
+
+    return {
+      id: increment('integrations', 1),
+      user_id: user,
+      store_id: store,
+      user_uri: `https://demo.api/hapi/users/${user}`,
+      client_id: `client_${uniqueId()}`,
+      scope: `store_full_access store_id_${store}`,
+      expires: Math.floor(Date.now() / 1000 + 60 * 60 * 24 * 365),
+      project_name: '',
+      project_description: '',
+      company_name: '',
+      company_url: '',
+      company_logo: '',
+      contact_name: '',
+      contact_email: '',
+      added_by_name: '',
+      added_by_email: '',
+    };
+  },
 };

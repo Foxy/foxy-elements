@@ -1581,4 +1581,25 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2014-04-21T15:17:36-07:00',
     },
   ],
+
+  integrations: [
+    {
+      id: 0,
+      user_id: 0,
+      store_id: 0,
+      user_uri: 'https://demo.api/hapi/users/0',
+      client_id: 'client_TS5yEGRgsk7KZIeKhdIz',
+      scope: 'webhook store_id_9',
+      expires: 1947549287,
+      project_name: 'ACME Widgets',
+      project_description: 'Sample integration project for testing.',
+      company_name: 'ACME',
+      company_url: '',
+      company_logo: '',
+      contact_name: 'John Doe',
+      contact_email: 'john.doe@example.com',
+      added_by_name: 'Sally Sims',
+      added_by_email: 'sally.sims@example.com',
+    },
+  ],
 });
