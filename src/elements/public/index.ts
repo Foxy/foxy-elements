@@ -43,6 +43,7 @@ export { ItemCategoryCard } from './ItemCategoryCard/ItemCategoryCard';
 export { ItemCategoryForm } from './ItemCategoryForm/ItemCategoryForm';
 export { I18n } from './I18n/I18n';
 export { IntegrationCard } from './IntegrationCard/IntegrationCard';
+export { IntegrationForm } from './IntegrationForm/IntegrationForm';
 export { ItemCard } from './ItemCard/ItemCard';
 export { ItemForm } from './ItemForm/ItemForm';
 export { ItemOptionCard } from './ItemOptionCard/ItemOptionCard';
