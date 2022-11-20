@@ -15,6 +15,7 @@ export class InternalAsyncListControl extends InternalControl {
       ...super.properties,
       hideDeleteButton: { type: Boolean, attribute: 'hide-delete-button' },
       hideCreateButton: { type: Boolean, attribute: 'hide-create-button' },
+      getPageHref: { attribute: false },
       related: { type: Array },
       first: { type: String },
       limit: { type: Number },
@@ -52,6 +53,9 @@ export class InternalAsyncListControl extends InternalControl {
   /** Hides Create button if true. */
   hideCreateButton = false;
 
+  /** If set, renders list items as <a> tags. */
+  getPageHref: ((itemHref: string) => string) | null = null;
+
   private __deletionConfimationCallback: (() => void) | null = null;
 
   private __cachedCardRenderer: {
@@ -60,32 +64,41 @@ export class InternalAsyncListControl extends InternalControl {
   } | null = null;
 
   private __itemRenderer: ItemRenderer = ctx => {
-    if (!this.form || !ctx.data) return this.__cardRenderer(ctx);
+    if (!(this.form || this.getPageHref) || !ctx.data) return this.__cardRenderer(ctx);
 
     const isDisabled = this.disabledSelector.matches('card', true);
+    const card = this.__cardRenderer(ctx);
+    let clickableItem: TemplateResult;
 
-    const clickableItem = html`
-      <button
-        ?disabled=${isDisabled}
-        class=${classMap({
-          'rounded-t-l': !ctx.previous,
-          'rounded-b-l': !ctx.next,
-          'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
-          'text-left w-full block transition-colors': true,
-          'hover-bg-contrast-5': !isDisabled,
-        })}
-        @click=${(evt: Event) => {
-          const button = evt.currentTarget as HTMLButtonElement;
-          const dialog = this.__dialog;
+    const wrapperClass = classMap({
+      'rounded-t-l': !ctx.previous,
+      'rounded-b-l': !ctx.next,
+      'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
+      'text-left w-full block transition-colors': true,
+      'hover-bg-contrast-5': !isDisabled,
+    });
 
-          dialog.header = 'header_update';
-          dialog.href = ctx.href;
-          dialog.show(button);
-        }}
-      >
-        ${this.__cardRenderer(ctx)}
-      </button>
-    `;
+    if (this.getPageHref) {
+      if (isDisabled) {
+        clickableItem = html`<div class=${wrapperClass}>${card}</div>`;
+      } else {
+        const href = this.getPageHref(ctx.href);
+        clickableItem = html`<a class=${wrapperClass} href=${href}>${card}</a>`;
+      }
+    } else {
+      const handleClick = (evt: Event) => {
+        const button = evt.currentTarget as HTMLButtonElement;
+        const dialog = this.__dialog;
+
+        dialog.header = 'header_update';
+        dialog.href = ctx.href;
+        dialog.show(button);
+      };
+
+      clickableItem = html`
+        <button ?disabled=${isDisabled} class=${wrapperClass} @click=${handleClick}>${card}</button>
+      `;
+    }
 
     if (this.hideDeleteButton) return clickableItem;
 
