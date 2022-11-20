@@ -42,6 +42,7 @@ export { GiftCardForm } from './GiftCardForm/index';
 export { ItemCategoryCard } from './ItemCategoryCard/index';
 export { ItemCategoryForm } from './ItemCategoryForm/index';
 export { I18n } from './I18n/index';
+export { I18nEditor } from './I18nEditor/index';
 export { IntegrationCard } from './IntegrationCard/index';
 export { IntegrationForm } from './IntegrationForm/index';
 export { ItemCard } from './ItemCard/index';

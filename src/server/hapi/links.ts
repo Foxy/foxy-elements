@@ -471,4 +471,10 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
     'fx:user': { href: `./users/${user_id}` },
   }),
+
+  language_overrides: ({ template_set_id, store_id }) => ({
+    'fx:language_overrides': { href: `./language_overrides?template_set_id=${template_set_id}` },
+    'fx:template_set': { href: `./template_sets/${template_set_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
 };

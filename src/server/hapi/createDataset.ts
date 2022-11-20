@@ -1498,6 +1498,37 @@ export const createDataset: () => Dataset = () => ({
         },
       },
     },
+    {
+      id: 10,
+      message: 'fx:language_strings property helper',
+      values: {
+        english: {
+          cart_add_coupon: 'Add Coupon',
+          cart_add_coupon_and_gift_card: 'Add Coupon or Gift Card',
+          cart_add_gift_card: 'Add Gift Card',
+          checkout_ach_account_number: 'Account number',
+          checkout_ach_name_account: 'Name on account',
+          checkout_ach_the_owner:
+            'I represent that I am the owner and/or authorized signer on the checking account above',
+          minfraud_highrisk_transaction:
+            'Error: This transaction exceeds our fraud risk settings and cannot be processed. Please contact us directly to process your order.',
+          minfraud_api_error: 'MinFraud API Error:',
+          receipt_id_error:
+            "We're sorry, but we could not retrieve the receipt you requested. If you arrived here via your browser's back button, the receipt has expired for security reasons. You can revisit this receipt by clicking the link in the email you received. If you arrived here after clicking on a link in an email, please ensure that the entire text of the link is included in your browser's address bar. You can do this by copying the link, modifying it, and pasting it into the address bar as a single line.",
+          gateways: {
+            cybersource: {},
+            paypal_plus: {
+              reference_number: 'Reference Number',
+              bank_name: 'Bank Name',
+              account_holder_name: 'Account Holder Name',
+              international_bank_account_number: 'IBAN',
+              bank_identifier_code: 'Bank Identifier Code',
+              payment_due_date: 'Payment Due Date',
+            },
+          },
+        },
+      },
+    },
   ],
 
   template_sets: [
@@ -1600,6 +1631,29 @@ export const createDataset: () => Dataset = () => ({
       contact_email: 'john.doe@example.com',
       added_by_name: 'Sally Sims',
       added_by_email: 'sally.sims@example.com',
+    },
+  ],
+
+  language_overrides: [
+    {
+      id: 0,
+      store_id: 0,
+      template_set_id: 0,
+      code: 'cart_add_coupon',
+      gateway: '',
+      custom_value: 'I have a coupon',
+      date_created: null,
+      date_modified: null,
+    },
+    {
+      id: 1,
+      store_id: 0,
+      template_set_id: 0,
+      code: 'bank_identifier_code',
+      gateway: 'paypal_plus',
+      custom_value: 'BIC',
+      date_created: null,
+      date_modified: null,
     },
   ],
 });

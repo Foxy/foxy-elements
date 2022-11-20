@@ -905,4 +905,15 @@ export const defaults: Defaults = {
       added_by_email: '',
     };
   },
+
+  language_overrides: query => ({
+    id: increment('language_overrides', 2),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    template_set_id: parseInt(query.get('template_set_id') ?? '0'),
+    code: '',
+    gateway: '',
+    custom_value: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };
