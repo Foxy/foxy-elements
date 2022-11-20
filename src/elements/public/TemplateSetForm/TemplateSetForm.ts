@@ -22,6 +22,7 @@ export class TemplateSetForm extends Base<Data> {
     return {
       ...super.properties,
       paymentMethodSets: { attribute: 'payment-method-sets' },
+      languageStrings: { attribute: 'language-strings' },
       localeCodes: { attribute: 'locale-codes' },
       languages: {},
     };
@@ -55,6 +56,8 @@ export class TemplateSetForm extends Base<Data> {
   }
 
   paymentMethodSets: string | null = null;
+
+  languageStrings: string | null = 'https://demo.api/hapi/property_helpers/10';
 
   localeCodes: string | null = null;
 
@@ -140,28 +143,37 @@ export class TemplateSetForm extends Base<Data> {
       >
       </foxy-nucleon>
 
-      <div class="grid grid-cols-1 gap-l">
-        <div class="grid grid-cols-16rem gap-m">
-          <foxy-internal-text-control infer="description"></foxy-internal-text-control>
-          <foxy-internal-text-control infer="code"></foxy-internal-text-control>
+      <div class="grid grid-cols-16rem gap-m">
+        <foxy-internal-text-control infer="description"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="code"></foxy-internal-text-control>
 
-          <foxy-internal-select-control infer="language" .options=${languageOptions}>
-          </foxy-internal-select-control>
+        <foxy-internal-select-control infer="language" .options=${languageOptions}>
+        </foxy-internal-select-control>
 
-          <foxy-internal-select-control infer="locale-code" .options=${localeCodeOptions}>
-          </foxy-internal-select-control>
-
-          <foxy-internal-async-combo-box-control
-            item-label-path="description"
-            item-id-path="_links.self.href"
-            infer="payment-method-set-uri"
-            first=${this.paymentMethodSets}
-            .selectedItem=${paymentMethodSet}
-          >
-          </foxy-internal-async-combo-box-control>
-        </div>
+        <foxy-internal-select-control infer="locale-code" .options=${localeCodeOptions}>
+        </foxy-internal-select-control>
       </div>
 
+      <foxy-internal-async-combo-box-control
+        item-label-path="description"
+        item-id-path="_links.self.href"
+        infer="payment-method-set-uri"
+        first=${this.paymentMethodSets}
+        .selectedItem=${paymentMethodSet}
+      >
+      </foxy-internal-async-combo-box-control>
+
+      ${this.data && this.languageStrings
+        ? html`
+            <foxy-i18n-editor
+              language-overrides=${this.data._links['fx:language_overrides'].href}
+              selected-language=${this.form.language}
+              infer="i18n-editor"
+              href=${this.languageStrings}
+            >
+            </foxy-i18n-editor>
+          `
+        : ''}
       ${super.renderBody()}
     `;
   }
