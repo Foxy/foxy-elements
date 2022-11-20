@@ -82,8 +82,6 @@ export class InternalItemCategoryFormTaxesControlItem extends TaxCard {
 
           if (checkbox.checked) {
             resource.edit({
-              // TODO remove the directive below once sdk type have been corrected
-              // @ts-expect-error SDK types are wrong
               tax_uri: this.data!._links.self.href,
               item_category_uri: this.itemCategory!,
             });

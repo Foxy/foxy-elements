@@ -151,11 +151,7 @@ export class StoreForm extends Base<Data> {
   };
 
   private __setBccOnReceiptEmailValue = (newValue: string[]) => {
-    this.edit({
-      // TODO: remove the directive below when SDK types are fixed
-      // @ts-expect-error SDK types are incorrect
-      bcc_on_receipt_email: newValue.includes('checked'),
-    });
+    this.edit({ bcc_on_receipt_email: newValue.includes('checked') });
   };
 
   private __getUseEmailDnsValue = () => {
@@ -163,11 +159,7 @@ export class StoreForm extends Base<Data> {
   };
 
   private __setUseEmailDnsValue = (newValue: string[]) => {
-    this.edit({
-      // TODO: remove the directive below when SDK types are fixed
-      // @ts-expect-error SDK types are incorrect
-      use_email_dns: newValue.includes('checked'),
-    });
+    this.edit({ use_email_dns: newValue.includes('checked') });
   };
 
   private __getUseSmtpConfigValue = () => {
