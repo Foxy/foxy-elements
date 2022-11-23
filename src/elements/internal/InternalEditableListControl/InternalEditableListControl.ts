@@ -38,6 +38,7 @@ export class InternalEditableListControl extends InternalEditableControl {
       'transition-colors h-m ml-s flex items-center': true,
       'text-secondary': this.readonly,
       'text-disabled': this.disabled,
+      'group-hover-divide-contrast-20': !this.disabled && !this.readonly,
     });
 
     const isAddButtonDisabled = this.disabled || !this.__newItem;
@@ -51,17 +52,21 @@ export class InternalEditableListControl extends InternalEditableControl {
     return html`
       <div class="group">
         <div
-          class="transition-colors mb-xs font-medium text-s text-secondary group-hover-text-body"
+          class=${classMap({
+            'transition-colors mb-xs font-medium text-s text-secondary': true,
+            'group-hover-text-body': !this.disabled && !this.readonly,
+          })}
         >
           ${this.label}
         </div>
 
         <div
-          class="border border-contrast-10 rounded transition-colors group-hover-border-contrast-20"
+          class=${classMap({
+            'border border-contrast-10 rounded transition-colors': true,
+            'group-hover-border-contrast-20': !this.disabled && !this.readonly,
+          })}
         >
-          <ol
-            class="transition-colors divide-y divide-contrast-10 font-medium group-hover-divide-contrast-20"
-          >
+          <ol class="transition-colors divide-y divide-contrast-10 font-medium">
             ${repeat(
               this._value,
               item => item.value,
@@ -93,7 +98,7 @@ export class InternalEditableListControl extends InternalEditableControl {
             class=${classMap({
               'transition-colors bg-contrast-10 pl-s h-m flex items-center': true,
               'focus-within-ring-2 focus-within-ring-primary-50': true,
-              'group-hover-bg-contrast-20': true,
+              'group-hover-bg-contrast-20': !this.disabled && !this.readonly,
               'flex': !this.readonly,
               'hidden': this.readonly,
             })}
