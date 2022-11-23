@@ -1,5 +1,5 @@
 {
-  "title": "Email receipt template",
+  "title": "{{ description }}",
   "type_custom_url": "Custom (URL)",
   "type_custom_text": "Custom (HTML)",
   "type_mixed": "Mixed",
