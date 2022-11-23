@@ -124,12 +124,18 @@ export class InternalSubscriptionSettingsFormReattemptBypass extends InternalEdi
     const value = (evt.currentTarget as RadioGroupElement).value;
     const nucleon = this.nucleon;
 
-    if (value === 'never_reattempt') {
-      nucleon?.edit({ reattempt_bypass_logic: 'reattempt_if_exists' });
-      nucleon?.edit({ reattempt_bypass_strings: '' });
-    } else if (value === 'always_reattempt') {
-      nucleon?.edit({ reattempt_bypass_logic: 'skip_if_exists' });
-      nucleon?.edit({ reattempt_bypass_strings: '' });
+    if (value === 'never_reattempt' || value === 'always_reattempt') {
+      if (value === 'never_reattempt') {
+        if (nucleon?.form.reattempt_bypass_logic !== 'reattempt_if_exists') {
+          nucleon?.edit({ reattempt_bypass_logic: 'reattempt_if_exists' });
+        }
+      } else {
+        if (nucleon?.form.reattempt_bypass_logic !== 'skip_if_exists') {
+          nucleon?.edit({ reattempt_bypass_logic: 'skip_if_exists' });
+        }
+      }
+
+      if (nucleon?.form.reattempt_bypass_strings) nucleon?.edit({ reattempt_bypass_strings: '' });
     }
   }
 }
