@@ -4,6 +4,7 @@ import type { Item, Option } from './types';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { classMap } from '../../../utils/class-map';
 import { repeat } from 'lit-html/directives/repeat';
+import { spread } from '@open-wc/lit-helpers';
 import { live } from 'lit-html/directives/live';
 import { html } from 'lit-element';
 
@@ -11,10 +12,13 @@ export class InternalEditableListControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      inputParams: { attribute: false },
       options: { type: Array },
       __newItem: { attribute: false },
     };
   }
+
+  inputParams: Record<string, unknown> = {};
 
   options: Option[] = [];
 
@@ -98,6 +102,7 @@ export class InternalEditableListControl extends InternalEditableControl {
               placeholder=${this.placeholder}
               class="w-full bg-transparent appearance-none h-m font-medium focus-outline-none"
               list="list"
+              ...=${spread(this.inputParams)}
               .value=${live(this.__newItem)}
               ?disabled=${this.disabled}
               ?readonly=${this.readonly}
