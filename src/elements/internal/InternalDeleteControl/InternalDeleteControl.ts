@@ -22,7 +22,7 @@ export class InternalDeleteControl extends InternalControl {
   }
 
   /** Same as the "theme" attribute of the `vaadin-button` element. */
-  theme = 'primary error';
+  theme = 'error';
 
   renderControl(): TemplateResult {
     return html`

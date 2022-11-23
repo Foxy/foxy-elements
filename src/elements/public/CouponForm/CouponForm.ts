@@ -1369,7 +1369,7 @@ export class CouponForm extends Base<Data> {
 
         <vaadin-button
           data-testid="delete"
-          theme="primary error"
+          theme="error"
           class="w-full"
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${(evt: CustomEvent) => {

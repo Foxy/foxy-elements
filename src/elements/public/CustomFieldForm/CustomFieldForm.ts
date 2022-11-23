@@ -152,7 +152,7 @@ export class CustomFieldForm extends Base<Data> {
         <vaadin-button
           class="w-full"
           data-testid="delete"
-          theme="error primary"
+          theme="error"
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${this.__handleDeleteClick}
         >
