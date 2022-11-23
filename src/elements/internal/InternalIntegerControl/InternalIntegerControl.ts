@@ -15,10 +15,16 @@ export class InternalIntegerControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      prefix: {},
+      suffix: {},
       min: { type: Number },
       max: { type: Number },
     };
   }
+
+  prefix: string | null = null;
+
+  suffix: string | null = null;
 
   min: number | null = null;
 
@@ -45,6 +51,8 @@ export class InternalIntegerControl extends InternalEditableControl {
           this._value = parseInt(field.value);
         }}
       >
+        ${this.prefix ? html`<div slot="prefix">${this.prefix}</div>` : ''}
+        ${this.suffix ? html`<div class="pr-s font-medium" slot="suffix">${this.suffix}</div>` : ''}
       </vaadin-integer-field>
     `;
   }
