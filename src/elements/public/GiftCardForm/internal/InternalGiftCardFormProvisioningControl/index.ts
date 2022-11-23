@@ -1,7 +1,7 @@
 import '../../../../internal/InternalCheckboxGroupControl/index';
+import '../../../../internal/InternalEditableControl/index';
 import '../../../../internal/InternalIntegerControl/index';
 import '../../../../internal/InternalTextControl/index';
-import '../../../../internal/InternalControl/index';
 
 import { InternalGiftCardFormProvisioningControl } from './InternalGiftCardFormProvisioningControl';
 

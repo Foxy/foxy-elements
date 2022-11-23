@@ -1,7 +1,7 @@
 import '../../../../internal/InternalAsyncComboBoxControl/index';
-import '../../../../internal/InternalDetails/index';
+import '../../../../internal/InternalEditableControl/index';
 import '../../../../internal/InternalTextControl/index';
-import '../../../../internal/InternalControl/index';
+import '../../../../internal/InternalDetails/index';
 import '../../../DiscountBuilder/index';
 
 import { InternalItemFormLineItemDiscountControl as Control } from './InternalItemFormLineItemDiscountControl';

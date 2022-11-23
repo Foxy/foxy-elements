@@ -242,7 +242,44 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.submit()
    */
   submit(): void {
+    this.reportValidity();
     this.__service.send({ type: 'SUBMIT' });
+  }
+
+  checkValidity(): boolean {
+    const isTemplateDirtyValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotDirtyValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isTemplateCleanValid = this.in({ idle: { template: { clean: 'valid' } } });
+    const isSnapshotCleanValid = this.in({ idle: { snapshot: { clean: 'valid' } } });
+    const isTemplateValid = isTemplateCleanValid || isTemplateDirtyValid;
+    const isSnapshotValid = isSnapshotCleanValid || isSnapshotDirtyValid;
+    const isValid = isTemplateValid || isSnapshotValid;
+
+    return isValid;
+  }
+
+  reportValidity(): boolean {
+    const walker = this.ownerDocument.createTreeWalker(this.renderRoot, NodeFilter.SHOW_ELEMENT);
+
+    do {
+      type Input = Node & Record<string, () => unknown>;
+
+      const node = walker.currentNode as Input;
+      const methods = ['reportValidity', 'validate'];
+
+      for (const method of methods) {
+        if (method in node) {
+          try {
+            node[method]();
+            break;
+          } catch {
+            continue;
+          }
+        }
+      }
+    } while (walker.nextNode());
+
+    return this.checkValidity();
   }
 
   /**

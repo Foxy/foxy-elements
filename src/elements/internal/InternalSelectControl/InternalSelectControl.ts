@@ -1,10 +1,10 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
-import type { SelectElement, SelectRenderer } from '@vaadin/vaadin-select';
+import type { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import type { Option } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
-import { html, render } from 'lit-html';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
 
 /**
  * Internal control wrapper for `vaadin-select` element.
@@ -24,50 +24,35 @@ export class InternalSelectControl extends InternalEditableControl {
   /** List of radio buttons to render. */
   options: Option[] = [];
 
-  /** Same as the "theme" attribute/property of `vaadin-select`. */
+  /** Same as the "theme" attribute/property of `vaadin-combo-box`. */
   theme: string | null = null;
-
-  private __renderer: SelectRenderer = root => {
-    const items = this.options.map(({ label, value }) => {
-      return html`
-        <vaadin-item value=${value}>
-          <foxy-i18n lang=${this.lang} key=${label} ns=${this.ns}></foxy-i18n>
-        </vaadin-item>
-      `;
-    });
-
-    if (!root.firstElementChild) root.appendChild(document.createElement('vaadin-list-box'));
-    render(items, root.firstElementChild as Element);
-  };
 
   renderControl(): TemplateResult {
     return html`
-      <vaadin-select
+      <vaadin-combo-box
+        item-value-path="value"
+        item-label-path="label"
         error-message=${ifDefined(this._errorMessage)}
-        placeholder=${this.placeholder}
+        item-id-path="value"
         helper-text=${this.helperText}
-        class="w-full -mt-m -mb-xs"
+        placeholder=${this.placeholder}
         label=${this.label}
-        theme=${ifDefined(this.theme ?? undefined)}
+        class="w-full"
+        theme=${this.theme}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
+        clear-button-visible
         .checkValidity=${this._checkValidity}
-        .renderer=${this.__renderer}
-        .value=${this._value as string}
+        .items=${this.options.map(({ value, label }) => ({ value, label: this.t(label) }))}
+        .value=${this._value}
         @change=${(evt: CustomEvent) => {
-          const field = evt.currentTarget as SelectElement;
-          this._value = field.value;
+          evt.stopPropagation();
+          const comboBox = evt.currentTarget as ComboBoxElement;
+          this._value = comboBox.value;
+          comboBox.validate();
         }}
       >
-      </vaadin-select>
+      </vaadin-combo-box>
     `;
-  }
-
-  updated(changes: Map<keyof this, unknown>): void {
-    super.updated(changes);
-
-    if (changes.has('ns') || changes.has('lang') || changes.has('options')) {
-      this.renderRoot.querySelector<SelectElement>('vaadin-select')?.render();
-    }
   }
 }

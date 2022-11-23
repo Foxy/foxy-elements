@@ -4,11 +4,11 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { ItemForm } from '../../ItemForm';
 import type { Rels } from '@foxy.io/sdk/backend';
 
-import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
+import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
-export class InternalItemFormLineItemDiscountControl extends InternalControl {
+export class InternalItemFormLineItemDiscountControl extends InternalEditableControl {
   infer = 'line-item-discount';
 
   renderControl(): TemplateResult {

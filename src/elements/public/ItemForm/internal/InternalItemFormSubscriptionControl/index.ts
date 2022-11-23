@@ -1,7 +1,7 @@
 import '../../../../internal/InternalFrequencyControl/index';
+import '../../../../internal/InternalEditableControl/index';
 import '../../../../internal/InternalDateControl/index';
 import '../../../../internal/InternalDetails/index';
-import '../../../../internal/InternalControl/index';
 
 import '../../../SubscriptionCard/index';
 import '../../../SubscriptionForm/index';

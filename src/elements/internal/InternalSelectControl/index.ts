@@ -1,4 +1,4 @@
-import '@vaadin/vaadin-select';
+import '@vaadin/vaadin-combo-box';
 
 import '../InternalEditableControl/index';
 import '../../public/I18n/index';

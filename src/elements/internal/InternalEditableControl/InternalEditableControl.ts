@@ -141,6 +141,28 @@ export class InternalEditableControl extends InternalControl {
     this.__label = null;
   }
 
+  reportValidity(): void {
+    const walker = this.ownerDocument.createTreeWalker(this.renderRoot, NodeFilter.SHOW_ELEMENT);
+
+    do {
+      type Input = Node & Record<string, () => unknown>;
+
+      const node = walker.currentNode as Input;
+      const methods = ['reportValidity', 'validate'];
+
+      for (const method of methods) {
+        if (method in node) {
+          try {
+            node[method]();
+            break;
+          } catch {
+            continue;
+          }
+        }
+      }
+    } while (walker.nextNode());
+  }
+
   /**
    * A shortcut to get the inferred value from the NucleonElement instance
    * up the DOM tree. If no such value or instance exists, returns `undefined`.

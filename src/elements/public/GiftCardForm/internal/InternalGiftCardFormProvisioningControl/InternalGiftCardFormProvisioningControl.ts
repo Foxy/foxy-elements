@@ -1,11 +1,13 @@
 import type { TemplateResult } from 'lit-html';
 import type { Option } from '../../../../internal/InternalCheckboxGroupControl/types';
 
-import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
+import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { ResponsiveMixin } from '../../../../../mixins/responsive';
 import { html } from 'lit-html';
 
-export class InternalGiftCardFormProvisioningControl extends ResponsiveMixin(InternalControl) {
+const Base = ResponsiveMixin(InternalEditableControl);
+
+export class InternalGiftCardFormProvisioningControl extends Base {
   private __maxBalanceValueGetter = () => {
     return this.nucleon?.form.provisioning_config?.initial_balance_max;
   };

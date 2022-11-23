@@ -2,10 +2,10 @@ import type { TemplateResult } from 'lit-html';
 import type { FormDialog } from '../../../FormDialog/FormDialog';
 import type { Data } from '../../types';
 
-import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
+import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { html } from 'lit-html';
 
-export class InternalItemFormSubscriptionControl extends InternalControl {
+export class InternalItemFormSubscriptionControl extends InternalEditableControl {
   infer = 'subscription';
 
   renderControl(): TemplateResult {
