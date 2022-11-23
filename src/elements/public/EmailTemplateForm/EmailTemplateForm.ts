@@ -68,6 +68,7 @@ export class EmailTemplateForm extends Base<Data> {
     return {
       'foxy-internal-select-control': customElements.get('foxy-internal-select-control'),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-text-control': customElements.get('foxy-internal-text-control'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
