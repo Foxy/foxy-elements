@@ -916,4 +916,23 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  subscription_settings: query => ({
+    id: increment('subscription_settings', 2),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    automatically_charge_past_due_amount: true,
+    send_email_receipts_for_automated_billing: true,
+    reattempt_schedule: '',
+    reattempt_bypass_logic: 'skip_if_exists',
+    reattempt_bypass_strings: '',
+    reminder_email_schedule: '2, 10, 18, 26',
+    reset_nextdate_on_makeup_payment: false,
+    past_due_amount_handling: 'increment',
+    prevent_customer_cancel_with_past_due: false,
+    cancellation_schedule: '',
+    expiring_soon_payment_reminder_schedule: '30, 15',
+    modification_url: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };

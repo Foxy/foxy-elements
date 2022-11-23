@@ -70,6 +70,7 @@ export { StoreForm } from './StoreForm/index';
 export { StoreShippingMethodForm } from './StoreShippingMethodForm/index';
 export { SubscriptionCard } from './SubscriptionCard/index';
 export { SubscriptionForm } from './SubscriptionForm/index';
+export { SubscriptionSettingsForm } from './SubscriptionSettingsForm/index';
 export { SubscriptionsTable } from './SubscriptionsTable/index';
 export { SwipeActions } from './SwipeActions/index';
 export { Table } from './Table/index';

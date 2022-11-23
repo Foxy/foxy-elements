@@ -1656,4 +1656,25 @@ export const createDataset: () => Dataset = () => ({
       date_modified: null,
     },
   ],
+
+  subscription_settings: [
+    {
+      id: 0,
+      store_id: 0,
+      automatically_charge_past_due_amount: true,
+      send_email_receipts_for_automated_billing: true,
+      reattempt_schedule: '',
+      reattempt_bypass_logic: 'skip_if_exists',
+      reattempt_bypass_strings: '',
+      reminder_email_schedule: '2, 10, 18, 26',
+      reset_nextdate_on_makeup_payment: false,
+      past_due_amount_handling: 'increment',
+      prevent_customer_cancel_with_past_due: false,
+      cancellation_schedule: '',
+      expiring_soon_payment_reminder_schedule: '30, 15',
+      modification_url: '',
+      date_created: '2020-05-13T12:11:12-07:00',
+      date_modified: '2020-05-13T12:11:12-07:00',
+    },
+  ],
 });

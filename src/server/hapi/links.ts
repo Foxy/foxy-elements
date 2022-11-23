@@ -477,4 +477,8 @@ export const links: Links = {
     'fx:template_set': { href: `./template_sets/${template_set_id}` },
     'fx:store': { href: `./stores/${store_id}` },
   }),
+
+  subscription_settings: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
 };
