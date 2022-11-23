@@ -5,6 +5,30 @@ import type { Option } from './types';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
+import { classMap } from '../../../utils/class-map';
+
+import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles';
+import { css } from 'lit-element';
+
+registerStyles(
+  'vaadin-radio-group',
+  css`
+    :host([theme~='list']) label {
+      padding-bottom: var(--lumo-space-xs);
+    }
+
+    :host([theme~='list']) [part='group-field'] {
+      display: flex;
+      border: thin solid var(--lumo-contrast-10pct);
+      border-radius: var(--lumo-border-radius-l);
+      transition: border-color 0.15s ease;
+    }
+
+    :host([theme~='list']:not([disabled]):not([readonly]):hover) [part='group-field'] {
+      border-color: var(--lumo-contrast-20pct);
+    }
+  `
+);
 
 /**
  * Internal control wrapper for `vaadin-radio-group` element.
@@ -28,12 +52,17 @@ export class InternalRadioGroupControl extends InternalEditableControl {
   theme: string | null = null;
 
   renderControl(): TemplateResult {
+    const isList = !!this.theme?.includes('list');
+
     return html`
       <vaadin-radio-group
         error-message=${ifDefined(this._errorMessage)}
         helper-text=${this.helperText}
         label=${this.label}
-        class="w-full"
+        class=${classMap({
+          'w-full': true,
+          'group divide-y divide-contrast-10': isList,
+        })}
         theme=${ifDefined(this.theme ?? undefined)}
         ?disabled=${this.disabled || this.readonly}
         .checkValidity=${this._checkValidity}
@@ -45,7 +74,13 @@ export class InternalRadioGroupControl extends InternalEditableControl {
       >
         ${this.options.map(
           option => html`
-            <vaadin-radio-button value=${option.value}>
+            <vaadin-radio-button
+              value=${option.value}
+              class=${classMap({
+                'block p-s transition-colors': isList,
+                'group-hover-divide-contrast-20': isList && !this.disabled && !this.readonly,
+              })}
+            >
               <foxy-i18n infer="" key=${option.label}></foxy-i18n>
             </vaadin-radio-button>
           `
