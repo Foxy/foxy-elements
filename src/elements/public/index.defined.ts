@@ -3,6 +3,7 @@ export { AddressCard } from './AddressCard/index';
 export { AddressForm } from './AddressForm/index';
 export { AdminSubscriptionCard } from './AdminSubscriptionCard/index';
 export { ApiBrowser } from './ApiBrowser/index';
+export { AppliedCouponCodeCard } from './AppliedCouponCodeCard/index';
 export { AppliedTaxCard } from './AppliedTaxCard/index';
 export { AttributeCard } from './AttributeCard/index';
 export { AttributeForm } from './AttributeForm/index';
