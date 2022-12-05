@@ -686,7 +686,7 @@ export class StoreForm extends Base<Data> {
           class="grid grid-cols-3 bg-contrast-10"
           style="gap: 1px; padding: 1px; border-radius: calc(var(--lumo-border-radius-m) + 1px)"
         >
-          ${['12.34', '$12.34', 'USD 12.34', '12', '$12', 'USD 12'].map((example, index) => {
+          ${['12.34', 'USD 12.34', '$12.34', '12', 'USD 12', '$12'].map((example, index) => {
             return html`
               <label
                 class=${classMap({
