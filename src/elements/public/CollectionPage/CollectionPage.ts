@@ -101,18 +101,20 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
   /** @readonly */
   render(): TemplateResult {
     type RepeatItem = { key: string; href: string; data: ExtractItem<TPage> | null };
-    const items: RepeatItem[] = this.__items.map(item => ({
-      key: item._links.self.href,
-      href: item._links.self.href,
-      data: item,
-    }));
+    let items: RepeatItem[] = [];
 
     if (this.in('busy')) {
-      items.push({ key: 'stalled', href: 'foxy://collection-page/stall', data: null });
+      items = [{ key: 'stalled', href: 'foxy://collection-page/stall', data: null }];
     } else if (this.in('fail')) {
-      items.push({ key: 'failed', href: 'foxy://collection-page/fail', data: null });
+      items = [{ key: 'failed', href: 'foxy://collection-page/fail', data: null }];
     } else if (this.in({ idle: 'template' }) || this.__items.length === 0) {
-      items.push({ key: 'empty', href: '', data: null });
+      items = [{ key: 'empty', href: '', data: null }];
+    } else {
+      items = this.__items.map(item => ({
+        key: item._links.self.href,
+        href: item._links.self.href,
+        data: item,
+      }));
     }
 
     return html`${repeat(
