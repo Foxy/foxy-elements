@@ -22,6 +22,7 @@ export const defaults: Defaults = {
 
   discounts: query => ({
     id: increment('discounts', 1),
+    cart_id: parseInt(query.get('cart_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
@@ -77,6 +78,7 @@ export const defaults: Defaults = {
 
   custom_fields: query => ({
     id: increment('custom_fields', 1),
+    cart_id: parseInt(query.get('cart_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     name: '',
@@ -89,6 +91,16 @@ export const defaults: Defaults = {
   customer_attributes: query => ({
     id: increment('customer_attributes', 1),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  cart_attributes: query => ({
+    id: increment('cart_attributes', 1),
+    cart_id: parseInt(query.get('cart_id') ?? '0'),
     name: '',
     value: '',
     visibility: 'private',
@@ -932,6 +944,17 @@ export const defaults: Defaults = {
     cancellation_schedule: '',
     expiring_soon_payment_reminder_schedule: '30, 15',
     modification_url: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  applied_coupon_codes: query => ({
+    id: increment('applied_coupon_codes', 1),
+    cart_id: parseInt(query.get('cart_id') ?? '0'),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    coupon_id: parseInt(query.get('coupon_id') ?? '0'),
+    coupon_code_id: parseInt(query.get('coupon_code_id') ?? '0'),
+    code: '',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

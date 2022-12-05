@@ -33,6 +33,10 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
   }),
 
+  cart_attributes: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
   item_attributes: ({ item_id }) => ({
     'fx:item': { href: `./items/${item_id}` },
   }),
@@ -480,5 +484,12 @@ export const links: Links = {
 
   subscription_settings: ({ store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+  }),
+
+  applied_coupon_codes: ({ cart_id, store_id, coupon_id, coupon_code_id }) => ({
+    'fx:cart': { href: `./carts/${cart_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:coupon_code': { href: `./coupon_codes/${coupon_code_id}` },
   }),
 };
