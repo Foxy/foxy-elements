@@ -30,8 +30,9 @@ export class DiscountCard extends TranslatableMixin(TwoLineCard, 'discount-card'
         <foxy-i18n
           options=${JSON.stringify({
             currencyDisplay: this.__currencyDisplay,
-            amount: `${Math.abs(data.amount)} ${this.__currency}`,
+            amount: `${data.amount} ${this.__currency}`,
           })}
+          class=${data.amount >= 0 ? 'text-success' : 'text-error'}
           lang=${this.lang}
           key="price"
           ns=${this.ns}
