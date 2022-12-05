@@ -5,11 +5,11 @@ import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import type { ItemRenderer } from '../../public/CollectionPage/types';
 import type { FormDialog } from '../../index';
 
-import { InternalControl } from '../InternalControl/InternalControl';
+import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-element';
 
-export class InternalAsyncListControl extends InternalControl {
+export class InternalAsyncListControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -54,7 +54,7 @@ export class InternalAsyncListControl extends InternalControl {
   hideCreateButton = false;
 
   /** If set, renders list items as <a> tags. */
-  getPageHref: ((itemHref: string) => string) | null = null;
+  getPageHref: ((itemHref: string, item: unknown) => string) | null = null;
 
   private __deletionConfimationCallback: (() => void) | null = null;
 
@@ -71,8 +71,8 @@ export class InternalAsyncListControl extends InternalControl {
     let clickableItem: TemplateResult;
 
     const wrapperClass = classMap({
-      'rounded-t-l': !ctx.previous,
-      'rounded-b-l': !ctx.next,
+      'rounded-t': !ctx.previous,
+      'rounded-b': !ctx.next,
       'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
       'text-left w-full block transition-colors': true,
       'hover-bg-contrast-5': !isDisabled,
@@ -82,7 +82,7 @@ export class InternalAsyncListControl extends InternalControl {
       if (isDisabled) {
         clickableItem = html`<div class=${wrapperClass}>${card}</div>`;
       } else {
-        const href = this.getPageHref(ctx.href);
+        const href = this.getPageHref(ctx.href, ctx.data);
         clickableItem = html`<a class=${wrapperClass} href=${href}>${card}</a>`;
       }
     } else {
@@ -108,7 +108,7 @@ export class InternalAsyncListControl extends InternalControl {
 
         <vaadin-button
           theme="primary error"
-          class="h-full rounded-t-l rounded-b-l"
+          class="h-full"
           slot="action"
           @click=${(evt: CustomEvent) => {
             const button = evt.currentTarget as HTMLElement;
@@ -176,10 +176,13 @@ export class InternalAsyncListControl extends InternalControl {
                 `}
           `
         : ''}
+      ${this.label && this.label !== 'label'
+        ? html`<div class="font-medium text-secondary text-s mb-xs">${this.label}</div>`
+        : ''}
 
       <foxy-pagination first=${first} infer="pagination">
         <foxy-collection-page
-          class="mb-s block divide-y divide-contrast-5 rounded-t-l rounded-b-l overflow-hidden bg-contrast-5"
+          class="mb-s block divide-y divide-contrast-5 rounded overflow-hidden bg-contrast-5"
           infer="card"
           .related=${this.related}
           .item=${this.__itemRenderer as any}
@@ -190,7 +193,7 @@ export class InternalAsyncListControl extends InternalControl {
           ? ''
           : html`
               <vaadin-button
-                class="mb-s bg-success-10 w-full rounded-t-l rounded-b-l"
+                class="mb-s w-full"
                 theme="success"
                 ?disabled=${this.disabled}
                 @click=${(evt: Event) => {
@@ -206,7 +209,6 @@ export class InternalAsyncListControl extends InternalControl {
                 }}
               >
                 <foxy-i18n infer="" key="create_button_text"></foxy-i18n>
-                <iron-icon class="icon-inline" icon="icons:add"></iron-icon>
               </vaadin-button>
             `}
       </foxy-pagination>
@@ -225,7 +227,7 @@ export class InternalAsyncListControl extends InternalControl {
           typeof this.item === 'string'
             ? (new Function(
                 'ctx',
-                `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} class="p-m" infer href=\${ctx.href}></${this.item}>\``
+                `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)" infer href=\${ctx.href}></${this.item}>\``
               ) as ItemRenderer)
             : this.item,
       };

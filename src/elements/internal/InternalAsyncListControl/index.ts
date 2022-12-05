@@ -8,8 +8,8 @@ import '../../public/FormDialog/index';
 import '../../public/Pagination/index';
 import '../../public/I18n/index';
 
+import '../InternalEditableControl/index';
 import '../InternalConfirmDialog/index';
-import '../InternalControl/index';
 
 import { InternalAsyncListControl as Control } from './InternalAsyncListControl';
 
