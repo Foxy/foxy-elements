@@ -4,6 +4,7 @@ export { AddressForm } from './AddressForm/AddressForm';
 export { AdminSubscriptionCard } from './AdminSubscriptionCard/AdminSubscriptionCard';
 export { ApiBrowser } from './ApiBrowser/ApiBrowser';
 export { AppliedCouponCodeCard } from './AppliedCouponCodeCard/AppliedCouponCodeCard';
+export { AppliedCouponCodeForm } from './AppliedCouponCodeForm/AppliedCouponCodeForm';
 export { AppliedTaxCard } from './AppliedTaxCard/AppliedTaxCard';
 export { AttributeCard } from './AttributeCard/AttributeCard';
 export { AttributeForm } from './AttributeForm/AttributeForm';
