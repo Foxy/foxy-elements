@@ -44,8 +44,8 @@ export class IntegrationCard extends Base<Data> {
         </div>
 
         <div class="text-secondary text-xs bg-contrast-5 rounded overflow-hidden flex">
-          <dt class="font-semibold px-xs bg-contrast-5" lang="en">Scope</dt>
-          <dd class="px-xs"><code>${data?.scope}</code>&ZeroWidthSpace;</dd>
+          <dt class="font-semibold px-xs bg-contrast-5" lang="en">Email</dt>
+          <dd class="px-xs"><code>${data?.added_by_email}</code>&ZeroWidthSpace;</dd>
         </div>
       </dl>
     `;
