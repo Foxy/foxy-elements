@@ -10,6 +10,7 @@ export { AttributeCard } from './AttributeCard/index';
 export { AttributeForm } from './AttributeForm/index';
 export { CancellationForm } from './CancellationForm/index';
 export { CartCard } from './CartCard/index';
+export { CartForm } from './CartForm/index';
 export { CollectionPage } from './CollectionPage/index';
 export { CollectionPages } from './CollectionPages/index';
 export { CopyToClipboard } from './CopyToClipboard/index';

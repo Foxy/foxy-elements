@@ -1,0 +1,762 @@
+{
+  "order_section_title": "Order",
+  "order_section_description": "Cart items, discounts and metadata",
+  "billing_section_title": "Billing",
+  "billing_section_description": "Address associated with the payment method",
+  "shipping_section_title": "Shipping",
+  "shipping_section_description": "Location where the ordered items will be delivered",
+  "customer-type": {
+    "label": "Customer type",
+    "placeholder": "Select type...",
+    "helper_text": "",
+    "option_new": "New customer",
+    "option_guest": "Guest customer",
+    "option_regular": "Existing customer"
+  },
+  "customer": {
+    "label": "Customer email",
+    "placeholder": "customer@example.com",
+    "helper_text": ""
+  },
+  "items": {
+    "label": "Items",
+    "delete_confirm": "Delete",
+    "delete_cancel": "Cancel",
+    "delete_message": "Are you sure you'd like to remove this item? You won't be able to bring it back.",
+    "delete_header": "Delete item?",
+    "pagination": {
+      "create_button_text": "Add item",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "delete_button_text": "Remove",
+        "price": "{{amount, price}}",
+        "wgt": "WGT",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No items",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Item",
+      "header_create": "New item",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "name": {
+        "label": "Name",
+        "helper_text": "",
+        "placeholder": "13' Laptop Case",
+        "v8n_required": "Name is required",
+        "v8n_too_long": "Name mustn't exceed 255 characters"
+      },
+      "price": {
+        "label": "Price",
+        "helper_text": "",
+        "placeholder": "25",
+        "v8n_required": "Price is required",
+        "v8n_negative": "Price can't be negative"
+      },
+      "quantity": {
+        "label": "Quantity",
+        "helper_text": "",
+        "placeholder": "1 by default",
+        "v8n_less_than_one": "Quantity must be 1 or more"
+      },
+      "subscription": {
+        "title": "Subscription",
+        "frequency": {
+          "label": "Frequency",
+          "helper_text": "",
+          "day": "Day",
+          "day_plural": "Days",
+          "week": "Week",
+          "week_plural": "Weeks",
+          "month": "Month",
+          "month_plural": "Months",
+          "year": "Year",
+          "year_plural": "Years"
+        },
+        "start": {
+          "label": "Start date",
+          "helper_text": "",
+          "placeholder": "01/01/2022"
+        },
+        "end": {
+          "label": "End date",
+          "helper_text": "",
+          "placeholder": "01/01/2022"
+        },
+        "next": {
+          "label": "Next transaction date",
+          "helper_text": "",
+          "placeholder": "01/01/2022"
+        },
+        "dialog": {
+          "save": "Save",
+          "update": "Update",
+          "day": "Day",
+          "day_plural": "Days",
+          "week": "Week",
+          "week_plural": "Weeks",
+          "month": "Month",
+          "month_plural": "Months",
+          "year": "Year",
+          "year_plural": "Years",
+          "cancel": "Cancel",
+          "close": "Close",
+          "confirm": "Confirm",
+          "currency": "Currency",
+          "daily": "Daily",
+          "daily_plural": "Every {{count}} days",
+          "end_subscription": "End subscription",
+          "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })",
+          "frequency_label": "Frequency",
+          "item_plural": "Items",
+          "monthly": "Monthly",
+          "monthly_plural": "Every {{count}} months",
+          "next_transaction_date": "Next transaction date",
+          "price_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })",
+          "price_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })",
+          "subscription_active": "Next payment on {{date, date}}",
+          "subscription_cancelled": "Ended on {{date, date}}",
+          "subscription_failed": "Payment failed on {{date, date}}",
+          "subscription_inactive": "Inactive",
+          "subscription_will_be_cancelled": "Ends on {{date, date}}",
+          "transaction_plural": "Transactions",
+          "twice_a_month": "Twice a month",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard",
+          "undo_header": "Unsaved changes",
+          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+          "weekly": "Weekly",
+          "weekly_plural": "Every {{count}} weeks",
+          "yearly": "Yearly",
+          "yearly_plural": "Every {{count}} years",
+          "cancellation-form": {
+            "end_date": "End date",
+            "end_subscription": "End subscription",
+            "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
+            "v8n_required": "Required",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_error": "Failed to load"
+            }
+          },
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_error": "Failed to load"
+          },
+          "transactions-table": {
+            "date": "{{value, date}}",
+            "price": "{{amount, price}}",
+            "receipt": "Receipt",
+            "transaction_approved": "Approved",
+            "transaction_authorized": "Authorized",
+            "transaction_captured": "Captured",
+            "transaction_completed": "Completed",
+            "transaction_declined": "Declined",
+            "transaction_pending": "Pending",
+            "transaction_refunded": "Refunded",
+            "transaction_rejected": "Rejected",
+            "transaction_summary": "{{most_expensive_item.name}}",
+            "transaction_summary_plural": "{{most_expensive_item.name}} and {{count}} more",
+            "transaction_verified": "Verified",
+            "transaction_voided": "Voided",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Failed to load"
+            }
+          }
+        },
+        "card": {
+          "daily": "Daily",
+          "daily_plural": "Every {{count}} days",
+          "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-card\" })",
+          "monthly": "Monthly",
+          "monthly_plural": "Every {{count}} months",
+          "price_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-card\" })",
+          "price_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-card\" })",
+          "subscription_active": "Next payment on {{date, date}}",
+          "subscription_cancelled": "Ended on {{date, date}}",
+          "subscription_failed": "Payment failed on {{date, date}}",
+          "subscription_inactive": "Inactive",
+          "subscription_plural": "Subscriptions",
+          "subscription_will_be_cancelled": "Ends on {{date, date}}",
+          "transaction_summary": "{{most_expensive_item.name}}",
+          "twice_a_month": "Twice a month",
+          "weekly": "Weekly",
+          "weekly_plural": "Every {{count}} weeks",
+          "yearly": "Yearly",
+          "yearly_plural": "Every {{count}} years",
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No data",
+            "loading_error": "Failed to load"
+          }
+        }
+      },
+      "line-item-discount": {
+        "title": "Line item discount",
+        "coupon": {
+          "label": "Coupon",
+          "helper_text": "",
+          "placeholder": "Select coupon to apply..."
+        },
+        "discount-name": {
+          "label": "Discount name",
+          "helper_text": "",
+          "placeholder": "One-off 10% discount"
+        },
+        "discount-builder": {
+          "tier": "Tier",
+          "tier_by": "by",
+          "tier_if": "if",
+          "tier_allunits": "price of each item",
+          "tier_incremental": "price of additional items",
+          "tier_repeat": "price of next item",
+          "tier_single": "order total",
+          "tier_then": "then",
+          "quantity": "quantity",
+          "total": "total",
+          "reduce": "reduce",
+          "increase": "increase"
+        }
+      },
+      "cart": {
+        "title": "Cart",
+        "expires": {
+          "label": "Expires",
+          "helper_text": "",
+          "placeholder": "01/01/2022"
+        },
+        "image": {
+          "label": "Image",
+          "helper_text": "",
+          "placeholder": "https://picsum.photos/256"
+        },
+        "url": {
+          "label": "URL",
+          "helper_text": "",
+          "placeholder": "https://example.com/products/123"
+        },
+        "quantity-min": {
+          "label": "Min quantity",
+          "helper_text": "",
+          "placeholder": "1"
+        },
+        "quantity-max": {
+          "label": "Max quantity",
+          "helper_text": "",
+          "placeholder": "25"
+        }
+      },
+      "shipping": {
+        "title": "Shipping",
+        "shipto": {
+          "label": "Shipping address",
+          "helper_text": "",
+          "placeholder": "Select address to ship this item to..."
+        },
+        "width": {
+          "label": "Width",
+          "helper_text": "",
+          "placeholder": "16"
+        },
+        "height": {
+          "label": "Height",
+          "helper_text": "",
+          "placeholder": "8"
+        },
+        "length": {
+          "label": "Width",
+          "helper_text": "",
+          "placeholder": "32"
+        },
+        "weight": {
+          "label": "Weight",
+          "helper_text": "",
+          "placeholder": "24"
+        }
+      },
+      "inventory": {
+        "title": "Inventory",
+        "category": {
+          "label": "Item category",
+          "helper_text": "",
+          "placeholder": "Select item category..."
+        },
+        "code": {
+          "label": "Code",
+          "helper_text": "",
+          "placeholder": "MY-PRODUCT-001"
+        },
+        "parent-code": {
+          "label": "Parent code",
+          "helper_text": "",
+          "placeholder": "MY-BUNDLE-001"
+        }
+      },
+      "discount-details": {
+        "title": "Discount details",
+        "card": {
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No data",
+            "loading_error": "Failed to load"
+          }
+        },
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous"
+        }
+      },
+      "coupon-details": {
+        "title": "Coupon details",
+        "card": {
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No data",
+            "loading_error": "Failed to load"
+          }
+        },
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous"
+        }
+      },
+      "attributes": {
+        "title": "Attributes",
+        "card": {
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No data",
+            "loading_error": "Failed to load"
+          }
+        },
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous"
+        },
+        "dialog": {
+          "close": "Close",
+          "cancel": "Cancel",
+          "header_update": "Attribute",
+          "header_create": "New attribute",
+          "save": "Save",
+          "undo_header": "Unsaved changes",
+          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard",
+          "confirm": "Confirm",
+          "attribute-form": {
+            "create": "Create",
+            "date": "{{value, date}}",
+            "date_created": "Created on",
+            "date_modified": "Last updated",
+            "delete": "Delete",
+            "delete_prompt": "This resource will be permanently removed. Are you sure?",
+            "name": "Name",
+            "v8n_required": "Required",
+            "v8n_too_long": "Too long",
+            "value": "Value",
+            "visibility": "Visibility",
+            "visibility_private": "Only me",
+            "visibility_public": "Everyone",
+            "visibility_restricted": "Store admins",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_error": "Failed to load"
+            }
+          }
+        }
+      },
+      "item-options": {
+        "title": "Item options",
+        "card": {
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No data",
+            "loading_error": "Failed to load"
+          }
+        },
+        "dialog": {
+          "close": "Close",
+          "cancel": "Cancel",
+          "header_update": "Item option",
+          "header_create": "New item option",
+          "save": "Save",
+          "undo_header": "Unsaved changes",
+          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard",
+          "confirm": "Confirm",
+          "name": {
+            "label": "Name",
+            "helper_text": "",
+            "placeholder": "Color",
+            "v8n_required": "Name is required",
+            "v8n_too_long": "Name mustn't exceed 100 characters"
+          },
+          "value": {
+            "label": "Value",
+            "helper_text": "",
+            "placeholder": "Red",
+            "v8n_required": "Value is required",
+            "v8n_too_long": "Value mustn't exceed 1024 characters"
+          },
+          "price-mod": {
+            "label": "Price",
+            "helper_text": "Same currency as item",
+            "placeholder": "10"
+          },
+          "weight-mod": {
+            "label": "Weight",
+            "helper_text": "Arbitrary units",
+            "placeholder": "5"
+          },
+          "timestamps": {
+            "date_created": "Created on",
+            "date_modified": "Last updated",
+            "date": "{{value, date}}"
+          },
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_error": "Failed to load"
+          },
+          "delete": {
+            "delete": "Delete",
+            "cancel": "Cancel",
+            "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
+          },
+          "create": {
+            "create": "Create"
+          }
+        },
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous"
+        }
+      },
+      "timestamps": {
+        "date_created": "Created on",
+        "date_modified": "Last updated",
+        "date": "{{value, date}}"
+      },
+      "delete": {
+        "delete": "Delete",
+        "cancel": "Cancel",
+        "delete_prompt": "Are you sure you'd like to remove this item? You won't be able to bring it back."
+      },
+      "create": {
+        "create": "Create"
+      },
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_error": "Failed to load"
+      }
+    }
+  },
+  "applied-coupon-codes": {
+    "label": "Coupon codes",
+    "delete_confirm": "Delete",
+    "delete_cancel": "Cancel",
+    "delete_message": "Are you sure you'd like to remove this coupon code? This might affect the cart total.",
+    "delete_header": "Delete code?",
+    "pagination": {
+      "create_button_text": "Apply code",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "delete_button_text": "Remove",
+        "price": "{{amount, price}}",
+        "wgt": "WGT",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No codes",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Coupon code",
+      "header_create": "Apply code",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard"
+    }
+  },
+  "totals": {
+    "price": "{{ amount, price }}",
+    "total_order": "Total: {{ amount, price }}",
+    "total_item_price": "Total item price",
+    "total_shipping": "Total shipping",
+    "total_tax": "Total tax"
+  },
+  "discounts": {
+    "label": "Discounts",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "price": "{{amount, price}}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No discounts",
+          "loading_error": "Failed to load"
+        }
+      }
+    }
+  },
+  "template-set-uri": {
+    "label": "Template set",
+    "placeholder": "Select template set...",
+    "helper_text": ""
+  },
+  "billing-first-name": {
+    "label": "First name",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "We can't store first names that are more than 50 characters long. Please shorten this value."
+  },
+  "billing-last-name": {
+    "label": "Last name",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "We can't store last names that are more than 50 characters long. Please shorten this value."
+  },
+  "billing-company": {
+    "label": "Company",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "We can't store company names that are more than 50 characters long. Please shorten this value."
+  },
+  "billing-phone": {
+    "label": "Phone",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "This phone number is unusually long. Please use a value below 50 characters."
+  },
+  "billing-address1": {
+    "label": "Address Line 1",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 100 characters."
+  },
+  "billing-address2": {
+    "label": "Address Line 2",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 100 characters."
+  },
+  "billing-country": {
+    "label": "Country",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 50 characters."
+  },
+  "billing-region": {
+    "label": "Region",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 50 characters."
+  },
+  "billing-city": {
+    "label": "City",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 50 characters."
+  },
+  "billing-postal-code": {
+    "label": "Postal code",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "This postal code is unsually long. Please use a code that fits in 50 characters."
+  },
+  "shipping-first-name": {
+    "label": "First name",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "We can't store first names that are more than 50 characters long. Please shorten this value."
+  },
+  "shipping-last-name": {
+    "label": "Last name",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "We can't store last names that are more than 50 characters long. Please shorten this value."
+  },
+  "shipping-company": {
+    "label": "Company",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "We can't store company names that are more than 50 characters long. Please shorten this value."
+  },
+  "shipping-phone": {
+    "label": "Phone",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "This phone number is unusually long. Please use a value below 50 characters."
+  },
+  "shipping-address1": {
+    "label": "Address Line 1",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 100 characters."
+  },
+  "shipping-address2": {
+    "label": "Address Line 2",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 100 characters."
+  },
+  "shipping-country": {
+    "label": "Country",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 50 characters."
+  },
+  "shipping-region": {
+    "label": "Region",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 50 characters."
+  },
+  "shipping-city": {
+    "label": "City",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "Please shorten this value to fit 50 characters."
+  },
+  "shipping-postal-code": {
+    "label": "Postal code",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_too_long": "This postal code is unsually long. Please use a code that fits in 50 characters."
+  },
+  "custom-fields": {
+    "label": "Custom fields",
+    "delete_confirm": "Delete",
+    "delete_cancel": "Cancel",
+    "delete_message": "Are you sure you'd like to remove this custom field? This action can't be undone.",
+    "delete_header": "Delete custom field?",
+    "pagination": {
+      "create_button_text": "Add custom field",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "delete_button_text": "Remove",
+        "price": "{{amount, price}}",
+        "wgt": "WGT",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No custom fields",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Custom field",
+      "header_create": "New custom field",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard"
+    }
+  },
+  "attributes": {
+    "label": "Attributes",
+    "delete_confirm": "Delete",
+    "delete_cancel": "Cancel",
+    "delete_message": "Are you sure you'd like to remove this attribute? This action can't be undone.",
+    "delete_header": "Delete attribute?",
+    "pagination": {
+      "create_button_text": "Add attribute",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "delete_button_text": "Remove",
+        "price": "{{amount, price}}",
+        "wgt": "WGT",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No attributes",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Custom field",
+      "header_create": "New attribute",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard"
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "view-as-customer": {
+    "state_idle": "View as customer",
+    "state_busy": "Creating cart link...",
+    "state_fail": "Failed to create cart link"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this cart? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}
