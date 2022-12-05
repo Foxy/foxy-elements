@@ -6,6 +6,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PropertyDeclarations } from 'lit-element';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
+import { ResponsiveMixin } from '../../../mixins/responsive';
 
 export type TemplateFn<TData extends HALJSONResource> = (data: TData) => TemplateResult;
 
@@ -21,7 +22,7 @@ export type RenderOptions<TData extends HALJSONResource> = {
   subtitle: TemplateFn<TData>;
 };
 
-const Base = ConfigurableMixin(ThemeableMixin(NucleonElement));
+const Base = ResponsiveMixin(ConfigurableMixin(ThemeableMixin(NucleonElement)));
 
 export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
   static get properties(): PropertyDeclarations {
@@ -43,7 +44,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
       <div data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
 
-        <div class="text-secondary truncate">
+        <div class="font-semibold truncate">
           ${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;
         </div>
 
@@ -57,7 +58,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
       <div data-testid="subtitle">
         ${this.renderTemplateOrSlot('subtitle:before')}
 
-        <div class="font-semibold truncate">
+        <div class="text-tertiary truncate">
           ${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;
         </div>
 
@@ -73,7 +74,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
       <div
         aria-live="polite"
         aria-busy=${!this.data && this.in('busy')}
-        class="relative text-body text-m font-lumo leading-m"
+        class="relative text-body text-m font-lumo leading-s sm-flex sm-justify-between"
       >
         ${hiddenSelector.matches('title', true) ? '' : this.__renderTitle(options?.title)}
         ${hiddenSelector.matches('subtitle', true) ? '' : this.__renderSubtitle(options?.subtitle)}
