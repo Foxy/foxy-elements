@@ -41,7 +41,7 @@ class TransactionCard extends Base<Data> {
       <div
         aria-busy=${this.in('busy')}
         aria-live="polite"
-        class="relative leading-m font-lumo text-m"
+        class="relative leading-s font-lumo text-m"
       >
         <div class=${classMap({ 'transition-opacity': true, 'opacity-0': !this.data })}>
           ${hasTotal || hasStatus
