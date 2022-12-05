@@ -1,0 +1,27 @@
+{
+  "daily": "/ day",
+  "daily_plural": "/ {{count}} days",
+  "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"admin-subscription-card\" })",
+  "monthly": "/ month",
+  "monthly_plural": "/ {{count}} months",
+  "price_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"admin-subscription-card\" })",
+  "price_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"admin-subscription-card\" })",
+  "subscription_active": "Next payment on {{date, date}}",
+  "subscription_cancelled": "Ended on {{date, date}}",
+  "subscription_failed": "Payment failed on {{date, date}}",
+  "subscription_inactive": "Inactive",
+  "subscription_will_be_cancelled": "Ends on {{date, date}}",
+  "summary": "{{ firstItem.name }}",
+  "summary_plural": "{{ firstItem.name }} + {{ countMinus1 }} more",
+  "summary_approximate": "{{ firstItem.name }} + more",
+  "twice_a_month": "twice a month",
+  "weekly": "/ week",
+  "weekly_plural": "/ {{count}} weeks",
+  "yearly": "/ year",
+  "yearly_plural": "/ {{count}} years",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}
