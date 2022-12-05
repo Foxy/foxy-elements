@@ -1,13 +1,15 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
+import type { ItemRenderer } from '../CollectionPage/types';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
-import { Resource } from '@foxy.io/sdk/core';
-import { Rels } from '@foxy.io/sdk/backend';
 
 /**
  * Form element for creating or editing items (`fx:item`).
@@ -54,6 +56,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       ...super.properties,
       customerAddresses: { type: String, attribute: 'customer-addresses' },
       itemCategories: { type: String, attribute: 'item-categories' },
+      localeCodes: { attribute: 'locale-codes' },
       coupons: { type: String },
     };
   }
@@ -74,12 +77,27 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   /** Link to the collection of item categories that can be used with this item. */
   itemCategories: string | null = null;
 
+  /** Link to the `fx:locale_codes` property helper for currency formatting. */
+  localeCodes: string | null = null;
+
   /** Link to the collection of coupons that can be used with this item. */
   coupons: string | null = null;
 
   private __itemsLink = '';
 
   renderBody(): TemplateResult {
+    const renderItemOptionCard: ItemRenderer = ctx => html`
+      <foxy-item-option-card
+        locale-codes=${ifDefined(this.localeCodes ?? void 0)}
+        parent=${ctx.parent}
+        class="p-m"
+        infer=""
+        href=${ctx.href}
+        .related=${ctx.related}
+      >
+      </foxy-item-option-card>
+    `;
+
     return html`
       <foxy-internal-text-control infer="name"></foxy-internal-text-control>
 
@@ -125,13 +143,9 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
               infer="item-options"
               first=${this.data._links['fx:item_options'].href}
               limit="5"
-              item="foxy-item-option-card"
               form="foxy-item-option-form"
-              .related=${[
-                this.data._links['fx:transaction'].href,
-                this.data._links['fx:shipment'].href,
-                this.__itemsLink,
-              ]}
+              .item=${renderItemOptionCard}
+              .related=${this.__itemOptionRelatedUrls}
             >
             </foxy-internal-async-details-control>
           `
@@ -141,13 +155,53 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   }
 
   protected async _sendGet(): Promise<Data> {
+    type TransactionTemplate = Resource<Rels.TransactionTemplate>;
+    type Subscription = Resource<Rels.Subscription>;
     type Transaction = Resource<Rels.Transaction>;
+    type Cart = Resource<Rels.Cart>;
 
     const item = await super._sendGet();
-    const transaction = await super._fetch<Transaction>(item._links['fx:transaction'].href);
 
-    this.__itemsLink = transaction._links['fx:items'].href;
+    if ('fx:subscription' in item._links) {
+      // TODO: remove the directive below once SDK is updated
+      // @ts-expect-error SDK types are incomplete
+      const subscriptionHref = item._links['fx:subscription'].href;
+      const subscription = await super._fetch<Subscription>(subscriptionHref);
+
+      const transactionTemplateHref = subscription._links['fx:transaction_template'].href;
+      const transactionTemplate = await super._fetch<TransactionTemplate>(transactionTemplateHref);
+
+      this.__itemsLink = transactionTemplate._links['fx:items'].href;
+      return item;
+    }
+
+    if ('fx:transaction' in item._links) {
+      const transaction = await super._fetch<Transaction>(item._links['fx:transaction'].href);
+      this.__itemsLink = transaction._links['fx:items'].href;
+      return item;
+    }
+
+    if ('fx:cart' in item._links) {
+      // TODO: remove the directive below once SDK is updated
+      // @ts-expect-error SDK types are incomplete
+      const cart = await super._fetch<Cart>(item._links['fx:cart'].href);
+      this.__itemsLink = cart._links['fx:items'].href;
+      return item;
+    }
 
     return item;
+  }
+
+  private get __itemOptionRelatedUrls() {
+    const links = (this.data?._links ?? {}) as Record<string, { href: string }>;
+    const urls: string[] = [];
+
+    if (links['fx:subscription']) urls.push(links['fx:subscription'].href);
+    if (links['fx:transaction']) urls.push(links['fx:transaction'].href);
+    if (links['fx:shipment']) urls.push(links['fx:shipment'].href);
+    if (links['fx:cart']) urls.push(links['fx:cart'].href);
+    if (this.__itemsLink) urls.push(this.__itemsLink);
+
+    return urls;
   }
 }
