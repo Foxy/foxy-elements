@@ -192,6 +192,7 @@ export abstract class Dialog extends Base {
               'overflow-hidden flex flex-col bg-base rounded-t-l sm-rounded-b-l': true,
               'absolute inset-0 mt-xl sm-m-xl': !this.alert,
               'shadow-xxl': this.__visible,
+              'flex-1': this.alert,
             })}
           >
             <div
