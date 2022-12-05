@@ -55,4 +55,10 @@ export class InternalSelectControl extends InternalEditableControl {
       </vaadin-combo-box>
     `;
   }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+    const comboBox = this.renderRoot.querySelector('vaadin-combo-box');
+    if (comboBox && comboBox.value !== this._value) comboBox.value = this._value as string;
+  }
 }
