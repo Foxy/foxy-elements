@@ -5,15 +5,29 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items',
+  href: 'https://demo.api/hapi/subscriptions/0',
   parent: 'https://demo.api/hapi/subscriptions',
   nucleon: true,
   localName: 'foxy-subscription-form',
   translatable: true,
   configurable: {
-    sections: ['header', 'items', 'items:actions', 'end-date:form:warning', 'transactions'],
+    sections: [
+      'header',
+      'items',
+      'items:actions',
+      'end-date:form:warning',
+      'transactions',
+      'timestamps',
+    ],
     buttons: ['end-date', 'end-date:form:submit'],
-    inputs: ['end-date:form:end-date', 'next-transaction-date', 'frequency'],
+    inputs: [
+      'end-date:form:end-date',
+      'next-transaction-date',
+      'start-date',
+      'frequency',
+      'attributes',
+      'past-due-amount',
+    ],
   },
 };
 

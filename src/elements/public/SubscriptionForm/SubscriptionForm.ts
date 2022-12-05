@@ -1,35 +1,32 @@
+import type { Data, Settings, Templates, TransactionPageGetter } from './types';
+import type { PropertyDeclarations } from 'lit-element';
+import type { ScopedElementsMap } from '@open-wc/scoped-elements';
+import type { InternalCalendar } from '../../internal/InternalCalendar';
+import type { TemplateResult } from 'lit-html';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
+import type { ButtonElement } from '@vaadin/vaadin-button';
+import type { FormDialog } from '../FormDialog';
+import type { Rels } from '@foxy.io/sdk/backend';
+
 import { Choice, Group, Skeleton } from '../../private/index';
-import { Data, Item, Settings, Templates } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { parseFrequency } from '../../../utils/parse-frequency';
+import { serializeDate } from '../../../utils/serialize-date';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
+
 import {
-  getAllowedFrequencies,
   getNextTransactionDateConstraints,
+  getAllowedFrequencies,
   isNextTransactionDate,
 } from '@foxy.io/sdk/customer';
 
-import { ButtonElement } from '@vaadin/vaadin-button';
-import { CellContext } from '../Table/types';
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { FormDialog } from '../FormDialog';
-import { InternalCalendar } from '../../internal/InternalCalendar';
-import { NucleonElement } from '../NucleonElement/index';
-import { PageRendererContext } from '../CollectionPages/types';
-import { Preview } from '../ItemsForm/private/Preview';
-import { PropertyDeclarations } from 'lit-element';
-import { ThemeableMixin } from '../../../mixins/themeable';
-import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
-import { Data as TransactionsTableData } from '../TransactionsTable/types';
-import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import { parseFrequency } from '../../../utils/parse-frequency';
-import { serializeDate } from '../../../utils/serialize-date';
-
 const NS = 'subscription-form';
-const Base = ScopedElementsMixin(
-  ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, NS)))
-);
+const Base = ScopedElementsMixin(ResponsiveMixin(TranslatableMixin(InternalForm, NS)));
 
 /**
  * Form element for creating or editing subscriptions.
@@ -54,12 +51,27 @@ const Base = ScopedElementsMixin(
  * @slot transactions:before - **new in v1.4.0**
  * @slot transactions:after - **new in v1.4.0**
  *
+ * @slot attributes:before - **new in v1.20.0**
+ * @slot attributes:after - **new in v1.20.0**
+ *
+ * @slot timestamps:before - **new in v1.20.0**
+ * @slot timestamps:after - **new in v1.20.0**
+ *
+ * @slot past-due-amount:before - **new in v1.20.0**
+ * @slot past-due-amount:after - **new in v1.20.0**
+ *
+ * @slot start-date:before - **new in v1.20.0**
+ * @slot start-date:after - **new in v1.20.0**
+ *
  * @element foxy-subscription-form
  * @since 1.2.0
  */
 export class SubscriptionForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-internal-timestamps-control': customElements.get('foxy-internal-timestamps-control'),
+      'foxy-internal-async-list-control': customElements.get('foxy-internal-async-list-control'),
+      'foxy-internal-number-control': customElements.get('foxy-internal-number-control'),
       'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
@@ -67,12 +79,12 @@ export class SubscriptionForm extends Base<Data> {
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
+      'foxy-nucleon': customElements.get('foxy-nucleon'),
       'vcf-tooltip': customElements.get('vcf-tooltip'),
       'foxy-table': customElements.get('foxy-table'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'iron-icon': customElements.get('iron-icon'),
       'x-skeleton': Skeleton,
-      'x-preview': Preview,
       'x-choice': Choice,
       'x-group': Group,
     };
@@ -81,13 +93,40 @@ export class SubscriptionForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getTransactionPageHref: { attribute: false },
+      customerAddresses: { attribute: 'customer-addresses' },
+      itemCategories: { attribute: 'item-categories' },
+      localeCodes: { attribute: 'locale-codes' },
       settings: { type: Object },
+      coupons: {},
     };
   }
 
-  settings: Settings | null = null;
+  getTransactionPageHref: TransactionPageGetter = (_, data: any) => {
+    return data?._links['fx:receipt'].href;
+  };
+
+  customerAddresses: string | null = null;
+
+  itemCategories: string | null = null;
+
+  localeCodes: string | null = null;
 
   templates: Templates = {};
+
+  settings: Settings | null = null;
+
+  coupons: string | null = null;
+
+  private readonly __transactionTemplateLoaderId = 'transactionTemplateLoader';
+
+  private readonly __defaultTemplateSetLoaderId = 'defaultTemplateSetLoader';
+
+  private readonly __localeCodesHelperLoaderId = 'localeCodesLoader';
+
+  private readonly __templateSetLoaderId = 'templateSetLoader';
+
+  private readonly __storeLoaderId = 'storeLoader';
 
   private readonly __renderHeaderSubtitle = () => {
     const { data, lang, ns } = this;
@@ -139,18 +178,27 @@ export class SubscriptionForm extends Base<Data> {
     return html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`;
   };
 
-  private readonly __renderHeaderTitle = () => {
+  private readonly __renderHeaderTitle = (
+    currency: string | undefined,
+    currencyDisplay: string | undefined
+  ) => {
     const { data, lang, ns } = this;
 
     if (data) {
       const frequency = parseFrequency(data.frequency);
-      const currency = data._embedded['fx:last_transaction'].currency_code;
-      const total = data._embedded['fx:last_transaction'].total_order;
+      const transactionTemplate = this.__transactionTemplate;
+      const total = transactionTemplate?.total_order;
+
+      if (typeof currency !== 'string') return html`--`;
 
       return html`
         <foxy-i18n
           data-testid="header-title"
-          options=${JSON.stringify({ ...frequency, amount: `${total} ${currency}` })}
+          options=${JSON.stringify({
+            ...frequency,
+            amount: `${total} ${currency}`,
+            currencyDisplay,
+          })}
           lang=${lang}
           key="price_${data.frequency === '.5m' ? 'twice_a_month' : 'recurring'}"
           ns=${ns}
@@ -162,11 +210,16 @@ export class SubscriptionForm extends Base<Data> {
     return html`<x-skeleton class="w-full" variant="static">&nbsp;</x-skeleton>`;
   };
 
-  private readonly __renderHeader = () => {
+  private readonly __renderHeader = (
+    currencyCode: string | undefined,
+    currencyDisplay: string | undefined
+  ) => {
     return html`
-      <div data-testid="header">
+      <div data-testid="header" class="sm-col-span-2">
         ${this.renderTemplateOrSlot('header:before')}
-        <div class="leading-xs text-xxl font-bold">${this.__renderHeaderTitle()}</div>
+        <div class="leading-xs text-xxl font-bold truncate">
+          ${this.__renderHeaderTitle(currencyCode, currencyDisplay)}
+        </div>
         <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>
         ${this.renderTemplateOrSlot('header:after')}
       </div>
@@ -180,7 +233,7 @@ export class SubscriptionForm extends Base<Data> {
 
         <foxy-i18n
           data-testid="items:actions-label"
-          class="flex-1"
+          class="flex-1 text-s font-medium text-secondary"
           lang=${this.lang}
           key="item_plural"
           ns=${this.ns}
@@ -192,62 +245,29 @@ export class SubscriptionForm extends Base<Data> {
     `;
   };
 
-  private readonly __renderItemsItem = (item: Item) => {
-    const price = item.price.toLocaleString(this.lang || 'en', {
-      style: 'currency',
-      currency: this.data!._embedded['fx:last_transaction'].currency_code,
-    });
+  private readonly __renderItems = () => {
+    let itemsHref: string | undefined;
 
-    let quantity: TemplateResult;
-
-    if (item.quantity > 1) {
-      quantity = html`
-        <div
-          data-testclass="item-quantity"
-          class="px-s h-xs rounded bg-contrast-5 flex items-center font-tnum text-contrast text-s font-bold"
-        >
-          ${item.quantity}
-        </div>
-      `;
-    } else {
-      quantity = html``;
+    try {
+      const cart = this.__transactionTemplate;
+      const url = new URL(cart?._links['fx:items'].href ?? '');
+      url.searchParams.set('zoom', 'item_options');
+      itemsHref = url.toString();
+    } catch {
+      itemsHref = undefined;
     }
 
     return html`
-      <figure class="flex items-center space-x-m py-s pr-m" data-testclass="item">
-        <x-preview
-          data-testclass="item-preview"
-          class="w-l h-l"
-          .quantity=${item.quantity}
-          .image=${item.image}
+      <div data-testid="items" class="space-y-xs sm-col-span-2">
+        ${this.hiddenSelector.matches('items:actions', true) ? '' : this.__renderItemsActions()}
+
+        <foxy-internal-async-list-control
+          first=${ifDefined(itemsHref)}
+          limit="5"
+          infer="items"
+          item="foxy-item-card"
         >
-        </x-preview>
-
-        <figcaption class="leading-s flex-1 flex justify-between items-center">
-          <div class="flex flex-col">
-            <span class="font-medium" data-testclass="item-name">${item.name}</span>
-            <span class="text-secondary text-s" data-testclass="item-price">${price}</span>
-          </div>
-
-          ${quantity}
-        </figcaption>
-      </figure>
-    `;
-  };
-
-  private readonly __renderItems = () => {
-    const hiddenSelector = this.hiddenSelector;
-    const items = this.data?._embedded['fx:transaction_template']._embedded['fx:items'] ?? [];
-    const label = hiddenSelector.matches('items:actions', true) ? '' : this.__renderItemsActions();
-
-    return html`
-      <div data-testid="items">
-        ${this.renderTemplateOrSlot('items:before')}
-        <x-group frame>
-          <div slot="header">${label}</div>
-          <div class="divide-y divide-contrast-10 pl-s">${items.map(this.__renderItemsItem)}</div>
-        </x-group>
-        ${this.renderTemplateOrSlot('items:after')}
+        </foxy-internal-async-list-control>
       </div>
     `;
   };
@@ -257,7 +277,7 @@ export class SubscriptionForm extends Base<Data> {
     const formHiddenSelector = this.hiddenSelector.zoom('end-date:form').toString();
 
     return html`
-      <div>
+      <div class="sm-col-span-2">
         ${this.renderTemplateOrSlot('end-date:before')}
 
         <foxy-form-dialog
@@ -304,6 +324,39 @@ export class SubscriptionForm extends Base<Data> {
     }
 
     return date.getTime() >= Date.now();
+  };
+
+  private readonly __checkStartDateAvailability = (date: Date) => {
+    return date.getTime() >= Date.now();
+  };
+
+  private readonly __renderStartDate = () => {
+    const { data, lang, ns } = this;
+
+    return html`
+      <div data-testid="start-date">
+        ${this.renderTemplateOrSlot('start-date:before')}
+
+        <x-group frame>
+          <foxy-i18n key="start_date" ns=${ns} lang=${lang} slot="header"></foxy-i18n>
+          <foxy-internal-calendar
+            start=${ifDefined(data?.start_date.substr(0, 10))}
+            value=${ifDefined(data?.start_date)}
+            lang=${lang}
+            ?readonly=${!this.__isStartDateEditable}
+            ?disabled=${this.disabledSelector.matches('start-date', true)}
+            .checkAvailability=${this.__checkStartDateAvailability}
+            @change=${(evt: Event) => {
+              const target = evt.target as InternalCalendar;
+              this.edit({ start_date: target.value });
+            }}
+          >
+          </foxy-internal-calendar>
+        </x-group>
+
+        ${this.renderTemplateOrSlot('start-date:after')}
+      </div>
+    `;
   };
 
   private readonly __renderNextTransactionDate = () => {
@@ -403,7 +456,7 @@ export class SubscriptionForm extends Base<Data> {
 
   private readonly __renderFrequency = () => {
     return html`
-      <div>
+      <div class="sm-col-span-2">
         ${this.renderTemplateOrSlot('frequency:before')}
         ${this.settings && this.__frequencies.length > 4
           ? this.__renderFrequencyAsDropdown()
@@ -413,103 +466,197 @@ export class SubscriptionForm extends Base<Data> {
     `;
   };
 
-  private readonly __transactionsTableColumns = [
-    {
-      cell(ctx: CellContext<TransactionsTableData>) {
-        const colors: Record<string, string> = {
-          declined: 'text-error',
-          rejected: 'text-error',
-        };
+  get hiddenSelector(): BooleanSelector {
+    return new BooleanSelector(`items:pagination:card:autorenew-icon ${super.hiddenSelector}`);
+  }
 
-        const status = TransactionsTable.statusColumn.cell!(ctx);
-        const price = TransactionsTable.priceColumn.cell!(ctx);
-        const color = colors[ctx.data.status] ?? 'text-body';
+  renderBody(): TemplateResult {
+    let transactionsHref: string | undefined;
 
-        return ctx.html`
-          <span class="sr-only">${status}</span>
-          <span class="${color} text-s">${price}</span>
-        `;
-      },
-    },
-    { cell: TransactionsTable.idColumn.cell, hideBelow: 'sm' },
-    { cell: TransactionsTable.dateColumn.cell },
-    { cell: TransactionsTable.receiptColumn.cell },
-  ];
+    try {
+      const url = new URL(this.data?._links['fx:transactions'].href ?? '');
+      url.searchParams.set('order', 'transaction_date desc');
+      url.searchParams.set('zoom', 'items');
+      transactionsHref = url.toString();
+    } catch {
+      transactionsHref = undefined;
+    }
 
-  private readonly __renderTransactionsPage = ({ html, ...ctx }: PageRendererContext) => {
+    const currencyDisplay = this.__store?.use_international_currency_symbol ? 'code' : 'symbol';
+    const cart = this.__transactionTemplate;
+
+    let currencyCode: string | null = null;
+
+    if (cart && 'currency_code' in cart) {
+      // TODO: remove the directive below once the SDK is updated
+      // @ts-expect-error SDK types are incomplete
+      currencyCode = cart.currency_code;
+    } else {
+      const allLocaleCodes = this.__localeCodesHelper;
+      const localeCode = (this.__templateSet ?? this.__defaultTemplateSet)?.locale_code;
+      const localeInfo = localeCode ? allLocaleCodes?.values[localeCode] : void 0;
+
+      if (localeInfo) currencyCode = /Currency: ([A-Z]{3})/g.exec(localeInfo)?.[1] ?? null;
+    }
+
     return html`
-      <foxy-table
-        group=${ctx.group}
-        lang=${ctx.lang}
-        href=${ctx.href}
-        ns="${ctx.ns} transactions-table"
-        .columns=${this.__transactionsTableColumns}
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__transactionTemplateHref)}
+        id=${this.__transactionTemplateLoaderId}
+        @update=${() => this.requestUpdate()}
       >
-      </foxy-table>
-    `;
-  };
+      </foxy-nucleon>
 
-  private readonly __renderTransactions = () => {
-    const { lang, ns } = this;
-
-    return html`
-      <div data-testid="transactions">
-        ${this.renderTemplateOrSlot('transactions:before')}
-
-        <x-group frame>
-          <foxy-i18n lang=${lang} slot="header" key="transaction_plural" ns=${ns}></foxy-i18n>
-          <foxy-collection-pages
-            group=${this.group}
-            class="block divide-y divide-contrast-10 px-m"
-            first=${this.data?._links['fx:transactions'].href ?? ''}
-            lang=${lang}
-            ns=${ns}
-            .page=${this.__renderTransactionsPage}
-          >
-          </foxy-collection-pages>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('transactions:after')}
-      </div>
-    `;
-  };
-
-  render(): TemplateResult {
-    const isBusy = this.in('busy');
-    const isFail = this.in('fail');
-
-    return html`
-      <div
-        data-testid="wrapper"
-        aria-busy=${isBusy}
-        aria-live="polite"
-        class="relative space-y-l text-body font-lumo text-m leading-m"
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__defaultTemplateSetHref)}
+        id=${this.__defaultTemplateSetLoaderId}
+        @update=${() => this.requestUpdate()}
       >
-        ${this.hiddenSelector.matches('header', true) ? '' : this.__renderHeader()}
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__localeCodesHelperHref)}
+        id=${this.__localeCodesHelperLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__templateSetHref)}
+        id=${this.__templateSetLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.__storeHref)}
+        id=${this.__storeLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <div class="relative grid grid-cols-1 sm-grid-cols-2 gap-l">
+        ${this.hiddenSelector.matches('header', true)
+          ? ''
+          : this.__renderHeader(currencyCode ?? void 0, currencyDisplay)}
         ${this.hiddenSelector.matches('items', true) ? '' : this.__renderItems()}
-        ${this.hiddenSelector.matches('end-date', true) ? '' : this.__renderEndDate()}
-        ${this.__isNextTransactionDateVisible ? this.__renderNextTransactionDate() : ''}
         ${this.__isFrequencyVisible ? this.__renderFrequency() : ''}
-        ${this.hiddenSelector.matches('transactions', true) ? '' : this.__renderTransactions()}
+        ${this.__isStartDateVisible ? this.__renderStartDate() : ''}
+        ${this.__isNextTransactionDateVisible ? this.__renderNextTransactionDate() : ''}
 
-        <div
-          data-testid="spinner"
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !isBusy && !isFail,
-          })}
+        <foxy-internal-number-control
+          suffix=${ifDefined(currencyCode ?? void 0)}
+          infer="past-due-amount"
+          class="sm-col-span-2"
+          min="0"
         >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
+        </foxy-internal-number-control>
+
+        <foxy-internal-async-list-control
+          first=${ifDefined(this.data?._links['fx:attributes'].href)}
+          class="sm-col-span-2"
+          infer="attributes"
+          limit="5"
+          form="foxy-attribute-form"
+          item="foxy-attribute-card"
+        >
+        </foxy-internal-async-list-control>
+
+        <foxy-internal-async-list-control
+          first=${ifDefined(transactionsHref)}
+          class="sm-col-span-2"
+          infer="transactions"
+          limit="5"
+          item="foxy-transaction-card"
+          hide-delete-button
+          .getPageHref=${this.getTransactionPageHref}
+        >
+        </foxy-internal-async-list-control>
+
+        <foxy-internal-timestamps-control infer="timestamps" class="sm-col-span-2">
+        </foxy-internal-timestamps-control>
+
+        ${this.hiddenSelector.matches('end-date', true) ? '' : this.__renderEndDate()}
       </div>
     `;
+  }
+
+  private get __transactionTemplateHref() {
+    return this.data?._links['fx:transaction_template'].href;
+  }
+
+  private get __defaultTemplateSetHref() {
+    const templateSetUri = this.__transactionTemplate?.template_set_uri;
+
+    if (templateSetUri === '') {
+      try {
+        const url = new URL(this.__store?._links['fx:template_sets'].href ?? '');
+        url.searchParams.set('code', 'DEFAULT');
+        return url.toString();
+      } catch {
+        //
+      }
+    }
+  }
+
+  private get __localeCodesHelperHref() {
+    if (this.__defaultTemplateSetHref || this.__templateSetHref) {
+      return this.localeCodes ?? void 0;
+    }
+  }
+
+  private get __templateSetHref() {
+    const cart = this.__transactionTemplate;
+    // TODO: remove the directive below once SDK is updated
+    // @ts-expect-error SDK types are incomplete
+    const currencyCode = cart?.currency_code as string | undefined;
+
+    if (!currencyCode) return cart?.template_set_uri || void 0;
+  }
+
+  private get __storeHref() {
+    return this.data?._links['fx:store']?.href;
+  }
+
+  private get __transactionTemplate() {
+    type Loader = NucleonElement<Resource<Rels.TransactionTemplate>>;
+    const selector = `#${this.__transactionTemplateLoaderId}`;
+    return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
+  }
+
+  private get __defaultTemplateSet() {
+    type Loader = NucleonElement<Resource<Rels.TemplateSets>>;
+    const selector = `#${this.__defaultTemplateSetLoaderId}`;
+    const loader = this.renderRoot.querySelector<Loader>(selector);
+    return loader?.data?._embedded['fx:template_sets'][0] ?? null;
+  }
+
+  private get __localeCodesHelper() {
+    type Loader = NucleonElement<Resource<Rels.LocaleCodes>>;
+    const selector = `#${this.__localeCodesHelperLoaderId}`;
+    return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
+  }
+
+  private get __templateSet() {
+    type Loader = NucleonElement<Resource<Rels.TemplateSet>>;
+    const selector = `#${this.__templateSetLoaderId}`;
+    return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
+  }
+
+  private get __store() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    const selector = `#${this.__storeLoaderId}`;
+    return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
   }
 
   private get __isNextTransactionDateVisible() {
@@ -521,6 +668,21 @@ export class SubscriptionForm extends Base<Data> {
 
     const rules = this.settings.subscriptions.allow_next_date_modification;
     return !!getNextTransactionDateConstraints(this.data, rules);
+  }
+
+  private get __isStartDateVisible() {
+    if (this.hiddenSelector.matches('start-date', true)) return false;
+    return this.__isNextTransactionDateVisible;
+  }
+
+  private get __isStartDateEditable() {
+    if (this.readonlySelector.matches('start-date', true)) return false;
+    if (this.data === null) return false;
+    if (this.data.end_date && new Date(this.data.end_date) <= new Date()) return false;
+    if (this.data.is_active === false) return false;
+    if (this.data.start_date && new Date(this.data.start_date) <= new Date()) return false;
+
+    return this.settings === null;
   }
 
   private get __isFrequencyVisible() {

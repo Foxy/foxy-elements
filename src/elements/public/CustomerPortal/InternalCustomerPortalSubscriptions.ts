@@ -6,7 +6,7 @@ import { FormDialog } from '../FormDialog/FormDialog';
 import { FormRendererContext } from '../FormDialog/types';
 import { ItemRenderer } from '../CollectionPage/types';
 import { PageRenderer } from '../CollectionPages/types';
-import { Resource } from '@foxy.io/sdk/core';
+import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
 import { SubscriptionForm } from '../SubscriptionForm/SubscriptionForm';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -164,7 +164,9 @@ export class InternalCustomerPortalSubscriptions extends Base {
       <foxy-subscription-form
         disabledcontrols=${ctx.dialog.disabledControls.toString()}
         readonlycontrols=${ctx.dialog.readonlyControls.toString()}
-        hiddencontrols=${ctx.dialog.hiddenControls.toString()}
+        hiddencontrols=${new BooleanSelector(
+          `attributes timestamps start-date past-due-amount ${ctx.dialog.hiddenSelector}`
+        )}
         settings=${JSON.stringify(this.settings)}
         parent=${ctx.dialog.parent}
         group=${ctx.dialog.group}
@@ -197,6 +199,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         }}
       >
         <foxy-subscription-card
+          hiddencontrols="email"
           parent=${ctx.parent}
           group=${ctx.group}
           lang=${ctx.lang}
