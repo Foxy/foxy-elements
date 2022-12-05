@@ -19,12 +19,16 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      allowCustomValue: { type: Boolean, attribute: 'allow-custom-value' },
       itemLabelPath: { type: String, attribute: 'item-label-path' },
       itemValuePath: { type: String, attribute: 'item-value-path' },
       selectedItem: { attribute: false },
       first: { type: String },
     };
   }
+
+  /** Same as `allowCustomValue` property of Vaadin's `ComboBoxElement`. */
+  allowCustomValue = false;
 
   /** Same as `itemLabelPath` property of Vaadin's `ComboBoxElement`. */
   itemLabelPath: string | null = null;
@@ -68,6 +72,7 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
         placeholder=${this.placeholder}
         label=${this.label}
         class="w-full"
+        ?allow-custom-value=${this.allowCustomValue}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
         clear-button-visible
