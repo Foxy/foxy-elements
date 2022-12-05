@@ -6,9 +6,12 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
+import { ResponsiveMixin } from '../../../mixins/responsive';
 
 const NS = 'attribute-card';
-const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(NucleonElement)), NS);
+const Base = ResponsiveMixin(
+  TranslatableMixin(ConfigurableMixin(ThemeableMixin(NucleonElement)), NS)
+);
 
 /**
  * Basic card displaying an attribute.
@@ -30,7 +33,7 @@ export class AttributeCard extends Base<Data> {
     return html`
       ${this.renderTemplateOrSlot('name:before')}
 
-      <div class="flex items-center space-x-xs text-secondary">
+      <div class="flex items-center space-x-xs font-semibold">
         <div class="truncate" title=${data?.name ?? ''} data-testid="name">
           ${data?.name ?? html`&nbsp;`}
         </div>
@@ -49,7 +52,7 @@ export class AttributeCard extends Base<Data> {
 
     return html`
       ${this.renderTemplateOrSlot('value:before')}
-      <div class="truncate font-semibold" title=${data?.value ?? ''} data-testid="value">
+      <div class="truncate text-tertiary" title=${data?.value ?? ''} data-testid="value">
         ${data?.value ?? html`&nbsp;`}
       </div>
       ${this.renderTemplateOrSlot('value:after')}
@@ -63,7 +66,7 @@ export class AttributeCard extends Base<Data> {
 
     return html`
       <div
-        class="relative text-body text-m font-lumo leading-m"
+        class="relative text-body text-m font-lumo leading-s sm-flex sm-justify-between"
         aria-live="polite"
         aria-busy=${this.in('busy')}
       >
