@@ -84,7 +84,7 @@ class CustomerCard extends Base<Data> {
     return html`
       <div data-testid="email">
         ${this.renderTemplateOrSlot('email:before')}
-        <div class="text-tertiary truncate">${content}</div>
+        <div class="text-secondary truncate text-s">${content}</div>
         ${this.renderTemplateOrSlot('email:after')}
       </div>
     `;
