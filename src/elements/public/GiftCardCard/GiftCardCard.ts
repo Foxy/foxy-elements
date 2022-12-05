@@ -31,7 +31,7 @@ export class GiftCardCard extends Base<Data> {
       <div
         aria-busy=${this.in('busy')}
         aria-live="polite"
-        class="relative leading-m font-lumo text-m"
+        class="relative leading-s font-lumo text-m"
       >
         <div class=${classMap({ 'transition-opacity': true, 'opacity-0': !this.data })}>
           ${hiddenSelector.matches('title', true) ? '' : this.__renderTitle()}
@@ -84,7 +84,7 @@ export class GiftCardCard extends Base<Data> {
 
         <foxy-i18n
           options=${JSON.stringify({ value: expiresAfter })}
-          class="block truncate text-s text-tertiary"
+          class="block truncate text-s text-secondary"
           lang=${this.lang}
           key=${expiresAfter ? 'expires_after_value' : 'never_expires'}
           ns=${this.ns}
