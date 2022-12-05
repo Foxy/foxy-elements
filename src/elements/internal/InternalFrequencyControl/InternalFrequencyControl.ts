@@ -128,6 +128,6 @@ export class InternalFrequencyControl extends InternalEditableControl {
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
     const field = this.renderRoot.querySelector('vaadin-custom-field');
-    if (field && field.value !== this._value) field.value = this._value as string;
+    if (field && field.value !== this._value) field.value = (this._value ?? '') as string;
   }
 }
