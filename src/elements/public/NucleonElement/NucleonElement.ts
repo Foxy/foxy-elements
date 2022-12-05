@@ -90,7 +90,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   private __group = '';
 
-  private __unsubscribeFromRumour!: () => void;
+  private __unsubscribeFromRumour: (() => void) | null = null;
 
   private __fetchEventHandler!: (evt: Event) => void;
 
@@ -173,8 +173,10 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   }
 
   set data(data: TData | null) {
+    this.__destroyRumour();
     this.__service.send({ type: 'SET_DATA', data });
     this.__hrefToLoad = null;
+    if (data) this.__createRumour();
   }
 
   /**
@@ -204,8 +206,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       this.__hrefToLoad = value;
       this.__service.send({ type: 'FETCH' });
     } else {
-      this.__hrefToLoad = null;
-      this.__service.send({ type: 'SET_DATA', data: null });
+      this.data = null;
     }
   }
 
@@ -345,50 +346,54 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** POSTs to `element.parent`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendPost(edits: Partial<TData>): Promise<TData> {
     this.__destroyRumour();
+    let data: TData;
 
     try {
       const body = JSON.stringify(edits);
       const postData = await this._fetch(this.parent, { body, method: 'POST' });
-      const data = await this._fetch(postData._links.self.href);
+      data = await this._fetch(postData._links.self.href);
 
       const rumour = NucleonElement.Rumour(this.group);
       const related = [...this.related, this.parent];
       rumour.share({ data, related, source: data._links.self.href });
-
-      return data;
     } finally {
       this.__createRumour();
     }
+
+    return data;
   }
 
   /** GETs `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendGet(): Promise<TData> {
     this.__destroyRumour();
+    let data: TData;
 
     try {
-      const data = await this._fetch(this.href);
+      data = await this._fetch(this.href);
       NucleonElement.Rumour(this.group).share({ data, source: this.href });
-      return data;
     } finally {
       this.__createRumour();
     }
+
+    return data;
   }
 
   /** PATCHes `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendPatch(edits: Partial<TData>): Promise<TData> {
     this.__destroyRumour();
+    let data: TData;
 
     try {
       const body = JSON.stringify(edits);
-      const data = await this._fetch(this.href, { body, method: 'PATCH' });
+      data = await this._fetch(this.href, { body, method: 'PATCH' });
 
       const rumour = NucleonElement.Rumour(this.group);
       rumour.share({ data, source: this.href, related: this.related });
-
-      return data;
     } finally {
       this.__createRumour();
     }
+
+    return data;
   }
 
   /** DELETEs `element.href`, shares response with the Rumour group and returns parsed JSON. */
@@ -401,11 +406,11 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       const rumour = NucleonElement.Rumour(this.group);
       const related = [...this.related, this.parent];
       rumour.share({ data: null, source: this.href, related });
-
-      return null;
     } finally {
       this.__createRumour();
     }
+
+    return null;
   }
 
   // this getter is used by LitElement to set the "state" attribute
@@ -450,6 +455,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   private __destroyRumour() {
     this.__unsubscribeFromRumour?.();
+    this.__unsubscribeFromRumour = null;
   }
 
   private __createServer() {
@@ -464,10 +470,17 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   private __handleRumourUpdate(update: (oldData: TData) => TData | null) {
     try {
       const oldData = this.__service.state?.context.data;
-      if (!oldData) return;
+      const newData = oldData ? update(oldData) : oldData;
 
-      const newData = update(oldData);
-      if (newData !== oldData) this.__service.send({ data: newData, type: 'SET_DATA' });
+      if (newData !== oldData) {
+        this.data = newData;
+
+        if (!newData) {
+          const result = UpdateResult.ResourceDeleted;
+          const event = new UpdateEvent('update', { detail: { result } });
+          this.dispatchEvent(event);
+        }
+      }
     } catch (err) {
       if (err instanceof Rumour.UpdateError) {
         this.__service.send({ type: 'REFRESH' });
