@@ -1,0 +1,15 @@
+{
+  "line_1": "{{ count }} item • {{ amount, price }}",
+  "line_1_plural": "{{ count }} items • {{ amount, price }}",
+  "line_1_approximate": "At least 20 items • {{ amount, price }}",
+  "line_2": "{{ firstItem.name }}",
+  "line_2_plural": "{{ firstItem.name }} + more",
+  "line_2_no_items": "Empty cart",
+  "no_customer": "Customer unknown",
+  "status": "{{ dateCreated, date }}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

@@ -9,6 +9,7 @@ export { AppliedTaxCard } from './AppliedTaxCard/index';
 export { AttributeCard } from './AttributeCard/index';
 export { AttributeForm } from './AttributeForm/index';
 export { CancellationForm } from './CancellationForm/index';
+export { CartCard } from './CartCard/index';
 export { CollectionPage } from './CollectionPage/index';
 export { CollectionPages } from './CollectionPages/index';
 export { CopyToClipboard } from './CopyToClipboard/index';
