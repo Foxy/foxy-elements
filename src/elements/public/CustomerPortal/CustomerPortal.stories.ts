@@ -82,7 +82,7 @@ const summary: Summary = {
 };
 
 const Meta = getMeta(summary);
-(Meta.argTypes as any).lang.control.options = ['en', 'es', 'de', 'pl', 'zh-HK', 'se', 'nl'];
+(Meta.argTypes as any).lang.control.options = ['en', 'es', 'de', 'pl', 'zh-HK', 'se', 'nl', 'fr'];
 export default Meta;
 
 export const Playground = getStory({ ...summary, code: true });
