@@ -1,0 +1,223 @@
+{
+  "access-recovery-form": {
+    "back": "Retour",
+    "email": "E-mail",
+    "recover_access": "Obtenez un code à usage unique",
+    "recover_access_hint": "Saisissez votre adresse électronique et nous vous enverrons un mot de passe temporaire.",
+    "recover_access_success": "C'est fait ! Veuillez vérifier votre e-mail pour d'autres instructions.",
+    "unknown_error": "Nous ne pouvons pas émettre de code à usage unique pour ce compte pour le moment. Si vous avez déjà demandé le code, veuillez attendre quelques minutes avant de réessayer.",
+    "v8n_invalid_email": "E-mail non valide",
+    "v8n_required": "Requis",
+    "spinner": {
+      "loading_busy": "Chargement",
+      "loading_error": "Échec du chargement"
+    }
+  },
+  "customer": {
+    "address_plural": "Adresses",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "payment_method_plural": "Méthodes de paiement",
+    "save": "Sauvegarder",
+    "subscription_plural": "Abonnements",
+    "transaction_plural": "Transactions",
+    "undo_cancel": "Revoir",
+    "undo_confirm": "Abandon",
+    "undo_header": "Modifications non sauvegardées",
+    "undo_message": "On dirait que vous n'avez pas enregistré vos modifications ! Que voulez-vous en faire ?",
+    "update": "Mettre à jour",
+    "address-card": {
+      "default_billing_address": "Adresse de facturation par défaut",
+      "default_shipping_address": "Adresse de livraison par défaut",
+      "full_address": "{{address1}} {{address2}} {{postal_code}} {{city}} {{region}}",
+      "full_name": "{{first_name}} {{last_name}}",
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_empty": "Aucune adresse",
+        "loading_end": "Plus aucune donnée",
+        "loading_error": "Échec du chargement"
+      }
+    },
+    "address-form": {
+      "address_name": "Nom de l'adresse",
+      "address1": "Ligne d'adresse 1",
+      "address2": "Ligne d'adresse 2",
+      "cancel": "Annuler",
+      "city": "Ville",
+      "company": "Société",
+      "country": "Pays",
+      "date": "{{value, date}}",
+      "date_created": "Créé le",
+      "date_modified": "Dernière mise à jour",
+      "delete": "Supprimer",
+      "delete_prompt": "Cette ressource sera définitivement supprimée. Vous êtes sûr ?",
+      "first_name": "Prénom",
+      "last_name": "Nom",
+      "phone": "Téléphone",
+      "postal_code": "Code postal",
+      "region": "Région",
+      "v8n_required": "Requis",
+      "v8n_too_long": "Trop long",
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_empty": "Pas de données",
+        "loading_error": "Échec du chargement"
+      }
+    },
+    "customer-form": {
+      "cancel": "Annuler",
+      "change_password": "Modifier le mot de passe",
+      "change_password_step_1": "Commençons par votre mot de passe actuel. Un mot de passe temporaire fonctionne également si vous en avez un.",
+      "change_password_step_2": "Saisissez maintenant un nouveau mot de passe et cliquez sur Continuer pour appliquer les changements à votre compte.",
+      "change_password_step_3": "C'est fait ! Vous pouvez maintenant utiliser votre nouveau mot de passe pour vous connecter.",
+      "close": "Fermer",
+      "date": "{{value, date}}",
+      "date_created": "Créé le",
+      "date_modified": "Dernière mise à jour",
+      "email": "E-mail",
+      "first_name": "Prénom",
+      "invalid_credential_error": "Le mot de passe est incorrect. Vérifiez que vous avez bien saisi votre mot de passe actuel ou temporaire et réessayez.",
+      "last_name": "Nom",
+      "new_password": "Nouveau mot de passe",
+      "password": "Mot de passe",
+      "sign_in": "Continuer",
+      "tax_id": "Siren",
+      "undo_cancel": "REvoir",
+      "undo_confirm": "Abadon",
+      "undo_header": "Modifications non sauvegardées",
+      "undo_message": "On dirait que vous n'avez pas enregistré vos modifications ! Que voulez-vous en faire ?",
+      "v8n_invalid_email": "E-mail non valide",
+      "v8n_required": "Requis",
+      "v8n_too_long": "Trop long",
+      "sign-in-form": {
+        "spinner": {
+          "loading_busy": "Chargement",
+          "loading_error": "Échec du chargement"
+        }
+      },
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_empty": "Pas de données",
+        "loading_error": "Échec du chargement"
+      }
+    },
+    "payment-method-card": {
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "delete_prompt": "Cette ressource sera définitivement supprimée. Vous êtes sûr ?",
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_empty": "Aucune méthode de paiement",
+        "loading_error": "Échec du chargement"
+      }
+    },
+    "spinner": {
+      "loading_busy": "Chargement",
+      "loading_error": "Échec du chargement"
+    },
+    "subscription-card": {
+      "daily": "Quotidiennement",
+      "daily_plural": "Tous les {{count}} jours",
+      "frequency": "$t(customer.subscription-card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "monthly": "Mensuel",
+      "monthly_plural": "Tous les {{count}} mois",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-card.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Prochain paiement le {{date, date}}",
+      "subscription_cancelled": "Fini le {{date, date}}",
+      "subscription_failed": "Échec du paiement le {{date, date}}",
+      "subscription_inactive": "Inactif",
+      "subscription_will_be_cancelled": "Se termine le {{date, date}}",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "twice_a_month": "Deux fois par mois",
+      "weekly": "Hebdomadaire",
+      "weekly_plural": "Toutes les {{count}} semaines",
+      "yearly": "Annuel",
+      "yearly_plural": "Tous les {{count}} ans",
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_empty": "Aucun abonnement",
+        "loading_end": "Plus aucune donnée",
+        "loading_error": "Échec du chargement"
+      }
+    },
+    "subscription-form": {
+      "daily": "Quotidiennement",
+      "daily_plural": "Tous les {{count}} jours",
+      "end_subscription": "Terminer l'abonnement",
+      "frequency": "$t(customer.subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "frequency_label": "Fréquence",
+      "item_plural": "Articles",
+      "monthly": "Mensuel",
+      "monthly_plural": "Tous les {{count}} mois",
+      "next_transaction_date": "Date de la prochaine transaction",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Prochain paiement le {{date, date}}",
+      "subscription_cancelled": "Fini le {{date, date}}",
+      "subscription_failed": "Échec du paiement le {{date, date}}",
+      "subscription_inactive": "Inactif",
+      "subscription_will_be_cancelled": "Se termine le {{date, date}}",
+      "transaction_plural": "Transactions",
+      "twice_a_month": "Deux fois par mois",
+      "update_billing": "Mettre à jour la facturation",
+      "update_items": "Modifier",
+      "weekly": "Hebdomadaire",
+      "weekly_plural": "Toutes les {{count}} semaines",
+      "yearly": "Annuel",
+      "yearly_plural": "Tous les {{count}} ans",
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_error": "Échec du chargement"
+      },
+      "transactions-table": {
+        "date": "{{value, date}}",
+        "price": "{{amount, price}}",
+        "receipt": "Reçu",
+        "spinner": {
+          "loading_busy": "Chargement",
+          "loading_empty": "Aucune transaction",
+          "loading_error": "Échec du chargement"
+        }
+      }
+    },
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "Reçu",
+      "transaction_approved": "Approuvé",
+      "transaction_authorized": "Autorisé",
+      "transaction_captured": "Capturé",
+      "transaction_completed": "Complété",
+      "transaction_declined": "Refusé",
+      "transaction_pending": "En attente",
+      "transaction_refunded": "Remboursé",
+      "transaction_rejected": "Rejeté",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} et {{count}} plus",
+      "transaction_verified": "Vérifié",
+      "transaction_voided": "Annulé",
+      "spinner": {
+        "loading_busy": "Chargement",
+        "loading_empty": "Aucune transaction",
+        "loading_end": "Plus aucune donnée",
+        "loading_error": "Échec du chargement"
+      }
+    }
+  },
+  "sign-in-form": {
+    "email": "E-mail",
+    "invalid_credential_error": "L'adresse électronique ou le mot de passe est incorrect. Veuillez vérifier vos identifiants et réessayer.",
+    "password": "Mot de passe",
+    "recover_access": "Obtenez un code unique",
+    "sign_in": "Se connecter",
+    "sign_in_hint": "Veuillez entrer votre e-mail et votre mot de passe",
+    "unknown_error": "Une erreur inconnue s'est produite. Veuillez réessayer plus tard.",
+    "v8n_invalid_email": "E-mail non valide",
+    "v8n_required": "Requis",
+    "spinner": {
+      "loading_busy": "Chargement",
+      "loading_error": "Échec du chargement"
+    }
+  }
+}
