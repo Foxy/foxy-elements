@@ -97,6 +97,10 @@
       "url": "./src/static/schemas/discount-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/email-template-card/*.json"],
+      "url": "./src/static/schemas/email-template-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/email-template-form/*.json"],
       "url": "./src/static/schemas/email-template-form.json"
     },

@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "properties": {
+    "type_custom_text_url": { "type": "string", "default": "Custom • Remote Text" },
+    "type_custom_html_url": { "type": "string", "default": "Custom • Remote HTML" },
+    "type_custom_text": { "type": "string", "default": "Custom • Text" },
+    "type_custom_html": { "type": "string", "default": "Custom • HTML" },
+    "type_mixed": { "type": "string", "default": "Custom • Mixed" },
+    "type_default": { "type": "string", "default": "Default" },
+    "spinner": {
+      "properties": {
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        },
+        "loading_empty": {
+          "$ref": "spinner.json#/properties/loading_empty"
+        },
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "type_custom_url",
+    "type_custom_text",
+    "type_custom_html",
+    "type_mixed",
+    "type_default",
+    "spinner"
+  ],
+  "additionalProperties": false
+}
