@@ -1,4 +1,6 @@
-import '../../internal/InternalCard/index';
+import '../../internal/InternalSandbox/index';
+
+import '../Spinner/index';
 
 import { TemplateSetCard } from './TemplateSetCard';
 

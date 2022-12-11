@@ -2,21 +2,29 @@ import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { html } from 'lit-html';
 
 const NS = 'template-set-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = TranslatableMixin(TwoLineCard, NS);
 
+/**
+ * Card element representing a template set (`fx:template_set`).
+ *
+ * @slot title:before
+ * @slot title:after
+ *
+ * @slot subtitle:before
+ * @slot subtitle:after
+ *
+ * @element foxy-template-set-card
+ * @since 1.21.0
+ */
 export class TemplateSetCard extends Base<Data> {
-  renderBody(): TemplateResult {
-    const { description = '', code = '' } = this.data ?? {};
-
-    return html`
-      <div class="flex justify-between gap-s">
-        <span class="font-semibold truncate flex-shrink-0">${description}&ZeroWidthSpace;</span>
-        <span class="truncate text-tertiary">${code}&ZeroWidthSpace;</span>
-      </div>
-    `;
+  render(): TemplateResult {
+    return super.render({
+      title: data => html`${data.description}`,
+      subtitle: data => html`${data.code}`,
+    });
   }
 }
