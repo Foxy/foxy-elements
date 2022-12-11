@@ -20,28 +20,36 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalCard, NS));
  * @since 1.21.0
  */
 export class AppliedCouponCodeCard extends Base<Data> {
+  private __couponLoaderId = 'couponLoader';
+
   renderBody(): TemplateResult {
     return html`
       <foxy-nucleon
         infer=""
         class="hidden"
         href=${ifDefined(this.data?._links['fx:coupon'].href)}
-        id="couponLoader"
+        id=${this.__couponLoaderId}
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
 
       <div class="leading-s text-m font-lumo sm-flex sm-justify-between">
         <div class="font-semibold min-w-0 truncate">${this.data?.code}&ZeroWidthSpace;</div>
-        <div class="text-tertiary min-w-0 truncate">
-          ${this.__couponLoader?.data?.name}&ZeroWidthSpace;
-        </div>
+        <div class="text-tertiary min-w-0 truncate">${this.__coupon?.name}&ZeroWidthSpace;</div>
       </div>
     `;
   }
 
+  get isBodyReady(): boolean {
+    return super.isBodyReady && !!this.__coupon;
+  }
+
   private get __couponLoader() {
     type Loader = NucleonElement<Resource<Rels.Coupon>>;
-    return this.renderRoot.querySelector<Loader>('#couponLoader');
+    return this.renderRoot.querySelector<Loader>(`#${this.__couponLoaderId}`);
+  }
+
+  private get __coupon() {
+    return this.__couponLoader?.data;
   }
 }
