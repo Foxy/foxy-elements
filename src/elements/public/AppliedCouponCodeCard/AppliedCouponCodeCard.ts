@@ -13,6 +13,12 @@ import { html } from 'lit-html';
 const NS = 'applied-coupon-code-card';
 const Base = ResponsiveMixin(TranslatableMixin(InternalCard, NS));
 
+/**
+ * Card element displaying an applied coupon code.
+ *
+ * @element foxy-applied-coupon-code-card
+ * @since 1.21.0
+ */
 export class AppliedCouponCodeCard extends Base<Data> {
   renderBody(): TemplateResult {
     return html`
