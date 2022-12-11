@@ -125,9 +125,9 @@ export class CartCard extends Base<Data> {
     `;
   }
 
-  protected get _isBodyReady(): boolean {
+  get isBodyReady(): boolean {
     const isLoaded = !!this.__line1Options && !!this.__statusOptions && !!this.__line2Key;
-    return super._isBodyReady && isLoaded;
+    return super.isBodyReady && isLoaded;
   }
 
   private get __defaultTemplateSetHref() {

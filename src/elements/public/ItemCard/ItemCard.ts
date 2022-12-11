@@ -232,9 +232,9 @@ export class ItemCard extends Base<Data> {
     `;
   }
 
-  protected get _isBodyReady(): boolean {
+  get isBodyReady(): boolean {
     const isLoaded = !!this.__currencyDisplay && !!this.__currencyCode;
-    return super._isBodyReady && isLoaded;
+    return super.isBodyReady && isLoaded;
   }
 
   private get __transactionTemplateHref() {

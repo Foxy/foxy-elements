@@ -37,7 +37,7 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
         <div
           class=${classMap({
             'transition duration-500 ease-in-out': true,
-            'opacity-0 pointer-events-none': !this._isBodyReady,
+            'opacity-0 pointer-events-none': !this.isBodyReady,
           })}
         >
           ${this.renderBody()}
@@ -46,7 +46,7 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
         <div
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': this._isBodyReady,
+            'opacity-0 pointer-events-none': this.isBodyReady,
           })}
         >
           <foxy-spinner
@@ -61,7 +61,7 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
     `;
   }
 
-  protected get _isBodyReady(): boolean {
+  get isBodyReady(): boolean {
     return !!this.data;
   }
 }

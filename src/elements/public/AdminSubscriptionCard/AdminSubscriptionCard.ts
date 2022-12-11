@@ -128,9 +128,9 @@ export class AdminSubscriptionCard extends Base<Data> {
     `;
   }
 
-  protected get _isBodyReady(): boolean {
+  get isBodyReady(): boolean {
     const isLoaded = !!this.__items && !!this.__currencyCode && !!this.__currencyDisplay;
-    return super._isBodyReady && isLoaded;
+    return super.isBodyReady && isLoaded;
   }
 
   private get __transactionTemplateHref() {
