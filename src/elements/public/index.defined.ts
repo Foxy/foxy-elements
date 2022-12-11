@@ -81,7 +81,6 @@ export { SwipeActions } from './SwipeActions/index';
 export { Table } from './Table/index';
 export { TaxCard } from './TaxCard/index';
 export { TaxForm } from './TaxForm/index';
-export { TemplateCard } from './TemplateCard/index';
 export { TemplateConfigForm } from './TemplateConfigForm/index';
 export { TemplateForm } from './TemplateForm/index';
 export { TemplateSetCard } from './TemplateSetCard/index';
