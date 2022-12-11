@@ -133,6 +133,10 @@
       "url": "./src/static/schemas/item-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/item-category-card/*.json"],
+      "url": "./src/static/schemas/item-category-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/item-form/*.json"],
       "url": "./src/static/schemas/item-form.json"
     },
