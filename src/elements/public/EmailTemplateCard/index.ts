@@ -1,8 +1,6 @@
-import '@polymer/iron-icons/editor-icons';
-import '@polymer/iron-icon';
+import '../../internal/InternalSandbox/index';
 
-import '../../internal/InternalCard/index';
-
+import '../Spinner/index';
 import '../I18n/index';
 
 import { EmailTemplateCard } from './EmailTemplateCard';

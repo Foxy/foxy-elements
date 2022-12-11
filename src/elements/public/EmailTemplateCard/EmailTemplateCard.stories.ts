@@ -10,6 +10,7 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-email-template-card',
   translatable: true,
+  configurable: { sections: ['title', 'subtitle'] },
 };
 
 export default getMeta(summary);
