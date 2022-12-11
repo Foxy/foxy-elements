@@ -31,9 +31,11 @@ export const ResponsiveMixin = <TBase extends Constructor<LitElement>>(
     connectedCallback(): void {
       super.connectedCallback();
 
-      const observer = new ResizeObserver(this.__handleResize);
-      observer.observe(this);
-      this.__removeBreakpoints = () => observer.disconnect();
+      if (window.ResizeObserver) {
+        const observer = new ResizeObserver(this.__handleResize);
+        observer.observe(this);
+        this.__removeBreakpoints = () => observer.disconnect();
+      }
     }
 
     disconnectedCallback(): void {
