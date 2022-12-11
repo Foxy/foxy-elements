@@ -1,21 +1,30 @@
 import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
-import { ResponsiveMixin } from '../../../mixins/responsive';
-import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { html } from 'lit-html';
 
-export class ItemCategoryCard extends ResponsiveMixin(InternalCard)<Data> {
-  renderBody(): TemplateResult {
-    const data = this.data;
+const NS = 'item-category-card';
+const Base = TranslatableMixin(TwoLineCard, NS);
 
-    return html`
-      <div class="leading-s sm-flex sm-justify-between sm-gap-s">
-        <div class="font-semibold truncate flex-shrink-0">${data?.name}&ZeroWidthSpace;</div>
-        ${data?.name !== data?.code
-          ? html`<div class="truncate text-tertiary text-s sm-text-m">${data?.code}</div>`
-          : ''}
-      </div>
-    `;
+/**
+ * Card element representing an item category (`fx:item_category`).
+ *
+ * @slot title:before
+ * @slot title:after
+ *
+ * @slot subtitle:before
+ * @slot subtitle:after
+ *
+ * @element foxy-item-category-card
+ * @since 1.21.0
+ */
+export class ItemCategoryCard extends Base<Data> {
+  render(): TemplateResult {
+    return super.render({
+      title: data => html`${data.name}`,
+      subtitle: data => html`${data.code}`,
+    });
   }
 }
