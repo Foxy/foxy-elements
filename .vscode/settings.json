@@ -205,6 +205,10 @@
       "url": "./src/static/schemas/template-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/template-set-card/*.json"],
+      "url": "./src/static/schemas/template-set-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/transaction/*.json"],
       "url": "./src/static/schemas/transaction.json"
     },
