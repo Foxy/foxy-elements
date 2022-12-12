@@ -129,6 +129,10 @@
       "url": "./src/static/schemas/gift-card-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/integration-card/*.json"],
+      "url": "./src/static/schemas/integration-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/item-card/*.json"],
       "url": "./src/static/schemas/item-card.json"
     },
