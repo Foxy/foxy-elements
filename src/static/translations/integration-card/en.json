@@ -1,7 +1,4 @@
 {
-  "title_description": "Project name",
-  "status_description": "Status",
-  "subtitle_description": "Project description",
   "status_active": "Expires {{ date, date }}",
   "status_expired": "Expired",
   "no_description": "No description",
