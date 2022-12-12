@@ -9,6 +9,12 @@ import { html } from 'lit-html';
 const NS = 'integration-card';
 const Base = TranslatableMixin(InternalCard, NS);
 
+/**
+ * Card element representing an integration (`fx:integration`).
+ *
+ * @element foxy-integration-card
+ * @since 1.21.0
+ */
 export class IntegrationCard extends Base<Data> {
   renderBody(): TemplateResult {
     const data = this.data;
