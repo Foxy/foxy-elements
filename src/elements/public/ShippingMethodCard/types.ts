@@ -3,8 +3,8 @@ import type {
   CollectionGraphProps,
 } from '@foxy.io/sdk/dist/types/core/defaults';
 
-import type { Rels } from '@foxy.io/sdk/backend';
 import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.ShippingMethod>;
 
