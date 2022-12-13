@@ -177,6 +177,10 @@
       "url": "./src/static/schemas/shipment-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/shipping-method-card/*.json"],
+      "url": "./src/static/schemas/shipping-method-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/sign-in-form/*.json"],
       "url": "./src/static/schemas/sign-in-form.json"
     },
