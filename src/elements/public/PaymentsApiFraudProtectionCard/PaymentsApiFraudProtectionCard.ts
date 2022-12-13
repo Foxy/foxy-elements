@@ -3,11 +3,11 @@ import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { html } from 'lit-html';
 
 const NS = 'payments-api-fraud-protection-card';
-const Base = TranslatableMixin(InternalCard, NS);
+const Base = TranslatableMixin(TwoLineCard, NS);
 
 export class PaymentsApiFraudProtectionCard extends Base<Data> {
   static get defaultImageSrc(): string {
@@ -23,12 +23,19 @@ export class PaymentsApiFraudProtectionCard extends Base<Data> {
 
   getImageSrc: ((type: string) => string) | null = null;
 
-  renderBody(): TemplateResult {
-    const data = this.data;
+  render(): TemplateResult {
+    const defaultLayout = super.render({
+      title: data => html`${data.helper.name}`,
+      subtitle: data => html`${data.description}`,
+    });
+
+    if (!this.in({ idle: 'snapshot' })) return defaultLayout;
+
     const defaultSrc = PaymentsApiFraudProtectionCard.defaultImageSrc;
+    const data = this.data;
 
     return html`
-      <figure class="flex items-center gap-m h-m">
+      <figure class="flex items-center gap-m">
         <img
           class="relative h-s w-s object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
           src=${(data ? this.getImageSrc?.(data.type) : null) ?? defaultSrc}
@@ -36,21 +43,7 @@ export class PaymentsApiFraudProtectionCard extends Base<Data> {
           @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
         />
 
-        <figcaption class="min-w-0 flex-1">
-          <dl class="flex justify-between gap-s">
-            <dt class="sr-only">${this.t('title_description')}</dt>
-            <dd class="font-semibold truncate flex-shrink-0">
-              ${data?.helper.name}&ZeroWidthSpace;
-            </dd>
-
-            ${data?.helper.name !== data?.description
-              ? html`
-                  <dt class="sr-only">${this.t('subtitle_description')}</dt>
-                  <dd class="truncate text-tertiary">${data?.description}</dd>
-                `
-              : ''}
-          </dl>
-        </figcaption>
+        <figcaption class="min-w-0 flex-1">${defaultLayout}</figcaption>
       </figure>
     `;
   }
