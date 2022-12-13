@@ -877,6 +877,248 @@
       ]
     },
     {
+      "name": "foxy-admin-subscription-card",
+      "path": "./src/elements/public/AdminSubscriptionCard/index.ts",
+      "attributes": [
+        {
+          "name": "locale-codes"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes"
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
       "name": "foxy-api-browser",
       "path": "./src/elements/public/ApiBrowser/index.ts",
       "description": "Interactive hAPI explorer.",
@@ -1029,6 +1271,386 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-applied-coupon-code-card",
+      "path": "./src/elements/public/AppliedCouponCodeCard/index.ts",
+      "description": "Card element displaying an applied coupon code.",
+      "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-applied-coupon-code-form",
+      "path": "./src/elements/public/AppliedCouponCodeForm/index.ts",
+      "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "UpdateEvent",
@@ -2150,6 +2772,531 @@
         },
         {
           "name": "submit:after"
+        }
+      ]
+    },
+    {
+      "name": "foxy-cart-card",
+      "path": "./src/elements/public/CartCard/index.ts",
+      "description": "Card element displaying cart summary.",
+      "attributes": [
+        {
+          "name": "locale-codes",
+          "type": "string"
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes",
+          "type": "string"
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-cart-form",
+      "path": "./src/elements/public/CartForm/index.ts",
+      "attributes": [
+        {
+          "name": "item-categories"
+        },
+        {
+          "name": "template-sets"
+        },
+        {
+          "name": "locale-codes"
+        },
+        {
+          "name": "customers"
+        },
+        {
+          "name": "countries"
+        },
+        {
+          "name": "regions"
+        },
+        {
+          "name": "coupons"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "itemCategories",
+          "attribute": "item-categories"
+        },
+        {
+          "name": "templateSets",
+          "attribute": "template-sets"
+        },
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes"
+        },
+        {
+          "name": "customers",
+          "attribute": "customers"
+        },
+        {
+          "name": "countries",
+          "attribute": "countries"
+        },
+        {
+          "name": "regions",
+          "attribute": "regions"
+        },
+        {
+          "name": "coupons",
+          "attribute": "coupons"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
@@ -8072,11 +9219,44 @@
     {
       "name": "foxy-email-template-card",
       "path": "./src/elements/public/EmailTemplateCard/index.ts",
+      "description": "Card element displaying an email template (`fx:email_template`).",
       "attributes": [
         {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
         },
         {
           "name": "lang",
@@ -8114,15 +9294,71 @@
       ],
       "properties": [
         {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "UpdateEvent",
@@ -8210,6 +9446,20 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title:before"
+        },
+        {
+          "name": "title:after"
+        },
+        {
+          "name": "subtitle:before"
+        },
+        {
+          "name": "subtitle:after"
         }
       ]
     },
@@ -8704,6 +9954,12 @@
           "default": "false"
         },
         {
+          "name": "wide",
+          "description": "When true, dialog window will a larger maximum width.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
           "name": "open",
           "description": "True if dialog is mounted and has finished entering the screen.",
           "type": "boolean"
@@ -8850,6 +10106,13 @@
           "name": "alert",
           "attribute": "alert",
           "description": "When true, centers a dialog on the screen and does not animate the stack under.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "wide",
+          "attribute": "wide",
+          "description": "When true, dialog window will a larger maximum width.",
           "type": "boolean",
           "default": "false"
         },
@@ -9788,6 +11051,10 @@
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -10656,10 +11923,643 @@
       ]
     },
     {
+      "name": "foxy-i18n-editor",
+      "path": "./src/elements/public/I18nEditor/index.ts",
+      "attributes": [
+        {
+          "name": "language-overrides",
+          "default": "\"https://demo.api/hapi/language_overrides\""
+        },
+        {
+          "name": "selected-language",
+          "default": "\"english\""
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "languageOverrides",
+          "attribute": "language-overrides",
+          "default": "\"https://demo.api/hapi/language_overrides\""
+        },
+        {
+          "name": "selectedLanguage",
+          "attribute": "selected-language",
+          "default": "\"english\""
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-integration-card",
+      "path": "./src/elements/public/IntegrationCard/index.ts",
+      "description": "Card element representing an integration (`fx:integration`).",
+      "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-integration-form",
+      "path": "./src/elements/public/IntegrationForm/index.ts",
+      "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
       "name": "foxy-item-card",
       "path": "./src/elements/public/ItemCard/index.ts",
       "description": "Basic card displaying an item.",
       "attributes": [
+        {
+          "name": "locale-codes",
+          "type": "string"
+        },
         {
           "name": "mode",
           "type": "string",
@@ -10733,6 +12633,11 @@
       ],
       "properties": [
         {
+          "name": "localeCodes",
+          "attribute": "locale-codes",
+          "type": "string"
+        },
+        {
           "name": "templates",
           "default": "{}"
         },
@@ -10797,6 +12702,10 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -10890,7 +12799,45 @@
     {
       "name": "foxy-item-category-card",
       "path": "./src/elements/public/ItemCategoryCard/index.ts",
+      "description": "Card element representing an item category (`fx:item_category`).",
       "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
         {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
@@ -10926,6 +12873,73 @@
         }
       ],
       "properties": [
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
         {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
@@ -11012,6 +13026,20 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title:before"
+        },
+        {
+          "name": "title:after"
+        },
+        {
+          "name": "subtitle:before"
+        },
+        {
+          "name": "subtitle:after"
         }
       ]
     },
@@ -11280,6 +13308,10 @@
           "type": "string"
         },
         {
+          "name": "locale-codes",
+          "description": "Link to the `fx:locale_codes` property helper for currency formatting."
+        },
+        {
           "name": "coupons",
           "description": "Link to the collection of coupons that can be used with this item.",
           "type": "string"
@@ -11367,6 +13399,11 @@
           "attribute": "item-categories",
           "description": "Link to the collection of item categories that can be used with this item.",
           "type": "string"
+        },
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes",
+          "description": "Link to the `fx:locale_codes` property helper for currency formatting."
         },
         {
           "name": "coupons",
@@ -11603,6 +13640,10 @@
       "description": "Basic card displaying an item option.",
       "attributes": [
         {
+          "name": "locale-codes",
+          "type": "string"
+        },
+        {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
@@ -11674,6 +13715,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes",
+          "type": "string"
+        },
         {
           "name": "t",
           "type": "Translator",
@@ -13577,6 +15623,10 @@
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -13967,6 +16017,10 @@
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -14292,11 +16346,44 @@
     {
       "name": "foxy-payments-api-payment-preset-card",
       "path": "./src/elements/public/PaymentsApiPaymentPresetCard/index.ts",
+      "description": "Card element representing a `fx:payment_preset` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
       "attributes": [
         {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
         },
         {
           "name": "lang",
@@ -14334,15 +16421,71 @@
       ],
       "properties": [
         {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "UpdateEvent",
@@ -14430,6 +16573,20 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title:before"
+        },
+        {
+          "name": "title:after"
+        },
+        {
+          "name": "subtitle:before"
+        },
+        {
+          "name": "subtitle:after"
         }
       ]
     },
@@ -15430,6 +17587,172 @@
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ]
+    },
+    {
+      "name": "foxy-shipping-method-card",
+      "path": "./src/elements/public/ShippingMethodCard/index.ts",
+      "description": "Card element representing a shipping method (`fx:shipping_method`).",
+      "attributes": [
+        {
+          "name": "store-shipping-methods",
+          "description": "URL of the `fx:store_shipping_methods` collection for a store.\nIf provided, the card will display Active status on active shipping methods."
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "storeShippingMethods",
+          "attribute": "store-shipping-methods",
+          "description": "URL of the `fx:store_shipping_methods` collection for a store.\nIf provided, the card will display Active status on active shipping methods."
+        },
+        {
+          "name": "getImageSrc",
+          "description": "Shipping method image/logo URL getter.\nIf left `null`, the card will display the default image."
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -15881,6 +18204,300 @@
           "attribute": "infer",
           "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
           "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "foxy-store-form",
+      "path": "./src/elements/public/StoreForm/index.ts",
+      "attributes": [
+        {
+          "name": "customer-password-hash-types"
+        },
+        {
+          "name": "shipping-address-types"
+        },
+        {
+          "name": "store-versions"
+        },
+        {
+          "name": "checkout-types"
+        },
+        {
+          "name": "locale-codes"
+        },
+        {
+          "name": "languages"
+        },
+        {
+          "name": "timezones"
+        },
+        {
+          "name": "countries"
+        },
+        {
+          "name": "regions"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "customerPasswordHashTypes",
+          "attribute": "customer-password-hash-types"
+        },
+        {
+          "name": "shippingAddressTypes",
+          "attribute": "shipping-address-types"
+        },
+        {
+          "name": "storeVersions",
+          "attribute": "store-versions"
+        },
+        {
+          "name": "checkoutTypes",
+          "attribute": "checkout-types"
+        },
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes"
+        },
+        {
+          "name": "languages",
+          "attribute": "languages"
+        },
+        {
+          "name": "timezones",
+          "attribute": "timezones"
+        },
+        {
+          "name": "countries",
+          "attribute": "countries"
+        },
+        {
+          "name": "regions",
+          "attribute": "regions"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
@@ -16363,8 +18980,25 @@
       "description": "Form element for creating or editing subscriptions.",
       "attributes": [
         {
+          "name": "customer-addresses"
+        },
+        {
+          "name": "item-categories"
+        },
+        {
+          "name": "locale-codes"
+        },
+        {
           "name": "settings",
           "type": "object"
+        },
+        {
+          "name": "coupons"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
         },
         {
           "name": "mode",
@@ -16397,11 +19031,6 @@
         {
           "name": "hiddencontrols",
           "default": "\"False\""
-        },
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
         },
         {
           "name": "lang",
@@ -16439,9 +19068,40 @@
       ],
       "properties": [
         {
+          "name": "getTransactionPageHref",
+          "default": "\"(_, data: any) => {\\n    return data?._links['fx:receipt'].href;\\n  }\""
+        },
+        {
+          "name": "customerAddresses",
+          "attribute": "customer-addresses"
+        },
+        {
+          "name": "itemCategories",
+          "attribute": "item-categories"
+        },
+        {
+          "name": "localeCodes",
+          "attribute": "locale-codes"
+        },
+        {
           "name": "settings",
           "attribute": "settings",
           "type": "object"
+        },
+        {
+          "name": "coupons",
+          "attribute": "coupons"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -16498,17 +19158,6 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "UpdateEvent",
@@ -16654,6 +19303,269 @@
         {
           "name": "transactions:after",
           "description": "**new in v1.4.0**"
+        },
+        {
+          "name": "attributes:before",
+          "description": "**new in v1.20.0**"
+        },
+        {
+          "name": "attributes:after",
+          "description": "**new in v1.20.0**"
+        },
+        {
+          "name": "timestamps:before",
+          "description": "**new in v1.20.0**"
+        },
+        {
+          "name": "timestamps:after",
+          "description": "**new in v1.20.0**"
+        },
+        {
+          "name": "past-due-amount:before",
+          "description": "**new in v1.20.0**"
+        },
+        {
+          "name": "past-due-amount:after",
+          "description": "**new in v1.20.0**"
+        },
+        {
+          "name": "start-date:before",
+          "description": "**new in v1.20.0**"
+        },
+        {
+          "name": "start-date:after",
+          "description": "**new in v1.20.0**"
+        }
+      ]
+    },
+    {
+      "name": "foxy-subscription-settings-form",
+      "path": "./src/elements/public/SubscriptionSettingsForm/index.ts",
+      "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
@@ -17302,6 +20214,10 @@
           "type": "BooleanSelector"
         },
         {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -17736,150 +20652,6 @@
         },
         {
           "name": "create:after"
-        }
-      ]
-    },
-    {
-      "name": "foxy-template-card",
-      "path": "./src/elements/public/TemplateCard/index.ts",
-      "attributes": [
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "lang",
-          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "parent",
-          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "related",
-          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
-          "type": "array",
-          "default": "[]"
-        },
-        {
-          "name": "group",
-          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
-          "type": "string"
-        },
-        {
-          "name": "href",
-          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
-          "type": "string"
-        },
-        {
-          "name": "infer",
-          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
-          "type": "string"
-        }
-      ],
-      "properties": [
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
-          "name": "UpdateEvent",
-          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
-          "type": "typeof UpdateEvent",
-          "default": "\"UpdateEvent\""
-        },
-        {
-          "name": "Rumour",
-          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
-          "type": "((group: string) => Rumour) & MemoizedFunction",
-          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
-        },
-        {
-          "name": "API",
-          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
-          "type": "typeof API",
-          "default": "\"API\""
-        },
-        {
-          "name": "lang",
-          "attribute": "lang",
-          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "parent",
-          "attribute": "parent",
-          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "related",
-          "attribute": "related",
-          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
-          "type": "array",
-          "default": "[]"
-        },
-        {
-          "name": "failure",
-          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
-          "type": "Response | null"
-        },
-        {
-          "name": "errors",
-          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
-          "type": "string[]"
-        },
-        {
-          "name": "form",
-          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
-          "type": "Partial<TData>"
-        },
-        {
-          "name": "data",
-          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
-          "type": "TData | null"
-        },
-        {
-          "name": "group",
-          "attribute": "group",
-          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
-          "type": "string"
-        },
-        {
-          "name": "href",
-          "attribute": "href",
-          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
-          "type": "string"
-        },
-        {
-          "name": "infer",
-          "attribute": "infer",
-          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
-          "type": "string"
-        }
-      ],
-      "events": [
-        {
-          "name": "update",
-          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
-        },
-        {
-          "name": "fetch",
-          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
@@ -18500,43 +21272,268 @@
       ]
     },
     {
+      "name": "foxy-template-set-card",
+      "path": "./src/elements/public/TemplateSetCard/index.ts",
+      "description": "Card element representing a template set (`fx:template_set`).",
+      "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title:before"
+        },
+        {
+          "name": "title:after"
+        },
+        {
+          "name": "subtitle:before"
+        },
+        {
+          "name": "subtitle:after"
+        }
+      ]
+    },
+    {
       "name": "foxy-template-set-form",
       "path": "./src/elements/public/TemplateSetForm/index.ts",
       "attributes": [
         {
-          "name": "cart-include-templates"
-        },
-        {
           "name": "payment-method-sets"
         },
         {
-          "name": "checkout-templates"
-        },
-        {
-          "name": "receipt-templates"
-        },
-        {
-          "name": "template-configs"
-        },
-        {
-          "name": "email-templates"
-        },
-        {
-          "name": "cart-templates"
+          "name": "language-strings",
+          "default": "\"https://demo.api/hapi/property_helpers/10\""
         },
         {
           "name": "locale-codes"
         },
         {
           "name": "languages"
-        },
-        {
-          "name": "countries",
-          "description": "URI of the `fx:countries` hAPI resource."
-        },
-        {
-          "name": "regions",
-          "description": "URI of the `fx:regions` hAPI resource."
         },
         {
           "name": "ns",
@@ -18611,38 +21608,13 @@
       ],
       "properties": [
         {
-          "name": "getFraudProtectionImageSrc"
-        },
-        {
-          "name": "getPaymentMethodImageSrc"
-        },
-        {
-          "name": "cartIncludeTemplates",
-          "attribute": "cart-include-templates"
-        },
-        {
           "name": "paymentMethodSets",
           "attribute": "payment-method-sets"
         },
         {
-          "name": "checkoutTemplates",
-          "attribute": "checkout-templates"
-        },
-        {
-          "name": "receiptTemplates",
-          "attribute": "receipt-templates"
-        },
-        {
-          "name": "templateConfigs",
-          "attribute": "template-configs"
-        },
-        {
-          "name": "emailTemplates",
-          "attribute": "email-templates"
-        },
-        {
-          "name": "cartTemplates",
-          "attribute": "cart-templates"
+          "name": "languageStrings",
+          "attribute": "language-strings",
+          "default": "\"https://demo.api/hapi/property_helpers/10\""
         },
         {
           "name": "localeCodes",
@@ -18651,16 +21623,6 @@
         {
           "name": "languages",
           "attribute": "languages"
-        },
-        {
-          "name": "countries",
-          "attribute": "countries",
-          "description": "URI of the `fx:countries` hAPI resource."
-        },
-        {
-          "name": "regions",
-          "attribute": "regions",
-          "description": "URI of the `fx:regions` hAPI resource."
         },
         {
           "name": "templateConfigForm",
@@ -20135,6 +23097,10 @@
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -20568,6 +23534,10 @@
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
           "name": "UpdateEvent",
           "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
           "type": "typeof UpdateEvent",
@@ -20711,6 +23681,10 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
