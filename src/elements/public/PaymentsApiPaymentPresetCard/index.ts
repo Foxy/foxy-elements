@@ -1,6 +1,6 @@
-import '../../internal/InternalCard/index';
+import '../../internal/InternalSandbox/index';
 
-import '../NucleonElement/index';
+import '../I18n/index';
 
 import { PaymentsApiPaymentPresetCard } from './PaymentsApiPaymentPresetCard';
 

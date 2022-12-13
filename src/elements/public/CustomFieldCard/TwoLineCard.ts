@@ -58,7 +58,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
       <div data-testid="subtitle">
         ${this.renderTemplateOrSlot('subtitle:before')}
 
-        <div class="text-tertiary truncate">
+        <div class="text-tertiary truncate text-s sm-text-m">
           ${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;
         </div>
 

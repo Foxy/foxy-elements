@@ -14,6 +14,7 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-payments-api-payment-preset-card',
   translatable: true,
+  configurable: { sections: ['title', 'subtitle'] },
 };
 
 export default {
