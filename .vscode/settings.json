@@ -165,6 +165,10 @@
       "url": "./src/static/schemas/payments-api-fraud-protection-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/payments-api-payment-method-card/*.json"],
+      "url": "./src/static/schemas/payments-api-payment-method-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/payments-api-payment-preset-card/*.json"],
       "url": "./src/static/schemas/payments-api-payment-preset-card.json"
     },
