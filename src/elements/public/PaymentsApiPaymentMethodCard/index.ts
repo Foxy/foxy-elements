@@ -1,5 +1,6 @@
-import '../../internal/InternalCard/index';
+import '../../internal/InternalSandbox/index';
 
+import '../Spinner/index';
 import '../I18n/index';
 
 import { PaymentsApiPaymentMethodCard } from './PaymentsApiPaymentMethodCard';
