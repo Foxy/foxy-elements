@@ -13,6 +13,12 @@ import { html } from 'lit-html';
 const NS = 'gift-card-code-log-card';
 const Base = TranslatableMixin(InternalCard, NS);
 
+/**
+ * Card element representing a gift card code log (`fx:gift_card_code_log`).
+ *
+ * @element foxy-gift-card-code-log-card
+ * @since 1.21.1
+ */
 export class GiftCardCodeLogCard extends Base<Data> {
   private readonly __giftCardLoaderId = 'giftCardLoader';
 
