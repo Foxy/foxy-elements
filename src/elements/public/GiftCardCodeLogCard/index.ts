@@ -1,5 +1,6 @@
 import '../../internal/InternalCard/index';
 
+import '../NucleonElement/index';
 import '../I18n/index';
 
 import { GiftCardCodeLogCard } from './GiftCardCodeLogCard';
