@@ -33,9 +33,12 @@
       "pagination": "{{from}}-{{to}} out of {{total}}",
       "previous": "Previous",
       "card": {
-        "status_updated_via_api": "Updated via API",
-        "status_used": "Used on checkout",
-        "title": "{{date, date}}",
+        "title_updated_via_api": "Updated via API",
+        "title_used": "Used on checkout",
+        "subtitle_transaction": "Transaction #{{ transaction_id }}",
+        "subtitle_no_transaction": "No transaction",
+        "date": "{{ date_created, date }}",
+        "adjustment": "{{ amount, price }}",
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No data",

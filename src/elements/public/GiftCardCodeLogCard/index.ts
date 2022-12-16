@@ -1,6 +1,3 @@
-import '@polymer/iron-icons';
-import '@polymer/iron-icon';
-
 import '../../internal/InternalCard/index';
 
 import '../I18n/index';
