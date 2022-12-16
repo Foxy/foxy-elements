@@ -9,7 +9,7 @@ import { html } from 'lit-html';
 /**
  * Internal control wrapper for `vaadin-select` element.
  *
- * @since 1.19.0
+ * @since 1.21.0
  * @element foxy-internal-select-control
  */
 export class InternalSelectControl extends InternalEditableControl {

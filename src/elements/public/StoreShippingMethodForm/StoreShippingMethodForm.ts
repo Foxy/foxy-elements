@@ -26,7 +26,7 @@ const isURL = (value: string) => {
  * Form element for creating and editing store shipping methods (`fx:store_shipping_method`).
  *
  * @element foxy-store-shipping-method-form
- * @since 1.18.0
+ * @since 1.21.0
  */
 export class StoreShippingMethodForm extends Base<Data> {
   static get properties(): typeof Base['properties'] {

@@ -18,7 +18,7 @@ const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
  * Card element displaying cart summary.
  *
  * @element foxy-cart-card
- * @since 1.19.0
+ * @since 1.21.0
  */
 export class CartCard extends Base<Data> {
   static get properties(): PropertyDeclarations {
