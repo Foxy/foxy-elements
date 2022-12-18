@@ -10,7 +10,6 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-cart-card',
   translatable: true,
-  configurable: {},
 };
 
 export default getMeta(summary);
