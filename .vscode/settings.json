@@ -41,6 +41,10 @@
       "url": "./src/static/schemas/cancellation-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/cart-card/*.json"],
+      "url": "./src/static/schemas/cart-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/copy-to-clipboard/*.json"],
       "url": "./src/static/schemas/copy-to-clipboard.json"
     },
