@@ -15,7 +15,7 @@ const NS = 'cart-card';
 const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
 /**
- * Card element displaying cart summary.
+ * Card element representing cart resource (`fx:cart`).
  *
  * @element foxy-cart-card
  * @since 1.21.0
@@ -28,6 +28,11 @@ export class CartCard extends Base<Data> {
     };
   }
 
+  /**
+   * URL of the `fx:locale_codes` property helper.
+   * This will be used to determine the currency code for carts created with hAPI
+   * since it isn't included in them.
+   */
   localeCodes: string | null = null;
 
   private readonly __defaultTemplateSetLoaderId = 'defaultTemplateSetLoader';
