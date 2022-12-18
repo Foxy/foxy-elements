@@ -271,17 +271,16 @@ export class CartCard extends Base<Data> {
   }
 
   private get __line2Options() {
-    const items = this.__items;
-
-    if (items === undefined) return;
-    if (items.count === 0) return;
-
-    return { firstItem: items.array[0], count: items.count };
+    return this.__items?.array[0];
   }
 
   private get __line2Key() {
     const items = this.__items;
-    if (items) return items.count === 0 ? 'line_2_no_items' : 'line_2';
+    if (items === undefined) return;
+
+    if (items.count === 0) return 'line_2_empty';
+    if (items.count === 1) return 'line_2_one';
+    if (items.count > 1) return 'line_2_many';
   }
 
   private get __statusOptions() {
