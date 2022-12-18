@@ -9,6 +9,7 @@ export function createCollectionGetHandler(router: Router, dataset: Dataset) {
     const filters = new URLSearchParams(url.searchParams);
 
     filters.delete('zoom');
+    filters.delete('order');
     filters.delete('limit');
     filters.delete('offset');
 
@@ -20,8 +21,14 @@ export function createCollectionGetHandler(router: Router, dataset: Dataset) {
 
     const itemsToReturn = await Promise.all(
       matchingDocuments.slice(offset, limit + offset).map(async doc => {
-        const selfLink = `${url.origin}${url.pathname}/${doc.id}${url.search}${url.hash}`;
-        const result = router.handleRequest(new Request(selfLink)) as HandleResult;
+        const selfURL = new URL(`${url.origin}${url.pathname}/${doc.id}${url.search}${url.hash}`);
+
+        selfURL.searchParams.delete('zoom');
+        selfURL.searchParams.delete('order');
+        selfURL.searchParams.delete('limit');
+        selfURL.searchParams.delete('offset');
+
+        const result = router.handleRequest(new Request(selfURL.toString())) as HandleResult;
         const json = await (await result.handlerPromise).json();
 
         return json;
