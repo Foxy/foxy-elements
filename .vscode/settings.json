@@ -17,6 +17,10 @@
       "url": "./src/static/schemas/address-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/admin-subscription-card/*.json"],
+      "url": "./src/static/schemas/admin-subscription-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/api-browser/*.json"],
       "url": "./src/static/schemas/api-browser.json"
     },
