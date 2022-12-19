@@ -5,12 +5,11 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items',
+  href: 'https://demo.api/hapi/subscriptions/0',
   parent: 'https://demo.api/hapi/subscriptions',
   nucleon: true,
   localName: 'foxy-admin-subscription-card',
   translatable: true,
-  configurable: {},
 };
 
 export default getMeta(summary);
