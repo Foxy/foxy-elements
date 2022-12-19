@@ -879,9 +879,11 @@
     {
       "name": "foxy-admin-subscription-card",
       "path": "./src/elements/public/AdminSubscriptionCard/index.ts",
+      "description": "Card element representing a subscription (`fx:subscription`).\nAdmin-only.",
       "attributes": [
         {
-          "name": "locale-codes"
+          "name": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper.\nThis will be used to determine the currency code for subscriptions that link to a\ntransaction template without the code."
         },
         {
           "name": "mode",
@@ -957,7 +959,8 @@
       "properties": [
         {
           "name": "localeCodes",
-          "attribute": "locale-codes"
+          "attribute": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper.\nThis will be used to determine the currency code for subscriptions that link to a\ntransaction template without the code."
         },
         {
           "name": "templates",
@@ -2778,10 +2781,11 @@
     {
       "name": "foxy-cart-card",
       "path": "./src/elements/public/CartCard/index.ts",
-      "description": "Card element displaying cart summary.",
+      "description": "Card element representing cart resource (`fx:cart`).",
       "attributes": [
         {
           "name": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper.\nThis will be used to determine the currency code for carts created with hAPI\nsince it isn't included in them.",
           "type": "string"
         },
         {
@@ -2859,6 +2863,7 @@
         {
           "name": "localeCodes",
           "attribute": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper.\nThis will be used to determine the currency code for carts created with hAPI\nsince it isn't included in them.",
           "type": "string"
         },
         {
@@ -10998,6 +11003,7 @@
     {
       "name": "foxy-gift-card-code-log-card",
       "path": "./src/elements/public/GiftCardCodeLogCard/index.ts",
+      "description": "Card element representing a gift card code log (`fx:gift_card_code_log`).",
       "attributes": [
         {
           "name": "ns",
@@ -11133,9 +11139,6 @@
         }
       ],
       "events": [
-        {
-          "name": "navigation"
-        },
         {
           "name": "update",
           "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
@@ -15567,11 +15570,44 @@
     {
       "name": "foxy-payments-api-fraud-protection-card",
       "path": "./src/elements/public/PaymentsApiFraudProtectionCard/index.ts",
+      "description": "Card element representing a `fx:fraud_protection` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
       "attributes": [
         {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
         },
         {
           "name": "lang",
@@ -15609,7 +15645,13 @@
       ],
       "properties": [
         {
-          "name": "getImageSrc"
+          "name": "getImageSrc",
+          "description": "Fraud protection image/logo URL getter.\nIf left `null`, the card will display the default image."
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "ns",
@@ -15618,13 +15660,60 @@
           "default": "\"defaultNS\""
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
         },
         {
-          "name": "isBodyReady",
-          "type": "boolean"
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "UpdateEvent",
@@ -15712,6 +15801,20 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title:before"
+        },
+        {
+          "name": "title:after"
+        },
+        {
+          "name": "subtitle:before"
+        },
+        {
+          "name": "subtitle:after"
         }
       ]
     },
@@ -15952,15 +16055,44 @@
     {
       "name": "foxy-payments-api-payment-method-card",
       "path": "./src/elements/public/PaymentsApiPaymentMethodCard/index.ts",
+      "description": "Card element representing a `fx:payment_method` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
       "attributes": [
-        {
-          "name": "payment-gateways-helper",
-          "type": "string"
-        },
         {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
         },
         {
           "name": "lang",
@@ -15998,12 +16130,13 @@
       ],
       "properties": [
         {
-          "name": "paymentGatewaysHelper",
-          "attribute": "payment-gateways-helper",
-          "type": "string"
+          "name": "getImageSrc",
+          "description": "Payment method image/logo URL getter.\nIf left `null`, the card will display the default image."
         },
         {
-          "name": "getImageSrc"
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "ns",
@@ -16012,13 +16145,60 @@
           "default": "\"defaultNS\""
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
         },
         {
-          "name": "isBodyReady",
-          "type": "boolean"
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "UpdateEvent",
@@ -16106,6 +16286,20 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title:before"
+        },
+        {
+          "name": "title:after"
+        },
+        {
+          "name": "subtitle:before"
+        },
+        {
+          "name": "subtitle:after"
         }
       ]
     },
