@@ -15,6 +15,13 @@ import { html } from 'lit-html';
 const NS = 'admin-subscription-card';
 const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
 
+/**
+ * Card element representing a subscription (`fx:subscription`).
+ * Admin-only.
+ *
+ * @element foxy-admin-subscription-card
+ * @since 1.21.0
+ */
 export class AdminSubscriptionCard extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -23,6 +30,11 @@ export class AdminSubscriptionCard extends Base<Data> {
     };
   }
 
+  /**
+   * URL of the `fx:locale_codes` property helper.
+   * This will be used to determine the currency code for subscriptions that link to a
+   * transaction template without the code.
+   */
   localeCodes: string | null = null;
 
   private readonly __transactionTemplateLoaderId = 'transactionTemplateLoader';
