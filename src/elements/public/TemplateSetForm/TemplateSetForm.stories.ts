@@ -10,7 +10,18 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-template-set-form',
   translatable: true,
-  configurable: {},
+  configurable: {
+    sections: ['timestamps'],
+    buttons: ['create', 'delete'],
+    inputs: [
+      'description',
+      'code',
+      'language',
+      'locale-code',
+      'payment-method-set-uri',
+      'i18n-editor',
+    ],
+  },
 };
 
 export default getMeta(summary);

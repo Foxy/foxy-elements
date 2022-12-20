@@ -16,6 +16,39 @@ import { html } from 'lit-element';
 const NS = 'template-set-form';
 const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
+/**
+ * Form element for creating and editing template sets (`fx:template_set`).
+ *
+ * @slot description:before
+ * @slot description:after
+ *
+ * @slot code:before
+ * @slot code:after
+ *
+ * @slot language:before
+ * @slot language:after
+ *
+ * @slot locale-code:before
+ * @slot locale-code:after
+ *
+ * @slot payment-method-set-uri:before
+ * @slot payment-method-set-uri:after
+ *
+ * @slot i18n-editor:before
+ * @slot i18n-editor:after
+ *
+ * @slot timestamps:before
+ * @slot timestamps:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
+ * @element foxy-template-set-form
+ * @since 1.21.0
+ */
 export class TemplateSetForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -38,14 +71,19 @@ export class TemplateSetForm extends Base<Data> {
     ];
   }
 
+  /** URL of the store's `fx:payment_method_sets` collection (used to fill the relevant dropdown with options). */
   paymentMethodSets: string | null = null;
 
-  languageStrings: string | null = 'https://demo.api/hapi/property_helpers/10';
+  /** URL of the `fx:language_strings` property helper (passed through to foxy-i18n-editor). */
+  languageStrings: string | null = null;
 
+  /** URL of the `fx:locale_codes` property helper (used to fill the relevant dropdown with options). */
   localeCodes: string | null = null;
 
+  /** URL of the `fx:languages` property helper (used to fill the relevant dropdown with options). */
   languages: string | null = null;
 
+  /** Template render functions mapped to their name. */
   templates: Templates = {};
 
   private readonly __paymentMethodSetLoaderId = 'paymentMethodSetLoader';
