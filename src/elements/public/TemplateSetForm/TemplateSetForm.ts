@@ -1,21 +1,20 @@
-import type { CSSResultArray, PropertyDeclarations } from 'lit-element';
-import type { PaymentsApiPaymentPresetForm } from '../PaymentsApiPaymentPresetForm/PaymentsApiPaymentPresetForm';
-import type { TemplateConfigForm } from '../TemplateConfigForm/TemplateConfigForm';
+import type { PropertyDeclarations } from 'lit-element';
+import type { Data, Templates } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
-import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
+import { ResponsiveMixin } from '../../../mixins/responsive';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { html, css } from 'lit-element';
+import { html } from 'lit-element';
 
 const NS = 'template-set-form';
-const Base = TranslatableMixin(InternalForm, NS);
+const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
 
 export class TemplateSetForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
@@ -26,22 +25,6 @@ export class TemplateSetForm extends Base<Data> {
       localeCodes: { attribute: 'locale-codes' },
       languages: {},
     };
-  }
-
-  static get styles(): CSSResultArray {
-    return [
-      super.styles,
-      css`
-        vaadin-button::part(label) {
-          flex: 1;
-          padding: 0;
-        }
-
-        .grid-cols-16rem {
-          grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-        }
-      `,
-    ];
   }
 
   static get v8n(): NucleonV8N<Data> {
@@ -63,64 +46,51 @@ export class TemplateSetForm extends Base<Data> {
 
   languages: string | null = null;
 
-  get hiddenSelector(): BooleanSelector {
-    const alwaysHidden = [
-      'cart-template-uri:not=content',
-      'cart-include-template-uri:not=content',
-      'email-template-uri:not=content,template-language',
-      'checkout-template-uri:not=content',
-      'receipt-template-uri:not=content',
-      'config:payment-method-set-uri:delete',
-      'config:payment-method-set-uri:create',
-      'config:payment-method-set-uri:timestamps',
-      'config:payment-method-set-uri:description',
-      'config:template-dialog:description',
-      'config:template-dialog:delete',
-    ];
+  templates: Templates = {};
 
-    if (this.data?.code === 'DEFAULT') alwaysHidden.push('delete');
+  private readonly __paymentMethodSetLoaderId = 'paymentMethodSetLoader';
 
-    return new BooleanSelector(`${alwaysHidden.join(' ')} ${super.hiddenSelector.toString()}`);
+  private readonly __localeCodesLoaderId = 'localeCodesLoader';
+
+  private readonly __languagesLoaderId = 'languagesLoader';
+
+  get disabledSelector(): BooleanSelector {
+    const alwaysDisabled: string[] = [];
+
+    if (!this.__languagesLoader?.data) alwaysDisabled.push('language');
+    if (!this.__localeCodesLoader?.data) alwaysDisabled.push('locale-code');
+    if (!this.__paymentMethodSetLoader?.data && this.form.payment_method_set_uri) {
+      alwaysDisabled.push('payment-method-set-uri');
+    }
+
+    return new BooleanSelector(`${alwaysDisabled.join(' ')} ${super.disabledSelector}`);
   }
 
   get readonlySelector(): BooleanSelector {
     const alwaysReadonly: string[] = [];
     if (this.data?.code === 'DEFAULT') alwaysReadonly.push('code', 'description');
-    return new BooleanSelector(`${alwaysReadonly.join(' ')} ${super.readonlySelector.toString()}`);
+    return new BooleanSelector(`${alwaysReadonly.join(' ')} ${super.readonlySelector}`);
   }
 
-  get templateConfigForm(): TemplateConfigForm | null {
-    return this.renderRoot.querySelector('foxy-template-config-form');
-  }
-
-  get paymentsApiPaymentPresetForm(): PaymentsApiPaymentPresetForm | null {
-    return this.renderRoot.querySelector('foxy-payments-api-payment-preset-form');
+  get hiddenSelector(): BooleanSelector {
+    const alwaysHidden: string[] = [];
+    if (this.data?.code === 'DEFAULT') alwaysHidden.push('delete');
+    return new BooleanSelector(`${alwaysHidden.join(' ')} ${super.hiddenSelector}`);
   }
 
   renderBody(): TemplateResult {
-    type LocaleCodesLoader = NucleonElement<Resource<Rels.LocaleCodes>>;
-    type LanguagesLoader = NucleonElement<Resource<Rels.Languages>>;
-    type PMSetLoader = NucleonElement<Resource<Rels.PaymentMethodSet>>;
+    const localeCodeEntries = Object.entries(this.__localeCodesLoader?.data?.values ?? {});
+    const localeCodes = localeCodeEntries.map(([value, label]) => ({ value, label }));
 
-    const localeCodesLoader = this.renderRoot.querySelector<LocaleCodesLoader>('#localeCodes');
-    const localeCodes = localeCodesLoader?.data;
-    const localeCodeEntries = Object.entries(localeCodes?.values ?? {});
-    const localeCodeOptions = localeCodeEntries.map(([value, label]) => ({ value, label }));
-
-    const languagesLoader = this.renderRoot.querySelector<LanguagesLoader>('#languages');
-    const languages = languagesLoader?.data;
-    const languageEntries = Object.entries(languages?.values ?? {});
-    const languageOptions = languageEntries.map(([value, label]) => ({ value, label }));
-
-    const paymentMethodSetLoader = this.renderRoot.querySelector<PMSetLoader>('#paymentMethodSet');
-    const paymentMethodSet = paymentMethodSetLoader?.data;
+    const languageEntries = Object.entries(this.__languagesLoader?.data?.values ?? {});
+    const languages = languageEntries.map(([value, label]) => ({ value, label }));
 
     return html`
       <foxy-nucleon
         class="hidden"
         infer=""
         href=${ifDefined(this.languages ?? undefined)}
-        id="languages"
+        id=${this.__languagesLoaderId}
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
@@ -129,7 +99,7 @@ export class TemplateSetForm extends Base<Data> {
         class="hidden"
         infer=""
         href=${ifDefined(this.localeCodes ?? undefined)}
-        id="localeCodes"
+        id=${this.__localeCodesLoaderId}
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
@@ -137,20 +107,21 @@ export class TemplateSetForm extends Base<Data> {
       <foxy-nucleon
         class="hidden"
         infer=""
-        href=${ifDefined(this.form.payment_method_set_uri)}
-        id="paymentMethodSet"
+        href=${ifDefined(this.form.payment_method_set_uri || undefined)}
+        id=${this.__paymentMethodSetLoaderId}
         @update=${() => this.requestUpdate()}
       >
       </foxy-nucleon>
 
-      <div class="grid grid-cols-16rem gap-m">
+      <div class="grid grid-cols-1 gap-m sm-grid-cols-2">
         <foxy-internal-text-control infer="description"></foxy-internal-text-control>
+
         <foxy-internal-text-control infer="code"></foxy-internal-text-control>
 
-        <foxy-internal-select-control infer="language" .options=${languageOptions}>
+        <foxy-internal-select-control infer="language" .options=${languages}>
         </foxy-internal-select-control>
 
-        <foxy-internal-select-control infer="locale-code" .options=${localeCodeOptions}>
+        <foxy-internal-select-control infer="locale-code" .options=${localeCodes}>
         </foxy-internal-select-control>
       </div>
 
@@ -159,7 +130,7 @@ export class TemplateSetForm extends Base<Data> {
         item-id-path="_links.self.href"
         infer="payment-method-set-uri"
         first=${this.paymentMethodSets}
-        .selectedItem=${paymentMethodSet}
+        .selectedItem=${this.__paymentMethodSetLoader?.data}
       >
       </foxy-internal-async-combo-box-control>
 
@@ -183,5 +154,20 @@ export class TemplateSetForm extends Base<Data> {
 
       ${super.renderBody()}
     `;
+  }
+
+  private get __paymentMethodSetLoader() {
+    type Loader = NucleonElement<Resource<Rels.PaymentMethodSet>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__paymentMethodSetLoaderId}`);
+  }
+
+  private get __localeCodesLoader() {
+    type Loader = NucleonElement<Resource<Rels.LocaleCodes>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__localeCodesLoaderId}`);
+  }
+
+  private get __languagesLoader() {
+    type Loader = NucleonElement<Resource<Rels.Languages>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__languagesLoaderId}`);
   }
 }
