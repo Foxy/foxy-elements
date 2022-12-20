@@ -141,6 +141,10 @@
       "url": "./src/static/schemas/gift-card-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/i18n-editor/*.json"],
+      "url": "./src/static/schemas/i18n-editor.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/integration-card/*.json"],
       "url": "./src/static/schemas/integration-card.json"
     },
