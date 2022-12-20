@@ -10,7 +10,10 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-applied-coupon-code-form',
   translatable: true,
-  configurable: {},
+  configurable: {
+    buttons: ['create', 'delete'],
+    inputs: ['code', 'ignore-usage-limits'],
+  },
 };
 
 export default getMeta(summary);
