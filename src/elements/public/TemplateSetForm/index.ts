@@ -1,6 +1,7 @@
 import '../../internal/InternalAsyncComboBoxControl/index';
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
+import '../../internal/InternalSandbox/index';
 import '../../internal/InternalForm/index';
 
 import '../NucleonElement/index';

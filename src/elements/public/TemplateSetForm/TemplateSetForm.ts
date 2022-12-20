@@ -163,8 +163,10 @@ export class TemplateSetForm extends Base<Data> {
       >
       </foxy-internal-async-combo-box-control>
 
-      ${this.data && this.languageStrings
+      ${this.data && this.languageStrings && !this.hiddenSelector.matches('i18n-editor', true)
         ? html`
+            ${this.renderTemplateOrSlot('i18n-editor:before')}
+
             <foxy-i18n-editor
               language-overrides=${this.data._links['fx:language_overrides'].href}
               selected-language=${this.form.language}
@@ -172,8 +174,13 @@ export class TemplateSetForm extends Base<Data> {
               href=${this.languageStrings}
             >
             </foxy-i18n-editor>
+
+            ${this.renderTemplateOrSlot('i18n-editor:after')}
           `
         : ''}
+
+      <!-- -->
+
       ${super.renderBody()}
     `;
   }
