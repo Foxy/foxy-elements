@@ -115,7 +115,7 @@
       "additionalProperties": false,
       "required": ["label", "placeholder", "helper_text"]
     },
-    "i18n-editor": {
+    "language-overrides": {
       "$ref": "i18n-editor.json"
     },
     "timestamps": {
@@ -186,7 +186,7 @@
     "language",
     "locale-code",
     "payment-method-set-uri",
-    "i18n-editor",
+    "language-overrides",
     "timestamps",
     "delete",
     "create",

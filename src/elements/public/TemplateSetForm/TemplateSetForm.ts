@@ -34,8 +34,8 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
  * @slot payment-method-set-uri:before
  * @slot payment-method-set-uri:after
  *
- * @slot i18n-editor:before
- * @slot i18n-editor:after
+ * @slot language-overrides:before
+ * @slot language-overrides:after
  *
  * @slot timestamps:before
  * @slot timestamps:after
@@ -172,19 +172,21 @@ export class TemplateSetForm extends Base<Data> {
       >
       </foxy-internal-async-combo-box-control>
 
-      ${this.data && this.languageStrings && !this.hiddenSelector.matches('i18n-editor', true)
+      ${this.data &&
+      this.languageStrings &&
+      !this.hiddenSelector.matches('language-overrides', true)
         ? html`
-            ${this.renderTemplateOrSlot('i18n-editor:before')}
+            ${this.renderTemplateOrSlot('language-overrides:before')}
 
             <foxy-i18n-editor
               language-overrides=${this.data._links['fx:language_overrides'].href}
               selected-language=${this.form.language}
-              infer="i18n-editor"
+              infer="language-overrides"
               href=${this.languageStrings}
             >
             </foxy-i18n-editor>
 
-            ${this.renderTemplateOrSlot('i18n-editor:after')}
+            ${this.renderTemplateOrSlot('language-overrides:after')}
           `
         : ''}
 

@@ -16,8 +16,8 @@ export type Templates = {
   'locale-code:after'?: Renderer<TemplateSetForm>;
   'payment-method-set-uri:before'?: Renderer<TemplateSetForm>;
   'payment-method-set-uri:after'?: Renderer<TemplateSetForm>;
-  'i18n-editor:before'?: Renderer<TemplateSetForm>;
-  'i18n-editor:after'?: Renderer<TemplateSetForm>;
+  'language-overrides:before'?: Renderer<TemplateSetForm>;
+  'language-overrides:after'?: Renderer<TemplateSetForm>;
   'timestamps:before'?: Renderer<TemplateSetForm>;
   'timestamps:after'?: Renderer<TemplateSetForm>;
   'create:before'?: Renderer<TemplateSetForm>;

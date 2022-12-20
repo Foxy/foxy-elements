@@ -30,7 +30,7 @@
     "placeholder": "Default payment method set",
     "helper_text": "With this template set applied, your customers will see payment methods from the selected set."
   },
-  "i18n-editor": {
+  "language-overrides": {
     "delete_button_title": "Restore default value",
     "save_button": "Save",
     "undo_button": "Undo",
