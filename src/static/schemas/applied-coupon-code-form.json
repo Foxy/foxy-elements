@@ -1,0 +1,97 @@
+{
+  "additionalProperties": false,
+  "required": ["spinner", "create", "delete", "code", "ignore-usage-limits"],
+  "properties": {
+    "spinner": {
+      "additionalProperties": false,
+      "required": ["loading_busy", "loading_error"],
+      "properties": {
+        "loading_error": {
+          "$ref": "spinner.json#/properties/loading_error"
+        },
+        "loading_busy": {
+          "$ref": "spinner.json#/properties/loading_busy"
+        }
+      }
+    },
+    "create": {
+      "required": ["create"],
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "string",
+          "default": "Apply"
+        }
+      }
+    },
+    "delete": {
+      "required": ["delete", "cancel", "delete_prompt"],
+      "additionalProperties": false,
+      "properties": {
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this coupon code? This might affect the cart total."
+        },
+        "cancel": {
+          "type": "string",
+          "default": "Cancel"
+        },
+        "delete": {
+          "type": "string",
+          "default": "Remove"
+        }
+      }
+    },
+    "ignore-usage-limits": {
+      "required": ["label", "helper_text", "option_checked"],
+      "additionalProperties": false,
+      "properties": {
+        "option_checked": {
+          "type": "string",
+          "default": "Ignore usage limits"
+        },
+        "helper_text": {
+          "type": "string",
+          "default": ""
+        },
+        "label": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "code": {
+      "properties": {
+        "v8n_required": {
+          "type": "string",
+          "default": "Please enter a coupon code."
+        },
+        "helper_text_existing": {
+          "type": "string",
+          "default": "Applied codes can't be modified. To replace this code, remove it using the button below and then add a new one."
+        },
+        "helper_text_new": {
+          "default": "To find the right code, go to the Coupons page, select a coupon and scroll down to the Codes section.",
+          "type": "string"
+        },
+        "placeholder": {
+          "type": "string",
+          "default": "MY-COUPON-123"
+        },
+        "label": {
+          "type": "string",
+          "default": "Coupon code"
+        }
+      },
+      "required": [
+        "label",
+        "placeholder",
+        "helper_text_new",
+        "helper_text_existing",
+        "v8n_required"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema"
+}

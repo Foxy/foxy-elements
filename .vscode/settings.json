@@ -29,6 +29,10 @@
       "url": "./src/static/schemas/applied-coupon-code-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/applied-coupon-code-form/*.json"],
+      "url": "./src/static/schemas/applied-coupon-code-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/applied-tax-card/*.json"],
       "url": "./src/static/schemas/applied-tax-card.json"
     },
