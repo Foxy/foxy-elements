@@ -149,6 +149,10 @@
       "url": "./src/static/schemas/integration-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/integration-form/*.json"],
+      "url": "./src/static/schemas/integration-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/item-card/*.json"],
       "url": "./src/static/schemas/item-card.json"
     },
