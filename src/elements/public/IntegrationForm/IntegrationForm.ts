@@ -98,6 +98,7 @@ export class IntegrationForm extends Base<Data> {
       <div class="bg-success-10 text-success p-m pb-s space-y-xs leading-s rounded-t-l rounded-b-l">
         <foxy-i18n infer="message" class="block" key="text"></foxy-i18n>
         <vaadin-button
+          data-testid="message-action"
           theme="tertiary contrast"
           class="p-0"
           ?disabled=${this.disabledSelector.matches('message', true)}
