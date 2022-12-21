@@ -147,7 +147,7 @@ export class IntegrationForm extends Base<Data> {
           })}
           ${this.__renderTableRow({
             label: this.__renderTableI18n('company'),
-            value: this.__renderMailToLink(data.company_url, data.company_name),
+            value: this.__renderLink(data.company_url, data.company_name),
           })}
           ${this.__renderTableRow({
             label: this.__renderTableI18n('expires'),
@@ -172,7 +172,7 @@ export class IntegrationForm extends Base<Data> {
                 ${this.__renderTableRow({
                   highlight: true,
                   label: 'Access token',
-                  value: this.__renderCopiableText(postResponse.client_secret),
+                  value: this.__renderCopiableText(postResponse.access_token),
                 })}
               `
             : ''}
@@ -196,12 +196,17 @@ export class IntegrationForm extends Base<Data> {
 
   private __renderMailToLink(email: string, caption: string) {
     if (!email) return html`${caption}`;
+    return this.__renderLink(`mailto:${email}`, caption);
+  }
+
+  private __renderLink(href: string, caption: string) {
+    if (!href) return html`${caption}`;
 
     return html`
       <a
         target="_blank"
         class="font-semibold text-primary rounded hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
-        href="mailto:${email}"
+        href=${href}
       >
         ${caption}
       </a>
