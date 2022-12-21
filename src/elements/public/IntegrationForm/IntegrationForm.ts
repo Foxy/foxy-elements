@@ -96,14 +96,14 @@ export class IntegrationForm extends Base<Data> {
       ${this.renderTemplateOrSlot('message:before')}
 
       <div class="bg-success-10 text-success p-m pb-s space-y-xs leading-s rounded-t-l rounded-b-l">
-        <foxy-i18n infer="" class="block" key="post_success_message"></foxy-i18n>
+        <foxy-i18n infer="message" class="block" key="text"></foxy-i18n>
         <vaadin-button
           theme="tertiary contrast"
           class="p-0"
           ?disabled=${this.disabledSelector.matches('message', true)}
           @click=${() => (this.__postResponse = null)}
         >
-          <foxy-i18n infer="" key="post_success_action"></foxy-i18n>
+          <foxy-i18n infer="message" key="action"></foxy-i18n>
         </vaadin-button>
       </div>
 
@@ -113,14 +113,14 @@ export class IntegrationForm extends Base<Data> {
 
   private __renderHeader() {
     const data = this.data as Data;
-    const description = data.project_description || this.__renderI18n('no_description');
+    const noDescription = html`<foxy-i18n infer="header" key="no_description"></foxy-i18n>`;
 
     return html`
       ${this.renderTemplateOrSlot('header:before')}
 
       <div class="space-y-xs">
         <div class="font-bold truncate text-xl">${data.project_name}&ZeroWidthSpace;</div>
-        <div class="text-secondary">${description}&ZeroWidthSpace;</div>
+        <div class="text-secondary">${data.project_description || noDescription}</div>
       </div>
 
       ${this.renderTemplateOrSlot('header:after')}
@@ -138,20 +138,20 @@ export class IntegrationForm extends Base<Data> {
       <table class="font-lumo text-m leading-m w-full">
         <tbody class="divide-y divide-contrast-10">
           ${this.__renderTableRow({
-            label: this.__renderI18n('added_by'),
+            label: this.__renderTableI18n('added_by'),
             value: this.__renderMailToLink(data.added_by_email, data.added_by_name),
           })}
           ${this.__renderTableRow({
-            label: this.__renderI18n('contact'),
+            label: this.__renderTableI18n('contact'),
             value: this.__renderMailToLink(data.contact_email, data.contact_name),
           })}
           ${this.__renderTableRow({
-            label: this.__renderI18n('company'),
+            label: this.__renderTableI18n('company'),
             value: this.__renderMailToLink(data.company_url, data.company_name),
           })}
           ${this.__renderTableRow({
-            label: this.__renderI18n('expires'),
-            value: this.__renderI18n('expires_date', { date: expires }),
+            label: this.__renderTableI18n('expires'),
+            value: this.__renderTableI18n('expires_date', { date: expires }),
           })}
           ${this.__renderTableRow({
             label: 'Client ID',
@@ -218,7 +218,7 @@ export class IntegrationForm extends Base<Data> {
     `;
   }
 
-  private __renderI18n(key: string, options?: unknown) {
-    return html`<foxy-i18n infer="" key=${key} .options=${options}></foxy-i18n>`;
+  private __renderTableI18n(key: string, options?: unknown) {
+    return html`<foxy-i18n infer="table" key=${key} .options=${options}></foxy-i18n>`;
   }
 }

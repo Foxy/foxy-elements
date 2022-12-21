@@ -1,15 +1,11 @@
 {
-  "title_description": "Project name",
-  "status_description": "Status",
-  "subtitle_description": "Project description",
-  "expires_date": "{{ date, date }}",
-  "no_description": "No description",
-  "added_by": "Added by",
-  "contact": "Contact",
-  "company": "Company",
-  "expires": "Expires on",
-  "post_success_message": "Please copy the highlighted values below to a safe place and treat them like your password. We will not show them again for security reasons.",
-  "post_success_action": "I've copied the values",
+  "header": {
+    "no_description": "No description"
+  },
+  "message": {
+    "text": "Please copy the highlighted values below to a safe place and treat them like your password. We will not show them again for security reasons.",
+    "action": "I've copied the values"
+  },
   "project-name": {
     "label": "Name",
     "placeholder": "Type here...",
@@ -21,10 +17,12 @@
     "placeholder": "Type here...",
     "helper_text": ""
   },
-  "timestamps": {
-    "date_created": "Created on",
-    "date_modified": "Last updated",
-    "date": "{{value, date}}"
+  "table": {
+    "expires_date": "{{ date, date }}",
+    "added_by": "Added by",
+    "contact": "Contact",
+    "company": "Company",
+    "expires": "Expires on"
   },
   "delete": {
     "delete": "Delete",
