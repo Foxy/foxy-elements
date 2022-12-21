@@ -11,6 +11,33 @@ import { html } from 'lit-html';
 const NS = 'integration-form';
 const Base = TranslatableMixin(InternalForm, NS);
 
+/**
+ * Form element for managing integrations (`fx:integration`).
+ *
+ * @slot project-name:before
+ * @slot project-name:after
+ *
+ * @slot project-description:before
+ * @slot project-description:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @slot header:before
+ * @slot header:after
+ *
+ * @slot message:before
+ * @slot message:after
+ *
+ * @slot table:before
+ * @slot table:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
+ * @element foxy-integration-form
+ * @since 1.21.0
+ */
 export class IntegrationForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -44,33 +71,69 @@ export class IntegrationForm extends Base<Data> {
   }
 
   private __renderSnapshotBody() {
-    const data = this.data as Data;
-    const expires = new Date((data.expires ?? 0) * 1000);
-    const description = data.project_description?.trim() || this.t('no_description');
+    const hiddenSelector = this.hiddenSelector;
     const postResponse = this.__postResponse;
 
     return html`
+      ${hiddenSelector.matches('header', true) ? '' : this.__renderHeader()}
+      ${hiddenSelector.matches('message', true) || !postResponse ? '' : this.__renderMessage()}
+      ${hiddenSelector.matches('table') ? '' : this.__renderTable()}
+      <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
+    `;
+  }
+
+  private __renderTemplateBody() {
+    return html`
+      <foxy-internal-text-control infer="project-name"></foxy-internal-text-control>
+      <foxy-internal-text-area-control infer="project-description">
+      </foxy-internal-text-area-control>
+      <foxy-internal-create-control infer="create"></foxy-internal-create-control>
+    `;
+  }
+
+  private __renderMessage() {
+    return html`
+      ${this.renderTemplateOrSlot('message:before')}
+
+      <div class="bg-success-10 text-success p-m pb-s space-y-xs leading-s rounded-t-l rounded-b-l">
+        <foxy-i18n infer="" class="block" key="post_success_message"></foxy-i18n>
+        <vaadin-button
+          theme="tertiary contrast"
+          class="p-0"
+          ?disabled=${this.disabledSelector.matches('message', true)}
+          @click=${() => (this.__postResponse = null)}
+        >
+          <foxy-i18n infer="" key="post_success_action"></foxy-i18n>
+        </vaadin-button>
+      </div>
+
+      ${this.renderTemplateOrSlot('message:after')}
+    `;
+  }
+
+  private __renderHeader() {
+    const data = this.data as Data;
+    const description = data.project_description || this.__renderI18n('no_description');
+
+    return html`
+      ${this.renderTemplateOrSlot('header:before')}
+
       <div class="space-y-xs">
         <div class="font-bold truncate text-xl">${data.project_name}&ZeroWidthSpace;</div>
         <div class="text-secondary">${description}&ZeroWidthSpace;</div>
       </div>
 
-      ${postResponse
-        ? html`
-            <div
-              class="bg-success-10 text-success p-m pb-s space-y-xs leading-s rounded-t-l rounded-b-l"
-            >
-              <foxy-i18n infer="" class="block" key="post_success_message"></foxy-i18n>
-              <vaadin-button
-                theme="tertiary contrast"
-                class="p-0"
-                @click=${() => (this.__postResponse = null)}
-              >
-                <foxy-i18n infer="" key="post_success_action"></foxy-i18n>
-              </vaadin-button>
-            </div>
-          `
-        : ''}
+      ${this.renderTemplateOrSlot('header:after')}
+    `;
+  }
+
+  private __renderTable() {
+    const data = this.data as Data;
+    const expires = new Date((data.expires ?? 0) * 1000);
+    const postResponse = this.__postResponse;
+
+    return html`
+      ${this.renderTemplateOrSlot('table:before')}
 
       <table class="font-lumo text-m leading-m w-full">
         <tbody class="divide-y divide-contrast-10">
@@ -117,28 +180,17 @@ export class IntegrationForm extends Base<Data> {
         </tbody>
       </table>
 
-      <foxy-internal-delete-control infer="delete"></foxy-internal-delete-control>
+      ${this.renderTemplateOrSlot('table:after')}
     `;
   }
 
-  private __renderTemplateBody() {
+  private __renderCopiableText(text: string) {
     return html`
-      <foxy-internal-text-control infer="project-name"></foxy-internal-text-control>
-
-      <foxy-internal-text-area-control infer="project-description">
-      </foxy-internal-text-area-control>
-
-      <foxy-internal-create-control infer="create"></foxy-internal-create-control>
-    `;
-  }
-
-  private __renderTableRow(params: { label: unknown; value: unknown; highlight?: boolean }) {
-    const { label, value, highlight = false } = params;
-    return html`
-      <tr class=${classMap({ 'font-semibold text-success': highlight })}>
-        <td class="max-w-0 truncate py-s text-secondary w-1-3 pr-m">${label}</td>
-        <td class="max-w-0 truncate py-s text-body w-2-3">${value}</td>
-      </tr>
+      <div class="flex items-center gap-s">
+        <code class="truncate flex-1">${text}</code>
+        <foxy-copy-to-clipboard infer="copy-to-clipboard" class="inline-block" text=${text}>
+        </foxy-copy-to-clipboard>
+      </div>
     `;
   }
 
@@ -156,17 +208,17 @@ export class IntegrationForm extends Base<Data> {
     `;
   }
 
-  private __renderI18n(key: string, options?: unknown) {
-    return html`<foxy-i18n infer="" key=${key} .options=${options}></foxy-i18n>`;
+  private __renderTableRow(params: { label: unknown; value: unknown; highlight?: boolean }) {
+    const { label, value, highlight = false } = params;
+    return html`
+      <tr class=${classMap({ 'font-semibold text-success': highlight })}>
+        <td class="max-w-0 truncate py-s text-secondary w-1-3 pr-m">${label}</td>
+        <td class="max-w-0 truncate py-s text-body w-2-3">${value}</td>
+      </tr>
+    `;
   }
 
-  private __renderCopiableText(text: string) {
-    return html`
-      <div class="flex items-center gap-s">
-        <code class="truncate flex-1">${text}</code>
-        <foxy-copy-to-clipboard infer="copy-to-clipboard" class="inline-block" text=${text}>
-        </foxy-copy-to-clipboard>
-      </div>
-    `;
+  private __renderI18n(key: string, options?: unknown) {
+    return html`<foxy-i18n infer="" key=${key} .options=${options}></foxy-i18n>`;
   }
 }

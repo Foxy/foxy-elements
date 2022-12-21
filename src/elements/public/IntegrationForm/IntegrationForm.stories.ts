@@ -10,6 +10,11 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-integration-form',
   translatable: true,
+  configurable: {
+    sections: ['header', 'table'],
+    buttons: ['create', 'delete', 'message'],
+    inputs: ['project-name', 'project-description'],
+  },
 };
 
 export default getMeta(summary);
