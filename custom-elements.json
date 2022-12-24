@@ -1516,6 +1516,7 @@
     {
       "name": "foxy-applied-coupon-code-form",
       "path": "./src/elements/public/AppliedCouponCodeForm/index.ts",
+      "description": "Form element for managing applied coupon codes (`fx:applied_coupon_code`).",
       "attributes": [
         {
           "name": "ns",
@@ -1602,6 +1603,7 @@
         },
         {
           "name": "templates",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -1741,6 +1743,32 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "code:before"
+        },
+        {
+          "name": "code:after"
+        },
+        {
+          "name": "ignore-usage-limits:before"
+        },
+        {
+          "name": "ignore-usage-limits:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
@@ -12326,6 +12354,7 @@
     {
       "name": "foxy-integration-form",
       "path": "./src/elements/public/IntegrationForm/index.ts",
+      "description": "Form element for managing integrations (`fx:integration`).",
       "attributes": [
         {
           "name": "ns",
@@ -12551,6 +12580,50 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "project-name:before"
+        },
+        {
+          "name": "project-name:after"
+        },
+        {
+          "name": "project-description:before"
+        },
+        {
+          "name": "project-description:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "header:before"
+        },
+        {
+          "name": "header:after"
+        },
+        {
+          "name": "message:before"
+        },
+        {
+          "name": "message:after"
+        },
+        {
+          "name": "table:before"
+        },
+        {
+          "name": "table:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
@@ -19535,6 +19608,7 @@
     {
       "name": "foxy-subscription-settings-form",
       "path": "./src/elements/public/SubscriptionSettingsForm/index.ts",
+      "description": "Form element for managing `fx:subscription_settings` resources.",
       "attributes": [
         {
           "name": "ns",
@@ -19621,6 +19695,7 @@
         },
         {
           "name": "templates",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -19760,6 +19835,88 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "past-due-amount-handling:before"
+        },
+        {
+          "name": "past-due-amount-handling:after"
+        },
+        {
+          "name": "automatically-charge-past-due-amount:before"
+        },
+        {
+          "name": "automatically-charge-past-due-amount:after"
+        },
+        {
+          "name": "clear-past-due-amounts-on",
+          "description": "success:before – only if `form.automatically_charge_past_due_amount` is `false`"
+        },
+        {
+          "name": "reset-nextdate-on-makeup",
+          "description": "payment:before – only if `form.automatically_charge_past_due_amount` is `false`"
+        },
+        {
+          "name": "reattempt-bypass:before"
+        },
+        {
+          "name": "reattempt-bypass:after"
+        },
+        {
+          "name": "reattempt-schedule:before"
+        },
+        {
+          "name": "reattempt-schedule:after"
+        },
+        {
+          "name": "reminder-email-schedule:before"
+        },
+        {
+          "name": "reminder-email-schedule:after"
+        },
+        {
+          "name": "expiring-soon-payment-reminder-schedule:before"
+        },
+        {
+          "name": "expiring-soon-payment-reminder-schedule:after"
+        },
+        {
+          "name": "send-email-receipts-for-automated-billing:before"
+        },
+        {
+          "name": "send-email-receipts-for-automated-billing:after"
+        },
+        {
+          "name": "cancellation-schedule:before"
+        },
+        {
+          "name": "cancellation-schedule:after"
+        },
+        {
+          "name": "modification-url:before"
+        },
+        {
+          "name": "modification-url:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
@@ -21715,19 +21872,23 @@
     {
       "name": "foxy-template-set-form",
       "path": "./src/elements/public/TemplateSetForm/index.ts",
+      "description": "Form element for creating and editing template sets (`fx:template_set`).",
       "attributes": [
         {
-          "name": "payment-method-sets"
+          "name": "payment-method-sets",
+          "description": "URL of the store's `fx:payment_method_sets` collection (used to fill the relevant dropdown with options)."
         },
         {
           "name": "language-strings",
-          "default": "\"https://demo.api/hapi/property_helpers/10\""
+          "description": "URL of the `fx:language_strings` property helper (passed through to foxy-i18n-editor)."
         },
         {
-          "name": "locale-codes"
+          "name": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper (used to fill the relevant dropdown with options)."
         },
         {
-          "name": "languages"
+          "name": "languages",
+          "description": "URL of the `fx:languages` property helper (used to fill the relevant dropdown with options)."
         },
         {
           "name": "ns",
@@ -21803,28 +21964,23 @@
       "properties": [
         {
           "name": "paymentMethodSets",
-          "attribute": "payment-method-sets"
+          "attribute": "payment-method-sets",
+          "description": "URL of the store's `fx:payment_method_sets` collection (used to fill the relevant dropdown with options)."
         },
         {
           "name": "languageStrings",
           "attribute": "language-strings",
-          "default": "\"https://demo.api/hapi/property_helpers/10\""
+          "description": "URL of the `fx:language_strings` property helper (passed through to foxy-i18n-editor)."
         },
         {
           "name": "localeCodes",
-          "attribute": "locale-codes"
+          "attribute": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper (used to fill the relevant dropdown with options)."
         },
         {
           "name": "languages",
-          "attribute": "languages"
-        },
-        {
-          "name": "templateConfigForm",
-          "type": "TemplateConfigForm | null"
-        },
-        {
-          "name": "paymentsApiPaymentPresetForm",
-          "type": "PaymentsApiPaymentPresetForm | null"
+          "attribute": "languages",
+          "description": "URL of the `fx:languages` property helper (used to fill the relevant dropdown with options)."
         },
         {
           "name": "ns",
@@ -21839,6 +21995,8 @@
         },
         {
           "name": "templates",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -21978,6 +22136,62 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "description:before"
+        },
+        {
+          "name": "description:after"
+        },
+        {
+          "name": "code:before"
+        },
+        {
+          "name": "code:after"
+        },
+        {
+          "name": "language:before"
+        },
+        {
+          "name": "language:after"
+        },
+        {
+          "name": "locale-code:before"
+        },
+        {
+          "name": "locale-code:after"
+        },
+        {
+          "name": "payment-method-set-uri:before"
+        },
+        {
+          "name": "payment-method-set-uri:after"
+        },
+        {
+          "name": "language-overrides:before"
+        },
+        {
+          "name": "language-overrides:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
