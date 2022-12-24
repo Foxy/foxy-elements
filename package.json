@@ -13,6 +13,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json --format json",
+    "generate-schemas": "node \"./.scripts/generate-schemas.js\" && prettier \"./src/static/schemas/*.json\" \"./.vscode/settings.json\" --write",
     "storybook": "wds --watch",
     "storybook:build": "build-storybook",
     "lint": "npm run lint:eslint && npm run lint:prettier",
