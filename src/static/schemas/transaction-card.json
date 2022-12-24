@@ -1,91 +1,36 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "code": {
-      "default": "Code",
-      "type": "string"
-    },
-    "customer": {
-      "$ref": "customer-portal.json#/properties/customer"
-    },
-    "description": {
-      "default": "Description",
-      "type": "string"
-    },
-    "price": {
-      "default": "{{amount, price}}",
-      "type": "string"
-    },
-    "spinner": {
-      "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
-      },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
-    },
-    "time": {
-      "default": "{{value, time}}",
-      "type": "string"
-    },
-    "transaction_approved": {
-      "default": "Approved",
-      "type": "string"
-    },
-    "transaction_authorized": {
-      "default": "Authorized",
-      "type": "string"
-    },
-    "transaction_captured": {
-      "default": "Captured",
-      "type": "string"
-    },
-    "transaction_completed": {
-      "default": "Completed",
-      "type": "string"
-    },
-    "transaction_declined": {
-      "default": "Declined",
-      "type": "string"
-    },
-    "transaction_pending": {
-      "default": "Pending",
-      "type": "string"
-    },
-    "transaction_plural": {
-      "default": "Transactions",
-      "type": "string"
-    },
-    "transaction_refunded": {
-      "default": "Refunded",
-      "type": "string"
-    },
-    "transaction_rejected": {
-      "default": "Rejected",
-      "type": "string"
-    },
-    "transaction_summary": {
-      "default": "{{most_expensive_item.name}}",
-      "type": "string"
-    },
+    "code": { "type": "string", "default": "Code" },
+    "customer": { "type": "string", "default": "Customer" },
+    "description": { "type": "string", "default": "Description" },
+    "price": { "type": "string", "default": "{{amount, price}}" },
+    "time": { "type": "string", "default": "{{value, time}}" },
+    "transaction_approved": { "type": "string", "default": "Approved" },
+    "transaction_authorized": { "type": "string", "default": "Authorized" },
+    "transaction_captured": { "type": "string", "default": "Captured" },
+    "transaction_completed": { "type": "string", "default": "Completed" },
+    "transaction_declined": { "type": "string", "default": "Declined" },
+    "transaction_pending": { "type": "string", "default": "Pending" },
+    "transaction_plural": { "type": "string", "default": "Transactions" },
+    "transaction_refunded": { "type": "string", "default": "Refunded" },
+    "transaction_rejected": { "type": "string", "default": "Rejected" },
+    "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
     "transaction_summary_plural": {
-      "default": "{{most_expensive_item.name}} and {{count}} more",
-      "type": "string"
+      "type": "string",
+      "default": "{{most_expensive_item.name}} and {{count}} more"
     },
-    "transaction_verified": {
-      "default": "Verified",
-      "type": "string"
-    },
-    "transaction_voided": {
-      "default": "Voided",
-      "type": "string"
+    "transaction_verified": { "type": "string", "default": "Verified" },
+    "transaction_voided": { "type": "string", "default": "Voided" },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -108,6 +53,5 @@
     "transaction_verified",
     "transaction_voided",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

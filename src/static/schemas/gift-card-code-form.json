@@ -1,78 +1,104 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
-    },
-    "code": {
-      "default": "Code",
-      "type": "string"
-    },
-    "confirm": {
-      "default": "Confirm",
-      "type": "string"
-    },
-    "create": {
-      "default": "Create",
-      "type": "string"
-    },
-    "current_balance": {
-      "default": "Current balance",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "date_created": {
-      "default": "Created on",
-      "type": "string"
-    },
-    "date_modified": {
-      "default": "Last updated",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "confirm": { "type": "string", "default": "Confirm" },
+    "code": { "type": "string", "default": "Code" },
+    "create": { "type": "string", "default": "Create" },
+    "current_balance": { "type": "string", "default": "Current balance" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "date_created": { "type": "string", "default": "Created on" },
+    "date_modified": { "type": "string", "default": "Last updated" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
-      "default": "This resource will be permanently removed. Are you sure?",
-      "type": "string"
+      "type": "string",
+      "default": "This resource will be permanently removed. Are you sure?"
     },
-    "end_date": {
-      "default": "End date",
-      "type": "string"
-    },
-    "transaction": {
+    "end_date": { "type": "string", "default": "End date" },
+    "v8n_required": { "type": "string", "default": "Required" },
+    "v8n_too_long": { "type": "string", "default": "Too long" },
+    "cart-item": {
       "additionalProperties": false,
-      "required": ["title", "click_action", "transaction-card"],
       "properties": {
-        "title": { "type": "string", "default": "Transaction" },
-        "click_action": { "type": "string", "default": "Go to transaction" },
-        "transaction-card": { "$ref": "transaction-card.json" }
-      }
-    },
-    "spinner": {
-      "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
+        "title": { "type": "string", "default": "Cart item" },
+        "item-card": {
+          "additionalProperties": false,
+          "properties": {
+            "price": { "type": "string", "default": "{{amount, price}}" },
+            "wgt": { "type": "string", "default": "WGT" },
+            "spinner": {
+              "additionalProperties": false,
+              "properties": {
+                "loading_busy": { "type": "string", "default": "Loading" },
+                "loading_empty": { "type": "string", "default": "No items" },
+                "loading_error": { "type": "string", "default": "Failed to load" }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_error"]
+            }
+          },
+          "required": ["price", "wgt", "spinner"]
         }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
+      "required": ["title", "item-card"]
     },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
+    "logs": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Timeline" },
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "title_updated_via_api": { "type": "string", "default": "Updated via API" },
+                "title_used": { "type": "string", "default": "Used on checkout" },
+                "subtitle_transaction": {
+                  "type": "string",
+                  "default": "Transaction #{{ transaction_id }}"
+                },
+                "subtitle_no_transaction": { "type": "string", "default": "No transaction" },
+                "date": { "type": "string", "default": "{{ date_created, date }}" },
+                "adjustment": { "type": "string", "default": "{{ amount, price }}" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No data" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": [
+                "title_updated_via_api",
+                "title_used",
+                "subtitle_transaction",
+                "subtitle_no_transaction",
+                "date",
+                "adjustment",
+                "spinner"
+              ]
+            }
+          },
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
+        }
+      },
+      "required": ["title", "pagination"]
     },
-    "v8n_too_long": {
-      "default": "Too long",
-      "type": "string"
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -89,8 +115,8 @@
     "end_date",
     "v8n_required",
     "v8n_too_long",
-    "transaction",
+    "cart-item",
+    "logs",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

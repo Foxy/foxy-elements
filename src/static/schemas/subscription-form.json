@@ -1,35 +1,326 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
+    "day": { "type": "string", "default": "Day" },
+    "day_plural": { "type": "string", "default": "Days" },
+    "week": { "type": "string", "default": "Week" },
+    "week_plural": { "type": "string", "default": "Weeks" },
+    "month": { "type": "string", "default": "Month" },
+    "month_plural": { "type": "string", "default": "Months" },
+    "year": { "type": "string", "default": "Year" },
+    "year_plural": { "type": "string", "default": "Years" },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "close": { "type": "string", "default": "Close" },
+    "confirm": { "type": "string", "default": "Confirm" },
+    "currency": { "type": "string", "default": "Currency" },
+    "daily": { "type": "string", "default": "Daily" },
+    "daily_plural": { "type": "string", "default": "Every {{count}} days" },
+    "end_subscription": { "type": "string", "default": "End subscription" },
+    "frequency": {
+      "type": "string",
+      "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })"
     },
-    "cancellation-form": {
+    "frequency_label": { "type": "string", "default": "Frequency" },
+    "item_plural": { "type": "string", "default": "Items" },
+    "monthly": { "type": "string", "default": "Monthly" },
+    "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
+    "next_transaction_date": { "type": "string", "default": "Next transaction date" },
+    "start_date": { "type": "string", "default": "Start date" },
+    "price_recurring": {
+      "type": "string",
+      "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })"
+    },
+    "price_twice_a_month": {
+      "type": "string",
+      "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })"
+    },
+    "subscription_active": { "type": "string", "default": "Next payment on {{date, date}}" },
+    "subscription_cancelled": { "type": "string", "default": "Ended on {{date, date}}" },
+    "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
+    "subscription_inactive": { "type": "string", "default": "Inactive" },
+    "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+    "transaction_plural": { "type": "string", "default": "Transactions" },
+    "twice_a_month": { "type": "string", "default": "Twice a month" },
+    "undo_cancel": { "type": "string", "default": "Review" },
+    "undo_confirm": { "type": "string", "default": "Discard" },
+    "undo_header": { "type": "string", "default": "Unsaved changes" },
+    "undo_message": {
+      "type": "string",
+      "default": "Looks like you didn't save your changes! What would you like to do with them?"
+    },
+    "weekly": { "type": "string", "default": "Weekly" },
+    "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
+    "yearly": { "type": "string", "default": "Yearly" },
+    "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
+    "past-due-amount": {
+      "additionalProperties": false,
       "properties": {
-        "end_date": {
-          "$ref": "cancellation-form.json#/properties/end_date"
+        "label": { "type": "string", "default": "Past due amount" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": {
+          "type": "string",
+          "default": "If a subscription payment is missed, this amount will be increased by that payment. The next time the subscription runs, it may be charged automatically depending on your store's subscription settings."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "attributes": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Attributes" },
+        "delete_confirm": { "type": "string", "default": "Delete" },
+        "delete_cancel": { "type": "string", "default": "Cancel" },
+        "delete_message": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
         },
-        "end_subscription": {
-          "$ref": "cancellation-form.json#/properties/end_subscription"
-        },
-        "end_subscription_explainer": {
-          "$ref": "cancellation-form.json#/properties/end_subscription_explainer"
-        },
-        "spinner": {
+        "delete_header": { "type": "string", "default": "Delete attribute?" },
+        "pagination": {
+          "additionalProperties": false,
           "properties": {
-            "loading_busy": {
-              "$ref": "spinner.json#/properties/loading_busy"
-            },
-            "loading_error": {
-              "$ref": "spinner.json#/properties/loading_error"
+            "create_button_text": { "type": "string", "default": "Add attribute" },
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "delete_button_text": { "type": "string", "default": "Remove" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No attributes" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": ["delete_button_text", "spinner"]
             }
           },
-          "required": ["loading_busy", "loading_error"],
-          "additionalProperties": false
+          "required": [
+            "create_button_text",
+            "first",
+            "last",
+            "next",
+            "pagination",
+            "previous",
+            "card"
+          ]
         },
-        "v8n_required": {
-          "$ref": "cancellation-form.json#/properties/v8n_required"
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "close": { "type": "string", "default": "Close" },
+            "header_update": { "type": "string", "default": "Attribute" },
+            "header_create": { "type": "string", "default": "New attribute" },
+            "save": { "type": "string", "default": "Save" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "confirm": { "type": "string", "default": "Confirm" },
+            "create": { "type": "string", "default": "Create" },
+            "date": { "type": "string", "default": "{{value, date}}" },
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated" },
+            "delete": { "type": "string", "default": "Delete" },
+            "delete_prompt": {
+              "type": "string",
+              "default": "This attribute will be permanently removed. Are you sure?"
+            },
+            "name": { "type": "string", "default": "Name" },
+            "v8n_required": { "type": "string", "default": "Required" },
+            "v8n_too_long": { "type": "string", "default": "Too long" },
+            "value": { "type": "string", "default": "Value" },
+            "visibility": { "type": "string", "default": "Visibility" },
+            "visibility_private": { "type": "string", "default": "Only me" },
+            "visibility_public": { "type": "string", "default": "Everyone" },
+            "visibility_restricted": { "type": "string", "default": "Store admins" },
+            "spinner": {
+              "additionalProperties": false,
+              "properties": {
+                "loading_busy": { "type": "string", "default": "Loading" },
+                "loading_error": { "type": "string", "default": "Failed to load" }
+              },
+              "required": ["loading_busy", "loading_error"]
+            }
+          },
+          "required": [
+            "close",
+            "header_update",
+            "header_create",
+            "save",
+            "undo_header",
+            "undo_message",
+            "undo_cancel",
+            "undo_confirm",
+            "cancel",
+            "confirm",
+            "create",
+            "date",
+            "date_created",
+            "date_modified",
+            "delete",
+            "delete_prompt",
+            "name",
+            "v8n_required",
+            "v8n_too_long",
+            "value",
+            "visibility",
+            "visibility_private",
+            "visibility_public",
+            "visibility_restricted",
+            "spinner"
+          ]
+        }
+      },
+      "required": [
+        "label",
+        "delete_confirm",
+        "delete_cancel",
+        "delete_message",
+        "delete_header",
+        "pagination",
+        "dialog"
+      ]
+    },
+    "items": {
+      "additionalProperties": false,
+      "properties": {
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "price": { "type": "string", "default": "{{amount, price}}" },
+                "wgt": { "type": "string", "default": "WGT" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No items" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": ["price", "wgt", "spinner"]
+            }
+          },
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
+        }
+      },
+      "required": ["pagination"]
+    },
+    "transactions": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Transactions" },
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "code": { "type": "string", "default": "Code" },
+                "customer": { "type": "string", "default": "Customer" },
+                "description": { "type": "string", "default": "Description" },
+                "price": { "type": "string", "default": "{{amount, price}}" },
+                "time": { "type": "string", "default": "{{value, date}}" },
+                "transaction_approved": { "type": "string", "default": "Approved" },
+                "transaction_authorized": { "type": "string", "default": "Authorized" },
+                "transaction_captured": { "type": "string", "default": "Captured" },
+                "transaction_completed": { "type": "string", "default": "Completed" },
+                "transaction_declined": { "type": "string", "default": "Declined" },
+                "transaction_pending": { "type": "string", "default": "Pending" },
+                "transaction_plural": { "type": "string", "default": "Transactions" },
+                "transaction_refunded": { "type": "string", "default": "Refunded" },
+                "transaction_rejected": { "type": "string", "default": "Rejected" },
+                "transaction_summary": {
+                  "type": "string",
+                  "default": "{{most_expensive_item.name}}"
+                },
+                "transaction_summary_plural": {
+                  "type": "string",
+                  "default": "{{most_expensive_item.name}} and {{count}} more"
+                },
+                "transaction_verified": { "type": "string", "default": "Verified" },
+                "transaction_voided": { "type": "string", "default": "Voided" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No transactions" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": [
+                "code",
+                "customer",
+                "description",
+                "price",
+                "time",
+                "transaction_approved",
+                "transaction_authorized",
+                "transaction_captured",
+                "transaction_completed",
+                "transaction_declined",
+                "transaction_pending",
+                "transaction_plural",
+                "transaction_refunded",
+                "transaction_rejected",
+                "transaction_summary",
+                "transaction_summary_plural",
+                "transaction_verified",
+                "transaction_voided",
+                "spinner"
+              ]
+            }
+          },
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
+        }
+      },
+      "required": ["label", "pagination"]
+    },
+    "cancellation-form": {
+      "additionalProperties": false,
+      "properties": {
+        "end_date": { "type": "string", "default": "End date" },
+        "end_subscription": { "type": "string", "default": "End subscription" },
+        "end_subscription_explainer": {
+          "type": "string",
+          "default": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later."
+        },
+        "v8n_required": { "type": "string", "default": "Required" },
+        "spinner": {
+          "additionalProperties": false,
+          "properties": {
+            "loading_busy": { "type": "string", "default": "Loading" },
+            "loading_error": { "type": "string", "default": "Failed to load" }
+          },
+          "required": ["loading_busy", "loading_error"]
         }
       },
       "required": [
@@ -38,295 +329,72 @@
         "end_subscription_explainer",
         "v8n_required",
         "spinner"
-      ],
-      "additionalProperties": false
-    },
-    "close": {
-      "default": "Close",
-      "type": "string"
-    },
-    "confirm": {
-      "default": "Confirm",
-      "type": "string"
-    },
-    "currency": {
-      "default": "Currency",
-      "type": "string"
-    },
-    "daily": {
-      "default": "Daily",
-      "type": "string"
-    },
-    "daily_plural": {
-      "default": "Every {{count}} days",
-      "type": "string"
-    },
-    "day": {
-      "default": "Day",
-      "type": "string"
-    },
-    "day_plural": {
-      "default": "Days",
-      "type": "string"
-    },
-    "end_subscription": {
-      "default": "End subscription",
-      "type": "string"
-    },
-    "frequency": {
-      "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })",
-      "type": "string"
-    },
-    "frequency_label": {
-      "default": "Frequency",
-      "type": "string"
-    },
-    "item_plural": {
-      "default": "Items",
-      "type": "string"
-    },
-    "month": {
-      "default": "Month",
-      "type": "string"
-    },
-    "month_plural": {
-      "default": "Months",
-      "type": "string"
-    },
-    "monthly": {
-      "default": "Monthly",
-      "type": "string"
-    },
-    "monthly_plural": {
-      "default": "Every {{count}} months",
-      "type": "string"
-    },
-    "next_transaction_date": {
-      "default": "Next transaction date",
-      "type": "string"
-    },
-    "price_recurring": {
-      "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })",
-      "type": "string"
-    },
-    "price_twice_a_month": {
-      "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })",
-      "type": "string"
+      ]
     },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
+      "required": ["loading_busy", "loading_error"]
     },
-    "subscription_active": {
-      "default": "Next payment on {{date, date}}",
-      "type": "string"
-    },
-    "subscription_cancelled": {
-      "default": "Ended on {{date, date}}",
-      "type": "string"
-    },
-    "subscription_failed": {
-      "default": "Payment failed on {{date, date}}",
-      "type": "string"
-    },
-    "subscription_inactive": {
-      "default": "Inactive",
-      "type": "string"
-    },
-    "subscription_will_be_cancelled": {
-      "default": "Ends on {{date, date}}",
-      "type": "string"
-    },
-    "transaction_plural": {
-      "default": "Transactions",
-      "type": "string"
-    },
-    "transactions-table": {
+    "timestamps": {
+      "additionalProperties": false,
       "properties": {
-        "date": {
-          "$ref": "transactions-table.json#/properties/date"
-        },
-        "price": {
-          "$ref": "transactions-table.json#/properties/price"
-        },
-        "receipt": {
-          "$ref": "transactions-table.json#/properties/receipt"
-        },
-        "spinner": {
-          "properties": {
-            "loading_busy": {
-              "$ref": "spinner.json#/properties/loading_busy"
-            },
-            "loading_empty": {
-              "$ref": "spinner.json#/properties/loading_empty"
-            },
-            "loading_error": {
-              "$ref": "spinner.json#/properties/loading_error"
-            }
-          },
-          "required": ["loading_busy", "loading_empty", "loading_error"],
-          "additionalProperties": false
-        },
-        "transaction_approved": {
-          "$ref": "transactions-table.json#/properties/transaction_approved"
-        },
-        "transaction_authorized": {
-          "$ref": "transactions-table.json#/properties/transaction_authorized"
-        },
-        "transaction_captured": {
-          "$ref": "transactions-table.json#/properties/transaction_captured"
-        },
-        "transaction_completed": {
-          "$ref": "transactions-table.json#/properties/transaction_completed"
-        },
-        "transaction_declined": {
-          "$ref": "transactions-table.json#/properties/transaction_declined"
-        },
-        "transaction_pending": {
-          "$ref": "transactions-table.json#/properties/transaction_pending"
-        },
-        "transaction_refunded": {
-          "$ref": "transactions-table.json#/properties/transaction_refunded"
-        },
-        "transaction_rejected": {
-          "$ref": "transactions-table.json#/properties/transaction_rejected"
-        },
-        "transaction_summary": {
-          "$ref": "transactions-table.json#/properties/transaction_summary"
-        },
-        "transaction_summary_plural": {
-          "$ref": "transactions-table.json#/properties/transaction_summary_plural"
-        },
-        "transaction_verified": {
-          "$ref": "transactions-table.json#/properties/transaction_verified"
-        },
-        "transaction_voided": {
-          "$ref": "transactions-table.json#/properties/transaction_voided"
-        }
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
       },
-      "required": [
-        "date",
-        "price",
-        "receipt",
-        "transaction_approved",
-        "transaction_authorized",
-        "transaction_captured",
-        "transaction_completed",
-        "transaction_declined",
-        "transaction_pending",
-        "transaction_refunded",
-        "transaction_rejected",
-        "transaction_summary",
-        "transaction_summary_plural",
-        "transaction_verified",
-        "transaction_voided",
-        "spinner"
-      ],
-      "additionalProperties": false
-    },
-    "twice_a_month": {
-      "default": "Twice a month",
-      "type": "string"
-    },
-    "undo_cancel": {
-      "default": "Review",
-      "type": "string"
-    },
-    "undo_confirm": {
-      "default": "Discard",
-      "type": "string"
-    },
-    "undo_header": {
-      "default": "Unsaved changes",
-      "type": "string"
-    },
-    "undo_message": {
-      "default": "Looks like you didn't save your changes! What would you like to do with them?",
-      "type": "string"
-    },
-    "week": {
-      "default": "Week",
-      "type": "string"
-    },
-    "week_plural": {
-      "default": "Weeks",
-      "type": "string"
-    },
-    "weekly": {
-      "default": "Weekly",
-      "type": "string"
-    },
-    "weekly_plural": {
-      "default": "Every {{count}} weeks",
-      "type": "string"
-    },
-    "year": {
-      "default": "Year",
-      "type": "string"
-    },
-    "year_plural": {
-      "default": "Years",
-      "type": "string"
-    },
-    "yearly": {
-      "default": "Yearly",
-      "type": "string"
-    },
-    "yearly_plural": {
-      "default": "Every {{count}} years",
-      "type": "string"
+      "required": ["date_created", "date_modified", "date"]
     }
   },
   "required": [
+    "day",
+    "day_plural",
+    "week",
+    "week_plural",
+    "month",
+    "month_plural",
+    "year",
+    "year_plural",
     "cancel",
-    "cancellation-form",
     "close",
     "confirm",
     "currency",
-    "daily_plural",
     "daily",
-    "day_plural",
-    "day",
+    "daily_plural",
     "end_subscription",
-    "frequency_label",
     "frequency",
+    "frequency_label",
     "item_plural",
-    "month_plural",
-    "month",
-    "monthly_plural",
     "monthly",
+    "monthly_plural",
     "next_transaction_date",
+    "start_date",
     "price_recurring",
     "price_twice_a_month",
-    "spinner",
     "subscription_active",
     "subscription_cancelled",
     "subscription_failed",
     "subscription_inactive",
     "subscription_will_be_cancelled",
     "transaction_plural",
-    "transactions-table",
     "twice_a_month",
     "undo_cancel",
     "undo_confirm",
     "undo_header",
     "undo_message",
-    "week_plural",
-    "week",
-    "weekly_plural",
     "weekly",
-    "year_plural",
-    "year",
+    "weekly_plural",
+    "yearly",
     "yearly_plural",
-    "yearly"
-  ],
-  "additionalProperties": false
+    "past-due-amount",
+    "attributes",
+    "items",
+    "transactions",
+    "cancellation-form",
+    "spinner",
+    "timestamps"
+  ]
 }

@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "default_additional_field_placeholder": { "type": "string", "default": "None" },
+    "select_protection_title": {
+      "type": "string",
+      "default": "Select a fraud protection type to get started"
+    },
+    "select_another_button_label": { "type": "string", "default": "Back to fraud protections" },
+    "score-threshold-reject": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Rejection threshold" },
+        "placeholder": { "type": "string", "default": "Default" },
+        "helper_text": {
+          "type": "string",
+          "default": "A number between 0 and 100. 0 will disable minFraud and 100 will turn it on for logging but still allow all transactions to go through."
+        },
+        "v8n_out_of_range": {
+          "type": "string",
+          "default": "Please enter a whole number between 0 and 100 (inclusive)."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_out_of_range"]
+    },
+    "description": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Description" },
+        "placeholder": { "type": "string", "default": "None" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Please reduce this description to a 100 characters or less"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Remove" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this fraud protection? You'll need to configure it again if you decide to add it back."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Add fraud protection" } },
+      "required": ["create"]
+    }
+  },
+  "required": [
+    "default_additional_field_placeholder",
+    "select_protection_title",
+    "select_another_button_label",
+    "score-threshold-reject",
+    "description",
+    "timestamps",
+    "spinner",
+    "delete",
+    "create"
+  ]
+}

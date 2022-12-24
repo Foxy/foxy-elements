@@ -1,81 +1,33 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
-    },
-    "confirm": {
-      "default": "Confirm",
-      "type": "string"
-    },
-    "create": {
-      "default": "Create",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "date_created": {
-      "default": "Created on",
-      "type": "string"
-    },
-    "date_modified": {
-      "default": "Last updated",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "confirm": { "type": "string", "default": "Confirm" },
+    "create": { "type": "string", "default": "Create" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "date_created": { "type": "string", "default": "Created on" },
+    "date_modified": { "type": "string", "default": "Last updated" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
-      "default": "This resource will be permanently removed. Are you sure?",
-      "type": "string"
+      "type": "string",
+      "default": "This resource will be permanently removed. Are you sure?"
     },
-    "name": {
-      "default": "Name",
-      "type": "string"
-    },
+    "name": { "type": "string", "default": "Name" },
+    "v8n_required": { "type": "string", "default": "Required" },
+    "v8n_too_long": { "type": "string", "default": "Too long" },
+    "value": { "type": "string", "default": "Value" },
+    "visibility": { "type": "string", "default": "Visibility" },
+    "visibility_private": { "type": "string", "default": "Only me" },
+    "visibility_public": { "type": "string", "default": "Everyone" },
+    "visibility_restricted": { "type": "string", "default": "Store admins" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
-    },
-    "v8n_too_long": {
-      "default": "Too long",
-      "type": "string"
-    },
-    "value": {
-      "default": "Value",
-      "type": "string"
-    },
-    "visibility": {
-      "default": "Visibility",
-      "type": "string"
-    },
-    "visibility_private": {
-      "default": "Only me",
-      "type": "string"
-    },
-    "visibility_public": {
-      "default": "Everyone",
-      "type": "string"
-    },
-    "visibility_restricted": {
-      "default": "Store admins",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -96,6 +48,5 @@
     "visibility_public",
     "visibility_restricted",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

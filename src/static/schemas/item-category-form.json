@@ -1,0 +1,419 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Name" },
+        "placeholder": { "type": "string", "default": "Books" },
+        "helper_text": { "type": "string", "default": "Category description for admins." },
+        "v8n_required": { "type": "string", "default": "Item category name is required" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Item category name can't exceed 50 characters"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+    },
+    "code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Code" },
+        "placeholder": { "type": "string", "default": "MY_BOOKS_CATEGORY" },
+        "helper_text": { "type": "string", "default": "Unique identifier for the cart." },
+        "v8n_required": { "type": "string", "default": "Item category code is required" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Item categoty code can't exceed 50 characters"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+    },
+    "taxes": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Taxes" },
+        "helper_text": {
+          "type": "string",
+          "default": "Select taxes that will apply to the products in this category. Changes here are saved immediately."
+        },
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
+            "tax-card": {
+              "additionalProperties": false,
+              "properties": {
+                "percent": { "type": "string", "default": "{{fraction, percent}}" },
+                "tax_global": { "type": "string", "default": "Global tax" },
+                "tax_rate_provider_default": {
+                  "type": "string",
+                  "default": "Default (Thomson Reuters; others)"
+                },
+                "tax_union": { "type": "string", "default": "European Union tax" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No data" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": [
+                "percent",
+                "tax_global",
+                "tax_rate_provider_default",
+                "tax_union",
+                "spinner"
+              ]
+            }
+          },
+          "required": ["first", "last", "next", "pagination", "previous", "tax-card"]
+        }
+      },
+      "required": ["title", "helper_text", "pagination"]
+    },
+    "item-delivery-type": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Delivery" },
+        "option_shipped": { "type": "string", "default": "Shipped using live rates" },
+        "option_flat_rate": { "type": "string", "default": "Shipped using a flat rate" },
+        "option_downloaded": { "type": "string", "default": "Downloaded by the customer" },
+        "option_pickup": { "type": "string", "default": "Picked up by the customer" },
+        "option_notshipped": { "type": "string", "default": "Not shipped" },
+        "placeholder": { "type": "string", "default": "Not shipped" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please select a delivery type" }
+      },
+      "required": [
+        "label",
+        "option_shipped",
+        "option_flat_rate",
+        "option_downloaded",
+        "option_pickup",
+        "option_notshipped",
+        "placeholder",
+        "helper_text",
+        "v8n_required"
+      ]
+    },
+    "default-weight": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Default weight" },
+        "placeholder": { "type": "string", "default": "1" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "This field is required" },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "default-weight-unit": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Default weight unit" },
+        "placeholder": { "type": "string", "default": "Select..." },
+        "option_kgs": { "type": "string", "default": "KG" },
+        "option_lbs": { "type": "string", "default": "LG" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please select a unit" }
+      },
+      "required": [
+        "label",
+        "placeholder",
+        "option_kgs",
+        "option_lbs",
+        "helper_text",
+        "v8n_required"
+      ]
+    },
+    "default-length-unit": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Default length unit" },
+        "placeholder": { "type": "string", "default": "Select..." },
+        "option_cm": { "type": "string", "default": "CM" },
+        "option_in": { "type": "string", "default": "IN" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please select a unit" }
+      },
+      "required": ["label", "placeholder", "option_cm", "option_in", "helper_text", "v8n_required"]
+    },
+    "max-downloads-per-customer": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Max downloads" },
+        "placeholder": { "type": "string", "default": "3" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "This field is required" },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "max-downloads-time-period": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Access duration (hrs)" },
+        "placeholder": { "type": "string", "default": "24" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "This field is required" },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "shipping-flat-rate": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Rate" },
+        "placeholder": { "type": "string", "default": "0" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "This field is required" },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "shipping-flat-rate-type": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Applies" },
+        "placeholder": { "type": "string", "default": "Select..." },
+        "option_per_order": { "type": "string", "default": "Per order" },
+        "option_per_shipment": { "type": "string", "default": "Per shipment" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please select a value" }
+      },
+      "required": [
+        "label",
+        "placeholder",
+        "option_per_order",
+        "option_per_shipment",
+        "helper_text",
+        "v8n_required"
+      ]
+    },
+    "customs-value": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Customs value" },
+        "placeholder": { "type": "string", "default": "0" },
+        "helper_text": {
+          "type": "string",
+          "default": "Enter a dollar amount here for the declared customs value for international shipments. If you leave this blank, the sale price of the item will be used."
+        },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_negative"]
+    },
+    "handling-fee-type": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Handling fee" },
+        "option_none": { "type": "string", "default": "No handling fee" },
+        "option_flat_per_order": { "type": "string", "default": "Flat fee per shipment" },
+        "option_flat_per_item": { "type": "string", "default": "Flat fee per product" },
+        "option_flat_percent": {
+          "type": "string",
+          "default": "Flat fee per shipment + % of price"
+        },
+        "option_flat_percent_with_minimum": {
+          "type": "string",
+          "default": "Flat fee per shipment or % of price, whichever is greater"
+        },
+        "placeholder": { "type": "string", "default": "No handling fee" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please select a value" }
+      },
+      "required": [
+        "label",
+        "option_none",
+        "option_flat_per_order",
+        "option_flat_per_item",
+        "option_flat_percent",
+        "option_flat_percent_with_minimum",
+        "placeholder",
+        "helper_text",
+        "v8n_required"
+      ]
+    },
+    "handling-fee": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Amount" },
+        "placeholder": { "type": "string", "default": "0" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "This field is required" },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "handling-fee-minimum": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Minimum fee" },
+        "placeholder": { "type": "string", "default": "0" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "This field is required" },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "handling-fee-percentage": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Percentage of price" },
+        "placeholder": { "type": "string", "default": "0" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "This field is required" },
+        "v8n_negative": { "type": "string", "default": "Please enter a positive number" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "discount-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Discount" },
+        "placeholder": { "type": "string", "default": "Name your discount to open the builder" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "discount-builder": {
+      "additionalProperties": false,
+      "properties": {
+        "tier": { "type": "string", "default": "Tier" },
+        "tier_by": { "type": "string", "default": "by" },
+        "tier_if": { "type": "string", "default": "if" },
+        "tier_allunits": { "type": "string", "default": "price of each item" },
+        "tier_incremental": { "type": "string", "default": "price of additional items" },
+        "tier_repeat": { "type": "string", "default": "price of next item" },
+        "tier_single": { "type": "string", "default": "order total" },
+        "tier_then": { "type": "string", "default": "then" },
+        "quantity": { "type": "string", "default": "quantity" },
+        "total": { "type": "string", "default": "total" },
+        "reduce": { "type": "string", "default": "reduce" },
+        "increase": { "type": "string", "default": "increase" }
+      },
+      "required": [
+        "tier",
+        "tier_by",
+        "tier_if",
+        "tier_allunits",
+        "tier_incremental",
+        "tier_repeat",
+        "tier_single",
+        "tier_then",
+        "quantity",
+        "total",
+        "reduce",
+        "increase"
+      ]
+    },
+    "admin-email-template-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Email to admin" },
+        "placeholder": { "type": "string", "default": "None (don't send)" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "admin-email": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Send to" },
+        "placeholder": { "type": "string", "default": "admin@example.com" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please enter an email" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "customer-email-template-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Email to customer" },
+        "placeholder": { "type": "string", "default": "None (don't send)" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "gift-recipient-email-template-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Email to gift recipient" },
+        "placeholder": { "type": "string", "default": "None (don't send)" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this item category? You won't be able to bring it back."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
+    }
+  },
+  "required": [
+    "name",
+    "code",
+    "taxes",
+    "item-delivery-type",
+    "default-weight",
+    "default-weight-unit",
+    "default-length-unit",
+    "max-downloads-per-customer",
+    "max-downloads-time-period",
+    "shipping-flat-rate",
+    "shipping-flat-rate-type",
+    "customs-value",
+    "handling-fee-type",
+    "handling-fee",
+    "handling-fee-minimum",
+    "handling-fee-percentage",
+    "discount-name",
+    "discount-builder",
+    "admin-email-template-uri",
+    "admin-email",
+    "customer-email-template-uri",
+    "gift-recipient-email-template-uri",
+    "timestamps",
+    "delete",
+    "create",
+    "spinner"
+  ]
+}

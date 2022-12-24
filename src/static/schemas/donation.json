@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "comment_placeholder": { "type": "string", "default": "Anything you'd like to let us know" },
+    "comment_label": { "type": "string", "default": "Comment" },
+    "designation": { "type": "string", "default": "Designation" },
+    "anonymous": { "type": "string", "default": "Remain anonymous" },
+    "amount": { "type": "string", "default": "Amount" },
+    "donate": { "type": "string", "default": "Donate {{amount}}" },
+    "donate_recurrently": {
+      "type": "string",
+      "default": "Donate {{amount}} {{frequency, lowercase}}"
+    }
+  },
+  "required": [
+    "comment_placeholder",
+    "comment_label",
+    "designation",
+    "anonymous",
+    "amount",
+    "donate",
+    "donate_recurrently"
+  ]
+}

@@ -1,52 +1,26 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "line_1": {
-      "type": "string",
-      "default": "{{ count }} item • {{ amount, price }}"
-    },
-    "line_1_plural": {
-      "type": "string",
-      "default": "{{ count }} items • {{ amount, price }}"
-    },
+    "line_1": { "type": "string", "default": "{{ count }} item • {{ amount, price }}" },
+    "line_1_plural": { "type": "string", "default": "{{ count }} items • {{ amount, price }}" },
     "line_1_approximate": {
       "type": "string",
       "default": "At least 20 items • {{ amount, price }}"
     },
-    "line_2_one": {
-      "type": "string",
-      "default": "{{ name }}"
-    },
-    "line_2_many": {
-      "type": "string",
-      "default": "{{ name }} + more"
-    },
-    "line_2_empty": {
-      "type": "string",
-      "default": "Empty cart"
-    },
-    "no_customer": {
-      "type": "string",
-      "default": "Customer unknown"
-    },
-    "status": {
-      "type": "string",
-      "default": "{{ dateCreated, date }}"
-    },
+    "line_2_one": { "type": "string", "default": "{{ name }}" },
+    "line_2_many": { "type": "string", "default": "{{ name }} + more" },
+    "line_2_empty": { "type": "string", "default": "Empty cart" },
+    "no_customer": { "type": "string", "default": "Customer unknown" },
+    "status": { "type": "string", "default": "{{ dateCreated, date }}" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -57,7 +31,7 @@
     "line_2_many",
     "line_2_empty",
     "no_customer",
+    "status",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

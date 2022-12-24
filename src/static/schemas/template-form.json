@@ -1,85 +1,40 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "cache": {
-      "default": "Cache",
-      "type": "string"
-    },
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
-    },
-    "create": {
-      "default": "Create",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "date_created": {
-      "default": "Created on",
-      "type": "string"
-    },
-    "date_modified": {
-      "default": "Last updated",
-      "type": "string"
-    },
-    "default": {
-      "default": "Default",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
+    "cache": { "type": "string", "default": "Cache" },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "create": { "type": "string", "default": "Create" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "date_created": { "type": "string", "default": "Created on" },
+    "date_modified": { "type": "string", "default": "Last updated" },
+    "default": { "type": "string", "default": "Default" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
-      "default": "This resource will be permanently removed. Are you sure?",
-      "type": "string"
+      "type": "string",
+      "default": "This resource will be permanently removed. Are you sure?"
     },
-    "description": {
-      "default": "Description",
-      "type": "string"
+    "description": { "type": "string", "default": "Description" },
+    "template": { "type": "string", "default": "Template" },
+    "template_clipboard": { "type": "string", "default": "From clipboard" },
+    "template_clipboard_explainer": {
+      "type": "string",
+      "default": "Paste the template here to use it"
+    },
+    "template_default": { "type": "string", "default": "Default" },
+    "template_default_explainer": { "type": "string", "default": "Use the default template" },
+    "template_url": { "type": "string", "default": "From URL" },
+    "template_url_explainer": {
+      "type": "string",
+      "default": "Fetch the template from a public URL"
     },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "template": {
-      "default": "Template",
-      "type": "string"
-    },
-    "template_clipboard": {
-      "default": "From clipboard",
-      "type": "string"
-    },
-    "template_clipboard_explainer": {
-      "default": "Paste the template here to use it",
-      "type": "string"
-    },
-    "template_default": {
-      "default": "Default",
-      "type": "string"
-    },
-    "template_default_explainer": {
-      "default": "Use the default template",
-      "type": "string"
-    },
-    "template_url": {
-      "default": "From URL",
-      "type": "string"
-    },
-    "template_url_explainer": {
-      "default": "Fetch the template from a public URL",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -101,6 +56,5 @@
     "template_url",
     "template_url_explainer",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

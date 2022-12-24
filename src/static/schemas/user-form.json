@@ -1,95 +1,47 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "backend_developer": {
-      "type": "string",
-      "default": "Backend developer"
-    },
+    "backend_developer": { "type": "string", "default": "Backend developer" },
     "backend_developer_explainer": {
       "type": "string",
       "default": "Manages server-side code in PHP, Python, Ruby, etc."
     },
-    "cancel": {
-      "type": "string",
-      "default": "Cancel"
-    },
-    "create": {
-      "type": "string",
-      "default": "Create"
-    },
-    "delete": {
-      "type": "string",
-      "default": "Delete"
-    },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "create": { "type": "string", "default": "Create" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
       "type": "string",
       "default": "This resource will be permanently removed. Are you sure?"
     },
-    "designer": {
-      "type": "string",
-      "default": "Designer"
-    },
+    "designer": { "type": "string", "default": "Designer" },
     "designer_explainer": {
       "type": "string",
       "default": "Manages appearance, art and user interface."
     },
-    "email": {
-      "type": "string",
-      "default": "Email"
-    },
-    "first_name": {
-      "type": "string",
-      "default": "First name"
-    },
-    "frontend_developer": {
-      "type": "string",
-      "default": "Frontend developer"
-    },
+    "email": { "type": "string", "default": "Email" },
+    "first_name": { "type": "string", "default": "First name" },
+    "frontend_developer": { "type": "string", "default": "Frontend developer" },
     "frontend_developer_explainer": {
       "type": "string",
       "default": "Manages client-side code in JS, CSS, HTML, etc."
     },
-    "hidden": {
-      "type": "string",
-      "default": "Hidden"
-    },
-    "last_name": {
-      "type": "string",
-      "default": "Last name"
-    },
-    "merchant": {
-      "type": "string",
-      "default": "Merchant"
-    },
+    "hidden": { "type": "string", "default": "Hidden" },
+    "last_name": { "type": "string", "default": "Last name" },
+    "merchant": { "type": "string", "default": "Merchant" },
     "merchant_explainer": {
       "type": "string",
       "default": "Manages items, finances and this store in general."
     },
-    "phone": {
-      "type": "string",
-      "default": "Phone"
-    },
-    "v8n_invalid_email": {
-      "type": "string",
-      "default": "Invalid email"
-    },
-    "v8n_required": {
-      "type": "string",
-      "default": "Required"
-    },
-    "v8n_too_long": {
-      "type": "string",
-      "default": "Too long"
-    },
+    "phone": { "type": "string", "default": "Phone" },
+    "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
+    "v8n_required": { "type": "string", "default": "Required" },
+    "v8n_too_long": { "type": "string", "default": "Too long" },
     "spinner": {
       "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
       "required": ["loading_busy", "loading_error"]
     }
@@ -116,6 +68,5 @@
     "v8n_required",
     "v8n_too_long",
     "spinner"
-  ],
-  "$schema": "http://json-schema.org/draft-07/schema"
+  ]
 }

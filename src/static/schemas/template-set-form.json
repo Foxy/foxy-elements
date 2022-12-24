@@ -1,185 +1,132 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
     "description": {
+      "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Description"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "Required - e.g. My Template Set"
-        },
+        "label": { "type": "string", "default": "Description" },
+        "placeholder": { "type": "string", "default": "Required - e.g. My Template Set" },
         "helper_text": {
           "type": "string",
           "default": "Any label that will help you identify this template set in the admin. We won't show this text to the customers."
         },
-        "v8n_required": {
-          "type": "string",
-          "default": "Please enter a description for this set"
-        },
+        "v8n_required": { "type": "string", "default": "Please enter a description for this set" },
         "v8n_too_long": {
           "type": "string",
           "default": "Please reduce this description to 100 characters or less"
         }
       },
-      "additionalProperties": false,
       "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
     },
     "code": {
+      "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Code"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "Required - e.g. MY-TEMPLATE-SET"
-        },
+        "label": { "type": "string", "default": "Code" },
+        "placeholder": { "type": "string", "default": "Required - e.g. MY-TEMPLATE-SET" },
         "helper_text": {
-          "default": "The template set code for applying this template set to the cart. Your customers might see this code in the URL.",
-          "type": "string"
-        },
-        "v8n_required": {
           "type": "string",
-          "default": "Please enter a code for this set"
+          "default": "The template set code for applying this template set to the cart. Your customers might see this code in the URL."
         },
+        "v8n_required": { "type": "string", "default": "Please enter a code for this set" },
         "v8n_too_long": {
           "type": "string",
           "default": "Please reduce this code to 50 characters or less"
         }
       },
-      "additionalProperties": false,
       "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
     },
     "language": {
-      "properties": {
-        "label": {
-          "type": "string",
-          "default": "Language"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "Select language"
-        },
-        "helper_text": {
-          "default": "We'll apply this language to our cart, checkout and receipt pages.",
-          "type": "string"
-        },
-        "v8n_required": {
-          "type": "string",
-          "default": "Please select a language for this set"
-        }
-      },
       "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Language" },
+        "placeholder": { "type": "string", "default": "Select language" },
+        "helper_text": {
+          "type": "string",
+          "default": "We'll apply this language to our cart, checkout and receipt pages."
+        },
+        "v8n_required": { "type": "string", "default": "Please select a language for this set" }
+      },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "locale-code": {
-      "properties": {
-        "label": {
-          "type": "string",
-          "default": "Locale"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "Select locale"
-        },
-        "helper_text": {
-          "default": "We'll use this locale to format prices and dates for your customers.",
-          "type": "string"
-        },
-        "v8n_required": {
-          "type": "string",
-          "default": "Please select a locale for this set"
-        }
-      },
       "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Locale" },
+        "placeholder": { "type": "string", "default": "Select locale" },
+        "helper_text": {
+          "type": "string",
+          "default": "We'll use this locale to format prices and dates for your customers."
+        },
+        "v8n_required": { "type": "string", "default": "Please select a locale for this set" }
+      },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "payment-method-set-uri": {
+      "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Payment method set"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "Default payment method set"
-        },
+        "label": { "type": "string", "default": "Payment method set" },
+        "placeholder": { "type": "string", "default": "Default payment method set" },
         "helper_text": {
-          "default": "With this template set applied, your customers will see payment methods from the selected set.",
-          "type": "string"
+          "type": "string",
+          "default": "With this template set applied, your customers will see payment methods from the selected set."
         }
       },
-      "additionalProperties": false,
       "required": ["label", "placeholder", "helper_text"]
     },
     "language-overrides": {
-      "$ref": "i18n-editor.json"
-    },
-    "timestamps": {
+      "additionalProperties": false,
       "properties": {
-        "date_created": {
-          "type": "string",
-          "default": "Created on"
-        },
-        "date_modified": {
-          "type": "string",
-          "default": "Last updated"
-        },
-        "date": {
-          "type": "string",
-          "default": "{{value, date}}"
+        "delete_button_title": { "type": "string", "default": "Restore default value" },
+        "save_button": { "type": "string", "default": "Save" },
+        "undo_button": { "type": "string", "default": "Undo" },
+        "spinner": {
+          "additionalProperties": false,
+          "properties": {
+            "loading_busy": { "type": "string", "default": "Loading" },
+            "loading_empty": { "type": "string", "default": "No data" },
+            "loading_error": { "type": "string", "default": "Failed to load" }
+          },
+          "required": ["loading_busy", "loading_empty", "loading_error"]
         }
       },
+      "required": ["delete_button_title", "save_button", "undo_button", "spinner"]
+    },
+    "timestamps": {
       "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
       "required": ["date_created", "date_modified", "date"]
     },
     "delete": {
+      "additionalProperties": false,
       "properties": {
-        "delete": {
-          "type": "string",
-          "default": "Delete"
-        },
-        "cancel": {
-          "type": "string",
-          "default": "Cancel"
-        },
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
         "delete_prompt": {
           "type": "string",
           "default": "Are you sure you'd like to remove this template set? You won't be able to bring it back."
         }
       },
-      "additionalProperties": false,
       "required": ["delete", "cancel", "delete_prompt"]
     },
     "create": {
-      "properties": {
-        "create": {
-          "type": "string",
-          "default": "Create"
-        }
-      },
       "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
       "required": ["create"]
     },
     "spinner": {
-      "properties": {
-        "loading_busy": {
-          "type": "string",
-          "default": "Loading"
-        },
-        "loading_error": {
-          "type": "string",
-          "default": "Failed to load"
-        }
-      },
       "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
       "required": ["loading_busy", "loading_error"]
     }
   },
-  "additionalProperties": false,
   "required": [
     "description",
     "code",

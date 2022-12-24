@@ -1,0 +1,207 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "description": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Description" },
+        "placeholder": { "type": "string", "default": "E.g. EU & UK Payment Options" },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please describe this payment method set" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Please reduce this description to a 100 characters or less"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+    },
+    "is-live": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "" },
+        "option_live": { "type": "string", "default": "Use live credentials" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "option_live", "helper_text"]
+    },
+    "is-purchase-order-enabled": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "" },
+        "option_true": { "type": "string", "default": "Allow purchase orders" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "option_true", "helper_text"]
+    },
+    "payment-methods": {
+      "additionalProperties": false,
+      "properties": {
+        "delete_header": { "type": "string", "default": "Remove payment method" },
+        "delete_message": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this payment method? You'll need to configure it again if you decide to bring it back."
+        },
+        "delete_confirm": { "type": "string", "default": "Remove" },
+        "delete_cancel": { "type": "string", "default": "Cancel" },
+        "title": { "type": "string", "default": "Payment methods" },
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "header_update": { "type": "string", "default": "Payment method" },
+            "header_create": { "type": "string", "default": "New payment method" },
+            "close": { "type": "string", "default": "Close" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "save": { "type": "string", "default": "Save" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" }
+          },
+          "required": [
+            "header_update",
+            "header_create",
+            "close",
+            "cancel",
+            "save",
+            "undo_header",
+            "undo_message",
+            "undo_cancel",
+            "undo_confirm"
+          ]
+        },
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "create_button_text": { "type": "string", "default": "Add payment method" },
+            "card": {
+              "additionalProperties": false,
+              "properties": { "delete_button_text": { "type": "string", "default": "Remove" } },
+              "required": ["delete_button_text"]
+            }
+          },
+          "required": ["create_button_text", "card"]
+        }
+      },
+      "required": [
+        "delete_header",
+        "delete_message",
+        "delete_confirm",
+        "delete_cancel",
+        "title",
+        "dialog",
+        "pagination"
+      ]
+    },
+    "fraud-protections": {
+      "additionalProperties": false,
+      "properties": {
+        "delete_header": { "type": "string", "default": "Remove fraud protection" },
+        "delete_message": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this fraud protection? You'll need to configure it again if you decide to bring it back."
+        },
+        "delete_confirm": { "type": "string", "default": "Remove" },
+        "delete_cancel": { "type": "string", "default": "Cancel" },
+        "title": { "type": "string", "default": "Fraud protections" },
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "header_update": { "type": "string", "default": "Fraud protection" },
+            "header_create": { "type": "string", "default": "New fraud protection" },
+            "close": { "type": "string", "default": "Close" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "save": { "type": "string", "default": "Save" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" }
+          },
+          "required": [
+            "header_update",
+            "header_create",
+            "close",
+            "cancel",
+            "save",
+            "undo_header",
+            "undo_message",
+            "undo_cancel",
+            "undo_confirm"
+          ]
+        },
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "create_button_text": { "type": "string", "default": "Add fraud protection" },
+            "card": {
+              "additionalProperties": false,
+              "properties": { "delete_button_text": { "type": "string", "default": "Remove" } },
+              "required": ["delete_button_text"]
+            }
+          },
+          "required": ["create_button_text", "card"]
+        }
+      },
+      "required": [
+        "delete_header",
+        "delete_message",
+        "delete_confirm",
+        "delete_cancel",
+        "title",
+        "dialog",
+        "pagination"
+      ]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this payment method set? You won't be able to bring it back."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
+    }
+  },
+  "required": [
+    "description",
+    "is-live",
+    "is-purchase-order-enabled",
+    "payment-methods",
+    "fraud-protections",
+    "timestamps",
+    "spinner",
+    "delete",
+    "create"
+  ]
+}

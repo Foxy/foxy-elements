@@ -1,152 +1,71 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
     "name": {
       "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Name"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "My JSON Webhook"
-        },
-        "helper_text": {
-          "type": "string",
-          "default": "The name of this webhook."
-        },
-        "v8n_required": {
-          "type": "string",
-          "default": "Webhook name is required"
-        },
-        "v8n_too_long": {
-          "type": "string",
-          "default": "Webhook name cannot exceed 255 characters"
-        }
+        "label": { "type": "string", "default": "Name" },
+        "placeholder": { "type": "string", "default": "My JSON Webhook" },
+        "helper_text": { "type": "string", "default": "The name of this webhook." },
+        "v8n_required": { "type": "string", "default": "Webhook name is required" },
+        "v8n_too_long": { "type": "string", "default": "Webhook name cannot exceed 255 characters" }
       },
-      "required": [
-        "label",
-        "placeholder",
-        "helper_text",
-        "v8n_required",
-        "v8n_too_long"
-      ]
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
     },
     "format": {
       "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Format"
-        },
-        "helper_text": {
-          "type": "string",
-          "default": "The type of this webhook."
-        },
-        "v8n_required": {
-          "type": "string",
-          "default": "Please select a format"
-        }
+        "label": { "type": "string", "default": "Format" },
+        "helper_text": { "type": "string", "default": "The type of this webhook." },
+        "v8n_required": { "type": "string", "default": "Please select a format" }
       },
-      "required": [
-        "label",
-        "helper_text",
-        "v8n_required"
-      ]
+      "required": ["label", "helper_text", "v8n_required"]
     },
     "version": {
       "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Version"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "2"
-        },
+        "label": { "type": "string", "default": "Version" },
+        "placeholder": { "type": "string", "default": "2" },
         "helper_text": {
           "type": "string",
           "default": "Version of the webhook. Enter 2 for latest or use other if you have specific instructions from Foxy."
         },
-        "v8n_required": {
-          "type": "string",
-          "default": "Version is required"
-        }
+        "v8n_required": { "type": "string", "default": "Version is required" }
       },
-      "required": [
-        "label",
-        "placeholder",
-        "helper_text",
-        "v8n_required"
-      ]
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "url": {
       "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "URL"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "https://example.com/webhook"
-        },
+        "label": { "type": "string", "default": "URL" },
+        "placeholder": { "type": "string", "default": "https://example.com/webhook" },
         "helper_text": {
           "type": "string",
           "default": "The endpoint where we will send the webhook data."
         },
-        "v8n_too_long": {
-          "type": "string",
-          "default": "URL cannot exceed 1000 characters"
-        }
+        "v8n_too_long": { "type": "string", "default": "URL cannot exceed 1000 characters" }
       },
-      "required": [
-        "label",
-        "placeholder",
-        "helper_text",
-        "v8n_too_long"
-      ]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "query": {
       "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Query"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "zoom=items,items:options,customer"
-        },
+        "label": { "type": "string", "default": "Query" },
+        "placeholder": { "type": "string", "default": "zoom=items,items:options,customer" },
         "helper_text": {
           "type": "string",
           "default": "The webhook payload mirrors the API, and you can include more or less data according to your needs using zoom and other modifiers."
         },
-        "v8n_too_long": {
-          "type": "string",
-          "default": "Query cannot exceed 1000 characters"
-        }
+        "v8n_too_long": { "type": "string", "default": "Query cannot exceed 1000 characters" }
       },
-      "required": [
-        "label",
-        "placeholder",
-        "helper_text",
-        "v8n_too_long"
-      ]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "encryption-key": {
       "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Encryption key"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "HNL978XVXXCM66DM5N2T78D5MT66BC6D"
-        },
+        "label": { "type": "string", "default": "Encryption key" },
+        "placeholder": { "type": "string", "default": "HNL978XVXXCM66DM5N2T78D5MT66BC6D" },
         "helper_text": {
           "type": "string",
           "default": "The JSON webhooks are encrypted in certain situations. This key is also used to generate a signature to verify the integrity of the payload."
@@ -156,36 +75,19 @@
           "default": "Encryption key cannot exceed 1000 characters"
         }
       },
-      "required": [
-        "label",
-        "placeholder",
-        "helper_text",
-        "v8n_too_long"
-      ]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "event-resource": {
       "additionalProperties": false,
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Resource"
-        },
+        "label": { "type": "string", "default": "Resource" },
         "helper_text": {
           "type": "string",
           "default": "Changes in selected resource type will trigger this webhook."
         },
-        "event_resource_subscription": {
-          "type": "string",
-          "default": "Subscription"
-        },
-        "event_resource_transaction": {
-          "type": "string",
-          "default": "Transaction"
-        },
-        "event_resource_customer": {
-          "type": "string",
-          "default": "Customer"
-        }
+        "event_resource_subscription": { "type": "string", "default": "Subscription" },
+        "event_resource_transaction": { "type": "string", "default": "Transaction" },
+        "event_resource_customer": { "type": "string", "default": "Customer" }
       },
       "required": [
         "label",
@@ -198,73 +100,30 @@
     "statuses": {
       "additionalProperties": false,
       "properties": {
-        "title": {
-          "type": "string",
-          "default": "Statuses"
-        },
+        "title": { "type": "string", "default": "Statuses" },
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "first": {
-              "type": "string",
-              "default": "First"
-            },
-            "last": {
-              "type": "string",
-              "default": "Last"
-            },
-            "next": {
-              "type": "string",
-              "default": "Next"
-            },
-            "pagination": {
-              "type": "string",
-              "default": "{{from}}-{{to}} out of {{total}}"
-            },
-            "previous": {
-              "type": "string",
-              "default": "Previous"
-            },
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
             "card": {
               "additionalProperties": false,
               "properties": {
-                "status_successful": {
-                  "type": "string",
-                  "default": "Successful"
-                },
-                "status_pending": {
-                  "type": "string",
-                  "default": "Pending"
-                },
-                "status_failed": {
-                  "type": "string",
-                  "default": "Failed"
-                },
-                "date": {
-                  "type": "string",
-                  "default": "{{value, date}}"
-                },
+                "status_successful": { "type": "string", "default": "Successful" },
+                "status_pending": { "type": "string", "default": "Pending" },
+                "status_failed": { "type": "string", "default": "Failed" },
+                "date": { "type": "string", "default": "{{value, date}}" },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
-                    "loading_busy": {
-                      "type": "string",
-                      "default": "Loading"
-                    },
-                    "loading_error": {
-                      "type": "string",
-                      "default": "Failed to load"
-                    },
-                    "loading_empty": {
-                      "type": "string",
-                      "default": "No data"
-                    }
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Failed to load" },
+                    "loading_empty": { "type": "string", "default": "No data" }
                   },
-                  "required": [
-                    "loading_busy",
-                    "loading_error",
-                    "loading_empty"
-                  ]
+                  "required": ["loading_busy", "loading_error", "loading_empty"]
                 }
               },
               "required": [
@@ -276,174 +135,78 @@
               ]
             }
           },
-          "required": [
-            "first",
-            "last",
-            "next",
-            "pagination",
-            "previous",
-            "card"
-          ]
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
         }
       },
-      "required": [
-        "title",
-        "pagination"
-      ]
+      "required": ["title", "pagination"]
     },
     "logs": {
       "additionalProperties": false,
       "properties": {
-        "title": {
-          "type": "string",
-          "default": "Logs"
-        },
+        "title": { "type": "string", "default": "Logs" },
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "first": {
-              "type": "string",
-              "default": "First"
-            },
-            "last": {
-              "type": "string",
-              "default": "Last"
-            },
-            "next": {
-              "type": "string",
-              "default": "Next"
-            },
-            "pagination": {
-              "type": "string",
-              "default": "{{from}}-{{to}} out of {{total}}"
-            },
-            "previous": {
-              "type": "string",
-              "default": "Previous"
-            },
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
             "card": {
               "additionalProperties": false,
               "properties": {
-                "date": {
-                  "type": "string",
-                  "default": "{{value, date}}"
-                },
+                "date": { "type": "string", "default": "{{value, date}}" },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
-                    "loading_busy": {
-                      "type": "string",
-                      "default": "Loading"
-                    },
-                    "loading_error": {
-                      "type": "string",
-                      "default": "Failed to load"
-                    },
-                    "loading_empty": {
-                      "type": "string",
-                      "default": "No data"
-                    }
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Failed to load" },
+                    "loading_empty": { "type": "string", "default": "No data" }
                   },
-                  "required": [
-                    "loading_busy",
-                    "loading_error",
-                    "loading_empty"
-                  ]
+                  "required": ["loading_busy", "loading_error", "loading_empty"]
                 }
               },
-              "required": [
-                "date",
-                "spinner"
-              ]
+              "required": ["date", "spinner"]
             }
           },
-          "required": [
-            "first",
-            "last",
-            "next",
-            "pagination",
-            "previous",
-            "card"
-          ]
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
         }
       },
-      "required": [
-        "title",
-        "pagination"
-      ]
+      "required": ["title", "pagination"]
     },
     "timestamps": {
       "additionalProperties": false,
       "properties": {
-        "date_created": {
-          "type": "string",
-          "default": "Created on"
-        },
-        "date_modified": {
-          "type": "string",
-          "default": "Last updated"
-        },
-        "date": {
-          "type": "string",
-          "default": "{{value, date}}"
-        }
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
       },
-      "required": [
-        "date_created",
-        "date_modified",
-        "date"
-      ]
+      "required": ["date_created", "date_modified", "date"]
     },
     "delete": {
       "additionalProperties": false,
       "properties": {
-        "delete": {
-          "type": "string",
-          "default": "Delete"
-        },
-        "cancel": {
-          "type": "string",
-          "default": "Cancel"
-        },
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
         "delete_prompt": {
           "type": "string",
           "default": "Are you sure you'd like to remove this webhook? You won't be able to bring it back."
         }
       },
-      "required": [
-        "delete",
-        "cancel",
-        "delete_prompt"
-      ]
+      "required": ["delete", "cancel", "delete_prompt"]
     },
     "create": {
       "additionalProperties": false,
-      "properties": {
-        "create": {
-          "type": "string",
-          "default": "Create"
-        }
-      },
-      "required": [
-        "create"
-      ]
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
     },
     "spinner": {
       "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "type": "string",
-          "default": "Loading"
-        },
-        "loading_error": {
-          "type": "string",
-          "default": "Failed to load"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": [
-        "loading_busy",
-        "loading_error"
-      ]
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -460,6 +223,5 @@
     "delete",
     "create",
     "spinner"
-  ],
-  "$schema": "http://json-schema.org/draft-07/schema"
+  ]
 }

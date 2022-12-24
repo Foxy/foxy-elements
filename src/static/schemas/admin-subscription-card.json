@@ -1,26 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "daily": {
-      "type": "string",
-      "default": "/ day"
-    },
-    "daily_plural": {
-      "type": "string",
-      "default": "/ {{count}} days"
-    },
+    "daily": { "type": "string", "default": "/ day" },
+    "daily_plural": { "type": "string", "default": "/ {{count}} days" },
     "frequency": {
       "type": "string",
       "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"admin-subscription-card\" })"
     },
-    "monthly": {
-      "type": "string",
-      "default": "/ month"
-    },
-    "monthly_plural": {
-      "type": "string",
-      "default": "/ {{count}} months"
-    },
+    "monthly": { "type": "string", "default": "/ month" },
+    "monthly_plural": { "type": "string", "default": "/ {{count}} months" },
     "price_recurring": {
       "type": "string",
       "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"admin-subscription-card\" })"
@@ -29,72 +18,30 @@
       "type": "string",
       "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"admin-subscription-card\" })"
     },
-    "subscription_active": {
-      "type": "string",
-      "default": "Next payment on {{date, date}}"
-    },
-    "subscription_cancelled": {
-      "type": "string",
-      "default": "Ended on {{date, date}}"
-    },
-    "subscription_failed": {
-      "type": "string",
-      "default": "Payment failed on {{date, date}}"
-    },
-    "subscription_inactive": {
-      "type": "string",
-      "default": "Inactive"
-    },
-    "subscription_will_be_cancelled": {
-      "type": "string",
-      "default": "Ends on {{date, date}}"
-    },
-    "summary": {
-      "type": "string",
-      "default": "{{ firstItem.name }}"
-    },
+    "subscription_active": { "type": "string", "default": "Next payment on {{date, date}}" },
+    "subscription_cancelled": { "type": "string", "default": "Ended on {{date, date}}" },
+    "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
+    "subscription_inactive": { "type": "string", "default": "Inactive" },
+    "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+    "summary": { "type": "string", "default": "{{ firstItem.name }}" },
     "summary_plural": {
       "type": "string",
       "default": "{{ firstItem.name }} + {{ countMinus1 }} more"
     },
-    "summary_approximate": {
-      "type": "string",
-      "default": "{{ firstItem.name }} + more"
-    },
-    "twice_a_month": {
-      "default": "twice a month",
-      "type": "string"
-    },
-    "weekly": {
-      "type": "string",
-      "default": "/ week"
-    },
-    "weekly_plural": {
-      "type": "string",
-      "default": "/ {{count}} weeks"
-    },
-    "yearly": {
-      "type": "string",
-      "default": "/ year"
-    },
-    "yearly_plural": {
-      "type": "string",
-      "default": "/ {{count}} years"
-    },
+    "summary_approximate": { "type": "string", "default": "{{ firstItem.name }} + more" },
+    "twice_a_month": { "type": "string", "default": "twice a month" },
+    "weekly": { "type": "string", "default": "/ week" },
+    "weekly_plural": { "type": "string", "default": "/ {{count}} weeks" },
+    "yearly": { "type": "string", "default": "/ year" },
+    "yearly_plural": { "type": "string", "default": "/ {{count}} years" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -119,6 +66,5 @@
     "yearly",
     "yearly_plural",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

@@ -1,77 +1,32 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
-    },
-    "confirm": {
-      "default": "Confirm",
-      "type": "string"
-    },
-    "create": {
-      "default": "Create",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "date_created": {
-      "default": "Created on",
-      "type": "string"
-    },
-    "date_modified": {
-      "default": "Last updated",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "confirm": { "type": "string", "default": "Confirm" },
+    "create": { "type": "string", "default": "Create" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "date_created": { "type": "string", "default": "Created on" },
+    "date_modified": { "type": "string", "default": "Last updated" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
-      "default": "This resource will be permanently removed. Are you sure?",
-      "type": "string"
+      "type": "string",
+      "default": "This resource will be permanently removed. Are you sure?"
     },
-    "email": {
-      "default": "Email",
-      "type": "string"
-    },
-    "first_name": {
-      "default": "First name",
-      "type": "string"
-    },
-    "last_name": {
-      "default": "Last name",
-      "type": "string"
-    },
+    "email": { "type": "string", "default": "Email" },
+    "first_name": { "type": "string", "default": "First name" },
+    "last_name": { "type": "string", "default": "Last name" },
+    "tax_id": { "type": "string", "default": "Tax ID" },
+    "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
+    "v8n_required": { "type": "string", "default": "Required" },
+    "v8n_too_long": { "type": "string", "default": "Too long" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "tax_id": {
-      "default": "Tax ID",
-      "type": "string"
-    },
-    "v8n_invalid_email": {
-      "default": "Invalid email",
-      "type": "string"
-    },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
-    },
-    "v8n_too_long": {
-      "default": "Too long",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -91,6 +46,5 @@
     "v8n_required",
     "v8n_too_long",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

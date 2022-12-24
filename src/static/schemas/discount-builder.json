@@ -1,54 +1,19 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "tier": {
-      "type": "string",
-      "default": "Tier"
-    },
-    "tier_by": {
-      "type": "string",
-      "default": "by"
-    },
-    "tier_if": {
-      "type": "string",
-      "default": "if"
-    },
-    "tier_allunits": {
-      "type": "string",
-      "default": "price of each item"
-    },
-    "tier_incremental": {
-      "type": "string",
-      "default": "price of additional items"
-    },
-    "tier_repeat": {
-      "type": "string",
-      "default": "price of next item"
-    },
-    "tier_single": {
-      "type": "string",
-      "default": "order total"
-    },
-    "tier_then": {
-      "type": "string",
-      "default": "then"
-    },
-    "quantity": {
-      "type": "string",
-      "default": "quantity"
-    },
-    "total": {
-      "type": "string",
-      "default": "total"
-    },
-    "reduce": {
-      "type": "string",
-      "default": "reduce"
-    },
-    "increase": {
-      "type": "string",
-      "default": "increase"
-    }
+    "tier": { "type": "string", "default": "Tier" },
+    "tier_by": { "type": "string", "default": "by" },
+    "tier_if": { "type": "string", "default": "if" },
+    "tier_allunits": { "type": "string", "default": "price of each item" },
+    "tier_incremental": { "type": "string", "default": "price of additional items" },
+    "tier_repeat": { "type": "string", "default": "price of next item" },
+    "tier_single": { "type": "string", "default": "order total" },
+    "tier_then": { "type": "string", "default": "then" },
+    "quantity": { "type": "string", "default": "quantity" },
+    "total": { "type": "string", "default": "total" },
+    "reduce": { "type": "string", "default": "reduce" },
+    "increase": { "type": "string", "default": "increase" }
   },
   "required": [
     "tier",
@@ -63,6 +28,5 @@
     "total",
     "reduce",
     "increase"
-  ],
-  "$schema": "http://json-schema.org/draft-07/schema"
+  ]
 }

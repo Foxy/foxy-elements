@@ -1,28 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
     "image_alt": { "type": "string", "default": "Shipping method logo" },
     "status_active": { "type": "string", "default": "Active" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
-    },
-    "unknown": {
-      "default": "Unknown",
-      "type": "string"
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
-  "required": ["image_alt", "status_active", "spinner"],
-  "additionalProperties": false
+  "required": ["image_alt", "status_active", "spinner"]
 }

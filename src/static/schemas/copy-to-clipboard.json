@@ -1,23 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "click_to_copy": {
-      "default": "Click to copy",
-      "type": "string"
-    },
-    "copying": {
-      "default": "Copying",
-      "type": "string"
-    },
-    "done": {
-      "default": "Done",
-      "type": "string"
-    },
-    "failed_to_copy": {
-      "default": "Failed to copy",
-      "type": "string"
-    }
+    "click_to_copy": { "type": "string", "default": "Click to copy" },
+    "copying": { "type": "string", "default": "Copying" },
+    "done": { "type": "string", "default": "Done" },
+    "failed_to_copy": { "type": "string", "default": "Failed to copy" }
   },
-  "required": ["click_to_copy", "copying", "done", "failed_to_copy"],
-  "additionalProperties": false
+  "required": ["click_to_copy", "copying", "done", "failed_to_copy"]
 }

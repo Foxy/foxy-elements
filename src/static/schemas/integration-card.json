@@ -1,4 +1,5 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
     "status_active": { "type": "string", "default": "Expires {{ date, date }}" },
@@ -7,22 +8,12 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "type": "string",
-          "default": "Loading"
-        },
-        "loading_empty": {
-          "type": "string",
-          "default": "No data"
-        },
-        "loading_error": {
-          "type": "string",
-          "default": "Failed to load"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
       "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
-  "required": ["status_active", "status_expired", "no_description", "spinner"],
-  "$schema": "http://json-schema.org/draft-07/schema"
+  "required": ["status_active", "status_expired", "no_description", "spinner"]
 }

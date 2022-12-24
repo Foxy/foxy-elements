@@ -1,87 +1,21 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
-  "required": ["spinner", "create", "delete", "code", "ignore-usage-limits"],
   "properties": {
-    "spinner": {
-      "additionalProperties": false,
-      "required": ["loading_busy", "loading_error"],
-      "properties": {
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        },
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        }
-      }
-    },
-    "create": {
-      "required": ["create"],
-      "additionalProperties": false,
-      "properties": {
-        "create": {
-          "type": "string",
-          "default": "Apply"
-        }
-      }
-    },
-    "delete": {
-      "required": ["delete", "cancel", "delete_prompt"],
-      "additionalProperties": false,
-      "properties": {
-        "delete_prompt": {
-          "type": "string",
-          "default": "Are you sure you'd like to remove this coupon code? This might affect the cart total."
-        },
-        "cancel": {
-          "type": "string",
-          "default": "Cancel"
-        },
-        "delete": {
-          "type": "string",
-          "default": "Remove"
-        }
-      }
-    },
-    "ignore-usage-limits": {
-      "required": ["label", "helper_text", "option_checked"],
-      "additionalProperties": false,
-      "properties": {
-        "option_checked": {
-          "type": "string",
-          "default": "Ignore usage limits"
-        },
-        "helper_text": {
-          "type": "string",
-          "default": ""
-        },
-        "label": {
-          "type": "string",
-          "default": ""
-        }
-      }
-    },
     "code": {
+      "additionalProperties": false,
       "properties": {
-        "v8n_required": {
+        "label": { "type": "string", "default": "Coupon code" },
+        "placeholder": { "type": "string", "default": "MY-COUPON-123" },
+        "helper_text_new": {
           "type": "string",
-          "default": "Please enter a coupon code."
+          "default": "To find the right code, go to the Coupons page, select a coupon and scroll down to the Codes section."
         },
         "helper_text_existing": {
           "type": "string",
           "default": "Applied codes can't be modified. To replace this code, remove it using the button below and then add a new one."
         },
-        "helper_text_new": {
-          "default": "To find the right code, go to the Coupons page, select a coupon and scroll down to the Codes section.",
-          "type": "string"
-        },
-        "placeholder": {
-          "type": "string",
-          "default": "MY-COUPON-123"
-        },
-        "label": {
-          "type": "string",
-          "default": "Coupon code"
-        }
+        "v8n_required": { "type": "string", "default": "Please enter a coupon code." }
       },
       "required": [
         "label",
@@ -89,9 +23,42 @@
         "helper_text_new",
         "helper_text_existing",
         "v8n_required"
-      ],
-      "additionalProperties": false
+      ]
+    },
+    "ignore-usage-limits": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" },
+        "option_checked": { "type": "string", "default": "Ignore usage limits" }
+      },
+      "required": ["label", "helper_text", "option_checked"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Remove" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this coupon code? This might affect the cart total."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Apply" } },
+      "required": ["create"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
     }
   },
-  "$schema": "http://json-schema.org/draft-07/schema"
+  "required": ["code", "ignore-usage-limits", "delete", "create", "spinner"]
 }

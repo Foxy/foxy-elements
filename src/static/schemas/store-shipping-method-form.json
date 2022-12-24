@@ -1,0 +1,206 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "shipping-method-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Shipping Method" },
+        "placeholder": { "type": "string", "default": "Select service" },
+        "helper_text": { "type": "string", "default": "" },
+        "required": { "type": "string", "default": "Please select a shipping method." }
+      },
+      "required": ["label", "placeholder", "helper_text", "required"]
+    },
+    "shipping-container-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Container" },
+        "placeholder": { "type": "string", "default": "Select container" },
+        "helper_text": { "type": "string", "default": "" },
+        "required": { "type": "string", "default": "Please select a shipping method." }
+      },
+      "required": ["label", "placeholder", "helper_text", "required"]
+    },
+    "shipping-drop-type-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Drop Type" },
+        "placeholder": { "type": "string", "default": "Select pickup" },
+        "helper_text": { "type": "string", "default": "" },
+        "required": { "type": "string", "default": "Please select a drop type." }
+      },
+      "required": ["label", "placeholder", "helper_text", "required"]
+    },
+    "destinations": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Destinations" },
+        "domestic": { "type": "string", "default": "Domestic" },
+        "international": { "type": "string", "default": "International" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "domestic", "international", "helper_text"]
+    },
+    "authentication-key": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Authentication Key" },
+        "placeholder": { "type": "string", "default": "N/A" },
+        "helper_text": {
+          "type": "string",
+          "default": "If using account specific rates, enter your shipping account authentication key here, if applicable."
+        },
+        "too_long": {
+          "type": "string",
+          "default": "Authentication key must be 50 characters or less."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "too_long"]
+    },
+    "meter-number": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Meter Number" },
+        "placeholder": { "type": "string", "default": "N/A" },
+        "helper_text": {
+          "type": "string",
+          "default": "If using account specific rates, enter your shipping account meter number here, if applicable."
+        },
+        "too_long": { "type": "string", "default": "Meter number must be 50 characters or less." }
+      },
+      "required": ["label", "placeholder", "helper_text", "too_long"]
+    },
+    "accountid": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Account ID" },
+        "placeholder": { "type": "string", "default": "N/A" },
+        "helper_text": {
+          "type": "string",
+          "default": "If using account specific rates, enter your shipping account id here."
+        },
+        "too_long": { "type": "string", "default": "Account ID must be 50 characters or less." }
+      },
+      "required": ["label", "placeholder", "helper_text", "too_long"]
+    },
+    "endpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Endpoint URL" },
+        "placeholder": { "type": "string", "default": "https://example.com/rates" },
+        "helper_text": {
+          "type": "string",
+          "default": "Enter a URL that we'll poll for shipping rates."
+        },
+        "required": { "type": "string", "default": "Please enter a valid endpoint URL." }
+      },
+      "required": ["label", "placeholder", "helper_text", "required"]
+    },
+    "password": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Password" },
+        "placeholder": { "type": "string", "default": "N/A" },
+        "helper_text": {
+          "type": "string",
+          "default": "If using account specific rates, enter your shipping account password here."
+        },
+        "too_long": { "type": "string", "default": "Password must be 50 characters or less." }
+      },
+      "required": ["label", "placeholder", "helper_text", "too_long"]
+    },
+    "custom-code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Custom Code" },
+        "placeholder": { "type": "string", "default": "Paste your code here" },
+        "helper_text": {
+          "type": "string",
+          "default": "JavaScript used to create and modify shipping rates."
+        },
+        "too_long": {
+          "type": "string",
+          "default": "Please reduce the size of your custom code to 64KB or less."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "too_long"]
+    },
+    "services": {
+      "additionalProperties": false,
+      "properties": {
+        "header": { "type": "string", "default": "Additional services" },
+        "first": { "type": "string", "default": "First" },
+        "last": { "type": "string", "default": "Last" },
+        "next": { "type": "string", "default": "Next" },
+        "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+        "previous": { "type": "string", "default": "Previous" },
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" },
+        "international_only": { "type": "string", "default": "– international only" }
+      },
+      "required": [
+        "header",
+        "first",
+        "last",
+        "next",
+        "pagination",
+        "previous",
+        "loading_busy",
+        "loading_error",
+        "international_only"
+      ]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this shipping method? You won't be able to undo if you click Delete."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
+    }
+  },
+  "required": [
+    "shipping-method-uri",
+    "shipping-container-uri",
+    "shipping-drop-type-uri",
+    "destinations",
+    "authentication-key",
+    "meter-number",
+    "accountid",
+    "endpoint",
+    "password",
+    "custom-code",
+    "services",
+    "timestamps",
+    "delete",
+    "create",
+    "spinner"
+  ]
+}

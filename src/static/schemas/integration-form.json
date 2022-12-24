@@ -1,140 +1,79 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
     "header": {
       "additionalProperties": false,
-      "required": ["no_description"],
-      "properties": {
-        "no_description": {
-          "type": "string",
-          "default": "No description"
-        }
-      }
+      "properties": { "no_description": { "type": "string", "default": "No description" } },
+      "required": ["no_description"]
     },
     "message": {
       "additionalProperties": false,
-      "required": ["text", "action"],
       "properties": {
         "text": {
           "type": "string",
           "default": "Please copy the highlighted values below to a safe place and treat them like your password. We will not show them again for security reasons."
         },
-        "action": {
-          "type": "string",
-          "default": "I've copied the values"
-        }
-      }
+        "action": { "type": "string", "default": "I've copied the values" }
+      },
+      "required": ["text", "action"]
     },
     "project-name": {
       "additionalProperties": false,
-      "required": ["label", "placeholder", "helper_text", "v8n_required"],
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Name"
-        },
-        "placeholder": {
-          "default": "Type here...",
-          "type": "string"
-        },
-        "helper_text": {
-          "type": "string",
-          "default": ""
-        },
-        "v8n_required": {
-          "type": "string",
-          "default": "Please name your integration to continue"
-        }
-      }
+        "label": { "type": "string", "default": "Name" },
+        "placeholder": { "type": "string", "default": "Type here..." },
+        "helper_text": { "type": "string", "default": "" },
+        "v8n_required": { "type": "string", "default": "Please name your integration to continue" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "project-description": {
       "additionalProperties": false,
-      "required": ["label", "placeholder", "helper_text"],
       "properties": {
-        "label": {
-          "type": "string",
-          "default": "Description"
-        },
-        "placeholder": {
-          "default": "Type here...",
-          "type": "string"
-        },
-        "helper_text": {
-          "type": "string",
-          "default": ""
-        }
-      }
+        "label": { "type": "string", "default": "Description" },
+        "placeholder": { "type": "string", "default": "Type here..." },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
     },
     "table": {
       "additionalProperties": false,
-      "required": ["expires_date", "added_by", "contact", "company", "expires"],
       "properties": {
-        "expires_date": {
-          "type": "string",
-          "default": "{{ date, date }}"
-        },
-        "added_by": {
-          "type": "string",
-          "default": "Added by"
-        },
-        "contact": {
-          "type": "string",
-          "default": "Contact"
-        },
-        "company": {
-          "type": "string",
-          "default": "Company"
-        },
-        "expires": {
-          "type": "string",
-          "default": "Expires on"
-        }
-      }
+        "expires_date": { "type": "string", "default": "{{ date, date }}" },
+        "added_by": { "type": "string", "default": "Added by" },
+        "contact": { "type": "string", "default": "Contact" },
+        "company": { "type": "string", "default": "Company" },
+        "expires": { "type": "string", "default": "Expires on" }
+      },
+      "required": ["expires_date", "added_by", "contact", "company", "expires"]
     },
     "delete": {
       "additionalProperties": false,
-      "required": ["delete", "cancel", "delete_prompt"],
       "properties": {
-        "delete": {
-          "type": "string",
-          "default": "Delete"
-        },
-        "cancel": {
-          "type": "string",
-          "default": "Cancel"
-        },
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
         "delete_prompt": {
           "type": "string",
           "default": "Are you sure you'd like to remove this token? All applications using this token will lose access to Foxy API immediately."
         }
-      }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
     },
     "create": {
       "additionalProperties": false,
-      "required": ["create"],
-      "properties": {
-        "create": {
-          "type": "string",
-          "default": "Create"
-        }
-      }
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
     },
     "spinner": {
       "additionalProperties": false,
-      "required": ["loading_busy", "loading_error"],
       "properties": {
-        "loading_busy": {
-          "type": "string",
-          "default": "Loading"
-        },
-        "loading_error": {
-          "type": "string",
-          "default": "Failed to load"
-        }
-      }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
     }
   },
-  "additionalProperties": false,
   "required": [
     "header",
     "message",

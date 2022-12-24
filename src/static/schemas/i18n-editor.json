@@ -1,37 +1,19 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "delete_button_title": {
-      "type": "string",
-      "default": "Restore default value"
-    },
-    "undo_button": {
-      "default": "Undo",
-      "type": "string"
-    },
-    "save_button": {
-      "type": "string",
-      "default": "Save"
-    },
+    "delete_button_title": { "type": "string", "default": "Restore default value" },
+    "undo_button": { "type": "string", "default": "Undo" },
+    "save_button": { "type": "string", "default": "Save" },
     "spinner": {
       "additionalProperties": false,
-      "required": ["loading_busy", "loading_empty", "loading_error"],
       "properties": {
-        "loading_busy": {
-          "type": "string",
-          "default": "Loading"
-        },
-        "loading_empty": {
-          "type": "string",
-          "default": "No data"
-        },
-        "loading_error": {
-          "type": "string",
-          "default": "Failed to load"
-        }
-      }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
-  "additionalProperties": false,
   "required": ["delete_button_title", "undo_button", "save_button", "spinner"]
 }

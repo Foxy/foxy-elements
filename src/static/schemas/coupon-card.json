@@ -1,136 +1,92 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
     "allunits_price_amount_discount_summary": {
-      "default": "{{adjustment}}¤ each after {{from}}",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment}}¤ each after {{from}}"
     },
     "allunits_price_percentage_discount_summary": {
-      "default": "{{adjustment, percent}} after {{from}}",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment, percent}} after {{from}}"
     },
     "allunits_quantity_amount_discount_summary": {
-      "default": "{{adjustment}}¤ each on orders of {{from}}+",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment}}¤ each on orders of {{from}}+"
     },
     "allunits_quantity_percentage_discount_summary": {
-      "default": "{{adjustment, percent}} on orders of {{from}}+",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment, percent}} on orders of {{from}}+"
     },
-    "date_range_any": {
-      "default": "Ongoing",
-      "type": "string"
-    },
-    "date_range_complete": {
-      "default": "{{start, date}} – {{end, date}}",
-      "type": "string"
-    },
-    "date_range_from": {
-      "default": "From {{start, date}}",
-      "type": "string"
-    },
-    "date_range_until": {
-      "default": "Until {{end, date}}",
-      "type": "string"
-    },
-    "discount_summary": {
-      "default": "{{params, discount}}",
-      "type": "string"
-    },
+    "date_range_any": { "type": "string", "default": "Ongoing" },
+    "date_range_complete": { "type": "string", "default": "{{start, date}} – {{end, date}}" },
+    "date_range_from": { "type": "string", "default": "From {{start, date}}" },
+    "date_range_until": { "type": "string", "default": "Until {{end, date}}" },
+    "discount_summary": { "type": "string", "default": "{{params, discount}}" },
     "incremental_price_amount_discount_summary": {
-      "default": "{{adjustment}}¤ each on orders of {{from}}+",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment}}¤ each on orders of {{from}}+"
     },
     "incremental_price_percentage_discount_summary": {
-      "default": "{{adjustment, percent}} on orders of {{from}}+",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment, percent}} on orders of {{from}}+"
     },
     "incremental_quantity_amount_discount_summary": {
-      "default": "{{adjustment}}¤ each on items {{from}}+",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment}}¤ each on items {{from}}+"
     },
     "incremental_quantity_percentage_discount_summary": {
-      "default": "{{adjustment, percent}} on items {{from}}+",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment, percent}} on items {{from}}+"
     },
-    "ordinal_few": {
-      "default": "rd",
-      "type": "string"
-    },
-    "ordinal_many": {
-      "default": "th",
-      "type": "string"
-    },
-    "ordinal_one": {
-      "default": "st",
-      "type": "string"
-    },
-    "ordinal_other": {
-      "default": "th",
-      "type": "string"
-    },
-    "ordinal_two": {
-      "default": "nd",
-      "type": "string"
-    },
-    "ordinal_zero": {
-      "default": "th",
-      "type": "string"
-    },
+    "ordinal_few": { "type": "string", "default": "rd" },
+    "ordinal_many": { "type": "string", "default": "th" },
+    "ordinal_one": { "type": "string", "default": "st" },
+    "ordinal_other": { "type": "string", "default": "th" },
+    "ordinal_two": { "type": "string", "default": "nd" },
+    "ordinal_zero": { "type": "string", "default": "th" },
     "repeat_price_amount_discount_summary": {
-      "default": "for each {{from}}, {{adjustment}}¤ on the next item",
-      "type": "string"
+      "type": "string",
+      "default": "for each {{from}}, {{adjustment}}¤ on the next item"
     },
     "repeat_price_percentage_discount_summary": {
-      "default": "for each {{from}}, {{adjustment, percent}} on the next item",
-      "type": "string"
+      "type": "string",
+      "default": "for each {{from}}, {{adjustment, percent}} on the next item"
     },
     "repeat_quantity_amount_discount_summary": {
-      "default": "{{adjustment}}¤ on each {{from, ordinal}} item",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment}}¤ on each {{from, ordinal}} item"
     },
     "repeat_quantity_percentage_discount_summary": {
-      "default": "{{adjustment, percent}} on each {{from, ordinal}} item",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment, percent}} on each {{from, ordinal}} item"
     },
     "single_price_amount_discount_summary": {
-      "default": "{{adjustment}}¤ after {{from}}",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment}}¤ after {{from}}"
     },
     "single_price_percentage_discount_summary": {
-      "default": "{{adjustment, percent}} after {{from}}",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment, percent}} after {{from}}"
     },
     "single_quantity_amount_discount_summary": {
-      "default": "{{adjustment}}¤ after {{from}} items",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment}}¤ after {{from}} item(s)"
     },
     "single_quantity_percentage_discount_summary": {
-      "default": "{{adjustment, percent}} after {{from}} items",
-      "type": "string"
+      "type": "string",
+      "default": "{{adjustment, percent}} after {{from}} item(s)"
     },
+    "uses_count": { "type": "string", "default": "{{count}} uses" },
+    "uses_to_total_count": { "type": "string", "default": "{{count}}/{{total}} uses" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
-    },
-    "uses_count": {
-      "default": "{{count}} uses",
-      "type": "string"
-    },
-    "uses_to_total_count": {
-      "default": "{{count}}/{{total}} uses",
-      "type": "string"
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -164,6 +120,5 @@
     "uses_count",
     "uses_to_total_count",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

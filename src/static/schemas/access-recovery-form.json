@@ -1,41 +1,26 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "email": {
-      "default": "Email",
-      "type": "string"
-    },
-    "recover_access": {
-      "default": "Get one-time code",
-      "type": "string"
-    },
+    "email": { "type": "string", "default": "Email" },
+    "recover_access": { "type": "string", "default": "Get one-time code" },
     "recover_access_success": {
-      "default": "Done! Please check your email for further instructions.",
-      "type": "string"
-    },
-    "spinner": {
-      "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
-      },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
+      "type": "string",
+      "default": "Done! Please check your email for further instructions."
     },
     "unknown_error": {
-      "default": "An unknown error has occured. Please try again later.",
-      "type": "string"
+      "type": "string",
+      "default": "An unknown error has occured. Please try again later."
     },
-    "v8n_invalid_email": {
-      "default": "Invalid email",
-      "type": "string"
-    },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
+    "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
+    "v8n_required": { "type": "string", "default": "Required" },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -46,6 +31,5 @@
     "v8n_invalid_email",
     "v8n_required",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

@@ -1,96 +1,43 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "daily": {
-      "default": "Daily",
-      "type": "string"
-    },
-    "daily_plural": {
-      "default": "Every {{count}} days",
-      "type": "string"
-    },
+    "daily": { "type": "string", "default": "Daily" },
+    "daily_plural": { "type": "string", "default": "Every {{count}} days" },
     "frequency": {
-      "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscriptions-table\" })",
-      "type": "string"
+      "type": "string",
+      "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscriptions-table\" })"
     },
-    "monthly": {
-      "default": "Monthly",
-      "type": "string"
-    },
-    "monthly_plural": {
-      "default": "Every {{count}} months",
-      "type": "string"
-    },
+    "monthly": { "type": "string", "default": "Monthly" },
+    "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
     "price_recurring": {
-      "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscriptions-table\" })",
-      "type": "string"
+      "type": "string",
+      "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscriptions-table\" })"
     },
     "price_twice_a_month": {
-      "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscriptions-table\" })",
-      "type": "string"
+      "type": "string",
+      "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscriptions-table\" })"
     },
+    "subscription_active": { "type": "string", "default": "Next payment on {{date, date}}" },
+    "subscription_cancelled": { "type": "string", "default": "Ended on {{date, date}}" },
+    "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
+    "subscription_inactive": { "type": "string", "default": "Inactive" },
+    "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+    "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
+    "twice_a_month": { "type": "string", "default": "Twice a month" },
+    "update": { "type": "string", "default": "Update" },
+    "weekly": { "type": "string", "default": "Weekly" },
+    "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
+    "yearly": { "type": "string", "default": "Yearly" },
+    "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
-    },
-    "subscription_active": {
-      "default": "Next payment on {{date, date}}",
-      "type": "string"
-    },
-    "subscription_cancelled": {
-      "default": "Ended on {{date, date}}",
-      "type": "string"
-    },
-    "subscription_failed": {
-      "default": "Payment failed on {{date, date}}",
-      "type": "string"
-    },
-    "subscription_inactive": {
-      "default": "Inactive",
-      "type": "string"
-    },
-    "subscription_will_be_cancelled": {
-      "default": "Ends on {{date, date}}",
-      "type": "string"
-    },
-    "transaction_summary": {
-      "default": "{{most_expensive_item.name}}",
-      "type": "string"
-    },
-    "twice_a_month": {
-      "default": "Twice a month",
-      "type": "string"
-    },
-    "update": {
-      "default": "Update",
-      "type": "string"
-    },
-    "weekly": {
-      "default": "Weekly",
-      "type": "string"
-    },
-    "weekly_plural": {
-      "default": "Every {{count}} weeks",
-      "type": "string"
-    },
-    "yearly": {
-      "default": "Yearly",
-      "type": "string"
-    },
-    "yearly_plural": {
-      "default": "Every {{count}} years",
-      "type": "string"
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -114,6 +61,5 @@
     "yearly",
     "yearly_plural",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }
