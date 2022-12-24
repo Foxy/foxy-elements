@@ -1,8 +1,8 @@
+import type { Data, Templates } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Option } from '../../internal/InternalCheckboxGroupControl/types';
 import type { Item } from '../../internal/InternalEditableListControl/types';
-import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -11,6 +11,54 @@ import { html } from 'lit-html';
 const NS = 'subscription-settings-form';
 const Base = TranslatableMixin(InternalForm, NS);
 
+/**
+ * Form element for managing `fx:subscription_settings` resources.
+ *
+ * @slot past-due-amount-handling:before
+ * @slot past-due-amount-handling:after
+ *
+ * @slot automatically-charge-past-due-amount:before
+ * @slot automatically-charge-past-due-amount:after
+ *
+ * @slot clear-past-due-amounts-on-success:before – only if `form.automatically_charge_past_due_amount` is `false`
+ * @slot clear-past-due-amounts-on-success:after – only if `form.automatically_charge_past_due_amount` is `false`
+ *
+ * @slot reset-nextdate-on-makeup-payment:before – only if `form.automatically_charge_past_due_amount` is `false`
+ * @slot reset-nextdate-on-makeup-payment:after – only if `form.automatically_charge_past_due_amount` is `false`
+ *
+ * @slot reattempt-bypass:before
+ * @slot reattempt-bypass:after
+ *
+ * @slot reattempt-schedule:before
+ * @slot reattempt-schedule:after
+ *
+ * @slot reminder-email-schedule:before
+ * @slot reminder-email-schedule:after
+ *
+ * @slot expiring-soon-payment-reminder-schedule:before
+ * @slot expiring-soon-payment-reminder-schedule:after
+ *
+ * @slot send-email-receipts-for-automated-billing:before
+ * @slot send-email-receipts-for-automated-billing:after
+ *
+ * @slot cancellation-schedule:before
+ * @slot cancellation-schedule:after
+ *
+ * @slot modification-url:before
+ * @slot modification-url:after
+ *
+ * @slot timestamps:before
+ * @slot timestamps:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
+ * @element foxy-subscription-settings-form
+ * @since 1.21.0
+ */
 export class SubscriptionSettingsForm extends Base<Data> {
   static get v8n(): NucleonV8N<Data> {
     return [
@@ -28,6 +76,8 @@ export class SubscriptionSettingsForm extends Base<Data> {
       },
     ];
   }
+
+  templates: Templates = {};
 
   private __sendEmailReceiptsForAutomatedBillingOptions: Option[] = [
     { label: 'option_checked', value: 'checked' },

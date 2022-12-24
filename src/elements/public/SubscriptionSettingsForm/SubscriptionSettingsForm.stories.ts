@@ -10,7 +10,23 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-subscription-settings-form',
   translatable: true,
-  configurable: {},
+  configurable: {
+    sections: ['timestamps'],
+    buttons: ['create', 'delete'],
+    inputs: [
+      'past-due-amount-handling',
+      'automatically-charge-past-due-amount',
+      'clear-past-due-amounts-on-success',
+      'reset-nextdate-on-makeup-payment',
+      'reattempt-bypass',
+      'reattempt-schedule',
+      'reminder-email-schedule',
+      'expiring-soon-payment-reminder-schedule',
+      'send-email-receipts-for-automated-billing',
+      'cancellation-schedule',
+      'modification-url',
+    ],
+  },
 };
 
 const Meta = getMeta(summary);

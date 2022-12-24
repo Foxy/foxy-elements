@@ -1,4 +1,36 @@
-import type { Rels } from '@foxy.io/sdk/backend';
+import type { SubscriptionSettingsForm } from './SubscriptionSettingsForm';
+import type { Renderer } from '../../../mixins/configurable';
 import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.SubscriptionSettings>;
+export type Templates = {
+  'past-due-amount-handling:before'?: Renderer<SubscriptionSettingsForm>;
+  'past-due-amount-handling:after'?: Renderer<SubscriptionSettingsForm>;
+  'automatically-charge-past-due-amount:before'?: Renderer<SubscriptionSettingsForm>;
+  'automatically-charge-past-due-amount:after'?: Renderer<SubscriptionSettingsForm>;
+  'clear-past-due-amounts-on-success:before'?: Renderer<SubscriptionSettingsForm>;
+  'clear-past-due-amounts-on-success:after'?: Renderer<SubscriptionSettingsForm>;
+  'reset-nextdate-on-makeup-payment:before'?: Renderer<SubscriptionSettingsForm>;
+  'reset-nextdate-on-makeup-payment:after'?: Renderer<SubscriptionSettingsForm>;
+  'reattempt-bypass:before'?: Renderer<SubscriptionSettingsForm>;
+  'reattempt-bypass:after'?: Renderer<SubscriptionSettingsForm>;
+  'reattempt-schedule:before'?: Renderer<SubscriptionSettingsForm>;
+  'reattempt-schedule:after'?: Renderer<SubscriptionSettingsForm>;
+  'reminder-email-schedule:before'?: Renderer<SubscriptionSettingsForm>;
+  'reminder-email-schedule:after'?: Renderer<SubscriptionSettingsForm>;
+  'expiring-soon-payment-reminder-schedule:before'?: Renderer<SubscriptionSettingsForm>;
+  'expiring-soon-payment-reminder-schedule:after'?: Renderer<SubscriptionSettingsForm>;
+  'send-email-receipts-for-automated-billing:before'?: Renderer<SubscriptionSettingsForm>;
+  'send-email-receipts-for-automated-billing:after'?: Renderer<SubscriptionSettingsForm>;
+  'cancellation-schedule:before'?: Renderer<SubscriptionSettingsForm>;
+  'cancellation-schedule:after'?: Renderer<SubscriptionSettingsForm>;
+  'modification-url:before'?: Renderer<SubscriptionSettingsForm>;
+  'modification-url:after'?: Renderer<SubscriptionSettingsForm>;
+  'timestamps:before'?: Renderer<SubscriptionSettingsForm>;
+  'timestamps:after'?: Renderer<SubscriptionSettingsForm>;
+  'create:before'?: Renderer<SubscriptionSettingsForm>;
+  'create:after'?: Renderer<SubscriptionSettingsForm>;
+  'delete:before'?: Renderer<SubscriptionSettingsForm>;
+  'delete:after'?: Renderer<SubscriptionSettingsForm>;
+};
