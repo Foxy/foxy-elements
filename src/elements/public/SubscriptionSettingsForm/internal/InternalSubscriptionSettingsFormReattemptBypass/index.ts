@@ -1,6 +1,7 @@
 import '@vaadin/vaadin-radio-button/vaadin-radio-button';
 import '@vaadin/vaadin-radio-button/vaadin-radio-group';
 
+import '../../../../internal/InternalEditableListControl/index';
 import '../../../../internal/InternalEditableControl/index';
 
 import '../../../I18n/index';
