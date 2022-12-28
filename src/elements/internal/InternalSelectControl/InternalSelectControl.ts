@@ -38,7 +38,7 @@ export class InternalSelectControl extends InternalEditableControl {
         placeholder=${this.placeholder}
         label=${this.label}
         class="w-full"
-        theme=${this.theme}
+        theme=${ifDefined(this.theme ?? undefined)}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
         clear-button-visible
