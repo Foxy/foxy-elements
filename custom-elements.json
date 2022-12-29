@@ -18477,33 +18477,43 @@
     {
       "name": "foxy-store-form",
       "path": "./src/elements/public/StoreForm/index.ts",
+      "description": "Form element for store settings (`fx:store`).",
       "attributes": [
         {
-          "name": "customer-password-hash-types"
+          "name": "customer-password-hash-types",
+          "description": "URL of the `fx:customer_password_hash_types` property helper resource."
         },
         {
-          "name": "shipping-address-types"
+          "name": "shipping-address-types",
+          "description": "URL of the `fx:shipping_address_types` property helper resource."
         },
         {
-          "name": "store-versions"
+          "name": "store-versions",
+          "description": "URL of the `fx:store_versions` property helper resource."
         },
         {
-          "name": "checkout-types"
+          "name": "checkout-types",
+          "description": "URL of the `fx:checkout_types` property helper resource."
         },
         {
-          "name": "locale-codes"
+          "name": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper resource."
         },
         {
-          "name": "languages"
+          "name": "languages",
+          "description": "URL of the `fx:languages` property helper resource."
         },
         {
-          "name": "timezones"
+          "name": "timezones",
+          "description": "URL of the `fx:timezones` property helper resource."
         },
         {
-          "name": "countries"
+          "name": "countries",
+          "description": "URL of the `fx:countries` property helper resource."
         },
         {
-          "name": "regions"
+          "name": "regions",
+          "description": "URL of the `fx:regions` property helper resource."
         },
         {
           "name": "ns",
@@ -18579,39 +18589,48 @@
       "properties": [
         {
           "name": "customerPasswordHashTypes",
-          "attribute": "customer-password-hash-types"
+          "attribute": "customer-password-hash-types",
+          "description": "URL of the `fx:customer_password_hash_types` property helper resource."
         },
         {
           "name": "shippingAddressTypes",
-          "attribute": "shipping-address-types"
+          "attribute": "shipping-address-types",
+          "description": "URL of the `fx:shipping_address_types` property helper resource."
         },
         {
           "name": "storeVersions",
-          "attribute": "store-versions"
+          "attribute": "store-versions",
+          "description": "URL of the `fx:store_versions` property helper resource."
         },
         {
           "name": "checkoutTypes",
-          "attribute": "checkout-types"
+          "attribute": "checkout-types",
+          "description": "URL of the `fx:checkout_types` property helper resource."
         },
         {
           "name": "localeCodes",
-          "attribute": "locale-codes"
+          "attribute": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper resource."
         },
         {
           "name": "languages",
-          "attribute": "languages"
+          "attribute": "languages",
+          "description": "URL of the `fx:languages` property helper resource."
         },
         {
           "name": "timezones",
-          "attribute": "timezones"
+          "attribute": "timezones",
+          "description": "URL of the `fx:timezones` property helper resource."
         },
         {
           "name": "countries",
-          "attribute": "countries"
+          "attribute": "countries",
+          "description": "URL of the `fx:countries` property helper resource."
         },
         {
           "name": "regions",
-          "attribute": "regions"
+          "attribute": "regions",
+          "description": "URL of the `fx:regions` property helper resource."
         },
         {
           "name": "ns",
@@ -18626,6 +18645,8 @@
         },
         {
           "name": "templates",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -18765,6 +18786,278 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "store-name:before"
+        },
+        {
+          "name": "store-name:after"
+        },
+        {
+          "name": "logo-url:before"
+        },
+        {
+          "name": "logo-url:after"
+        },
+        {
+          "name": "store-domain:before"
+        },
+        {
+          "name": "store-domain:after"
+        },
+        {
+          "name": "store-url:before"
+        },
+        {
+          "name": "store-url:after"
+        },
+        {
+          "name": "store-email:before"
+        },
+        {
+          "name": "store-email:after"
+        },
+        {
+          "name": "timezone:before"
+        },
+        {
+          "name": "timezone:after"
+        },
+        {
+          "name": "store-version-uri:before"
+        },
+        {
+          "name": "store-version-uri:after"
+        },
+        {
+          "name": "from-email:before"
+        },
+        {
+          "name": "from-email:after"
+        },
+        {
+          "name": "bcc-on-receipt-email:before"
+        },
+        {
+          "name": "bcc-on-receipt-email:after"
+        },
+        {
+          "name": "use-email-dns:before"
+        },
+        {
+          "name": "use-email-dns:after"
+        },
+        {
+          "name": "use-smtp-config:before"
+        },
+        {
+          "name": "use-smtp-config:after"
+        },
+        {
+          "name": "smtp-config:before"
+        },
+        {
+          "name": "smtp-config:after"
+        },
+        {
+          "name": "smtp-config-host:before"
+        },
+        {
+          "name": "smtp-config-host:after"
+        },
+        {
+          "name": "smtp-config-port:before"
+        },
+        {
+          "name": "smtp-config-port:after"
+        },
+        {
+          "name": "smtp-config-username:before"
+        },
+        {
+          "name": "smtp-config-username:after"
+        },
+        {
+          "name": "smtp-config-password:before"
+        },
+        {
+          "name": "smtp-config-password:after"
+        },
+        {
+          "name": "smtp-config-security:before"
+        },
+        {
+          "name": "smtp-config-security:after"
+        },
+        {
+          "name": "country:before"
+        },
+        {
+          "name": "country:after"
+        },
+        {
+          "name": "region:before"
+        },
+        {
+          "name": "region:after"
+        },
+        {
+          "name": "postal-code:before"
+        },
+        {
+          "name": "postal-code:after"
+        },
+        {
+          "name": "shipping-address-type:before"
+        },
+        {
+          "name": "shipping-address-type:after"
+        },
+        {
+          "name": "features-multiship:before"
+        },
+        {
+          "name": "features-multiship:after"
+        },
+        {
+          "name": "require-signed-shipping-rates:before"
+        },
+        {
+          "name": "require-signed-shipping-rates:after"
+        },
+        {
+          "name": "language:before"
+        },
+        {
+          "name": "language:after"
+        },
+        {
+          "name": "locale-code:before"
+        },
+        {
+          "name": "locale-code:after"
+        },
+        {
+          "name": "currency-style:before"
+        },
+        {
+          "name": "currency-style:after"
+        },
+        {
+          "name": "custom-display-id-config:before"
+        },
+        {
+          "name": "custom-display-id-config:after"
+        },
+        {
+          "name": "receipt-continue-url:before"
+        },
+        {
+          "name": "receipt-continue-url:after"
+        },
+        {
+          "name": "app-session-time:before"
+        },
+        {
+          "name": "app-session-time:after"
+        },
+        {
+          "name": "products-require-expires-property:before"
+        },
+        {
+          "name": "products-require-expires-property:after"
+        },
+        {
+          "name": "use-cart-validation:before"
+        },
+        {
+          "name": "use-cart-validation:after"
+        },
+        {
+          "name": "checkout-type:before"
+        },
+        {
+          "name": "checkout-type:after"
+        },
+        {
+          "name": "customer-password-hash-type:before"
+        },
+        {
+          "name": "customer-password-hash-type:after"
+        },
+        {
+          "name": "customer-password-hash-config:before"
+        },
+        {
+          "name": "customer-password-hash-config:after"
+        },
+        {
+          "name": "unified-order-entry-password:before"
+        },
+        {
+          "name": "unified-order-entry-password:after"
+        },
+        {
+          "name": "single-sign-on-url:before"
+        },
+        {
+          "name": "single-sign-on-url:after"
+        },
+        {
+          "name": "webhook-url:before"
+        },
+        {
+          "name": "webhook-url:after"
+        },
+        {
+          "name": "webhook-key-cart-signing:before"
+        },
+        {
+          "name": "webhook-key-cart-signing:after"
+        },
+        {
+          "name": "webhook-key-xml-datafeed:before"
+        },
+        {
+          "name": "webhook-key-xml-datafeed:after"
+        },
+        {
+          "name": "webhook-key-api-legacy:before"
+        },
+        {
+          "name": "webhook-key-api-legacy:after"
+        },
+        {
+          "name": "webhook-key-sso:before"
+        },
+        {
+          "name": "webhook-key-sso:after"
+        },
+        {
+          "name": "is-maintenance-mode:before"
+        },
+        {
+          "name": "is-maintenance-mode:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
