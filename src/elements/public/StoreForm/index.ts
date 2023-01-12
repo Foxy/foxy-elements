@@ -1,3 +1,5 @@
+import '@vaadin/vaadin-button';
+
 import '../../internal/InternalCheckboxGroupControl/index';
 import '../../internal/InternalAsyncComboBoxControl/index';
 import '../../internal/InternalEditableListControl/index';
