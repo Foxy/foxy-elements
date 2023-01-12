@@ -48,7 +48,7 @@ export class ItemOptionCard extends Base<Data> {
 
   private readonly __cartLoaderId = 'cartLoader';
 
-  render(): TemplateResult {
+  renderBody(): TemplateResult {
     const currencyDisplay = this.__store?.use_international_currency_symbol ? 'code' : 'symbol';
     const transaction = this.__transaction;
 
@@ -136,7 +136,7 @@ export class ItemOptionCard extends Base<Data> {
       >
       </foxy-nucleon>
 
-      ${super.render({
+      ${super.renderBody({
         title: data => {
           if (!currencyCode || !currencyDisplay) return html`&ZeroWidthSpace;`;
 

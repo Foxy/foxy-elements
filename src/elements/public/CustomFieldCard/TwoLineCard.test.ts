@@ -12,8 +12,8 @@ import { getTestData } from '../../../testgen/getTestData';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 class TestTwoLineCard extends TwoLineCard<any> {
-  render() {
-    return super.render({
+  renderBody() {
+    return super.renderBody({
       title: () => html`Title content`,
       subtitle: () => html`Subtitle content`,
     });

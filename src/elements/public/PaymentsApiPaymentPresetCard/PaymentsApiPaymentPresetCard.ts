@@ -27,8 +27,8 @@ const Base = TranslatableMixin(TwoLineCard, NS);
  * @since 1.21.0
  */
 export class PaymentsApiPaymentPresetCard extends Base<Data> {
-  render(): TemplateResult {
-    return super.render({
+  renderBody(): TemplateResult {
+    return super.renderBody({
       title: data => html`${data.description}`,
       subtitle: ({ is_live: isLive }) => html`
         <foxy-i18n

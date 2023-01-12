@@ -44,8 +44,8 @@ export class PaymentsApiFraudProtectionCard extends Base<Data> {
    */
   getImageSrc: ((type: string) => string) | null = null;
 
-  render(): TemplateResult {
-    const defaultLayout = super.render({
+  renderBody(): TemplateResult {
+    const defaultLayout = super.renderBody({
       title: data => html`${data.helper.name}`,
       subtitle: data => html`${data.description}`,
     });

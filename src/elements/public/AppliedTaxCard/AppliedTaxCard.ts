@@ -23,8 +23,8 @@ export class AppliedTaxCard extends TranslatableMixin(TwoLineCard, 'applied-tax-
 
   private __currency = '';
 
-  render(): TemplateResult {
-    return super.render({
+  renderBody(): TemplateResult {
+    return super.renderBody({
       title: data => html`${data.name}`,
       subtitle: data => {
         return html`
