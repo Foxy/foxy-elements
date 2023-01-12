@@ -21,8 +21,8 @@ const Base = TranslatableMixin(TwoLineCard, NS);
  * @since 1.21.0
  */
 export class ItemCategoryCard extends Base<Data> {
-  render(): TemplateResult {
-    return super.render({
+  renderBody(): TemplateResult {
+    return super.renderBody({
       title: data => html`${data.name}`,
       subtitle: data => html`${data.code}`,
     });
