@@ -785,8 +785,9 @@ export class StoreForm extends Base<Data> {
 
     return html`
       <div
+        data-testid="is-maintenance-mode"
         class=${classMap({
-          'rounded-t-l rounded-b-l leading-s text-s sm-col-span-2': true,
+          'rounded leading-s text-s sm-col-span-2': true,
           'text-tertiary': !isActive,
           'text-error': isActive,
         })}
@@ -796,6 +797,7 @@ export class StoreForm extends Base<Data> {
         <vaadin-button
           theme="tertiary small ${isActive ? 'contrast' : ''}"
           class="p-0"
+          ?disabled=${this.disabledSelector.matches('is-maintenance-mode', true)}
           @click=${() => {
             this.edit({ is_maintenance_mode: !this.form.is_maintenance_mode });
             this.submit();
@@ -828,55 +830,63 @@ export class StoreForm extends Base<Data> {
       .join('');
 
     const selectionIndex = map[selectionCode];
+    const isDisabled = this.disabledSelector.matches('currency-style', true);
+    const isReadonly = this.readonlySelector.matches('currency-style', true);
 
     return html`
-      <div
-        class="grid grid-cols-1 gap-xs transition-colors text-secondary hover-text-body sm-col-span-2"
-      >
-        <foxy-i18n infer="" class="font-medium text-s" key="currency_style_label"> </foxy-i18n>
+      <div data-testid="currency-style">
+        ${this.renderTemplateOrSlot('currency-style:before')}
 
         <div
-          class="grid grid-cols-3 bg-contrast-10"
-          style="gap: 1px; padding: 1px; border-radius: calc(var(--lumo-border-radius-m) + 1px)"
+          class="grid grid-cols-1 gap-xs transition-colors text-secondary hover-text-body sm-col-span-2"
         >
-          ${['12.34', 'USD 12.34', '$12.34', '12', 'USD 12', '$12'].map((example, index) => {
-            return html`
-              <label
-                class=${classMap({
-                  'relative z-0 px-s h-m flex items-center transition-colors': true,
-                  'hover-cursor-pointer': true,
-                  'focus-within-z-10 focus-within-ring-2 focus-within-ring-primary-50': true,
-                  'bg-base text-body hover-bg-transparent': index !== selectionIndex,
-                  'bg-primary text-primary-contrast': index === selectionIndex,
-                  'rounded-tl': index === 0,
-                  'rounded-tr': index === 2,
-                  'rounded-bl': index === 3,
-                  'rounded-br': index === 5,
-                })}
-              >
-                <span class="font-medium font-tnum">${example}</span>
-                <input
-                  class="sr-only"
-                  value=${index}
-                  type="radio"
-                  name="currency-style"
-                  ?checked=${index === selectionIndex}
-                  @change=${() => {
-                    const set = Object.entries(map).find(v => v[1] === index)![0];
+          <foxy-i18n infer="" class="font-medium text-s" key="currency_style_label"></foxy-i18n>
 
-                    this.edit({
-                      hide_currency_symbol: Boolean(Number(set[0])),
-                      hide_decimal_characters: Boolean(Number(set[1])),
-                      use_international_currency_symbol: Boolean(Number(set[2])),
-                    });
-                  }}
-                />
-              </label>
-            `;
-          })}
+          <div class="grid grid-cols-3 bg-contrast-10 rounded" style="gap: 1px; padding: 1px">
+            ${['12.34', 'USD 12.34', '$12.34', '12', 'USD 12', '$12'].map((example, index) => {
+              return html`
+                <label
+                  style="--lumo-border-radius: calc(var(--lumo-border-radius-m) - 1px)"
+                  class=${classMap({
+                    'relative z-0 px-s h-m flex items-center transition-colors': true,
+                    'hover-cursor-pointer': true,
+                    'focus-within-z-10 focus-within-ring-2 focus-within-ring-primary-50': true,
+                    'bg-base text-body hover-bg-transparent': index !== selectionIndex,
+                    'bg-primary text-primary-contrast': index === selectionIndex,
+                    'rounded-tl': index === 0,
+                    'rounded-tr': index === 2,
+                    'rounded-bl': index === 3,
+                    'rounded-br': index === 5,
+                  })}
+                >
+                  <span class="font-medium font-tnum">${example}</span>
+                  <input
+                    class="sr-only"
+                    value=${index}
+                    type="radio"
+                    name="currency-style"
+                    ?checked=${index === selectionIndex}
+                    ?disabled=${isDisabled}
+                    ?readonly=${isReadonly}
+                    @change=${() => {
+                      const set = Object.entries(map).find(v => v[1] === index)![0];
+
+                      this.edit({
+                        hide_currency_symbol: Boolean(Number(set[0])),
+                        hide_decimal_characters: Boolean(Number(set[1])),
+                        use_international_currency_symbol: Boolean(Number(set[2])),
+                      });
+                    }}
+                  />
+                </label>
+              `;
+            })}
+          </div>
+
+          <foxy-i18n infer="" class="text-xs" key="currency_style_helper_text"></foxy-i18n>
         </div>
 
-        <foxy-i18n infer="" class="text-xs" key="currency_style_helper_text"> </foxy-i18n>
+        ${this.renderTemplateOrSlot('currency-style:after')}
       </div>
     `;
   }
@@ -986,6 +996,7 @@ export class StoreForm extends Base<Data> {
               ${config.start && config.length && startAsInt / 10 <= numericLength
                 ? html`
                     <table
+                      data-testid="custom-display-id-config-examples"
                       style="font-family: monospace"
                       class="col-span-2 text-xs text-secondary whitespace-nowrap"
                     >
@@ -1097,6 +1108,7 @@ export class StoreForm extends Base<Data> {
                     ${config.start && config.length && startAsInt / 10 <= numericLength
                       ? html`
                           <table
+                            data-testid="custom-display-id-config-transaction-journal-entries-examples"
                             style="font-family: monospace"
                             class="col-span-2 text-xs text-secondary whitespace-nowrap"
                           >
