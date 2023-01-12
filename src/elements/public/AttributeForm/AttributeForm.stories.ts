@@ -5,8 +5,8 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/attributes/0',
-  parent: 'https://demo.api/hapi/attributes',
+  href: 'https://demo.api/hapi/customer_attributes/0',
+  parent: 'https://demo.api/hapi/customer_attributes',
   nucleon: true,
   localName: 'foxy-attribute-form',
   translatable: true,
