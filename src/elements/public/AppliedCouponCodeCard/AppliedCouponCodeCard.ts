@@ -5,13 +5,12 @@ import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { ResponsiveMixin } from '../../../mixins/responsive';
-import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 const NS = 'applied-coupon-code-card';
-const Base = ResponsiveMixin(TranslatableMixin(InternalCard, NS));
+const Base = TranslatableMixin(TwoLineCard, NS);
 
 /**
  * Card element displaying an applied coupon code.
@@ -33,10 +32,10 @@ export class AppliedCouponCodeCard extends Base<Data> {
       >
       </foxy-nucleon>
 
-      <div class="leading-s text-m font-lumo sm-flex sm-justify-between">
-        <div class="font-semibold min-w-0 truncate">${this.data?.code}&ZeroWidthSpace;</div>
-        <div class="text-tertiary min-w-0 truncate">${this.__coupon?.name}&ZeroWidthSpace;</div>
-      </div>
+      ${super.renderBody({
+        title: data => html`${data.code}`,
+        subtitle: () => html`${this.__coupon?.name}`,
+      })}
     `;
   }
 
