@@ -1375,6 +1375,38 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
           "name": "lang",
           "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
           "type": "string",
@@ -1419,6 +1451,62 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
         },
         {
           "name": "isBodyReady",
@@ -1850,15 +1938,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -1915,6 +2003,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -3056,27 +3148,35 @@
     {
       "name": "foxy-cart-form",
       "path": "./src/elements/public/CartForm/index.ts",
+      "description": "Form element for creating or editing carts (`fx:cart`).",
       "attributes": [
         {
-          "name": "item-categories"
+          "name": "item-categories",
+          "description": "URL of the `fx:item_categories` collection for the store."
         },
         {
-          "name": "template-sets"
+          "name": "template-sets",
+          "description": "URL of the `fx:template_sets` collection for the store."
         },
         {
-          "name": "locale-codes"
+          "name": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper."
         },
         {
-          "name": "customers"
+          "name": "customers",
+          "description": "URL of the `fx:customers` collection for the store."
         },
         {
-          "name": "countries"
+          "name": "countries",
+          "description": "URL of the `fx:countries` property helper."
         },
         {
-          "name": "regions"
+          "name": "regions",
+          "description": "URL of the `fx:regions` property helper."
         },
         {
-          "name": "coupons"
+          "name": "coupons",
+          "description": "URL of the `fx:coupons` collection for the store."
         },
         {
           "name": "ns",
@@ -3152,31 +3252,38 @@
       "properties": [
         {
           "name": "itemCategories",
-          "attribute": "item-categories"
+          "attribute": "item-categories",
+          "description": "URL of the `fx:item_categories` collection for the store."
         },
         {
           "name": "templateSets",
-          "attribute": "template-sets"
+          "attribute": "template-sets",
+          "description": "URL of the `fx:template_sets` collection for the store."
         },
         {
           "name": "localeCodes",
-          "attribute": "locale-codes"
+          "attribute": "locale-codes",
+          "description": "URL of the `fx:locale_codes` property helper."
         },
         {
           "name": "customers",
-          "attribute": "customers"
+          "attribute": "customers",
+          "description": "URL of the `fx:customers` collection for the store."
         },
         {
           "name": "countries",
-          "attribute": "countries"
+          "attribute": "countries",
+          "description": "URL of the `fx:countries` property helper."
         },
         {
           "name": "regions",
-          "attribute": "regions"
+          "attribute": "regions",
+          "description": "URL of the `fx:regions` property helper."
         },
         {
           "name": "coupons",
-          "attribute": "coupons"
+          "attribute": "coupons",
+          "description": "URL of the `fx:coupons` collection for the store."
         },
         {
           "name": "ns",
@@ -3191,6 +3298,8 @@
         },
         {
           "name": "templates",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -3330,6 +3439,188 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "customer-type:before"
+        },
+        {
+          "name": "customer-type:after"
+        },
+        {
+          "name": "customer:before"
+        },
+        {
+          "name": "customer:after"
+        },
+        {
+          "name": "template-set-uri:before"
+        },
+        {
+          "name": "template-set-uri:after"
+        },
+        {
+          "name": "items:before"
+        },
+        {
+          "name": "items:after"
+        },
+        {
+          "name": "applied-coupon-codes:before"
+        },
+        {
+          "name": "applied-coupon-codes:after"
+        },
+        {
+          "name": "custom-fields:before"
+        },
+        {
+          "name": "custom-fields:after"
+        },
+        {
+          "name": "attributes:before"
+        },
+        {
+          "name": "attributes:after"
+        },
+        {
+          "name": "billing-first-name:before"
+        },
+        {
+          "name": "billing-first-name:after"
+        },
+        {
+          "name": "billing-last-name:before"
+        },
+        {
+          "name": "billing-last-name:after"
+        },
+        {
+          "name": "billing-company:before"
+        },
+        {
+          "name": "billing-company:after"
+        },
+        {
+          "name": "billing-phone:before"
+        },
+        {
+          "name": "billing-phone:after"
+        },
+        {
+          "name": "billing-address-one:before"
+        },
+        {
+          "name": "billing-address-one:after"
+        },
+        {
+          "name": "billing-address-two:before"
+        },
+        {
+          "name": "billing-address-two:after"
+        },
+        {
+          "name": "billing-country:before"
+        },
+        {
+          "name": "billing-country:after"
+        },
+        {
+          "name": "billing-region:before"
+        },
+        {
+          "name": "billing-region:after"
+        },
+        {
+          "name": "billing-city:before"
+        },
+        {
+          "name": "billing-city:after"
+        },
+        {
+          "name": "billing-postal-code:before"
+        },
+        {
+          "name": "billing-postal-code:after"
+        },
+        {
+          "name": "shipping-first-name:before"
+        },
+        {
+          "name": "shipping-first-name:after"
+        },
+        {
+          "name": "shipping-last-name:before"
+        },
+        {
+          "name": "shipping-last-name:after"
+        },
+        {
+          "name": "shipping-company:before"
+        },
+        {
+          "name": "shipping-company:after"
+        },
+        {
+          "name": "shipping-phone:before"
+        },
+        {
+          "name": "shipping-phone:after"
+        },
+        {
+          "name": "shipping-address-one:before"
+        },
+        {
+          "name": "shipping-address-one:after"
+        },
+        {
+          "name": "shipping-address-two:before"
+        },
+        {
+          "name": "shipping-address-two:after"
+        },
+        {
+          "name": "shipping-country:before"
+        },
+        {
+          "name": "shipping-country:after"
+        },
+        {
+          "name": "shipping-region:before"
+        },
+        {
+          "name": "shipping-region:after"
+        },
+        {
+          "name": "shipping-city:before"
+        },
+        {
+          "name": "shipping-city:after"
+        },
+        {
+          "name": "shipping-postal-code:before"
+        },
+        {
+          "name": "shipping-postal-code:after"
+        },
+        {
+          "name": "view-as-customer:before"
+        },
+        {
+          "name": "view-as-customer:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
         }
       ]
     },
@@ -4928,15 +5219,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -4993,6 +5284,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -5469,15 +5764,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -5534,6 +5829,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -8559,15 +8858,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -8624,6 +8923,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -8806,15 +9109,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -8871,6 +9174,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -9327,15 +9634,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -9392,6 +9699,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -11956,14 +12267,15 @@
     {
       "name": "foxy-i18n-editor",
       "path": "./src/elements/public/I18nEditor/index.ts",
+      "description": "Editor for language string overrides. Loads language strings\nproperty helper (`fx:language_strings`) as main resource.",
       "attributes": [
         {
           "name": "language-overrides",
-          "default": "\"https://demo.api/hapi/language_overrides\""
+          "description": "URL of the `fx:language_overrides` resource for a template set."
         },
         {
           "name": "selected-language",
-          "default": "\"english\""
+          "description": "Language from the `fx:language_strings` property helper for which the default values will be pulled from."
         },
         {
           "name": "ns",
@@ -12040,12 +12352,12 @@
         {
           "name": "languageOverrides",
           "attribute": "language-overrides",
-          "default": "\"https://demo.api/hapi/language_overrides\""
+          "description": "URL of the `fx:language_overrides` resource for a template set."
         },
         {
           "name": "selectedLanguage",
           "attribute": "selected-language",
-          "default": "\"english\""
+          "description": "Language from the `fx:language_strings` property helper for which the default values will be pulled from."
         },
         {
           "name": "ns",
@@ -12950,15 +13262,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -13015,6 +13327,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -13797,15 +14113,15 @@
           "type": "string"
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -13862,6 +14178,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -15722,15 +16042,15 @@
           "description": "Fraud protection image/logo URL getter.\nIf left `null`, the card will display the default image."
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -15787,6 +16107,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -15894,6 +16218,7 @@
     {
       "name": "foxy-payments-api-fraud-protection-form",
       "path": "./src/elements/public/PaymentsApiFraudProtectionForm/index.ts",
+      "description": "Form element for the `fx:fraud_protection` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
       "attributes": [
         {
           "name": "ns",
@@ -15968,7 +16293,8 @@
       ],
       "properties": [
         {
-          "name": "getImageSrc"
+          "name": "getImageSrc",
+          "description": "A function that returns a URL of a fraud protection icon based on the given type."
         },
         {
           "name": "ns",
@@ -15983,6 +16309,8 @@
         },
         {
           "name": "templates",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -16123,6 +16451,44 @@
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
+      ],
+      "slots": [
+        {
+          "name": "description:before"
+        },
+        {
+          "name": "description:after"
+        },
+        {
+          "name": "score-threshold-reject:before"
+        },
+        {
+          "name": "score-threshold-reject:after"
+        },
+        {
+          "name": "json-[field-name-in-kebab-case]:before"
+        },
+        {
+          "name": "json-[field-name-in-kebab-case]:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
+        }
       ]
     },
     {
@@ -16207,15 +16573,15 @@
           "description": "Payment method image/logo URL getter.\nIf left `null`, the card will display the default image."
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -16272,6 +16638,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -16379,6 +16749,7 @@
     {
       "name": "foxy-payments-api-payment-method-form",
       "path": "./src/elements/public/PaymentsApiPaymentMethodForm/index.ts",
+      "description": "Form element for the `fx:payment_method` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
       "attributes": [
         {
           "name": "ns",
@@ -16453,7 +16824,8 @@
       ],
       "properties": [
         {
-          "name": "getImageSrc"
+          "name": "getImageSrc",
+          "description": "A function that returns a URL of a payment method icon based on the given type."
         },
         {
           "name": "ns",
@@ -16468,239 +16840,8 @@
         },
         {
           "name": "templates",
-          "default": "{}"
-        },
-        {
-          "name": "mode",
-          "attribute": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "attribute": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlyControls",
-          "attribute": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "attribute": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledControls",
-          "attribute": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "attribute": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddenControls",
-          "attribute": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "readonlySelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "disabledSelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "hiddenSelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "UpdateEvent",
-          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
-          "type": "typeof UpdateEvent",
-          "default": "\"UpdateEvent\""
-        },
-        {
-          "name": "Rumour",
-          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
-          "type": "((group: string) => Rumour) & MemoizedFunction",
-          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
-        },
-        {
-          "name": "API",
-          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
-          "type": "typeof API",
-          "default": "\"API\""
-        },
-        {
-          "name": "lang",
-          "attribute": "lang",
-          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "parent",
-          "attribute": "parent",
-          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "related",
-          "attribute": "related",
-          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
-          "type": "array",
-          "default": "[]"
-        },
-        {
-          "name": "failure",
-          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
-          "type": "Response | null"
-        },
-        {
-          "name": "errors",
-          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
-          "type": "string[]"
-        },
-        {
-          "name": "form",
-          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
-          "type": "Partial<TData>"
-        },
-        {
-          "name": "data",
-          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
-          "type": "TData | null"
-        },
-        {
-          "name": "group",
-          "attribute": "group",
-          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
-          "type": "string"
-        },
-        {
-          "name": "href",
-          "attribute": "href",
-          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
-          "type": "string"
-        },
-        {
-          "name": "infer",
-          "attribute": "infer",
-          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
-          "type": "string"
-        }
-      ],
-      "events": [
-        {
-          "name": "update",
-          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
-        },
-        {
-          "name": "fetch",
-          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ]
-    },
-    {
-      "name": "foxy-payments-api-payment-preset-card",
-      "path": "./src/elements/public/PaymentsApiPaymentPresetCard/index.ts",
-      "description": "Card element representing a `fx:payment_preset` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
-      "attributes": [
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "lang",
-          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "parent",
-          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "related",
-          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
-          "type": "array",
-          "default": "[]"
-        },
-        {
-          "name": "group",
-          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
-          "type": "string"
-        },
-        {
-          "name": "href",
-          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
-          "type": "string"
-        },
-        {
-          "name": "infer",
-          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
-          "type": "string"
-        }
-      ],
-      "properties": [
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "templates",
-          "type": "Templates<TData>",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -16844,22 +16985,89 @@
       ],
       "slots": [
         {
-          "name": "title:before"
+          "name": "description:before"
         },
         {
-          "name": "title:after"
+          "name": "description:after"
         },
         {
-          "name": "subtitle:before"
+          "name": "account-id:before"
         },
         {
-          "name": "subtitle:after"
+          "name": "account-id:after"
+        },
+        {
+          "name": "account-key:before"
+        },
+        {
+          "name": "account-key:after"
+        },
+        {
+          "name": "third-party-key:before"
+        },
+        {
+          "name": "third-party-key:after"
+        },
+        {
+          "name": "test-account-id:before"
+        },
+        {
+          "name": "test-account-id:after"
+        },
+        {
+          "name": "test-account-key:before"
+        },
+        {
+          "name": "test-account-key:after"
+        },
+        {
+          "name": "test-third-party-key:before"
+        },
+        {
+          "name": "test-third-party-key:after"
+        },
+        {
+          "name": "additional-fields-[field-name-in-kebab-case]:before"
+        },
+        {
+          "name": "additional-fields-[field-name-in-kebab-case]:after"
+        },
+        {
+          "name": "three-d-secure-toggle:before"
+        },
+        {
+          "name": "three-d-secure-toggle:after"
+        },
+        {
+          "name": "three-d-secure-response:before"
+        },
+        {
+          "name": "three-d-secure-response:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
     {
-      "name": "foxy-payments-api-payment-preset-form",
-      "path": "./src/elements/public/PaymentsApiPaymentPresetForm/index.ts",
+      "name": "foxy-payments-api-payment-preset-card",
+      "path": "./src/elements/public/PaymentsApiPaymentPresetCard/index.ts",
+      "description": "Card element representing a `fx:payment_preset` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
       "attributes": [
         {
           "name": "ns",
@@ -16934,10 +17142,263 @@
       ],
       "properties": [
         {
-          "name": "getFraudProtectionImageSrc"
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
         },
         {
-          "name": "getPaymentMethodImageSrc"
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "templates",
+          "type": "Templates<TData>",
+          "default": "{}"
+        },
+        {
+          "name": "mode",
+          "attribute": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "attribute": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlyControls",
+          "attribute": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "attribute": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledControls",
+          "attribute": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "attribute": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddenControls",
+          "attribute": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "readonlySelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "disabledSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "hiddenSelector",
+          "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
+        },
+        {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
+          "name": "lang",
+          "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "attribute": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "title:before"
+        },
+        {
+          "name": "title:after"
+        },
+        {
+          "name": "subtitle:before"
+        },
+        {
+          "name": "subtitle:after"
+        }
+      ]
+    },
+    {
+      "name": "foxy-payments-api-payment-preset-form",
+      "path": "./src/elements/public/PaymentsApiPaymentPresetForm/index.ts",
+      "description": "Form element for the `fx:payment_preset` resource of Payments API.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nthis element with hAPI, wrap it into a foxy-payments-api node._",
+      "attributes": [
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "default": "\"production\""
+        },
+        {
+          "name": "readonly",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "readonlycontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "disabledcontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "hidden",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "hiddencontrols",
+          "default": "\"False\""
+        },
+        {
+          "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
+        },
+        {
+          "name": "infer",
+          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
+          "type": "string"
+        }
+      ],
+      "properties": [
+        {
+          "name": "getFraudProtectionImageSrc",
+          "description": "A function that returns image URL for given fraud protection `type`."
+        },
+        {
+          "name": "getPaymentMethodImageSrc",
+          "description": "A function that returns image URL for given payment method `type`."
         },
         {
           "name": "ns",
@@ -16952,6 +17413,8 @@
         },
         {
           "name": "templates",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -17091,6 +17554,56 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "description:before"
+        },
+        {
+          "name": "description:after"
+        },
+        {
+          "name": "is-live:before"
+        },
+        {
+          "name": "is-live:after"
+        },
+        {
+          "name": "is-purchase-order-enabled:before"
+        },
+        {
+          "name": "is-purchase-order-enabled:after"
+        },
+        {
+          "name": "payment-methods:before"
+        },
+        {
+          "name": "payment-methods:after"
+        },
+        {
+          "name": "fraud-protections:before"
+        },
+        {
+          "name": "fraud-protections:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
@@ -21993,15 +22506,15 @@
       ],
       "properties": [
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
           "name": "ns",
           "attribute": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "templates",
@@ -22058,6 +22571,10 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
