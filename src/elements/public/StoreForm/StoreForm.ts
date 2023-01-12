@@ -215,15 +215,15 @@ export class StoreForm extends Base<Data> {
       ({ webhook_url: v, use_webhook }) => !use_webhook || !!v || 'webhook-url:v8n_required',
 
       ({ webhook_url: v, use_webhook }) => {
-        return !use_webhook || (v && v.length <= 300) || 'webhook-url:too_long';
+        return !use_webhook || !v || v.length <= 300 || 'webhook-url:v8n_too_long';
       },
 
       ({ webhook_key: v, use_webhook: on, use_cart_validation: hmac }) => {
         return (!on && !hmac) || !!v || 'webhook-key:v8n_required';
       },
 
-      ({ webhook_url: v, use_webhook: on, use_cart_validation: hmac }) => {
-        return (!on && !hmac) || (v && v.length <= 200) || 'webhook-key:v8n_too_long';
+      ({ webhook_key: v, use_webhook: on, use_cart_validation: hmac }) => {
+        return (!on && !hmac) || !v || v.length <= 200 || 'webhook-key:v8n_too_long';
       },
 
       ({ single_sign_on_url: v, use_single_sign_on: on }) => {
@@ -231,7 +231,7 @@ export class StoreForm extends Base<Data> {
       },
 
       ({ single_sign_on_url: v, use_single_sign_on: on }) => {
-        return !on || (v && v.length <= 300) || 'single-sign-on-url:too_long';
+        return !on || !v || v.length <= 300 || 'single-sign-on-url:v8n_too_long';
       },
 
       ({ customer_password_hash_config: v }) => {
