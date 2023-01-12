@@ -14,7 +14,11 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-payments-api-fraud-protection-form',
   translatable: true,
-  configurable: {},
+  configurable: {
+    sections: ['timestamps'],
+    buttons: ['create', 'delete'],
+    inputs: ['description', 'score-threshold-reject'],
+  },
 };
 
 export default {
