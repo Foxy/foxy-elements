@@ -1,13 +1,12 @@
-import '@vaadin/vaadin-tabs';
+import '@vaadin/vaadin-button';
 
-import '../../internal/InternalAsyncComboBoxControl/index';
 import '../../internal/InternalCheckboxGroupControl/index';
-import '../../internal/InternalRadioGroupControl/index';
 import '../../internal/InternalIntegerControl/index';
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
+import '../NucleonElement/index';
 import '../I18n/index';
 
 import { PaymentsApiFraudProtectionForm } from './PaymentsApiFraudProtectionForm';
