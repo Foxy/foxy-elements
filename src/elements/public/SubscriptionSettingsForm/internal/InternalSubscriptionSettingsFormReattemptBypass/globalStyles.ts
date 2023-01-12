@@ -8,7 +8,7 @@ export const vaadinRadioGroupStyles = css`
   :host(.foxy-internal-subscription-settings-form-reattempt-bypass) [part='group-field'] {
     display: flex;
     border: thin solid var(--lumo-contrast-10pct);
-    border-radius: var(--lumo-border-radius-l);
+    border-radius: var(--lumo-border-radius);
     transition: border-color 0.15s ease;
   }
 

@@ -238,7 +238,11 @@ export class EmailTemplateForm extends Base<Data> {
             `;
           })}
 
-          <div slot="url" ?hidden=${contentChoice !== 'url'}>
+          <div
+            style="--lumo-border-radius: var(--lumo-border-radius-s)"
+            slot="url"
+            ?hidden=${contentChoice !== 'url'}
+          >
             <div class="flex items-center mt-0 mb-m">
               <vaadin-text-field
                 data-testid="${textPath.replace('_', '-')}-url"
@@ -291,7 +295,11 @@ export class EmailTemplateForm extends Base<Data> {
             </div>
           </div>
 
-          <div slot="clipboard" ?hidden=${contentChoice !== 'clipboard'}>
+          <div
+            style="--lumo-border-radius: var(--lumo-border-radius-s)"
+            slot="clipboard"
+            ?hidden=${contentChoice !== 'clipboard'}
+          >
             <vaadin-text-area
               data-testid="${textPath.replace('_', '-')}-clipboard"
               id="cached-content"

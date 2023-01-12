@@ -493,7 +493,7 @@ export class GiftCardForm extends Base<Data> {
         </div>
 
         <foxy-query-builder
-          class="bg-contrast-5 rounded-tl-l rounded-tr-s rounded-b-l p-m mb-s"
+          class="my-s"
           lang=${lang}
           ns="${ns} ${customElements.get('foxy-query-builder')?.defaultNS ?? ''}"
           ?disabled=${isDisabled}
@@ -514,7 +514,7 @@ export class GiftCardForm extends Base<Data> {
           ?disabled=${isDisabled}
         >
           <foxy-table
-            class="px-m mb-s border border-contrast-10 rounded-t-l rounded-b-l"
+            class="px-m mb-s border border-contrast-10 rounded"
             group=${group}
             lang=${lang}
             ns=${ns}
@@ -656,7 +656,7 @@ export class GiftCardForm extends Base<Data> {
               gift-card-item-categories=${ifDefined(giftCardItemCategories)}
               data-testid="category-restrictions:page"
               gift-card=${this.href}
-              class="border border-contrast-10 rounded-t-l rounded-b-l mb-s"
+              class="border border-contrast-10 rounded mb-s"
               group=${this.group}
               lang=${this.lang}
               ns=${this.ns}

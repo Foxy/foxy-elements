@@ -220,16 +220,22 @@ export class InternalAsyncListControl extends InternalEditableControl {
   }
 
   private get __cardRenderer() {
-    if (this.__cachedCardRenderer?.item !== this.item) {
+    const item = this.item;
+
+    if (this.__cachedCardRenderer?.item !== item) {
       this.__cachedCardRenderer = {
-        item: this.item,
+        item: item,
         render:
-          typeof this.item === 'string'
+          typeof item === 'string'
             ? (new Function(
                 'ctx',
-                `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)" infer href=\${ctx.href}></${this.item}>\``
+                `return ctx.html\`<${item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)" infer href=\${ctx.href}></${item}>\``
               ) as ItemRenderer)
-            : this.item,
+            : ctx => html`
+                <div style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">
+                  ${item(ctx)}
+                </div>
+              `,
       };
     }
 

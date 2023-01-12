@@ -120,26 +120,25 @@ export class ItemCard extends Base<Data> {
       >
       </foxy-nucleon>
 
-      <div class="flex items-start space-x-m leading-m">
-        <div class="w-l h-l relative flex-shrink-0">
-          <img
-            class="relative w-full h-full object-cover rounded-s"
-            src=${ifDefined(this.data?.image)}
-            alt=""
-            @error=${(evt: Event) => {
-              const img = evt.currentTarget as HTMLImageElement;
-              img.src = ItemCard.__placeholder;
-            }}
-          />
-
-          <div class="border border-contrast-10 absolute inset-0 rounded-s"></div>
-        </div>
+      <div
+        class="flex items-start leading-xs"
+        style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+      >
+        <img
+          class="relative h-s w-s object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
+          src=${ifDefined(this.data?.image)}
+          alt=""
+          @error=${(evt: Event) => {
+            const img = evt.currentTarget as HTMLImageElement;
+            img.src = ItemCard.__placeholder;
+          }}
+        />
 
         <div class="flex-1 min-w-0">
-          <div class="flex-1 h-l flex items-center">
-            <div class="flex-1 leading-s">
+          <div class="flex-1 h-s flex items-center">
+            <div class="flex-1">
               <div class="font-semibold text-m truncate">${this.data?.name}</div>
-              <div class="text-secondary text-m truncate">
+              <div class="text-tertiary text-s truncate">
                 ${quantity} &times;
 
                 <foxy-i18n
@@ -185,7 +184,7 @@ export class ItemCard extends Base<Data> {
                     option => html`
                       <div
                         data-testclass="option"
-                        class="flex items-center text-m space-x-xs leading-m"
+                        class="flex items-center text-s space-x-xs leading-m"
                       >
                         <div class="flex-1 text-tertiary truncate">
                           ${option.name}: ${option.value}

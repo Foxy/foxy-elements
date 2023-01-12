@@ -9,9 +9,7 @@ export class Warning extends LitElement {
 
   public render(): TemplateResult {
     return html`
-      <p
-        class="flex text-s border border-contrast-10 rounded-t-l rounded-b-l p-s text-body leading-s"
-      >
+      <p class="flex text-s border border-contrast-10 rounded p-s text-body leading-s">
         <iron-icon icon="lumo:error" class="text-error flex-shrink-0 mr-s"></iron-icon>
         <slot></slot>
       </p>

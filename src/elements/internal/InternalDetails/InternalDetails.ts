@@ -29,7 +29,7 @@ export class InternalDetails extends ThemeableMixin(InferrableMixin(LitElement))
   render(): TemplateResult {
     return html`
       <details
-        class="w-full border border-contrast-10 rounded-t-l rounded-b-l"
+        class="w-full border border-contrast-10 rounded"
         ?open=${this.open}
         @toggle=${(evt: Event) => {
           this.open = (evt.currentTarget as HTMLDetailsElement).open;
@@ -39,8 +39,8 @@ export class InternalDetails extends ThemeableMixin(InferrableMixin(LitElement))
           class=${classMap({
             'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
             'transition-colors cursor-pointer hover-bg-contrast-5': true,
-            'rounded-t-l': true,
-            'rounded-b-l': !this.open,
+            'rounded-t': true,
+            'rounded-b': !this.open,
           })}
         >
           <div class="flex items-center h-m pl-m pr-s">

@@ -20,7 +20,7 @@ registerStyles(
     :host([theme~='list']) [part='group-field'] {
       display: flex;
       border: thin solid var(--lumo-contrast-10pct);
-      border-radius: var(--lumo-border-radius-l);
+      border-radius: var(--lumo-border-radius);
       transition: border-color 0.15s ease;
     }
 

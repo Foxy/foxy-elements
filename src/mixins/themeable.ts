@@ -62,6 +62,21 @@ export const ThemeableMixin = <TBase extends Base>(
             padding-bottom: 0;
           }
 
+          vaadin-text-area::part(label),
+          vaadin-text-field::part(label),
+          vaadin-date-picker::part(label),
+          vaadin-email-field::part(label),
+          vaadin-number-field::part(label),
+          vaadin-custom-field::part(label),
+          vaadin-integer-field::part(label),
+          vaadin-password-field::part(label),
+          vaadin-checkbox-group::part(label),
+          vaadin-radio-group::part(label),
+          vaadin-combo-box::part(label),
+          vaadin-date-picker::part(label) {
+            margin-left: 0;
+          }
+
           vaadin-time-picker,
           vaadin-date-time-picker {
             width: 100%;

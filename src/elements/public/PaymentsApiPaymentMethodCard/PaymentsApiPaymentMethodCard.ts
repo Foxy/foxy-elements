@@ -56,7 +56,10 @@ export class PaymentsApiPaymentMethodCard extends Base<Data> {
     const data = this.data;
 
     return html`
-      <figure class="flex items-center gap-m">
+      <figure
+        class="flex items-center"
+        style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+      >
         <img
           class="relative h-s w-s object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
           src=${(data ? this.getImageSrc?.(data.type) : null) ?? defaultSrc}

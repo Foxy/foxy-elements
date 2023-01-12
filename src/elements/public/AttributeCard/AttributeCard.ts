@@ -31,19 +31,25 @@ export class AttributeCard extends Base<Data> {
     const { data } = this;
 
     return html`
-      ${this.renderTemplateOrSlot('name:before')}
+      <div>
+        ${this.renderTemplateOrSlot('name:before')}
 
-      <div class="flex items-center space-x-xs font-semibold">
-        <div class="truncate" title=${data?.name ?? ''} data-testid="name">
-          ${data?.name ?? html`&nbsp;`}
+        <div class="flex items-center space-x-xs font-medium">
+          <div class="truncate" title=${data?.name ?? ''} data-testid="name">
+            ${data?.name ?? html`&nbsp;`}
+          </div>
+
+          ${data && data.visibility !== 'public'
+            ? html`
+                <div class="flex items-center" style="height: 1px">
+                  <iron-icon icon="icons:lock" class="icon-inline"></iron-icon>
+                </div>
+              `
+            : ''}
         </div>
 
-        ${data && data.visibility !== 'public'
-          ? html`<iron-icon icon="icons:lock" class="icon-inline"></iron-icon>`
-          : ''}
+        ${this.renderTemplateOrSlot('name:after')}
       </div>
-
-      ${this.renderTemplateOrSlot('name:after')}
     `;
   };
 
@@ -51,11 +57,19 @@ export class AttributeCard extends Base<Data> {
     const { data } = this;
 
     return html`
-      ${this.renderTemplateOrSlot('value:before')}
-      <div class="truncate text-tertiary" title=${data?.value ?? ''} data-testid="value">
-        ${data?.value ?? html`&nbsp;`}
+      <div>
+        ${this.renderTemplateOrSlot('value:before')}
+
+        <div
+          class="truncate text-tertiary text-s sm-text-m"
+          title=${data?.value ?? ''}
+          data-testid="value"
+        >
+          ${data?.value ?? html`&nbsp;`}
+        </div>
+
+        ${this.renderTemplateOrSlot('value:after')}
       </div>
-      ${this.renderTemplateOrSlot('value:after')}
     `;
   };
 
@@ -66,9 +80,9 @@ export class AttributeCard extends Base<Data> {
 
     return html`
       <div
-        class="relative text-body text-m font-lumo leading-s sm-flex sm-justify-between"
         aria-live="polite"
         aria-busy=${this.in('busy')}
+        class="h-s flex flex-col justify-center relative text-body text-m font-lumo leading-xs sm-flex-row sm-items-center sm-justify-between"
       >
         ${hiddenSelector.matches('name', true) ? '' : this.__renderName()}
         ${hiddenSelector.matches('value', true) ? '' : this.__renderValue()}

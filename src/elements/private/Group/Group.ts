@@ -32,7 +32,7 @@ export class Group extends LitElement {
           <slot name="header"></slot>
         </h3>
 
-        <div class="rounded-t-l rounded-b-l ${this.frame ? frameClass : ''}">
+        <div class="rounded ${this.frame ? frameClass : ''}">
           <slot></slot>
         </div>
       </section>
