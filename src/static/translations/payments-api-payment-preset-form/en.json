@@ -21,7 +21,7 @@
     "delete_message": "Are you sure you'd like to remove this payment method? You'll need to configure it again if you decide to bring it back.",
     "delete_confirm": "Remove",
     "delete_cancel": "Cancel",
-    "title": "Payment methods",
+    "label": "Payment methods",
     "dialog": {
       "header_update": "Payment method",
       "header_create": "New payment method",
@@ -45,7 +45,7 @@
     "delete_message": "Are you sure you'd like to remove this fraud protection? You'll need to configure it again if you decide to bring it back.",
     "delete_confirm": "Remove",
     "delete_cancel": "Cancel",
-    "title": "Fraud protections",
+    "label": "Fraud protections",
     "dialog": {
       "header_update": "Fraud protection",
       "header_create": "New fraud protection",

@@ -44,7 +44,7 @@
         },
         "delete_confirm": { "type": "string", "default": "Remove" },
         "delete_cancel": { "type": "string", "default": "Cancel" },
-        "title": { "type": "string", "default": "Payment methods" },
+        "label": { "type": "string", "default": "Payment methods" },
         "dialog": {
           "additionalProperties": false,
           "properties": {
@@ -91,7 +91,7 @@
         "delete_message",
         "delete_confirm",
         "delete_cancel",
-        "title",
+        "label",
         "dialog",
         "pagination"
       ]
@@ -106,7 +106,7 @@
         },
         "delete_confirm": { "type": "string", "default": "Remove" },
         "delete_cancel": { "type": "string", "default": "Cancel" },
-        "title": { "type": "string", "default": "Fraud protections" },
+        "label": { "type": "string", "default": "Fraud protections" },
         "dialog": {
           "additionalProperties": false,
           "properties": {
@@ -153,7 +153,7 @@
         "delete_message",
         "delete_confirm",
         "delete_cancel",
-        "title",
+        "label",
         "dialog",
         "pagination"
       ]
