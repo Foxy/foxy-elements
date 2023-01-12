@@ -14,7 +14,21 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-payments-api-payment-method-form',
   translatable: true,
-  configurable: {},
+  configurable: {
+    sections: ['timestamps'],
+    buttons: ['create', 'delete'],
+    inputs: [
+      'description',
+      'account-id',
+      'account-key',
+      'third-party-key',
+      'test-account-id',
+      'test-account-key',
+      'test-third-party-key',
+      'three-d-secure-toggle',
+      'three-d-secure-response',
+    ],
+  },
 };
 
 export default {

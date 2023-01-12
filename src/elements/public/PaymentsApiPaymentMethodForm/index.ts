@@ -1,3 +1,4 @@
+import '@vaadin/vaadin-button';
 import '@vaadin/vaadin-tabs';
 
 import '../../internal/InternalAsyncComboBoxControl/index';
@@ -7,6 +8,7 @@ import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
+import '../NucleonElement/index';
 import '../I18n/index';
 
 import { PaymentsApiPaymentMethodForm } from './PaymentsApiPaymentMethodForm';
