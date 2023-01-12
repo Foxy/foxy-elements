@@ -274,7 +274,6 @@ export class CartForm extends Base<Data> {
       <foxy-item-card
         locale-codes=${this.localeCodes}
         parent=${ctx.parent}
-        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
         infer=""
         href=${ctx.href}
         .related=${ctx.related}
@@ -282,7 +281,12 @@ export class CartForm extends Base<Data> {
       </foxy-item-card>
     `;
 
-    const currencyDisplay = this.__store?.use_international_currency_symbol ? 'code' : 'symbol';
+    const store = this.__store;
+    const currencyDisplay = store
+      ? store.use_international_currency_symbol
+        ? 'code'
+        : 'symbol'
+      : void 0;
 
     let currencyCode: string | null = null;
 
@@ -730,7 +734,7 @@ export class CartForm extends Base<Data> {
 
   private __renderTotalOrder(currency: string | null, currencyDisplay: string | undefined) {
     const data = this.data;
-    if (!data) return html`--`;
+    if (!data || !currency || !currencyDisplay) return html`--`;
 
     const options = { amount: `${data.total_order} ${currency}`, currencyDisplay };
     return html`<foxy-i18n infer="totals" key="total_order" .options=${options}></foxy-i18n>`;
@@ -739,14 +743,15 @@ export class CartForm extends Base<Data> {
   private __renderTotals(currency: string | null, currencyDisplay: string | undefined) {
     const keys = ['total_item_price', 'total_shipping', 'total_tax'] as const;
     const data = this.data;
+    const isPriceReady = data && currency && currencyDisplay;
 
     return keys.map(key => {
       const options = { amount: `${data?.[key]} ${currency}`, currencyDisplay };
 
       return html`
-        <div class="flex justify-between text-m text-secondary">
+        <div data-testid=${key} class="flex justify-between text-m text-secondary">
           <foxy-i18n key=${key} infer="totals"></foxy-i18n>
-          ${data
+          ${isPriceReady
             ? html`<foxy-i18n infer="totals" key="price" .options=${options}></foxy-i18n>`
             : html`<span>--</span>`}
         </div>
@@ -755,13 +760,18 @@ export class CartForm extends Base<Data> {
   }
 
   private __renderDiscounts(currency: string | null, currencyDisplay: string | undefined) {
-    return this.__discounts?.data?._embedded['fx:discounts'].map(discount => {
+    const discounts = this.__discounts?.data?._embedded['fx:discounts'];
+    const isPriceReady = currency && currencyDisplay;
+
+    return discounts?.map(discount => {
       const options = { amount: `${discount.amount} ${currency}`, currencyDisplay };
 
       return html`
-        <div class="flex justify-between text-m text-secondary">
+        <div data-testclass="discount" class="flex justify-between text-m text-secondary">
           <span>${discount.name} &bull; ${discount.code}</span>
-          <foxy-i18n infer="totals" key="price" .options=${options}></foxy-i18n>
+          ${isPriceReady
+            ? html`<foxy-i18n infer="totals" key="price" .options=${options}></foxy-i18n>`
+            : html`<span>--</span>`}
         </div>
       `;
     });
