@@ -16,6 +16,13 @@ import { html } from 'lit-html';
 const NS = 'i18n-editor';
 const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(NucleonElement)), NS);
 
+/**
+ * Editor for language string overrides. Loads language strings
+ * property helper (`fx:language_strings`) as main resource.
+ *
+ * @since 1.21.0
+ * @element foxy-i18n-editor
+ */
 export class I18nEditor extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -26,9 +33,11 @@ export class I18nEditor extends Base<Data> {
     };
   }
 
-  languageOverrides: string | null = 'https://demo.api/hapi/language_overrides';
+  /** URL of the `fx:language_overrides` resource for a template set. */
+  languageOverrides: string | null = null;
 
-  selectedLanguage: string | null = 'english';
+  /** Language from the `fx:language_strings` property helper for which the default values will be pulled from. */
+  selectedLanguage: string | null = null;
 
   private __selectedTabIndex = 0;
 
@@ -87,7 +96,7 @@ export class I18nEditor extends Base<Data> {
           ${repeat(
             Object.entries(filteredValues),
             ([keyOrGroup]) => keyOrGroup,
-            ([keyOrGroup, translationOrDictionary]) => {
+            ([keyOrGroup, defaultValue]) => {
               let code: string;
               let gateway: string | undefined;
               let override: Overrides['_embedded']['fx:language_overrides'][number] | undefined;
@@ -104,7 +113,7 @@ export class I18nEditor extends Base<Data> {
 
               return html`
                 <foxy-internal-i18n-editor-entry
-                  default-value=${translationOrDictionary}
+                  default-value=${defaultValue}
                   gateway=${ifDefined(gateway)}
                   parent=${ifDefined(this.languageOverrides ?? void 0)}
                   code=${code}
