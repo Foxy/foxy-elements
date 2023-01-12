@@ -133,24 +133,24 @@ export class CartForm extends Base<Data> {
 
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ billing_first_name: v }) => !v || v.length <= 50 || 'billing_first_name:v8n_too_long',
-      ({ billing_last_name: v }) => !v || v.length <= 50 || 'billing_last_name:v8n_too_long',
-      ({ billing_region: v }) => !v || v.length <= 50 || 'billing_region:v8n_too_long',
-      ({ billing_city: v }) => !v || v.length <= 50 || 'billing_city:v8n_too_long',
-      ({ billing_phone: v }) => !v || v.length <= 50 || 'billing_phone:v8n_too_long',
-      ({ billing_company: v }) => !v || v.length <= 50 || 'billing_company:v8n_too_long',
-      ({ billing_address2: v }) => !v || v.length <= 100 || 'billing_address2:v8n_too_long',
-      ({ billing_address1: v }) => !v || v.length <= 100 || 'billing_address1:v8n_too_long',
-      ({ billing_postal_code: v }) => !v || v.length <= 50 || 'billing_postal_code:v8n_too_long',
-      ({ shipping_first_name: v }) => !v || v.length <= 50 || 'shipping_first_name:v8n_too_long',
-      ({ shipping_last_name: v }) => !v || v.length <= 50 || 'shipping_last_name:v8n_too_long',
-      ({ shipping_region: v }) => !v || v.length <= 50 || 'shipping_region:v8n_too_long',
-      ({ shipping_city: v }) => !v || v.length <= 50 || 'shipping_city:v8n_too_long',
-      ({ shipping_phone: v }) => !v || v.length <= 50 || 'shipping_phone:v8n_too_long',
-      ({ shipping_company: v }) => !v || v.length <= 50 || 'shipping_company:v8n_too_long',
-      ({ shipping_address2: v }) => !v || v.length <= 100 || 'shipping_address2:v8n_too_long',
-      ({ shipping_address1: v }) => !v || v.length <= 100 || 'shipping_address1:v8n_too_long',
-      ({ shipping_postal_code: v }) => !v || v.length <= 50 || 'shipping_postal_code:v8n_too_long',
+      ({ billing_first_name: v }) => !v || v.length <= 50 || 'billing-first-name:v8n_too_long',
+      ({ billing_last_name: v }) => !v || v.length <= 50 || 'billing-last-name:v8n_too_long',
+      ({ billing_region: v }) => !v || v.length <= 50 || 'billing-region:v8n_too_long',
+      ({ billing_city: v }) => !v || v.length <= 50 || 'billing-city:v8n_too_long',
+      ({ billing_phone: v }) => !v || v.length <= 50 || 'billing-phone:v8n_too_long',
+      ({ billing_company: v }) => !v || v.length <= 50 || 'billing-company:v8n_too_long',
+      ({ billing_address2: v }) => !v || v.length <= 100 || 'billing-address-two:v8n_too_long',
+      ({ billing_address1: v }) => !v || v.length <= 100 || 'billing-address-one:v8n_too_long',
+      ({ billing_postal_code: v }) => !v || v.length <= 50 || 'billing-postal-code:v8n_too_long',
+      ({ shipping_first_name: v }) => !v || v.length <= 50 || 'shipping-first-name:v8n_too_long',
+      ({ shipping_last_name: v }) => !v || v.length <= 50 || 'shipping-last-name:v8n_too_long',
+      ({ shipping_region: v }) => !v || v.length <= 50 || 'shipping-region:v8n_too_long',
+      ({ shipping_city: v }) => !v || v.length <= 50 || 'shipping-city:v8n_too_long',
+      ({ shipping_phone: v }) => !v || v.length <= 50 || 'shipping-phone:v8n_too_long',
+      ({ shipping_company: v }) => !v || v.length <= 50 || 'shipping-company:v8n_too_long',
+      ({ shipping_address2: v }) => !v || v.length <= 100 || 'shipping-address-two:v8n_too_long',
+      ({ shipping_address1: v }) => !v || v.length <= 100 || 'shipping-address-one:v8n_too_long',
+      ({ shipping_postal_code: v }) => !v || v.length <= 50 || 'shipping-postal-code:v8n_too_long',
     ];
   }
 
@@ -492,10 +492,18 @@ export class CartForm extends Base<Data> {
             <foxy-internal-text-control infer="billing-company"></foxy-internal-text-control>
             <foxy-internal-text-control infer="billing-phone"></foxy-internal-text-control>
 
-            <foxy-internal-text-control infer="billing-address1" class="col-span-2">
+            <foxy-internal-text-control
+              property="billing_address1"
+              infer="billing-address-one"
+              class="col-span-2"
+            >
             </foxy-internal-text-control>
 
-            <foxy-internal-text-control infer="billing-address2" class="col-span-2">
+            <foxy-internal-text-control
+              property="billing_address2"
+              infer="billing-address-two"
+              class="col-span-2"
+            >
             </foxy-internal-text-control>
 
             <foxy-internal-select-control infer="billing-country" .options=${countryOptions}>
@@ -532,10 +540,18 @@ export class CartForm extends Base<Data> {
             <foxy-internal-text-control infer="shipping-company"></foxy-internal-text-control>
             <foxy-internal-text-control infer="shipping-phone"></foxy-internal-text-control>
 
-            <foxy-internal-text-control infer="shipping-address1" class="col-span-2">
+            <foxy-internal-text-control
+              property="shipping_address1"
+              infer="shipping-address-one"
+              class="col-span-2"
+            >
             </foxy-internal-text-control>
 
-            <foxy-internal-text-control infer="shipping-address2" class="col-span-2">
+            <foxy-internal-text-control
+              property="shipping_address2"
+              infer="shipping-address-two"
+              class="col-span-2"
+            >
             </foxy-internal-text-control>
 
             <foxy-internal-select-control infer="shipping-country" .options=${countryOptions}>
