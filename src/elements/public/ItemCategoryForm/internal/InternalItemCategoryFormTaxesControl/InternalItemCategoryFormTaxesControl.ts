@@ -10,7 +10,7 @@ export class InternalItemCategoryFormTaxesControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      taxes: { type: String },
+      taxes: {},
     };
   }
 

@@ -14,8 +14,8 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      emailTemplates: { type: String, attribute: 'email-templates' },
-      taxes: { type: String },
+      emailTemplates: { attribute: 'email-templates' },
+      taxes: {},
     };
   }
 
@@ -159,15 +159,11 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
   renderBody(): TemplateResult {
     const itemDeliveryType = this.form.item_delivery_type;
     const handlingFeeType = this.form.handling_fee_type ?? 'none';
-    const hasDividers = !this.hiddenSelector.matches('dividers', true);
-    const divider = html`<div class="border-t border-contrast-10 col-span-2"></div>`;
 
     return html`
       <div class="grid grid-cols-2 gap-m">
         <foxy-internal-text-control infer="name" class="col-span-2"></foxy-internal-text-control>
         <foxy-internal-text-control infer="code" class="col-span-2"></foxy-internal-text-control>
-
-        ${hasDividers ? divider : ''}
 
         <foxy-internal-select-control
           infer="handling-fee-type"
@@ -185,7 +181,6 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
                 ? this.__renderHandlingFeeMinimum()
                 : ''}
             `}
-        ${hasDividers ? divider : ''}
 
         <foxy-internal-select-control
           infer="item-delivery-type"
@@ -197,20 +192,15 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
         ${itemDeliveryType === 'downloaded'
           ? this.__renderDownloadDeliveryControls()
           : itemDeliveryType === 'flat_rate'
-          ? this.__renderFlatRateControls()
+          ? [this.__renderFlatRateControls(), this.__renderCustomsValue()]
           : itemDeliveryType === 'shipped'
-          ? this.__renderShippingControls()
+          ? [this.__renderShippingControls(), this.__renderCustomsValue()]
           : ''}
-        ${itemDeliveryType === 'shipped' || itemDeliveryType === 'flat_rate'
-          ? this.__renderCustomsValue()
-          : ''}
-        ${hasDividers ? divider : ''}
 
         <foxy-internal-text-control infer="discount-name" class="col-span-2">
         </foxy-internal-text-control>
 
         ${this.form.discount_name ? this.__renderDiscountBuilder() : ''}
-        ${hasDividers ? divider : ''}
 
         <foxy-internal-async-combo-box-control
           item-label-path="description"
@@ -248,7 +238,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
         >
         </foxy-internal-async-combo-box-control>
 
-        ${hasDividers ? divider : ''} ${this.data ? this.__renderTaxes() : ''}
+        ${this.data ? this.__renderTaxes() : ''}
       </div>
 
       ${super.renderBody()}

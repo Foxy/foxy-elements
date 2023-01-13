@@ -16,8 +16,8 @@ export class InternalItemCategoryFormTaxesControlItem extends TaxCard {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      taxItemCategories: { type: String, attribute: 'tax-item-categories' },
-      itemCategory: { type: String, attribute: 'item-category' },
+      taxItemCategories: { attribute: 'tax-item-categories' },
+      itemCategory: { attribute: 'item-category' },
     };
   }
 
