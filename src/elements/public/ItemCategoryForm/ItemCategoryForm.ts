@@ -1,15 +1,94 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
+import type { Templates, Data } from './types';
 import type { TemplateResult } from 'lit-html';
 import type { ParsedValue } from '../DiscountBuilder/types';
 import type { NucleonV8N } from '../NucleonElement/types';
-import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
+/**
+ * Form element for item categories (`fx:item_category`).
+ *
+ * @slot name:before
+ * @slot name:after
+ *
+ * @slot code:before
+ * @slot code:after
+ *
+ * @slot handling-fee-type:before
+ * @slot handling-fee-type:after
+ *
+ * @slot handling-fee:before
+ * @slot handling-fee:after
+ *
+ * @slot handling-fee-percentage:before
+ * @slot handling-fee-percentage:after
+ *
+ * @slot handling-fee-minimum:before
+ * @slot handling-fee-minimum:after
+ *
+ * @slot item-delivery-type:before
+ * @slot item-delivery-type:after
+ *
+ * @slot max-downloads-per-customer:before
+ * @slot max-downloads-per-customer:after
+ *
+ * @slot max-downloads-time-period:before
+ * @slot max-downloads-time-period:after
+ *
+ * @slot shipping-flat-rate:before
+ * @slot shipping-flat-rate:after
+ *
+ * @slot shipping-flat-rate-type:before
+ * @slot shipping-flat-rate-type:after
+ *
+ * @slot default-weight:before
+ * @slot default-weight:after
+ *
+ * @slot default-weight-unit:before
+ * @slot default-weight-unit:after
+ *
+ * @slot default-length-unit:before
+ * @slot default-length-unit:after
+ *
+ * @slot customs-value:before
+ * @slot customs-value:after
+ *
+ * @slot discount-name:before
+ * @slot discount-name:after
+ *
+ * @slot discount-builder:before
+ * @slot discount-builder:after
+ *
+ * @slot admin-email-template-uri:before
+ * @slot admin-email-template-uri:after
+ *
+ * @slot customer-email-template-uri:before
+ * @slot customer-email-template-uri:after
+ *
+ * @slot gift-recipient-email-template-uri:before
+ * @slot gift-recipient-email-template-uri:after
+ *
+ * @slot taxes:before
+ * @slot taxes:after
+ *
+ * @slot timestamps:before
+ * @slot timestamps:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
+ *
+ * @since 1.21.0
+ * @element foxy-item-category-form
+ */
 export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-category-form')<Data> {
   static get properties(): PropertyDeclarations {
     return {
@@ -121,8 +200,13 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     ];
   }
 
+  /** URL of the `fx:email_templates` collection for a store. */
   emailTemplates: string | null = null;
 
+  /** Template render functions mapped to their name. */
+  templates: Templates = {};
+
+  /** URL of the `fx:taxes` collection for a store. */
   taxes: string | null = null;
 
   private static __shippingFlatRateTypeOptions = [

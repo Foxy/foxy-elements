@@ -13438,14 +13438,15 @@
     {
       "name": "foxy-item-category-form",
       "path": "./src/elements/public/ItemCategoryForm/index.ts",
+      "description": "Form element for item categories (`fx:item_category`).",
       "attributes": [
         {
           "name": "email-templates",
-          "type": "string"
+          "description": "URL of the `fx:email_templates` collection for a store."
         },
         {
           "name": "taxes",
-          "type": "string"
+          "description": "URL of the `fx:taxes` collection for a store."
         },
         {
           "name": "ns",
@@ -13522,12 +13523,12 @@
         {
           "name": "emailTemplates",
           "attribute": "email-templates",
-          "type": "string"
+          "description": "URL of the `fx:email_templates` collection for a store."
         },
         {
           "name": "taxes",
           "attribute": "taxes",
-          "type": "string"
+          "description": "URL of the `fx:taxes` collection for a store."
         },
         {
           "name": "ns",
@@ -13542,6 +13543,8 @@
         },
         {
           "name": "templates",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -13681,6 +13684,152 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "name:before"
+        },
+        {
+          "name": "name:after"
+        },
+        {
+          "name": "code:before"
+        },
+        {
+          "name": "code:after"
+        },
+        {
+          "name": "handling-fee-type:before"
+        },
+        {
+          "name": "handling-fee-type:after"
+        },
+        {
+          "name": "handling-fee:before"
+        },
+        {
+          "name": "handling-fee:after"
+        },
+        {
+          "name": "handling-fee-percentage:before"
+        },
+        {
+          "name": "handling-fee-percentage:after"
+        },
+        {
+          "name": "handling-fee-minimum:before"
+        },
+        {
+          "name": "handling-fee-minimum:after"
+        },
+        {
+          "name": "item-delivery-type:before"
+        },
+        {
+          "name": "item-delivery-type:after"
+        },
+        {
+          "name": "max-downloads-per-customer:before"
+        },
+        {
+          "name": "max-downloads-per-customer:after"
+        },
+        {
+          "name": "max-downloads-time-period:before"
+        },
+        {
+          "name": "max-downloads-time-period:after"
+        },
+        {
+          "name": "shipping-flat-rate:before"
+        },
+        {
+          "name": "shipping-flat-rate:after"
+        },
+        {
+          "name": "shipping-flat-rate-type:before"
+        },
+        {
+          "name": "shipping-flat-rate-type:after"
+        },
+        {
+          "name": "default-weight:before"
+        },
+        {
+          "name": "default-weight:after"
+        },
+        {
+          "name": "default-weight-unit:before"
+        },
+        {
+          "name": "default-weight-unit:after"
+        },
+        {
+          "name": "default-length-unit:before"
+        },
+        {
+          "name": "default-length-unit:after"
+        },
+        {
+          "name": "customs-value:before"
+        },
+        {
+          "name": "customs-value:after"
+        },
+        {
+          "name": "discount-name:before"
+        },
+        {
+          "name": "discount-name:after"
+        },
+        {
+          "name": "discount-builder:before"
+        },
+        {
+          "name": "discount-builder:after"
+        },
+        {
+          "name": "admin-email-template-uri:before"
+        },
+        {
+          "name": "admin-email-template-uri:after"
+        },
+        {
+          "name": "customer-email-template-uri:before"
+        },
+        {
+          "name": "customer-email-template-uri:after"
+        },
+        {
+          "name": "gift-recipient-email-template-uri:before"
+        },
+        {
+          "name": "gift-recipient-email-template-uri:after"
+        },
+        {
+          "name": "taxes:before"
+        },
+        {
+          "name": "taxes:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },
