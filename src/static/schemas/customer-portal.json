@@ -786,7 +786,7 @@
           "$ref": "sign-in-form.json#/properties/password"
         },
         "recover_access": {
-          "default": "Get one-time code",
+          "default": "Get temporary password",
           "type": "string"
         },
         "sign_in": {

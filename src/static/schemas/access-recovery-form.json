@@ -6,7 +6,7 @@
       "type": "string"
     },
     "recover_access": {
-      "default": "Get one-time code",
+      "default": "Get temporary password",
       "type": "string"
     },
     "recover_access_success": {

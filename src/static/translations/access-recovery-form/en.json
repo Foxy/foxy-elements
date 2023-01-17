@@ -1,6 +1,6 @@
 {
   "email": "Email",
-  "recover_access": "Get one-time code",
+  "recover_access": "Get temporary password",
   "recover_access_success": "Done! Please check your email for further instructions.",
   "unknown_error": "An unknown error has occured. Please try again later.",
   "v8n_invalid_email": "Invalid email",

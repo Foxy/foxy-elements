@@ -2,7 +2,7 @@
   "access-recovery-form": {
     "back": "Back",
     "email": "Email",
-    "recover_access": "Get one-time code",
+    "recover_access": "Get temporary password",
     "recover_access_hint": "Enter your email and we'll send you a temporary password",
     "recover_access_success": "Done! Please check your email for further instructions.",
     "unknown_error": "We can't issue a one-time code for this account at the moment. If you've already requested the code, please wait a few minutes before trying again.",
@@ -209,7 +209,7 @@
     "email": "Email",
     "invalid_credential_error": "Incorrect email or password. Please check your credentials and try again.",
     "password": "Password",
-    "recover_access": "Get one-time code",
+    "recover_access": "Get temporary password",
     "sign_in": "Sign in",
     "sign_in_hint": "Please enter your email and password",
     "unknown_error": "An unknown error has occured. Please try again later.",
