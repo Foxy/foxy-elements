@@ -1,0 +1,223 @@
+{
+  "access-recovery-form": {
+    "back": "Terug",
+    "email": "E-mail",
+    "recover_access": "Ontvang een eenmalige code",
+    "recover_access_hint": "Vul je e-mailadres in en we sturen je een tijdelijk wachtwoord.",
+    "recover_access_success": "Klaar! Controleer je e-mail voor verdere instructies.",
+    "unknown_error": "We kunnen op dit moment geen eenmalige code doorsturen voor dit account. Als je de code al hebt aangevraagd, wacht dan een paar minuten voordat je het opnieuw probeert.",
+    "v8n_invalid_email": "Ongeldig e-mailadres",
+    "v8n_required": "Verplicht",
+    "spinner": {
+      "loading_busy": "Bezig met laden",
+      "loading_error": "Laden mislukt"
+    }
+  },
+  "customer": {
+    "address_plural": "Adressen",
+    "cancel": "Annuleren",
+    "close": "Sluiten",
+    "payment_method_plural": "Betaalwijzen",
+    "save": "Opslaan",
+    "subscription_plural": "Abonnementen",
+    "transaction_plural": "Transacties",
+    "undo_cancel": "Herzien",
+    "undo_confirm": "Ongedaan maken",
+    "undo_header": "Niet-opgeslagen wijzigingen",
+    "undo_message": "Het lijkt erop dat je je wijzigingen niet hebt opgeslagen! Wat zou je met ze willen doen?",
+    "update": "Update",
+    "address-card": {
+      "default_billing_address": "Standaard factuuradres",
+      "default_shipping_address": "Standaard verzendadres",
+      "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
+      "full_name": "{{first_name}} {{last_name}}",
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_empty": "Geen adressen",
+        "loading_end": "Geen gegevens meer",
+        "loading_error": "Laden mislukt"
+      }
+    },
+    "address-form": {
+      "address_name": "Adres naam",
+      "address1": "Adres regel 1",
+      "address2": "Adres regel 2",
+      "cancel": "Annuleren",
+      "city": "Stad",
+      "company": "Bedrijf",
+      "country": "Land",
+      "date": "{{value, date}}",
+      "date_created": "Gemaakt op",
+      "date_modified": "Laatst bijgewerkt",
+      "delete": "Verwijderen",
+      "delete_prompt": "Deze bron wordt permanent verwijderd. Weet je het zeker?",
+      "first_name": "Voornaam",
+      "last_name": "Achternaam",
+      "phone": "Telefoon",
+      "postal_code": "Postcode",
+      "region": "Regio",
+      "v8n_required": "Verplicht",
+      "v8n_too_long": "Te lang",
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_empty": "Geen gegevens",
+        "loading_error": "Laden mislukt"
+      }
+    },
+    "customer-form": {
+      "cancel": "Annuleren",
+      "change_password": "Verander je wachtwoord",
+      "change_password_step_1": "Laten we beginnen met je huidige wachtwoord. Een tijdelijk wachtwoord werkt ook als je er een hebt.",
+      "change_password_step_2": "Voer nu een nieuw wachtwoord in en klik op Doorgaan om de wijzigingen op je account toe te passen.",
+      "change_password_step_3": "Helemaal klaar! Je kan nu je nieuwe wachtwoord gebruiken bij het inloggen.",
+      "close": "Sluiten",
+      "date": "{{value, date}}",
+      "date_created": "Gemaakt op",
+      "date_modified": "Laatst bijgewerkt",
+      "email": "E-mail",
+      "first_name": "Voornaam",
+      "invalid_credential_error": "Incorrect wachtwoord. Zorg ervoor dat je je huidige of tijdelijke wachtwoord hebt ingevoerd en probeer het opnieuw.",
+      "last_name": "Achternaam",
+      "new_password": "Nieuw wachtwoord",
+      "password": "Wachtwoord",
+      "sign_in": "Doorgaan",
+      "tax_id": "BTW-nummer",
+      "undo_cancel": "Herzien",
+      "undo_confirm": "Ongedaan maken",
+      "undo_header": "Niet-opgeslagen wijzigingen",
+      "undo_message": "Het lijkt erop dat je je wijzigingen niet hebt opgeslagen! Wat zou je met ze willen doen?",
+      "v8n_invalid_email": "Ongeldig e-mailadres",
+      "v8n_required": "Verplicht",
+      "v8n_too_long": "Te lang",
+      "sign-in-form": {
+        "spinner": {
+          "loading_busy": "Bezig met laden",
+          "loading_error": "Laden mislukt"
+        }
+      },
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_empty": "Geen gegevens",
+        "loading_error": "Laden mislukt"
+      }
+    },
+    "payment-method-card": {
+      "cancel": "Annuleren",
+      "delete": "Verwijderen",
+      "delete_prompt": "Deze bron wordt permanent verwijderd. Weet je het zeker?",
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_empty": "Geen betaalwijzen",
+        "loading_error": "Laden mislukt"
+      }
+    },
+    "spinner": {
+      "loading_busy": "Bezig met laden",
+      "loading_error": "Laden mislukt"
+    },
+    "subscription-card": {
+      "daily": "Dagelijks",
+      "daily_plural": "Elke {{count}} dagen",
+      "frequency": "$t(customer.subscription-card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "monthly": "Maandelijks",
+      "monthly_plural": "Elke {{count}} maanden",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-card.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Volgende betaling op {{date, date}}",
+      "subscription_cancelled": "Eindigde op {{date, date}}",
+      "subscription_failed": "Betaling mislukt op {{date, date}}",
+      "subscription_inactive": "Inactief",
+      "subscription_will_be_cancelled": "Eindigt op {{date, date}}",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "twice_a_month": "Twee keer per maand",
+      "weekly": "Wekelijks",
+      "weekly_plural": "Elke {{count}} weken",
+      "yearly": "Jaarlijks",
+      "yearly_plural": "Elke {{count}} jaar",
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_empty": "Geen abonnementen",
+        "loading_end": "Geen gegevens meer",
+        "loading_error": "Laden mislukt"
+      }
+    },
+    "subscription-form": {
+      "daily": "Dagelijks",
+      "daily_plural": "Elke {{count}} dagen",
+      "end_subscription": "Abonnement beëindigen",
+      "frequency": "$t(customer.subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+      "frequency_label": "Frequentie",
+      "item_plural": "Artikelen",
+      "monthly": "Maandelijks",
+      "monthly_plural": "Elke {{count}} maanden",
+      "next_transaction_date": "Volgende transactiedatum",
+      "price_recurring": "{{amount, price}} $t(customer.subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" })",
+      "price_twice_a_month": "{{amount, price}} $t(customer.subscription-form.twice_a_month, { \"ns\": \"customer-portal\" })",
+      "subscription_active": "Volgende betaling op {{date, date}}",
+      "subscription_cancelled": "Eindigde op {{date, date}}",
+      "subscription_failed": "Betaling mislukt op {{date, date}}",
+      "subscription_inactive": "Inactief",
+      "subscription_will_be_cancelled": "Eindigt op {{date, date}}",
+      "transaction_plural": "Transacties",
+      "twice_a_month": "Twee keer per maand",
+      "update_billing": "Factureringsgegevens bijwerken",
+      "update_items": "Bewerk",
+      "weekly": "Wekelijks",
+      "weekly_plural": "Elke {{count}} weken",
+      "yearly": "Jaarlijks",
+      "yearly_plural": "Elke {{count}} jaar",
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_error": "Laden mislukt"
+      },
+      "transactions-table": {
+        "date": "{{value, date}}",
+        "price": "{{amount, price}}",
+        "receipt": "Ontvangstbewijs",
+        "spinner": {
+          "loading_busy": "Bezig met laden",
+          "loading_empty": "Geen transacties",
+          "loading_error": "Laden mislukt"
+        }
+      }
+    },
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "Ontvangstbewijs",
+      "transaction_approved": "Goedgekeurd",
+      "transaction_authorized": "Geautoriseerd",
+      "transaction_captured": "Vastgelegd",
+      "transaction_completed": "Voltooid",
+      "transaction_declined": "Afgewezen",
+      "transaction_pending": "In behandeling",
+      "transaction_refunded": "Terugbetaald",
+      "transaction_rejected": "Afgewezen",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} en {{count}} meer",
+      "transaction_verified": "Geverifieerd",
+      "transaction_voided": "Ongeldig",
+      "spinner": {
+        "loading_busy": "Bezig met laden",
+        "loading_empty": "Geen transacties",
+        "loading_end": "Geen gegevens meer",
+        "loading_error": "Laden mislukt"
+      }
+    }
+  },
+  "sign-in-form": {
+    "email": "E-mail",
+    "invalid_credential_error": "Incorrect e-mailadres of wachtwoord. Controleer je inloggegevens en probeer het opnieuw.",
+    "password": "Wachtwoord",
+    "recover_access": "Ontvang een eenmalige code",
+    "sign_in": "Log in",
+    "sign_in_hint": "Vul uw e-mailadres en wachtwoord in",
+    "unknown_error": "Er is een onbekende fout opgetreden. Probeer het later opnieuw.",
+    "v8n_invalid_email": "Ongeldig e-mailadres",
+    "v8n_required": "Verplicht",
+    "spinner": {
+      "loading_busy": "Bezig met laden",
+      "loading_error": "Laden mislukt"
+    }
+  }
+}

@@ -78,6 +78,8 @@
       "first_name": "Vorname",
       "invalid_credential_error": "Contraseña incorrecta. Asegúrese de haber ingresado su contraseña actual o temporal y vuelva a intentarlo.",
       "last_name": "Nachname",
+      "new_password": "Nueva contraseña",
+      "password": "Contraseña",
       "sign_in": "Continuar",
       "tax_id": "Número de identificación fiscal",
       "undo_cancel": "Revisar",
@@ -88,8 +90,6 @@
       "v8n_required": "Obligatorio",
       "v8n_too_long": "Demasiado largo",
       "sign-in-form": {
-        "new_password": "Nueva contraseña",
-        "password": "Contraseña",
         "spinner": {
           "loading_busy": "Cargando",
           "loading_error": "No se pudo cargar"
