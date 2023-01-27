@@ -3,19 +3,19 @@
     "label": "Shipping Method",
     "placeholder": "Select service",
     "helper_text": "",
-    "required": "Please select a shipping method."
+    "v8n_required": "Please select a shipping method."
   },
   "shipping-container-uri": {
     "label": "Container",
     "placeholder": "Select container",
     "helper_text": "",
-    "required": "Please select a shipping method."
+    "v8n_required": "Please select a shipping method."
   },
   "shipping-drop-type-uri": {
     "label": "Drop Type",
     "placeholder": "Select pickup",
     "helper_text": "",
-    "required": "Please select a drop type."
+    "v8n_required": "Please select a drop type."
   },
   "destinations": {
     "label": "Destinations",
@@ -27,40 +27,40 @@
     "label": "Authentication Key",
     "placeholder": "N/A",
     "helper_text": "If using account specific rates, enter your shipping account authentication key here, if applicable.",
-    "too_long": "Authentication key must be 50 characters or less."
+    "v8n_too_long": "Authentication key must be 50 characters or less."
   },
   "meter-number": {
     "label": "Meter Number",
     "placeholder": "N/A",
     "helper_text": "If using account specific rates, enter your shipping account meter number here, if applicable.",
-    "too_long": "Meter number must be 50 characters or less."
+    "v8n_too_long": "Meter number must be 50 characters or less."
   },
   "accountid": {
     "label": "Account ID",
     "placeholder": "N/A",
     "helper_text": "If using account specific rates, enter your shipping account id here.",
-    "too_long": "Account ID must be 50 characters or less."
+    "v8n_too_long": "Account ID must be 50 characters or less."
   },
   "endpoint": {
     "label": "Endpoint URL",
     "placeholder": "https://example.com/rates",
     "helper_text": "Enter a URL that we'll poll for shipping rates.",
-    "required": "Please enter a valid endpoint URL."
+    "v8n_required": "Please enter a valid endpoint URL."
   },
   "password": {
     "label": "Password",
     "placeholder": "N/A",
     "helper_text": "If using account specific rates, enter your shipping account password here.",
-    "too_long": "Password must be 50 characters or less."
+    "v8n_too_long": "Password must be 50 characters or less."
   },
   "custom-code": {
     "label": "Custom Code",
     "placeholder": "Paste your code here",
     "helper_text": "JavaScript used to create and modify shipping rates.",
-    "too_long": "Please reduce the size of your custom code to 64KB or less."
+    "v8n_too_long": "Please reduce the size of your custom code to 64KB or less."
   },
   "services": {
-    "header": "Additional services",
+    "label": "Additional services",
     "first": "First",
     "last": "Last",
     "next": "Next",

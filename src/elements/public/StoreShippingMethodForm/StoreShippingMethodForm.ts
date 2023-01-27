@@ -80,16 +80,16 @@ export class StoreShippingMethodForm extends Base<Data> {
 
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ shipping_method_uri: v }) => (v && isURL(v)) || 'shipping-method-uri:required',
-      ({ accountid: v }) => !v || v.length <= 50 || 'accountid:too_long',
-      ({ password: v }) => !v || v.length <= 50 || 'password:too_long',
-      ({ meter_number: v }) => !v || v.length <= 50 || 'meter-number:too_long',
-      ({ authentication_key: v }) => !v || v.length <= 50 || 'authentication-key:too_long',
-      ({ custom_code: v }) => !v || getKbSize(v) <= 64 || 'custom-code:too_long',
+      ({ shipping_method_uri: v }) => (v && isURL(v)) || 'shipping-method-uri:v8n_required',
+      ({ accountid: v }) => !v || v.length <= 50 || 'accountid:v8n_too_long',
+      ({ password: v }) => !v || v.length <= 50 || 'password:v8n_too_long',
+      ({ meter_number: v }) => !v || v.length <= 50 || 'meter-number:v8n_too_long',
+      ({ authentication_key: v }) => !v || v.length <= 50 || 'authentication-key:v8n_too_long',
+      ({ custom_code: v }) => !v || getKbSize(v) <= 64 || 'custom-code:v8n_too_long',
 
       form => {
-        if (form._embedded?.['fx:shipping_method'].code === 'CUSTOM-ENDPOINT-POST') {
-          return (form.accountid && isURL(form.accountid)) || 'endpoint:required';
+        if (form._embedded?.['fx:shipping_method']?.code === 'CUSTOM-ENDPOINT-POST') {
+          return (form.accountid && isURL(form.accountid)) || 'endpoint:v8n_required';
         } else {
           return true;
         }
@@ -97,11 +97,11 @@ export class StoreShippingMethodForm extends Base<Data> {
 
       form => {
         const url = form.shipping_container_uri;
-        const code = form._embedded?.['fx:shipping_method'].code;
+        const code = form._embedded?.['fx:shipping_method']?.code;
         const codes = ['USPS', 'FedEx', 'UPS'];
 
         if (code && codes.includes(code)) {
-          return (url && isURL(url)) || 'shipping-container-uri:required';
+          return (url && isURL(url)) || 'shipping-container-uri:v8n_required';
         } else {
           return true;
         }
@@ -109,11 +109,11 @@ export class StoreShippingMethodForm extends Base<Data> {
 
       form => {
         const url = form.shipping_drop_type_uri;
-        const code = form._embedded?.['fx:shipping_method'].code;
+        const code = form._embedded?.['fx:shipping_method']?.code;
         const codes = ['FedEx', 'UPS'];
 
         if (code && codes.includes(code)) {
-          return (url && isURL(url)) || 'shipping-drop-type-uri:required';
+          return (url && isURL(url)) || 'shipping-drop-type-uri:v8n_required';
         } else {
           return true;
         }

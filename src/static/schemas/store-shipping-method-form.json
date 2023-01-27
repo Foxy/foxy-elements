@@ -8,9 +8,9 @@
         "label": { "type": "string", "default": "Shipping Method" },
         "placeholder": { "type": "string", "default": "Select service" },
         "helper_text": { "type": "string", "default": "" },
-        "required": { "type": "string", "default": "Please select a shipping method." }
+        "v8n_required": { "type": "string", "default": "Please select a shipping method." }
       },
-      "required": ["label", "placeholder", "helper_text", "required"]
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "shipping-container-uri": {
       "additionalProperties": false,
@@ -18,9 +18,9 @@
         "label": { "type": "string", "default": "Container" },
         "placeholder": { "type": "string", "default": "Select container" },
         "helper_text": { "type": "string", "default": "" },
-        "required": { "type": "string", "default": "Please select a shipping method." }
+        "v8n_required": { "type": "string", "default": "Please select a shipping method." }
       },
-      "required": ["label", "placeholder", "helper_text", "required"]
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "shipping-drop-type-uri": {
       "additionalProperties": false,
@@ -28,9 +28,9 @@
         "label": { "type": "string", "default": "Drop Type" },
         "placeholder": { "type": "string", "default": "Select pickup" },
         "helper_text": { "type": "string", "default": "" },
-        "required": { "type": "string", "default": "Please select a drop type." }
+        "v8n_required": { "type": "string", "default": "Please select a drop type." }
       },
-      "required": ["label", "placeholder", "helper_text", "required"]
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "destinations": {
       "additionalProperties": false,
@@ -51,12 +51,12 @@
           "type": "string",
           "default": "If using account specific rates, enter your shipping account authentication key here, if applicable."
         },
-        "too_long": {
+        "v8n_too_long": {
           "type": "string",
           "default": "Authentication key must be 50 characters or less."
         }
       },
-      "required": ["label", "placeholder", "helper_text", "too_long"]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "meter-number": {
       "additionalProperties": false,
@@ -67,9 +67,12 @@
           "type": "string",
           "default": "If using account specific rates, enter your shipping account meter number here, if applicable."
         },
-        "too_long": { "type": "string", "default": "Meter number must be 50 characters or less." }
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Meter number must be 50 characters or less."
+        }
       },
-      "required": ["label", "placeholder", "helper_text", "too_long"]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "accountid": {
       "additionalProperties": false,
@@ -80,9 +83,9 @@
           "type": "string",
           "default": "If using account specific rates, enter your shipping account id here."
         },
-        "too_long": { "type": "string", "default": "Account ID must be 50 characters or less." }
+        "v8n_too_long": { "type": "string", "default": "Account ID must be 50 characters or less." }
       },
-      "required": ["label", "placeholder", "helper_text", "too_long"]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "endpoint": {
       "additionalProperties": false,
@@ -93,9 +96,9 @@
           "type": "string",
           "default": "Enter a URL that we'll poll for shipping rates."
         },
-        "required": { "type": "string", "default": "Please enter a valid endpoint URL." }
+        "v8n_required": { "type": "string", "default": "Please enter a valid endpoint URL." }
       },
-      "required": ["label", "placeholder", "helper_text", "required"]
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
     "password": {
       "additionalProperties": false,
@@ -106,9 +109,9 @@
           "type": "string",
           "default": "If using account specific rates, enter your shipping account password here."
         },
-        "too_long": { "type": "string", "default": "Password must be 50 characters or less." }
+        "v8n_too_long": { "type": "string", "default": "Password must be 50 characters or less." }
       },
-      "required": ["label", "placeholder", "helper_text", "too_long"]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "custom-code": {
       "additionalProperties": false,
@@ -119,17 +122,17 @@
           "type": "string",
           "default": "JavaScript used to create and modify shipping rates."
         },
-        "too_long": {
+        "v8n_too_long": {
           "type": "string",
           "default": "Please reduce the size of your custom code to 64KB or less."
         }
       },
-      "required": ["label", "placeholder", "helper_text", "too_long"]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
     "services": {
       "additionalProperties": false,
       "properties": {
-        "header": { "type": "string", "default": "Additional services" },
+        "label": { "type": "string", "default": "Additional services" },
         "first": { "type": "string", "default": "First" },
         "last": { "type": "string", "default": "Last" },
         "next": { "type": "string", "default": "Next" },
@@ -140,7 +143,7 @@
         "international_only": { "type": "string", "default": "– international only" }
       },
       "required": [
-        "header",
+        "label",
         "first",
         "last",
         "next",
