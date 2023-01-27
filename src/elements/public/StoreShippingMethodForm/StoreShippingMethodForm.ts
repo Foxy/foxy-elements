@@ -263,7 +263,7 @@ export class StoreShippingMethodForm extends Base<Data> {
       >
       </foxy-internal-text-control>
 
-      <foxy-internal-text-control infer="password"></foxy-internal-text-control>
+      <foxy-internal-password-control infer="password"></foxy-internal-password-control>
       <foxy-internal-text-area-control infer="custom-code"></foxy-internal-text-area-control>
 
       <foxy-internal-store-shipping-method-form-services-control infer="services">
