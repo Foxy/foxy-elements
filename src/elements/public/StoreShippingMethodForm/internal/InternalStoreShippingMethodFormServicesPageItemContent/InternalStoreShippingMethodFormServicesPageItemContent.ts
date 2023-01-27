@@ -1,11 +1,13 @@
-import { TemplateResult, html } from 'lit-html';
-import { CheckboxElement } from '@vaadin/vaadin-checkbox';
+import type { PropertyDeclarations } from 'lit-element';
+import type { CheckboxElement } from '@vaadin/vaadin-checkbox';
+import type { TemplateResult } from 'lit-html';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+
 import { ConfigurableMixin } from '../../../../../mixins/configurable';
 import { NucleonElement } from '../../../NucleonElement/NucleonElement';
-import { PropertyDeclarations } from 'lit-element';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
 import { ThemeableMixin } from '../../../../../mixins/themeable';
+import { html } from 'lit-html';
 
 type Data = Resource<Rels.StoreShippingService>;
 const Base = ConfigurableMixin(ThemeableMixin(NucleonElement));
@@ -14,8 +16,8 @@ export class InternalStoreShippingMethodFormServicesPageItemContent extends Base
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      shippingServiceUri: { type: String, attribute: 'shipping-service-uri' },
-      shippingMethodUri: { type: String, attribute: 'shipping-method-uri' },
+      shippingServiceUri: { attribute: 'shipping-service-uri' },
+      shippingMethodUri: { attribute: 'shipping-method-uri' },
     };
   }
 

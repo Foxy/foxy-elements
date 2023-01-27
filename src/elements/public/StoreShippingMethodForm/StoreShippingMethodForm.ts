@@ -1,8 +1,8 @@
 import type { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
+import type { Templates, Data } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
-import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
@@ -74,7 +74,7 @@ export class StoreShippingMethodForm extends Base<Data> {
   static get properties(): typeof Base['properties'] {
     return {
       ...super.properties,
-      shippingMethods: { type: String, attribute: 'shipping-methods' },
+      shippingMethods: { attribute: 'shipping-methods' },
     };
   }
 
@@ -204,15 +204,17 @@ export class StoreShippingMethodForm extends Base<Data> {
         item-label-path="name"
         first=${ifDefined(this.shippingMethods ?? this.form._links?.['fx:shipping_methods'].href)}
         infer="shipping-method-uri"
-        .selectedItem=${this.form._embedded?.['fx:shipping_method']}
+        .selectedItem=${this.form._embedded?.['fx:shipping_method'] ?? null}
         @selected-item-changed=${(evt: CustomEvent) => {
           const { selectedItem } = evt.currentTarget as InternalAsyncComboBoxControl;
           const newEmbeds = { 'fx:shipping_method': selectedItem };
+          type ShippingMethod = Data['_embedded']['fx:shipping_method'];
 
           this.edit({
             _embedded: newEmbeds as Data['_embedded'],
             shipping_container_uri: '',
             shipping_drop_type_uri: '',
+            shipping_method_uri: (selectedItem as ShippingMethod)?._links.self.href ?? '',
           });
         }}
       >
@@ -223,11 +225,16 @@ export class StoreShippingMethodForm extends Base<Data> {
         item-label-path="name"
         first=${ifDefined(method?._links['fx:shipping_containers'].href)}
         infer="shipping-container-uri"
-        .selectedItem=${this.form._embedded?.['fx:shipping_container']}
+        .selectedItem=${this.form._embedded?.['fx:shipping_container'] ?? null}
         @selected-item-changed=${(evt: CustomEvent) => {
           const { selectedItem } = evt.currentTarget as InternalAsyncComboBoxControl;
           const newEmbeds = { ...this.form._embedded, 'fx:shipping_container': selectedItem };
-          this.edit({ _embedded: newEmbeds as Data['_embedded'] });
+          type ShippingContainer = Data['_embedded']['fx:shipping_container'];
+
+          this.edit({
+            shipping_container_uri: (selectedItem as ShippingContainer)?._links.self.href ?? '',
+            _embedded: newEmbeds as Data['_embedded'],
+          });
         }}
       >
       </foxy-internal-async-combo-box-control>
@@ -237,11 +244,16 @@ export class StoreShippingMethodForm extends Base<Data> {
         item-label-path="name"
         first=${ifDefined(method?._links['fx:shipping_drop_types'].href)}
         infer="shipping-drop-type-uri"
-        .selectedItem=${this.form._embedded?.['fx:shipping_drop_type']}
+        .selectedItem=${this.form._embedded?.['fx:shipping_drop_type'] ?? null}
         @selected-item-changed=${(evt: CustomEvent) => {
           const { selectedItem } = evt.currentTarget as InternalAsyncComboBoxControl;
           const newEmbeds = { ...this.form._embedded, 'fx:shipping_drop_type': selectedItem };
-          this.edit({ _embedded: newEmbeds as Data['_embedded'] });
+          type DropType = Data['_embedded']['fx:shipping_drop_type'];
+
+          this.edit({
+            shipping_drop_type_uri: (selectedItem as DropType)?._links.self.href ?? '',
+            _embedded: newEmbeds as Data['_embedded'],
+          });
         }}
       >
       </foxy-internal-async-combo-box-control>
@@ -254,14 +266,15 @@ export class StoreShippingMethodForm extends Base<Data> {
       >
       </foxy-internal-checkbox-group-control>
 
-      <foxy-internal-text-control infer="authentication-key"> </foxy-internal-text-control>
+      <foxy-internal-text-control infer="authentication-key"></foxy-internal-text-control>
       <foxy-internal-text-control infer="meter-number"></foxy-internal-text-control>
 
-      <foxy-internal-text-control
-        infer=${method?.code === 'CUSTOM-ENDPOINT-POST' ? 'endpoint' : 'accountid'}
-        property="accountid"
-      >
-      </foxy-internal-text-control>
+      ${method?.code === 'CUSTOM-ENDPOINT-POST'
+        ? html`
+            <foxy-internal-text-control infer="endpoint" property="accountid">
+            </foxy-internal-text-control>
+          `
+        : html`<foxy-internal-text-control infer="accountid"></foxy-internal-text-control>`}
 
       <foxy-internal-password-control infer="password"></foxy-internal-password-control>
       <foxy-internal-text-area-control infer="custom-code"></foxy-internal-text-area-control>

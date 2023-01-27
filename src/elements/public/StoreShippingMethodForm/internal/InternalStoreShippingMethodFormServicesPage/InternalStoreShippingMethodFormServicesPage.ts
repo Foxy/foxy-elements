@@ -1,13 +1,15 @@
-import { TemplateResult, html } from 'lit-html';
+import type { PropertyDeclarations } from 'lit-element';
+import type { TemplateResult } from 'lit-html';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+
 import { ConfigurableMixin } from '../../../../../mixins/configurable';
-import { NucleonElement } from '../../../NucleonElement/NucleonElement';
-import { PropertyDeclarations } from 'lit-element';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
-import { ThemeableMixin } from '../../../../../mixins/themeable';
 import { TranslatableMixin } from '../../../../../mixins/translatable';
-import { classMap } from '../../../../../utils/class-map';
+import { ThemeableMixin } from '../../../../../mixins/themeable';
+import { NucleonElement } from '../../../NucleonElement/NucleonElement';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { classMap } from '../../../../../utils/class-map';
+import { html } from 'lit-html';
 
 type Data = Resource<Rels.ShippingServices>;
 const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement)));
@@ -16,9 +18,9 @@ export class InternalStoreShippingMethodFormServicesPage extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      storeShippingServicesUri: { type: String, attribute: 'store-shipping-services-uri' },
+      storeShippingServicesUri: { attribute: 'store-shipping-services-uri' },
       internationalAllowed: { type: Boolean, attribute: 'international-allowed' },
-      shippingMethodUri: { type: String, attribute: 'shipping-method-uri' },
+      shippingMethodUri: { attribute: 'shipping-method-uri' },
     };
   }
 

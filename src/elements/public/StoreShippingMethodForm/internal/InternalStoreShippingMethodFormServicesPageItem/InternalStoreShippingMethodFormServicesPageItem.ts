@@ -1,11 +1,13 @@
-import { TemplateResult, html } from 'lit-html';
+import type { PropertyDeclarations } from 'lit-element';
+import type { TemplateResult } from 'lit-html';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+
 import { ConfigurableMixin } from '../../../../../mixins/configurable';
 import { NucleonElement } from '../../../NucleonElement/NucleonElement';
-import { PropertyDeclarations } from 'lit-element';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
 import { ThemeableMixin } from '../../../../../mixins/themeable';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
 
 type Data = Resource<Rels.StoreShippingServices>;
 const Base = ConfigurableMixin(ThemeableMixin(NucleonElement));
@@ -15,8 +17,8 @@ export class InternalStoreShippingMethodFormServicesPageItem extends Base<Data> 
     return {
       ...super.properties,
       internationalAllowed: { type: Boolean, attribute: 'international-allowed' },
-      shippingServiceUri: { type: String, attribute: 'shipping-service-uri' },
-      shippingMethodUri: { type: String, attribute: 'shipping-method-uri' },
+      shippingServiceUri: { attribute: 'shipping-service-uri' },
+      shippingMethodUri: { attribute: 'shipping-method-uri' },
     };
   }
 
