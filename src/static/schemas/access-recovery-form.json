@@ -2,14 +2,8 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "email": {
-      "default": "Email",
-      "type": "string"
-    },
-    "recover_access": {
-      "default": "Get temporary password",
-      "type": "string"
-    },
+    "email": { "type": "string", "default": "Email" },
+    "recover_access": { "type": "string", "default": "Get temporary password" },
     "recover_access_success": {
       "type": "string",
       "default": "Done! Please check your email for further instructions."
