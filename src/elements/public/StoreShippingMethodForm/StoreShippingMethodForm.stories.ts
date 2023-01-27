@@ -11,6 +11,23 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-store-shipping-method-form',
   translatable: true,
+  configurable: {
+    sections: ['timestamps'],
+    buttons: ['create', 'delete'],
+    inputs: [
+      'shipping-method-uri',
+      'shipping-container-uri',
+      'shipping-drop-type-uri',
+      'destinations',
+      'authentication-key',
+      'meter-number',
+      'endpoint',
+      'accountid',
+      'password',
+      'custom-code',
+      'services',
+    ],
+  },
 };
 
 export default getMeta(summary);

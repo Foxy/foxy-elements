@@ -19730,7 +19730,7 @@
       "attributes": [
         {
           "name": "shipping-methods",
-          "type": "string"
+          "description": "URL of the `fx:shipping_methods` property helper."
         },
         {
           "name": "ns",
@@ -19807,7 +19807,7 @@
         {
           "name": "shippingMethods",
           "attribute": "shipping-methods",
-          "type": "string"
+          "description": "URL of the `fx:shipping_methods` property helper."
         },
         {
           "name": "ns",
@@ -19822,6 +19822,8 @@
         },
         {
           "name": "templates",
+          "description": "Template render functions mapped to their name.",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -19961,6 +19963,92 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
+        }
+      ],
+      "slots": [
+        {
+          "name": "shipping-method-uri:before"
+        },
+        {
+          "name": "shipping-method-uri:after"
+        },
+        {
+          "name": "shipping-container-uri:before"
+        },
+        {
+          "name": "shipping-container-uri:after"
+        },
+        {
+          "name": "shipping-drop-type-uri:before"
+        },
+        {
+          "name": "shipping-drop-type-uri:after"
+        },
+        {
+          "name": "destinations:before"
+        },
+        {
+          "name": "destinations:after"
+        },
+        {
+          "name": "authentication-key:before"
+        },
+        {
+          "name": "authentication-key:after"
+        },
+        {
+          "name": "meter-number:before"
+        },
+        {
+          "name": "meter-number:after"
+        },
+        {
+          "name": "endpoint:before"
+        },
+        {
+          "name": "endpoint:after"
+        },
+        {
+          "name": "accountid:before"
+        },
+        {
+          "name": "accountid:after"
+        },
+        {
+          "name": "password:before"
+        },
+        {
+          "name": "password:after"
+        },
+        {
+          "name": "custom-code:before"
+        },
+        {
+          "name": "custom-code:after"
+        },
+        {
+          "name": "services:before"
+        },
+        {
+          "name": "services:after"
+        },
+        {
+          "name": "timestamps:before"
+        },
+        {
+          "name": "timestamps:after"
+        },
+        {
+          "name": "create:before"
+        },
+        {
+          "name": "create:after"
+        },
+        {
+          "name": "delete:before"
+        },
+        {
+          "name": "delete:after"
         }
       ]
     },

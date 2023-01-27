@@ -25,6 +25,48 @@ const isURL = (value: string) => {
 /**
  * Form element for creating and editing store shipping methods (`fx:store_shipping_method`).
  *
+ * @slot shipping-method-uri:before
+ * @slot shipping-method-uri:after
+ *
+ * @slot shipping-container-uri:before
+ * @slot shipping-container-uri:after
+ *
+ * @slot shipping-drop-type-uri:before
+ * @slot shipping-drop-type-uri:after
+ *
+ * @slot destinations:before
+ * @slot destinations:after
+ *
+ * @slot authentication-key:before
+ * @slot authentication-key:after
+ *
+ * @slot meter-number:before
+ * @slot meter-number:after
+ *
+ * @slot endpoint:before
+ * @slot endpoint:after
+ *
+ * @slot accountid:before
+ * @slot accountid:after
+ *
+ * @slot password:before
+ * @slot password:after
+ *
+ * @slot custom-code:before
+ * @slot custom-code:after
+ *
+ * @slot services:before
+ * @slot services:after
+ *
+ * @slot timestamps:before
+ * @slot timestamps:after
+ *
+ * @slot create:before
+ * @slot create:after
+ *
+ * @slot delete:before
+ * @slot delete:after
+ *
  * @element foxy-store-shipping-method-form
  * @since 1.21.0
  */
@@ -79,7 +121,11 @@ export class StoreShippingMethodForm extends Base<Data> {
     ];
   }
 
+  /** URL of the `fx:shipping_methods` property helper. */
   shippingMethods: string | null = null;
+
+  /** Template render functions mapped to their name. */
+  templates: Templates = {};
 
   private __destinations = [
     { value: 'domestic', label: 'domestic' },
