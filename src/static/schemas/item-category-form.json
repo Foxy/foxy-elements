@@ -89,7 +89,7 @@
         "option_downloaded": { "type": "string", "default": "Downloaded by the customer" },
         "option_pickup": { "type": "string", "default": "Picked up by the customer" },
         "option_notshipped": { "type": "string", "default": "Not shipped" },
-        "placeholder": { "type": "string", "default": "Not shipped" },
+        "placeholder": { "type": "string", "default": "Select..." },
         "helper_text": { "type": "string", "default": "" },
         "v8n_required": { "type": "string", "default": "Please select a delivery type" }
       },
@@ -227,7 +227,7 @@
           "type": "string",
           "default": "Flat fee per shipment or % of price, whichever is greater"
         },
-        "placeholder": { "type": "string", "default": "No handling fee" },
+        "placeholder": { "type": "string", "default": "Select..." },
         "helper_text": { "type": "string", "default": "" },
         "v8n_required": { "type": "string", "default": "Please select a value" }
       },
