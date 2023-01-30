@@ -5,6 +5,18 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { getHandler } from './api/index';
 import { API } from '../NucleonElement/API';
 
+/**
+ * Adapter element for Payments API. This element requires an additional hAPI adapter
+ * that will handle authentication and session management.
+ *
+ * _Payments API is a client-side virtual API layer built on top of hAPI
+ * in an attempt to streamline access to stores' payment method settings
+ * that is currently a bit quirky due to the legacy functionality. To use
+ * Payments API elements with hAPI, wrap them into this node._
+ *
+ * @element foxy-payments-api
+ * @since 1.21.0
+ */
 export class PaymentsApi extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
@@ -21,18 +33,25 @@ export class PaymentsApi extends LitElement {
     };
   }
 
+  /** URL of the `fx:payment_method_set_hosted_payment_gateways` collection. */
   paymentMethodSetHostedPaymentGatewaysUrl: string | null = null;
 
+  /** URL of the `fx:hosted_payment_gateways` property helper. */
   hostedPaymentGatewaysHelperUrl: string | null = null;
 
+  /** URL of the `fx:hosted_payment_gateways` collection. */
   hostedPaymentGatewaysUrl: string | null = null;
 
+  /** URL of the `fx:payment_gateways` property helper. */
   paymentGatewaysHelperUrl: string | null = null;
 
+  /** URL of the `fx:payment_method_sets` collection. */
   paymentMethodSetsUrl: string | null = null;
 
+  /** URL of the `fx:fraud_protections` collection. */
   fraudProtectionsUrl: string | null = null;
 
+  /** URL of the `fx:payment_gateways` collection. */
   paymentGatewaysUrl: string | null = null;
 
   private readonly __api = new API(this);
