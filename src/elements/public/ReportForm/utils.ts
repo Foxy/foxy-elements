@@ -13,12 +13,13 @@ export function getPreviousQuarter(now = new Date()): Range {
   const currentMonth = now.getMonth();
   const currentQuarter = quarters.findIndex(months => months.includes(currentMonth));
   const previousQuarter = currentQuarter === 0 ? quarters.length - 1 : currentQuarter - 1;
+  const previousQuarterYear = now.getFullYear() - (currentQuarter === 0 ? 1 : 0);
 
   const previousQuarterStart = quarters[previousQuarter][0];
-  const start = new Date(now.getFullYear(), previousQuarterStart);
+  const start = new Date(previousQuarterYear, previousQuarterStart);
 
   const previousQuarterEnd = quarters[previousQuarter][2];
-  const end = new Date(new Date(now.getFullYear(), previousQuarterEnd + 1).getTime() - 1);
+  const end = new Date(new Date(previousQuarterYear, previousQuarterEnd + 1).getTime() - 1);
 
   return { start, end };
 }
