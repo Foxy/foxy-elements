@@ -1,6 +1,6 @@
-import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { PropertyDeclarations } from 'lit-element';
 
-import { html, LitElement } from 'lit-element';
+import { LitElement } from 'lit-element';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { getHandler } from './api/index';
 import { API } from '../NucleonElement/API';
