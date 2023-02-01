@@ -4,8 +4,8 @@ import { increment } from '../router/utils';
 import uniqueId from 'lodash-es/uniqueId';
 
 export const defaults: Defaults = {
-  applied_taxes: query => ({
-    id: increment('applied_taxes', 1),
+  applied_taxes: (query, dataset) => ({
+    id: increment('applied_taxes', dataset),
     tax_id: parseInt(query.get('tax_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
@@ -20,8 +20,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  discounts: query => ({
-    id: increment('discounts', 1),
+  discounts: (query, dataset) => ({
+    id: increment('discounts', dataset),
     cart_id: parseInt(query.get('cart_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
@@ -38,8 +38,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  payments: query => ({
-    id: increment('payments', 1),
+  payments: (query, dataset) => ({
+    id: increment('payments', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     type: '',
@@ -59,8 +59,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  error_entries: query => ({
-    id: increment('error_entries', 1),
+  error_entries: (query, dataset) => ({
+    id: increment('error_entries', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     url: '',
@@ -76,8 +76,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  custom_fields: query => ({
-    id: increment('custom_fields', 1),
+  custom_fields: (query, dataset) => ({
+    id: increment('custom_fields', dataset),
     cart_id: parseInt(query.get('cart_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
@@ -88,8 +88,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  customer_attributes: query => ({
-    id: increment('customer_attributes', 1),
+  customer_attributes: (query, dataset) => ({
+    id: increment('customer_attributes', dataset),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     name: '',
     value: '',
@@ -98,8 +98,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  cart_attributes: query => ({
-    id: increment('cart_attributes', 1),
+  cart_attributes: (query, dataset) => ({
+    id: increment('cart_attributes', dataset),
     cart_id: parseInt(query.get('cart_id') ?? '0'),
     name: '',
     value: '',
@@ -108,8 +108,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  item_attributes: query => ({
-    id: increment('item_attributes', 1),
+  item_attributes: (query, dataset) => ({
+    id: increment('item_attributes', dataset),
     item_id: parseInt(query.get('item_id') ?? '0'),
     name: '',
     value: '',
@@ -118,8 +118,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  shipment_attributes: query => ({
-    id: increment('shipment_attributes', 1),
+  shipment_attributes: (query, dataset) => ({
+    id: increment('shipment_attributes', dataset),
     shipment_id: parseInt(query.get('shipment_id') ?? '0'),
     name: '',
     value: '',
@@ -128,8 +128,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  item_options: query => ({
-    id: increment('item_options', 3),
+  item_options: (query, dataset) => ({
+    id: increment('item_options', dataset),
     item_id: parseInt(query.get('item_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
@@ -141,8 +141,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  customer_addresses: query => ({
-    id: increment('customer_addresses', 4),
+  customer_addresses: (query, dataset) => ({
+    id: increment('customer_addresses', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     address_name: '',
@@ -163,8 +163,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  email_templates: query => ({
-    id: increment('email_templates', 1),
+  email_templates: (query, dataset) => ({
+    id: increment('email_templates', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: '',
     subject: '',
@@ -176,8 +176,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  payment_methods: query => ({
-    id: increment('payment_methods', 1),
+  payment_methods: (query, dataset) => ({
+    id: increment('payment_methods', dataset),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     save_cc: true,
     cc_type: '',
@@ -188,8 +188,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  subscriptions: query => ({
-    id: increment('subscriptions', 1),
+  subscriptions: (query, dataset) => ({
+    id: increment('subscriptions', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     transaction_template_id: parseInt(query.get('transaction_template_id') ?? '0'),
@@ -206,8 +206,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  transactions: query => ({
-    id: increment('transactions', 2),
+  transactions: (query, dataset) => ({
+    id: increment('transactions', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     subscription_id: parseInt(query.get('subscription_id') ?? '0'),
@@ -234,8 +234,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  customers: query => ({
-    id: increment('customers', 5),
+  customers: (query, dataset) => ({
+    id: increment('customers', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     tax_id: '',
     last_login_date: new Date().toISOString(),
@@ -253,8 +253,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  stores: () => ({
-    id: increment('stores', 1),
+  stores: (query, dataset) => ({
+    id: increment('stores', dataset),
     store_version_uri: '',
     store_name: '',
     store_domain: '',
@@ -300,8 +300,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  items: query => ({
-    id: increment('items', 20),
+  items: (query, dataset) => ({
+    id: increment('items', dataset),
     cart_id: parseInt(query.get('cart_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
@@ -333,8 +333,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  carts: query => ({
-    id: increment('items', 1),
+  carts: (query, dataset) => ({
+    id: increment('items', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     template_set_id: parseInt(query.get('template_set_id') ?? '0'),
@@ -371,8 +371,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  cart_templates: query => ({
-    id: increment('cart_templates', 1),
+  cart_templates: (query, dataset) => ({
+    id: increment('cart_templates', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: '',
     content: '',
@@ -381,8 +381,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  customer_portal_settings: query => ({
-    id: increment('customer_portal_settings', 1),
+  customer_portal_settings: (query, dataset) => ({
+    id: increment('customer_portal_settings', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     session_lifespan_in_minutes: 0,
     allowed_origins: [],
@@ -395,8 +395,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  taxes: query => ({
-    id: increment('taxes', 1),
+  taxes: (query, dataset) => ({
+    id: increment('taxes', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     name: '',
     type: 'global',
@@ -413,8 +413,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  tax_item_categories: query => ({
-    id: increment('tax_item_categories', 0),
+  tax_item_categories: (query, dataset) => ({
+    id: increment('tax_item_categories', dataset),
     tax_id: parseInt(query.get('tax_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     item_category_id: parseInt(query.get('item_category_id') ?? '0'),
@@ -422,8 +422,8 @@ export const defaults: Defaults = {
     item_category_uri: '',
   }),
 
-  users: query => ({
-    id: increment('users', 1),
+  users: (query, dataset) => ({
+    id: increment('users', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     first_name: '',
     last_name: '',
@@ -438,8 +438,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  template_configs: query => ({
-    id: increment('template_configs', 1),
+  template_configs: (query, dataset) => ({
+    id: increment('template_configs', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: 'Template Config',
     json: '{"cart_type":"default","checkout_type":"default_account","csc_requirements":"all_cards","tos_checkbox_settings":{"usage":"none","initial_state":"unchecked","is_hidden":false,"url":""},"eu_secure_data_transfer_consent":{"usage":"required"},"newsletter_subscribe":{"usage":"none"},"analytics_config":{"usage":"none","google_analytics":{"usage":"none","account_id":"","include_on_site":false},"segment_io":{"usage":"none","account_id":""}},"colors":{"usage":"none","primary":"4D4D4D","secondary":"FFFFFF","tertiary":"FFFFFF"},"use_checkout_confirmation_window":{"usage":"none"},"supported_payment_cards":["visa","mastercard","discover","amex"],"custom_checkout_field_requirements":{"cart_controls":"enabled","coupon_entry":"enabled","billing_first_name":"required","billing_last_name":"required","billing_company":"optional","billing_tax_id":"hidden","billing_phone":"optional","billing_address1":"required","billing_address2":"optional","billing_city":"required","billing_region":"default","billing_postal_code":"required","billing_country":"required"},"cart_display_config":{"usage":"none","show_product_weight":true,"show_product_category":true,"show_product_code":true,"show_product_options":true,"show_sub_frequency":true,"show_sub_startdate":true,"show_sub_nextdate":true,"show_sub_enddate":true,"hidden_product_options":[]},"foxycomplete":{"usage":"required","show_combobox":true,"combobox_open":"\\u25bc","combobox_close":"\\u25b2","show_flags":true},"custom_script_values":{"header":"","footer":"","checkout_fields":"","multiship_checkout_fields":""},"http_receipt":false,"custom_config":{},"debug":{"usage":"none"},"location_filtering":{"usage":"none","shipping_filter_type":"blacklist","billing_filter_type":"blacklist","shipping_filter_values":{},"billing_filter_values":{}},"postal_code_lookup":{"usage":"enabled"}}',
@@ -447,8 +447,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  coupons: query => ({
-    id: increment('coupons', 12),
+  coupons: (query, dataset) => ({
+    id: increment('coupons', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     name: 'e',
     start_date: null,
@@ -468,8 +468,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  coupon_codes: query => ({
-    id: increment('coupon_codes', 100),
+  coupon_codes: (query, dataset) => ({
+    id: increment('coupon_codes', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     code: '',
@@ -478,13 +478,13 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  generate_codes: () => ({
-    id: increment('generate_codes', 1),
+  generate_codes: (query, dataset) => ({
+    id: increment('generate_codes', dataset),
     message: 'All codes added successfully.',
   }),
 
-  item_categories: query => ({
-    id: increment('item_categories', 12),
+  item_categories: (query, dataset) => ({
+    id: increment('item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     admin_email_template_uri: '',
     customer_email_template_uri: '',
@@ -513,8 +513,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  coupon_item_categories: query => ({
-    id: increment('coupon_item_categories', 1),
+  coupon_item_categories: (query, dataset) => ({
+    id: increment('coupon_item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
     item_category_id: parseInt(query.get('item_category_id') ?? '0'),
@@ -524,8 +524,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  gift_cards: query => ({
-    id: increment('coupon_item_categories', 1),
+  gift_cards: (query, dataset) => ({
+    id: increment('coupon_item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     name: '',
     currency_code: '',
@@ -535,8 +535,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  gift_card_codes: query => ({
-    id: increment('gift_card_codes', 100),
+  gift_card_codes: (query, dataset) => ({
+    id: increment('gift_card_codes', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
     code: '',
@@ -547,8 +547,8 @@ export const defaults: Defaults = {
     ...(query.has('item_id') ? { item_id: parseInt(query.get('item_id')!) } : null),
   }),
 
-  gift_card_code_logs: query => ({
-    id: increment('gift_card_code_logs', 2),
+  gift_card_code_logs: (query, dataset) => ({
+    id: increment('gift_card_code_logs', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
     gift_card_code_id: parseInt(query.get('gift_card_code_id') ?? '0'),
@@ -561,8 +561,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  gift_card_item_categories: query => ({
-    id: increment('gift_card_item_categories', 1),
+  gift_card_item_categories: (query, dataset) => ({
+    id: increment('gift_card_item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     gift_card_id: parseInt(query.get('coupon_id') ?? '0'),
     item_category_id: parseInt(query.get('item_category_id') ?? '0'),
@@ -570,8 +570,8 @@ export const defaults: Defaults = {
     item_category_uri: '',
   }),
 
-  reports: query => ({
-    id: increment('reports', 3),
+  reports: (query, dataset) => ({
+    id: increment('reports', dataset),
     user_id: parseInt(query.get('user_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     name: 'customers',
@@ -583,8 +583,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  discount_details: query => ({
-    id: increment('discount_details', 3),
+  discount_details: (query, dataset) => ({
+    id: increment('discount_details', dataset),
     item_id: parseInt(query.get('item_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
@@ -594,8 +594,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  coupon_details: query => ({
-    id: increment('coupon_details', 3),
+  coupon_details: (query, dataset) => ({
+    id: increment('coupon_details', dataset),
     item_id: parseInt(query.get('item_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),
@@ -608,8 +608,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  shipments: query => ({
-    id: increment('shipments', 2),
+  shipments: (query, dataset) => ({
+    id: increment('shipments', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     transaction_id: parseInt(query.get('transaction_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
@@ -635,8 +635,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  webhooks: query => ({
-    id: increment('webhooks', 1),
+  webhooks: (query, dataset) => ({
+    id: increment('webhooks', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     format: 'json',
     version: 2,
@@ -649,8 +649,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  webhook_statuses: query => ({
-    id: increment('webhook_statuses', 1),
+  webhook_statuses: (query, dataset) => ({
+    id: increment('webhook_statuses', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     webhook_id: parseInt(query.get('webhook_id') ?? '0'),
     resource_id: parseInt(query.get('resource_id') ?? '0'),
@@ -660,8 +660,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  webhook_logs: query => ({
-    id: increment('webhook_logs', 1),
+  webhook_logs: (query, dataset) => ({
+    id: increment('webhook_logs', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     webhook_id: parseInt(query.get('webhook_id') ?? '0'),
     resource_id: parseInt(query.get('resource_id') ?? '0'),
@@ -672,13 +672,13 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  store_shipping_methods: query => {
+  store_shipping_methods: (query, dataset) => {
     const method = parseInt(query.get('shipping_method_id') ?? '0');
     const dropType = parseInt(query.get('shipping_drop_type_id') ?? '0');
     const container = parseInt(query.get('shipping_container_id') ?? '0');
 
     return {
-      id: increment('store_shipping_methods', 2),
+      id: increment('store_shipping_methods', dataset),
       store_id: parseInt(query.get('store_id') ?? '0'),
       shipping_method_id: method,
       shipping_container_id: container,
@@ -697,12 +697,12 @@ export const defaults: Defaults = {
     };
   },
 
-  store_shipping_services: query => {
+  store_shipping_services: (query, dataset) => {
     const method = parseInt(query.get('shipping_method_id') ?? '0');
     const service = parseInt(query.get('shipping_service_id') ?? '0');
 
     return {
-      id: increment('store_shipping_services', 1),
+      id: increment('store_shipping_services', dataset),
       store_id: parseInt(query.get('store_id') ?? '0'),
       shipping_method_id: method,
       shipping_service_id: service,
@@ -713,16 +713,16 @@ export const defaults: Defaults = {
     };
   },
 
-  shipping_methods: () => ({
-    id: increment('shipping_methods', 2),
+  shipping_methods: (query, dataset) => ({
+    id: increment('shipping_methods', dataset),
     name: '',
     code: '',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
 
-  shipping_containers: query => ({
-    id: increment('shipping_containers', 1),
+  shipping_containers: (query, dataset) => ({
+    id: increment('shipping_containers', dataset),
     shipping_method_id: parseInt(query.get('shipping_method_id') ?? '0'),
     name: '',
     code: '',
@@ -730,8 +730,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  shipping_drop_types: query => ({
-    id: increment('shipping_drop_types', 1),
+  shipping_drop_types: (query, dataset) => ({
+    id: increment('shipping_drop_types', dataset),
     shipping_method_id: parseInt(query.get('shipping_method_id') ?? '0'),
     name: '',
     code: '',
@@ -739,8 +739,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  shipping_services: query => ({
-    id: increment('shipping_services', 1),
+  shipping_services: (query, dataset) => ({
+    id: increment('shipping_services', dataset),
     shipping_method_id: parseInt(query.get('shipping_method_id') ?? '0'),
     name: '',
     code: '',
@@ -749,8 +749,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  payment_gateways: query => ({
-    id: increment('payment_gateways', 1),
+  payment_gateways: (query, dataset) => ({
+    id: increment('payment_gateways', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: '',
     type: '',
@@ -767,8 +767,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  hosted_payment_gateways: query => ({
-    id: increment('hosted_payment_gateways', 1),
+  hosted_payment_gateways: (query, dataset) => ({
+    id: increment('hosted_payment_gateways', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     description: '',
     type: '',
@@ -785,8 +785,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  fraud_protections: query => ({
-    id: increment('fraud_protections', 1),
+  fraud_protections: (query, dataset) => ({
+    id: increment('fraud_protections', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     type: '',
     description: '',
@@ -796,11 +796,11 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  payment_method_sets: query => {
+  payment_method_sets: (query, dataset) => {
     const gatewayId = parseInt(query.get('payment_gateway_id') ?? '0');
 
     return {
-      id: increment('payment_method_sets', 2),
+      id: increment('payment_method_sets', dataset),
       store_id: parseInt(query.get('store_id') ?? '0'),
       payment_gateway_id: gatewayId,
       gateway_uri: `https://demo.api/hapi/payment_gateways/${gatewayId}`,
@@ -812,12 +812,12 @@ export const defaults: Defaults = {
     };
   },
 
-  payment_method_set_hosted_payment_gateways: query => {
+  payment_method_set_hosted_payment_gateways: (query, dataset) => {
     const gatewayId = parseInt(query.get('hosted_payment_gateway_id') ?? '0');
     const setId = parseInt(query.get('payment_method_set_id') ?? '0');
 
     return {
-      id: increment('paymepayment_method_set_hosted_payment_gatewaysnt_method_sets', 1),
+      id: increment('payment_method_set_hosted_payment_gateways', dataset),
       store_id: parseInt(query.get('store_id') ?? '0'),
       payment_method_set_id: setId,
       hosted_payment_gateway_id: gatewayId,
@@ -828,12 +828,12 @@ export const defaults: Defaults = {
     };
   },
 
-  payment_method_set_fraud_protections: query => {
+  payment_method_set_fraud_protections: (query, dataset) => {
     const antifraudId = parseInt(query.get('fraud_protection_id') ?? '0');
     const setId = parseInt(query.get('payment_method_set_id') ?? '0');
 
     return {
-      id: increment('paymepayment_method_set_fraud_protectionsnt_method_sets', 1),
+      id: increment('payment_method_set_fraud_protections', dataset),
       store_id: parseInt(query.get('store_id') ?? '0'),
       payment_method_set_id: setId,
       fraud_protection_id: antifraudId,
@@ -844,7 +844,7 @@ export const defaults: Defaults = {
     };
   },
 
-  template_sets: query => {
+  template_sets: (query, dataset) => {
     const cartTemplateId = parseInt(query.get('cart_template_id') ?? '0');
     const cartIncludeTemplateId = parseInt(query.get('cart_include_template_id') ?? '0');
     const checkoutTemplateId = parseInt(query.get('checkout_template_id') ?? '0');
@@ -854,7 +854,7 @@ export const defaults: Defaults = {
     const templateConfigId = parseInt(query.get('template_config_id') ?? '0');
 
     return {
-      id: increment('template_sets', 1),
+      id: increment('template_sets', dataset),
       store_id: parseInt(query.get('store_id') ?? '0'),
       cart_template_id: cartTemplateId,
       cart_include_template_id: cartIncludeTemplateId,
@@ -880,8 +880,8 @@ export const defaults: Defaults = {
     };
   },
 
-  store_versions: () => ({
-    id: increment('store_versions', 2),
+  store_versions: (query, dataset) => ({
+    id: increment('store_versions', dataset),
     version: '',
     changelog_blog_url: '',
     changelog_url: '',
@@ -894,12 +894,12 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  integrations: query => {
+  integrations: (query, dataset) => {
     const user = parseInt(query.get('user_id') ?? '0');
     const store = parseInt(query.get('store_id') ?? '0');
 
     return {
-      id: increment('integrations', 1),
+      id: increment('integrations', dataset),
       user_id: user,
       store_id: store,
       user_uri: `https://demo.api/hapi/users/${user}`,
@@ -918,8 +918,8 @@ export const defaults: Defaults = {
     };
   },
 
-  language_overrides: query => ({
-    id: increment('language_overrides', 2),
+  language_overrides: (query, dataset) => ({
+    id: increment('language_overrides', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     template_set_id: parseInt(query.get('template_set_id') ?? '0'),
     code: '',
@@ -929,8 +929,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  subscription_settings: query => ({
-    id: increment('subscription_settings', 2),
+  subscription_settings: (query, dataset) => ({
+    id: increment('subscription_settings', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
     automatically_charge_past_due_amount: true,
     send_email_receipts_for_automated_billing: true,
@@ -948,8 +948,8 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
-  applied_coupon_codes: query => ({
-    id: increment('applied_coupon_codes', 1),
+  applied_coupon_codes: (query, dataset) => ({
+    id: increment('applied_coupon_codes', dataset),
     cart_id: parseInt(query.get('cart_id') ?? '0'),
     store_id: parseInt(query.get('store_id') ?? '0'),
     coupon_id: parseInt(query.get('coupon_id') ?? '0'),

@@ -1,8 +1,18 @@
+import type { Dataset } from './types';
+
 export const increment = (() => {
-  const labels = new Map<string, number>();
-  return (label: string, start = 0) => {
-    const id = (labels.get(label) ?? start) + 1;
-    labels.set(label, id);
-    return id;
+  const maxPerCollection = new Map<string, number>();
+
+  return (collection: string, dataset: Dataset): number => {
+    if (!maxPerCollection.has(collection)) {
+      const currentMax = Math.max(...dataset[collection].map(v => v.id), -1);
+      maxPerCollection.set(collection, currentMax);
+    }
+
+    const currentMax = maxPerCollection.get(collection) as number;
+    const newMax = currentMax + 1;
+
+    maxPerCollection.set(collection, newMax);
+    return newMax;
   };
 })();
