@@ -834,7 +834,7 @@ export class StoreForm extends Base<Data> {
     const isReadonly = this.readonlySelector.matches('currency-style', true);
 
     return html`
-      <div data-testid="currency-style">
+      <div data-testid="currency-style" class="sm-col-span-2">
         ${this.renderTemplateOrSlot('currency-style:before')}
 
         <div
