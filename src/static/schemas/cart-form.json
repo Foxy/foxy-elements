@@ -1312,7 +1312,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
-    "billing-address1": {
+    "billing-address-one": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Address Line 1" },
@@ -1325,7 +1325,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
-    "billing-address2": {
+    "billing-address-two": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Address Line 2" },
@@ -1442,7 +1442,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
-    "shipping-address1": {
+    "shipping-address-one": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Address Line 1" },
@@ -1455,7 +1455,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
     },
-    "shipping-address2": {
+    "shipping-address-two": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Address Line 2" },
@@ -1758,8 +1758,8 @@
     "billing-last-name",
     "billing-company",
     "billing-phone",
-    "billing-address1",
-    "billing-address2",
+    "billing-address-one",
+    "billing-address-two",
     "billing-country",
     "billing-region",
     "billing-city",
@@ -1768,8 +1768,8 @@
     "shipping-last-name",
     "shipping-company",
     "shipping-phone",
-    "shipping-address1",
-    "shipping-address2",
+    "shipping-address-one",
+    "shipping-address-two",
     "shipping-country",
     "shipping-region",
     "shipping-city",

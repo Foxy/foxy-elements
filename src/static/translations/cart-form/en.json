@@ -569,13 +569,13 @@
     "helper_text": "",
     "v8n_too_long": "This phone number is unusually long. Please use a value below 50 characters."
   },
-  "billing-address1": {
+  "billing-address-one": {
     "label": "Address Line 1",
     "placeholder": "",
     "helper_text": "",
     "v8n_too_long": "Please shorten this value to fit 100 characters."
   },
-  "billing-address2": {
+  "billing-address-two": {
     "label": "Address Line 2",
     "placeholder": "",
     "helper_text": "",
@@ -629,13 +629,13 @@
     "helper_text": "",
     "v8n_too_long": "This phone number is unusually long. Please use a value below 50 characters."
   },
-  "shipping-address1": {
+  "shipping-address-one": {
     "label": "Address Line 1",
     "placeholder": "",
     "helper_text": "",
     "v8n_too_long": "Please shorten this value to fit 100 characters."
   },
-  "shipping-address2": {
+  "shipping-address-two": {
     "label": "Address Line 2",
     "placeholder": "",
     "helper_text": "",
