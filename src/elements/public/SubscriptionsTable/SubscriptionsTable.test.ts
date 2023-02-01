@@ -62,6 +62,7 @@ describe('SubscriptionsTable', () => {
             const items = subscription._embedded['fx:transaction_template']._embedded['fx:items'];
             const options = {
               most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
+              count_minus_one: items.length - 1,
               count: items.length,
             };
 

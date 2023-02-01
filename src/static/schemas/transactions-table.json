@@ -16,7 +16,7 @@
     "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
     "transaction_summary_plural": {
       "type": "string",
-      "default": "{{most_expensive_item.name}} and {{count}} more"
+      "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
     },
     "transaction_verified": { "type": "string", "default": "Verified" },
     "transaction_voided": { "type": "string", "default": "Voided" },

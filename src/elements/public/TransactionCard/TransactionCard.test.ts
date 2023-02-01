@@ -221,6 +221,7 @@ describe('TransactionCard', () => {
       const summary = await getByKey(element, 'transaction_summary');
       const options = JSON.stringify({
         most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
+        count_minus_one: items.length - 1,
         count: items.length,
       });
 

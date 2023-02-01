@@ -194,7 +194,7 @@
       "transaction_refunded": "Terugbetaald",
       "transaction_rejected": "Afgewezen",
       "transaction_summary": "{{most_expensive_item.name}}",
-      "transaction_summary_plural": "{{most_expensive_item.name}} en {{count}} meer",
+      "transaction_summary_plural": "{{most_expensive_item.name}} en {{transaction_summary_plural}} meer",
       "transaction_verified": "Geverifieerd",
       "transaction_voided": "Ongeldig",
       "spinner": {
