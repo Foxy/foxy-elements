@@ -120,8 +120,8 @@ export class PaymentsApi extends LitElement {
     this.addEventListener('fetch', this.__handleFetch);
   }
 
-  render(): TemplateResult {
-    return html`<slot></slot>`;
+  createRenderRoot(): Element | ShadowRoot {
+    return this;
   }
 
   disconnectedCallback(): void {
