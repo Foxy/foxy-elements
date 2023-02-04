@@ -33,7 +33,7 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
 
   private __renderItem!: ItemRenderer<ExtractItem<TPage>>;
 
-  private __item!: string | ItemRenderer<ExtractItem<TPage>>;
+  private __item!: null | string | ItemRenderer<ExtractItem<TPage>>;
 
   constructor() {
     super();
@@ -51,16 +51,18 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
    *
    * Render function will receive `ItemRendererContext` in the first argument.
    */
-  get item(): string | ItemRenderer<ExtractItem<TPage>> {
+  get item(): null | string | ItemRenderer<ExtractItem<TPage>> {
     return this.__item;
   }
 
-  set item(value: string | ItemRenderer<ExtractItem<TPage>>) {
-    if (typeof value === 'string') {
+  set item(value: null | string | ItemRenderer<ExtractItem<TPage>>) {
+    const tagOrRenderer = value ?? 'foxy-null';
+
+    if (typeof tagOrRenderer === 'string') {
       this.__renderItem = new Function(
         'ctx',
         `return ctx.html\`
-          <${value}
+          <${tagOrRenderer}
             disabledcontrols=\${ctx.disabledControls.toString()}
             readonlycontrols=\${ctx.readonlyControls.toString()}
             hiddencontrols=\${ctx.hiddenControls.toString()}
@@ -70,17 +72,17 @@ export class CollectionPage<TPage extends Page> extends Base<TPage> {
             group=\${ctx.group}
             href=\${ctx.href}
             lang=\${ctx.lang}
-            ns="\${ctx.ns} $\{customElements.get('${value}')?.defaultNS ?? ''}"
+            ns="\${ctx.ns} $\{customElements.get('${tagOrRenderer}')?.defaultNS ?? ''}"
             ?disabled=\${ctx.disabled}
             ?readonly=\${ctx.readonly}
             ?hidden=\${ctx.hidden}
             .templates=\${ctx.templates}
             ...=\${ctx.spread(ctx.props)}
           >
-          </${value}>\``
+          </${tagOrRenderer}>\``
       ) as ItemRenderer;
     } else {
-      this.__renderItem = value;
+      this.__renderItem = tagOrRenderer;
     }
 
     this.__item = value;
