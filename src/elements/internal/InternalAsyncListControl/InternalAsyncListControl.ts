@@ -1,11 +1,12 @@
 import type { PropertyDeclarations, TemplateResult } from 'lit-element';
-import type { CollectionPage, NucleonElement } from '../../public';
+import type { CollectionPage, NucleonElement } from '../../public/index';
 import type { InternalConfirmDialog } from '../InternalConfirmDialog';
 import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import type { ItemRenderer } from '../../public/CollectionPage/types';
 import type { FormDialog } from '../../index';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { ifDefined } from 'lit-html/directives/if-defined';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-element';
 
@@ -17,10 +18,10 @@ export class InternalAsyncListControl extends InternalEditableControl {
       hideCreateButton: { type: Boolean, attribute: 'hide-create-button' },
       getPageHref: { attribute: false },
       related: { type: Array },
-      first: { type: String },
+      first: {},
       limit: { type: Number },
-      form: { type: String },
-      item: { type: String },
+      form: {},
+      item: {},
       wide: { type: Boolean },
       alert: { type: Boolean },
     };
@@ -33,13 +34,13 @@ export class InternalAsyncListControl extends InternalEditableControl {
   limit = 20;
 
   /** URI of the first page of the hAPI collection to display. */
-  first = '';
+  first: string | null = null;
 
   /** Same as the `form` property of `FormDialog`. If set, will open a dialog on item click. */
-  form: FormDialog['form'] = '';
+  form: FormDialog['form'] = null;
 
   /** Same as the `item` property of `CollectionPage`. */
-  item: CollectionPage<any>['item'] = '';
+  item: CollectionPage<any>['item'] = null;
 
   /** Same as the `wide` property of `FormDialog`. */
   wide = false;
@@ -132,21 +133,21 @@ export class InternalAsyncListControl extends InternalEditableControl {
   };
 
   renderControl(): TemplateResult {
-    let first: string;
+    let first: string | undefined;
 
     try {
-      const url = new URL(this.first);
+      const url = new URL(this.first ?? '');
       url.searchParams.set('limit', String(this.limit));
       first = url.toString();
     } catch {
-      first = this.first;
+      first = undefined;
     }
 
     return html`
       ${this.form
         ? html`
             <foxy-form-dialog
-              parent=${first}
+              parent=${ifDefined(this.first ?? void 0)}
               infer="dialog"
               id="form"
               ?wide=${this.wide}
@@ -155,32 +156,30 @@ export class InternalAsyncListControl extends InternalEditableControl {
               .form=${this.form as any}
             >
             </foxy-form-dialog>
-
-            ${this.hideDeleteButton
-              ? ''
-              : html`
-                  <foxy-internal-confirm-dialog
-                    message="delete_message"
-                    confirm="delete_confirm"
-                    cancel="delete_cancel"
-                    header="delete_header"
-                    theme="error"
-                    lang=${this.lang}
-                    ns=${this.ns}
-                    id="confirm"
-                    @hide=${(evt: DialogHideEvent) => {
-                      if (!evt.detail.cancelled) this.__deletionConfimationCallback?.();
-                    }}
-                  >
-                  </foxy-internal-confirm-dialog>
-                `}
           `
         : ''}
+      ${this.hideDeleteButton
+        ? ''
+        : html`
+            <foxy-internal-confirm-dialog
+              message="delete_message"
+              confirm="delete_confirm"
+              cancel="delete_cancel"
+              header="delete_header"
+              theme="error"
+              infer=""
+              id="confirm"
+              @hide=${(evt: DialogHideEvent) => {
+                if (!evt.detail.cancelled) this.__deletionConfimationCallback?.();
+              }}
+            >
+            </foxy-internal-confirm-dialog>
+          `}
       ${this.label && this.label !== 'label'
         ? html`<div class="font-medium text-secondary text-s mb-xs">${this.label}</div>`
         : ''}
 
-      <foxy-pagination first=${first} infer="pagination">
+      <foxy-pagination first=${ifDefined(first)} infer="pagination">
         <foxy-collection-page
           class="mb-s block divide-y divide-contrast-5 rounded overflow-hidden bg-contrast-5"
           infer="card"
@@ -233,7 +232,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
               ) as ItemRenderer)
             : ctx => html`
                 <div style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">
-                  ${item(ctx)}
+                  ${item?.(ctx)}
                 </div>
               `,
       };
