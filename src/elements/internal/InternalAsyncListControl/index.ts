@@ -1,6 +1,4 @@
 import '@vaadin/vaadin-button';
-import '@polymer/iron-icons';
-import '@polymer/iron-icon';
 
 import '../../public/CollectionPage/index';
 import '../../public/SwipeActions/index';
