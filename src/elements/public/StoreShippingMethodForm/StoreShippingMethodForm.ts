@@ -1,4 +1,5 @@
 import type { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl/InternalAsyncComboBoxControl';
+import type { PropertyDeclarations } from 'lit-element';
 import type { Templates, Data } from './types';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
@@ -71,7 +72,7 @@ const isURL = (value: string) => {
  * @since 1.21.0
  */
 export class StoreShippingMethodForm extends Base<Data> {
-  static get properties(): typeof Base['properties'] {
+  static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       shippingMethods: { attribute: 'shipping-methods' },
