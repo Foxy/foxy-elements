@@ -1,6 +1,5 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
-import type { ItemRenderer } from '../CollectionPage/types';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
@@ -8,7 +7,6 @@ import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
 /**
@@ -86,18 +84,6 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
   private __itemsLink = '';
 
   renderBody(): TemplateResult {
-    const renderItemOptionCard: ItemRenderer = ctx => html`
-      <foxy-item-option-card
-        locale-codes=${ifDefined(this.localeCodes ?? void 0)}
-        parent=${ctx.parent}
-        class="p-m"
-        infer=""
-        href=${ctx.href}
-        .related=${ctx.related}
-      >
-      </foxy-item-option-card>
-    `;
-
     return html`
       <foxy-internal-text-control infer="name"></foxy-internal-text-control>
 
@@ -144,8 +130,9 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
               first=${this.data._links['fx:item_options'].href}
               limit="5"
               form="foxy-item-option-form"
-              .item=${renderItemOptionCard}
+              item="foxy-item-option-card"
               .related=${this.__itemOptionRelatedUrls}
+              .props=${{ 'locale-codes': this.localeCodes ?? '' }}
             >
             </foxy-internal-async-details-control>
           `
