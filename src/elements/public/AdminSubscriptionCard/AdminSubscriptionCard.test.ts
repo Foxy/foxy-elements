@@ -247,8 +247,6 @@ describe('AdminSubscriptionCard', () => {
       </foxy-admin-subscription-card>
     `);
 
-    // TODO remove the directive below once SDK is updated
-    // @ts-expect-error SDK types are incorrect
     data._embedded['fx:transaction_template'].total_order = 123;
     data.frequency = '1m';
     element.data = data;
@@ -365,8 +363,6 @@ describe('AdminSubscriptionCard', () => {
       </foxy-admin-subscription-card>
     `);
 
-    // TODO remove the directive below once SDK is updated
-    // @ts-expect-error SDK types are imcomplete
     data._embedded['fx:transaction_template'].currency_code = 'CAD';
     data.frequency = '1m';
     element.data = data;
@@ -426,8 +422,6 @@ describe('AdminSubscriptionCard', () => {
       </foxy-admin-subscription-card>
     `);
 
-    // TODO remove the directive below once SDK is updated
-    // @ts-expect-error SDK types are incomplete
     delete cart.currency_code;
     cart.template_set_uri = 'https://demo.api/hapi/template_sets/0';
 
@@ -469,8 +463,6 @@ describe('AdminSubscriptionCard', () => {
       </foxy-admin-subscription-card>
     `);
 
-    // TODO remove the directive below once SDK is updated
-    // @ts-expect-error SDK types are incomplete
     delete cart.currency_code;
     cart.template_set_uri = '';
 

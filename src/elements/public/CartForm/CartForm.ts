@@ -290,9 +290,7 @@ export class CartForm extends Base<Data> {
 
     let currencyCode: string | null = null;
 
-    if ('currency_code' in this.form) {
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incomplete
+    if (this.form.currency_code) {
       currencyCode = this.form.currency_code;
     } else {
       const allLocaleCodes = this.__localeCodesHelper;

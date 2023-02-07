@@ -764,7 +764,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
               type: 'select',
               description: 'Baz Description',
               default_value: 'baz_default',
-              // @ts-expect-error SDK types are incomplete
               options: [
                 { name: 'Field 1', value: 'field_1_value' },
                 { name: 'Field 2', value: 'field_2_value' },
@@ -840,7 +839,6 @@ describe('PaymentsApiPaymentMethodForm', () => {
               type: 'select',
               description: 'Baz Description',
               default_value: 'baz_default',
-              // @ts-expect-error SDK types are incomplete
               options: [
                 { name: 'Field 1', value: 'field_1_value' },
                 { name: 'Field 2', value: 'field_2_value' },

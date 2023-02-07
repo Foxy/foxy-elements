@@ -200,9 +200,7 @@ describe('CartCard', () => {
       </foxy-cart-card>
     `);
 
-    // @ts-expect-error SDK types are incorrect
     data.total_order = 123;
-    // @ts-expect-error SDK types are incomplete
     data.currency_code = 'MXN';
     element.data = data;
 
@@ -237,9 +235,7 @@ describe('CartCard', () => {
       }),
     });
 
-    // @ts-expect-error SDK types are incorrect
     data.total_order = 456;
-    // @ts-expect-error SDK types are incomplete
     delete data.currency_code;
     data.template_set_uri = 'https://demo.api/hapi/template_sets/0';
     element.data = data;
@@ -273,9 +269,7 @@ describe('CartCard', () => {
       body: JSON.stringify({ values: { tr_TR: 'Turkish locale for Türkiye (Currency: TRY:₺)' } }),
     });
 
-    // @ts-expect-error SDK types are incorrect
     data.total_order = 238;
-    // @ts-expect-error SDK types are incomplete
     delete data.currency_code;
     data.template_set_uri = '';
     element.data = data;

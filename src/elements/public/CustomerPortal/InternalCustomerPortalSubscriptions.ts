@@ -116,7 +116,6 @@ export class InternalCustomerPortalSubscriptions extends Base {
   };
 
   private readonly __renderFormItemsActionsUpdate: Renderer<SubscriptionForm> = (html, host) => {
-    // @ts-expect-error missing typedef in SDK
     const itemsLink = host.data?._links['fx:sub_modification_url']?.href ?? '';
     const hasEnded = !!host.data?.end_date && new Date(host.data.end_date).getTime() <= Date.now();
 

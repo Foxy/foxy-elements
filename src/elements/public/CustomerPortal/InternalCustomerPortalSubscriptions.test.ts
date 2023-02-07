@@ -733,7 +733,6 @@ describe('InternalCustomerPortalSubscriptions', () => {
               expect(link).to.be.instanceOf(InternalCustomerPortalLink);
               expect(link).to.have.attribute(
                 'href',
-                // @ts-expect-error SDK types are missing this link
                 form.data!._links['fx:sub_modification_url'].href
               );
 

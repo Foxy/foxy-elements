@@ -487,9 +487,7 @@ export class SubscriptionForm extends Base<Data> {
 
     let currencyCode: string | null = null;
 
-    if (cart && 'currency_code' in cart) {
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incomplete
+    if (cart?.currency_code) {
       currencyCode = cart.currency_code;
     } else {
       const allLocaleCodes = this.__localeCodesHelper;
@@ -617,11 +615,7 @@ export class SubscriptionForm extends Base<Data> {
 
   private get __templateSetHref() {
     const cart = this.__transactionTemplate;
-    // TODO: remove the directive below once SDK is updated
-    // @ts-expect-error SDK types are incomplete
-    const currencyCode = cart?.currency_code as string | undefined;
-
-    if (!currencyCode) return cart?.template_set_uri || void 0;
+    if (!cart?.currency_code) return cart?.template_set_uri || void 0;
   }
 
   private get __storeHref() {

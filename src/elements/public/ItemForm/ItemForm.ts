@@ -149,9 +149,7 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
 
     const item = await super._sendGet();
 
-    if ('fx:subscription' in item._links) {
-      // TODO: remove the directive below once SDK is updated
-      // @ts-expect-error SDK types are incomplete
+    if (item._links['fx:subscription']) {
       const subscriptionHref = item._links['fx:subscription'].href;
       const subscription = await super._fetch<Subscription>(subscriptionHref);
 
@@ -162,15 +160,13 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       return item;
     }
 
-    if ('fx:transaction' in item._links) {
+    if (item._links['fx:transaction']) {
       const transaction = await super._fetch<Transaction>(item._links['fx:transaction'].href);
       this.__itemsLink = transaction._links['fx:items'].href;
       return item;
     }
 
-    if ('fx:cart' in item._links) {
-      // TODO: remove the directive below once SDK is updated
-      // @ts-expect-error SDK types are incomplete
+    if (item._links['fx:cart']) {
       const cart = await super._fetch<Cart>(item._links['fx:cart'].href);
       this.__itemsLink = cart._links['fx:items'].href;
       return item;

@@ -156,11 +156,7 @@ export class CartCard extends Base<Data> {
   }
 
   private get __templateSetHref() {
-    // TODO: remove the directive below once SDK is updated
-    // @ts-expect-error SDK types are incomplete
-    const currencyCode = this.data?.currency_code as string | undefined;
-
-    if (!currencyCode) return this.data?.template_set_uri || void 0;
+    if (!this.data?.currency_code) return this.data?.template_set_uri || void 0;
   }
 
   private get __itemsHref() {
@@ -241,10 +237,8 @@ export class CartCard extends Base<Data> {
   private get __currencyCode() {
     const data = this.data;
 
-    if (data && 'currency_code' in data) {
-      // TODO: remove the directive below once the SDK is updated
-      // @ts-expect-error SDK types are incomplete
-      return data.currency_code as string;
+    if (data?.currency_code) {
+      return data.currency_code;
     } else {
       const allLocaleCodes = this.__localeCodesHelper;
       const localeCode = (this.__templateSet ?? this.__defaultTemplateSet)?.locale_code;
