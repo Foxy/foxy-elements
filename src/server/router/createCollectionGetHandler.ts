@@ -22,6 +22,9 @@ export function createCollectionGetHandler(router: Router, dataset: Dataset) {
     const itemsToReturn = await Promise.all(
       matchingDocuments.slice(offset, limit + offset).map(async doc => {
         const selfURL = new URL(`${url.origin}${url.pathname}/${doc.id}${url.hash}`);
+        const zoom = url.searchParams.get('zoom');
+        if (zoom) selfURL.searchParams.set('zoom', zoom);
+
         const result = router.handleRequest(new Request(selfURL.toString())) as HandleResult;
         const json = await (await result.handlerPromise).json();
 
