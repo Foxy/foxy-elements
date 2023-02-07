@@ -193,6 +193,7 @@ export const defaults: Defaults = {
     store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     transaction_template_id: parseInt(query.get('transaction_template_id') ?? '0'),
+    last_transaction_id: parseInt(query.get('last_transaction_id') ?? '0'),
     next_transaction_date: '',
     start_date: '',
     end_date: null,
