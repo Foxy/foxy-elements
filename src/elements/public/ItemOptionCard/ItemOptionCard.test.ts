@@ -5,6 +5,8 @@ import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { ItemOptionCard } from './index';
 
+// TODO test loading currency code and style from multiple sources
+
 describe('ItemOptionCard', () => {
   const OriginalResizeObserver = window.ResizeObserver;
 
@@ -31,7 +33,7 @@ describe('ItemOptionCard', () => {
     const element = await fixture<ItemOptionCard>(layout);
 
     element.href = 'https://demo.api/hapi/item_options/0';
-    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+    await waitUntil(() => !!element.isBodyReady, undefined, { timeout: 5000 });
 
     element.lang = 'en';
     element.data!.name = 'Test';
@@ -54,7 +56,7 @@ describe('ItemOptionCard', () => {
     const element = await fixture<ItemOptionCard>(layout);
 
     element.href = 'https://demo.api/hapi/item_options/0';
-    await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
+    await waitUntil(() => !!element.isBodyReady, undefined, { timeout: 5000 });
     const title = await getByTestId(element, 'subtitle');
 
     expect(title).to.include.text(element.data!.value);

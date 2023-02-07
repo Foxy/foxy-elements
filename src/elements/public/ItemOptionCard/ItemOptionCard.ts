@@ -49,28 +49,8 @@ export class ItemOptionCard extends Base<Data> {
   private readonly __cartLoaderId = 'cartLoader';
 
   renderBody(): TemplateResult {
-    const currencyDisplay = this.__store?.use_international_currency_symbol ? 'code' : 'symbol';
-    const transaction = this.__transaction;
-
-    let currencyCode: string | null = null;
-
-    if (transaction) {
-      currencyCode = transaction.currency_code;
-    } else {
-      const cart = this.__cart ?? this.__transactionTemplate;
-
-      if (cart && 'currency_code' in cart) {
-        // TODO: remove the directive below once the SDK is updated
-        // @ts-expect-error SDK types are incomplete
-        currencyCode = cart.currency_code;
-      } else {
-        const allLocaleCodes = this.__localeCodesHelper;
-        const localeCode = (this.__templateSet ?? this.__defaultTemplateSet)?.locale_code;
-        const localeInfo = localeCode ? allLocaleCodes?.values[localeCode] : void 0;
-
-        if (localeInfo) currencyCode = /Currency: ([A-Z]{3})/g.exec(localeInfo)?.[1] ?? null;
-      }
-    }
+    const currencyDisplay = this.__currencyDisplay;
+    const currencyCode = this.__currencyCode;
 
     return html`
       <foxy-nucleon
@@ -161,6 +141,10 @@ export class ItemOptionCard extends Base<Data> {
     `;
   }
 
+  get isBodyReady(): boolean {
+    return super.isBodyReady && !!this.__currencyCode && !!this.__currencyDisplay;
+  }
+
   private get __transactionTemplateHref() {
     try {
       const links = this.data?._links as Partial<Record<string, { href: string }>> | undefined;
@@ -198,11 +182,7 @@ export class ItemOptionCard extends Base<Data> {
 
   private get __templateSetHref() {
     const cart = this.__cart ?? this.__transactionTemplate;
-    // TODO: remove the directive below once SDK is updated
-    // @ts-expect-error SDK types are incomplete
-    const currencyCode = cart?.currency_code as string | undefined;
-
-    if (!currencyCode) return cart?.template_set_uri || void 0;
+    if (!cart?.currency_code) return cart?.template_set_uri || void 0;
   }
 
   private get __storeHref() {
@@ -256,5 +236,29 @@ export class ItemOptionCard extends Base<Data> {
     type Loader = NucleonElement<Resource<Rels.Cart>>;
     const selector = `#${this.__cartLoaderId}`;
     return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
+  }
+
+  private get __currencyCode() {
+    const transaction = this.__transaction;
+
+    if (transaction) {
+      return transaction.currency_code;
+    } else {
+      const cart = this.__cart ?? this.__transactionTemplate;
+
+      if (cart?.currency_code) {
+        return cart.currency_code;
+      } else {
+        const allLocaleCodes = this.__localeCodesHelper;
+        const localeCode = (this.__templateSet ?? this.__defaultTemplateSet)?.locale_code;
+        const localeInfo = localeCode ? allLocaleCodes?.values[localeCode] : void 0;
+
+        if (localeInfo) return /Currency: ([A-Z]{3})/g.exec(localeInfo)?.[1] ?? null;
+      }
+    }
+  }
+
+  private get __currencyDisplay() {
+    return this.__store?.use_international_currency_symbol ? 'code' : 'symbol';
   }
 }
