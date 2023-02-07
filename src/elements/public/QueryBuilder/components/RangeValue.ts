@@ -15,8 +15,8 @@ export type RangeValueParams = {
 export function RangeValue(params: RangeValueParams): TemplateResult {
   const { t, parsedValue, option, onChange } = params;
   const splitValue = parsedValue.value.split('..');
-  const from = splitValue.length >= 2 ? splitValue[0] : '';
-  const to = splitValue.length >= 2 ? splitValue[1] : splitValue[0] ?? '';
+  const from = splitValue.length >= 1 ? splitValue[0] : '';
+  const to = splitValue.length >= 2 ? splitValue[1] : '';
 
   const Field = option?.list ? Select : Input;
   const optionType = option?.type ?? Type.Any;
