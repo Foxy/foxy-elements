@@ -7,8 +7,8 @@ import { parseFrequency } from '../../../utils/parse-frequency';
 export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-table')<Data> {
   static priceColumn: Column<Data> = {
     cell: ctx => {
-      const transaction = ctx.data._embedded['fx:last_transaction'];
-      const amount = `${transaction.total_order} ${transaction.currency_code}`;
+      const cart = ctx.data._embedded['fx:transaction_template'];
+      const amount = `${cart.total_order} ${cart.currency_code}`;
 
       return ctx.html`
         <foxy-i18n
