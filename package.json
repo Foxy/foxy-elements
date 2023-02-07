@@ -14,6 +14,7 @@
   "scripts": {
     "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json --format json",
     "generate-schemas": "node \"./.scripts/generate-schemas.js\" && prettier \"./src/static/schemas/*.json\" \"./.vscode/settings.json\" --write",
+    "generate-groups": "node \"./.scripts/generate-groups.js\" && prettier \"./web-test-runner-groups.config.js\" --write",
     "storybook": "wds --watch",
     "storybook:build": "build-storybook",
     "lint": "npm run lint:eslint && npm run lint:prettier",
@@ -22,8 +23,8 @@
     "format": "npm run format:eslint && npm run format:prettier",
     "format:eslint": "eslint --ext .ts,.html . --fix --ignore-path .gitignore",
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
-    "test": "wtr src/**/*.test.ts",
-    "test:watch": "wtr src/**/*.test.ts --watch",
+    "test": "wtr",
+    "test:watch": "wtr --watch",
     "prepack": "npm run lint && rimraf dist && node ./.build/compile-for-npm.js && rollup -c"
   },
   "dependencies": {

@@ -68,5 +68,7 @@ There's a number of useful scripts that you might need:
 - `npm run format` fixes style errors in your code;
 - `npm run lint` shows style errors in your code;
 - `npm run test` runs all test suites with [Karma](https://github.com/karma-runner/karma);
+- `npm run test:watch -- --group foxy-attribute-card` runs tests in watch mode for a specific element;
 - `npm run wca` generates docs for element slots and attributes;
 - `npm run generate-schemas` generates JSONSchemas for element translations based on English i18n files;
+- `npm run generate-groups` generates test groups for elements;
