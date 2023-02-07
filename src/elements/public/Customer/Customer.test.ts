@@ -1,13 +1,15 @@
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
+import './index';
+
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { AddressCard } from '../AddressCard';
 import { AttributeCard } from '../AttributeCard/AttributeCard';
 import { CollectionPage } from '../CollectionPage';
 import { CollectionPages } from '../CollectionPages';
 import { Core } from '@foxy.io/sdk';
-import { Customer } from './index';
+import { Customer } from './Customer';
 import { Data } from './types';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog/FormDialog';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -20,7 +22,7 @@ import { getByName } from '../../../testgen/getByName';
 import { getByTestClass } from '../../../testgen/getByTestClass';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
-import { createRouter } from '../../../server/hapi';
+import { createRouter } from '../../../server/index';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
@@ -1639,7 +1641,7 @@ describe('Customer', () => {
 
       const pages = await getByTestId<CollectionPages<any>>(element, 'subscriptions:pages');
       const firstURL = new URL(element.data!._links['fx:subscriptions'].href);
-      firstURL.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      firstURL.searchParams.set('zoom', 'transaction_template:items');
 
       expect(pages).to.have.attribute('first', firstURL.toString());
 
@@ -1706,7 +1708,7 @@ describe('Customer', () => {
       await element.updateComplete;
 
       const link = new URL(table.data._embedded['fx:subscriptions'][0]._links.self.href);
-      link.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      link.searchParams.set('zoom', 'transaction_template:items');
 
       expect(showMethod).to.have.been.called;
       expect(form).to.have.attribute('readonlycontrols', 'frequency');
@@ -1724,8 +1726,16 @@ describe('Customer', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-customer href=${href} lang="es"></foxy-customer>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-customer
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-customer>
+      `;
+
       const element = await fixture<Customer>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

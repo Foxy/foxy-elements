@@ -5,17 +5,17 @@ import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { Data } from './types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { TaxCard } from './TaxCard';
-import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
 import { createRouter } from '../../../server/index';
+import { InternalCard } from '../../internal/InternalCard/InternalCard';
 
 const router = createRouter();
 
 describe('TaxCard', () => {
-  it('extends TwoLineCard', () => {
-    expect(new TaxCard()).to.be.instanceOf(TwoLineCard);
+  it('extends InternalCard', () => {
+    expect(new TaxCard()).to.be.instanceOf(InternalCard);
   });
 
   it('registers as foxy-tax-card', () => {

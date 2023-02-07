@@ -1,6 +1,9 @@
-import { expect, fixture, waitUntil } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
-import { CouponCard } from './index';
+import './index';
+
+import { expect, fixture, waitUntil } from '@open-wc/testing';
+import { CouponCard } from './CouponCard';
 import { Data } from './types';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -10,6 +13,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-html';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('CouponCard', () => {
   it('extends NucleonElement', () => {
@@ -438,7 +442,16 @@ describe('CouponCard', () => {
     });
 
     it('renders "busy" foxy-spinner while loading', async () => {
-      const layout = html`<foxy-coupon-card href="/" lang="es"></foxy-coupon-card>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-coupon-card
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-coupon-card>
+      `;
+
       const element = await fixture<CouponCard>(layout);
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;

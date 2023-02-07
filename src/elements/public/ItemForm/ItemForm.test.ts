@@ -1,9 +1,12 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
+import './index';
+
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-import { html } from 'lit-html';
 import { createRouter } from '../../../server/index';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { ItemForm } from './index';
+import { ItemForm } from './ItemForm';
+import { html } from 'lit-html';
 
 describe('ItemForm', () => {
   it('imports and defines foxy-internal-integer-control', () => {
@@ -252,6 +255,7 @@ describe('ItemForm', () => {
     const element = await fixture<ItemForm>(
       html`
         <foxy-item-form
+          locale-codes="https://demo.api/hapi/property_helpers/7"
           href="https://demo.api/hapi/items/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
@@ -272,9 +276,14 @@ describe('ItemForm', () => {
     expect(control).to.have.property('first', element.data!._links['fx:item_options'].href);
 
     expect(control).to.have.deep.property('related', [
+      'https://demo.api/hapi/subscriptions/0',
       'https://demo.api/hapi/transactions/0',
       'https://demo.api/hapi/shipments/0',
-      'https://demo.api/hapi/items?transaction_id=0',
+      'https://demo.api/hapi/items?cart_id=0',
     ]);
+
+    expect(control).to.have.deep.property('props', {
+      'locale-codes': 'https://demo.api/hapi/property_helpers/7',
+    });
   });
 });

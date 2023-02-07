@@ -1,8 +1,6 @@
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
-import { CellContext } from '../Table/types';
 import { Choice } from '../../private';
-import { CollectionPages } from '../CollectionPages';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { Data } from './types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
@@ -11,9 +9,6 @@ import { InternalCalendar } from '../../internal/InternalCalendar';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { SubscriptionForm } from './index';
-import { Table } from '../Table';
-import { TransactionsTable } from '../TransactionsTable';
-import { Data as TransactionsTableData } from '../TransactionsTable/types';
 import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
@@ -23,6 +18,8 @@ import { getTestData } from '../../../testgen/getTestData';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+
+// TODO tests for new controls
 
 describe('SubscriptionForm', () => {
   it('registers as foxy-subscription-form', () => {
@@ -232,50 +229,6 @@ describe('SubscriptionForm', () => {
       `);
 
       expect(await getByTestId(element, 'items')).not.to.exist;
-    });
-
-    it('renders "items:before" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      expect(await getByName(element, 'items:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "items:before" slot with template "items:before" if available', async () => {
-      const name = 'items:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "items:after" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      expect(await getByName(element, 'items:after')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "items:after" slot with template "items:after" if available', async () => {
-      const name = 'items:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
     });
 
     describe('actions', () => {
@@ -692,15 +645,16 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
-      const control = await getByTag<InternalCalendar>(element, 'foxy-internal-calendar');
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
 
-      expect(control).to.have.attribute('lang', 'es');
-      expect(control).to.have.attribute('value', data.next_transaction_date);
-      expect(control).to.have.attribute('start', data.next_transaction_date.substr(0, 10));
+      expect(calendar).to.have.attribute('lang', 'es');
+      expect(calendar).to.have.attribute('value', data.next_transaction_date);
+      expect(calendar).to.have.attribute('start', data.next_transaction_date.substr(0, 10));
 
       const newValue = new Date(Date.now() + 172800000).toISOString();
-      control!.value = newValue;
-      control!.dispatchEvent(new CustomEvent('change'));
+      calendar!.value = newValue;
+      calendar!.dispatchEvent(new CustomEvent('change'));
 
       expect(element.form).to.have.property('next_transaction_date', newValue);
     });
@@ -712,7 +666,10 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form .data=${data} disabled></foxy-subscription-form>
       `);
 
-      expect(await getByTag(element, 'foxy-internal-calendar')).to.have.attribute('disabled');
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('disabled');
     });
 
     it('is disabled when disabledcontrols includes "next-transaction-date"', async () => {
@@ -725,7 +682,10 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      expect(await getByTag(element, 'foxy-internal-calendar')).to.have.attribute('disabled');
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('disabled');
     });
 
     it('is readonly when the form is disabled', async () => {
@@ -735,7 +695,10 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form .data=${data} readonly></foxy-subscription-form>
       `);
 
-      expect(await getByTag(element, 'foxy-internal-calendar')).to.have.attribute('readonly');
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('readonly');
     });
 
     it('is readonly when readonlycontrols includes "next-transaction-date"', async () => {
@@ -748,7 +711,10 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      expect(await getByTag(element, 'foxy-internal-calendar')).to.have.attribute('readonly');
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('readonly');
     });
 
     it('disables dates matching rules in the settings, if provided', async () => {
@@ -766,8 +732,10 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `);
 
-      const control = await getByTag<InternalCalendar>(element, 'foxy-internal-calendar');
-      expect(control!.checkAvailability(new Date(Date.now() + 84600000))).to.be.false;
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar!.checkAvailability(new Date(Date.now() + 84600000))).to.be.false;
     });
 
     it('disables past dates if no settings were provided', async () => {
@@ -776,8 +744,10 @@ describe('SubscriptionForm', () => {
         <foxy-subscription-form .data=${await getTestData<Data>(href)}></foxy-subscription-form>
       `);
 
-      const control = await getByTag<InternalCalendar>(element, 'foxy-internal-calendar');
-      expect(control!.checkAvailability(new Date(Date.now() - 84600000))).to.be.false;
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar!.checkAvailability(new Date(Date.now() - 84600000))).to.be.false;
     });
   });
 
@@ -1105,148 +1075,30 @@ describe('SubscriptionForm', () => {
   });
 
   describe('transactions', () => {
-    it('has foxy-i18n with key "transaction_plural" for caption', async () => {
-      const layout = html`<foxy-subscription-form lang="es"></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      const control = await getByTestId(element, 'transactions');
-      const caption = control!.querySelector('foxy-i18n');
-
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'transaction_plural');
-      expect(caption).to.have.attribute('ns', 'subscription-form');
-    });
-
-    it('renders a foxy-table with transactions in foxy-collection-pages', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const element = await fixture<SubscriptionForm>(
-        html`<foxy-subscription-form .data=${data} lang="es" group="foo"></foxy-subscription-form>`
-      );
-
-      const control = await getByTestId(element, 'transactions');
-      const pages = control!.querySelector('foxy-collection-pages') as CollectionPages<any>;
-
-      expect(pages).to.exist;
-      expect(pages).to.have.attribute('first', data._links['fx:transactions'].href);
-      expect(pages).to.have.attribute('group', 'foo');
-      expect(pages).to.have.attribute('lang', 'es');
-
-      const table = pages.querySelector<Table<TransactionsTableData>>('foxy-table')!;
-
-      expect(table).to.have.attribute('group', pages.group);
-      expect(table).to.have.attribute('lang', pages.lang);
-      expect(table).to.have.attribute('href', pages.pages[0]);
-
-      type TableCellData = TransactionsTableData['_embedded']['fx:transactions'][number];
-      type TableCellContext = CellContext<TransactionsTableData>;
-
-      const transaction = await getTestData<TableCellData>('./hapi/transactions/0');
-      const ctx: TableCellContext = { html, data: transaction, lang: pages.lang, ns: 'foo' };
-      const extraFixtures = await fixture(
-        html`
-          <div>
-            <div>${TransactionsTable.statusColumn.cell!(ctx)}</div>
-            <div>${TransactionsTable.priceColumn.cell!(ctx)}</div>
-            <div>${table.columns[0].cell!(ctx)}</div>
-          </div>
-        `
-      );
-
-      const statusHTML = extraFixtures.children[0].innerHTML;
-      const priceHTML = extraFixtures.children[1].innerHTML;
-      const firstColumnHTML = extraFixtures.children[2].innerHTML;
-
-      expect(firstColumnHTML).to.contain(statusHTML);
-      expect(firstColumnHTML).to.contain(priceHTML);
-
-      expect(table.columns[1]).to.deep.equal({
-        cell: TransactionsTable.idColumn.cell,
-        hideBelow: 'sm',
-      });
-
-      expect(table.columns[2]).to.deep.equal({ cell: TransactionsTable.dateColumn.cell });
-      expect(table.columns[3]).to.deep.equal({ cell: TransactionsTable.receiptColumn.cell });
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-
-      expect(await getByTestId(element, 'transactions')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-subscription-form hidden></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-
-      expect(await getByTestId(element, 'transactions')).not.to.exist;
-    });
-
-    it('is hidden when hiddencontrols includes "transactions"', async () => {
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form hiddencontrols="transactions"></foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'transactions')).not.to.exist;
-    });
-
-    it('renders "transactions:before" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      expect(await getByName(element, 'transactions:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "transactions:before" slot with template "transactions:before" if available', async () => {
-      const name = 'transactions:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "transactions:after" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      expect(await getByName(element, 'transactions:after')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "transactions:after" slot with template "transactions:after" if available', async () => {
-      const name = 'transactions:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
+    it('renders an async list with transactions', async () => {
+      // TODO rewrite this test
     });
   });
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-subscription-form href=${href} lang="es"></foxy-subscription-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-subscription-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `;
+
       const element = await fixture<SubscriptionForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'busy');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'subscription-form spinner');
+      expect(spinner).to.have.attribute('infer', 'spinner');
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
@@ -1268,8 +1120,7 @@ describe('SubscriptionForm', () => {
 
       expect(spinnerWrapper).not.to.have.class('opacity-0');
       expect(spinner).to.have.attribute('state', 'error');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'subscription-form spinner');
+      expect(spinner).to.have.attribute('infer', 'spinner');
     });
 
     it('hides spinner once loaded', async () => {

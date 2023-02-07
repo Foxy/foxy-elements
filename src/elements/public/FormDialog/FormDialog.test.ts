@@ -47,7 +47,7 @@ describe('FormDialog', () => {
   });
 
   it('closes itself on successful DELETE request from form', async () => {
-    const href = 'https://demo.api/hapi/attributes/0';
+    const href = 'https://demo.api/hapi/customer_attributes/0';
     const form = 'foxy-attribute-form';
     const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog href=${href} form=${form}></foxy-form-dialog>
@@ -55,8 +55,13 @@ describe('FormDialog', () => {
 
     await dialog.show();
 
+    dialog.addEventListener(
+      'fetch',
+      evt => (evt as FetchEvent).respondWith(Promise.resolve(new Response())),
+      { once: true }
+    );
+
     const formElement = dialog.renderRoot.querySelector('#form');
-    const whenGotFetchEvent = oneEvent(dialog, 'fetch') as unknown as Promise<FetchEvent>;
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
@@ -70,24 +75,26 @@ describe('FormDialog', () => {
       })
     );
 
-    const fetchEvent = await whenGotFetchEvent;
-    fetchEvent.respondWith(Promise.resolve(new Response()));
-
     await whenGotHideEvent;
     expect(dialog).to.have.property('open', false);
   });
 
   it('closes itself on successful POST request from form', async () => {
     const form = 'foxy-attribute-form';
-    const parent = 'https://demo.api/hapi/customers/0/attributes';
+    const parent = 'https://demo.api/hapi/customer_attributes';
     const dialog = await fixture<FormDialog>(html`
       <foxy-form-dialog parent=${parent} form=${form}></foxy-form-dialog>
     `);
 
     await dialog.show();
 
+    dialog.addEventListener(
+      'fetch',
+      evt => (evt as FetchEvent).respondWith(Promise.resolve(new Response())),
+      { once: true }
+    );
+
     const formElement = dialog.renderRoot.querySelector('#form');
-    const whenGotFetchEvent = oneEvent(dialog, 'fetch') as unknown as Promise<FetchEvent>;
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
@@ -100,9 +107,6 @@ describe('FormDialog', () => {
         reject: e => void e,
       })
     );
-
-    const fetchEvent = await whenGotFetchEvent;
-    fetchEvent.respondWith(Promise.resolve(new Response()));
 
     await whenGotHideEvent;
     expect(dialog).to.have.property('open', false);

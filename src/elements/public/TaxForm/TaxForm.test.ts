@@ -20,6 +20,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('TaxForm', () => {
   it('extends NucleonElement', () => {
@@ -2276,8 +2277,16 @@ describe('TaxForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = './hapi/sleep';
-      const layout = html`<foxy-tax-form href=${href} lang="es"></foxy-tax-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-tax-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-tax-form>
+      `;
+
       const element = await fixture<TaxForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

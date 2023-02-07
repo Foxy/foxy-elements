@@ -12,6 +12,8 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html as litHtmlTemplateFunction } from 'lit-html';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { FetchEvent } from '../NucleonElement/FetchEvent';
+import { createRouter } from '../../../server/index';
 
 describe('Table', () => {
   it('extends NucleonElement', () => {
@@ -82,7 +84,15 @@ describe('Table', () => {
   });
 
   it('renders foxy-spinner in busy state while loading', async () => {
-    const element = await fixture<Table<any>>(html`<foxy-table href="/foo"></foxy-table>`);
+    const router = createRouter();
+    const element = await fixture<Table<any>>(html`
+      <foxy-table
+        href="https://demo.api/virtual/stall"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-table>
+    `);
+
     expect(await getByTestId(element, 'spinner')).to.have.attribute('state', 'busy');
   });
 

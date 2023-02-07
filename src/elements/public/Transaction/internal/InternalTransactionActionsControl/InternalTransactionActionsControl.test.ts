@@ -128,12 +128,14 @@ describe('Transaction', () => {
       unset(wrapper, 'data._links["fx:refund"]');
       wrapper.data = { ...wrapper.data! };
       await wrapper.updateComplete;
+      await control.updateComplete;
 
       expect(control.renderRoot.querySelector('[infer="refund"]')).to.not.exist;
 
       set(wrapper, 'data._links["fx:refund"]', { href: 'test' });
       wrapper.data = { ...wrapper.data! };
       await wrapper.updateComplete;
+      await control.updateComplete;
 
       const action = control.renderRoot.querySelector('[infer="refund"]');
 
@@ -167,12 +169,14 @@ describe('Transaction', () => {
       unset(wrapper, 'data._links["fx:send_emails"]');
       wrapper.data = { ...wrapper.data! };
       await wrapper.updateComplete;
+      await control.updateComplete;
 
       expect(control.renderRoot.querySelector('[infer="send-emails"]')).to.not.exist;
 
       set(wrapper, 'data._links["fx:send_emails"]', { href: 'test' });
       wrapper.data = { ...wrapper.data! };
       await wrapper.updateComplete;
+      await control.updateComplete;
 
       const action = control.renderRoot.querySelector('[infer="send-emails"]');
 

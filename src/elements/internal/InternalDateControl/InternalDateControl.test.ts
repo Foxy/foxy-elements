@@ -8,6 +8,7 @@ import { InternalEditableControl } from '../InternalEditableControl/InternalEdit
 import { NucleonElement } from '../../public/NucleonElement/index';
 import { stub } from 'sinon';
 import { parseDate } from '../../../utils/parse-date';
+import { serializeDate } from '../../../utils/serialize-date';
 
 class TestControl extends Control {
   static get properties() {
@@ -189,7 +190,7 @@ describe('InternalDateControl', () => {
     control.testValue = 1577826000;
     await control.updateComplete;
 
-    expect(field).to.have.property('value', '2020-01-01');
+    expect(field).to.have.property('value', serializeDate(new Date(1577826000000)));
   });
 
   it('writes ISO date to "_value" on change', async () => {

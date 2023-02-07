@@ -1,3 +1,5 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
@@ -14,6 +16,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('PaymentMethodCard', () => {
   it('extends NucleonElement', () => {
@@ -330,7 +333,16 @@ describe('PaymentMethodCard', () => {
     });
 
     it('renders "busy" foxy-spinner while loading', async () => {
-      const layout = html`<foxy-payment-method-card href="/" lang="es"></foxy-payment-method-card>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-payment-method-card
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-payment-method-card>
+      `;
+
       const element = await fixture<PaymentMethodCard>(layout);
       const spinner = await getByTestId(element, 'spinner');
 

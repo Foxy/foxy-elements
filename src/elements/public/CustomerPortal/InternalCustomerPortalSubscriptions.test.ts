@@ -21,6 +21,12 @@ import { getTestData } from '../../../testgen/getTestData';
 const router = createRouter();
 
 describe('InternalCustomerPortalSubscriptions', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends LitElement', () => {
     expect(new InternalCustomerPortalSubscriptions()).to.be.instanceOf(LitElement);
   });
@@ -233,11 +239,11 @@ describe('InternalCustomerPortalSubscriptions', () => {
           'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
         const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-        const alwaysHidden = 'end-date';
+        const alwaysHidden = 'attributes timestamps start-date past-due-amount header end-date';
 
         expect(form).to.have.attribute('disabledcontrols', 'end-date');
         expect(form).to.have.attribute('readonlycontrols', 'frequency');
-        expect(form).to.have.attribute('hiddencontrols', `header ${alwaysHidden}`);
+        expect(form).to.have.attribute('hiddencontrols', alwaysHidden);
         expect(form).to.have.attribute('parent', dialog.parent);
         expect(form).to.have.attribute('group', 'foo');
         expect(form).to.have.attribute('lang', 'es');

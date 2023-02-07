@@ -23,8 +23,12 @@ export class TaxCard extends TranslatableMixin(ConfigurableMixin(InternalCard), 
 
     return html`
       <div class="flex justify-between gap-s">
-        <div class="font-semibold truncate flex-shrink-0">${data?.name}&ZeroWidthSpace;</div>
-        <div class="truncate text-tertiary">${this.__typeLabel} &bull; ${this.__rateLabel}</div>
+        <div data-testid="title" class="font-semibold truncate flex-shrink-0">
+          ${data?.name}&ZeroWidthSpace;
+        </div>
+        <div data-testid="subtitle" class="truncate text-tertiary">
+          ${this.__typeLabel} &bull; ${this.__rateLabel}
+        </div>
       </div>
     `;
   }

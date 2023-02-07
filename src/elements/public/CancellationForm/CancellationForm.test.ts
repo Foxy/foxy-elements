@@ -1,7 +1,8 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { CancellationForm } from './CancellationForm';
 import { Data } from './types';
@@ -14,6 +15,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server';
 
 describe('CancellationForm', () => {
   it('extends NucleonElement', () => {
@@ -210,10 +212,17 @@ describe('CancellationForm', () => {
     });
 
     it('is enabled once loaded', async () => {
-      const data = await getTestData('./hapi/subscriptions/0');
-      const layout = html`<foxy-cancellation-form .data=${data}></foxy-cancellation-form>`;
-      const element = await fixture<CancellationForm>(layout);
+      const router = createRouter();
+      const element = await fixture<CancellationForm>(html`
+        <foxy-cancellation-form
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-cancellation-form>
+      `);
 
+      await waitUntil(() => element.in({ idle: 'snapshot' }));
       expect(await getByTestId(element, 'end-date')).not.to.have.attribute('disabled');
     });
 
@@ -374,9 +383,16 @@ describe('CancellationForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-cancellation-form href=${href} lang="es"></foxy-cancellation-form>`;
-      const element = await fixture<CancellationForm>(layout);
+      const router = createRouter();
+      const element = await fixture<CancellationForm>(html`
+        <foxy-cancellation-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-cancellation-form>
+      `);
+
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
@@ -387,9 +403,16 @@ describe('CancellationForm', () => {
     });
 
     it('renders foxy-spinner in "error" state if loading data fails', async () => {
-      const href = 'https://demo.api/virtual/empty?status=404';
-      const layout = html`<foxy-cancellation-form href=${href} lang="es"></foxy-cancellation-form>`;
-      const element = await fixture<CancellationForm>(layout);
+      const router = createRouter();
+      const element = await fixture<CancellationForm>(html`
+        <foxy-cancellation-form
+          href="https://demo.api/virtual/empty?status=404"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-cancellation-form>
+      `);
+
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
@@ -402,9 +425,17 @@ describe('CancellationForm', () => {
     });
 
     it('hides spinner once loaded', async () => {
-      const data = await getTestData('./hapi/subscriptions/0');
-      const layout = html`<foxy-cancellation-form .data=${data}></foxy-cancellation-form>`;
-      const element = await fixture<CancellationForm>(layout);
+      const router = createRouter();
+      const element = await fixture<CancellationForm>(html`
+        <foxy-cancellation-form
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-cancellation-form>
+      `);
+
+      await waitUntil(() => element.in({ idle: 'snapshot' }));
       const spinnerWrapper = await getByTestId(element, 'spinner');
 
       expect(spinnerWrapper).to.have.class('opacity-0');

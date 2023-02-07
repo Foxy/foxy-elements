@@ -16,6 +16,12 @@ import { createRouter } from '../../../server/index';
 const router = createRouter();
 
 describe('DiscountCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends TwoLineCard', () => {
     expect(new DiscountCard()).to.be.instanceOf(TwoLineCard);
   });
@@ -62,7 +68,7 @@ describe('DiscountCard', () => {
     const transaction = await getTestData<Transaction>(data._links['fx:transaction'].href);
     const options = JSON.stringify({
       currencyDisplay: store.use_international_currency_symbol ? 'code' : 'symbol',
-      amount: `${Math.abs(data.amount)} ${transaction.currency_code}`,
+      amount: `${data.amount} ${transaction.currency_code}`,
     });
 
     expect(amount).to.have.attribute('options', options);

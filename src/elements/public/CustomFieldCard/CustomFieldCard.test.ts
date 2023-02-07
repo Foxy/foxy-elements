@@ -12,6 +12,12 @@ import { createRouter } from '../../../server/index';
 const router = createRouter();
 
 describe('CustomFieldCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends TwoLineCard', () => {
     expect(new CustomFieldCard()).to.be.instanceOf(TwoLineCard);
   });

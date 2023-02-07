@@ -1,7 +1,8 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-
 import { AccessRecoveryForm } from './AccessRecoveryForm';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { ButtonElement } from '@vaadin/vaadin-button';
@@ -13,6 +14,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server';
 
 const getTestData = () => ({
   _links: { self: { href: 'https://demo.api/virtual/recovery' } },
@@ -443,8 +445,13 @@ describe('AccessRecoveryForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
+      const router = createRouter();
       const element = await fixture<AccessRecoveryForm>(html`
-        <foxy-access-recovery-form href="https://demo.api/virtual/stall" lang="es">
+        <foxy-access-recovery-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
         </foxy-access-recovery-form>
       `);
 

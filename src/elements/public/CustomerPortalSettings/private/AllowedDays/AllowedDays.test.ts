@@ -126,6 +126,12 @@ const model = createModel<TestAllowedDays>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> AllowedDays', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

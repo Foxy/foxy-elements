@@ -1,7 +1,10 @@
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
+import './index';
+
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { CouponCodeForm } from './index';
+import { CouponCodeForm } from './CouponCodeForm';
 import { Data } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
@@ -12,6 +15,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('CouponCodeForm', () => {
   it('extends NucleonElement', () => {
@@ -569,8 +573,16 @@ describe('CouponCodeForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-coupon-code-form href=${href} lang="es"></foxy-coupon-code-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-coupon-code-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-coupon-code-form>
+      `;
+
       const element = await fixture<CouponCodeForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

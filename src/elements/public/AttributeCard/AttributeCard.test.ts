@@ -1,7 +1,8 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-
 import { AttributeCard } from './AttributeCard';
 import { Data } from './types';
 import { InternalSandbox } from '../../internal/InternalSandbox';
@@ -11,6 +12,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('AttributeCard', () => {
   it('extends NucleonElement', () => {
@@ -181,7 +183,17 @@ describe('AttributeCard', () => {
     });
 
     it('renders "busy" foxy-spinner while loading', async () => {
-      const layout = html`<foxy-attribute-card href="/" lang="es"></foxy-attribute-card>`;
+      const router = createRouter();
+
+      const layout = html`
+        <foxy-attribute-card
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-attribute-card>
+      `;
+
       const element = await fixture<AttributeCard>(layout);
       const spinner = await getByTestId(element, 'spinner');
       const wrapper = spinner!.parentElement;

@@ -28,6 +28,12 @@ import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('CouponForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends NucleonElement', () => {
     expect(new CouponForm()).to.be.instanceOf(NucleonElement);
   });

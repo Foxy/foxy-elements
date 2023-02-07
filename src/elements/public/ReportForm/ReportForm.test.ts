@@ -1,4 +1,7 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+
 import {
   getCurrentMonth,
   getCurrentQuarter,
@@ -23,7 +26,7 @@ import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox'
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ReportForm } from './index';
 import { SelectElement } from '@vaadin/vaadin-select';
-import { createRouter } from '../../../server';
+import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
 import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
@@ -32,6 +35,12 @@ import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('ReportForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends NucleonElement', () => {
     expect(new ReportForm()).to.be.instanceOf(NucleonElement);
   });
@@ -972,8 +981,16 @@ describe('ReportForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = './hapi/sleep';
-      const layout = html`<foxy-report-form href=${href} lang="es"></foxy-report-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-report-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-report-form>
+      `;
+
       const element = await fixture<ReportForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

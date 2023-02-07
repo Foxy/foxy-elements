@@ -216,7 +216,7 @@ describe('TransactionCard', () => {
 
       await waitUntil(() => element.in({ idle: 'snapshot' }), undefined, { timeout: 5000 });
 
-      const transaction = await getTestData<Data>('./hapi/transactions/0?zoom=items');
+      const transaction = await getTestData<Data>('./hapi/transactions/0?zoom=items', router);
       const items = transaction._embedded['fx:items'];
       const summary = await getByKey(element, 'transaction_summary');
       const options = JSON.stringify({
