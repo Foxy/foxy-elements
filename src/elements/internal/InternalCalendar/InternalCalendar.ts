@@ -176,12 +176,12 @@ export class InternalCalendar extends ThemeableMixin(LitElement) {
   }
 
   private __handlePrevButtonClick() {
-    const currentStart = new Date(this.start ?? Date.now());
+    const currentStart = this.__startAsDate ?? new Date();
     this.__startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() - 1));
   }
 
   private __handleNextButtonClick() {
-    const currentStart = new Date(this.start ?? Date.now());
+    const currentStart = this.__startAsDate ?? new Date();
     this.__startAsDate = new Date(currentStart.setMonth(currentStart.getMonth() + 1));
   }
 }
