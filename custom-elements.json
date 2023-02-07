@@ -16055,57 +16055,72 @@
     {
       "name": "foxy-payments-api",
       "path": "./src/elements/public/PaymentsApi/index.ts",
+      "description": "Adapter element for Payments API. This element requires an additional hAPI adapter\nthat will handle authentication and session management.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nPayments API elements with hAPI, wrap them into this node._",
       "attributes": [
         {
-          "name": "payment-method-set-hosted-payment-gateways-url"
+          "name": "payment-method-set-hosted-payment-gateways-url",
+          "description": "URL of the `fx:payment_method_set_hosted_payment_gateways` collection."
         },
         {
-          "name": "hosted-payment-gateways-helper-url"
+          "name": "hosted-payment-gateways-helper-url",
+          "description": "URL of the `fx:hosted_payment_gateways` property helper."
         },
         {
-          "name": "hosted-payment-gateways-url"
+          "name": "hosted-payment-gateways-url",
+          "description": "URL of the `fx:hosted_payment_gateways` collection."
         },
         {
-          "name": "payment-gateways-helper-url"
+          "name": "payment-gateways-helper-url",
+          "description": "URL of the `fx:payment_gateways` property helper."
         },
         {
-          "name": "payment-method-sets-url"
+          "name": "payment-method-sets-url",
+          "description": "URL of the `fx:payment_method_sets` collection."
         },
         {
-          "name": "fraud-protections-url"
+          "name": "fraud-protections-url",
+          "description": "URL of the `fx:fraud_protections` collection."
         },
         {
-          "name": "payment-gateways-url"
+          "name": "payment-gateways-url",
+          "description": "URL of the `fx:payment_gateways` collection."
         }
       ],
       "properties": [
         {
           "name": "paymentMethodSetHostedPaymentGatewaysUrl",
-          "attribute": "payment-method-set-hosted-payment-gateways-url"
+          "attribute": "payment-method-set-hosted-payment-gateways-url",
+          "description": "URL of the `fx:payment_method_set_hosted_payment_gateways` collection."
         },
         {
           "name": "hostedPaymentGatewaysHelperUrl",
-          "attribute": "hosted-payment-gateways-helper-url"
+          "attribute": "hosted-payment-gateways-helper-url",
+          "description": "URL of the `fx:hosted_payment_gateways` property helper."
         },
         {
           "name": "hostedPaymentGatewaysUrl",
-          "attribute": "hosted-payment-gateways-url"
+          "attribute": "hosted-payment-gateways-url",
+          "description": "URL of the `fx:hosted_payment_gateways` collection."
         },
         {
           "name": "paymentGatewaysHelperUrl",
-          "attribute": "payment-gateways-helper-url"
+          "attribute": "payment-gateways-helper-url",
+          "description": "URL of the `fx:payment_gateways` property helper."
         },
         {
           "name": "paymentMethodSetsUrl",
-          "attribute": "payment-method-sets-url"
+          "attribute": "payment-method-sets-url",
+          "description": "URL of the `fx:payment_method_sets` collection."
         },
         {
           "name": "fraudProtectionsUrl",
-          "attribute": "fraud-protections-url"
+          "attribute": "fraud-protections-url",
+          "description": "URL of the `fx:fraud_protections` collection."
         },
         {
           "name": "paymentGatewaysUrl",
-          "attribute": "payment-gateways-url"
+          "attribute": "payment-gateways-url",
+          "description": "URL of the `fx:payment_gateways` collection."
         }
       ]
     },
@@ -21041,28 +21056,28 @@
       "properties": [
         {
           "name": "priceColumn",
-          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "type": "Column<Resource<Subscriptions, { zoom: { transaction_template: \"items\"; }; }>>",
           "default": "{}"
         },
         {
           "name": "summaryColumn",
-          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "type": "Column<Resource<Subscriptions, { zoom: { transaction_template: \"items\"; }; }>>",
           "default": "{}"
         },
         {
           "name": "statusColumn",
-          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "type": "Column<Resource<Subscriptions, { zoom: { transaction_template: \"items\"; }; }>>",
           "default": "{\"hideBelow\":\"md\"}"
         },
         {
           "name": "subTokenURLColumn",
-          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>",
+          "type": "Column<Resource<Subscriptions, { zoom: { transaction_template: \"items\"; }; }>>",
           "default": "{}"
         },
         {
           "name": "columns",
           "description": "Array of column templates. See `Column` type for more details.",
-          "type": "Column<Resource<Subscriptions, { zoom: [{ transaction_template: \"items\"; }, \"last_transaction\"]; }>>[]",
+          "type": "Column<Resource<Subscriptions, { zoom: { transaction_template: \"items\"; }; }>>[]",
           "default": "[\"priceColumn\",\"summaryColumn\",\"statusColumn\",\"subTokenURLColumn\"]"
         },
         {
