@@ -174,8 +174,8 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   set data(data: TData | null) {
     this.__destroyRumour();
-    this.__service.send({ type: 'SET_DATA', data });
     this.__hrefToLoad = null;
+    this.__service.send({ type: 'SET_DATA', data });
     if (data) this.__createRumour();
   }
 
@@ -202,8 +202,9 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   }
 
   set href(value: string) {
+    this.__hrefToLoad = value;
+
     if (value) {
-      this.__hrefToLoad = value;
       this.__service.send({ type: 'FETCH' });
     } else {
       this.data = null;
@@ -307,7 +308,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** @readonly */
   connectedCallback(): void {
     super.connectedCallback();
-    if (this.href) this.refresh();
+    if (this.href && !this.data) this.__service.send({ type: 'FETCH' });
 
     this.__createRumour();
     this.__createServer();
