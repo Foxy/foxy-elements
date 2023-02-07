@@ -12,6 +12,7 @@ export const vaadinRadioGroupStyles = css`
     transition: border-color 0.15s ease;
   }
 
+  /* prettier-ignore */
   :host(.foxy-internal-subscription-settings-form-reattempt-bypass:not([disabled]):not([readonly]):hover)
     [part='group-field'] {
     border-color: var(--lumo-contrast-20pct);
