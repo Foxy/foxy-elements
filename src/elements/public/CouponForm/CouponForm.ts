@@ -1271,7 +1271,11 @@ export class CouponForm extends Base<Data> {
                   >
                     ${(['start_date', 'end_date'] as const).map(property => {
                       const formValue = this.form[property];
-                      const pickerValue = formValue ? serializeDate(new Date(formValue)) : '';
+                      const pickerValue = formValue
+                        ? formValue.length > 10
+                          ? serializeDate(new Date(formValue))
+                          : formValue
+                        : '';
 
                       return html`
                         <vaadin-date-picker
