@@ -7,7 +7,7 @@ import { CancellationForm } from '../CancellationForm/CancellationForm';
 
 export type TransactionPageGetter = (
   href: string,
-  data: Resource<Rels.Transaction> | null
+  data: Resource<Rels.Transaction> | Resource<BackendRels.Transaction> | null
 ) => string;
 
 export type Settings = Resource<Rels.CustomerPortalSettings>;

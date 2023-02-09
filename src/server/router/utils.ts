@@ -5,7 +5,8 @@ export const increment = (() => {
 
   return (collection: string, dataset: Dataset): number => {
     if (!maxPerCollection.has(collection)) {
-      const currentMax = Math.max(...dataset[collection].map(v => v.id), -1);
+      const docs = dataset[collection] ?? [];
+      const currentMax = Math.max(...docs.map(v => v.id), -1);
       maxPerCollection.set(collection, currentMax);
     }
 

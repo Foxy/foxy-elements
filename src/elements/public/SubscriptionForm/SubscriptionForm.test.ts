@@ -1,49 +1,413 @@
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+import type { Data } from './types';
 
-import { Choice } from '../../private';
+import './index';
+
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import { createRouter as createBaseRouter } from '../../../server/router/createRouter';
+import { InternalTimestampsControl } from '../../internal/InternalTimestampsControl/InternalTimestampsControl';
+import { InternalAsyncListControl } from '../../internal/InternalAsyncListControl/InternalAsyncListControl';
+import { SubscriptionForm as Form } from './SubscriptionForm';
+import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
+import { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
+import { CancellationForm } from '../CancellationForm/CancellationForm';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
-import { Data } from './types';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { FormDialog } from '../FormDialog';
-import { InternalCalendar } from '../../internal/InternalCalendar';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
+import { TransactionCard } from '../TransactionCard/TransactionCard';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { SubscriptionForm } from './index';
+import { parseFrequency } from '../../../utils/parse-frequency';
+import { AttributeCard } from '../AttributeCard/AttributeCard';
+import { AttributeForm } from '../AttributeForm/AttributeForm';
 import { createRouter } from '../../../server/index';
-import { getByKey } from '../../../testgen/getByKey';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { getTestData } from '../../../testgen/getTestData';
+import { getByTestId } from '../../../testgen/getByTestId';
+import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { FormDialog } from '../FormDialog/FormDialog';
 import { getByName } from '../../../testgen/getByName';
 import { getByTag } from '../../../testgen/getByTag';
-import { getByTestId } from '../../../testgen/getByTestId';
-import { getTestData } from '../../../testgen/getTestData';
-import { parseFrequency } from '../../../utils/parse-frequency';
+import { defaults } from '../../../server/hapi/defaults';
+import { getByKey } from '../../../testgen/getByKey';
+import { ItemCard } from '../ItemCard/ItemCard';
+import { Choice } from '../../private/Choice/Choice';
+import { links } from '../../../server/hapi/links';
 import { stub } from 'sinon';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { I18n } from '../I18n/I18n';
 
-// TODO tests for new controls
+const fromDefaults = (key: string, overrides: Record<PropertyKey, unknown>) => {
+  return { ...defaults[key](new URLSearchParams(), {}), ...overrides };
+};
 
 describe('SubscriptionForm', () => {
-  it('registers as foxy-subscription-form', () => {
-    expect(customElements.get('foxy-subscription-form')).to.equal(SubscriptionForm);
+  it('imports and defines vcf-tooltip', () => {
+    expect(customElements.get('vcf-tooltip')).to.exist;
   });
 
-  it('extends NucleonElement', () => {
-    expect(document.createElement('foxy-subscription-form')).to.be.instanceOf(NucleonElement);
+  it('imports and defines vaadin-combo-box', () => {
+    expect(customElements.get('vaadin-combo-box')).to.exist;
+  });
+
+  it('imports and defines vaadin-button', () => {
+    expect(customElements.get('vaadin-button')).to.exist;
+  });
+
+  it('imports and defines iron-icon', () => {
+    expect(customElements.get('iron-icon')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-timestamps-control', () => {
+    const element = customElements.get('foxy-internal-timestamps-control');
+    expect(element).to.equal(InternalTimestampsControl);
+  });
+
+  it('imports and defines foxy-internal-async-list-control', () => {
+    const element = customElements.get('foxy-internal-async-list-control');
+    expect(element).to.equal(InternalAsyncListControl);
+  });
+
+  it('imports and defines foxy-internal-number-control', () => {
+    const element = customElements.get('foxy-internal-number-control');
+    expect(element).to.equal(InternalNumberControl);
+  });
+
+  it('imports and defines foxy-internal-calendar', () => {
+    const element = customElements.get('foxy-internal-calendar');
+    expect(element).to.equal(InternalCalendar);
+  });
+
+  it('imports and defines foxy-internal-sandbox', () => {
+    const element = customElements.get('foxy-internal-sandbox');
+    expect(element).to.equal(InternalSandbox);
+  });
+
+  it('imports and defines foxy-internal-form', () => {
+    const element = customElements.get('foxy-internal-form');
+    expect(element).to.equal(InternalForm);
+  });
+
+  it('imports and defines foxy-cancellation-form', () => {
+    const element = customElements.get('foxy-cancellation-form');
+    expect(element).to.equal(CancellationForm);
+  });
+
+  it('imports and defines foxy-transaction-card', () => {
+    const element = customElements.get('foxy-transaction-card');
+    expect(element).to.equal(TransactionCard);
+  });
+
+  it('imports and defines foxy-nucleon', () => {
+    const element = customElements.get('foxy-nucleon');
+    expect(element).to.equal(NucleonElement);
+  });
+
+  it('imports and defines foxy-attribute-card', () => {
+    const element = customElements.get('foxy-attribute-card');
+    expect(element).to.equal(AttributeCard);
+  });
+
+  it('imports and defines foxy-attribute-form', () => {
+    const element = customElements.get('foxy-attribute-form');
+    expect(element).to.equal(AttributeForm);
+  });
+
+  it('imports and defines foxy-form-dialog', () => {
+    const element = customElements.get('foxy-form-dialog');
+    expect(element).to.equal(FormDialog);
+  });
+
+  it('imports and defines foxy-item-card', () => {
+    const element = customElements.get('foxy-item-card');
+    expect(element).to.equal(ItemCard);
+  });
+
+  it('imports and defines foxy-i18n', () => {
+    const element = customElements.get('foxy-i18n');
+    expect(element).to.equal(I18n);
+  });
+
+  it('imports and defines itself as foxy-subscription-form', () => {
+    expect(customElements.get('foxy-subscription-form')).to.equal(Form);
+  });
+
+  it('extends InternalForm', () => {
+    expect(new Form()).to.be.instanceOf(InternalForm);
+  });
+
+  it('has a default i18n namespace "subscription-form"', () => {
+    expect(Form).to.have.property('defaultNS', 'subscription-form');
+    expect(new Form()).to.have.property('ns', 'subscription-form');
+  });
+
+  it('has a reactive property "getTransactionPageHref"', () => {
+    type Data = Resource<Rels.Transaction>;
+    const data = { _links: { 'fx:receipt': { href: 'test' } } } as unknown as Data;
+    const definition = { attribute: false };
+    expect(Form).to.have.deep.nested.property('properties.getTransactionPageHref', definition);
+    expect(new Form()).to.have.property('getTransactionPageHref');
+    expect(new Form().getTransactionPageHref('', data)).to.equal('test');
+  });
+
+  it('has a reactive property "customerAddresses"', () => {
+    const definition = { attribute: 'customer-addresses' };
+    expect(Form).to.have.deep.nested.property('properties.customerAddresses', definition);
+    expect(new Form()).to.have.property('customerAddresses', null);
+  });
+
+  it('has a reactive property "itemCategories"', () => {
+    const definition = { attribute: 'item-categories' };
+    expect(Form).to.have.deep.nested.property('properties.itemCategories', definition);
+    expect(new Form()).to.have.property('itemCategories', null);
+  });
+
+  it('has a reactive property "localeCodes"', () => {
+    const definition = { attribute: 'locale-codes' };
+    expect(Form).to.have.deep.nested.property('properties.localeCodes', definition);
+    expect(new Form()).to.have.property('localeCodes', null);
+  });
+
+  it('has a reactive property "settings"', () => {
+    expect(Form).to.have.deep.nested.property('properties.settings', { type: Object });
+    expect(new Form()).to.have.property('settings', null);
+  });
+
+  it('has a reactive property "coupons"', () => {
+    expect(Form).to.have.deep.nested.property('properties.coupons', {});
+    expect(new Form()).to.have.property('coupons', null);
   });
 
   describe('header', () => {
-    it('once loaded, renders price and frequency in title', async () => {
-      // TODO: rewrite this test
+    it('once loaded, renders price and frequency in title (intl currency symbol: true)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          subscriptions: [fromDefaults('subscriptions', { id: 0, frequency: '3w' })],
+          stores: [fromDefaults('stores', { id: 0, use_international_currency_symbol: true })],
+          carts: [fromDefaults('carts', { id: 0, total_order: 25.99, currency_code: 'EUR' })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(
+        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
+        '',
+        { timeout: 10000 }
+      );
+
+      const control = (await getByTestId(element, 'header-title'))!;
+      const options = { count: 3, units: 'weekly', amount: '25.99 EUR', currencyDisplay: 'code' };
+      const strOptions = JSON.stringify(options);
+
+      await waitUntil(() => control.getAttribute('options') === strOptions);
+
+      expect(control).to.have.property('localName', 'foxy-i18n');
+      expect(control).to.have.attribute('options', strOptions);
+      expect(control).to.have.attribute('lang', 'es');
+      expect(control).to.have.attribute('key', 'price_recurring');
+      expect(control).to.have.attribute('ns', 'subscription-form');
     });
 
-    it('once loaded, renders price and frequency for .5m subscriptions in title', async () => {
-      // TODO: rewrite this test
+    it('once loaded, renders price and frequency in title (intl currency symbol: false)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          subscriptions: [fromDefaults('subscriptions', { id: 0, frequency: '3w' })],
+          stores: [fromDefaults('stores', { id: 0, use_international_currency_symbol: false })],
+          carts: [fromDefaults('carts', { id: 0, total_order: 25.99, currency_code: 'EUR' })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(
+        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
+        '',
+        { timeout: 10000 }
+      );
+
+      const control = (await getByTestId(element, 'header-title'))!;
+      const options = { count: 3, units: 'weekly', amount: '25.99 EUR', currencyDisplay: 'symbol' };
+      const strOptions = JSON.stringify(options);
+
+      await waitUntil(() => control.getAttribute('options') === strOptions);
+
+      expect(control).to.have.property('localName', 'foxy-i18n');
+      expect(control).to.have.attribute('options', JSON.stringify(options));
+      expect(control).to.have.attribute('lang', 'es');
+      expect(control).to.have.attribute('key', 'price_recurring');
+      expect(control).to.have.attribute('ns', 'subscription-form');
+    });
+
+    it('once loaded, renders price and frequency in title (frequency: .5m)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          subscriptions: [fromDefaults('subscriptions', { id: 0, frequency: '.5m' })],
+          stores: [fromDefaults('stores', { id: 0, use_international_currency_symbol: false })],
+          carts: [fromDefaults('carts', { id: 0, total_order: 25.99, currency_code: 'EUR' })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(
+        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
+        '',
+        { timeout: 10000 }
+      );
+
+      const control = (await getByTestId(element, 'header-title'))!;
+      const options = {
+        count: 0.5,
+        units: 'monthly',
+        amount: '25.99 EUR',
+        currencyDisplay: 'symbol',
+      };
+
+      const strOptions = JSON.stringify(options);
+      await waitUntil(() => control.getAttribute('options') === strOptions);
+
+      expect(control).to.have.property('localName', 'foxy-i18n');
+      expect(control).to.have.attribute('options', JSON.stringify(options));
+      expect(control).to.have.attribute('lang', 'es');
+      expect(control).to.have.attribute('key', 'price_twice_a_month');
+      expect(control).to.have.attribute('ns', 'subscription-form');
+    });
+
+    it('once loaded, renders price and frequency in title (currency in custom template set)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          property_helpers: [
+            {
+              id: 0,
+              values: { en_AU: 'English locale for Australia (Currency: AUD:$)' },
+              message: '',
+            },
+          ],
+          subscriptions: [fromDefaults('subscriptions', { id: 0, frequency: '3w' })],
+          template_sets: [fromDefaults('template_sets', { id: 0, locale_code: 'en_AU' })],
+          stores: [fromDefaults('stores', { id: 0, use_international_currency_symbol: true })],
+          carts: [
+            fromDefaults('carts', {
+              id: 0,
+              total_order: 25.99,
+              template_set_id: 0,
+              template_set_uri: 'https://demo.api/hapi/template_sets/0',
+            }),
+          ],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          locale-codes="https://demo.api/hapi/property_helpers/0"
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(
+        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
+        '',
+        { timeout: 10000 }
+      );
+
+      const control = (await getByTestId(element, 'header-title'))!;
+      const options = { count: 3, units: 'weekly', amount: '25.99 AUD', currencyDisplay: 'code' };
+      const strOptions = JSON.stringify(options);
+      await waitUntil(() => control.getAttribute('options') === strOptions);
+
+      expect(control).to.have.property('localName', 'foxy-i18n');
+      expect(control).to.have.attribute('options', JSON.stringify(options));
+      expect(control).to.have.attribute('lang', 'es');
+      expect(control).to.have.attribute('key', 'price_recurring');
+      expect(control).to.have.attribute('ns', 'subscription-form');
+    });
+
+    it('once loaded, renders price and frequency in title (currency in default template set)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          property_helpers: [
+            {
+              id: 0,
+              values: { en_AU: 'English locale for Australia (Currency: AUD:$)' },
+              message: '',
+            },
+          ],
+          subscriptions: [fromDefaults('subscriptions', { id: 0, frequency: '3w' })],
+          template_sets: [
+            fromDefaults('template_sets', { id: 123, code: 'DEFAULT', locale_code: 'en_AU' }),
+          ],
+          stores: [fromDefaults('stores', { id: 0, use_international_currency_symbol: true })],
+          carts: [fromDefaults('carts', { id: 0, total_order: 25.99 })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          locale-codes="https://demo.api/hapi/property_helpers/0"
+          href="https://demo.api/hapi/subscriptions/0"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(
+        () => !!element.renderRoot.querySelector('[data-testid="header-title"]'),
+        '',
+        { timeout: 10000 }
+      );
+
+      const control = (await getByTestId(element, 'header-title'))!;
+      const options = { count: 3, units: 'weekly', amount: '25.99 AUD', currencyDisplay: 'code' };
+      const strOptions = JSON.stringify(options);
+      await waitUntil(() => control.getAttribute('options') === strOptions);
+
+      expect(control).to.have.property('localName', 'foxy-i18n');
+      expect(control).to.have.attribute('options', JSON.stringify(options));
+      expect(control).to.have.attribute('lang', 'es');
+      expect(control).to.have.attribute('key', 'price_recurring');
+      expect(control).to.have.attribute('ns', 'subscription-form');
     });
 
     it('once loaded, renders a special status for failed subscriptions in subtitle', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const date = new Date().toISOString();
       const data = { ...(await getTestData<Data>(href)), first_failed_transaction_date: date };
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
@@ -63,7 +427,7 @@ describe('SubscriptionForm', () => {
       data.first_failed_transaction_date = null;
       data.end_date = new Date(Date.now() + 86400000).toISOString();
 
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
@@ -83,7 +447,7 @@ describe('SubscriptionForm', () => {
       data.first_failed_transaction_date = null;
       data.end_date = new Date(2020, 0, 1).toISOString();
 
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
@@ -103,7 +467,7 @@ describe('SubscriptionForm', () => {
       data.first_failed_transaction_date = null;
       data.end_date = null;
 
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
@@ -125,7 +489,7 @@ describe('SubscriptionForm', () => {
       data.is_active = false;
       data.end_date = null;
 
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
@@ -139,20 +503,20 @@ describe('SubscriptionForm', () => {
 
     it('is visible by default', async () => {
       const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
 
       expect(await getByTestId(element, 'header')).to.exist;
     });
 
     it('is hidden when form is hidden', async () => {
       const layout = html`<foxy-subscription-form hidden></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
 
       expect(await getByTestId(element, 'header')).not.to.exist;
     });
 
     it('is hidden when hiddencontrols includes "header"', async () => {
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form hiddencontrols="header"></foxy-subscription-form>
       `);
 
@@ -161,14 +525,14 @@ describe('SubscriptionForm', () => {
 
     it('renders "header:before" slot by default', async () => {
       const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       expect(await getByName(element, 'header:before')).to.have.property('localName', 'slot');
     });
 
     it('replaces "header:before" slot with template "header:before" if available', async () => {
       const name = 'header:before';
       const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form>
           <template slot=${name}>${unsafeHTML(value)}</template>
         </foxy-subscription-form>
@@ -183,14 +547,14 @@ describe('SubscriptionForm', () => {
 
     it('renders "header:after" slot by default', async () => {
       const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       expect(await getByName(element, 'header:after')).to.have.property('localName', 'slot');
     });
 
     it('replaces "header:after" slot with template "header:after" if available', async () => {
       const name = 'header:after';
       const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form>
           <template slot=${name}>${unsafeHTML(value)}</template>
         </foxy-subscription-form>
@@ -206,25 +570,63 @@ describe('SubscriptionForm', () => {
 
   describe('items', () => {
     it('once loaded, renders subscription items', async () => {
-      // TODO: rewrite this test
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          subscriptions: [fromDefaults('subscriptions', { id: 0 })],
+          stores: [fromDefaults('stores', { id: 0 })],
+          carts: [fromDefaults('carts', { id: 0 })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(
+        () => {
+          const control = element.renderRoot.querySelector('[infer="items"]');
+          return !!control?.hasAttribute('first');
+        },
+        '',
+        {
+          timeout: 10000,
+        }
+      );
+
+      const items = (await getByTestId(element, 'items'))!;
+      const control = items.querySelector('[infer="items"]')!;
+
+      expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
+      expect(control).to.have.attribute('limit', '5');
+      expect(control).to.have.attribute('item', 'foxy-item-card');
+      expect(control).to.have.attribute(
+        'first',
+        'https://demo.api/hapi/items?cart_id=0&zoom=item_options'
+      );
     });
 
     it('is visible by default', async () => {
       const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
 
       expect(await getByTestId(element, 'items')).to.exist;
     });
 
     it('is hidden when form is hidden', async () => {
       const layout = html`<foxy-subscription-form hidden></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
 
       expect(await getByTestId(element, 'items')).not.to.exist;
     });
 
     it('is hidden when hiddencontrols includes "items"', async () => {
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form hiddencontrols="items"></foxy-subscription-form>
       `);
 
@@ -234,7 +636,7 @@ describe('SubscriptionForm', () => {
     describe('actions', () => {
       it('renders foxy-i18n label with key "item_plural"', async () => {
         const layout = html`<foxy-subscription-form lang="es"></foxy-subscription-form>`;
-        const element = await fixture<SubscriptionForm>(layout);
+        const element = await fixture<Form>(layout);
         const control = await getByTestId(element, 'items:actions-label');
 
         expect(control).to.have.property('localName', 'foxy-i18n');
@@ -245,18 +647,18 @@ describe('SubscriptionForm', () => {
 
       it('is visible by default', async () => {
         const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-        const element = await fixture<SubscriptionForm>(layout);
+        const element = await fixture<Form>(layout);
         expect(await getByTestId(element, 'items:actions')).to.exist;
       });
 
       it('is hidden when form is hidden', async () => {
         const layout = html`<foxy-subscription-form hidden></foxy-subscription-form>`;
-        const element = await fixture<SubscriptionForm>(layout);
+        const element = await fixture<Form>(layout);
         expect(await getByTestId(element, 'items:actions')).not.to.exist;
       });
 
       it('is hidden when hiddencontrols includes "items:actions"', async () => {
-        const element = await fixture<SubscriptionForm>(html`
+        const element = await fixture<Form>(html`
           <foxy-subscription-form hiddencontrols="items:actions"></foxy-subscription-form>
         `);
 
@@ -265,7 +667,7 @@ describe('SubscriptionForm', () => {
 
       it('renders "items:actions:before" slot by default', async () => {
         const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-        const element = await fixture<SubscriptionForm>(layout);
+        const element = await fixture<Form>(layout);
         const slot = await getByName(element, 'items:actions:before');
 
         expect(slot).to.have.property('localName', 'slot');
@@ -274,7 +676,7 @@ describe('SubscriptionForm', () => {
       it('replaces "items:actions:before" slot with template "items:actions:before" if available', async () => {
         const name = 'items:actions:before';
         const value = `<p>Value of the "${name}" template.</p>`;
-        const element = await fixture<SubscriptionForm>(html`
+        const element = await fixture<Form>(html`
           <foxy-subscription-form>
             <template slot=${name}>${unsafeHTML(value)}</template>
           </foxy-subscription-form>
@@ -289,7 +691,7 @@ describe('SubscriptionForm', () => {
 
       it('renders "items:actions:after" slot by default', async () => {
         const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-        const element = await fixture<SubscriptionForm>(layout);
+        const element = await fixture<Form>(layout);
         const slot = await getByName(element, 'items:actions:after');
 
         expect(slot).to.have.property('localName', 'slot');
@@ -298,7 +700,7 @@ describe('SubscriptionForm', () => {
       it('replaces "items:actions:after" slot with template "items:actions:after" if available', async () => {
         const name = 'items:actions:after';
         const value = `<p>Value of the "${name}" template.</p>`;
-        const element = await fixture<SubscriptionForm>(html`
+        const element = await fixture<Form>(html`
           <foxy-subscription-form>
             <template slot=${name}>${unsafeHTML(value)}</template>
           </foxy-subscription-form>
@@ -313,450 +715,12 @@ describe('SubscriptionForm', () => {
     });
   });
 
-  describe('end-date', () => {
-    it('has foxy-i18n with key "end_subscription" for caption', async () => {
-      const layout = html`<foxy-subscription-form lang="es"></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      const control = await getByTestId(element, 'end-date');
-      const caption = control!.querySelector('foxy-i18n');
-
-      expect(caption).to.have.attribute('lang', 'es');
-      expect(caption).to.have.attribute('key', 'end_subscription');
-      expect(caption).to.have.attribute('ns', 'subscription-form');
-    });
-
-    it('renders disabled by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      expect(await getByTestId(element, 'end-date')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if form is disabled', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-subscription-form .data=${data} disabled></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-
-      expect(await getByTestId(element, 'end-date')).to.have.attribute('disabled');
-    });
-
-    it('renders disabled if disabledcontrols includes "end-date"', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${await getTestData<Data>(href)} disabledcontrols="end-date">
-        </foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'end-date')).to.have.attribute('disabled');
-    });
-
-    it('is visible by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-
-      expect(await getByTestId(element, 'end-date')).to.exist;
-    });
-
-    it('is hidden when form is hidden', async () => {
-      const layout = html`<foxy-subscription-form hidden></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-
-      expect(await getByTestId(element, 'end-date')).not.to.exist;
-    });
-
-    it('is hidden when hiddencontrols includes "end-date"', async () => {
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form hiddencontrols="end-date"></foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'end-date')).not.to.exist;
-    });
-
-    it('renders "end-date:before" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      expect(await getByName(element, 'end-date:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "end-date:before" slot with template "end-date:before" if available', async () => {
-      const name = 'end-date:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "end-date:after" slot by default', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      expect(await getByName(element, 'end-date:after')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "end-date:after" slot with template "end-date:after" if available', async () => {
-      const name = 'end-date:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('opens cancellation dialog on click', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      const control = await getByTestId(element, 'end-date');
-      const dialog = await getByTestId<FormDialog>(element, 'cancellation-form');
-      const showMethod = stub(dialog!, 'show');
-
-      control!.dispatchEvent(new CustomEvent('click'));
-
-      expect(dialog).to.have.attribute('header', 'end_subscription');
-      expect(dialog).to.have.attribute('parent', element.parent);
-      expect(dialog).to.have.attribute('lang', element.lang);
-      expect(dialog).to.have.attribute('href', element.href);
-      expect(dialog).to.have.attribute('ns', element.ns);
-
-      expect(showMethod).to.have.been.called;
-    });
-
-    it('passes disabled selector to the cancellation dialog', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      const control = await getByTestId(element, 'cancellation-form');
-
-      expect(control).to.have.attribute('disabledcontrols', '');
-
-      element.setAttribute('disabled', '');
-      await element.updateComplete;
-
-      expect(control).to.have.attribute('disabledcontrols', 'not=*');
-
-      element.removeAttribute('disabled');
-      element.setAttribute('disabledcontrols', 'end-date:form:submit');
-      await element.updateComplete;
-
-      expect(control).to.have.attribute('disabledcontrols', 'submit');
-    });
-
-    it('passes readonly selector to the cancellation dialog', async () => {
-      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      const control = await getByTestId(element, 'cancellation-form');
-
-      expect(control).to.have.attribute('readonlycontrols', '');
-
-      element.setAttribute('readonly', '');
-      await element.updateComplete;
-
-      expect(control).to.have.attribute('readonlycontrols', 'not=*');
-
-      element.removeAttribute('readonly');
-      element.setAttribute('readonlycontrols', 'end-date:form:end-date');
-      await element.updateComplete;
-
-      expect(control).to.have.attribute('readonlycontrols', 'end-date');
-    });
-
-    it('passes hidden selector to the cancellation dialog', async () => {
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form hiddencontrols="end-date:form:submit"></foxy-subscription-form>
-      `);
-
-      const control = await getByTestId(element, 'cancellation-form');
-      expect(control).to.have.attribute('hiddencontrols', 'save-button submit');
-    });
-
-    it('passes templates to the cancellation dialog', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const content = '<div>Test content of submit:before</div>';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${data}>
-          <template slot="end-date:form:submit:before">${unsafeHTML(content)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const control = await getByTestId<FormDialog>(element, 'cancellation-form');
-      expect(control!.templates).to.have.key('submit:before');
-    });
-  });
-
-  describe('next-transaction-date', () => {
-    it('is hidden when form is hidden', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-subscription-form .data=${data} hidden></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-
-      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
-    });
-
-    it('is hidden when hiddencontrols includes "next-transaction-date"', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${data} hiddencontrols="next-transaction-date">
-        </foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
-    });
-
-    it('is hidden when settings are present but the form is still loading data', async () => {
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
-    });
-
-    it('is hidden if settings prohibit next date modification', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form
-          .data=${await getTestData(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [],
-              allow_next_date_modification: false,
-            },
-          }}
-        >
-        </foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
-    });
-
-    it('is hidden when subscription is inactive', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${{ ...(await getTestData<Data>(href)), is_active: false }}>
-        </foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
-    });
-
-    it('is hidden when subscription has ended', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form
-          .data=${{ ...(await getTestData<Data>(href)), end_date: '2012-08-10T11:58:54-0700' }}
-        >
-        </foxy-subscription-form>
-      `);
-
-      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
-    });
-
-    it('renders "next-transaction-date:before" slot when appropriate', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      const slot = await getByName(element, 'next-transaction-date:before');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "next-transaction-date:before" slot with template "next-transaction-date:before" if available', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const name = 'next-transaction-date:before';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "next-transaction-date:after" slot when appropriate', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
-      const slot = await getByName(element, 'next-transaction-date:after');
-
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "next-transaction-date:after" slot with template "next-transaction-date:after" if available', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const name = 'next-transaction-date:after';
-      const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${data}>
-          <template slot=${name}>${unsafeHTML(value)}</template>
-        </foxy-subscription-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, name);
-      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders foxy-i18n label with key "next_transaction_date" when visible', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form lang="es" .data=${data}> </foxy-subscription-form>
-      `);
-
-      const label = await getByKey(element, 'next_transaction_date');
-
-      expect(label).to.exist;
-      expect(label).to.have.attribute('lang', 'es');
-      expect(label).to.have.attribute('ns', 'subscription-form');
-    });
-
-    it('when visible, renders foxy-internal-calendar bound to form.next_transaction_date', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      data.next_transaction_date = new Date(Date.now() + 84600000).toISOString();
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
-      `);
-
-      const control = (await getByTestId(element, 'next-transaction-date'))!;
-      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
-
-      expect(calendar).to.have.attribute('lang', 'es');
-      expect(calendar).to.have.attribute('value', data.next_transaction_date);
-      expect(calendar).to.have.attribute('start', data.next_transaction_date.substr(0, 10));
-
-      const newValue = new Date(Date.now() + 172800000).toISOString();
-      calendar!.value = newValue;
-      calendar!.dispatchEvent(new CustomEvent('change'));
-
-      expect(element.form).to.have.property('next_transaction_date', newValue);
-    });
-
-    it('is disabled when the form is disabled', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${data} disabled></foxy-subscription-form>
-      `);
-
-      const control = (await getByTestId(element, 'next-transaction-date'))!;
-      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
-
-      expect(calendar).to.have.attribute('disabled');
-    });
-
-    it('is disabled when disabledcontrols includes "next-transaction-date"', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form
-          .data=${await getTestData<Data>(href)}
-          disabledcontrols="next-transaction-date"
-        >
-        </foxy-subscription-form>
-      `);
-
-      const control = (await getByTestId(element, 'next-transaction-date'))!;
-      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
-
-      expect(calendar).to.have.attribute('disabled');
-    });
-
-    it('is readonly when the form is disabled', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const data = await getTestData<Data>(href);
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${data} readonly></foxy-subscription-form>
-      `);
-
-      const control = (await getByTestId(element, 'next-transaction-date'))!;
-      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
-
-      expect(calendar).to.have.attribute('readonly');
-    });
-
-    it('is readonly when readonlycontrols includes "next-transaction-date"', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form
-          .data=${await getTestData<Data>(href)}
-          readonlycontrols="next-transaction-date"
-        >
-        </foxy-subscription-form>
-      `);
-
-      const control = (await getByTestId(element, 'next-transaction-date'))!;
-      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
-
-      expect(calendar).to.have.attribute('readonly');
-    });
-
-    it('disables dates matching rules in the settings, if provided', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form
-          .data=${await getTestData<Data>(href)}
-          .settings=${{
-            subscriptions: {
-              allow_frequency_modification: [],
-              allow_next_date_modification: [{ jsonata_query: '*', min: '1y' }],
-            },
-          }}
-        >
-        </foxy-subscription-form>
-      `);
-
-      const control = (await getByTestId(element, 'next-transaction-date'))!;
-      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
-
-      expect(calendar!.checkAvailability(new Date(Date.now() + 84600000))).to.be.false;
-    });
-
-    it('disables past dates if no settings were provided', async () => {
-      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
-        <foxy-subscription-form .data=${await getTestData<Data>(href)}></foxy-subscription-form>
-      `);
-
-      const control = (await getByTestId(element, 'next-transaction-date'))!;
-      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
-
-      expect(calendar!.checkAvailability(new Date(Date.now() - 84600000))).to.be.false;
-    });
-  });
-
   describe('frequency', () => {
     it('is hidden when form is hidden', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-subscription-form .data=${data} hidden></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
 
       expect(await getByTestId(element, 'frequency')).not.to.exist;
     });
@@ -764,7 +728,7 @@ describe('SubscriptionForm', () => {
     it('is hidden when hiddencontrols includes "frequency"', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form .data=${data} hiddencontrols="frequency"> </foxy-subscription-form>
       `);
 
@@ -772,7 +736,7 @@ describe('SubscriptionForm', () => {
     });
 
     it('is hidden when settings are present but the form is still loading data', async () => {
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
       `);
 
@@ -781,7 +745,7 @@ describe('SubscriptionForm', () => {
 
     it('is hidden if settings prohibit frequency modification', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form
           .data=${await getTestData(href)}
           .settings=${{
@@ -799,7 +763,7 @@ describe('SubscriptionForm', () => {
 
     it('is hidden when subscription is inactive', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form .data=${{ ...(await getTestData<Data>(href)), is_active: false }}>
         </foxy-subscription-form>
       `);
@@ -809,7 +773,7 @@ describe('SubscriptionForm', () => {
 
     it('is hidden when subscription has ended', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form
           .data=${{ ...(await getTestData<Data>(href)), end_date: '2012-08-10T11:58:54-0700' }}
         >
@@ -823,7 +787,7 @@ describe('SubscriptionForm', () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       const slot = await getByName(element, 'frequency:before');
 
       expect(slot).to.have.property('localName', 'slot');
@@ -834,7 +798,7 @@ describe('SubscriptionForm', () => {
       const data = await getTestData<Data>(href);
       const name = 'frequency:before';
       const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form .data=${data}>
           <template slot=${name}>${unsafeHTML(value)}</template>
         </foxy-subscription-form>
@@ -851,7 +815,7 @@ describe('SubscriptionForm', () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
       const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       const slot = await getByName(element, 'frequency:after');
 
       expect(slot).to.have.property('localName', 'slot');
@@ -862,7 +826,7 @@ describe('SubscriptionForm', () => {
       const data = await getTestData<Data>(href);
       const name = 'frequency:after';
       const value = `<p>Value of the "${name}" template.</p>`;
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form .data=${data}>
           <template slot=${name}>${unsafeHTML(value)}</template>
         </foxy-subscription-form>
@@ -878,7 +842,7 @@ describe('SubscriptionForm', () => {
     it('when visible, renders radio list with common options by default', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
       `);
 
@@ -907,7 +871,7 @@ describe('SubscriptionForm', () => {
     it('when visible, renders radio list if settings have up to 4 frequency options', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const values = ['1y', '1m', '.5m', '1w'];
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form
           .data=${await getTestData<Data>(href)}
           .settings=${{
@@ -940,7 +904,7 @@ describe('SubscriptionForm', () => {
     it('when visible, renders dropdown if settings have 5+ frequency options', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const values = ['2y', '1y', '4m', '2w', '5d'];
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form
           .data=${await getTestData<Data>(href)}
           .settings=${{
@@ -967,7 +931,7 @@ describe('SubscriptionForm', () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = { ...(await getTestData<Data>(href)), frequency: '3y' };
       const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       const list = await getByTestId<Choice>(element, 'frequency');
 
       expect(list).to.have.property('value', '3y');
@@ -981,7 +945,7 @@ describe('SubscriptionForm', () => {
     it('binds dropdown value to form.frequency', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const values = ['2y', '1y', '4m', '2w', '5d'];
-      const element = await fixture<SubscriptionForm>(html`
+      const element = await fixture<Form>(html`
         <foxy-subscription-form
           .data=${{ ...(await getTestData<Data>(href)), frequency: '4m' }}
           .settings=${{
@@ -1018,7 +982,7 @@ describe('SubscriptionForm', () => {
 
       it(`${target} is disabled if form is disabled`, async () => {
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-        const element = await fixture<SubscriptionForm>(html`
+        const element = await fixture<Form>(html`
           <foxy-subscription-form
             disabled
             .data=${{ ...(await getTestData<Data>(href)), frequency: '4m' }}
@@ -1032,7 +996,7 @@ describe('SubscriptionForm', () => {
 
       it(`${target} is disabled if disabledcontrols includes "frequency"`, async () => {
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-        const element = await fixture<SubscriptionForm>(html`
+        const element = await fixture<Form>(html`
           <foxy-subscription-form
             disabledcontrols="frequency"
             .data=${{ ...(await getTestData<Data>(href)), frequency: '4m' }}
@@ -1046,7 +1010,7 @@ describe('SubscriptionForm', () => {
 
       it(`${target} is readonly if form is readonly`, async () => {
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-        const element = await fixture<SubscriptionForm>(html`
+        const element = await fixture<Form>(html`
           <foxy-subscription-form
             readonly
             .data=${{ ...(await getTestData<Data>(href)), frequency: '4m' }}
@@ -1060,7 +1024,7 @@ describe('SubscriptionForm', () => {
 
       it(`${target} is readonly if readonlycontrols includes "frequency"`, async () => {
         const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
-        const element = await fixture<SubscriptionForm>(html`
+        const element = await fixture<Form>(html`
           <foxy-subscription-form
             readonlycontrols="frequency"
             .data=${{ ...(await getTestData<Data>(href)), frequency: '4m' }}
@@ -1074,9 +1038,866 @@ describe('SubscriptionForm', () => {
     });
   });
 
+  describe('start-date', () => {
+    it('is hidden when form is hidden', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data} hidden></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+
+      expect(await getByTestId(element, 'start-date')).not.to.exist;
+    });
+
+    it('is hidden when hiddencontrols includes "start-date"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data} hiddencontrols="start-date"> </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'start-date')).not.to.exist;
+    });
+
+    it('is hidden when settings are present but the form is still loading data', async () => {
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'start-date')).not.to.exist;
+    });
+
+    it('is hidden if settings prohibit next date modification', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${await getTestData(href)}
+          .settings=${{
+            subscriptions: {
+              allow_frequency_modification: [],
+              allow_next_date_modification: false,
+            },
+          }}
+        >
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'start-date')).not.to.exist;
+    });
+
+    it('is hidden when subscription is inactive', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${{ ...(await getTestData<Data>(href)), is_active: false }}>
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'start-date')).not.to.exist;
+    });
+
+    it('is hidden when subscription has ended', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${{ ...(await getTestData<Data>(href)), end_date: '2012-08-10T11:58:54-0700' }}
+        >
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'start-date')).not.to.exist;
+    });
+
+    it('renders "start-date:before" slot when appropriate', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const slot = await getByName(element, 'start-date:before');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "start-date:before" slot with template "start-date:before" if available', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const name = 'start-date:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "start-date:after" slot when appropriate', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const slot = await getByName(element, 'start-date:after');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "start-date:after" slot with template "start-date:after" if available', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const name = 'start-date:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders foxy-i18n label with key "start_date" when visible', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form lang="es" .data=${data}> </foxy-subscription-form>
+      `);
+
+      const label = await getByKey(element, 'start_date');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'subscription-form');
+    });
+
+    it('when visible, renders foxy-internal-calendar bound to form.start_date', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      data.start_date = new Date(Date.now() + 84600000).toISOString();
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'start-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('lang', 'es');
+      expect(calendar).to.have.attribute('value', data.start_date);
+      expect(calendar).to.have.attribute('start', data.start_date.substr(0, 10));
+
+      const newValue = new Date(Date.now() + 172800000).toISOString();
+      calendar!.value = newValue;
+      calendar!.dispatchEvent(new CustomEvent('change'));
+
+      expect(element.form).to.have.property('start_date', newValue);
+    });
+
+    it('is disabled when the form is disabled', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data} disabled></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'start-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes "start-date"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${await getTestData<Data>(href)}
+          disabledcontrols="start-date"
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'start-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('disabled');
+    });
+
+    it('is readonly when the form is disabled', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data} readonly></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'start-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes "start-date"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${await getTestData<Data>(href)}
+          readonlycontrols="start-date"
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'start-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('readonly');
+    });
+
+    it('disables past dates if no settings were provided', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${await getTestData<Data>(href)}></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'start-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar!.checkAvailability(new Date(Date.now() - 84600000))).to.be.false;
+    });
+  });
+
+  describe('next-transaction-date', () => {
+    it('is hidden when form is hidden', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data} hidden></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+
+      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
+    });
+
+    it('is hidden when hiddencontrols includes "next-transaction-date"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data} hiddencontrols="next-transaction-date">
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
+    });
+
+    it('is hidden when settings are present but the form is still loading data', async () => {
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form href="/" .settings=${{}}></foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
+    });
+
+    it('is hidden if settings prohibit next date modification', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${await getTestData(href)}
+          .settings=${{
+            subscriptions: {
+              allow_frequency_modification: [],
+              allow_next_date_modification: false,
+            },
+          }}
+        >
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
+    });
+
+    it('is hidden when subscription is inactive', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${{ ...(await getTestData<Data>(href)), is_active: false }}>
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
+    });
+
+    it('is hidden when subscription has ended', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${{ ...(await getTestData<Data>(href)), end_date: '2012-08-10T11:58:54-0700' }}
+        >
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'next-transaction-date')).not.to.exist;
+    });
+
+    it('renders "next-transaction-date:before" slot when appropriate', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const slot = await getByName(element, 'next-transaction-date:before');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "next-transaction-date:before" slot with template "next-transaction-date:before" if available', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const name = 'next-transaction-date:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "next-transaction-date:after" slot when appropriate', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const slot = await getByName(element, 'next-transaction-date:after');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "next-transaction-date:after" slot with template "next-transaction-date:after" if available', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const name = 'next-transaction-date:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders foxy-i18n label with key "next_transaction_date" when visible', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form lang="es" .data=${data}> </foxy-subscription-form>
+      `);
+
+      const label = await getByKey(element, 'next_transaction_date');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('lang', 'es');
+      expect(label).to.have.attribute('ns', 'subscription-form');
+    });
+
+    it('when visible, renders foxy-internal-calendar bound to form.next_transaction_date', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      data.next_transaction_date = new Date(Date.now() + 84600000).toISOString();
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('lang', 'es');
+      expect(calendar).to.have.attribute('value', data.next_transaction_date);
+      expect(calendar).to.have.attribute('start', data.next_transaction_date.substr(0, 10));
+
+      const newValue = new Date(Date.now() + 172800000).toISOString();
+      calendar!.value = newValue;
+      calendar!.dispatchEvent(new CustomEvent('change'));
+
+      expect(element.form).to.have.property('next_transaction_date', newValue);
+    });
+
+    it('is disabled when the form is disabled', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data} disabled></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('disabled');
+    });
+
+    it('is disabled when disabledcontrols includes "next-transaction-date"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${await getTestData<Data>(href)}
+          disabledcontrols="next-transaction-date"
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('disabled');
+    });
+
+    it('is readonly when the form is disabled', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data} readonly></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('readonly');
+    });
+
+    it('is readonly when readonlycontrols includes "next-transaction-date"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${await getTestData<Data>(href)}
+          readonlycontrols="next-transaction-date"
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar).to.have.attribute('readonly');
+    });
+
+    it('disables dates matching rules in the settings, if provided', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .data=${await getTestData<Data>(href)}
+          .settings=${{
+            subscriptions: {
+              allow_frequency_modification: [],
+              allow_next_date_modification: [{ jsonata_query: '*', min: '1y' }],
+            },
+          }}
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar!.checkAvailability(new Date(Date.now() + 84600000))).to.be.false;
+    });
+
+    it('disables past dates if no settings were provided', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${await getTestData<Data>(href)}></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'next-transaction-date'))!;
+      const calendar = await getByTag<InternalCalendar>(control, 'foxy-internal-calendar');
+
+      expect(calendar!.checkAvailability(new Date(Date.now() - 84600000))).to.be.false;
+    });
+  });
+
+  describe('past-due-amount', () => {
+    it('renders number control (currency comes from transaction template)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          subscriptions: [fromDefaults('subscriptions', { id: 0 })],
+          stores: [fromDefaults('stores', { id: 0 })],
+          carts: [fromDefaults('carts', { id: 0, currency_code: 'EUR' })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = element.renderRoot.querySelector('[infer="past-due-amount"]');
+      await waitUntil(() => !!control?.hasAttribute('suffix'), '', { timeout: 10000 });
+
+      expect(control).to.be.instanceOf(InternalNumberControl);
+      expect(control).to.have.attribute('suffix', 'EUR');
+      expect(control).to.have.attribute('min', '0');
+    });
+
+    it('renders number control (currency comes from custom template set)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          property_helpers: [
+            {
+              id: 0,
+              values: { en_AU: 'English locale for Australia (Currency: AUD:$)' },
+              message: '',
+            },
+          ],
+          subscriptions: [fromDefaults('subscriptions', { id: 0 })],
+          template_sets: [fromDefaults('template_sets', { id: 0, locale_code: 'en_AU' })],
+          stores: [fromDefaults('stores', { id: 0 })],
+          carts: [
+            fromDefaults('carts', {
+              id: 0,
+              template_set_id: 0,
+              template_set_uri: 'https://demo.api/hapi/template_sets/0',
+            }),
+          ],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          locale-codes="https://demo.api/hapi/property_helpers/0"
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = element.renderRoot.querySelector('[infer="past-due-amount"]');
+      await waitUntil(() => !!control?.hasAttribute('suffix'), '', { timeout: 10000 });
+
+      expect(control).to.be.instanceOf(InternalNumberControl);
+      expect(control).to.have.attribute('suffix', 'AUD');
+      expect(control).to.have.attribute('min', '0');
+    });
+
+    it('renders number control (currency comes from default template set)', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: {
+          property_helpers: [
+            {
+              id: 0,
+              values: { en_AU: 'English locale for Australia (Currency: AUD:$)' },
+              message: '',
+            },
+          ],
+          subscriptions: [fromDefaults('subscriptions', { id: 0 })],
+          template_sets: [
+            fromDefaults('template_sets', { id: 0, code: 'DEFAULT', locale_code: 'en_AU' }),
+          ],
+          stores: [fromDefaults('stores', { id: 0 })],
+          carts: [fromDefaults('carts', { id: 0 })],
+        },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          locale-codes="https://demo.api/hapi/property_helpers/0"
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = element.renderRoot.querySelector('[infer="past-due-amount"]');
+      await waitUntil(() => !!control?.hasAttribute('suffix'), '', { timeout: 10000 });
+
+      expect(control).to.be.instanceOf(InternalNumberControl);
+      expect(control).to.have.attribute('suffix', 'AUD');
+      expect(control).to.have.attribute('min', '0');
+    });
+  });
+
+  describe('attributes', () => {
+    it('renders async list control', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: { subscriptions: [fromDefaults('subscriptions', { id: 0 })] },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(() => !!element.data, '', { timeout: 5000 });
+      const control = element.renderRoot.querySelector('[infer="attributes"]');
+
+      expect(control).to.be.instanceOf(InternalAsyncListControl);
+      expect(control).to.have.attribute(
+        'first',
+        'https://demo.api/hapi/subscription_attributes?subscription_id=0'
+      );
+      expect(control).to.have.attribute('limit', '5');
+      expect(control).to.have.attribute('form', 'foxy-attribute-form');
+      expect(control).to.have.attribute('item', 'foxy-attribute-card');
+    });
+  });
+
   describe('transactions', () => {
-    it('renders an async list with transactions', async () => {
-      // TODO rewrite this test
+    it('renders async list control', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: { subscriptions: [fromDefaults('subscriptions', { id: 0 })] },
+        links,
+      });
+
+      const getTransactionPageHref = () => '';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          .getTransactionPageHref=${getTransactionPageHref}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(() => !!element.data, '', { timeout: 5000 });
+      const control = element.renderRoot.querySelector('[infer="transactions"]');
+
+      expect(control).to.be.instanceOf(InternalAsyncListControl);
+      expect(control).to.have.attribute(
+        'first',
+        'https://demo.api/hapi/transactions?subscription_id=0&order=transaction_date+desc&zoom=items'
+      );
+      expect(control).to.have.attribute('limit', '5');
+      expect(control).to.have.attribute('item', 'foxy-transaction-card');
+      expect(control).to.have.property('getPageHref', getTransactionPageHref);
+    });
+  });
+
+  describe('timestamps', () => {
+    it('renders timestamps control', async () => {
+      const router = createBaseRouter({
+        defaults,
+        dataset: { subscriptions: [fromDefaults('subscriptions', { id: 0 })] },
+        links,
+      });
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          href="https://demo.api/hapi/subscriptions/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-subscription-form>
+      `);
+
+      await waitUntil(() => !!element.data, '', { timeout: 5000 });
+
+      const control = element.renderRoot.querySelector('[infer="timestamps"]');
+      expect(control).to.be.instanceOf(InternalTimestampsControl);
+    });
+  });
+
+  describe('end-date', () => {
+    it('has foxy-i18n with key "end_subscription" for caption', async () => {
+      const layout = html`<foxy-subscription-form lang="es"></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const control = await getByTestId(element, 'end-date');
+      const caption = control!.querySelector('foxy-i18n');
+
+      expect(caption).to.have.attribute('lang', 'es');
+      expect(caption).to.have.attribute('key', 'end_subscription');
+      expect(caption).to.have.attribute('ns', 'subscription-form');
+    });
+
+    it('renders disabled by default', async () => {
+      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      expect(await getByTestId(element, 'end-date')).to.have.attribute('disabled');
+    });
+
+    it('renders disabled if form is disabled', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data} disabled></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+
+      expect(await getByTestId(element, 'end-date')).to.have.attribute('disabled');
+    });
+
+    it('renders disabled if disabledcontrols includes "end-date"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${await getTestData<Data>(href)} disabledcontrols="end-date">
+        </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'end-date')).to.have.attribute('disabled');
+    });
+
+    it('is visible by default', async () => {
+      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+
+      expect(await getByTestId(element, 'end-date')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const layout = html`<foxy-subscription-form hidden></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+
+      expect(await getByTestId(element, 'end-date')).not.to.exist;
+    });
+
+    it('is hidden when hiddencontrols includes "end-date"', async () => {
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form hiddencontrols="end-date"></foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'end-date')).not.to.exist;
+    });
+
+    it('renders "end-date:before" slot by default', async () => {
+      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      expect(await getByName(element, 'end-date:before')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "end-date:before" slot with template "end-date:before" if available', async () => {
+      const name = 'end-date:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "end-date:after" slot by default', async () => {
+      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      expect(await getByName(element, 'end-date:after')).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "end-date:after" slot with template "end-date:after" if available', async () => {
+      const name = 'end-date:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('opens cancellation dialog on click', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const control = await getByTestId(element, 'end-date');
+      const dialog = await getByTestId<FormDialog>(element, 'cancellation-form');
+      const showMethod = stub(dialog!, 'show');
+
+      control!.dispatchEvent(new CustomEvent('click'));
+
+      expect(dialog).to.have.attribute('header', 'end_subscription');
+      expect(dialog).to.have.attribute('parent', element.parent);
+      expect(dialog).to.have.attribute('lang', element.lang);
+      expect(dialog).to.have.attribute('href', element.href);
+      expect(dialog).to.have.attribute('ns', element.ns);
+
+      expect(showMethod).to.have.been.called;
+    });
+
+    it('passes disabled selector to the cancellation dialog', async () => {
+      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const control = await getByTestId(element, 'cancellation-form');
+
+      expect(control).to.have.attribute('disabledcontrols', '');
+
+      element.setAttribute('disabled', '');
+      await element.updateComplete;
+
+      expect(control).to.have.attribute('disabledcontrols', 'not=*');
+
+      element.removeAttribute('disabled');
+      element.setAttribute('disabledcontrols', 'end-date:form:submit');
+      await element.updateComplete;
+
+      expect(control).to.have.attribute('disabledcontrols', 'submit');
+    });
+
+    it('passes readonly selector to the cancellation dialog', async () => {
+      const layout = html`<foxy-subscription-form></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const control = await getByTestId(element, 'cancellation-form');
+
+      expect(control).to.have.attribute('readonlycontrols', '');
+
+      element.setAttribute('readonly', '');
+      await element.updateComplete;
+
+      expect(control).to.have.attribute('readonlycontrols', 'not=*');
+
+      element.removeAttribute('readonly');
+      element.setAttribute('readonlycontrols', 'end-date:form:end-date');
+      await element.updateComplete;
+
+      expect(control).to.have.attribute('readonlycontrols', 'end-date');
+    });
+
+    it('passes hidden selector to the cancellation dialog', async () => {
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form hiddencontrols="end-date:form:submit"></foxy-subscription-form>
+      `);
+
+      const control = await getByTestId(element, 'cancellation-form');
+      expect(control).to.have.attribute('hiddencontrols', 'save-button submit');
+    });
+
+    it('passes templates to the cancellation dialog', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const content = '<div>Test content of submit:before</div>';
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}>
+          <template slot="end-date:form:submit:before">${unsafeHTML(content)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const control = await getByTestId<FormDialog>(element, 'cancellation-form');
+      expect(control!.templates).to.have.key('submit:before');
     });
   });
 
@@ -1092,7 +1913,7 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `;
 
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
@@ -1112,7 +1933,7 @@ describe('SubscriptionForm', () => {
         </foxy-subscription-form>
       `;
 
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;
 
@@ -1127,7 +1948,7 @@ describe('SubscriptionForm', () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData(href);
       const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
-      const element = await fixture<SubscriptionForm>(layout);
+      const element = await fixture<Form>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
 
       expect(spinnerWrapper).to.have.class('opacity-0');
