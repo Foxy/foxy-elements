@@ -1,8 +1,4 @@
-import '@polymer/iron-icons';
-import '@polymer/iron-icon';
-
 import '../../internal/InternalSandbox/index';
-
 import '../NucleonElement/index';
 import '../Spinner/index';
 
