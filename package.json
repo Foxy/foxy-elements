@@ -23,8 +23,8 @@
     "format": "npm run format:eslint && npm run format:prettier",
     "format:eslint": "eslint --ext .ts,.html . --fix --ignore-path .gitignore",
     "format:prettier": "prettier \"**/*.js\" \"**/*.ts\" --write --ignore-path .gitignore",
-    "test": "wtr",
-    "test:watch": "wtr --watch",
+    "test": "NODE_OPTIONS=--no-experimental-fetch wtr",
+    "test:watch": "NODE_OPTIONS=--no-experimental-fetch wtr --watch",
     "prepack": "npm run lint && rimraf dist && node ./.build/compile-for-npm.js && rollup -c"
   },
   "dependencies": {
