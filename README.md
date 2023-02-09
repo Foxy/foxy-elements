@@ -72,3 +72,5 @@ There's a number of useful scripts that you might need:
 - `npm run wca` generates docs for element slots and attributes;
 - `npm run generate-schemas` generates JSONSchemas for element translations based on English i18n files;
 - `npm run generate-groups` generates test groups for elements;
+
+Note: depending on the hardware, some tests may start failing with a timeout error when running the entire test suite with `npm run test`. If that happens on your machine, try running tests for individual elements instead with `npm run test -- --group element-name`.
