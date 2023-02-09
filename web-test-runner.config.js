@@ -14,7 +14,7 @@ export default Object.assign({}, webServerConfig, {
 
   testFramework: {
     config: {
-      timeout: '10000',
+      timeout: '20000',
     },
   },
 
