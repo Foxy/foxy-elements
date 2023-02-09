@@ -28,7 +28,7 @@ export class ItemOptionCard extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
-      localeCodes: { type: String, attribute: 'locale-codes' },
+      localeCodes: { attribute: 'locale-codes' },
     };
   }
 
