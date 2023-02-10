@@ -1,44 +1,24 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
-      "default": "This resource will be permanently removed. Are you sure?",
-      "type": "string"
+      "type": "string",
+      "default": "This resource will be permanently removed. Are you sure?"
     },
-    "expires": {
-      "default": "Expires",
-      "type": "string"
-    },
-    "last_4_digits": {
-      "default": "Last 4 digits",
-      "type": "string"
-    },
+    "expires": { "type": "string", "default": "Expires" },
+    "last_4_digits": { "type": "string", "default": "Last 4 digits" },
+    "unknown": { "type": "string", "default": "Unknown" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
-    },
-    "unknown": {
-      "default": "Unknown",
-      "type": "string"
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -49,6 +29,5 @@
     "last_4_digits",
     "unknown",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

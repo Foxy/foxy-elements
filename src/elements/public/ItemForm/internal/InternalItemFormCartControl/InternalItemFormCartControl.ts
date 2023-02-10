@@ -1,9 +1,9 @@
 import type { TemplateResult } from 'lit-html';
 
-import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
+import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { html } from 'lit-html';
 
-export class InternalItemFormCartControl extends InternalControl {
+export class InternalItemFormCartControl extends InternalEditableControl {
   infer = 'cart';
 
   renderControl(): TemplateResult {

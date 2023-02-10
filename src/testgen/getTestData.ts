@@ -9,5 +9,6 @@ export async function getTestData<T>(path: string, router = createRouter()): Pro
     request.headers.set('Authorization', `Bearer ${token}`);
   }
 
-  return router.handleRequest(request)!.handlerPromise.then(r => r.json());
+  const response = await router.handleRequest(request)!.handlerPromise;
+  return response.ok ? await response.json() : null;
 }

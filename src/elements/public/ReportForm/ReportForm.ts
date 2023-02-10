@@ -323,7 +323,10 @@ export class ReportForm extends Base<Data> {
         <x-group frame>
           <foxy-i18n slot="header" lang=${this.lang} key="range" ns=${this.ns}></foxy-i18n>
 
-          <div class="p-m grid gap-m ${this.__showRangeTime ? 'grid-cols-1' : 'sm-grid-cols-2'}">
+          <div
+            style="--lumo-border-radius: var(--lumo-border-radius-s)"
+            class="p-m grid gap-m ${this.__showRangeTime ? 'grid-cols-1' : 'sm-grid-cols-2'}"
+          >
             <div class=${this.__showRangeTime ? 'col-span-1' : 'sm-col-span-2'}>
               ${this.__renderRangePreset()}
             </div>
@@ -421,7 +424,7 @@ export class ReportForm extends Base<Data> {
 
         <vaadin-button
           data-testid="delete"
-          theme="primary error"
+          theme="error"
           class="w-full"
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${(evt: CustomEvent) => {

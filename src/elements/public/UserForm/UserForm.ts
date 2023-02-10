@@ -142,7 +142,7 @@ export class UserForm extends Base<Data> {
 
         <vaadin-button
           data-testid="action"
-          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          theme=${this.in('idle') ? `${this.href ? 'error' : 'primary success'}` : ''}
           class="w-full"
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${this.__handleActionClick}

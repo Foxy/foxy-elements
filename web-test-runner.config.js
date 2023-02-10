@@ -1,4 +1,6 @@
 import { puppeteerLauncher } from '@web/test-runner-puppeteer';
+import { groups } from './web-test-runner.groups.js';
+
 import webServerConfig from './web-dev-server.config.js';
 
 export default Object.assign({}, webServerConfig, {
@@ -6,11 +8,13 @@ export default Object.assign({}, webServerConfig, {
 
   browsers: [puppeteerLauncher()],
 
+  groups,
+
   testsFinishTimeout: 600000, // 10 minutes
 
   testFramework: {
     config: {
-      timeout: '10000',
+      timeout: '20000',
     },
   },
 

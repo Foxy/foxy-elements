@@ -18,6 +18,16 @@
   "template_url": "From URL",
   "template_url_explainer": "Fetch the template from a public URL",
   "text_template": "Text template",
+  "subject": {
+    "label": "Subject",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "template-language": {
+    "label": "Language",
+    "placeholder": "Default (Nunjucks)",
+    "helper_text": ""
+  },
   "spinner": {
     "loading_busy": "Loading",
     "loading_error": "Failed to load"

@@ -5,10 +5,6 @@
       "url": "./src/static/schemas/access-recovery-form.json"
     },
     {
-      "fileMatch": ["/src/static/translations/access-recovery-form/*.json"],
-      "url": "./src/static/schemas/access-recovery-form.json"
-    },
-    {
       "fileMatch": ["/src/static/translations/address-card/*.json"],
       "url": "./src/static/schemas/address-card.json"
     },
@@ -17,8 +13,20 @@
       "url": "./src/static/schemas/address-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/admin-subscription-card/*.json"],
+      "url": "./src/static/schemas/admin-subscription-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/api-browser/*.json"],
       "url": "./src/static/schemas/api-browser.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/applied-coupon-code-card/*.json"],
+      "url": "./src/static/schemas/applied-coupon-code-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/applied-coupon-code-form/*.json"],
+      "url": "./src/static/schemas/applied-coupon-code-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/applied-tax-card/*.json"],
@@ -37,8 +45,20 @@
       "url": "./src/static/schemas/cancellation-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/cart-card/*.json"],
+      "url": "./src/static/schemas/cart-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/cart-form/*.json"],
+      "url": "./src/static/schemas/cart-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/copy-to-clipboard/*.json"],
       "url": "./src/static/schemas/copy-to-clipboard.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/country/*.json"],
+      "url": "./src/static/schemas/country.json"
     },
     {
       "fileMatch": ["/src/static/translations/coupon-card/*.json"],
@@ -81,6 +101,10 @@
       "url": "./src/static/schemas/customer-portal.json"
     },
     {
+      "fileMatch": ["/src/static/translations/customer-portal-settings/*.json"],
+      "url": "./src/static/schemas/customer-portal-settings.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/customers-table/*.json"],
       "url": "./src/static/schemas/customers-table.json"
     },
@@ -91,6 +115,14 @@
     {
       "fileMatch": ["/src/static/translations/discount-card/*.json"],
       "url": "./src/static/schemas/discount-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/donation/*.json"],
+      "url": "./src/static/schemas/donation.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/email-template-card/*.json"],
+      "url": "./src/static/schemas/email-template-card.json"
     },
     {
       "fileMatch": ["/src/static/translations/email-template-form/*.json"],
@@ -113,6 +145,10 @@
       "url": "./src/static/schemas/gift-card-code-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/gift-card-code-log-card/*.json"],
+      "url": "./src/static/schemas/gift-card-code-log-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/gift-card-codes-form/*.json"],
       "url": "./src/static/schemas/gift-card-codes-form.json"
     },
@@ -121,8 +157,32 @@
       "url": "./src/static/schemas/gift-card-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/global/*.json"],
+      "url": "./src/static/schemas/global.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/i18n-editor/*.json"],
+      "url": "./src/static/schemas/i18n-editor.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/integration-card/*.json"],
+      "url": "./src/static/schemas/integration-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/integration-form/*.json"],
+      "url": "./src/static/schemas/integration-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/item-card/*.json"],
       "url": "./src/static/schemas/item-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/item-category-card/*.json"],
+      "url": "./src/static/schemas/item-category-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/item-category-form/*.json"],
+      "url": "./src/static/schemas/item-category-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/item-form/*.json"],
@@ -131,6 +191,10 @@
     {
       "fileMatch": ["/src/static/translations/item-option-form/*.json"],
       "url": "./src/static/schemas/item-option-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/items-form/*.json"],
+      "url": "./src/static/schemas/items-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/pagination/*.json"],
@@ -145,8 +209,36 @@
       "url": "./src/static/schemas/payment-method-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/payments-api-fraud-protection-card/*.json"],
+      "url": "./src/static/schemas/payments-api-fraud-protection-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/payments-api-fraud-protection-form/*.json"],
+      "url": "./src/static/schemas/payments-api-fraud-protection-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/payments-api-payment-method-card/*.json"],
+      "url": "./src/static/schemas/payments-api-payment-method-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/payments-api-payment-method-form/*.json"],
+      "url": "./src/static/schemas/payments-api-payment-method-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/payments-api-payment-preset-card/*.json"],
+      "url": "./src/static/schemas/payments-api-payment-preset-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/payments-api-payment-preset-form/*.json"],
+      "url": "./src/static/schemas/payments-api-payment-preset-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/query-builder/*.json"],
       "url": "./src/static/schemas/query-builder.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/region/*.json"],
+      "url": "./src/static/schemas/region.json"
     },
     {
       "fileMatch": ["/src/static/translations/report-form/*.json"],
@@ -161,6 +253,10 @@
       "url": "./src/static/schemas/shipment-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/shipping-method-card/*.json"],
+      "url": "./src/static/schemas/shipping-method-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/sign-in-form/*.json"],
       "url": "./src/static/schemas/sign-in-form.json"
     },
@@ -169,12 +265,24 @@
       "url": "./src/static/schemas/spinner.json"
     },
     {
+      "fileMatch": ["/src/static/translations/store-form/*.json"],
+      "url": "./src/static/schemas/store-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/store-shipping-method-form/*.json"],
+      "url": "./src/static/schemas/store-shipping-method-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/subscription-card/*.json"],
       "url": "./src/static/schemas/subscription-card.json"
     },
     {
       "fileMatch": ["/src/static/translations/subscription-form/*.json"],
       "url": "./src/static/schemas/subscription-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/subscription-settings-form/*.json"],
+      "url": "./src/static/schemas/subscription-settings-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/subscriptions-table/*.json"],
@@ -195,6 +303,14 @@
     {
       "fileMatch": ["/src/static/translations/template-form/*.json"],
       "url": "./src/static/schemas/template-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/template-set-card/*.json"],
+      "url": "./src/static/schemas/template-set-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/template-set-form/*.json"],
+      "url": "./src/static/schemas/template-set-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/transaction/*.json"],

@@ -111,7 +111,8 @@ describe('ItemForm', () => {
     it('renders discount builder', async () => {
       const wrapper = await fixture<ItemForm>(html`
         <foxy-item-form>
-          <foxy-internal-item-form-line-item-discount-control></foxy-internal-item-form-line-item-discount-control>
+          <foxy-internal-item-form-line-item-discount-control infer="line-item-discount">
+          </foxy-internal-item-form-line-item-discount-control>
         </foxy-item-form>
       `);
 
@@ -121,10 +122,11 @@ describe('ItemForm', () => {
         discount_name: 'Test',
       });
 
-      await wrapper.updateComplete;
-
       const element = wrapper.firstElementChild as InternalItemFormLineItemDiscountControl;
       const builder = element.renderRoot.querySelector<DiscountBuilder>('foxy-discount-builder')!;
+
+      await wrapper.updateComplete;
+      await element.updateComplete;
 
       expect(builder).to.exist;
       expect(builder).to.have.property('infer', 'discount-builder');

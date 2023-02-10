@@ -659,7 +659,7 @@ export class Customer extends Base<Data> {
             const form = this.renderRoot.querySelector('#subscriptions-form') as FormDialog;
             const button = evt.target as ButtonElement;
 
-            link.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+            link.searchParams.set('zoom', 'transaction_template:items');
             form.href = link.toString();
             form.show(button);
           }}
@@ -691,7 +691,7 @@ export class Customer extends Base<Data> {
 
     if (this.in({ idle: 'snapshot' })) {
       const subscriptionsURL = new URL(this.data._links['fx:subscriptions'].href);
-      subscriptionsURL.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      subscriptionsURL.searchParams.set('zoom', 'transaction_template:items');
       subscriptionsLink = subscriptionsURL.toString();
     }
 

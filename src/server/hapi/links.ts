@@ -33,6 +33,10 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
   }),
 
+  cart_attributes: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
   item_attributes: ({ item_id }) => ({
     'fx:item': { href: `./items/${item_id}` },
   }),
@@ -186,6 +190,12 @@ export const links: Links = {
     'fx:native_integrations': { href: `./native_integrations?tax_id=${id}` },
   }),
 
+  tax_item_categories: ({ tax_id, store_id, item_category_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:tax': { href: `./taxes/${tax_id}` },
+    'fx:item_category': { href: `./item_categories/${item_category_id}` },
+  }),
+
   users: ({ id, default_store_id }) => ({
     'fx:stores': { href: `./stores?user_id=${id}` },
     'fx:attributes': { href: `./user_attributes?user_id=${id}` },
@@ -231,10 +241,22 @@ export const links: Links = {
     'fx:gift_card_item_categories': { href: `./gift_card_item_categories?gift_card_id=${id}` },
   }),
 
-  gift_card_codes: ({ coupon_id, store_id, id }) => ({
+  gift_card_codes: ({ gift_card_id, store_id, item_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
-    'fx:gift_card': { href: `./gift_cards/${coupon_id}` },
-    'fx:gift_card_code_logs': { href: `./transactions?gift_card_id=${id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
+    'fx:gift_card_code_logs': { href: `./gift_card_code_logs?gift_card_id=${id}` },
+    ...(typeof item_id === 'number'
+      ? { 'fx:provisioned_by_transaction_detail_id': { href: `./items/${item_id}` } }
+      : null),
+  }),
+
+  gift_card_code_logs: ({ transaction_id, gift_card_id, gift_card_code_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
+    'fx:gift_card_code': { href: `./gift_card_codes/${gift_card_code_id}` },
+    ...(typeof transaction_id === 'number'
+      ? { 'fx:transaction': { href: `./transactions/${transaction_id}` } }
+      : null),
   }),
 
   gift_card_item_categories: ({ item_category_id, gift_card_id, store_id }) => ({
@@ -290,5 +312,184 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
     'fx:webhook': { href: `./webhooks${webhook_id}` },
     'fx:resource': { href: `./transactions/${resource_id}` },
+  }),
+
+  store_shipping_methods: doc => ({
+    'fx:store': {
+      href: `./stores/${doc.store_id}`,
+    },
+    'fx:shipping_method': {
+      href: `./shipping_methods/${doc.shipping_method_id}`,
+    },
+    'fx:shipping_methods': {
+      href: `./shipping_methods`,
+    },
+    'fx:shipping_container': {
+      href: `./shipping_containers/${doc.shipping_container_id}`,
+    },
+    'fx:shipping_drop_type': {
+      href: `./shipping_drop_types/${doc.shipping_drop_type_id}`,
+    },
+    'fx:shipping_drop_types': {
+      href: `./shipping_drop_types?shipping_method_id=${doc.shipping_method_id}`,
+    },
+    'fx:shipping_services': {
+      href: `./shipping_services?shipping_method_id=${doc.shipping_method_id}`,
+    },
+    'fx:shipping_containers': {
+      href: `./shipping_containers?shipping_method_id=${doc.shipping_method_id}`,
+    },
+    'fx:store_shipping_services': {
+      href: `./store_shipping_services?shipping_method_id=${doc.shipping_method_id}`,
+    },
+  }),
+
+  store_shipping_services: doc => ({
+    'fx:store': {
+      href: `./stores/${doc.store_id}`,
+    },
+    'fx:shipping_method': {
+      href: `./shipping_methods/${doc.shipping_method_id}`,
+    },
+    'fx:shipping_service': {
+      href: `./shipping_services/${doc.shipping_service_id}`,
+    },
+    'fx:shipping_methods': {
+      href: `./shipping_methods`,
+    },
+    'fx:shipping_services': {
+      href: `./shipping_services?shipping_method_id=${doc.shipping_method_id}`,
+    },
+  }),
+
+  shipping_methods: ({ id }) => ({
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:shipping_services': { href: `./shipping_services?shipping_method_id=${id}` },
+    'fx:shipping_containers': { href: `./shipping_containers?shipping_method_id=${id}` },
+    'fx:shipping_drop_types': { href: `./shipping_drop_types?shipping_method_id=${id}` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
+
+  shipping_containers: ({ shipping_method_id }) => ({
+    'fx:shipping_containers': { href: `./shipping_containers` },
+    'fx:shipping_method': { href: `./shipping_methods/${shipping_method_id}` },
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
+
+  shipping_drop_types: ({ shipping_method_id }) => ({
+    'fx:shipping_drop_types': { href: `./shipping_drop_types` },
+    'fx:shipping_method': { href: `./shipping_methods/${shipping_method_id}` },
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
+
+  shipping_services: ({ shipping_method_id }) => ({
+    'fx:shipping_method': { href: `./shipping_methods/${shipping_method_id}` },
+    'fx:shipping_methods': { href: `./shipping_methods` },
+    'fx:property_helpers': { href: `./property_helpers` },
+  }),
+
+  payment_gateways: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?payment_gateway_id=${id}` },
+  }),
+
+  hosted_payment_gateways: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?hosted_payment_gateway_id=${id}` },
+  }),
+
+  fraud_protections: ({ store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?fraud_protection_id=${id}` },
+  }),
+
+  payment_method_sets: ({ payment_gateway_id, store_id, id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:payment_method_sets': { href: `./payment_method_sets?store_id=${store_id}` },
+    'fx:payment_method_set_hosted_payment_gateways': {
+      href: `./payment_method_set_hosted_payment_gateways?payment_method_set_id=${id}`,
+    },
+    'fx:payment_method_set_fraud_protections': {
+      href: `./payment_method_set_fraud_protections?payment_method_set_id=${id}`,
+    },
+    ...(typeof payment_gateway_id === 'number'
+      ? {
+          'fx:payment_gateway': { href: `./payment_gateways/${payment_gateway_id}` },
+        }
+      : {}),
+  }),
+
+  payment_method_set_hosted_payment_gateways: ({
+    hosted_payment_gateway_id,
+    payment_method_set_id,
+    store_id,
+  }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:hosted_payment_gateway': { href: `./hosted_payment_gateways/${hosted_payment_gateway_id}` },
+    'fx:payment_method_set': { href: `./payment_method_sets/${payment_method_set_id}` },
+  }),
+
+  payment_method_set_fraud_protections: ({
+    fraud_protection_id,
+    payment_method_set_id,
+    store_id,
+  }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:fraud_protection': { href: `./fraud_protections/${fraud_protection_id}` },
+    'fx:payment_method_set': { href: `./payment_method_sets/${payment_method_set_id}` },
+  }),
+
+  property_helpers: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:property_helpers': { href: `./property_helpers?store_id=${store_id}` },
+  }),
+
+  template_sets: ({
+    id,
+    store_id,
+    cart_template_id,
+    cart_include_template_id,
+    checkout_template_id,
+    receipt_template_id,
+    email_template_id,
+    payment_method_set_id,
+    template_config_id,
+  }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:cart_template': { href: `./cart_templates/${cart_template_id}` },
+    'fx:cart_include_template': { href: `./cart_include_templates/${cart_include_template_id}` },
+    'fx:checkout_template': { href: `./checkout_templates/${checkout_template_id}` },
+    'fx:receipt_template': { href: `./receipt_templates/${receipt_template_id}` },
+    'fx:email_template': { href: `./email_templates/${email_template_id}` },
+    'fx:payment_method_set': { href: `./payment_method_sets/${payment_method_set_id}` },
+    'fx:template_config': { href: `./template_configs/${template_config_id}` },
+    'fx:language_overrides': { href: `./language_overrides?template_set_id=${id}` },
+  }),
+
+  store_versions: () => ({}),
+
+  integrations: ({ client_id, store_id, user_id }) => ({
+    'fx:client': { href: `./clients/${client_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:user': { href: `./users/${user_id}` },
+  }),
+
+  language_overrides: ({ template_set_id, store_id }) => ({
+    'fx:language_overrides': { href: `./language_overrides?template_set_id=${template_set_id}` },
+    'fx:template_set': { href: `./template_sets/${template_set_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
+  subscription_settings: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
+  applied_coupon_codes: ({ cart_id, store_id, coupon_id, coupon_code_id }) => ({
+    'fx:cart': { href: `./carts/${cart_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:coupon_code': { href: `./coupon_codes/${coupon_code_id}` },
   }),
 };

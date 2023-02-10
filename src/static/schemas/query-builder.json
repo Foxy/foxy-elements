@@ -1,126 +1,37 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "add_or_clause": {
-      "default": "Add OR clause",
-      "type": "string"
-    },
-    "add_value": {
-      "default": "Add value",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
-    "field": {
-      "default": "Field",
-      "type": "string"
-    },
-    "hidden": {
-      "default": "Hidden",
-      "type": "string"
-    },
-    "is_defined_false": {
-      "default": "Not defined",
-      "type": "string"
-    },
-    "is_defined_true": {
-      "default": "Defined",
-      "type": "string"
-    },
-    "name": {
-      "default": "Name",
-      "type": "string"
-    },
-    "operator_equal": {
-      "default": "Equal",
-      "type": "string"
-    },
-    "operator_greaterthan": {
-      "default": "Greater than",
-      "type": "string"
-    },
-    "operator_greaterthanorequal": {
-      "default": "Greater than or equal",
-      "type": "string"
-    },
-    "operator_in": {
-      "default": "One of",
-      "type": "string"
-    },
-    "operator_isdefined": {
-      "default": "Is defined",
-      "type": "string"
-    },
-    "operator_lessthan": {
-      "default": "Less than",
-      "type": "string"
-    },
-    "operator_lessthanorequal": {
-      "default": "Less than or equal",
-      "type": "string"
-    },
-    "operator_not": {
-      "default": "Not equal",
-      "type": "string"
-    },
-    "or": {
-      "default": "Or",
-      "type": "string"
-    },
-    "query_builder_group": {
-      "default": "Group of filters",
-      "type": "string"
-    },
-    "query_builder_rule": {
-      "default": "Filter",
-      "type": "string"
-    },
-    "range_from": {
-      "default": "From",
-      "type": "string"
-    },
-    "range_to": {
-      "default": "To",
-      "type": "string"
-    },
-    "type": {
-      "default": "Type",
-      "type": "string"
-    },
-    "type_any": {
-      "default": "Field of unknown type",
-      "type": "string"
-    },
-    "type_attribute": {
-      "default": "Key-value resource",
-      "type": "string"
-    },
-    "type_date": {
-      "default": "Date field",
-      "type": "string"
-    },
-    "type_here": {
-      "default": "Type here...",
-      "type": "string"
-    },
-    "type_number": {
-      "default": "Numeric field",
-      "type": "string"
-    },
-    "type_string": {
-      "default": "Text field",
-      "type": "string"
-    },
-    "value": {
-      "default": "Value",
-      "type": "string"
-    }
+    "add_or_clause": { "type": "string", "default": "Add OR clause" },
+    "add_value": { "type": "string", "default": "Add value" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "delete": { "type": "string", "default": "Delete" },
+    "field": { "type": "string", "default": "Field" },
+    "hidden": { "type": "string", "default": "Hidden" },
+    "is_defined_false": { "type": "string", "default": "Not defined" },
+    "is_defined_true": { "type": "string", "default": "Defined" },
+    "name": { "type": "string", "default": "Name" },
+    "operator_equal": { "type": "string", "default": "Equal" },
+    "operator_greaterthan": { "type": "string", "default": "Greater than" },
+    "operator_greaterthanorequal": { "type": "string", "default": "Greater than or equal" },
+    "operator_in": { "type": "string", "default": "One of" },
+    "operator_isdefined": { "type": "string", "default": "Is defined" },
+    "operator_lessthan": { "type": "string", "default": "Less than" },
+    "operator_lessthanorequal": { "type": "string", "default": "Less than or equal" },
+    "operator_not": { "type": "string", "default": "Not equal" },
+    "or": { "type": "string", "default": "Or" },
+    "query_builder_group": { "type": "string", "default": "Group of filters" },
+    "query_builder_rule": { "type": "string", "default": "Filter" },
+    "range_from": { "type": "string", "default": "From" },
+    "range_to": { "type": "string", "default": "To" },
+    "type": { "type": "string", "default": "Type" },
+    "type_any": { "type": "string", "default": "Field of unknown type" },
+    "type_attribute": { "type": "string", "default": "Key-value resource" },
+    "type_date": { "type": "string", "default": "Date field" },
+    "type_here": { "type": "string", "default": "Type here..." },
+    "type_number": { "type": "string", "default": "Numeric field" },
+    "type_string": { "type": "string", "default": "Text field" },
+    "value": { "type": "string", "default": "Value" }
   },
   "required": [
     "add_or_clause",
@@ -145,14 +56,13 @@
     "query_builder_rule",
     "range_from",
     "range_to",
+    "type",
     "type_any",
     "type_attribute",
     "type_date",
     "type_here",
     "type_number",
     "type_string",
-    "type",
     "value"
-  ],
-  "additionalProperties": false
+  ]
 }

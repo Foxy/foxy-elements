@@ -1,30 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "expires_after_value": {
-      "default": "Expires {{value, relative}}",
-      "type": "string"
-    },
-    "never_expires": {
-      "default": "Never expires",
-      "type": "string"
-    },
+    "expires_after_value": { "type": "string", "default": "Expires {{value, relative}}" },
+    "never_expires": { "type": "string", "default": "Never expires" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
-  "required": ["expires_after_value", "never_expires", "spinner"],
-  "additionalProperties": false
+  "required": ["expires_after_value", "never_expires", "spinner"]
 }

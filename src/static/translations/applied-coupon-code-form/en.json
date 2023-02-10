@@ -1,0 +1,26 @@
+{
+  "code": {
+    "label": "Coupon code",
+    "placeholder": "MY-COUPON-123",
+    "helper_text_new": "To find the right code, go to the Coupons page, select a coupon and scroll down to the Codes section.",
+    "helper_text_existing": "Applied codes can't be modified. To replace this code, remove it using the button below and then add a new one.",
+    "v8n_required": "Please enter a coupon code."
+  },
+  "ignore-usage-limits": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Ignore usage limits"
+  },
+  "delete": {
+    "delete": "Remove",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this coupon code? This might affect the cart total."
+  },
+  "create": {
+    "create": "Apply"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

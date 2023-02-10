@@ -194,7 +194,7 @@
       "transaction_refunded": "Återbetalad",
       "transaction_rejected": "Avvisad",
       "transaction_summary": "{{most_expensive_item.name}}",
-      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count}} more",
+      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
       "transaction_verified": "Verifierad",
       "transaction_voided": "Ogiltigförklarad",
       "spinner": {

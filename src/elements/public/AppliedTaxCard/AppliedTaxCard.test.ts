@@ -16,6 +16,12 @@ import { html } from 'lit-html';
 const router = createRouter();
 
 describe('AppliedTaxCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends TwoLineCard', () => {
     expect(new AppliedTaxCard()).to.be.instanceOf(TwoLineCard);
   });

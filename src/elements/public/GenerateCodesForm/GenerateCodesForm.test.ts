@@ -1,7 +1,10 @@
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
+import './index';
+
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
-import { GenerateCodesForm } from './index';
+import { GenerateCodesForm } from './GenerateCodesForm';
 import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-field';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -12,6 +15,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('GenerateCodesForm', () => {
   it('extends NucleonElement', () => {
@@ -856,9 +860,14 @@ describe('GenerateCodesForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
+      const router = createRouter();
       const element = await fixture<GenerateCodesForm>(html`
-        <foxy-generate-codes-form href=${href} lang="es"></foxy-generate-codes-form>
+        <foxy-generate-codes-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-generate-codes-form>
       `);
 
       const spinnerWrapper = await getByTestId(element, 'spinner');

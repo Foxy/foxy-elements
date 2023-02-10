@@ -17,8 +17,8 @@ import { TwoLineCard } from './TwoLineCard';
  * @since 1.11.0
  */
 export class CustomFieldCard extends TranslatableMixin(TwoLineCard, 'custom-field-card')<Data> {
-  render(): TemplateResult {
-    return super.render({
+  renderBody(): TemplateResult {
+    return super.renderBody({
       title: data => html`${data.name}`,
       subtitle: data => html`${data.value}`,
     });

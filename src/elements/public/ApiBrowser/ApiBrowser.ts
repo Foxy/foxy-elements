@@ -11,8 +11,6 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { html } from 'lit-element';
 
-import debounce from 'lodash-es/debounce';
-
 const NS = 'api-browser';
 const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)));
 
@@ -26,6 +24,7 @@ export class ApiBrowser extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      __newCurrentUrl: { attribute: false },
       __history: { attribute: false },
       home: { type: String },
     };
@@ -34,9 +33,9 @@ export class ApiBrowser extends Base<Data> {
   /** Bookmark URL of your API. */
   home: string | null = null;
 
-  private __history: { href: string; parent: string }[] = [];
+  private __newCurrentUrl: string | null = null;
 
-  private __debounce = debounce((callback: () => void) => callback(), 250);
+  private __history: { href: string; parent: string }[] = [];
 
   private __renderItem = ({ href, html }: ItemRendererContext<Data>) => {
     if (!href) return html``;
@@ -98,26 +97,38 @@ export class ApiBrowser extends Base<Data> {
             class="flex-1"
             ?disabled=${this.disabled}
             ?readonly=${this.readonly}
-            .value=${this.href || this.parent}
+            .value=${this.__newCurrentUrl || this.href || this.parent}
+            @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.__go()}
             @input=${(evt: CustomEvent) => {
               const field = evt.currentTarget as TextFieldElement;
-              const value = field.value;
-              const property = this.href ? 'href' : 'parent';
-
-              this.__debounce(() => (this[property] = value));
+              this.__newCurrentUrl = field.value;
             }}
           >
           </vaadin-text-field>
 
-          <vaadin-button
-            title=${this.t('refresh')}
-            theme="icon contrast"
-            class="p-0"
-            ?disabled=${this.disabled || this.in('busy')}
-            @click=${() => this.refresh()}
-          >
-            <iron-icon class="icon-inline text-m" icon="icons:refresh"></iron-icon>
-          </vaadin-button>
+          ${this.__newCurrentUrl
+            ? html`
+                <vaadin-button
+                  title=${this.t('navigate')}
+                  theme="icon primary"
+                  class="p-0"
+                  ?disabled=${this.disabled || this.in('busy')}
+                  @click=${this.__go}
+                >
+                  <iron-icon class="icon-inline text-m" icon="icons:arrow-forward"></iron-icon>
+                </vaadin-button>
+              `
+            : html`
+                <vaadin-button
+                  title=${this.t('refresh')}
+                  theme="icon contrast"
+                  class="p-0"
+                  ?disabled=${this.disabled || this.in('busy')}
+                  @click=${() => this.refresh()}
+                >
+                  <iron-icon class="icon-inline text-m" icon="icons:refresh"></iron-icon>
+                </vaadin-button>
+              `}
 
           <div class="grid grid-cols-2">
             <vaadin-button
@@ -146,12 +157,14 @@ export class ApiBrowser extends Base<Data> {
           @navigate:get=${(evt: CustomEvent<string>) => {
             evt.stopPropagation();
             this.__history.push({ href: this.href, parent: this.parent });
+            this.__newCurrentUrl = null;
             this.parent = '';
             this.href = evt.detail;
           }}
           @navigate:post=${(evt: CustomEvent<string>) => {
             evt.stopPropagation();
             this.__history.push({ href: this.href, parent: this.parent });
+            this.__newCurrentUrl = null;
             this.parent = evt.detail;
             this.href = '';
           }}
@@ -234,5 +247,14 @@ export class ApiBrowser extends Base<Data> {
     this.__history = [];
     this.parent = '';
     this.href = this.home ?? '';
+  }
+
+  private __go() {
+    if (typeof this.__newCurrentUrl === 'string') {
+      this.__history.push({ href: this.href, parent: this.parent });
+      const property = this.href ? 'href' : 'parent';
+      this[property] = this.__newCurrentUrl;
+      this.__newCurrentUrl = null;
+    }
   }
 }

@@ -1,77 +1,50 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "email": {
-      "default": "Email",
-      "type": "string"
-    },
+    "email": { "type": "string", "default": "Email" },
     "invalid_credential_error": {
-      "default": "Incorrect email or password. Please check your credentials and try again.",
-      "type": "string"
+      "type": "string",
+      "default": "Incorrect email or password. Please check your credentials and try again."
     },
-    "mfa_remember_device": {
-      "default": "Trust this device",
-      "type": "string"
-    },
+    "mfa_remember_device": { "type": "string", "default": "Trust this device" },
     "mfa_remember_device_hint": {
-      "default": "Don't require a verification code when signing in from this device in the future",
-      "type": "string"
+      "type": "string",
+      "default": "Don't require a verification code when signing in from this device in the future"
     },
-    "mfa_totp_code": {
-      "default": "One-time code",
-      "type": "string"
-    },
+    "mfa_totp_code": { "type": "string", "default": "One-time code" },
     "mfa_totp_code_hint": {
-      "default": "Scan the image below with your authenticator app to receive the verification code",
-      "type": "string"
+      "type": "string",
+      "default": "Scan the image below with your authenticator app to receive the verification code"
     },
     "mfa_totp_code_invalid_error": {
-      "default": "The one-time code you entered is invalid. Please try again.",
-      "type": "string"
+      "type": "string",
+      "default": "The one-time code you entered is invalid. Please try again."
     },
-    "new_password": {
-      "default": "New password",
-      "type": "string"
-    },
+    "new_password": { "type": "string", "default": "New password" },
     "new_password_format_error": {
-      "default": "The new password you've chosen is too weak. Please enter a secure new password.",
-      "type": "string"
+      "type": "string",
+      "default": "The new password you've chosen is too weak. Please enter a secure new password."
     },
     "new_password_required_error": {
-      "default": "To keep your account secure, please change your password before logging in this time.",
-      "type": "string"
+      "type": "string",
+      "default": "To keep your account secure, please change your password before logging in this time."
     },
-    "password": {
-      "default": "Password",
-      "type": "string"
-    },
-    "sign_in": {
-      "default": "Sign in",
-      "type": "string"
-    },
-    "spinner": {
-      "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
-      },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
+    "password": { "type": "string", "default": "Password" },
+    "sign_in": { "type": "string", "default": "Sign in" },
     "unknown_error": {
-      "default": "An unknown error has occured. Please try again later.",
-      "type": "string"
+      "type": "string",
+      "default": "An unknown error has occured. Please try again later."
     },
-    "v8n_invalid_email": {
-      "default": "Invalid email",
-      "type": "string"
-    },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
+    "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
+    "v8n_required": { "type": "string", "default": "Required" },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -91,6 +64,5 @@
     "v8n_invalid_email",
     "v8n_required",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

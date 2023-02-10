@@ -24,8 +24,8 @@
   "repeat_quantity_percentage_discount_summary": "{{adjustment, percent}} on each {{from, ordinal}} item",
   "single_price_amount_discount_summary": "{{adjustment}}¤ after {{from}}",
   "single_price_percentage_discount_summary": "{{adjustment, percent}} after {{from}}",
-  "single_quantity_amount_discount_summary": "{{adjustment}}¤ after {{from}} items",
-  "single_quantity_percentage_discount_summary": "{{adjustment, percent}} after {{from}} items",
+  "single_quantity_amount_discount_summary": "{{adjustment}}¤ after {{from}} item(s)",
+  "single_quantity_percentage_discount_summary": "{{adjustment, percent}} after {{from}} item(s)",
   "uses_count": "{{count}} uses",
   "uses_to_total_count": "{{count}}/{{total}} uses",
   "spinner": {

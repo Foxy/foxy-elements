@@ -63,7 +63,7 @@ describe('InternalCalendar', () => {
     const element = await fixture<InternalCalendar>(layout);
     const button = (await getByTestId(element, 'next')) as ButtonElement;
 
-    button.click();
+    button.dispatchEvent(new CustomEvent('click'));
     expect(element).to.have.property('start', '2021-02-01');
   });
 

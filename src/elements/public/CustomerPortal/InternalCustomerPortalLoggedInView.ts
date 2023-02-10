@@ -7,7 +7,7 @@ import { Templates as CustomerTemplates } from '../Customer/types';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PropertyDeclarations } from 'lit-element';
 import { Rels } from '@foxy.io/sdk/customer';
-import { Resource } from '@foxy.io/sdk/core';
+import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
 import { Templates } from './types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -146,31 +146,14 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector.zoom('customer');
-    const optionallyHiddenInCustomer = ['payment-methods'];
-    const alwaysHiddenInCustomer = [
-      'attributes',
-      'transactions',
-      'subscriptions',
-      'addresses:actions:create',
-      'header:actions:edit:form:delete',
-    ];
-
-    const customerHiddenControls = [
-      ...optionallyHiddenInCustomer
-        .filter(id => hiddenSelector.matches(id))
-        .map(id => `${id}:${hiddenSelector.zoom(id)}`),
-
-      ...alwaysHiddenInCustomer.map(id => {
-        const splitId = id.split(':');
-
-        for (let i = 0; i < splitId.length; ++i) {
-          const hostId = splitId.slice(0, i + 1).join(':');
-          if (hiddenSelector.matches(hostId, true)) return hostId;
-        }
-
-        return id;
-      }),
-    ];
+    const customerHiddenControls = new BooleanSelector(`
+      attributes
+      transactions
+      subscriptions
+      addresses:actions:create
+      header:actions:edit:form:delete
+      ${hiddenSelector.toString()}
+    `).toString();
 
     const templates: CustomerTemplates = this.getNestedTemplates('customer');
     const originalHeaderActionsAfterTemplate = templates['header:actions:after'];
@@ -239,7 +222,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       <foxy-customer
         readonlycontrols=${this.readonlySelector.zoom('customer').toString()}
         disabledcontrols=${this.disabledSelector.zoom('customer').toString()}
-        hiddencontrols=${customerHiddenControls.join(' ')}
+        hiddencontrols=${customerHiddenControls}
         data-testid="customer"
         group=${this.group}
         href=${this.customer}

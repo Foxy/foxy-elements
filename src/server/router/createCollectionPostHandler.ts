@@ -3,7 +3,7 @@ import { HandlerContext, Router } from 'service-worker-router';
 
 export function createCollectionPostHandler(router: Router, dataset: Dataset, defaults: Defaults) {
   return async ({ request, params, url }: HandlerContext): Promise<Response> => {
-    const document = defaults[params.collection]?.(url.searchParams) ?? {};
+    const document = defaults[params.collection]?.(url.searchParams, dataset) ?? {};
     Object.assign(document, await request?.json());
 
     if (!dataset[params.collection]) dataset[params.collection] = [];

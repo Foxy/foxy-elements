@@ -1,6 +1,4 @@
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
-import '../I18n/index';
+import '../../internal/InternalCard/index';
 
 import { TaxCard } from './TaxCard';
 

@@ -1,3 +1,4 @@
+import { CheckboxElement } from '@vaadin/vaadin-checkbox';
 import { expect, fixture } from '@open-wc/testing';
 import { html } from 'lit-html';
 
@@ -222,12 +223,18 @@ describe('InternalCheckboxGroupControl', () => {
   it('writes to "_value" on change', async () => {
     const layout = html`<test-internal-checkbox-group-control></test-internal-checkbox-group-control>`;
     const control = await fixture<TestControl>(layout);
+
+    control.options = [{ label: 'Test Value', value: 'test_value' }];
+    await control.updateComplete;
+
     const group = control.renderRoot.querySelector('vaadin-checkbox-group')!;
+    const box = group.querySelector<CheckboxElement>('[value="test_value"]')!;
 
     expect(group).to.have.deep.property('value', []);
+    expect(box).to.have.property('checked', false);
 
-    group.value = ['test_value'];
-    group.dispatchEvent(new CustomEvent('change'));
+    box.checked = true;
+    box.dispatchEvent(new CustomEvent('change'));
 
     expect(control).to.have.deep.property('testValue', ['test_value']);
   });

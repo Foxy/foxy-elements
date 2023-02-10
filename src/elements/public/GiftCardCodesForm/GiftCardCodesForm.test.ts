@@ -1,5 +1,6 @@
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { EditableList } from '../../private/EditableList/EditableList';
 import { GiftCardCodesForm } from './index';
@@ -14,6 +15,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('GiftCardCodesForm', () => {
   it('extends NucleonElement', () => {
@@ -617,9 +619,14 @@ describe('GiftCardCodesForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
+      const router = createRouter();
       const element = await fixture<GiftCardCodesForm>(html`
-        <foxy-gift-card-codes-form href=${href} lang="es"></foxy-gift-card-codes-form>
+        <foxy-gift-card-codes-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-codes-form>
       `);
 
       const spinnerWrapper = await getByTestId(element, 'spinner');

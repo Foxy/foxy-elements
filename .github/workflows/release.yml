@@ -6,8 +6,8 @@ on:
       - beta
 jobs:
   release:
-    name: Release
-    runs-on: ubuntu-18.04
+    name: Release on GitHub and npm
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -17,23 +17,40 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 14
+          node-version: 18
       - name: Install dependencies
         run: npm ci
-      - name: Release
+      - name: Run semantic release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npx semantic-release
+  upload-to-cdn:
+    name: Upload to Foxy CDN
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ssh-key: ${{ secrets.COMMIT_KEY }}
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 18
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run prepack
       - name: Get the latest tag name and set it to the env variable
         run: |
           echo "LATEST_TAG_NAME=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
       - name: Upload to s3cdn
         uses: Foxy/foxy-github-action-s3cdn@main
         with:
-          package-name: elements # optional: Default is repo name.
+          package-name: elements
         env:
           AWS_S3_CDN_BUCKET_NAME: ${{ secrets.AWS_S3_CDN_BUCKET_NAME }}
           AWS_S3_CDN_KEY_ID: ${{ secrets.AWS_S3_CDN_KEY_ID }}
           AWS_S3_CDN_KEY_SECRET: ${{ secrets.AWS_S3_CDN_KEY_SECRET }}
-          SOURCE_DIR: "dist/cdn"
+          SOURCE_DIR: 'dist/cdn'

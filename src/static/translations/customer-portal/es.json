@@ -194,7 +194,7 @@
       "transaction_refunded": "Reintegrado",
       "transaction_rejected": "Rechazado",
       "transaction_summary": "{{most_expensive_item.name}}",
-      "transaction_summary_plural": "{{most_expensive_item.name}} y {{count}} más",
+      "transaction_summary_plural": "{{most_expensive_item.name}} y {{transaction_summary_plural}} más",
       "transaction_verified": "Verificado",
       "transaction_voided": "Anulado",
       "spinner": {

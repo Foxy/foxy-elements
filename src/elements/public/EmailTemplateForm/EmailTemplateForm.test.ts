@@ -19,6 +19,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('EmailTemplateForm', () => {
   it('extends NucleonElement', () => {
@@ -982,9 +983,14 @@ describe('EmailTemplateForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = './hapi/sleep';
+      const router = createRouter();
       const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form href=${href} lang="es"></foxy-email-template-form>
+        <foxy-email-template-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-email-template-form>
       `);
 
       const spinnerWrapper = await getByTestId(element, 'spinner');

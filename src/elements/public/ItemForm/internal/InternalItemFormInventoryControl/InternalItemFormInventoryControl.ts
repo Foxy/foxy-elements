@@ -1,11 +1,11 @@
 import type { TemplateResult } from 'lit-html';
 import type { ItemForm } from '../../ItemForm';
 
-import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
+import { InternalEditableControl } from '../../../../internal/InternalEditableControl/InternalEditableControl';
 import { html } from 'lit-html';
 import { ifDefined } from 'lit-html/directives/if-defined';
 
-export class InternalItemFormInventoryControl extends InternalControl {
+export class InternalItemFormInventoryControl extends InternalEditableControl {
   infer = 'inventory';
 
   renderControl(): TemplateResult {

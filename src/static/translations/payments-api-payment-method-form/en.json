@@ -1,0 +1,61 @@
+{
+  "select_method_title": "Select a payment method to get started",
+  "select_another_button_label": "Back to payment methods",
+  "default_additional_field_placeholder": "None",
+  "conflict_message": "Remove {{ name }} to use this method",
+  "tab_live": "Live setup",
+  "tab_test": "Test setup",
+  "account-id": {
+    "label": "Account ID"
+  },
+  "account-key": {
+    "label": "Account Key"
+  },
+  "third-party-key": {
+    "label": "3rd-party key"
+  },
+  "test-account-id": {
+    "label": "Account ID"
+  },
+  "test-account-key": {
+    "label": "Account Key"
+  },
+  "test-third-party-key": {
+    "label": "3rd-party key"
+  },
+  "three-d-secure-toggle": {
+    "label": "3D Secure",
+    "option_off": "Off",
+    "option_all_cards": "On for all cards",
+    "option_maestro_only": "On for Maestro cards",
+    "helper_text": ""
+  },
+  "three-d-secure-response": {
+    "label": "3D Secure Response",
+    "option_valid_only": "Require valid response",
+    "helper_text": ""
+  },
+  "description": {
+    "label": "Description",
+    "placeholder": "Defaults to the gateway name",
+    "helper_text": "",
+    "v8n_too_long": "Please reduce this description to a 100 characters or less"
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  },
+  "delete": {
+    "delete": "Remove",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this payment method? You'll need to configure it again if you decide to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  }
+}

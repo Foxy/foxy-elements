@@ -59,7 +59,10 @@ function injectCSS(cssSnippets) {
     function visitNode(node) {
       if (node.tag?.escapedText === 'css') {
         const sourceFileName = node.getSourceFile().fileName;
-        const cssSnippet = cssSnippets.find(({ file }) => file === sourceFileName);
+        const cssSnippetIndex = cssSnippets.findIndex(({ file }) => file === sourceFileName);
+        const cssSnippet = cssSnippets[cssSnippetIndex];
+
+        cssSnippets.splice(cssSnippetIndex, 1);
 
         return context.factory.updateTaggedTemplateExpression(
           node,

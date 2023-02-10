@@ -6,6 +6,12 @@ import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { CouponDetailCard } from './index';
 
 describe('CouponDetailCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends TwoLineCard', () => {
     expect(new CouponDetailCard()).to.be.instanceOf(TwoLineCard);
   });

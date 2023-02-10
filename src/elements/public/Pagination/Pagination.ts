@@ -80,7 +80,7 @@ export class Pagination extends Base {
     return html`
       <slot @slotchange=${this.__connectPageElement}></slot>
 
-      <div class="grid grid-cols-3 gap-s items-center -mx-xs">
+      <div class="grid gap-s items-center -mx-xs" style="grid-template-columns: 1fr auto 1fr">
         <div class="flex items-center space-x-s">
           <vaadin-button
             data-testid="first"
@@ -110,7 +110,7 @@ export class Pagination extends Base {
             to: offset + returnedItems,
           })}
           class=${classMap({
-            'flex-1 text-xs text-tertiary text-center leading-xs': true,
+            'flex-1 text-xs text-tertiary text-center leading-xs truncate': true,
             'opacity-0': !data,
           })}
           lang=${lang}

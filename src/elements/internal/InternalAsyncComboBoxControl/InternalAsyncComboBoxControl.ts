@@ -1,4 +1,4 @@
-import type { ComboBoxDataProvider, ComboBoxElement } from '@vaadin/vaadin-combo-box';
+import type { ComboBoxDataProvider, ComboBoxElement, ComboBoxItem } from '@vaadin/vaadin-combo-box';
 import type { TemplateResult } from 'lit-html';
 
 import { PropertyDeclarations } from 'lit-element';
@@ -19,11 +19,16 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      allowCustomValue: { type: Boolean, attribute: 'allow-custom-value' },
       itemLabelPath: { type: String, attribute: 'item-label-path' },
       itemValuePath: { type: String, attribute: 'item-value-path' },
+      selectedItem: { attribute: false },
       first: { type: String },
     };
   }
+
+  /** Same as `allowCustomValue` property of Vaadin's `ComboBoxElement`. */
+  allowCustomValue = false;
 
   /** Same as `itemLabelPath` property of Vaadin's `ComboBoxElement`. */
   itemLabelPath: string | null = null;
@@ -31,30 +36,32 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
   /** Same as `itemValuePath` property of Vaadin's `ComboBoxElement`. */
   itemValuePath: string | null = null;
 
+  selectedItem: ComboBoxItem | string | undefined = undefined;
+
   /** URL of the first page of the hAPI collection serving as a source for items. */
   first: string | null = null;
 
+  private __dataProvider: ComboBoxDataProvider = async (params, callback) => {
+    if (!this.first) return callback([], 0);
+
+    const url = new URL(this.first);
+    url.searchParams.set('offset', String(params.page * params.pageSize));
+    url.searchParams.set('limit', String(params.pageSize));
+
+    if (params.filter && this.itemLabelPath) {
+      url.searchParams.set(this.itemLabelPath, `*${params.filter}*`);
+    }
+
+    const response = await new API(this).fetch(url.toString());
+    if (!response.ok) throw new Error(await response.text());
+
+    const json = await response.json();
+    const items = Array.from(Object.values(json._embedded))[0] as unknown[];
+
+    callback(items, json.total_items);
+  };
+
   renderControl(): TemplateResult {
-    const dataProvider: ComboBoxDataProvider = async (params, callback) => {
-      if (!this.first) return callback([], 0);
-
-      const url = new URL(this.first);
-      url.searchParams.set('offset', String(params.page * params.pageSize));
-      url.searchParams.set('limit', String(params.pageSize));
-
-      if (params.filter && this.itemLabelPath) {
-        url.searchParams.set(this.itemLabelPath, `*${params.filter}*`);
-      }
-
-      const response = await new API(this).fetch(url.toString());
-      if (!response.ok) throw new Error(await response.text());
-
-      const json = await response.json();
-      const items = Array.from(Object.values(json._embedded))[0] as unknown[];
-
-      callback(items, json.total_items);
-    };
-
     return html`
       <vaadin-combo-box
         item-value-path=${ifDefined(this.itemValuePath ?? undefined)}
@@ -65,18 +72,44 @@ export class InternalAsyncComboBoxControl extends InternalEditableControl {
         placeholder=${this.placeholder}
         label=${this.label}
         class="w-full"
+        ?allow-custom-value=${this.allowCustomValue}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
+        clear-button-visible
         .checkValidity=${this._checkValidity}
-        .dataProvider=${dataProvider}
+        .dataProvider=${this.__dataProvider}
+        .selectedItem=${this.selectedItem}
         .value=${this._value}
         @change=${(evt: CustomEvent) => {
+          evt.stopPropagation();
+
           const comboBox = evt.currentTarget as ComboBoxElement;
           this._value = comboBox.value;
+
+          if (this._value === comboBox.value) {
+            this.selectedItem = comboBox.selectedItem;
+            this.dispatchEvent(new CustomEvent('selected-item-changed'));
+          } else {
+            comboBox.value = this._value;
+          }
         }}
       >
       </vaadin-combo-box>
     `;
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+
+    if (changes.has('first') || changes.has('itemLabelPath')) {
+      const comboBox = this.renderRoot.querySelector<ComboBoxElement>('vaadin-combo-box');
+
+      // this forces reload
+      if (comboBox) {
+        comboBox.size = 0;
+        comboBox.size = 1;
+      }
+    }
   }
 
   protected get _value(): string {

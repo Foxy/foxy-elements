@@ -41,7 +41,7 @@ class TransactionCard extends Base<Data> {
       <div
         aria-busy=${this.in('busy')}
         aria-live="polite"
-        class="relative leading-m font-lumo text-m"
+        class="relative leading-s font-lumo text-m"
       >
         <div class=${classMap({ 'transition-opacity': true, 'opacity-0': !this.data })}>
           ${hasTotal || hasStatus
@@ -166,6 +166,7 @@ class TransactionCard extends Base<Data> {
     if (items) {
       const options = {
         most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
+        count_minus_one: items.length - 1,
         count: items.length,
       };
 

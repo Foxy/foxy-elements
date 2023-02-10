@@ -76,6 +76,10 @@ export class GiftCardForm extends Base<Data> {
 
       'iron-icon': customElements.get('iron-icon'),
 
+      'foxy-internal-gift-card-form-provisioning-control': customElements.get(
+        'foxy-internal-gift-card-form-provisioning-control'
+      ),
+
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-query-builder': customElements.get('foxy-query-builder'),
@@ -105,6 +109,25 @@ export class GiftCardForm extends Base<Data> {
     return [
       ({ name: v }) => !!v || 'name_required',
       ({ name: v }) => !v || v.length <= 50 || 'name_too_long',
+
+      form => {
+        if (form.provisioning_config?.allow_autoprovisioning) {
+          if (!form.sku) return 'sku:v8n_required';
+          if (form.sku.length > 200) return 'sku:v8n_too_long';
+        }
+
+        return true;
+      },
+
+      form => {
+        const v = form.provisioning_config?.initial_balance_min;
+        return typeof v === 'number' && v <= 0 ? 'min-balance:v8n_negative' : true;
+      },
+
+      form => {
+        const v = form.provisioning_config?.initial_balance_max;
+        return typeof v === 'number' && v <= 0 ? 'max-balance:v8n_negative' : true;
+      },
     ];
   }
 
@@ -217,6 +240,10 @@ export class GiftCardForm extends Base<Data> {
                 ${isExpiresHidden ? '' : this.__renderExpires()}
               </div>
             `}
+
+        <foxy-internal-gift-card-form-provisioning-control infer="provisioning">
+        </foxy-internal-gift-card-form-provisioning-control>
+
         ${hidden.matches('codes', true) || !this.data ? '' : this.__renderCodes()}
         ${hidden.matches('product-restrictions', true) ? '' : this.__renderProductRestrictions()}
         ${hidden.matches('category-restrictions', true) || !this.data
@@ -466,7 +493,7 @@ export class GiftCardForm extends Base<Data> {
         </div>
 
         <foxy-query-builder
-          class="bg-contrast-5 rounded-tl-l rounded-tr-s rounded-b-l p-m mb-s"
+          class="my-s"
           lang=${lang}
           ns="${ns} ${customElements.get('foxy-query-builder')?.defaultNS ?? ''}"
           ?disabled=${isDisabled}
@@ -487,7 +514,7 @@ export class GiftCardForm extends Base<Data> {
           ?disabled=${isDisabled}
         >
           <foxy-table
-            class="px-m mb-s border border-contrast-10 rounded-t-l rounded-b-l"
+            class="px-m mb-s border border-contrast-10 rounded"
             group=${group}
             lang=${lang}
             ns=${ns}
@@ -629,7 +656,7 @@ export class GiftCardForm extends Base<Data> {
               gift-card-item-categories=${ifDefined(giftCardItemCategories)}
               data-testid="category-restrictions:page"
               gift-card=${this.href}
-              class="border border-contrast-10 rounded-t-l rounded-b-l mb-s"
+              class="border border-contrast-10 rounded mb-s"
               group=${this.group}
               lang=${this.lang}
               ns=${this.ns}
@@ -724,7 +751,7 @@ export class GiftCardForm extends Base<Data> {
 
         <vaadin-button
           data-testid="delete"
-          theme="primary error"
+          theme="error"
           class="w-full"
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${(evt: CustomEvent) => {

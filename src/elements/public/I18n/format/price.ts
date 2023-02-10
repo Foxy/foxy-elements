@@ -11,6 +11,7 @@ export const price: FormatFunction = (value, format, lang, options): string => {
       maximumFractionDigits: 2,
       minimumFractionDigits: 2,
       currencyDisplay: options?.currencyDisplay ?? 'symbol',
+      signDisplay: options?.signDisplay,
       style: 'currency',
       currency,
     });

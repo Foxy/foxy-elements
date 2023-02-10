@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "type_custom_url": { "type": "string", "default": "Custom (URL)" },
+    "type_custom_text": { "type": "string", "default": "Custom (Text)" },
+    "type_custom_html": { "type": "string", "default": "Custom (HTML)" },
+    "type_mixed": { "type": "string", "default": "Mixed" },
+    "type_default": { "type": "string", "default": "Default" },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"]
+    }
+  },
+  "required": [
+    "type_custom_url",
+    "type_custom_text",
+    "type_custom_html",
+    "type_mixed",
+    "type_default",
+    "spinner"
+  ]
+}

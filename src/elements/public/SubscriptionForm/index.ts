@@ -3,14 +3,21 @@ import '@vaadin/vaadin-combo-box';
 import '@vaadin/vaadin-button';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
+
+import '../../internal/InternalTimestampsControl/index';
+import '../../internal/InternalAsyncListControl/index';
+import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalCalendar/index';
 import '../../internal/InternalSandbox/index';
+import '../../internal/InternalForm/index';
+
 import '../CancellationForm/index';
-import '../CollectionPages/index';
+import '../TransactionCard/index';
+import '../NucleonElement/index';
+import '../AttributeCard/index';
+import '../AttributeForm/index';
 import '../FormDialog/index';
-import '../ItemsForm/index';
-import '../Spinner/index';
-import '../Table/index';
+import '../ItemCard/index';
 import '../I18n/index';
 
 import { css, registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles';

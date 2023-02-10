@@ -42,7 +42,7 @@ describe('InternalDeleteControl', () => {
 
   it('defines a reactive property for "theme" (String)', () => {
     expect(Control).to.have.nested.property('properties.theme.type', String);
-    expect(new Control()).to.have.property('theme', 'primary error');
+    expect(new Control()).to.have.property('theme', 'error');
   });
 
   it('extends InternalControl', () => {

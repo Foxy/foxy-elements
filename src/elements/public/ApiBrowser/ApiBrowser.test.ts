@@ -215,7 +215,7 @@ describe('ApiBrowser', () => {
     expect(field).to.exist;
   });
 
-  it('changes .href when user types into Current URL field in GET mode', async () => {
+  it('changes .href when user types into Current URL field and hits Enter in GET mode', async () => {
     const element = await fixture<ApiBrowser>(
       html`<foxy-api-browser href="https://demo.api/hapi/stores/0"></foxy-api-browser>`
     );
@@ -226,13 +226,14 @@ describe('ApiBrowser', () => {
 
     field.value = 'https://demo.api/hapi/customers/0';
     field.dispatchEvent(new CustomEvent('input'));
+    field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     await new Promise(r => setTimeout(r, 500));
 
     expect(element).to.have.property('parent', '');
     expect(element).to.have.property('href', 'https://demo.api/hapi/customers/0');
   });
 
-  it('changes .parent when user types into Current URL field in POST mode', async () => {
+  it('changes .parent when user types into Current URL field and hits Enter in POST mode', async () => {
     const element = await fixture<ApiBrowser>(
       html`<foxy-api-browser parent="https://demo.api/hapi/stores"></foxy-api-browser>`
     );
@@ -243,6 +244,7 @@ describe('ApiBrowser', () => {
 
     field.value = 'https://demo.api/hapi/customers';
     field.dispatchEvent(new CustomEvent('input'));
+    field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     await new Promise(r => setTimeout(r, 500));
 
     expect(element).to.have.property('parent', 'https://demo.api/hapi/customers');

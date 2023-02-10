@@ -202,6 +202,12 @@ const model = createModel<TestNextDateModificationRule>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> NextDateModificationRule', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

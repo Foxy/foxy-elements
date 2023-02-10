@@ -185,7 +185,7 @@ export class DiscountBuilder extends Base {
     return html`
       <div
         class=${classMap({
-          'h-xs px-xs space-x-xs flex items-center rounded transition-colors': true,
+          'h-xs px-xs space-x-xs flex items-center rounded-s transition-colors': true,
           'hover-bg-primary hover-text-primary-contrast focus-within-ring-2': isInteractive,
           'ring-primary-50 cursor-pointer bg-primary-10 text-primary': isInteractive,
           'bg-contrast-5 text-disabled': this.disabled,
@@ -247,7 +247,7 @@ export class DiscountBuilder extends Base {
         <input
           data-testclass="interactive editable"
           class=${classMap({
-            'transition-colors border p-xs h-xs font-medium text-m rounded w-xl': true,
+            'transition-colors border p-xs h-xs font-medium text-m rounded-s w-xl': true,
             'ring-primary-50 text-body bg-contrast-10': isInteractive,
             'hover-bg-contrast-20': isInteractive,
             'focus-outline-none focus-ring-2': isInteractive,
@@ -279,7 +279,7 @@ export class DiscountBuilder extends Base {
         data-testclass="rules:tier"
         aria-label=${this.t('tier')}
         class=${classMap({
-          'flex items-start justify-between rounded-t-l rounded-b-l': true,
+          'flex items-start justify-between rounded': true,
           'border border-contrast-10': true,
           'border-dashed': !params.tier,
         })}
@@ -352,7 +352,7 @@ export class DiscountBuilder extends Base {
                 data-testclass="interactive"
                 aria-label=${this.t('delete')}
                 class=${classMap({
-                  'w-s h-s m-s flex-shrink-0 rounded transition-colors ring-primary-50': true,
+                  'w-s h-s m-s flex-shrink-0 rounded-s transition-colors ring-primary-50': true,
                   'text-tertiary hover-text-secondary focus-outline-none focus-ring-2':
                     !this.disabled,
                   'text-disabled cursor-default': this.disabled,

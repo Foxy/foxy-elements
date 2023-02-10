@@ -1,0 +1,84 @@
+{
+  "description": {
+    "label": "Description",
+    "placeholder": "E.g. EU & UK Payment Options",
+    "helper_text": "",
+    "v8n_required": "Please describe this payment method set",
+    "v8n_too_long": "Please reduce this description to a 100 characters or less"
+  },
+  "is-live": {
+    "label": "",
+    "option_live": "Use live credentials",
+    "helper_text": ""
+  },
+  "is-purchase-order-enabled": {
+    "label": "",
+    "option_true": "Allow purchase orders",
+    "helper_text": ""
+  },
+  "payment-methods": {
+    "delete_header": "Remove payment method",
+    "delete_message": "Are you sure you'd like to remove this payment method? You'll need to configure it again if you decide to bring it back.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "label": "Payment methods",
+    "dialog": {
+      "header_update": "Payment method",
+      "header_create": "New payment method",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard"
+    },
+    "pagination": {
+      "create_button_text": "Add payment method",
+      "card": {
+        "delete_button_text": "Remove"
+      }
+    }
+  },
+  "fraud-protections": {
+    "delete_header": "Remove fraud protection",
+    "delete_message": "Are you sure you'd like to remove this fraud protection? You'll need to configure it again if you decide to bring it back.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "label": "Fraud protections",
+    "dialog": {
+      "header_update": "Fraud protection",
+      "header_create": "New fraud protection",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard"
+    },
+    "pagination": {
+      "create_button_text": "Add fraud protection",
+      "card": {
+        "delete_button_text": "Remove"
+      }
+    }
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this payment method set? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  }
+}

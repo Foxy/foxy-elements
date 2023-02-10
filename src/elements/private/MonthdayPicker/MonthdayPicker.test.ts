@@ -90,6 +90,12 @@ const model = createModel<WeekdayPicker>(machine).withEvents({
 });
 
 describe('MonthdayPicker', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

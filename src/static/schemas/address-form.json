@@ -1,101 +1,38 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "address_name": {
-      "default": "Address name",
-      "type": "string"
-    },
-    "address1": {
-      "default": "Address Line 1",
-      "type": "string"
-    },
-    "address2": {
-      "default": "Address Line 2",
-      "type": "string"
-    },
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
-    },
-    "city": {
-      "default": "City",
-      "type": "string"
-    },
-    "company": {
-      "default": "Company",
-      "type": "string"
-    },
-    "confirm": {
-      "default": "Confirm",
-      "type": "string"
-    },
-    "country": {
-      "default": "Country",
-      "type": "string"
-    },
-    "create": {
-      "default": "Create",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "date_created": {
-      "default": "Created on",
-      "type": "string"
-    },
-    "date_modified": {
-      "default": "Last updated",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
+    "address_name": { "type": "string", "default": "Address name" },
+    "address1": { "type": "string", "default": "Address Line 1" },
+    "address2": { "type": "string", "default": "Address Line 2" },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "city": { "type": "string", "default": "City" },
+    "company": { "type": "string", "default": "Company" },
+    "confirm": { "type": "string", "default": "Confirm" },
+    "country": { "type": "string", "default": "Country" },
+    "create": { "type": "string", "default": "Create" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "date_created": { "type": "string", "default": "Created on" },
+    "date_modified": { "type": "string", "default": "Last updated" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
-      "default": "This resource will be permanently removed. Are you sure?",
-      "type": "string"
+      "type": "string",
+      "default": "This resource will be permanently removed. Are you sure?"
     },
-    "first_name": {
-      "default": "First name",
-      "type": "string"
-    },
-    "last_name": {
-      "default": "Last name",
-      "type": "string"
-    },
-    "phone": {
-      "default": "Phone",
-      "type": "string"
-    },
-    "postal_code": {
-      "default": "Postal code",
-      "type": "string"
-    },
-    "region": {
-      "default": "Region",
-      "type": "string"
-    },
+    "first_name": { "type": "string", "default": "First name" },
+    "last_name": { "type": "string", "default": "Last name" },
+    "phone": { "type": "string", "default": "Phone" },
+    "postal_code": { "type": "string", "default": "Postal code" },
+    "region": { "type": "string", "default": "Region" },
+    "v8n_required": { "type": "string", "default": "Required" },
+    "v8n_too_long": { "type": "string", "default": "Too long" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
-    },
-    "v8n_too_long": {
-      "default": "Too long",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -121,6 +58,5 @@
     "v8n_required",
     "v8n_too_long",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

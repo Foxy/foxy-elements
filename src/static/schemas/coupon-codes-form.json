@@ -1,73 +1,37 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "code": {
-      "default": "Code",
-      "type": "string"
-    },
+    "code": { "type": "string", "default": "Code" },
     "code_import_hint": {
-      "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
-      "type": "string"
+      "type": "string",
+      "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats."
     },
-    "code_plural": {
-      "default": "Codes",
-      "type": "string"
-    },
-    "duplicate": {
-      "default": "Duplicate",
-      "type": "string"
-    },
+    "code_plural": { "type": "string", "default": "Codes" },
+    "duplicate": { "type": "string", "default": "Duplicate" },
     "hidden_codes_explainer": {
-      "default": "We’ve hidden some of your codes because there were too many of them. Don’t worry – we’ll import them anyway.",
-      "type": "string"
+      "type": "string",
+      "default": "We’ve hidden some of your codes because there were too many of them. Don’t worry – we’ll import them anyway."
     },
-    "hidden_codes_header": {
-      "default": "{{count}} code is hidden",
-      "type": "string"
-    },
-    "hidden_codes_header_plural": {
-      "default": "{{count}} codes are hidden",
-      "type": "string"
-    },
-    "import": {
-      "default": "Import",
-      "type": "string"
-    },
+    "hidden_codes_header": { "type": "string", "default": "{{count}} code is hidden" },
+    "hidden_codes_header_plural": { "type": "string", "default": "{{count}} codes are hidden" },
+    "import": { "type": "string", "default": "Import" },
     "import_codes_done": {
-      "default": "All done! We've imported your codes into the system.",
-      "type": "string"
+      "type": "string",
+      "default": "All done! We've imported your codes into the system."
     },
-    "loading_busy": {
-      "default": "Loading",
-      "type": "string"
-    },
-    "loading_error": {
-      "default": "Failed to load",
-      "type": "string"
-    },
+    "loading_busy": { "type": "string", "default": "Loading" },
+    "loading_error": { "type": "string", "default": "Failed to load" },
+    "type_here": { "type": "string", "default": "Type here..." },
+    "unique": { "type": "string", "default": "Unique" },
+    "v8n_required": { "type": "string", "default": "Required" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "type_here": {
-      "default": "Type here...",
-      "type": "string"
-    },
-    "unique": {
-      "default": "Unique",
-      "type": "string"
-    },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -86,6 +50,5 @@
     "unique",
     "v8n_required",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

@@ -17,10 +17,16 @@ export class InternalEditableControl extends InternalControl {
       placeholder: { type: String, noAccessor: true },
       helperText: { type: String, attribute: 'helper-text', noAccessor: true },
       v8nPrefix: { type: String, attribute: 'v8n-prefix', noAccessor: true },
+      getValue: { attribute: false },
+      setValue: { attribute: false },
       property: { type: String, noAccessor: true },
       label: { type: String, noAccessor: true },
     };
   }
+
+  getValue = (): unknown => this.nucleon?.form[this.property];
+
+  setValue = (newValue: unknown): void => this.nucleon?.edit({ [this.property]: newValue });
 
   private __placeholder: string | null = null;
 
@@ -135,6 +141,28 @@ export class InternalEditableControl extends InternalControl {
     this.__label = null;
   }
 
+  reportValidity(): void {
+    const walker = this.ownerDocument.createTreeWalker(this.renderRoot, NodeFilter.SHOW_ELEMENT);
+
+    do {
+      type Input = Node & Record<string, () => unknown>;
+
+      const node = walker.currentNode as Input;
+      const methods = ['reportValidity', 'validate'];
+
+      for (const method of methods) {
+        if (method in node) {
+          try {
+            node[method]();
+            break;
+          } catch {
+            continue;
+          }
+        }
+      }
+    } while (walker.nextNode());
+  }
+
   /**
    * A shortcut to get the inferred value from the NucleonElement instance
    * up the DOM tree. If no such value or instance exists, returns `undefined`.
@@ -143,13 +171,13 @@ export class InternalEditableControl extends InternalControl {
    */
 
   protected get _value(): unknown | undefined {
-    return this.nucleon?.form[this.property];
+    return this.getValue();
   }
 
   protected set _value(newValue: unknown | undefined) {
     const event = new CustomEvent('change', { cancelable: true, detail: newValue });
     const useDefaultAction = this.dispatchEvent(event);
-    if (useDefaultAction) this.nucleon?.edit({ [this.property]: newValue });
+    if (useDefaultAction) this.setValue(newValue);
   }
   /** A shortcut returning the first v8n error associated with this control. */
 

@@ -150,14 +150,23 @@ export class InternalAsyncDetailsControl extends InternalControl {
   }
 
   private get __cardRenderer() {
-    if (this.__cachedCardRenderer?.item !== this.item) {
-      this.__cachedCardRenderer = {
-        item: this.item,
-        render: new Function(
+    const item = this.item;
+
+    if (this.__cachedCardRenderer?.item !== item) {
+      let render: ItemRenderer;
+
+      if (item === null) {
+        render = () => html``;
+      } else if (typeof item === 'string') {
+        render = new Function(
           'ctx',
-          `return ctx.html\`<${this.item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} class="p-m" infer href=\${ctx.href}></${this.item}>\``
-        ) as ItemRenderer,
-      };
+          `return ctx.html\`<${item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} class="p-m" infer href=\${ctx.href}></${item}>\``
+        ) as ItemRenderer;
+      } else {
+        render = item;
+      }
+
+      this.__cachedCardRenderer = { item, render };
     }
 
     return this.__cachedCardRenderer.render;

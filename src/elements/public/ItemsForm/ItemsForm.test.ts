@@ -39,6 +39,12 @@ customElements.define('x-testitem', TestMockItem);
 customElements.define('test-items-form-regular', TestRegularItemsForm);
 
 describe('The form should allow new items to be added and removed', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('Should recognize new items added as JS array', async function () {
     const el = await fixture(html`
       <test-items-form
@@ -160,6 +166,12 @@ describe('The form should allow new items to be added and removed', async functi
 });
 
 describe('The form should allow items to be retrieved', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('should allow items to be retrieved', async function () {
     const el = await formWith2items(10, 10);
     await elementUpdated(el);
@@ -208,6 +220,12 @@ describe('The form should allow items to be retrieved', async function () {
 });
 
 describe('The form should remain valid', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
   let logSpy: sinon.SinonStub;
@@ -365,6 +383,12 @@ describe('The form should remain valid', async function () {
 });
 
 describe('The form should be aware of its items', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('Shows the total price of the items added as tags', async function () {
     const el = await fixture(html`
       <test-items-form currency="usd" store="test.foxycart.com">
@@ -412,6 +436,12 @@ describe('The form should be aware of its items', async function () {
 });
 
 describe('The form should add frequency fields', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('Should provide field to choose frequencies', async function () {
     const el = await fixture(html`
       <test-items-form currency="usd" store="test.foxycart.com" frequencies='["1m", "3m"]'>
@@ -425,6 +455,12 @@ describe('The form should add frequency fields', async function () {
 });
 
 describe('The form submits a valid POST to forxycart', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   const sig64 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
   const signatures = {
     name: sig64,
@@ -684,6 +720,12 @@ describe('The form submits a valid POST to forxycart', async function () {
 });
 
 describe('The form directs the user to the proper destination', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('Uses the _top window', async function () {
     const el = await formWith2items(10, 10);
     const form = el.shadowRoot!.querySelector('form') as HTMLFormElement;
@@ -720,6 +762,12 @@ describe('The form directs the user to the proper destination', async function (
 });
 
 describe('The form reveals its state to the user', async function () {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   let xhr: sinon.SinonFakeXMLHttpRequestStatic;
   let requests: sinon.SinonFakeXMLHttpRequest[];
   let logSpy: sinon.SinonStub;

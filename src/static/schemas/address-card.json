@@ -1,36 +1,22 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "default_billing_address": {
-      "default": "Default billing address",
-      "type": "string"
-    },
-    "default_shipping_address": {
-      "default": "Default shipping address",
-      "type": "string"
-    },
+    "default_billing_address": { "type": "string", "default": "Default billing address" },
+    "default_shipping_address": { "type": "string", "default": "Default shipping address" },
     "full_address": {
-      "default": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
-      "type": "string"
+      "type": "string",
+      "default": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}"
     },
-    "full_name": {
-      "default": "{{first_name}} {{last_name}}",
-      "type": "string"
-    },
+    "full_name": { "type": "string", "default": "{{first_name}} {{last_name}}" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -39,6 +25,5 @@
     "full_address",
     "full_name",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

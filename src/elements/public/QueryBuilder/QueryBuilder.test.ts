@@ -4,6 +4,12 @@ import { expect, fixture, oneEvent } from '@open-wc/testing';
 import { QueryBuilder } from './index';
 
 describe('QueryBuilder', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends LitElement', () => {
     expect(new QueryBuilder()).to.be.instanceOf(LitElement);
   });

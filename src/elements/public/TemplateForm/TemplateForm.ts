@@ -195,7 +195,11 @@ export class TemplateForm extends Base<Data> {
               `;
             })}
 
-            <div slot="url" ?hidden=${contentChoice !== 'url'}>
+            <div
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
+              slot="url"
+              ?hidden=${contentChoice !== 'url'}
+            >
               <div class="flex items-center mt-0 mb-m">
                 <vaadin-text-field
                   data-testid="content-url"
@@ -248,7 +252,11 @@ export class TemplateForm extends Base<Data> {
               </div>
             </div>
 
-            <div slot="clipboard" ?hidden=${contentChoice !== 'clipboard'}>
+            <div
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
+              slot="clipboard"
+              ?hidden=${contentChoice !== 'clipboard'}
+            >
               <vaadin-text-area
                 id="cached-content"
                 data-testid="content-clipboard"
@@ -333,7 +341,7 @@ export class TemplateForm extends Base<Data> {
 
         <vaadin-button
           class="w-full"
-          theme=${this.in('idle') ? `primary ${href ? 'error' : 'success'}` : ''}
+          theme=${this.in('idle') ? (href ? 'error' : 'primary success') : ''}
           data-testid=${action}
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${handleClick}

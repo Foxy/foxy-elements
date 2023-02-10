@@ -1,8 +1,7 @@
+import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-field';
-import type { CSSResultArray, TemplateResult } from 'lit-element';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
-import { parseDuration } from '../../../utils/parse-duration';
 import { css, html } from 'lit-element';
 
 /**
@@ -12,6 +11,13 @@ import { css, html } from 'lit-element';
  * @element foxy-internal-frequency-control
  */
 export class InternalFrequencyControl extends InternalEditableControl {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      options: { attribute: false },
+    };
+  }
+
   static get styles(): CSSResultArray {
     return [
       super.styles,
@@ -52,17 +58,31 @@ export class InternalFrequencyControl extends InternalEditableControl {
     ];
   }
 
+  options = [
+    { value: 'd', label: 'day' },
+    { value: 'w', label: 'week' },
+    { value: 'm', label: 'month' },
+    { value: 'y', label: 'year' },
+  ];
+
   private __i18n: CustomFieldI18n = {
     formatValue: inputValues => inputValues.join(''),
     parseValue: value => {
-      const { count, units } = parseDuration(value);
-      return [count.toString(), units];
+      const normalizedValue = value.startsWith('.') ? `0${value}` : value;
+      const count = parseFloat(value.substring(0, Math.max(normalizedValue.length - 1, 0)));
+      const units = normalizedValue[normalizedValue.length - 1] ?? '';
+
+      return isNaN(count) ? ['0', ''] : [count.toString(), units];
     },
   };
 
   renderControl(): TemplateResult {
     const value = (this._value ?? '') as string;
-    const count = parseDuration(value).count;
+    const count = parseFloat(this.__i18n.parseValue(value)[0] as string);
+    const items = this.options.map(({ value, label }) => ({
+      label: this.t(label, { count }),
+      value,
+    }));
 
     return html`
       <vaadin-custom-field
@@ -97,12 +117,7 @@ export class InternalFrequencyControl extends InternalEditableControl {
           ?disabled=${this.disabled}
           ?readonly=${this.readonly}
           ?invalid=${!this._checkValidity()}
-          .items=${[
-            { value: 'd', label: this.t('day', { count }) },
-            { value: 'w', label: this.t('week', { count }) },
-            { value: 'm', label: this.t('month', { count }) },
-            { value: 'y', label: this.t('year', { count }) },
-          ]}
+          .items=${items}
           @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.nucleon?.submit()}
         >
         </vaadin-combo-box>
@@ -112,7 +127,7 @@ export class InternalFrequencyControl extends InternalEditableControl {
 
   updated(changes: Map<keyof this, unknown>): void {
     super.updated(changes);
-    const field = this.renderRoot.firstElementChild as CustomFieldElement;
-    if (field.value !== this._value) field.value = this._value as string;
+    const field = this.renderRoot.querySelector('vaadin-custom-field');
+    if (field && field.value !== this._value) field.value = (this._value ?? '') as string;
   }
 }

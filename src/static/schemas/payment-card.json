@@ -1,42 +1,21 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "code": {
-      "default": "Code",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "fraud_risk": {
-      "default": "Fraud risk: {{ score }}",
-      "type": "string"
-    },
-    "price": {
-      "default": "{{amount, price}}",
-      "type": "string"
-    },
+    "code": { "type": "string", "default": "Code" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "fraud_risk": { "type": "string", "default": "Fraud risk: {{ score }}" },
+    "price": { "type": "string", "default": "{{amount, price}}" },
+    "unknown": { "type": "string", "default": "Unknown" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
-    },
-    "unknown": {
-      "default": "Unknown",
-      "type": "string"
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
-  "required": ["code", "date", "fraud_risk", "price", "unknown", "spinner"],
-  "additionalProperties": false
+  "required": ["code", "date", "fraud_risk", "price", "unknown", "spinner"]
 }

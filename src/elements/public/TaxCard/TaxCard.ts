@@ -2,10 +2,11 @@ import { TemplateResult, html } from 'lit-html';
 
 import { Data } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
+import { ConfigurableMixin } from '../../../mixins/configurable';
+import { InternalCard } from '../../internal/InternalCard/InternalCard';
 
 /**
- * Basic card displaying an applied tax.
+ * Basic card displaying a tax.
  *
  * @slot title:before
  * @slot title:after
@@ -16,12 +17,20 @@ import { TwoLineCard } from '../CustomFieldCard/TwoLineCard';
  * @element foxy-tax-card
  * @since 1.13.0
  */
-export class TaxCard extends TranslatableMixin(TwoLineCard, 'tax-card')<Data> {
-  render(): TemplateResult {
-    return super.render({
-      title: ({ name }) => html`${name}`,
-      subtitle: () => html`${this.__typeLabel} &bull; ${this.__rateLabel}`,
-    });
+export class TaxCard extends TranslatableMixin(ConfigurableMixin(InternalCard), 'tax-card')<Data> {
+  renderBody(): TemplateResult {
+    const data = this.data;
+
+    return html`
+      <div class="flex justify-between gap-s">
+        <div data-testid="title" class="font-semibold truncate flex-shrink-0">
+          ${data?.name}&ZeroWidthSpace;
+        </div>
+        <div data-testid="subtitle" class="truncate text-tertiary">
+          ${this.__typeLabel} &bull; ${this.__rateLabel}
+        </div>
+      </div>
+    `;
   }
 
   private get __typeLabel() {

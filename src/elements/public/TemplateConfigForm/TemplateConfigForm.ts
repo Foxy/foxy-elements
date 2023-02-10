@@ -282,6 +282,7 @@ export class TemplateConfigForm extends Base<Data> {
                   return html`
                     <vaadin-text-field
                       data-testid="foxycomplete-${action}-icon"
+                      style="--lumo-border-radius: var(--lumo-border-radius-s)"
                       label=${this.t(`${action}_icon`)}
                       .value=${config[field]}
                       ?disabled=${isDisabled}
@@ -696,7 +697,7 @@ export class TemplateConfigForm extends Base<Data> {
                   >
                     <label
                       class=${classMap({
-                        'overflow-hidden transition-colors flex rounded border': true,
+                        'overflow-hidden transition-colors flex rounded-s border': true,
                         'border-primary bg-primary-10 text-primary': isChecked && !isReadonly,
                         'border-contrast bg-contrast-5 text-secondary': isChecked && isReadonly,
                         'hover-text-body': isChecked && !isDisabled && !isReadonly,
@@ -1028,7 +1029,7 @@ export class TemplateConfigForm extends Base<Data> {
           >
           </foxy-i18n>
 
-          <div class="bg-contrast-10 grid grid-cols-1 md-grid-cols-2" style="gap: 1px">
+          <div class="bg-contrast-10 grid grid-cols-1 sm-grid-cols-2" style="gap: 1px">
             ${Object.entries(options).map(([property, values]) => {
               return html`
                 <label
@@ -1108,7 +1109,7 @@ export class TemplateConfigForm extends Base<Data> {
               `;
             })}
 
-            <div class="bg-base hidden md-block"></div>
+            <div class="bg-base hidden sm-block"></div>
           </div>
         </x-group>
 
@@ -1135,6 +1136,7 @@ export class TemplateConfigForm extends Base<Data> {
           <div class="p-m space-y-m">
             <vaadin-text-field
               data-testid="google-analytics-field"
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
               class="w-full"
               label=${this.t('ga_account_id')}
               placeholder="UA-1234567-1"
@@ -1199,6 +1201,7 @@ export class TemplateConfigForm extends Base<Data> {
           <div class="p-m">
             <vaadin-text-field
               data-testid="segment-io-field"
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
               class="w-full"
               label=${this.t('sio_account_id')}
               placeholder="MY-WRITE-KEY"

@@ -28,6 +28,12 @@ import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('CouponForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('extends NucleonElement', () => {
     expect(new CouponForm()).to.be.instanceOf(NucleonElement);
   });
@@ -1077,9 +1083,9 @@ describe('CouponForm', () => {
       const relatedUrl = `${data._links['fx:coupon_codes'].href}&limit=5`;
 
       expect(dialog).to.exist;
-      expect(dialog).to.have.attribute('disabledcontrols', 'foo:not=*');
-      expect(dialog).to.have.attribute('readonlycontrols', 'bar:not=*');
-      expect(dialog).to.have.attribute('hiddencontrols', 'save-button current-balance baz:not=*');
+      expect(dialog).to.have.attribute('disabledcontrols', 'foo');
+      expect(dialog).to.have.attribute('readonlycontrols', 'bar');
+      expect(dialog).to.have.attribute('hiddencontrols', 'save-button current-balance baz');
       expect(dialog).to.have.attribute('header', 'generate');
       expect(dialog).to.have.attribute('parent', data._links['fx:generate_codes'].href);
       expect(dialog).to.have.attribute('group', 'test');
@@ -1109,9 +1115,9 @@ describe('CouponForm', () => {
       const parent = `${data._links['fx:coupon_codes'].href}&limit=5`;
 
       expect(dialog).to.exist;
-      expect(dialog).to.have.attribute('disabledcontrols', 'foo:not=*');
-      expect(dialog).to.have.attribute('readonlycontrols', 'bar:not=*');
-      expect(dialog).to.have.attribute('hiddencontrols', 'baz:not=*');
+      expect(dialog).to.have.attribute('disabledcontrols', 'foo');
+      expect(dialog).to.have.attribute('readonlycontrols', 'bar');
+      expect(dialog).to.have.attribute('hiddencontrols', 'baz');
       expect(dialog).to.have.attribute('header', 'code');
       expect(dialog).to.have.attribute('parent', parent);
       expect(dialog).to.have.attribute('group', 'test');
@@ -1139,9 +1145,9 @@ describe('CouponForm', () => {
       const dialog = control.querySelector('#import-dialog') as HTMLElement;
 
       expect(dialog).to.exist;
-      expect(dialog).to.have.attribute('disabledcontrols', 'foo:not=*');
-      expect(dialog).to.have.attribute('readonlycontrols', 'bar:not=*');
-      expect(dialog).to.have.attribute('hiddencontrols', 'save-button baz:not=*');
+      expect(dialog).to.have.attribute('disabledcontrols', 'foo');
+      expect(dialog).to.have.attribute('readonlycontrols', 'bar');
+      expect(dialog).to.have.attribute('hiddencontrols', 'save-button baz');
       expect(dialog).to.have.attribute('header', 'import');
       expect(dialog).to.have.attribute('parent', data._links['fx:coupon_codes'].href);
       expect(dialog).to.have.attribute('group', 'test');

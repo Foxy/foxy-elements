@@ -209,7 +209,7 @@ export class AddressForm extends Base<Data> {
 
         <vaadin-button
           class="w-full"
-          theme=${this.in('idle') ? `primary ${this.href ? 'error' : 'success'}` : ''}
+          theme=${this.in('idle') ? `${this.href ? 'error' : 'primary success'}` : ''}
           data-testid=${action}
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
           @click=${this.__handleActionClick}

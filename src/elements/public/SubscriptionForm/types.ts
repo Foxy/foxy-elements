@@ -5,12 +5,14 @@ import { Renderer } from '../../../mixins/configurable';
 import { SubscriptionForm } from '.';
 import { CancellationForm } from '../CancellationForm/CancellationForm';
 
+export type TransactionPageGetter = (
+  href: string,
+  data: Resource<Rels.Transaction> | Resource<BackendRels.Transaction> | null
+) => string;
+
 export type Settings = Resource<Rels.CustomerPortalSettings>;
 export type Item = Resource<Rels.Item>;
-export type Data = Resource<
-  BackendRels.Subscription,
-  { zoom: ['last_transaction', { transaction_template: 'items' }] }
->;
+export type Data = Resource<BackendRels.Subscription>;
 
 export type Templates = {
   'header:before'?: Renderer<SubscriptionForm>;

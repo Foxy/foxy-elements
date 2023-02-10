@@ -287,7 +287,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(form).to.have.attribute('disabledcontrols', 'not=*');
         expect(form).to.have.attribute('readonlycontrols', 'not=bar');
-        expect(form).to.have.attribute('hiddencontrols', 'foo:not=*');
+        expect(form).to.have.attribute('hiddencontrols', 'foo');
         expect(form).to.have.attribute('parent', 'foxy://customer-api/session');
         expect(form).to.have.attribute('group', 'test');
         expect(form).to.have.attribute('lang', 'es');
@@ -732,7 +732,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         expect(form).to.have.attribute('disabledcontrols', 'not=*');
         expect(form).to.have.attribute('readonlycontrols', 'not=bar');
-        expect(form).to.have.attribute('hiddencontrols', 'foo:not=*');
+        expect(form).to.have.attribute('hiddencontrols', 'foo');
         expect(form).to.have.attribute('parent', 'foxy://customer-api/recover');
         expect(form).to.have.attribute('group', 'test');
         expect(form).to.have.attribute('lang', 'es');

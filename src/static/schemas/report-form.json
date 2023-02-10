@@ -1,145 +1,58 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "cancel": {
-      "default": "Cancel",
-      "type": "string"
-    },
-    "create": {
-      "default": "Create",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "date_created": {
-      "default": "Created on",
-      "type": "string"
-    },
-    "date_modified": {
-      "default": "Last updated",
-      "type": "string"
-    },
-    "datetime_end_required": {
-      "default": "End date is required",
-      "type": "string"
-    },
-    "datetime_start_required": {
-      "default": "Start date is required",
-      "type": "string"
-    },
-    "delete": {
-      "default": "Delete",
-      "type": "string"
-    },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "create": { "type": "string", "default": "Create" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "date_created": { "type": "string", "default": "Created on" },
+    "date_modified": { "type": "string", "default": "Last updated" },
+    "datetime_end_required": { "type": "string", "default": "End date is required" },
+    "datetime_start_required": { "type": "string", "default": "Start date is required" },
+    "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
-      "default": "If you proceed, this report will be deleted forever. Are you sure?",
-      "type": "string"
+      "type": "string",
+      "default": "If you proceed, this report will be deleted forever. Are you sure?"
     },
-    "end": {
-      "default": "End",
-      "type": "string"
-    },
-    "name": {
-      "default": "Name",
-      "type": "string"
-    },
-    "name_complete": {
-      "default": "Complete",
-      "type": "string"
-    },
+    "end": { "type": "string", "default": "End" },
+    "name": { "type": "string", "default": "Name" },
+    "name_complete": { "type": "string", "default": "Complete" },
     "name_complete_explainer": {
-      "default": "Transactions, coupon usage, subscription forecasts etc.",
-      "type": "string"
+      "type": "string",
+      "default": "Transactions, coupon usage, subscription forecasts etc."
     },
-    "name_customers": {
-      "default": "Customers",
-      "type": "string"
-    },
+    "name_customers": { "type": "string", "default": "Customers" },
     "name_customers_explainer": {
-      "default": "Exports customers to import somewhere else.",
-      "type": "string"
+      "type": "string",
+      "default": "Exports customers to import somewhere else."
     },
-    "name_customers_ltv": {
-      "default": "Lifetime value",
-      "type": "string"
-    },
+    "name_customers_ltv": { "type": "string", "default": "Lifetime value" },
     "name_customers_ltv_explainer": {
-      "default": "Customers with lifetime value info.",
-      "type": "string"
+      "type": "string",
+      "default": "Customers with lifetime value info."
     },
-    "preset": {
-      "default": "Preset",
-      "type": "string"
-    },
-    "preset_custom": {
-      "default": "Custom",
-      "type": "string"
-    },
-    "preset_last_30_days": {
-      "default": "Last 30 days",
-      "type": "string"
-    },
-    "preset_last_365_days": {
-      "default": "Last 365 days",
-      "type": "string"
-    },
-    "preset_previous_month": {
-      "default": "Previous month",
-      "type": "string"
-    },
-    "preset_previous_quarter": {
-      "default": "Previous quarter",
-      "type": "string"
-    },
-    "preset_previous_year": {
-      "default": "Previous year",
-      "type": "string"
-    },
-    "preset_this_month": {
-      "default": "This month",
-      "type": "string"
-    },
-    "preset_this_quarter": {
-      "default": "This quarter",
-      "type": "string"
-    },
-    "preset_this_year": {
-      "default": "This year",
-      "type": "string"
-    },
-    "range": {
-      "default": "Range",
-      "type": "string"
-    },
-    "select_date": {
-      "default": "DD/MM/YYYY",
-      "type": "string"
-    },
-    "select_time": {
-      "default": "HH:MM:SS",
-      "type": "string"
-    },
+    "preset": { "type": "string", "default": "Preset" },
+    "preset_custom": { "type": "string", "default": "Custom" },
+    "preset_last_30_days": { "type": "string", "default": "Last 30 days" },
+    "preset_last_365_days": { "type": "string", "default": "Last 365 days" },
+    "preset_previous_month": { "type": "string", "default": "Previous month" },
+    "preset_previous_quarter": { "type": "string", "default": "Previous quarter" },
+    "preset_previous_year": { "type": "string", "default": "Previous year" },
+    "preset_this_month": { "type": "string", "default": "This month" },
+    "preset_this_quarter": { "type": "string", "default": "This quarter" },
+    "preset_this_year": { "type": "string", "default": "This year" },
+    "range": { "type": "string", "default": "Range" },
+    "select_date": { "type": "string", "default": "DD/MM/YYYY" },
+    "select_time": { "type": "string", "default": "HH:MM:SS" },
+    "start": { "type": "string", "default": "Start" },
+    "use_precise_time": { "type": "string", "default": "Use precise time" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "start": {
-      "default": "Start",
-      "type": "string"
-    },
-    "use_precise_time": {
-      "default": "Use precise time",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -176,6 +89,5 @@
     "start",
     "use_precise_time",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

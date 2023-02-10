@@ -151,7 +151,7 @@ export class CustomerForm extends Base<Data> {
 
         <vaadin-button
           class="w-full"
-          theme=${this.in('idle') ? `primary ${href ? 'error' : 'success'}` : ''}
+          theme=${this.in('idle') ? (href ? 'error' : 'primary success') : ''}
           data-testid=${action}
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${handleClick}

@@ -1,0 +1,319 @@
+import { Subtitle, ArgsTable, Meta } from '@web/storybook-prebuilt/addon-docs/blocks.js';
+import './index.ts';
+
+<Meta title="Connectors / PaymentsApi" />
+
+# PaymentsApi
+
+<Subtitle>Element connector for Payments API</Subtitle>
+
+Payments API is a client-side virtual API layer built on top of hAPI in an attempt to streamline access to stores' payment method settings that is currently a bit quirky due to the legacy functionality. To use Payments API elements with hAPI, wrap them into this node and then into your own hAPI adapter that handles authentication and session management.
+
+## Example
+
+```html
+<my-hapi-adapter base="https://demo.api/hapi/">
+  <foxy-payments-api
+    payment-method-set-hosted-payment-gateways-url="https://demo.api/hapi/payment_method_set_hosted_payment_gateways"
+    hosted-payment-gateways-helper-url="https://demo.api/hapi/property_helpers/1"
+    hosted-payment-gateways-url="https://demo.api/hapi/hosted_payment_gateways"
+    payment-gateways-helper-url="https://demo.api/hapi/property_helpers/0"
+    payment-method-sets-url="https://demo.api/hapi/payment_method_sets"
+    fraud-protections-url="https://demo.api/hapi/fraud_protections"
+    payment-gateways-url="https://demo.api/hapi/payment_gateways"
+  >
+    <foxy-payments-api-fraud-protection-form
+      parent="https://foxy-payments-api.element/payment_presets/0/fraud_protections"
+      href="https://foxy-payments-api.element/payment_presets/0/fraud_protections/0C0"
+    >
+    </foxy-payments-api-fraud-protection-form>
+  </foxy-payments-api>
+</my-hapi-adapter>
+```
+
+## Virtual endpoints
+
+All virtual endpoints below use the following base: `https://foxy-payments-api.element`. Unlike hAPI, the IDs in this API are _not_ always numeric.
+
+### `/payment_presets` (POST, GET)
+
+Collection of Payment Presets for a Store. Curie: `fx:payment_presets`. Based on the `fx:payment_method_sets` collection of hAPI.
+
+```json
+{
+  "_links": {
+    "first": { "href": "..." },
+    "prev": { "href": "..." },
+    "next": { "href": "..." },
+    "last": { "href": "..." },
+    "self": { "href": "..." }
+  },
+  "_embedded": {
+    "fx:payment_presets": [{}, {}, {}]
+  },
+  "total_items": 3,
+  "returned_items": 3,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+### `/payment_presets/:payment_preset` (DELETE, PATCH, GET)
+
+Payment Preset: a set of Payment Methods and Fraud Protections configured for a Store. Curie: `fx:payment_preset`. Based on the `fx:payment_method_set` resource of hAPI.
+
+```json
+{
+  "_links": {
+    "self": { "href": "..." },
+    "fx:store": { "href": "..." },
+    "fx:payment_methods": { "href": "..." },
+    "fx:fraud_protections": { "href": "..." },
+    "fx:available_payment_methods": { "href": "..." },
+    "fx:available_fraud_protections": { "href": "..." }
+  },
+  "description": "Default",
+  "is_live": false,
+  "is_purchase_order_enabled": false,
+  "date_created": "2012-08-10T11:58:54-0700",
+  "date_modified": "2012-08-10T11:58:54-0700"
+}
+```
+
+### `/payment_presets/:payment_preset/fraud_protections` (POST, GET)
+
+Collection of Fraud Protections configured for a Payment Preset. Curie: `fx:fraud_protections`. It's like the `fx:fraud_protections` collection of hAPI but containing only those protections that are linked to the given `fx:payment_method_set` via `fx:payment_method_set_fraud_protection` resources.
+
+```json
+{
+  "_links": {
+    "first": { "href": "..." },
+    "prev": { "href": "..." },
+    "next": { "href": "..." },
+    "last": { "href": "..." },
+    "self": { "href": "..." }
+  },
+  "_embedded": {
+    "fx:fraud_protections": [{}, {}, {}]
+  },
+  "total_items": 3,
+  "returned_items": 3,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+### `/payment_presets/:payment_preset/fraud_protections/:fraud_protection` (DELETE, PATCH, GET)
+
+Fraud Protection: a fraud prevention system, e.g. Minfraud or Google reCAPTCHA. Curie: `fx:fraud_protection`. The only differences between the hAPI version are links and the "helper" field that contains an entry from Available Fraud Protections.
+
+```json
+{
+  "_links": {
+    "self": { "href": "..." },
+    "fx:store": { "href": "..." },
+    "fx:payment_method_sets": { "href": "..." }
+  },
+  "type": "google_recaptcha",
+  "description": "Google reCAPTCHA",
+  "json": "{\"private_key\":\"\",\"site_key\":\"\",\"config\":\"disabled\"}",
+  "score_threshold_reject": 0,
+  "date_created": "2015-05-27T08:59:54-0700",
+  "date_modified": "2015-05-27T08:59:54-0700",
+  "helper": {}
+}
+```
+
+### `/payment_presets/:payment_preset/payment_methods` (POST, GET)
+
+Collection of Payment Methods configured for a Payment Preset. Curie: `fx:payment_methods`. This collection aggregates `fx:hosted_payment_gateway` hAPI resources for a `fx:payment_method_set` (linked via `fx:payment_method_set_hosted_payment_gateway`) and also bundles the `fx:payment_gateway` resource if linked via the `gateway_uri` property.
+
+```json
+{
+  "_links": {
+    "first": { "href": "..." },
+    "prev": { "href": "..." },
+    "next": { "href": "..." },
+    "last": { "href": "..." },
+    "self": { "href": "..." }
+  },
+  "_embedded": {
+    "fx:payment_methods": [{}, {}, {}]
+  },
+  "total_items": 3,
+  "returned_items": 3,
+  "limit": 20,
+  "offset": 0
+}
+```
+
+### `/payment_presets/:payment_preset/payment_methods/:payment_method` (DELETE, PATCH, GET)
+
+Payment Method: regular or hosted payment gateway in a Payment Preset. Curie: `fx:payment_method`. Helper field contains an entry from Available Payment Methods. Props come from either a `fx:hosted_payment_gateway` or a `fx:payment_gateway` hAPI resource.
+
+```json
+{
+  "_links": {
+    "self": { "href": "..." },
+    "fx:store": { "href": "..." },
+    "fx:payment_preset": { "href": "..." }
+  },
+  "description": "Amazon",
+  "type": "amazon_mws",
+  "use_auth_only": false,
+  "account_id": "",
+  "account_key": "",
+  "third_party_key": "",
+  "config_3d_secure": "",
+  "additional_fields": "",
+  "test_account_id": "",
+  "test_account_key": "",
+  "test_third_party_key": "",
+  "date_created": "2015-05-26T17:49:56-0700",
+  "date_modified": "2015-05-26T17:49:56-0700",
+  "helper": {}
+}
+```
+
+### `/payment_presets/:payment_preset/available_payment_methods` (GET)
+
+Property helper listing all payment methods that can be configured for a Payment Preset. Curie: `fx:available_payment_methods`. If one of the suggested methods conflicts with an existing Payment Method, the information about that conflict will be included. Based on the `fx:payment_gateways` and `fx:hosted_payment_gateways` property helpers of hAPI.
+
+```json
+{
+  "_links": {
+    "self": { "href": "..." }
+  },
+  "values": {
+    "authorize": {
+      "name": "Authorize.net AIM",
+      "id_description": "API ID",
+      "test_id": "123",
+      "key_description": "Transaction Key",
+      "test_key": "123",
+      "third_party_key_description": "",
+      "test_third_party_key": "",
+      "supports_auth_only": 1,
+      "supports_3d_secure": 0,
+      "additional_fields": null
+    },
+    "bambora": {
+      "name": "Bambora",
+      "id_description": "Merchant ID",
+      "test_id": "123",
+      "key_description": "API passcode",
+      "test_key": "123",
+      "third_party_key_description": "Payment Profile passcode",
+      "test_third_party_key": "123",
+      "supports_auth_only": 1,
+      "supports_3d_secure": 0,
+      "additional_fields": null,
+      "conflict": {
+        "type": "authorize",
+        "name": "Authorize.net AIM"
+      }
+    }
+  }
+}
+```
+
+### `/payment_presets/:payment_preset/available_fraud_protections` (GET)
+
+Property helper listing all fraud protections that can be configured for a Payment Preset. Curie: `fx:available_fraud_protections`. There isn't a hAPI counterpart so the returned value is always the same:
+
+```json
+{
+  "_links": { "self": { "href": "..." } },
+  "values": {
+    "minfraud": {
+      "name": "MaxMind minFraud",
+      "uses_rejection_threshold": true,
+      "json": null
+    },
+    "google_recaptcha": {
+      "name": "Google reCAPTCHA",
+      "uses_rejection_threshold": false,
+      "json": {
+        "blocks": [
+          {
+            "id": "",
+            "parent_id": "",
+            "fields": [
+              {
+                "id": "config",
+                "name": "Configuration",
+                "type": "select",
+                "description": "Determines how reCAPTCHA is configured to operate.",
+                "default_value": "disabled",
+                "options": [
+                  { "name": "Disabled", "value": "disabled" },
+                  { "name": "Always enabled", "value": "enabled_always" },
+                  { "name": "Enabled by errors", "value": "enabled_by_errors" }
+                ]
+              },
+              {
+                "id": "private_key",
+                "name": "Private Key",
+                "type": "text",
+                "optional": true,
+                "description": "If using a custom subdomain, enter your Private Key here.",
+                "default_value": ""
+              },
+              {
+                "id": "site_key",
+                "name": "Site Key",
+                "type": "text",
+                "optional": true,
+                "description": "If using a custom subdomain, enter your Site Key here.",
+                "default_value": ""
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "custom_precheckout_hook": {
+      "name": "Pre-Checkout Webhook",
+      "uses_rejection_threshold": false,
+      "json": {
+        "blocks": [
+          {
+            "id": "",
+            "parent_id": "",
+            "fields": [
+              {
+                "id": "enabled",
+                "name": "Enabled",
+                "type": "checkbox",
+                "default_value": false
+              },
+              {
+                "id": "url",
+                "name": "URL",
+                "type": "text",
+                "description": "Url of your Pre-Checkout Hook",
+                "default_value": ""
+              },
+              {
+                "id": "failure_handling",
+                "name": "Failure handling",
+                "type": "select",
+                "description": "Determines what happens to the checkout if your webhook fails.",
+                "default_value": "",
+                "options": [
+                  { "name": "Reject", "value": "reject" },
+                  { "name": "Approve", "value": "approve" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+## Reference
+
+<ArgsTable of="foxy-customer-api" />

@@ -13,7 +13,10 @@ If you're targeting [browsers that support ES6](https://caniuse.com/#feat=es6), 
 <script src="https://unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-bundle.js"></script>
 
 <!-- 2. Load element (replace "foxy-donation" with the one you need or add more script tags); -->
-<script type="module" src="https://unpkg.com/@foxy.io/elements@1/dist/cdn/foxy-donation.js"></script>
+<script
+  type="module"
+  src="https://unpkg.com/@foxy.io/elements@1/dist/cdn/foxy-donation.js"
+></script>
 
 <!-- 3. Use the element anywhere on your page. -->
 <foxy-donation></foxy-donation>
@@ -65,3 +68,9 @@ There's a number of useful scripts that you might need:
 - `npm run format` fixes style errors in your code;
 - `npm run lint` shows style errors in your code;
 - `npm run test` runs all test suites with [Karma](https://github.com/karma-runner/karma);
+- `npm run test:watch -- --group foxy-attribute-card` runs tests in watch mode for a specific element;
+- `npm run wca` generates docs for element slots and attributes;
+- `npm run generate-schemas` generates JSONSchemas for element translations based on English i18n files;
+- `npm run generate-groups` generates test groups for elements;
+
+Note: depending on the hardware, some tests may start failing with a timeout error when running the entire test suite with `npm run test`. If that happens on your machine, try running tests for individual elements instead with `npm run test -- --group element-name`.

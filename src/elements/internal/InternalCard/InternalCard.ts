@@ -22,6 +22,12 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
   }
 
   render(): TemplateResult {
+    const spinnerState = this.in('fail')
+      ? 'error'
+      : this.in({ idle: 'template' })
+      ? 'empty'
+      : 'busy';
+
     return html`
       <div
         aria-busy=${this.in('busy')}
@@ -31,7 +37,7 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
         <div
           class=${classMap({
             'transition duration-500 ease-in-out': true,
-            'opacity-0 pointer-events-none': !this.in({ idle: 'snapshot' }),
+            'opacity-0 pointer-events-none': !this.isBodyReady,
           })}
         >
           ${this.renderBody()}
@@ -40,12 +46,12 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
         <div
           class=${classMap({
             'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': this.in({ idle: 'snapshot' }),
+            'opacity-0 pointer-events-none': this.isBodyReady,
           })}
         >
           <foxy-spinner
-            layout=${this.in('busy') ? 'no-label' : 'horizontal'}
-            state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
+            layout=${spinnerState === 'busy' ? 'no-label' : 'horizontal'}
+            state=${spinnerState}
             class="m-auto"
             infer="spinner"
           >
@@ -53,5 +59,9 @@ export class InternalCard<TData extends Data> extends ThemeableMixin(NucleonElem
         </div>
       </div>
     `;
+  }
+
+  get isBodyReady(): boolean {
+    return !!this.data;
   }
 }

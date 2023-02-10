@@ -1,11 +1,11 @@
 import { ComputedElementProperties, HALJSONResource, NucleonMachine, NucleonV8N } from './types';
-import { LitElement, PropertyDeclarations } from 'lit-element';
+import { html, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
 import { Nucleon, Rumour } from '@foxy.io/sdk/core';
 import { assign, interpret } from 'xstate';
 
 import { API } from './API';
 import { FetchEvent } from './FetchEvent';
-import { UpdateEvent } from './UpdateEvent';
+import { UpdateEvent, UpdateResult } from './UpdateEvent';
 import memoize from 'lodash-es/memoize';
 import { serveFromCache } from './serveFromCache';
 import { InferrableMixin } from '../../../mixins/inferrable';
@@ -50,6 +50,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** @readonly */
   static get properties(): PropertyDeclarations {
     return {
+      __state: { type: String, reflect: true, attribute: 'state' },
       related: { type: Array },
       parent: { type: String },
       group: { type: String, noAccessor: true },
@@ -85,11 +86,11 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    */
   related: string[] = [];
 
-  private __href = '';
+  private __hrefToLoad: string | null = null;
 
   private __group = '';
 
-  private __unsubscribeFromRumour!: () => void;
+  private __unsubscribeFromRumour: (() => void) | null = null;
 
   private __fetchEventHandler!: (evt: Event) => void;
 
@@ -119,6 +120,11 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
       },
     })
   );
+
+  constructor() {
+    super();
+    this.__createService();
+  }
 
   /**
    * If network request returns non-2XX code, the entire error response
@@ -167,8 +173,10 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   }
 
   set data(data: TData | null) {
+    this.__destroyRumour();
+    this.__hrefToLoad = null;
     this.__service.send({ type: 'SET_DATA', data });
-    this.__href = data?._links.self.href ?? '';
+    if (data) this.__createRumour();
   }
 
   /**
@@ -190,16 +198,16 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.href = 'https://demo.foxycart.com/s/customer/attributes/0'
    */
   get href(): string {
-    return this.__href;
+    return this.form._links?.self.href ?? this.__hrefToLoad ?? '';
   }
 
   set href(value: string) {
-    this.__href = value;
+    this.__hrefToLoad = value;
 
     if (value) {
       this.__service.send({ type: 'FETCH' });
     } else {
-      this.__service.send({ type: 'SET_DATA', data: null });
+      this.data = null;
     }
   }
 
@@ -226,6 +234,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.edit({ first_name: 'Alex' })
    */
   edit(data: Partial<TData>): void {
+    if (typeof data._links?.self.href === 'string') this.__hrefToLoad = null;
     this.__service.send({ type: 'EDIT', data });
   }
 
@@ -235,7 +244,44 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * @example element.submit()
    */
   submit(): void {
+    this.reportValidity();
     this.__service.send({ type: 'SUBMIT' });
+  }
+
+  checkValidity(): boolean {
+    const isTemplateDirtyValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotDirtyValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isTemplateCleanValid = this.in({ idle: { template: { clean: 'valid' } } });
+    const isSnapshotCleanValid = this.in({ idle: { snapshot: { clean: 'valid' } } });
+    const isTemplateValid = isTemplateCleanValid || isTemplateDirtyValid;
+    const isSnapshotValid = isSnapshotCleanValid || isSnapshotDirtyValid;
+    const isValid = isTemplateValid || isSnapshotValid;
+
+    return isValid;
+  }
+
+  reportValidity(): boolean {
+    const walker = this.ownerDocument.createTreeWalker(this.renderRoot, NodeFilter.SHOW_ELEMENT);
+
+    do {
+      type Input = Node & Record<string, () => unknown>;
+
+      const node = walker.currentNode as Input;
+      const methods = ['reportValidity', 'validate'];
+
+      for (const method of methods) {
+        if (method in node) {
+          try {
+            node[method]();
+            break;
+          } catch {
+            continue;
+          }
+        }
+      }
+    } while (walker.nextNode());
+
+    return this.checkValidity();
   }
 
   /**
@@ -255,24 +301,31 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     this.__service.send({ type: 'REFRESH' });
   }
 
+  render(): TemplateResult {
+    return html`<slot></slot>`;
+  }
+
   /** @readonly */
   connectedCallback(): void {
     super.connectedCallback();
+    if (this.href && !this.data) this.__service.send({ type: 'FETCH' });
 
-    this.__createService();
     this.__createRumour();
     this.__createServer();
     this.__processFetchEventQueue();
+
+    this.dispatchEvent(new UpdateEvent());
   }
 
   /** @readonly */
   disconnectedCallback(): void {
     super.disconnectedCallback();
 
-    this.__destroyService();
     this.__destroyRumour();
     this.__destroyServer();
     this.__flushFetchEventQueue('parent element was disconnected');
+
+    this.dispatchEvent(new UpdateEvent());
   }
 
   applyInferredProperties(context: Map<string, unknown>): void {
@@ -294,14 +347,19 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** POSTs to `element.parent`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendPost(edits: Partial<TData>): Promise<TData> {
     this.__destroyRumour();
+    let data: TData;
 
-    const body = JSON.stringify(edits);
-    const data = await this._fetch(this.parent, { body, method: 'POST' });
-    const rumour = NucleonElement.Rumour(this.group);
-    const related = [...this.related, this.parent];
+    try {
+      const body = JSON.stringify(edits);
+      const postData = await this._fetch(this.parent, { body, method: 'POST' });
+      data = await this._fetch(postData._links.self.href);
 
-    rumour.share({ data, related, source: data._links.self.href });
-    this.__createRumour();
+      const rumour = NucleonElement.Rumour(this.group);
+      const related = [...this.related, this.parent];
+      rumour.share({ data, related, source: data._links.self.href });
+    } finally {
+      this.__createRumour();
+    }
 
     return data;
   }
@@ -309,12 +367,14 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** GETs `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendGet(): Promise<TData> {
     this.__destroyRumour();
+    let data: TData;
 
-    const data = await this._fetch(this.href);
-    const rumour = NucleonElement.Rumour(this.group);
-
-    rumour.share({ data, source: this.href });
-    this.__createRumour();
+    try {
+      data = await this._fetch(this.href);
+      NucleonElement.Rumour(this.group).share({ data, source: this.href });
+    } finally {
+      this.__createRumour();
+    }
 
     return data;
   }
@@ -322,40 +382,61 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   /** PATCHes `element.href`, shares response with the Rumour group and returns parsed JSON. */
   protected async _sendPatch(edits: Partial<TData>): Promise<TData> {
     this.__destroyRumour();
+    let data: TData;
 
-    const body = JSON.stringify(edits);
-    const data = await this._fetch(this.href, { body, method: 'PATCH' });
-    const rumour = NucleonElement.Rumour(this.group);
+    try {
+      const body = JSON.stringify(edits);
+      data = await this._fetch(this.href, { body, method: 'PATCH' });
 
-    rumour.share({ data, source: this.href, related: this.related });
-    this.__createRumour();
+      const rumour = NucleonElement.Rumour(this.group);
+      rumour.share({ data, source: this.href, related: this.related });
+    } finally {
+      this.__createRumour();
+    }
 
     return data;
   }
 
   /** DELETEs `element.href`, shares response with the Rumour group and returns parsed JSON. */
-  protected async _sendDelete(): Promise<TData> {
+  protected async _sendDelete(): Promise<null> {
     this.__destroyRumour();
 
-    const data = await this._fetch(this.href, { method: 'DELETE' });
-    const rumour = NucleonElement.Rumour(this.group);
-    const related = [...this.related, this.parent];
+    try {
+      await this._fetch(this.href, { method: 'DELETE' });
 
-    rumour.share({ data: null, source: this.href, related });
-    this.__createRumour();
+      const rumour = NucleonElement.Rumour(this.group);
+      const related = [...this.related, this.parent];
+      rumour.share({ data: null, source: this.href, related });
+    } finally {
+      this.__createRumour();
+    }
 
-    return data;
+    return null;
+  }
+
+  // this getter is used by LitElement to set the "state" attribute
+  private get __state(): string {
+    const state = this.__service.state;
+    const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
+    return [...new Set(flags)].join(' ');
   }
 
   private __createService() {
     this.__service.onTransition(state => {
       if (!state.changed) return;
 
-      const flags = state.toStrings().reduce((p, c) => [...p, ...c.split('.')], [] as string[]);
-      this.setAttribute('state', [...new Set(flags)].join(' '));
+      let result: UpdateResult | undefined = undefined;
+
+      if (state.matches('idle')) {
+        if (state.history?.matches({ busy: 'deleting' })) {
+          result = UpdateResult.ResourceDeleted;
+        } else if (state.history?.matches({ busy: 'creating' })) {
+          result = UpdateResult.ResourceCreated;
+        }
+      }
 
       this.requestUpdate();
-      this.dispatchEvent(new UpdateEvent());
+      this.dispatchEvent(new UpdateEvent('update', { detail: { result } }));
 
       if (!state.matches('busy')) this.__processFetchEventQueue();
     });
@@ -368,10 +449,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     this.__service.start();
   }
 
-  private __destroyService() {
-    this.__service.stop();
-  }
-
   private __createRumour() {
     const rumour = NucleonElement.Rumour(this.group);
     this.__unsubscribeFromRumour = rumour.track(update => this.__handleRumourUpdate(update));
@@ -379,6 +456,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
 
   private __destroyRumour() {
     this.__unsubscribeFromRumour?.();
+    this.__unsubscribeFromRumour = null;
   }
 
   private __createServer() {
@@ -393,10 +471,17 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
   private __handleRumourUpdate(update: (oldData: TData) => TData | null) {
     try {
       const oldData = this.__service.state?.context.data;
-      if (!oldData) return;
+      const newData = oldData ? update(oldData) : oldData;
 
-      const newData = update(oldData);
-      if (newData !== oldData) this.__service.send({ data: newData, type: 'SET_DATA' });
+      if (newData !== oldData) {
+        this.data = newData;
+
+        if (!newData) {
+          const result = UpdateResult.ResourceDeleted;
+          const event = new UpdateEvent('update', { detail: { result } });
+          this.dispatchEvent(event);
+        }
+      }
     } catch (err) {
       if (err instanceof Rumour.UpdateError) {
         this.__service.send({ type: 'REFRESH' });
@@ -447,6 +532,6 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
     event.preventDefault();
     this.__fetchEventQueue.push(event);
 
-    if (!this.in('busy')) this.__processFetchEventQueue();
+    if (!this.__service.state.matches('busy')) this.__processFetchEventQueue();
   }
 }

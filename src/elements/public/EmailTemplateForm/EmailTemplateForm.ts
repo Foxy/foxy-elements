@@ -26,6 +26,9 @@ const Base = ScopedElementsMixin(
  * @slot description:before
  * @slot description:after
  *
+ * @slot template-language:before
+ * @slot template-language:after
+ *
  * @slot content:before
  * @slot content:after
  *
@@ -63,7 +66,9 @@ export class EmailTemplateForm extends Base<Data> {
 
   static get scopedElements(): ScopedElementsMap {
     return {
+      'foxy-internal-select-control': customElements.get('foxy-internal-select-control'),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-text-control': customElements.get('foxy-internal-text-control'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -82,6 +87,14 @@ export class EmailTemplateForm extends Base<Data> {
 
   private __contentChoice: 'default' | 'url' | 'clipboard' = 'default';
 
+  private __templateLanguageOptions = [
+    { label: 'Nunjucks', value: 'nunjucks' },
+    { label: 'Handlebars', value: 'handlebars' },
+    { label: 'Pug', value: 'pug' },
+    { label: 'Twig', value: 'twig' },
+    { label: 'EJS', value: 'ejs' },
+  ];
+
   render(): TemplateResult {
     const { hiddenSelector, href, lang, ns } = this;
     const action = href ? 'delete' : 'create';
@@ -91,6 +104,21 @@ export class EmailTemplateForm extends Base<Data> {
     return html`
       <div class="space-y-m">
         ${hiddenSelector.matches('description', true) ? '' : this.__renderDescription()}
+
+        <foxy-internal-text-control infer="subject"></foxy-internal-text-control>
+
+        ${this.data?.description === 'Email Receipt Template'
+          ? ''
+          : html`
+              <foxy-internal-select-control
+                infer="template-language"
+                .options=${this.__templateLanguageOptions}
+              >
+              </foxy-internal-select-control>
+            `}
+
+        <!-- -->
+
         ${hiddenSelector.matches('content', true) ? '' : this.__renderContent()}
         ${hiddenSelector.matches('timestamps', true) || !href ? '' : this.__renderTimestamps()}
         ${hiddenSelector.matches(action) ? '' : this.__renderAction(action)}
@@ -210,7 +238,11 @@ export class EmailTemplateForm extends Base<Data> {
             `;
           })}
 
-          <div slot="url" ?hidden=${contentChoice !== 'url'}>
+          <div
+            style="--lumo-border-radius: var(--lumo-border-radius-s)"
+            slot="url"
+            ?hidden=${contentChoice !== 'url'}
+          >
             <div class="flex items-center mt-0 mb-m">
               <vaadin-text-field
                 data-testid="${textPath.replace('_', '-')}-url"
@@ -263,7 +295,11 @@ export class EmailTemplateForm extends Base<Data> {
             </div>
           </div>
 
-          <div slot="clipboard" ?hidden=${contentChoice !== 'clipboard'}>
+          <div
+            style="--lumo-border-radius: var(--lumo-border-radius-s)"
+            slot="clipboard"
+            ?hidden=${contentChoice !== 'clipboard'}
+          >
             <vaadin-text-area
               data-testid="${textPath.replace('_', '-')}-clipboard"
               id="cached-content"
@@ -345,7 +381,7 @@ export class EmailTemplateForm extends Base<Data> {
 
         <vaadin-button
           class="w-full"
-          theme=${this.in('idle') ? `primary ${href ? 'error' : 'success'}` : ''}
+          theme=${this.in('idle') ? (href ? 'error' : 'primary success') : ''}
           data-testid=${action}
           ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
           @click=${handleClick}

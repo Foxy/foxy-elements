@@ -1,0 +1,9 @@
+{
+  "image_alt": "Shipping method logo",
+  "status_active": "Active",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

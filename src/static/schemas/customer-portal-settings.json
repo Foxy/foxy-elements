@@ -1,0 +1,239 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "save_create": { "type": "string", "default": "Save and enable" },
+    "save_delete": { "type": "string", "default": "Disable portal" },
+    "save_update": { "type": "string", "default": "Save changes" },
+    "jsonata": {
+      "additionalProperties": false,
+      "properties": {
+        "all": { "type": "string", "default": "All" },
+        "some": { "type": "string", "default": "Some" },
+        "hint": {
+          "type": "string",
+          "default": "Enter a valid JSONata query selecting the subscriptions these rules will apply to. Please limit your expression to 200 characters. Docs:"
+        }
+      },
+      "required": ["all", "some", "hint"]
+    },
+    "title": { "type": "string", "default": "Customer Portal" },
+    "subtitle": {
+      "type": "string",
+      "default": "A dedicated place for your customers to view and manage their subscriptions, payment methods and recent transactions"
+    },
+    "quickstart": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Quick start" },
+        "subtitle": {
+          "type": "string",
+          "default": "Embed customer portal into your website by copying the code snippet below:"
+        }
+      },
+      "required": ["title", "subtitle"]
+    },
+    "origins": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Allowed origins" },
+        "subtitle": {
+          "type": "string",
+          "default": "Please list below the websites you’re planning to use customer portal on"
+        },
+        "invalid": { "type": "string", "default": "URL is invalid" },
+        "https_only": { "type": "string", "default": "Origin is insecure" },
+        "add": { "type": "string", "default": "Add origin" },
+        "add_hint": { "type": "string", "default": "You can add up to 10 origins" }
+      },
+      "required": ["title", "subtitle", "invalid", "https_only", "add", "add_hint"]
+    },
+    "fmod": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Frequency modification" },
+        "subtitle": {
+          "type": "string",
+          "default": "Customize how your customers can switch to a different payment schedule"
+        },
+        "allTitle": { "type": "string", "default": "All subscriptions" },
+        "someTitle": { "type": "string", "default": "Subscriptions matching" },
+        "valuesLabel": { "type": "string", "default": "Values: " },
+        "valuesList": { "type": "string", "default": "{{values, list lowercase}}" },
+        "valuesListEmpty": { "type": "string", "default": "none" },
+        "add_option": { "type": "string", "default": "Add option" },
+        "add_option_hint": {
+          "type": "string",
+          "default": "You can add up to 20 value options for this rule"
+        },
+        "add_rule": { "type": "string", "default": "Add rule" },
+        "add_rule_hint": { "type": "string", "default": "You can add up to 10 rules" },
+        "options": { "type": "string", "default": "Options" },
+        "match": { "type": "string", "default": "Match" }
+      },
+      "required": [
+        "title",
+        "subtitle",
+        "allTitle",
+        "someTitle",
+        "valuesLabel",
+        "valuesList",
+        "valuesListEmpty",
+        "add_option",
+        "add_option_hint",
+        "add_rule",
+        "add_rule_hint",
+        "options",
+        "match"
+      ]
+    },
+    "ndmod": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Next payment date modification" },
+        "subtitle": {
+          "type": "string",
+          "default": "If enabled, your customers will be able to delay or advance the next payment"
+        },
+        "allTitle": { "type": "string", "default": "All subscriptions" },
+        "someTitle": { "type": "string", "default": "Subscriptions matching" },
+        "range": { "type": "string", "default": "Range" },
+        "range_start": { "type": "string", "default": "Start" },
+        "range_end": { "type": "string", "default": "End (optional)" },
+        "any": { "type": "string", "default": "Any" },
+        "add": { "type": "string", "default": "Add rule" },
+        "add_hint": { "type": "string", "default": "You can add up to 10 rules" },
+        "add_range": { "type": "string", "default": "Add range" },
+        "add_range_hint": { "type": "string", "default": "You can add up to 20 exceptions" },
+        "add_single": { "type": "string", "default": "Add one date" },
+        "match": { "type": "string", "default": "Match" },
+        "allowed": { "type": "string", "default": "Allowed dates" },
+        "excluded": { "type": "string", "default": "Excluded dates" },
+        "month": { "type": "string", "default": "Specific dates" },
+        "day": { "type": "string", "default": "Specific days of week" },
+        "dayHint": {
+          "type": "string",
+          "default": "Your customers will be able to select only {{days, list}} for the next payment date."
+        },
+        "select": { "type": "string", "default": "Select date" },
+        "all": { "type": "string", "default": "All" },
+        "none": { "type": "string", "default": "No restrictions" },
+        "custom": { "type": "string", "default": "Custom offset" },
+        "min": { "type": "string", "default": "Minimum" },
+        "max": { "type": "string", "default": "Maximum" },
+        "minHint": {
+          "type": "string",
+          "default": "Requires the new date to be at least {{duration}} into the future."
+        },
+        "minWarning": {
+          "type": "string",
+          "default": "The minimum is either too close to the maximum or exceeds it. This may make your customers unable to change next date under certain conditions. Please proceed with caution."
+        },
+        "maxHint": {
+          "type": "string",
+          "default": "Requires the new date to be at most {{duration}} into the future."
+        }
+      },
+      "required": [
+        "title",
+        "subtitle",
+        "allTitle",
+        "someTitle",
+        "range",
+        "range_start",
+        "range_end",
+        "any",
+        "add",
+        "add_hint",
+        "add_range",
+        "add_range_hint",
+        "add_single",
+        "match",
+        "allowed",
+        "excluded",
+        "month",
+        "day",
+        "dayHint",
+        "select",
+        "all",
+        "none",
+        "custom",
+        "min",
+        "max",
+        "minHint",
+        "minWarning",
+        "maxHint"
+      ]
+    },
+    "sso": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Enable Single Sign-On (SSO)" },
+        "subtitle": {
+          "type": "string",
+          "default": "Sync your sessions across your website and our checkout"
+        }
+      },
+      "required": ["title", "subtitle"]
+    },
+    "jwt": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "JWT shared secret" },
+        "subtitle": { "type": "string", "default": "Reset this key to drop all active sessions" },
+        "invalid": {
+          "type": "string",
+          "default": "Only letters (a-z), numbers (0-9) and dashes (-) are allowed in this field"
+        },
+        "required": { "type": "string", "default": "Please fill in this field" },
+        "too_short": {
+          "type": "string",
+          "default": "This key must be at least 40 characters long"
+        },
+        "too_long": { "type": "string", "default": "This key must be at most 100 characters long" },
+        "refresh": { "type": "string", "default": "Reset" }
+      },
+      "required": ["title", "subtitle", "invalid", "required", "too_short", "too_long", "refresh"]
+    },
+    "session": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Session duration" },
+        "subtitle": {
+          "type": "string",
+          "default": "This is how long we'll keep your customers logged in"
+        },
+        "too_short": { "type": "string", "default": "Session must be at least 1 minute long" },
+        "too_long": { "type": "string", "default": "Sessions can't last for more than 4 weeks" }
+      },
+      "required": ["title", "subtitle", "too_short", "too_long"]
+    },
+    "advanced": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Advanced settings" },
+        "subtitle": {
+          "type": "string",
+          "default": "Authentication settings for fine-tuning your integration"
+        }
+      },
+      "required": ["title", "subtitle"]
+    }
+  },
+  "required": [
+    "save_create",
+    "save_delete",
+    "save_update",
+    "jsonata",
+    "title",
+    "subtitle",
+    "quickstart",
+    "origins",
+    "fmod",
+    "ndmod",
+    "sso",
+    "jwt",
+    "session",
+    "advanced"
+  ]
+}

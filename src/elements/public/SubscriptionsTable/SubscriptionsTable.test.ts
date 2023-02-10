@@ -15,8 +15,7 @@ type Refs = {
   i18n: HTMLElement[];
 };
 
-const url =
-  'https://demo.api/hapi/subscriptions?customer_id=0&zoom=last_transaction,transaction_template:items';
+const url = 'https://demo.api/hapi/subscriptions?customer_id=0&zoom=transaction_template:items';
 
 describe('SubscriptionsTable', () => {
   generateTests<Data, SubscriptionsTable, Refs>({
@@ -49,8 +48,8 @@ describe('SubscriptionsTable', () => {
           expect(linkRef).to.have.attribute('href', subscription._links['fx:sub_token_url'].href);
 
           {
-            const transaction = subscription._embedded['fx:last_transaction'];
-            const amount = `${transaction.total_order} ${transaction.currency_code}`;
+            const cart = subscription._embedded['fx:transaction_template'];
+            const amount = `${cart.total_order} ${cart.currency_code}`;
             const options = { ...parseFrequency(subscription.frequency), amount };
             const key = `price_${subscription.frequency === '.5m' ? 'twice_a_month' : 'recurring'}`;
 
@@ -62,6 +61,7 @@ describe('SubscriptionsTable', () => {
             const items = subscription._embedded['fx:transaction_template']._embedded['fx:items'];
             const options = {
               most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
+              count_minus_one: items.length - 1,
               count: items.length,
             };
 

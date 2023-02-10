@@ -215,6 +215,31 @@
   "week_plural": "Weeks",
   "year": "Year",
   "year_plural": "Years",
+  "provisioning": {
+    "toggle": {
+      "label": "Provisioning",
+      "text": "Allow customers to buy this gift card",
+      "helper_text": ""
+    },
+    "sku": {
+      "label": "SKU",
+      "placeholder": "E.g. 100_usd",
+      "helper_text": "You'll use this value to add this gift card to a customer's online cart.",
+      "v8n_required": "SKU is required for auto-provisioning"
+    },
+    "min-balance": {
+      "label": "Min balance",
+      "placeholder": "0",
+      "helper_text": "Customers won't be able to load this card with a balance less than this value.",
+      "v8n_negative": "Please enter a positive number"
+    },
+    "max-balance": {
+      "label": "Max balance",
+      "placeholder": "0",
+      "helper_text": "Customers won't be able to load this card with a balance greater than this value.",
+      "v8n_negative": "Please enter a positive number"
+    }
+  },
   "copy-to-clipboard": {
     "click_to_copy": "Click to copy",
     "copying": "Copying",
@@ -242,8 +267,8 @@
   },
   "gift-card-code-form": {
     "cancel": "Cancel",
-    "code": "Code",
     "confirm": "Confirm",
+    "code": "Code",
     "create": "Create",
     "current_balance": "Current balance",
     "date": "{{value, date}}",
@@ -254,6 +279,38 @@
     "end_date": "End date",
     "v8n_required": "Required",
     "v8n_too_long": "Too long",
+    "cart-item": {
+      "title": "Cart item",
+      "item-card": {
+        "price": "{{amount, price}}",
+        "wgt": "WGT",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No items",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
+    "logs": {
+      "title": "Timeline",
+      "pagination": {
+        "first": "First",
+        "last": "Last",
+        "next": "Next",
+        "pagination": "{{from}}-{{to}} out of {{total}}",
+        "previous": "Previous",
+        "card": {
+          "status_updated_via_api": "Updated via API",
+          "status_used": "Used on checkout",
+          "title": "{{date, date}}",
+          "spinner": {
+            "loading_busy": "Loading",
+            "loading_empty": "No data",
+            "loading_error": "Failed to load"
+          }
+        }
+      }
+    },
     "spinner": {
       "loading_busy": "Loading",
       "loading_error": "Failed to load"

@@ -4,6 +4,7 @@
   "current_url": "Current URL",
   "get_mode": "Click to send GET requests to the selected endpoints",
   "post_mode": "Click to send POST requests to the selected endpoints",
+  "navigate": "Navigate to this URL",
   "refresh": "Refresh",
   "first": "First",
   "last": "Last",

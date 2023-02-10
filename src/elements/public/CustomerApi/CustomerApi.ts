@@ -171,6 +171,16 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
     return new Response(JSON.stringify(body), { status });
   }
 
+  private async __handleVirtualAuthSessionGet(request: Request) {
+    return new Response(
+      JSON.stringify({
+        _links: { self: { href: request.url } },
+        type: 'password',
+        credential: { email: '', password: '' },
+      })
+    );
+  }
+
   private async __handleVirtualAuthRecoverPost(request: Request) {
     const payload = await request.clone().json();
 
@@ -187,6 +197,10 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
     }
   }
 
+  private async __handleVirtualAuthRecoverGet(request: Request) {
+    return new Response(JSON.stringify({ _links: { self: { href: request.url } }, email: '' }));
+  }
+
   private async __handleRequest(request: Request) {
     const url = request.url;
     const method = request.method;
@@ -195,10 +209,12 @@ export class CustomerApi extends ConfigurableMixin(InferrableMixin(LitElement)) 
       if (url === 'foxy://customer-api/session') {
         if (method === 'DELETE') return this.__handleVirtualAuthSessionDelete();
         if (method === 'POST') return this.__handleVirtualAuthSessionPost(request);
+        if (method === 'GET') return this.__handleVirtualAuthSessionGet(request);
       }
 
       if (url === 'foxy://customer-api/recover') {
         if (method === 'POST') return this.__handleVirtualAuthRecoverPost(request);
+        if (method === 'GET') return this.__handleVirtualAuthRecoverGet(request);
       }
 
       const response = await this.api.fetch(request);

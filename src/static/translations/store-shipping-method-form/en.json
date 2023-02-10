@@ -1,0 +1,90 @@
+{
+  "shipping-method-uri": {
+    "label": "Shipping Method",
+    "placeholder": "Select service",
+    "helper_text": "",
+    "v8n_required": "Please select a shipping method."
+  },
+  "shipping-container-uri": {
+    "label": "Container",
+    "placeholder": "Select container",
+    "helper_text": "",
+    "v8n_required": "Please select a shipping method."
+  },
+  "shipping-drop-type-uri": {
+    "label": "Drop Type",
+    "placeholder": "Select pickup",
+    "helper_text": "",
+    "v8n_required": "Please select a drop type."
+  },
+  "destinations": {
+    "label": "Destinations",
+    "domestic": "Domestic",
+    "international": "International",
+    "helper_text": ""
+  },
+  "authentication-key": {
+    "label": "Authentication Key",
+    "placeholder": "N/A",
+    "helper_text": "If using account specific rates, enter your shipping account authentication key here, if applicable.",
+    "v8n_too_long": "Authentication key must be 50 characters or less."
+  },
+  "meter-number": {
+    "label": "Meter Number",
+    "placeholder": "N/A",
+    "helper_text": "If using account specific rates, enter your shipping account meter number here, if applicable.",
+    "v8n_too_long": "Meter number must be 50 characters or less."
+  },
+  "accountid": {
+    "label": "Account ID",
+    "placeholder": "N/A",
+    "helper_text": "If using account specific rates, enter your shipping account id here.",
+    "v8n_too_long": "Account ID must be 50 characters or less."
+  },
+  "endpoint": {
+    "label": "Endpoint URL",
+    "placeholder": "https://example.com/rates",
+    "helper_text": "Enter a URL that we'll poll for shipping rates.",
+    "v8n_required": "Please enter a valid endpoint URL."
+  },
+  "password": {
+    "label": "Password",
+    "placeholder": "N/A",
+    "helper_text": "If using account specific rates, enter your shipping account password here.",
+    "v8n_too_long": "Password must be 50 characters or less."
+  },
+  "custom-code": {
+    "label": "Custom Code",
+    "placeholder": "Paste your code here",
+    "helper_text": "JavaScript used to create and modify shipping rates.",
+    "v8n_too_long": "Please reduce the size of your custom code to 64KB or less."
+  },
+  "services": {
+    "label": "Additional services",
+    "first": "First",
+    "last": "Last",
+    "next": "Next",
+    "pagination": "{{from}}-{{to}} out of {{total}}",
+    "previous": "Previous",
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load",
+    "international_only": "– international only"
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this shipping method? You won't be able to undo if you click Delete."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

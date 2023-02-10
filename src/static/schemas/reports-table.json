@@ -1,74 +1,33 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "created_on": {
-      "default": "Created on",
-      "type": "string"
-    },
-    "date": {
-      "default": "{{value, date}}",
-      "type": "string"
-    },
-    "download": {
-      "default": "Download",
-      "type": "string"
-    },
-    "link": {
-      "default": "Link",
-      "type": "string"
-    },
+    "created_on": { "type": "string", "default": "Created on" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "download": { "type": "string", "default": "Download" },
+    "link": { "type": "string", "default": "Link" },
+    "range_end": { "type": "string", "default": "End" },
+    "range_start": { "type": "string", "default": "Start" },
+    "report_name": { "type": "string", "default": "Name" },
+    "report_name_complete": { "type": "string", "default": "Complete" },
+    "report_name_customers": { "type": "string", "default": "Customers" },
+    "report_name_customers_ltv": { "type": "string", "default": "Lifetime value" },
     "link-spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "default": "Preparing",
-          "type": "string"
-        },
-        "loading_error": {
-          "default": "Failed to create",
-          "type": "string"
-        }
+        "loading_busy": { "type": "string", "default": "Preparing" },
+        "loading_error": { "type": "string", "default": "Failed to create" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "range_end": {
-      "default": "End",
-      "type": "string"
-    },
-    "range_start": {
-      "default": "Start",
-      "type": "string"
-    },
-    "report_name": {
-      "default": "Name",
-      "type": "string"
-    },
-    "report_name_complete": {
-      "default": "Complete",
-      "type": "string"
-    },
-    "report_name_customers": {
-      "default": "Customers",
-      "type": "string"
-    },
-    "report_name_customers_ltv": {
-      "default": "Lifetime value",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "./spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "./spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "./spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"],
-      "additionalProperties": false
+      "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [
@@ -84,6 +43,5 @@
     "report_name_customers_ltv",
     "link-spinner",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

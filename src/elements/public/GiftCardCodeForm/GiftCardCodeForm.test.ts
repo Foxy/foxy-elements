@@ -944,9 +944,14 @@ describe('GiftCardCodeForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
+      const router = createRouter();
       const element = await fixture<GiftCardCodeForm>(html`
-        <foxy-gift-card-code-form href=${href} lang="es"></foxy-gift-card-code-form>
+        <foxy-gift-card-code-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-code-form>
       `);
 
       const spinnerWrapper = await getByTestId(element, 'spinner');

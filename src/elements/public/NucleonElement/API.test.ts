@@ -31,12 +31,14 @@ describe('NucleonElement', () => {
       expect(event).to.have.deep.property('request', request);
     });
 
-    it('makes a request if FetchEvent is not cancelled', () => {
+    it('responds with 500 if FetchEvent is not handled', async () => {
       const fetchStub = stub(window, 'fetch').resolves(new Response());
       const request = new API.WHATWGRequest('./test');
-      new API(window).fetch(request);
+      const response = await new API(window).fetch(request);
 
-      expect(fetchStub).to.have.been.calledWith(request);
+      expect(fetchStub).to.not.have.been.calledWith(request);
+      expect(response).to.have.property('status', 500);
+
       fetchStub.restore();
     });
 

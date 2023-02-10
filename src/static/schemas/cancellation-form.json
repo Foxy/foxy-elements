@@ -1,33 +1,21 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
   "properties": {
-    "end_date": {
-      "default": "End date",
-      "type": "string"
-    },
-    "end_subscription": {
-      "default": "End subscription",
-      "type": "string"
-    },
+    "end_date": { "type": "string", "default": "End date" },
+    "end_subscription": { "type": "string", "default": "End subscription" },
     "end_subscription_explainer": {
-      "default": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
-      "type": "string"
+      "type": "string",
+      "default": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later."
     },
+    "v8n_required": { "type": "string", "default": "Required" },
     "spinner": {
+      "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
-      "required": ["loading_busy", "loading_error"],
-      "additionalProperties": false
-    },
-    "v8n_required": {
-      "default": "Required",
-      "type": "string"
+      "required": ["loading_busy", "loading_error"]
     }
   },
   "required": [
@@ -36,6 +24,5 @@
     "end_subscription_explainer",
     "v8n_required",
     "spinner"
-  ],
-  "additionalProperties": false
+  ]
 }

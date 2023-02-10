@@ -12,6 +12,12 @@ import { getTestData } from '../../../testgen/getTestData';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('SubscriptionCard', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('registers as foxy-subscription-card', () => {
     expect(customElements.get('foxy-subscription-card')).to.equal(SubscriptionCard);
   });
@@ -29,6 +35,7 @@ describe('SubscriptionCard', () => {
     const items = data._embedded['fx:transaction_template']._embedded['fx:items'];
     const options = {
       most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
+      count_minus_one: items.length - 1,
       count: items.length,
     };
 
@@ -180,7 +187,16 @@ describe('SubscriptionCard', () => {
   });
 
   it('renders busy foxy-spinner while loading data', async () => {
-    const layout = html`<foxy-subscription-card href="/" lang="es"></foxy-subscription-card>`;
+    const router = createRouter();
+    const layout = html`
+      <foxy-subscription-card
+        href="https://demo.api/virtual/stall"
+        lang="es"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-subscription-card>
+    `;
+
     const element = await fixture<SubscriptionCard>(layout);
     const control = await getByTestId(element, 'spinner');
 

@@ -1,0 +1,12 @@
+{
+  "type_custom_url": "Custom (URL)",
+  "type_custom_text": "Custom (Text)",
+  "type_custom_html": "Custom (HTML)",
+  "type_mixed": "Mixed",
+  "type_default": "Default",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

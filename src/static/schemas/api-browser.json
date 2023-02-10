@@ -1,18 +1,10 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "go_back": {
-      "type": "string",
-      "default": "Go back"
-    },
-    "go_home": {
-      "type": "string",
-      "default": "Go home"
-    },
-    "current_url": {
-      "type": "string",
-      "default": "Current URL"
-    },
+    "go_back": { "type": "string", "default": "Go back" },
+    "go_home": { "type": "string", "default": "Go home" },
+    "current_url": { "type": "string", "default": "Current URL" },
     "get_mode": {
       "type": "string",
       "default": "Click to send GET requests to the selected endpoints"
@@ -21,106 +13,45 @@
       "type": "string",
       "default": "Click to send POST requests to the selected endpoints"
     },
-    "refresh": {
-      "type": "string",
-      "default": "Refresh"
-    },
-    "first": {
-      "type": "string",
-      "default": "First"
-    },
-    "last": {
-      "type": "string",
-      "default": "Last"
-    },
-    "next": {
-      "type": "string",
-      "default": "Next"
-    },
-    "pagination": {
-      "type": "string",
-      "default": "{{from}}-{{to}} out of {{total}}"
-    },
-    "previous": {
-      "type": "string",
-      "default": "Previous"
-    },
-    "undo": {
-      "type": "string",
-      "default": "Undo"
-    },
+    "navigate": { "type": "string", "default": "Navigate to this URL" },
+    "refresh": { "type": "string", "default": "Refresh" },
+    "first": { "type": "string", "default": "First" },
+    "last": { "type": "string", "default": "Last" },
+    "next": { "type": "string", "default": "Next" },
+    "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+    "previous": { "type": "string", "default": "Previous" },
+    "undo": { "type": "string", "default": "Undo" },
     "copy-to-clipboard": {
       "additionalProperties": false,
       "properties": {
-        "click_to_copy": {
-          "type": "string",
-          "default": "Click to copy"
-        },
-        "copying": {
-          "type": "string",
-          "default": "Copying"
-        },
-        "done": {
-          "type": "string",
-          "default": "Done"
-        },
-        "failed_to_copy": {
-          "type": "string",
-          "default": "Failed to copy"
-        }
+        "click_to_copy": { "type": "string", "default": "Click to copy" },
+        "copying": { "type": "string", "default": "Copying" },
+        "done": { "type": "string", "default": "Done" },
+        "failed_to_copy": { "type": "string", "default": "Failed to copy" }
       },
-      "required": [
-        "click_to_copy",
-        "copying",
-        "done",
-        "failed_to_copy"
-      ]
+      "required": ["click_to_copy", "copying", "done", "failed_to_copy"]
     },
     "spinner": {
       "additionalProperties": false,
-      "properties": {
-        "loading_busy": {
-          "type": "string",
-          "default": "Loading"
-        }
-      },
-      "required": [
-        "loading_busy"
-      ]
+      "properties": { "loading_busy": { "type": "string", "default": "Loading" } },
+      "required": ["loading_busy"]
     },
     "delete": {
       "additionalProperties": false,
       "properties": {
-        "delete": {
-          "type": "string",
-          "default": "Delete"
-        },
-        "cancel": {
-          "type": "string",
-          "default": "Cancel"
-        },
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
         "delete_prompt": {
           "type": "string",
           "default": "Are you sure you'd like to remove this resource? You won't be able to bring it back."
         }
       },
-      "required": [
-        "delete",
-        "cancel",
-        "delete_prompt"
-      ]
+      "required": ["delete", "cancel", "delete_prompt"]
     },
     "create": {
       "additionalProperties": false,
-      "properties": {
-        "create": {
-          "type": "string",
-          "default": "Submit"
-        }
-      },
-      "required": [
-        "create"
-      ]
+      "properties": { "create": { "type": "string", "default": "Submit" } },
+      "required": ["create"]
     }
   },
   "required": [
@@ -129,6 +60,7 @@
     "current_url",
     "get_mode",
     "post_mode",
+    "navigate",
     "refresh",
     "first",
     "last",
@@ -140,6 +72,5 @@
     "spinner",
     "delete",
     "create"
-  ],
-  "$schema": "http://json-schema.org/draft-07/schema"
+  ]
 }

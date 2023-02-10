@@ -1,0 +1,13 @@
+{
+  "title_updated_via_api": "Updated via API",
+  "title_used": "Used on checkout",
+  "subtitle_transaction": "Transaction #{{ transaction_id }}",
+  "subtitle_no_transaction": "No transaction",
+  "date": "{{ date_created, date }}",
+  "adjustment": "{{ amount, price }}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

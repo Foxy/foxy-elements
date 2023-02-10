@@ -1,7 +1,8 @@
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import './index';
 
 import { expect, fixture, waitUntil } from '@open-wc/testing';
-
 import { ButtonElement } from '@vaadin/vaadin-button';
 import { CustomerForm } from './CustomerForm';
 import { Data } from './types';
@@ -15,6 +16,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { createRouter } from '../../../server/index';
 
 describe('CustomerForm', () => {
   it('extends NucleonElement', () => {
@@ -983,8 +985,16 @@ describe('CustomerForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-customer-form href=${href} lang="es"></foxy-customer-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-customer-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-customer-form>
+      `;
+
       const element = await fixture<CustomerForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

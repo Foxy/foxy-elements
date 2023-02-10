@@ -371,7 +371,7 @@ export class CouponForm extends Base<Data> {
     return html`
       <label
         class=${classMap({
-          'h-xs whitespace-nowrap block ring-primary-50 rounded pl-s transition-colors': true,
+          'h-xs whitespace-nowrap block ring-primary-50 rounded-s pl-s transition-colors': true,
           'hover-bg-primary hover-text-primary-contrast focus-within-ring-2': isInteractive,
           'bg-primary-10 text-primary': isInteractive,
           'bg-contrast-5 text-disabled': isDisabled,
@@ -416,7 +416,7 @@ export class CouponForm extends Base<Data> {
     return html`
       <div
         class=${classMap({
-          'h-xs px-xs space-x-xs flex items-center rounded transition-colors': true,
+          'h-xs px-xs space-x-xs flex items-center rounded-s transition-colors': true,
           'hover-bg-primary hover-text-primary-contrast focus-within-ring-2': isInteractive,
           'ring-primary-50 cursor-pointer bg-primary-10 text-primary': isInteractive,
           'bg-contrast-5 text-disabled': isDisabled,
@@ -481,7 +481,7 @@ export class CouponForm extends Base<Data> {
         <input
           data-testclass="interactive editable"
           class=${classMap({
-            'transition-colors border p-xs h-xs font-medium text-m rounded w-xl': true,
+            'transition-colors border p-xs h-xs font-medium text-m rounded-s w-xl': true,
             'ring-primary-50 text-body bg-contrast-10': isInteractive,
             'hover-bg-contrast-20': isInteractive,
             'focus-outline-none focus-ring-2': isInteractive,
@@ -515,7 +515,7 @@ export class CouponForm extends Base<Data> {
         data-testclass="rules:tier"
         aria-label=${this.t('tier')}
         class=${classMap({
-          'flex items-start justify-between rounded-t-l rounded-b-l': true,
+          'flex items-start justify-between rounded': true,
           'border border-contrast-10': true,
           'border-dashed': !params.tier,
         })}
@@ -643,7 +643,7 @@ export class CouponForm extends Base<Data> {
 
         <code
           class=${classMap({
-            'bg-contrast-5 transition-colors font-lumo truncate rounded px-xs': true,
+            'bg-contrast-5 transition-colors font-lumo truncate rounded-s px-xs': true,
             'text-secondary': !isDisabled,
             'text-disabled': isDisabled,
           })}
@@ -871,7 +871,7 @@ export class CouponForm extends Base<Data> {
         </div>
 
         <foxy-query-builder
-          class="bg-contrast-5 rounded-tl-l rounded-tr-s rounded-b-l p-m mb-s"
+          class="my-s"
           lang=${lang}
           ns="${ns} ${customElements.get('foxy-query-builder')?.defaultNS ?? ''}"
           ?disabled=${isDisabled}
@@ -892,7 +892,7 @@ export class CouponForm extends Base<Data> {
           ?disabled=${isDisabled}
         >
           <foxy-table
-            class="px-m mb-s border border-contrast-10 rounded-t-l rounded-b-l"
+            class="px-m mb-s border border-contrast-10 rounded"
             group=${group}
             lang=${lang}
             ns=${ns}
@@ -1141,7 +1141,7 @@ export class CouponForm extends Base<Data> {
               )}
               data-testid="category-restrictions:page"
               coupon=${this.href}
-              class="border border-contrast-10 rounded-t-l rounded-b-l mb-s"
+              class="border border-contrast-10 rounded mb-s"
               group=${this.group}
               lang=${this.lang}
               ns=${this.ns}
@@ -1264,10 +1264,18 @@ export class CouponForm extends Base<Data> {
 
             ${this.form.start_date || this.form.end_date
               ? html`
-                  <div class="grid grid-cols-2 gap-m mt-m" slot="content">
+                  <div
+                    class="grid grid-cols-2 gap-m mt-m"
+                    slot="content"
+                    style="--lumo-border-radius: var(--lumo-border-radius-s)"
+                  >
                     ${(['start_date', 'end_date'] as const).map(property => {
                       const formValue = this.form[property];
-                      const pickerValue = formValue ? serializeDate(new Date(formValue)) : '';
+                      const pickerValue = formValue
+                        ? formValue.length > 10
+                          ? serializeDate(new Date(formValue))
+                          : formValue
+                        : '';
 
                       return html`
                         <vaadin-date-picker
@@ -1369,7 +1377,7 @@ export class CouponForm extends Base<Data> {
 
         <vaadin-button
           data-testid="delete"
-          theme="primary error"
+          theme="error"
           class="w-full"
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('delete', true)}
           @click=${(evt: CustomEvent) => {

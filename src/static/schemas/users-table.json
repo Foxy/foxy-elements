@@ -1,137 +1,73 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "cancel": {
-      "type": "string",
-      "default": "Cancel"
-    },
-    "close": {
-      "type": "string",
-      "default": "Close"
-    },
-    "confirm": {
-      "type": "string",
-      "default": "Confirm"
-    },
-    "date": {
-      "type": "string",
-      "default": "{{value, date}}"
-    },
-    "save": {
-      "type": "string",
-      "default": "Save"
-    },
-    "time": {
-      "type": "string",
-      "default": "{{value, time}}"
-    },
-    "undo_cancel": {
-      "type": "string",
-      "default": "Review"
-    },
-    "undo_confirm": {
-      "type": "string",
-      "default": "Discard"
-    },
-    "undo_header": {
-      "type": "string",
-      "default": "Unsaved changes"
-    },
+    "cancel": { "type": "string", "default": "Cancel" },
+    "close": { "type": "string", "default": "Close" },
+    "confirm": { "type": "string", "default": "Confirm" },
+    "date": { "type": "string", "default": "{{value, date}}" },
+    "save": { "type": "string", "default": "Save" },
+    "time": { "type": "string", "default": "{{value, time}}" },
+    "undo_cancel": { "type": "string", "default": "Review" },
+    "undo_confirm": { "type": "string", "default": "Discard" },
+    "undo_header": { "type": "string", "default": "Unsaved changes" },
     "undo_message": {
       "type": "string",
       "default": "Looks like you didn't save your changes! What would you like to do with them?"
     },
-    "update": {
-      "type": "string",
-      "default": "Update"
-    },
+    "update": { "type": "string", "default": "Update" },
     "spinner": {
       "additionalProperties": false,
       "properties": {
-        "loading_busy": {
-          "$ref": "spinner.json#/properties/loading_busy"
-        },
-        "loading_empty": {
-          "$ref": "spinner.json#/properties/loading_empty"
-        },
-        "loading_error": {
-          "$ref": "spinner.json#/properties/loading_error"
-        }
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
       },
       "required": ["loading_busy", "loading_empty", "loading_error"]
     },
     "user-form": {
       "additionalProperties": false,
       "properties": {
-        "backend_developer": {
-          "$ref": "user-form.json#/properties/backend_developer"
-        },
+        "backend_developer": { "type": "string", "default": "Backend developer" },
         "backend_developer_explainer": {
-          "$ref": "user-form.json#/properties/backend_developer_explainer"
+          "type": "string",
+          "default": "Manages server-side code in PHP, Python, Ruby, etc."
         },
-        "cancel": {
-          "$ref": "user-form.json#/properties/cancel"
-        },
-        "create": {
-          "$ref": "user-form.json#/properties/create"
-        },
-        "delete": {
-          "$ref": "user-form.json#/properties/delete"
-        },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "create": { "type": "string", "default": "Create" },
+        "delete": { "type": "string", "default": "Delete" },
         "delete_prompt": {
-          "$ref": "user-form.json#/properties/delete_prompt"
+          "type": "string",
+          "default": "This resource will be permanently removed. Are you sure?"
         },
-        "designer": {
-          "$ref": "user-form.json#/properties/designer"
-        },
+        "designer": { "type": "string", "default": "Designer" },
         "designer_explainer": {
-          "$ref": "user-form.json#/properties/designer_explainer"
+          "type": "string",
+          "default": "Manages appearance, art and user interface."
         },
-        "email": {
-          "$ref": "user-form.json#/properties/email"
-        },
-        "first_name": {
-          "$ref": "user-form.json#/properties/first_name"
-        },
-        "frontend_developer": {
-          "$ref": "user-form.json#/properties/frontend_developer"
-        },
+        "email": { "type": "string", "default": "Email" },
+        "first_name": { "type": "string", "default": "First name" },
+        "frontend_developer": { "type": "string", "default": "Frontend developer" },
         "frontend_developer_explainer": {
-          "$ref": "user-form.json#/properties/frontend_developer_explainer"
+          "type": "string",
+          "default": "Manages client-side code in JS, CSS, HTML, etc."
         },
-        "hidden": {
-          "$ref": "user-form.json#/properties/hidden"
-        },
-        "last_name": {
-          "$ref": "user-form.json#/properties/last_name"
-        },
-        "merchant": {
-          "$ref": "user-form.json#/properties/merchant"
-        },
+        "hidden": { "type": "string", "default": "Hidden" },
+        "last_name": { "type": "string", "default": "Last name" },
+        "merchant": { "type": "string", "default": "Merchant" },
         "merchant_explainer": {
-          "$ref": "user-form.json#/properties/merchant_explainer"
+          "type": "string",
+          "default": "Manages items, finances and this store in general."
         },
-        "phone": {
-          "$ref": "user-form.json#/properties/phone"
-        },
-        "v8n_invalid_email": {
-          "$ref": "user-form.json#/properties/v8n_invalid_email"
-        },
-        "v8n_required": {
-          "$ref": "user-form.json#/properties/v8n_required"
-        },
-        "v8n_too_long": {
-          "$ref": "user-form.json#/properties/v8n_too_long"
-        },
+        "phone": { "type": "string", "default": "Phone" },
+        "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
+        "v8n_required": { "type": "string", "default": "Required" },
+        "v8n_too_long": { "type": "string", "default": "Too long" },
         "spinner": {
           "additionalProperties": false,
           "properties": {
-            "loading_busy": {
-              "$ref": "spinner.json#/properties/loading_busy"
-            },
-            "loading_error": {
-              "$ref": "spinner.json#/properties/loading_error"
-            }
+            "loading_busy": { "type": "string", "default": "Loading" },
+            "loading_error": { "type": "string", "default": "Failed to load" }
           },
           "required": ["loading_busy", "loading_error"]
         }
@@ -175,6 +111,5 @@
     "update",
     "spinner",
     "user-form"
-  ],
-  "$schema": "http://json-schema.org/draft-07/schema"
+  ]
 }

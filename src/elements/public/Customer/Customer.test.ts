@@ -1,13 +1,15 @@
-import { expect, fixture, html, waitUntil } from '@open-wc/testing';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
 
+import './index';
+
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { AddressCard } from '../AddressCard';
 import { AttributeCard } from '../AttributeCard/AttributeCard';
 import { CollectionPage } from '../CollectionPage';
 import { CollectionPages } from '../CollectionPages';
 import { Core } from '@foxy.io/sdk';
-import { Customer } from './index';
+import { Customer } from './Customer';
 import { Data } from './types';
-import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from '../FormDialog/FormDialog';
 import { InternalSandbox } from '../../internal/InternalSandbox';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
@@ -20,7 +22,7 @@ import { getByName } from '../../../testgen/getByName';
 import { getByTestClass } from '../../../testgen/getByTestClass';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
-import { createRouter } from '../../../server/hapi';
+import { createRouter } from '../../../server/index';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
@@ -312,8 +314,8 @@ describe('Customer', () => {
           button!.dispatchEvent(new CustomEvent('click'));
 
           expect(form!).to.have.attribute('readonlycontrols', 'not=foo,bar');
-          expect(form!).to.have.attribute('disabledcontrols', 'baz:not=*');
-          expect(form!).to.have.attribute('hiddencontrols', 'qux:not=*');
+          expect(form!).to.have.attribute('disabledcontrols', 'baz');
+          expect(form!).to.have.attribute('hiddencontrols', 'qux');
           expect(form!).to.have.attribute('header', 'update');
           expect(form!).to.have.attribute('parent', '/customers');
           expect(form!).to.have.attribute('group', 'foo');
@@ -602,8 +604,8 @@ describe('Customer', () => {
           button!.dispatchEvent(new CustomEvent('click'));
 
           expect(form!).to.have.attribute('readonlycontrols', 'not=foo,bar');
-          expect(form!).to.have.attribute('disabledcontrols', 'baz:not=*');
-          expect(form!).to.have.attribute('hiddencontrols', 'qux:not=*');
+          expect(form!).to.have.attribute('disabledcontrols', 'baz');
+          expect(form!).to.have.attribute('hiddencontrols', 'qux');
           expect(form!).to.have.attribute('header', 'create');
           expect(form!).to.have.attribute('parent', data._links['fx:customer_addresses'].href);
           expect(form!).to.have.attribute('group', 'foo');
@@ -659,7 +661,7 @@ describe('Customer', () => {
             const page = card.parentElement as CollectionPage<any>;
             const cardData = listData._embedded['fx:customer_addresses'][index];
 
-            expect(card).to.have.attribute('hiddencontrols', 'company:not=*');
+            expect(card).to.have.attribute('hiddencontrols', 'company');
             expect(card).to.have.attribute('parent', page.href);
             expect(card).to.have.attribute('group', 'foo');
             expect(card).to.have.attribute('lang', 'es');
@@ -721,9 +723,9 @@ describe('Customer', () => {
 
           const form = await getByTestId<FormDialog>(element, 'addresses:list:form');
 
-          expect(form).to.have.attribute('readonlycontrols', 'city:not=*');
-          expect(form).to.have.attribute('disabledcontrols', 'region:not=*');
-          expect(form).to.have.attribute('hiddencontrols', 'company:not=*');
+          expect(form).to.have.attribute('readonlycontrols', 'city');
+          expect(form).to.have.attribute('disabledcontrols', 'region');
+          expect(form).to.have.attribute('hiddencontrols', 'company');
           expect(form).to.have.attribute('group', 'foo');
           expect(form).to.have.attribute('lang', 'es');
           expect(form).to.have.attribute('ns', 'customer');
@@ -1080,8 +1082,8 @@ describe('Customer', () => {
           button!.dispatchEvent(new CustomEvent('click'));
 
           expect(form!).to.have.attribute('readonlycontrols', 'not=foo,bar');
-          expect(form!).to.have.attribute('disabledcontrols', 'baz:not=*');
-          expect(form!).to.have.attribute('hiddencontrols', 'qux:not=*');
+          expect(form!).to.have.attribute('disabledcontrols', 'baz');
+          expect(form!).to.have.attribute('hiddencontrols', 'qux');
           expect(form!).to.have.attribute('header', 'create');
           expect(form!).to.have.attribute('parent', data._links['fx:attributes'].href);
           expect(form!).to.have.attribute('group', 'foo');
@@ -1138,7 +1140,7 @@ describe('Customer', () => {
             const page = card.parentElement as CollectionPage<any>;
             const cardData = listData._embedded['fx:attributes'][index];
 
-            expect(card).to.have.attribute('hiddencontrols', 'company:not=*');
+            expect(card).to.have.attribute('hiddencontrols', 'company');
             expect(card).to.have.attribute('parent', page.href);
             expect(card).to.have.attribute('group', 'foo');
             expect(card).to.have.attribute('lang', 'es');
@@ -1200,9 +1202,9 @@ describe('Customer', () => {
 
           const form = await getByTestId<FormDialog>(element, 'attributes:list:form');
 
-          expect(form).to.have.attribute('readonlycontrols', 'city:not=*');
-          expect(form).to.have.attribute('disabledcontrols', 'region:not=*');
-          expect(form).to.have.attribute('hiddencontrols', 'company:not=*');
+          expect(form).to.have.attribute('readonlycontrols', 'city');
+          expect(form).to.have.attribute('disabledcontrols', 'region');
+          expect(form).to.have.attribute('hiddencontrols', 'company');
           expect(form).to.have.attribute('group', 'foo');
           expect(form).to.have.attribute('lang', 'es');
           expect(form).to.have.attribute('ns', 'customer');
@@ -1405,8 +1407,8 @@ describe('Customer', () => {
 
           const card = await getByTestId<PaymentMethodCard>(element, 'payment-methods:list:card');
 
-          expect(card).to.have.attribute('disabledcontrols', 'actions:delete:not=*');
-          expect(card).to.have.attribute('hiddencontrols', 'actions:not=*');
+          expect(card).to.have.attribute('disabledcontrols', 'actions:delete');
+          expect(card).to.have.attribute('hiddencontrols', 'actions');
           expect(card).to.have.attribute('group', 'foo');
           expect(card).to.have.attribute('lang', 'es');
           expect(card!.templates).to.have.key('actions:before');
@@ -1639,7 +1641,7 @@ describe('Customer', () => {
 
       const pages = await getByTestId<CollectionPages<any>>(element, 'subscriptions:pages');
       const firstURL = new URL(element.data!._links['fx:subscriptions'].href);
-      firstURL.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      firstURL.searchParams.set('zoom', 'transaction_template:items');
 
       expect(pages).to.have.attribute('first', firstURL.toString());
 
@@ -1706,12 +1708,12 @@ describe('Customer', () => {
       await element.updateComplete;
 
       const link = new URL(table.data._embedded['fx:subscriptions'][0]._links.self.href);
-      link.searchParams.set('zoom', 'last_transaction,transaction_template:items');
+      link.searchParams.set('zoom', 'transaction_template:items');
 
       expect(showMethod).to.have.been.called;
-      expect(form).to.have.attribute('readonlycontrols', 'frequency:not=*');
+      expect(form).to.have.attribute('readonlycontrols', 'frequency');
       expect(form).to.have.attribute('disabledcontrols', 'not=end-date');
-      expect(form).to.have.attribute('hiddencontrols', 'transactions:not=*');
+      expect(form).to.have.attribute('hiddencontrols', 'transactions');
       expect(form).to.have.attribute('header', 'update');
       expect(form).to.have.attribute('group', 'foo');
       expect(form).to.have.attribute('form', 'foxy-subscription-form');
@@ -1724,8 +1726,16 @@ describe('Customer', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = 'https://demo.api/virtual/stall';
-      const layout = html`<foxy-customer href=${href} lang="es"></foxy-customer>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-customer
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-customer>
+      `;
+
       const element = await fixture<Customer>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

@@ -1,0 +1,10 @@
+{
+  "status_active": "Expires {{ date, date }}",
+  "status_expired": "Expired",
+  "no_description": "No description",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

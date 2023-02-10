@@ -51,6 +51,7 @@ export abstract class Dialog extends Base {
       editable: { type: Boolean },
       header: { type: String },
       alert: { type: Boolean },
+      wide: { type: Boolean },
       open: { type: Boolean, noAccessor: true },
     };
   }
@@ -83,6 +84,9 @@ export abstract class Dialog extends Base {
 
   /** When true, centers a dialog on the screen and does not animate the stack under. */
   alert = false;
+
+  /** When true, dialog window will a larger maximum width. */
+  wide = false;
 
   private __returnFocusTo?: HTMLElement;
 
@@ -168,8 +172,10 @@ export abstract class Dialog extends Base {
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center sm-max-w-modal':
+            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center':
               true,
+            'sm-max-w-modal': !this.wide,
+            'sm-max-w-modal-wide': this.wide,
             'flex justify-center items-end sm-items-center mr-auto': this.alert,
             'translate-y-full sm-translate-y-0': !this.__visible,
             'sm-translate-x-full': !this.alert && !this.__visible,
@@ -186,6 +192,7 @@ export abstract class Dialog extends Base {
               'overflow-hidden flex flex-col bg-base rounded-t-l sm-rounded-b-l': true,
               'absolute inset-0 mt-xl sm-m-xl': !this.alert,
               'shadow-xxl': this.__visible,
+              'flex-1': this.alert,
             })}
           >
             <div

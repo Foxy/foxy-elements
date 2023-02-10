@@ -1,0 +1,316 @@
+{
+  "maintenance_mode_on_explainer": "Maintenance mode is on. Your customers can't make purchases or use the checkout page in any way. Once you're done making changes, disable this mode to continue getting orders.",
+  "maintenance_mode_off_explainer": "If you're about to make changes that may disrupt the checkout process, we recommend enabling the maintenance mode first. In this mode the checkout page will be completely non-functioning and the customers will see a message asking them to come back later.",
+  "enable_maintenance_mode": "Enable maintenance mode",
+  "disable_maintenance_mode": "Disable maintenance mode",
+  "store-name": {
+    "label": "Name",
+    "placeholder": "My Store",
+    "helper_text": "The name of your store as you'd like it displayed to your customers and our system.",
+    "v8n_required": "Please enter the name of your store",
+    "v8n_too_long": "Please reduce the name of your store to 50 characters or less"
+  },
+  "store-email": {
+    "label": "Emails",
+    "placeholder": "Enter an email and press Enter",
+    "helper_text": "Email addresses used for billing and communication with Foxy.",
+    "submit": "Submit",
+    "delete": "Delete",
+    "v8n_required": "Please enter at least one email",
+    "v8n_too_long": "All emails for this store must fit within 300 characters when comma-separated"
+  },
+  "store-url": {
+    "label": "Website",
+    "placeholder": "https://my.store.example.com",
+    "helper_text": "The URL of your online store.",
+    "v8n_required": "Please enter the URL of your online store",
+    "v8n_too_long": "Please use a URL that is 300 characters or less"
+  },
+  "store-domain": {
+    "label": "Domain",
+    "placeholder": "my-store.foxycart.com",
+    "helper_text": "Unique Foxy subdomain or a custom domain for your cart, checkout, and receipt.",
+    "custom_domain_note": "IMPORTANT: to use a custom domain, you must purchase an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
+    "v8n_required": "Please enter the domain of your store",
+    "v8n_too_long": "Please use a domain that is 50 characters or less"
+  },
+  "logo-url": {
+    "label": "Logo",
+    "placeholder": "https://example.com/logo.png",
+    "helper_text": "URL to your store's logo that may be used in your store's templates.",
+    "v8n_too_long": "Please shorten this link to 100 characters of less"
+  },
+  "timezone": {
+    "label": "Timezone",
+    "placeholder": "(GMT-08:00) Pacific Time (US and Canada)",
+    "helper_text": "The timezone of your store. This will impact how dates are shown to customers and within the admin."
+  },
+  "from-email": {
+    "label": "FROM email",
+    "placeholder": "Defaults to the first store email",
+    "helper_text": "If you'd like us to send messages from an address other than the first one of your store emails, list it here.",
+    "v8n_too_long": "Please use an email that is 100 characters or less"
+  },
+  "bcc-on-receipt-email": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Send a copy of each receipt to the store email"
+  },
+  "use-email-dns": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Improve email deliverability with DNS"
+  },
+  "use_email_dns_helper_text": "Before saving your changes, make sure the DNS records for your domain list our servers. To learn more, see our Wiki:",
+  "use-smtp-config": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Use custom mail server",
+    "v8n_too_long": "This configuration must fit within 1000 characters when JSON-encoded"
+  },
+  "smtp-config-host": {
+    "label": "Host",
+    "helper_text": "",
+    "placeholder": "smtp.example.com"
+  },
+  "smtp-config-port": {
+    "label": "Port",
+    "helper_text": "",
+    "placeholder": "465"
+  },
+  "smtp-config-username": {
+    "label": "Username",
+    "helper_text": "",
+    "placeholder": "sender@example.com"
+  },
+  "smtp-config-password": {
+    "label": "Password",
+    "helper_text": "",
+    "placeholder": "Required"
+  },
+  "smtp-config-security": {
+    "label": "",
+    "helper_text": "",
+    "option_ssl": "Use SSL",
+    "option_tls": "Use TLS",
+    "option_none": "Don't encrypt"
+  },
+  "country": {
+    "label": "Country",
+    "placeholder": "Select country...",
+    "helper_text": "The country your store is located in. We'll use this information to calculate shipping costs if you sell shippable items.",
+    "v8n_required": "Please select the country of your store"
+  },
+  "region": {
+    "label": "Region",
+    "placeholder": "Select region...",
+    "helper_text": "The region, province or state your store is located in. We'll use this information to calculate shipping costs if you sell shippable items.",
+    "v8n_required": "Please select the region of your store",
+    "v8n_too_long": "Please shorten the region name to 50 characters of less"
+  },
+  "postal-code": {
+    "label": "Postal code",
+    "placeholder": "012345",
+    "helper_text": "The postal code (or zip code) of the area your store is located in. We'll use this information to calculate shipping costs if you sell shippable items.",
+    "v8n_required": "Please enter the postal code of your store",
+    "v8n_too_long": "Postal code can't exceed 50 characters"
+  },
+  "shipping-address-type": {
+    "label": "Rate calculation",
+    "placeholder": "Rate based on Company field",
+    "helper_text": "Used for determining the type of the customer address used when calculating shipping costs."
+  },
+  "require-signed-shipping-rates": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Prevent shipping rate tampering"
+  },
+  "require_signed_shipping_rates_helper_text": "Enabling shipping rate signing for your store ensures that the rate the customer selects is carried through and not altered in any way. If you're intending to make use of javascript snippets on your store to alter the price or label of shipping rates or add custom rates dynamically, disable this setting as it will block those rates from being applied.",
+  "features-multiship": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Allow multiple destinations per order"
+  },
+  "language": {
+    "label": "Language",
+    "placeholder": "English",
+    "helper_text": "The default language for your store's cart, checkout, and receipt strings."
+  },
+  "locale-code": {
+    "label": "Locale code",
+    "placeholder": "en_US",
+    "helper_text": "The locale code for your store's locale. This will be used to format strings for your store."
+  },
+  "currency_style_label": "Currency display",
+  "currency_style_helper_text": "Choose how you'd like all prices and totals to appear across your store's cart, checkout, receipt and admin.",
+  "receipt-continue-url": {
+    "label": "Return URL",
+    "placeholder": "https://example.com/thank-you",
+    "helper_text": "By default, we send customers back to the page referrer after completing a purchase. Instead, you can set a specific URL here.",
+    "v8n_too_long": "Please use a URL that is 300 characters or less"
+  },
+  "app-session-time": {
+    "label": "Clear cart after",
+    "helper_text": "If your store sells products which collect personal or sensitive information as product attributes, you may want to consider lowering your cart session lifespan.",
+    "second": "Second",
+    "second_plural": "Seconds",
+    "minute": "Minute",
+    "minute_plural": "Minutes",
+    "hour": "Hour",
+    "hour_plural": "Hours",
+    "day": "Day",
+    "day_plural": "Days"
+  },
+  "products-require-expires-property": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "My products have limited availability"
+  },
+  "products_require_expires_property_helper_text": "All products added to the cart for your store will need to contain the expires property to ensure stale products can't be purchased.",
+  "use-cart-validation": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Prevent product link and form tampering"
+  },
+  "use_cart_validation_helper_text": "Enabling this option will require all cart links and forms to pass HMAC-based verification before products can be added to the cart. You will need to sign your HTML to use this feature. See our docs for more info:",
+  "custom-display-id-config-enabled": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Customize Transaction ID",
+    "v8n_too_long": "This configuration must fit within 100 characters when JSON-encoded"
+  },
+  "custom-display-id-config-transaction-journal-entries-enabled": {
+    "label": "",
+    "helper_text": "",
+    "option_checked": "Customize Transaction Journal entry ID"
+  },
+  "custom-display-id-config-length": {
+    "label": "Length",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-start": {
+    "label": "Start",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-prefix": {
+    "label": "Prefix",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-suffix": {
+    "label": "Suffix",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-first-example": "First:",
+  "custom-display-id-config-random-example": "Random:",
+  "custom-display-id-config-transaction-journal-entries-transaction-separator": {
+    "label": "Separator",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-authcapture-prefix": {
+    "label": "Authorization prefix",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-capture-prefix": {
+    "label": "Capture prefix",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-void-prefix": {
+    "label": "Void prefix",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-transaction-journal-entries-log-detail-request-types-transaction-refund-prefix": {
+    "label": "Refund prefix",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "custom-display-id-config-transaction-journal-entries-authcapture-example": "When authorized:",
+  "custom-display-id-config-transaction-journal-entries-capture-example": "When captured:",
+  "custom-display-id-config-transaction-journal-entries-void-example": "When voided:",
+  "custom-display-id-config-transaction-journal-entries-refund-example": "When refunded:",
+  "webhook-url": {
+    "label": "XML webhook endpoint",
+    "placeholder": "https://example.com/xml-webhook",
+    "helper_text": "Foxy will encrypt order info and POST it to this URL on each purchase as XML. When using this webhook, make sure to configure the encryption key for your store.",
+    "v8n_required": "Please enter the XML webhook endpoint",
+    "v8n_too_long": "Please shorten this URL to 300 characters or less"
+  },
+  "webhook-key-cart-signing": {
+    "label": "HMAC encryption key",
+    "placeholder": "",
+    "helper_text": "We'll use this key to encrypt webhook payloads as well as to sign cart links and product forms."
+  },
+  "webhook-key-xml-datafeed": {
+    "label": "XML webhook encryption key",
+    "placeholder": "",
+    "helper_text": "We'll use this key to encrypt legacy XML webhook payloads."
+  },
+  "webhook-key-api-legacy": {
+    "label": "Legacy API key",
+    "placeholder": "",
+    "helper_text": "API key you can use to access the legacy API."
+  },
+  "webhook-key-sso": {
+    "label": "SSO secret",
+    "placeholder": "",
+    "helper_text": "We'll use this value to validate session tokens generated by your SSO setup."
+  },
+  "single-sign-on-url": {
+    "label": "SSO endpoint",
+    "placeholder": "https://example.com/sso",
+    "helper_text": "When configured, Foxy will redirect customers to this URL prior to hitting the checkout page. You can use this to validate items or to log customers in via your own auth provider.",
+    "v8n_required": "Please enter your SSO endpoint URL",
+    "v8n_too_long": "Please shorten this URL to 300 characters or less"
+  },
+  "unified-order-entry-password": {
+    "label": "Unified order entry password",
+    "placeholder": "",
+    "helper_text": "Set a master password here if you would like to be able to check out as your customers without having to know their password.",
+    "v8n_required": "Please reduce your UOE password to 100 characters"
+  },
+  "store-version-uri": {
+    "label": "Version",
+    "placeholder": "Defaults to latest",
+    "helper_text": "Store version including templates, libraries, payment options and more. It's recommended to upgrade your integration to the newest version as soon as it becomes available."
+  },
+  "checkout-type": {
+    "label": "New accounts",
+    "placeholder": "",
+    "helper_text": "The preferred configuration of your customer checkout experience, such as defaulting to guest checkout or requiring account creation with each checkout."
+  },
+  "customer-password-hash-type": {
+    "label": "Password hashing method (advanced)",
+    "placeholder": "",
+    "helper_text": "When saving a customer to Foxy, this is the password hashing method that will be used."
+  },
+  "customer-password-hash-config": {
+    "label": "Password hashing configuration (advanced)",
+    "placeholder": "",
+    "helper_text": "Configuration settings for the selected hashing method.",
+    "v8n_too_long": "Please reduce your configuration settings to 100 characters or less"
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this store? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  }
+}

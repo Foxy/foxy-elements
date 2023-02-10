@@ -23,15 +23,16 @@ export class DiscountCard extends TranslatableMixin(TwoLineCard, 'discount-card'
 
   private __currency = '';
 
-  render(): TemplateResult {
-    return super.render({
+  renderBody(): TemplateResult {
+    return super.renderBody({
       title: data => html`${data.name} &bull; ${data.code}`,
       subtitle: data => html`
         <foxy-i18n
           options=${JSON.stringify({
             currencyDisplay: this.__currencyDisplay,
-            amount: `${Math.abs(data.amount)} ${this.__currency}`,
+            amount: `${data.amount} ${this.__currency}`,
           })}
+          class=${data.amount >= 0 ? 'text-success' : 'text-error'}
           lang=${this.lang}
           key="price"
           ns=${this.ns}
