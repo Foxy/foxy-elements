@@ -146,14 +146,16 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
   render(): TemplateResult {
     const hiddenSelector = this.hiddenSelector.zoom('customer');
-    const customerHiddenControls = new BooleanSelector(`
-      attributes
-      transactions
-      subscriptions
-      addresses:actions:create
-      header:actions:edit:form:delete
-      ${hiddenSelector.toString()}
-    `).toString();
+    const customerHiddenControls = new BooleanSelector(
+      [
+        'attributes',
+        'transactions',
+        'subscriptions',
+        'addresses:actions:create',
+        'header:actions:edit:form:delete',
+        hiddenSelector.toString(),
+      ].join(' ')
+    ).toString();
 
     const templates: CustomerTemplates = this.getNestedTemplates('customer');
     const originalHeaderActionsAfterTemplate = templates['header:actions:after'];
