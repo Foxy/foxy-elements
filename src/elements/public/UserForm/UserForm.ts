@@ -37,8 +37,8 @@ export class UserForm extends Base<Data> {
       ({ first_name: v }) => !v || v.length <= 50 || 'first_name_too_long',
       ({ last_name: v }) => !v || v.length <= 50 || 'last_name_too_long',
       ({ email: v }) => (v && v.length > 0) || 'email_required',
-      ({ email: v }) => (v && v.length <= 100) || 'email_too_long',
-      ({ email: v }) => (v && isEmail(v)) || 'email_invalid_email',
+      ({ email: v }) => !v || v.length <= 100 || 'email_too_long',
+      ({ email: v }) => !v || isEmail(v) || 'email_invalid_email',
       ({ phone: v }) => !v || v.length <= 50 || 'phone_too_long',
     ];
   }
