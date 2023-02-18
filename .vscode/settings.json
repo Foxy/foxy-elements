@@ -265,6 +265,10 @@
       "url": "./src/static/schemas/spinner.json"
     },
     {
+      "fileMatch": ["/src/static/translations/store-card/*.json"],
+      "url": "./src/static/schemas/store-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/store-form/*.json"],
       "url": "./src/static/schemas/store-form.json"
     },

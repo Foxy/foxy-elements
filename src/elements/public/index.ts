@@ -71,6 +71,7 @@ export { PaymentsApiPaymentPresetForm } from './PaymentsApiPaymentPresetForm/Pay
 export { QueryBuilder } from './QueryBuilder/QueryBuilder';
 export { SignInForm } from './SignInForm/SignInForm';
 export { Spinner } from './Spinner/Spinner';
+export { StoreCard } from './StoreCard/StoreCard';
 export { StoreForm } from './StoreForm/StoreForm';
 export { StoreShippingMethodForm } from './StoreShippingMethodForm/StoreShippingMethodForm';
 export { SubscriptionCard } from './SubscriptionCard/SubscriptionCard';
