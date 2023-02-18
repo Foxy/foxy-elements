@@ -6,7 +6,7 @@ export class InternalTransactionSummaryControl extends InternalControl {
     return html`
       <div class="border-t border-transparent">
         <div class="h-m flex items-center justify-between">
-          <div class="text-xl font-bold">${this.__renderPrice()}</div>
+          <div class="text-xl font-medium">${this.__renderPrice()}</div>
           <div>${this.nucleon?.data ? this.__renderStatus() : ''}</div>
         </div>
 
@@ -31,7 +31,7 @@ export class InternalTransactionSummaryControl extends InternalControl {
 
     return html`
       <foxy-i18n
-        class="flex items-center h-xs px-s text-s font-semibold rounded ${color}"
+        class="flex items-center h-xs px-s text-s font-medium rounded ${color}"
         infer=""
         key="transaction_${status}"
       >

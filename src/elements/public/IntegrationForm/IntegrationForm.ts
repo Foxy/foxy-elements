@@ -120,7 +120,7 @@ export class IntegrationForm extends Base<Data> {
       ${this.renderTemplateOrSlot('header:before')}
 
       <div class="space-y-xs">
-        <div class="font-bold truncate text-xl">${data.project_name}&ZeroWidthSpace;</div>
+        <div class="font-medium truncate text-xl">${data.project_name}&ZeroWidthSpace;</div>
         <div class="text-secondary">${data.project_description || noDescription}</div>
       </div>
 
@@ -206,7 +206,7 @@ export class IntegrationForm extends Base<Data> {
     return html`
       <a
         target="_blank"
-        class="font-semibold text-primary rounded hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
+        class="font-medium text-primary rounded hover-underline focus-outline-none focus-ring-2 focus-ring-primary-50"
         href=${href}
       >
         ${caption}
@@ -217,7 +217,7 @@ export class IntegrationForm extends Base<Data> {
   private __renderTableRow(params: { label: unknown; value: unknown; highlight?: boolean }) {
     const { label, value, highlight = false } = params;
     return html`
-      <tr class=${classMap({ 'font-semibold text-success': highlight })}>
+      <tr class=${classMap({ 'font-medium text-success': highlight })}>
         <td class="max-w-0 truncate py-s text-secondary w-1-3 pr-m">${label}</td>
         <td class="max-w-0 truncate py-s text-body w-2-3">${value}</td>
       </tr>

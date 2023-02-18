@@ -70,7 +70,7 @@ class CustomerCard extends Base<Data> {
     return html`
       <div data-testid="name">
         ${this.renderTemplateOrSlot('name:before')}
-        <div class="font-semibold text-body truncate">${content}</div>
+        <div class="font-medium text-body truncate">${content}</div>
         ${this.renderTemplateOrSlot('name:after')}
       </div>
     `;

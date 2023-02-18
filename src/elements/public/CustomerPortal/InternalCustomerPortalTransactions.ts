@@ -29,7 +29,7 @@ export class InternalCustomerPortalTransactions extends Base {
         ${this.renderTemplateOrSlot('header:before')}
 
         <foxy-i18n
-          class="text-l font-semibold"
+          class="text-l font-medium"
           lang=${this.lang}
           key="transaction_plural"
           ns=${this.ns}

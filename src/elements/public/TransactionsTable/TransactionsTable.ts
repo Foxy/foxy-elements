@@ -8,7 +8,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
     cell: ctx => ctx.html`
       <foxy-i18n
         data-testclass="i18n totals"
-        class="text-m font-semibold font-tnum"
+        class="text-m font-medium font-tnum"
         lang=${ctx.lang}
         key="price"
         ns=${ctx.ns}
@@ -103,7 +103,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
         <a
           data-testclass="links"
           target="_blank"
-          class="text-m font-semibold text-primary rounded hover-underline focus-outline-none focus-shadow-outline"
+          class="text-m font-medium text-primary rounded hover-underline focus-outline-none focus-shadow-outline"
           href=${ctx.data._links['fx:receipt'].href}
         >
           <foxy-i18n

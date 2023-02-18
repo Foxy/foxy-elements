@@ -69,7 +69,7 @@ export class ShippingMethodCard extends Base<Data> {
         />
 
         <figcaption class="min-w-0 flex-1 flex justify-between gap-s">
-          <span class="font-semibold truncate flex-shrink-0">${data?.name}&ZeroWidthSpace;</span>
+          <span class="font-medium truncate flex-shrink-0">${data?.name}&ZeroWidthSpace;</span>
           ${isActive
             ? html`
                 <foxy-i18n infer="" class="truncate text-tertiary" key="status_active"></foxy-i18n>

@@ -35,7 +35,7 @@ export class Switch extends LitElement {
           'cursor-pointer': !this.disabled,
         })}
       >
-        <span class="text-body font-semibold text-m mr-m">
+        <span class="text-body font-medium text-m mr-m">
           <slot></slot>
         </span>
 

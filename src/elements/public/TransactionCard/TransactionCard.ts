@@ -109,7 +109,7 @@ class TransactionCard extends Base<Data> {
     return html`
       <div data-testid="total">
         ${this.renderTemplateOrSlot('total:before')}
-        <div class="font-semibold truncate">${content}</div>
+        <div class="font-medium truncate">${content}</div>
         ${this.renderTemplateOrSlot('total:after')}
       </div>
     `;

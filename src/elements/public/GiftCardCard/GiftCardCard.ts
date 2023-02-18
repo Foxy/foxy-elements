@@ -66,7 +66,7 @@ export class GiftCardCard extends Base<Data> {
         ${this.renderTemplateOrSlot('title:before')}
 
         <div class="flex items-center justify-between">
-          <div class="font-semibold truncate">${name}</div>
+          <div class="font-medium truncate">${name}</div>
           <div class="text-tertiary uppercase text-s flex-shrink-0">${code}</div>
         </div>
 

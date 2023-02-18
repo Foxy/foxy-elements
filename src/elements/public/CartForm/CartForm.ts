@@ -384,7 +384,7 @@ export class CartForm extends Base<Data> {
 
       <div class="grid sm-grid-cols-2 gap-l">
         <div class="sm-col-span-2">
-          <foxy-i18n class="text-l font-bold leading-s block" infer="" key="order_section_title">
+          <foxy-i18n class="text-l font-medium leading-s block" infer="" key="order_section_title">
           </foxy-i18n>
 
           <foxy-i18n
@@ -474,7 +474,7 @@ export class CartForm extends Base<Data> {
         <div class="grid gap-l">
           <div>
             <foxy-i18n
-              class="text-l font-bold leading-s block"
+              class="text-l font-medium leading-s block"
               infer=""
               key="billing_section_title"
             >
@@ -522,7 +522,7 @@ export class CartForm extends Base<Data> {
         <div class="grid gap-l">
           <div>
             <foxy-i18n
-              class="text-l font-bold leading-s block"
+              class="text-l font-medium leading-s block"
               infer=""
               key="shipping_section_title"
             >
@@ -568,7 +568,7 @@ export class CartForm extends Base<Data> {
         </div>
 
         <div class="leading-m sm-col-span-2">
-          <div class="text-xl font-bold mb-s">
+          <div class="text-xl font-medium mb-s">
             ${this.__renderTotalOrder(currencyCode, currencyDisplay)}
           </div>
           <div class="border-t border-contrast-10 mb-s"></div>

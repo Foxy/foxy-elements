@@ -257,7 +257,7 @@ export class SignInForm extends Base<Data> {
           >
           </qr-code>
 
-          <div class="break-all font-semibold leading-s text-xs tracking-widest">
+          <div class="break-all font-medium leading-s text-xs tracking-widest">
             ${mfaSecretCode}
           </div>
         </div>

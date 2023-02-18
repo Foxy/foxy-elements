@@ -528,7 +528,7 @@ export class CouponForm extends Base<Data> {
           })}
         >
           <foxy-i18n
-            class="uppercase text-s font-semibold"
+            class="uppercase text-s font-medium"
             lang=${this.lang}
             key="tier_if"
             ns=${this.ns}
@@ -550,7 +550,7 @@ export class CouponForm extends Base<Data> {
           })}
 
           <foxy-i18n
-            class="uppercase text-s font-semibold"
+            class="uppercase text-s font-medium"
             lang=${this.lang}
             key="tier_then"
             ns=${this.ns}
@@ -578,7 +578,7 @@ export class CouponForm extends Base<Data> {
           })}
 
           <foxy-i18n
-            class="uppercase text-s font-semibold"
+            class="uppercase text-s font-medium"
             lang=${this.lang}
             key="tier_by"
             ns=${this.ns}

@@ -17,7 +17,7 @@ export class WebhookLogCard extends TranslatableMixin(InternalCard, 'webhook-log
 
     return html`
       <div class="leading-none space-y-xs">
-        <p class="flex justify-between items-center font-semibold">
+        <p class="flex justify-between items-center font-medium">
           <foxy-i18n .options=${{ value: date_created }} infer="" key="date"></foxy-i18n>
           <span class="inline-block text-xs bg-contrast-5 text-secondary rounded p-xs">
             ${response_code}&ZeroWidthSpace;

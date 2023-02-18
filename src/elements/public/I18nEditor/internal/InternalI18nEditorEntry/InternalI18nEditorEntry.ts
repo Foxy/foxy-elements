@@ -83,14 +83,14 @@ export class InternalI18nEditorEntry extends Base<Data> {
       >
         <label class="group flex flex-col sm-flex-row">
           <div class="flex-1 p-xs break-all" style="max-width: 20rem">
-            <span class="inline-block rounded text-s p-xs font-semibold">
+            <span class="inline-block rounded text-s p-xs font-medium">
               ${this.data?.code ?? this.code}
             </span>
           </div>
 
           <div class="flex-1 flex">
             <div class="relative flex-1">
-              <div class="opacity-0 text-s p-s font-semibold break-all">
+              <div class="opacity-0 text-s p-s font-medium break-all">
                 <span class="whitespace-pre-wrap">${value}&ZeroWidthSpace;</span>
               </div>
 
@@ -98,7 +98,7 @@ export class InternalI18nEditorEntry extends Base<Data> {
                 class=${classMap({
                   'absolute inset-0 p-s resize-none': true,
                   'sm-border-l sm-border-transparent': true,
-                  'break-all text-body transition-colors text-s font-semibold': true,
+                  'break-all text-body transition-colors text-s font-medium': true,
                   'rounded-b sm-rounded-bl-none sm-rounded-tr': isTemplate && !isDirty,
                   'rounded-bl sm-rounded-bl-none': isSnapshot && !isDirty,
                   'sm-rounded-tr': isTemplate && isDirty,

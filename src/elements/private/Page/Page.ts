@@ -20,7 +20,7 @@ export class Page extends LitElement {
     return html`
       <article class="relative antialiased font-lumo">
         <header class="space-y-xs leading-s">
-          <h1 class="font-bold text-header text-xl border-b border-contrast-10 pb-s mb-s">
+          <h1 class="font-medium text-header text-xl border-b border-contrast-10 pb-s mb-s">
             <slot name="title"></slot>
           </h1>
           <p class="text-l text-secondary">

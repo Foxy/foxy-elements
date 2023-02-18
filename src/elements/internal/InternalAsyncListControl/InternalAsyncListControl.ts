@@ -55,7 +55,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
   hideCreateButton = false;
 
   /** If set, renders list items as <a> tags. */
-  getPageHref: ((itemHref: string, item: unknown) => string) | null = null;
+  getPageHref: ((itemHref: string, item: unknown) => string | null) | null = null;
 
   private __deletionConfimationCallback: (() => void) | null = null;
 
@@ -65,7 +65,10 @@ export class InternalAsyncListControl extends InternalEditableControl {
   } | null = null;
 
   private __itemRenderer: ItemRenderer = ctx => {
-    if (!(this.form || this.getPageHref) || !ctx.data) return this.__cardRenderer(ctx);
+    if (!ctx.data) return this.__cardRenderer(ctx);
+
+    const href = this.getPageHref?.(ctx.href, ctx.data);
+    if (typeof href !== 'string' && !this.form) return this.__cardRenderer(ctx);
 
     const isDisabled = this.disabledSelector.matches('card', true);
     const card = this.__cardRenderer(ctx);

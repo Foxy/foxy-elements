@@ -117,7 +117,7 @@ export class AdminSubscriptionCard extends Base<Data> {
 
       <div class="text-left leading-s text-tertiary">
         <div class="flex items-center space-x-s">
-          <span class="block flex-1 font-semibold text-body truncate">
+          <span class="block flex-1 font-medium text-body truncate">
             ${summaryOptions && summaryKey
               ? html`<foxy-i18n infer="" key=${summaryKey} .options=${summaryOptions}></foxy-i18n>`
               : html`&ZeroWidthSpace;`}

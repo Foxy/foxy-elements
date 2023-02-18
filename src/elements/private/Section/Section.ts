@@ -17,7 +17,7 @@ export class Section extends Page {
     return html`
       <section class="leading-s antialiased font-lumo">
         <header>
-          <h2 class="text-header font-semibold text-l">
+          <h2 class="text-header font-medium text-l">
             <slot name="title"></slot>
           </h2>
           <p class="text-secondary text-m">

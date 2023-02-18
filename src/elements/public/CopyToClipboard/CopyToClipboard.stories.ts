@@ -26,7 +26,7 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
   </div>
 
   <div
-    class="flex items-center gap-2 text-xl font-semibold mb-4"
+    class="flex items-center gap-2 text-xl font-medium mb-4"
     style="color: var(--lumo-body-text-color)"
   >
     <span>${args.text}</span>
@@ -40,7 +40,7 @@ export const Playground = (args: Record<string, unknown>): TemplateResult => htm
   </div>
 
   <div
-    class="flex items-start gap-2 text-2xl font-bold"
+    class="flex items-start gap-2 text-2xl font-medium"
     style="color: var(--lumo-primary-text-color)"
   >
     <span>${new Array(16).fill(args.text).join(' ')}</span>

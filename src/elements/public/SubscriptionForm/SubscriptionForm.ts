@@ -217,7 +217,7 @@ export class SubscriptionForm extends Base<Data> {
     return html`
       <div data-testid="header" class="sm-col-span-2">
         ${this.renderTemplateOrSlot('header:before')}
-        <div class="leading-xs text-xxl font-bold truncate">
+        <div class="leading-xs text-xxl font-medium truncate">
           ${this.__renderHeaderTitle(currencyCode, currencyDisplay)}
         </div>
         <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>

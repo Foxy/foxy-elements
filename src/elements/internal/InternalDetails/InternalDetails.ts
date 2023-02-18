@@ -46,7 +46,7 @@ export class InternalDetails extends ThemeableMixin(InferrableMixin(LitElement))
           <div class="flex items-center h-m pl-m pr-s">
             <div class="flex items-center flex-1">
               <foxy-i18n
-                class="flex items-center text-xs tracking-wide uppercase font-bold text-body"
+                class="flex items-center text-xs tracking-wide uppercase font-medium text-body"
                 infer=""
                 key=${this.summary ?? ''}
               >

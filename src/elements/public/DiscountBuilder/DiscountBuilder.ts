@@ -291,7 +291,7 @@ export class DiscountBuilder extends Base {
             'text-disabled': this.disabled,
           })}
         >
-          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_if"></foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-medium" infer="" key="tier_if"></foxy-i18n>
 
           ${this.__renderSwitch({
             options: ['total', 'quantity'],
@@ -307,7 +307,7 @@ export class DiscountBuilder extends Base {
             onChange: v => params.onChange({ tier: `${v}${sign}${adjustment}` }),
           })}
 
-          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_then"></foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-medium" infer="" key="tier_then"></foxy-i18n>
 
           ${this.__renderSwitch({
             options: ['reduce', 'increase'],
@@ -329,7 +329,7 @@ export class DiscountBuilder extends Base {
             onChange: v => params.onChange({ method: v }),
           })}
 
-          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_by"></foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-medium" infer="" key="tier_by"></foxy-i18n>
 
           ${this.__renderField({
             label: 'adjustment',

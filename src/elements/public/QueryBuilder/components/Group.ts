@@ -18,7 +18,7 @@ export function Group(params: GroupParams): TemplateResult {
 
   const orDivider = html`
     <div class="flex items-center h-s">
-      <div class="w-m text-center leading-none uppercase font-semibold text-xs text-contrast-30">
+      <div class="w-m text-center leading-none uppercase font-medium text-xs text-contrast-30">
         ${params.t('or')}
       </div>
 

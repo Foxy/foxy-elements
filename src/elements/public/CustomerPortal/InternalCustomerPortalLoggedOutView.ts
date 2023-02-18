@@ -51,7 +51,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
         ${this.renderTemplateOrSlot('access-recovery:header:before')}
 
         <foxy-i18n
-          class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
+          class="text-xxl font-medium ${isBusy ? 'text-disabled' : 'text-body'}"
           lang=${lang}
           key="recover_access"
           ns="${ns} ${customElements.get('foxy-access-recovery-form')?.defaultNS ?? ''}"
@@ -162,7 +162,7 @@ export class InternalCustomerPortalLoggedOutView extends Base {
         ${this.renderTemplateOrSlot('sign-in:header:before')}
 
         <foxy-i18n
-          class="text-xxl font-bold ${isBusy ? 'text-disabled' : 'text-body'}"
+          class="text-xxl font-medium ${isBusy ? 'text-disabled' : 'text-body'}"
           lang=${lang}
           key="sign_in"
           ns="${ns} ${customElements.get('foxy-sign-in-form')?.defaultNS ?? ''}"
