@@ -325,6 +325,10 @@
       "url": "./src/static/schemas/transactions-table.json"
     },
     {
+      "fileMatch": ["/src/static/translations/user-card/*.json"],
+      "url": "./src/static/schemas/user-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/user-form/*.json"],
       "url": "./src/static/schemas/user-form.json"
     },

@@ -88,6 +88,7 @@ export { TemplateConfigForm } from './TemplateConfigForm/TemplateConfigForm';
 export { TransactionCard } from './TransactionCard/TransactionCard';
 export { Transaction } from './Transaction/Transaction';
 export { TransactionsTable } from './TransactionsTable/TransactionsTable';
+export { UserCard } from './UserCard/UserCard';
 export { UserForm } from './UserForm/UserForm';
 export { UsersTable } from './UsersTable/UsersTable';
 export { WebhookCard } from './WebhookCard/WebhookCard';
