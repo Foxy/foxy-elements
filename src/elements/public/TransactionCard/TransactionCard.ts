@@ -75,12 +75,15 @@ class TransactionCard extends Base<Data> {
   }
 
   protected async _sendGet(): Promise<Data> {
-    type Store = Resource<Rels.Store>;
-
     const transaction = await super._sendGet();
-    const store = await super._fetch<Store>(transaction._links['fx:store'].href);
+    const storeLink = transaction._links['fx:store']?.href;
 
-    this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
+    if (typeof storeLink === 'string') {
+      const store = await super._fetch<Resource<Rels.Store>>(storeLink);
+      this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
+    } else {
+      this.__currencyDisplay = 'symbol';
+    }
 
     return transaction;
   }
