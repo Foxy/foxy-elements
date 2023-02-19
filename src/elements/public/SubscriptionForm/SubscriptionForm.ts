@@ -561,7 +561,7 @@ export class SubscriptionForm extends Base<Data> {
         </foxy-internal-number-control>
 
         <foxy-internal-async-list-control
-          first=${ifDefined(this.data?._links['fx:attributes'].href)}
+          first=${ifDefined(this.data?._links['fx:attributes']?.href)}
           class="sm-col-span-2"
           infer="attributes"
           limit="5"
