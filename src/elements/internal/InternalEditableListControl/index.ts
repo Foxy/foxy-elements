@@ -1,3 +1,6 @@
+import '@vaadin/vaadin-icons';
+import '@polymer/iron-icon';
+
 import '../InternalEditableControl/index';
 
 import { InternalEditableListControl } from './InternalEditableListControl';
