@@ -4,7 +4,6 @@ import { stub } from 'sinon';
 import { createRouter } from '../../../server/index';
 import { getByKey } from '../../../testgen/getByKey';
 import { InternalAsyncDetailsControl } from '../../internal/InternalAsyncDetailsControl';
-import { AddressCard } from '../AddressCard';
 import { FormDialog } from '../FormDialog';
 import { FormRenderer } from '../FormDialog/types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
