@@ -44,7 +44,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
   };
 
   static statusColumn: Column<Data> = {
-    hideBelow: 'md',
+    hideBelow: 'sm',
     cell: ctx => {
       const colors = {
         completed: 'bg-success-10 text-success',
@@ -70,7 +70,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
   };
 
   static idColumn: Column<Data> = {
-    hideBelow: 'md',
+    hideBelow: 'sm',
     cell: ctx => {
       return ctx.html`
         <span class="text-m text-secondary font-tnum" data-testclass="ids">
@@ -81,7 +81,7 @@ export class TransactionsTable extends TranslatableMixin(Table, 'transactions-ta
   };
 
   static dateColumn: Column<Data> = {
-    hideBelow: 'md' as const,
+    hideBelow: 'sm' as const,
     cell: ctx => {
       return ctx.html`
         <foxy-i18n

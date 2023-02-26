@@ -48,7 +48,7 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
   };
 
   static statusColumn: Column<Data> = {
-    hideBelow: 'md',
+    hideBelow: 'sm',
     cell: ctx => {
       let color: string;
       let date: string;
@@ -79,7 +79,7 @@ export class SubscriptionsTable extends TranslatableMixin(Table, 'subscriptions-
       return ctx.html`
         <foxy-i18n
           data-testclass="i18n statuses"
-          class="px-s py-xs text-m font-medium rounded ${color}"
+          class="px-s py-xs text-m font-medium block whitespace-normal rounded ${color}"
           lang=${ctx.lang}
           key=${key}
           ns=${ctx.ns}
