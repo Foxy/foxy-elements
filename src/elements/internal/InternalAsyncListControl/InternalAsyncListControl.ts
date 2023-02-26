@@ -16,6 +16,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       ...super.properties,
       hideDeleteButton: { type: Boolean, attribute: 'hide-delete-button' },
       hideCreateButton: { type: Boolean, attribute: 'hide-create-button' },
+      createPageHref: { attribute: 'create-page-href' },
       getPageHref: { attribute: false },
       related: { type: Array },
       first: {},
@@ -26,6 +27,9 @@ export class InternalAsyncListControl extends InternalEditableControl {
       alert: { type: Boolean },
     };
   }
+
+  /** If provided, renders Create button as a link to this page. */
+  createPageHref: string | null = null;
 
   /** Same as the `related` property of `NucleonElement`. */
   related = [] as string[];
@@ -191,8 +195,17 @@ export class InternalAsyncListControl extends InternalEditableControl {
         >
         </foxy-collection-page>
 
-        ${!this.form || this.readonly || this.hideCreateButton
+        ${(!this.form && !this.createPageHref) || this.readonly || this.hideCreateButton
           ? ''
+          : this.createPageHref && !this.disabled
+          ? html`
+              <a
+                class="mb-s w-full flex items-center justify-center h-m px-m rounded text-m font-medium transition-colors bg-contrast-5 text-success hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                href=${this.createPageHref}
+              >
+                <foxy-i18n infer="" key="create_button_text"></foxy-i18n>
+              </a>
+            `
           : html`
               <vaadin-button
                 class="mb-s w-full"

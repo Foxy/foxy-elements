@@ -89,6 +89,13 @@ describe('InternalAsyncListControl', () => {
     });
   });
 
+  it('has a reactive property "createPageHref"', () => {
+    expect(new Control()).to.have.property('createPageHref', null);
+    expect(Control).to.have.deep.nested.property('properties.createPageHref', {
+      attribute: 'create-page-href',
+    });
+  });
+
   it('has a reactive property "getPageHref"', () => {
     expect(new Control()).to.have.property('getPageHref', null);
     expect(Control).to.have.deep.nested.property('properties.getPageHref', { attribute: false });
@@ -597,7 +604,7 @@ describe('InternalAsyncListControl', () => {
     expect(swipeActions.querySelector(selector)).to.not.exist;
   });
 
-  it('renders Create button', async () => {
+  it('renders Create button when .form is defined', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
     `);
@@ -620,7 +627,23 @@ describe('InternalAsyncListControl', () => {
     expect(dialog).to.have.property('href', '');
   });
 
-  it("hides Create button if there's no form", async () => {
+  it('renders Create link when .createPageHref is defined', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control></foxy-internal-async-list-control>
+    `);
+
+    control.item = 'foxy-attribute-card';
+    control.createPageHref = 'https://example.com';
+
+    const label = (await getByKey(control, 'create_button_text'))!;
+    const a = label.closest('a')!;
+
+    expect(label).to.have.property('localName', 'foxy-i18n');
+    expect(label).to.have.attribute('infer', '');
+    expect(a).to.have.attribute('href', 'https://example.com');
+  });
+
+  it("hides Create link/button if there's no form", async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
     `);
@@ -628,11 +651,14 @@ describe('InternalAsyncListControl', () => {
     control.item = 'foxy-attribute-card';
     await control.updateComplete;
 
-    const selector = 'vaadin-button foxy-i18n[key="create_button_text"]';
-    expect(control.querySelector(selector)).to.not.exist;
+    const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+    const aSelector = 'a foxy-i18n[key="create_button_text"]';
+
+    expect(control.querySelector(buttonSelector)).to.not.exist;
+    expect(control.querySelector(aSelector)).to.not.exist;
   });
 
-  it('hides Create button if control is readonly', async () => {
+  it('hides Create link/button if control is readonly', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
     `);
@@ -642,11 +668,14 @@ describe('InternalAsyncListControl', () => {
     control.readonly = true;
     await control.updateComplete;
 
-    const selector = 'vaadin-button foxy-i18n[key="create_button_text"]';
-    expect(control.querySelector(selector)).to.not.exist;
+    const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+    const aSelector = 'a foxy-i18n[key="create_button_text"]';
+
+    expect(control.querySelector(buttonSelector)).to.not.exist;
+    expect(control.querySelector(aSelector)).to.not.exist;
   });
 
-  it('hides Create button if hideCreateButton is true', async () => {
+  it('hides Create link/button if hideCreateButton is true', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
     `);
@@ -656,7 +685,10 @@ describe('InternalAsyncListControl', () => {
     control.hideCreateButton = true;
     await control.updateComplete;
 
-    const selector = 'vaadin-button foxy-i18n[key="create_button_text"]';
-    expect(control.querySelector(selector)).to.not.exist;
+    const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
+    const aSelector = 'a foxy-i18n[key="create_button_text"]';
+
+    expect(control.querySelector(buttonSelector)).to.not.exist;
+    expect(control.querySelector(aSelector)).to.not.exist;
   });
 });
