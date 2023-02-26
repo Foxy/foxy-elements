@@ -67,10 +67,22 @@ class CustomerCard extends Base<Data> {
     const name = `${data?.first_name ?? ''} ${data?.last_name ?? ''}`.trim() || '–';
     const content = data ? html`${name}` : html`&ZeroWidthSpace;`;
 
+    let id: string;
+
+    try {
+      const url = new URL(this.data?._links.self.href ?? '');
+      id = url.pathname.split('/').pop() ?? '';
+    } catch {
+      id = '';
+    }
+
     return html`
       <div data-testid="name">
         ${this.renderTemplateOrSlot('name:before')}
-        <div class="font-medium text-body truncate">${content}</div>
+        <div class="flex items-center gap-m">
+          <div class="font-medium text-body truncate mr-auto">${content}</div>
+          <div class="text-tertiary text-s">ID ${id}</div>
+        </div>
         ${this.renderTemplateOrSlot('name:after')}
       </div>
     `;
