@@ -1,4 +1,6 @@
-import '../AddressCard/index';
+import '@polymer/iron-icons/maps-icons';
+import '@polymer/iron-icon';
+
 import '../ItemForm/index';
 import '../ItemCard/index';
 import '../I18n/index';

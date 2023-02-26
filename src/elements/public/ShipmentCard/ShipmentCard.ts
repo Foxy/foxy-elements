@@ -45,10 +45,6 @@ export class ShipmentCard extends Base<Data> {
 
   __coupons = '';
 
-  get hiddenSelector(): BooleanSelector {
-    return new BooleanSelector(`address:not=full-address ${super.hiddenSelector.toString()}`);
-  }
-
   get readonlySelector(): BooleanSelector {
     return this.__editable ? super.readonlySelector : BooleanSelector.True;
   }
@@ -81,28 +77,31 @@ export class ShipmentCard extends Base<Data> {
       </foxy-item-form>
     `;
 
+    const { address_name, address1, address2, city, region, postal_code } = this.data ?? {};
+    const addressOptions = { address_name, address1, address2, city, region, postal_code };
+
+    const amount = `${this.data?.total_shipping} ${this.__currency}`;
+    const currencyDisplay = this.__currencyDisplay;
+    const priceOptions = { amount, currencyDisplay };
+
     return html`
       <div class="space-y-m">
-        <foxy-address-card
-          infer="address"
-          href=${ifDefined(this.data?._links['fx:customer_address'].href)}
-        >
-          <div slot="full-address:after" class="flex items-center text-m space-x-s text-secondary">
+        <div>
+          <div class="flex items-center text-m space-x-s text-secondary">
+            <iron-icon icon="maps:place" class="icon-inline flex-shrink-0"></iron-icon>
+            <span class="truncate">
+              <foxy-i18n infer="address" key="full_address" .options=${addressOptions}></foxy-i18n>
+            </span>
+          </div>
+
+          <div class="flex items-center text-m space-x-s text-secondary">
             <iron-icon icon="maps:local-shipping" class="icon-inline flex-shrink-0"></iron-icon>
             <span class="truncate">
               ${this.data?.shipping_service_description} &bull;
-              <foxy-i18n
-                options=${JSON.stringify({
-                  amount: `${this.data?.total_shipping} ${this.__currency}`,
-                  currencyDisplay: this.__currencyDisplay,
-                })}
-                key="price"
-                infer=""
-              >
-              </foxy-i18n>
+              <foxy-i18n key="price" infer="address" .options=${priceOptions}></foxy-i18n>
             </span>
           </div>
-        </foxy-address-card>
+        </div>
 
         <foxy-internal-async-details-control
           infer="items"
