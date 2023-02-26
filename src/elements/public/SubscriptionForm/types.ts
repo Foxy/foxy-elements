@@ -10,6 +10,8 @@ export type TransactionPageGetter = (
   data: Resource<Rels.Transaction> | Resource<BackendRels.Transaction> | null
 ) => string;
 
+export type CustomerPageGetter = (href: string) => string;
+
 export type Settings = Resource<Rels.CustomerPortalSettings>;
 export type Item = Resource<Rels.Item>;
 export type Data = Resource<BackendRels.Subscription>;

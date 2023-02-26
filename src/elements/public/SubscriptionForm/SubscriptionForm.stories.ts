@@ -13,6 +13,7 @@ const summary: Summary = {
   configurable: {
     sections: [
       'header',
+      'customer',
       'items',
       'items:actions',
       'end-date:form:warning',

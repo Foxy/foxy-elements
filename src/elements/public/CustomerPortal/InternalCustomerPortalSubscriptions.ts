@@ -164,7 +164,7 @@ export class InternalCustomerPortalSubscriptions extends Base {
         disabledcontrols=${ctx.dialog.disabledControls.toString()}
         readonlycontrols=${ctx.dialog.readonlyControls.toString()}
         hiddencontrols=${new BooleanSelector(
-          `attributes timestamps start-date past-due-amount ${ctx.dialog.hiddenSelector}`
+          `attributes timestamps start-date past-due-amount customer ${ctx.dialog.hiddenSelector}`
         )}
         settings=${JSON.stringify(this.settings)}
         parent=${ctx.dialog.parent}

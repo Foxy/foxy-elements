@@ -10254,11 +10254,6 @@
           "default": "\"\""
         },
         {
-          "name": "group",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
           "name": "href",
           "description": "Optional URL of the resource to load (passed to form).",
           "type": "string",
@@ -10288,6 +10283,12 @@
         {
           "name": "header",
           "description": "Header text or a i18next key for it.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "description": "NucleonElement's Rumour sync group.",
           "type": "string",
           "default": "\"\""
         },
@@ -10372,12 +10373,6 @@
           "default": "\"\""
         },
         {
-          "name": "group",
-          "attribute": "group",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
           "name": "href",
           "attribute": "href",
           "description": "Optional URL of the resource to load (passed to form).",
@@ -10443,6 +10438,13 @@
           "name": "header",
           "attribute": "header",
           "description": "Header text or a i18next key for it.",
+          "type": "string",
+          "default": "\"\""
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "NucleonElement's Rumour sync group.",
           "type": "string",
           "default": "\"\""
         },
@@ -20655,6 +20657,9 @@
           "default": "\"(_, data: any) => {\\n    return data?._links['fx:receipt'].href;\\n  }\""
         },
         {
+          "name": "getCustomerPageHref"
+        },
+        {
           "name": "customerAddresses",
           "attribute": "customer-addresses"
         },
@@ -21325,7 +21330,7 @@
         {
           "name": "statusColumn",
           "type": "Column<Resource<Subscriptions, { zoom: { transaction_template: \"items\"; }; }>>",
-          "default": "{\"hideBelow\":\"md\"}"
+          "default": "{\"hideBelow\":\"sm\"}"
         },
         {
           "name": "subTokenURLColumn",
@@ -24095,17 +24100,17 @@
         {
           "name": "statusColumn",
           "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
-          "default": "{\"hideBelow\":\"md\"}"
+          "default": "{\"hideBelow\":\"sm\"}"
         },
         {
           "name": "idColumn",
           "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
-          "default": "{\"hideBelow\":\"md\"}"
+          "default": "{\"hideBelow\":\"sm\"}"
         },
         {
           "name": "dateColumn",
           "type": "Column<Resource<Transactions, { zoom: \"items\"; }>>",
-          "default": "{\"hideBelow\":\"md\"}"
+          "default": "{\"hideBelow\":\"sm\"}"
         },
         {
           "name": "receiptColumn",

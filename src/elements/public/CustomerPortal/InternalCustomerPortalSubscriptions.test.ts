@@ -239,7 +239,8 @@ describe('InternalCustomerPortalSubscriptions', () => {
           'https://demo.api/hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
 
         const form = (await getByTag(dialog, 'foxy-subscription-form')) as SubscriptionForm;
-        const alwaysHidden = 'attributes timestamps start-date past-due-amount header end-date';
+        const alwaysHidden =
+          'attributes timestamps start-date past-due-amount customer header end-date';
 
         expect(form).to.have.attribute('disabledcontrols', 'end-date');
         expect(form).to.have.attribute('readonlycontrols', 'frequency');

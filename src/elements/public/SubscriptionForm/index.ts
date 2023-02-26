@@ -16,6 +16,7 @@ import '../TransactionCard/index';
 import '../NucleonElement/index';
 import '../AttributeCard/index';
 import '../AttributeForm/index';
+import '../CustomerCard/index';
 import '../FormDialog/index';
 import '../ItemCard/index';
 import '../I18n/index';
