@@ -173,11 +173,13 @@ export abstract class Dialog extends Base {
         ></div>
 
         <div
+          tabindex="0"
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center':
-              true,
+            'transform ease-in-out transition duration-500 relative h-full ml-auto': true,
+            'origin-bottom sm-origin-center': true,
+            'focus-outline-none': true,
             'sm-max-w-modal': !this.wide,
             'sm-max-w-modal-wide': this.wide,
             'flex justify-center items-end sm-items-center mr-auto': this.alert,
@@ -297,9 +299,7 @@ export abstract class Dialog extends Base {
     await this.__setConnected(true);
     await this.__setOpenDialogs([this, ...Dialog.openDialogs]);
 
-    const closeButton = this.renderRoot.querySelector('#close-button') as HTMLButtonElement;
-    closeButton?.focus();
-
+    this.renderRoot.querySelector<HTMLDivElement>('[role="dialog"]')?.focus();
     this.dispatchEvent(new Dialog.ShowEvent());
   }
 
