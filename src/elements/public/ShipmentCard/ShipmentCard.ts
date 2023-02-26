@@ -74,6 +74,7 @@ export class ShipmentCard extends Base<Data> {
         parent=${dialog.parent}
         href=${dialog.href}
         infer=""
+        id="form"
         @fetch=${handleFetch}
         @update=${handleUpdate}
       >
