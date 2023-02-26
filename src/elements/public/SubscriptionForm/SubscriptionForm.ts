@@ -561,7 +561,7 @@ export class SubscriptionForm extends Base<Data> {
         </foxy-internal-number-control>
 
         <foxy-internal-async-list-control
-          first=${ifDefined(this.data?._links['fx:attributes'].href)}
+          first=${ifDefined(this.data?._links['fx:attributes']?.href)}
           class="sm-col-span-2"
           infer="attributes"
           limit="5"
@@ -590,7 +590,13 @@ export class SubscriptionForm extends Base<Data> {
   }
 
   private get __transactionTemplateHref() {
-    return this.data?._links['fx:transaction_template'].href;
+    type DataWithEmbeds = Resource<Rels.Subscription, { zoom: 'transaction_template' }>;
+    type Embed = Resource<Rels.TransactionTemplate>;
+
+    const data = this.data as DataWithEmbeds | null;
+    const embed = data?._embedded['fx:transaction_template'] as Embed | undefined;
+
+    return embed ? void 0 : data?._links['fx:transaction_template'].href;
   }
 
   private get __defaultTemplateSetHref() {
@@ -623,9 +629,15 @@ export class SubscriptionForm extends Base<Data> {
   }
 
   private get __transactionTemplate() {
+    type DataWithEmbeds = Resource<Rels.Subscription, { zoom: 'transaction_template' }>;
     type Loader = NucleonElement<Resource<Rels.TransactionTemplate>>;
+    type Embed = Resource<Rels.TransactionTemplate>;
+
+    const data = this.data as DataWithEmbeds | null;
+    const embed = data?._embedded['fx:transaction_template'] as Embed | undefined;
     const selector = `#${this.__transactionTemplateLoaderId}`;
-    return this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
+
+    return embed ?? this.renderRoot.querySelector<Loader>(selector)?.data ?? null;
   }
 
   private get __defaultTemplateSet() {

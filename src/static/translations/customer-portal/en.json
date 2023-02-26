@@ -142,6 +142,18 @@
       }
     },
     "subscription-form": {
+      "day": "Day",
+      "day_plural": "Days",
+      "week": "Week",
+      "week_plural": "Weeks",
+      "month": "Month",
+      "month_plural": "Months",
+      "year": "Year",
+      "year_plural": "Years",
+      "cancel": "Cancel",
+      "close": "Close",
+      "confirm": "Confirm",
+      "currency": "Currency",
       "daily": "Daily",
       "daily_plural": "Every {{count}} days",
       "end_subscription": "End subscription",
@@ -162,23 +174,70 @@
       "twice_a_month": "Twice a month",
       "update_billing": "Update billing",
       "update_items": "Edit",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
       "weekly": "Weekly",
       "weekly_plural": "Every {{count}} weeks",
       "yearly": "Yearly",
       "yearly_plural": "Every {{count}} years",
+      "items": {
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous",
+          "card": {
+            "price": "{{amount, price}}",
+            "wgt": "WGT",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No items",
+              "loading_error": "Failed to load"
+            }
+          }
+        }
+      },
+      "transactions": {
+        "label": "Transactions",
+        "pagination": {
+          "first": "First",
+          "last": "Last",
+          "next": "Next",
+          "pagination": "{{from}}-{{to}} out of {{total}}",
+          "previous": "Previous",
+          "card": {
+            "code": "Code",
+            "customer": "Customer",
+            "description": "Description",
+            "price": "{{amount, price}}",
+            "time": "{{value, date}}",
+            "transaction_approved": "Approved",
+            "transaction_authorized": "Authorized",
+            "transaction_captured": "Captured",
+            "transaction_completed": "Completed",
+            "transaction_declined": "Declined",
+            "transaction_pending": "Pending",
+            "transaction_plural": "Transactions",
+            "transaction_refunded": "Refunded",
+            "transaction_rejected": "Rejected",
+            "transaction_summary": "{{most_expensive_item.name}}",
+            "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
+            "transaction_verified": "Verified",
+            "transaction_voided": "Voided",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No transactions",
+              "loading_error": "Failed to load"
+            }
+          }
+        }
+      },
       "spinner": {
         "loading_busy": "Loading",
         "loading_error": "Failed to load"
-      },
-      "transactions-table": {
-        "date": "{{value, date}}",
-        "price": "{{amount, price}}",
-        "receipt": "Receipt",
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No transactions",
-          "loading_error": "Failed to load"
-        }
       }
     },
     "transactions-table": {
