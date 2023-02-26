@@ -200,6 +200,15 @@ registerStyles(
   `
 );
 
+registerStyles(
+  'vaadin-button',
+  css`
+    :host([theme~='primary']) {
+      font-weight: 500;
+    }
+  `
+);
+
 /**
  * One of the base classes for each rel-specific element in the collection
  * providing shared TailwindCSS styles for Shadow DOM content.
