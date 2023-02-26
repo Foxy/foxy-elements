@@ -50,6 +50,7 @@ export abstract class Dialog extends Base {
       closable: { type: Boolean },
       editable: { type: Boolean },
       header: { type: String },
+      group: {},
       alert: { type: Boolean },
       wide: { type: Boolean },
       open: { type: Boolean, noAccessor: true },
@@ -81,6 +82,9 @@ export abstract class Dialog extends Base {
 
   /** Header text or a i18next key for it. */
   header = '';
+
+  /** NucleonElement's Rumour sync group. */
+  group = '';
 
   /** When true, centers a dialog on the screen and does not animate the stack under. */
   alert = false;
@@ -243,6 +247,27 @@ export abstract class Dialog extends Base {
         </div>
       </div>
     `;
+  }
+
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+
+    const dialogWindow = Dialog.dialogWindows.get(this);
+
+    if (dialogWindow) {
+      dialogWindow.disabledControls = this.disabledControls;
+      dialogWindow.disabled = this.disabled;
+
+      dialogWindow.readonlyControls = this.readonlyControls;
+      dialogWindow.readonly = this.readonly;
+
+      dialogWindow.hiddenControls = this.hiddenControls;
+      dialogWindow.hidden = this.hidden;
+
+      dialogWindow.group = this.group;
+      dialogWindow.lang = this.lang;
+      dialogWindow.ns = this.ns;
+    }
   }
 
   /**
