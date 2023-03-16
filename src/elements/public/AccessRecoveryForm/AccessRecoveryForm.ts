@@ -167,4 +167,15 @@ export class AccessRecoveryForm extends Base<Data> {
       </main>
     `;
   }
+
+  protected async _sendPost(edits: Partial<Data>): Promise<Data> {
+    const body = JSON.stringify(edits);
+    const data = await this._fetch(this.parent, { body, method: 'POST' });
+
+    const rumour = NucleonElement.Rumour(this.group);
+    const related = [...this.related, this.parent];
+    rumour.share({ data, related, source: data._links.self.href });
+
+    return data;
+  }
 }
