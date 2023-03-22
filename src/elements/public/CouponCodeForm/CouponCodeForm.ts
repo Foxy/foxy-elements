@@ -57,6 +57,7 @@ export class CouponCodeForm extends Base<Data> {
     return [
       ({ code: v }) => !!v || 'code_required',
       ({ code: v }) => !v || v.length <= 50 || 'code_too_long',
+      ({ code: v }) => !v?.includes(' ') || 'code_has_spaces',
     ];
   }
 

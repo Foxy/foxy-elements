@@ -21,6 +21,10 @@
     "template": { "type": "string", "default": "Template" },
     "v8n_negative": { "type": "string", "default": "Negative values are not allowed" },
     "v8n_required": { "type": "string", "default": "Required" },
+    "v8n_prefix_has_spaces": {
+      "type": "string",
+      "default": "Spaces are not allowed in code prefix"
+    },
     "spinner": {
       "additionalProperties": false,
       "properties": {
@@ -44,6 +48,7 @@
     "template",
     "v8n_negative",
     "v8n_required",
+    "v8n_prefix_has_spaces",
     "spinner"
   ]
 }

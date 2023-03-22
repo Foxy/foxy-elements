@@ -18,6 +18,10 @@
     "end_date": { "type": "string", "default": "End date" },
     "v8n_required": { "type": "string", "default": "Required" },
     "v8n_too_long": { "type": "string", "default": "Too long" },
+    "v8n_code_has_spaces": {
+      "type": "string",
+      "default": "Spaces are not allowed in gift card codes"
+    },
     "cart-item": {
       "additionalProperties": false,
       "properties": {
@@ -115,6 +119,7 @@
     "end_date",
     "v8n_required",
     "v8n_too_long",
+    "v8n_code_has_spaces",
     "cart-item",
     "logs",
     "spinner"
