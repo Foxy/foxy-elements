@@ -8,6 +8,8 @@ import { repeat } from 'lit-html/directives/repeat';
 
 export type ListValueParams = {
   parsedValue: ParsedValue;
+  disabled: boolean;
+  readonly: boolean;
   option: Option | null;
   t: I18n['t'];
   onChange: (newValue: ParsedValue) => void;
@@ -19,11 +21,14 @@ export function ListValue(params: ListValueParams): TemplateResult {
   const optionType = params.option?.type ?? Type.Any;
   const type = optionType === Type.Number ? 'number' : optionType === Type.Date ? 'date' : 'text';
   const list = params.option?.list;
+  const displayedValues: (string | null)[] = [...splitValue.filter(value => !!value)];
+
+  if (!params.readonly) displayedValues.push(null);
 
   return html`
     <div class="bg-contrast-10 grid grid-cols-1 gap-1px">
       ${repeat(
-        [...splitValue.filter(value => !!value), null],
+        displayedValues,
         (value, index) => index,
         (value, index) => html`
           <div class="bg-base">
@@ -33,6 +38,8 @@ export function ListValue(params: ListValueParams): TemplateResult {
               t: params.t,
               value: value ?? '',
               label: value ? String(index + 1) : 'add_value',
+              disabled: params.disabled,
+              readonly: params.readonly,
               clearable: true,
               displayValue: list?.find(item => item.value === value)?.label,
               onChange: newValue => {

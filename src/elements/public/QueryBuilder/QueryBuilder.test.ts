@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit-element';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
 import { QueryBuilder } from './index';
+import { Type } from './types';
 
 describe('QueryBuilder', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -861,5 +862,94 @@ describe('QueryBuilder', () => {
       expect(options[1]).to.have.value('2020-01-01T00:00:00.000Z');
       expect(options[1]).to.contain.text('January 1, 2020');
     }
+  });
+
+  it('disables all interactive elements in the render root when disabled', async () => {
+    const options = [
+      { type: Type.Attribute, path: 'attributes', label: '' },
+      { type: Type.Number, path: 'total_order', label: '' },
+      { type: Type.Date, path: 'transaction_date', label: 'transaction_date' },
+      {
+        label: '',
+        type: Type.Boolean,
+        path: 'data_is_fed',
+        list: [
+          { label: 'webhooks_fed', value: 'true' },
+          { label: 'webhooks_not_fed', value: 'false' },
+        ],
+      },
+      {
+        type: Type.String,
+        path: 'status',
+        label: 'status',
+        list: [
+          { label: 'transaction_authorized', value: 'authorized' },
+          { label: 'transaction_approved', value: 'approved' },
+          { label: 'transaction_pending', value: 'pending' },
+        ],
+      },
+    ];
+
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        .options=${options}
+        value="total_order%3Agreaterthanorequal=15&transaction_date=2019-01-01T00%3A00%3A00..2019-01-02T00%3A00%3A00&custom_fields%5Bcolor%5D=red%7Cstatus%253Ain%3Dauthorized%252Capproved&data_is_fed=false"
+      >
+      </foxy-query-builder>
+    `);
+
+    const root = element.renderRoot;
+    const controls = root.querySelectorAll(':is(input, button, select):not([disabled])');
+    controls.forEach(control => expect(control).to.not.have.attribute('disabled'));
+
+    element.disabled = true;
+    await element.updateComplete;
+    controls.forEach(control => expect(control).to.have.attribute('disabled'));
+  });
+
+  it('disables all interactive elements in the render root when readonly', async () => {
+    const options = [
+      { type: Type.Attribute, path: 'attributes', label: '' },
+      { type: Type.Number, path: 'total_order', label: '' },
+      { type: Type.Date, path: 'transaction_date', label: 'transaction_date' },
+      {
+        label: '',
+        type: Type.Boolean,
+        path: 'data_is_fed',
+        list: [
+          { label: 'webhooks_fed', value: 'true' },
+          { label: 'webhooks_not_fed', value: 'false' },
+        ],
+      },
+      {
+        type: Type.String,
+        path: 'status',
+        label: 'status',
+        list: [
+          { label: 'transaction_authorized', value: 'authorized' },
+          { label: 'transaction_approved', value: 'approved' },
+          { label: 'transaction_pending', value: 'pending' },
+        ],
+      },
+    ];
+
+    const element = await fixture<QueryBuilder>(html`
+      <foxy-query-builder
+        .options=${options}
+        value="total_order%3Agreaterthanorequal=15&transaction_date=2019-01-01T00%3A00%3A00..2019-01-02T00%3A00%3A00&custom_fields%5Bcolor%5D=red%7Cstatus%253Ain%3Dauthorized%252Capproved&data_is_fed=false"
+      >
+      </foxy-query-builder>
+    `);
+
+    element.renderRoot
+      .querySelectorAll(':is(input, button, select):not([disabled])')
+      .forEach(control => expect(control).to.not.have.attribute('disabled'));
+
+    element.readonly = true;
+    await element.updateComplete;
+
+    element.renderRoot
+      .querySelectorAll('input, button, select')
+      .forEach(control => expect(control).to.have.attribute('disabled'));
   });
 });

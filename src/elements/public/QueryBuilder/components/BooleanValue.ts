@@ -6,13 +6,15 @@ import { TemplateResult } from 'lit-html';
 
 export type BooleanValueParams = {
   parsedValue: ParsedValue;
+  readonly: boolean;
+  disabled: boolean;
   option: Option | null;
   t: I18n['t'];
   onChange: (newValue: ParsedValue) => void;
 };
 
 export function BooleanValue(params: BooleanValueParams): TemplateResult {
-  const { parsedValue, option, t, onChange } = params;
+  const { parsedValue, option, readonly, disabled, t, onChange } = params;
 
   const falseLabel = option?.list?.find(v => v.value === 'false')?.label ?? 'false';
   const trueLabel = option?.list?.find(v => v.value === 'true')?.label ?? 'true';
@@ -22,6 +24,8 @@ export function BooleanValue(params: BooleanValueParams): TemplateResult {
   ];
 
   return Select({
+    disabled,
+    readonly,
     value: parsedValue.value,
     label: 'value',
     list,
