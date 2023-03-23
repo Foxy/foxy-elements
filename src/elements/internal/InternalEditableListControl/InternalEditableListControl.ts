@@ -53,8 +53,9 @@ export class InternalEditableListControl extends InternalEditableControl {
       <div class="group">
         <div
           class=${classMap({
-            'transition-colors mb-xs font-medium text-s text-secondary': true,
-            'group-hover-text-body': !this.disabled && !this.readonly,
+            'transition-colors mb-xs font-medium text-s': true,
+            'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
+            'text-disabled': this.disabled,
           })}
         >
           ${this.label}
@@ -96,16 +97,20 @@ export class InternalEditableListControl extends InternalEditableControl {
               ? 'border-radius: calc(var(--lumo-border-radius-m) - 1px)'
               : 'border-radius: 0 0 calc(var(--lumo-border-radius-m) - 1px) calc(var(--lumo-border-radius-m) - 1px)'}
             class=${classMap({
-              'transition-colors bg-contrast-10 pl-s h-m flex items-center': true,
+              'transition-colors pl-s h-m flex items-center': true,
               'focus-within-ring-2 focus-within-ring-primary-50': true,
-              'group-hover-bg-contrast-20': !this.disabled && !this.readonly,
+              'bg-contrast-10 group-hover-bg-contrast-20': !this.disabled && !this.readonly,
+              'bg-contrast-5': this.disabled,
               'flex': !this.readonly,
               'hidden': this.readonly,
             })}
           >
             <input
               placeholder=${this.placeholder}
-              class="w-full bg-transparent appearance-none h-m font-medium focus-outline-none"
+              class=${classMap({
+                'w-full bg-transparent appearance-none h-m font-medium focus-outline-none': true,
+                'text-disabled': this.disabled,
+              })}
               list="list"
               ...=${spread(this.inputParams)}
               .value=${live(this.__newItem)}
@@ -146,7 +151,13 @@ export class InternalEditableListControl extends InternalEditableControl {
           </div>
         </div>
 
-        <div class="transition-colors mt-xs text-xs text-secondary group-hover-text-body">
+        <div
+          class=${classMap({
+            'transition-colors mt-xs text-xs': true,
+            'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
+            'text-disabled': this.disabled,
+          })}
+        >
           ${this.helperText}
         </div>
       </div>
