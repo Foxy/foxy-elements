@@ -26,6 +26,7 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
 
 describe('CouponForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -2419,6 +2420,141 @@ describe('CouponForm', () => {
       expect(page).to.have.attribute('group', 'test');
       expect(page).to.have.attribute('lang', 'es');
       expect(page).to.have.attribute('ns', 'foo');
+    });
+  });
+
+  describe('customer-subscription-restrictions', () => {
+    it('renders foxy-internal-editable-list-control with restrictions', async () => {
+      const form = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      const control = form.renderRoot.querySelector<InternalEditableListControl>(
+        '[infer="customer-subscription-restrictions"]'
+      )!;
+
+      expect(control).to.be.instanceOf(InternalEditableListControl);
+      expect(control.getValue()).to.deep.equal([]);
+
+      form.edit({ customer_subscription_restrictions: 'foo,bar' });
+      await form.updateComplete;
+      expect(control.getValue()).to.deep.equal([{ value: 'foo' }, { value: 'bar' }]);
+
+      control.setValue([{ value: 'one' }, { value: 'two' }]);
+      expect(form).to.have.nested.property('form.customer_subscription_restrictions', 'one,two');
+      expect(form).to.have.nested.property('form.customer_auto_apply', true);
+
+      control.setValue([]);
+      expect(form).to.have.nested.property('form.customer_subscription_restrictions', '');
+      expect(form).to.have.nested.property('form.customer_auto_apply', false);
+    });
+  });
+
+  describe('customer-attribute-restrictions', () => {
+    it('has a translatable label', async () => {
+      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      const control = (await getByTestId(
+        element,
+        'customer-attribute-restrictions'
+      )) as HTMLElement;
+
+      const label = await getByKey(control, 'label');
+      expect(label).to.have.property('infer', 'customer-attribute-restrictions');
+    });
+
+    it('has a translatable helper text', async () => {
+      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      const control = (await getByTestId(
+        element,
+        'customer-attribute-restrictions'
+      )) as HTMLElement;
+
+      const label = await getByKey(control, 'helper_text');
+      expect(label).to.have.property('infer', 'customer-attribute-restrictions');
+    });
+
+    it('renders foxy-query-builder with restrictions', async () => {
+      const form = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      const control = form.renderRoot.querySelector<QueryBuilder>('foxy-query-builder')!;
+
+      expect(control).to.have.attribute('infer', 'customer-attribute-restrictions');
+      expect(control.value).to.equal(null);
+
+      form.edit({ customer_attribute_restrictions: 'foo=bar&baz=0' });
+      await form.updateComplete;
+      expect(control.value).to.equal('foo=bar&baz=0');
+
+      control.value = 'one=two&three=3';
+      control.dispatchEvent(new CustomEvent('change'));
+      expect(form).to.have.nested.property(
+        'form.customer_attribute_restrictions',
+        'one=two&three=3'
+      );
+      expect(form).to.have.nested.property('form.customer_auto_apply', true);
+
+      control.value = null;
+      control.dispatchEvent(new CustomEvent('change'));
+      expect(form).to.have.nested.property('form.customer_attribute_restrictions', '');
+      expect(form).to.have.nested.property('form.customer_auto_apply', false);
+    });
+
+    it('renders "customer-attribute-restrictions:before" slot by default', async () => {
+      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      const slot = await getByName(element, 'customer-attribute-restrictions:before');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "customer-attribute-restrictions:before" slot with template "customer-attribute-restrictions:before" if available', async () => {
+      const name = 'customer-attribute-restrictions:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<CouponForm>(html`
+        <foxy-coupon-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-coupon-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "customer-attribute-restrictions:after" slot by default', async () => {
+      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      const slot = await getByName(element, 'customer-attribute-restrictions:after');
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "customer-attribute-restrictions:after" slot with template "customer-attribute-restrictions:after" if available', async () => {
+      const name = 'customer-attribute-restrictions:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<CouponForm>(html`
+        <foxy-coupon-form>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-coupon-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('is visible by default', async () => {
+      const element = await fixture<CouponForm>(html`<foxy-coupon-form></foxy-coupon-form>`);
+      expect(await getByTestId(element, 'customer-attribute-restrictions')).to.exist;
+    });
+
+    it('is hidden when form is hidden', async () => {
+      const element = await fixture<CouponForm>(html`<foxy-coupon-form hidden></foxy-coupon-form>`);
+      expect(await getByTestId(element, 'customer-attribute-restrictions')).to.not.exist;
+    });
+
+    it('is hidden when hiddencontrols includes customer-attribute-restrictions', async () => {
+      const element = await fixture<CouponForm>(html`
+        <foxy-coupon-form hiddencontrols="customer-attribute-restrictions"></foxy-coupon-form>
+      `);
+
+      expect(await getByTestId(element, 'customer-attribute-restrictions')).to.not.exist;
     });
   });
 

@@ -1,7 +1,13 @@
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 
-export type Data = Resource<Rels.Coupon>;
+// TODO: simplify the type below once the SDK is updated
+
+export type Data = Resource<Rels.Coupon> & {
+  customer_auto_apply: boolean;
+  customer_attribute_restrictions: string;
+  customer_subscription_restrictions: string;
+};
 
 export type RulesTierParams = {
   source: string;

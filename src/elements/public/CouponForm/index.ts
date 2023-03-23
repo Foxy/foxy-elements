@@ -4,6 +4,7 @@ import '@vaadin/vaadin-date-picker';
 import '@vaadin/vaadin-button';
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
+import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalConfirmDialog/index';
 import '../../internal/InternalSandbox/index';
 import '../GenerateCodesForm/index';

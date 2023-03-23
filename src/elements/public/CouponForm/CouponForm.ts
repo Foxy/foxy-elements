@@ -1,3 +1,5 @@
+import type { Item } from '../../internal/InternalEditableListControl/types';
+
 import {
   Data,
   RulesTierFieldParams,
@@ -5,6 +7,7 @@ import {
   RulesTierSelectParams,
   RulesTierSwitchParams,
 } from './types';
+
 import { Option, Type } from '../QueryBuilder/types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -91,6 +94,9 @@ export class CouponForm extends Base<Data> {
       'iron-dropdown': customElements.get('iron-dropdown'),
       'iron-icon': customElements.get('iron-icon'),
 
+      'foxy-internal-editable-list-control': customElements.get(
+        'foxy-internal-editable-list-control'
+      ),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-copy-to-clipboard': customElements.get('foxy-copy-to-clipboard'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
@@ -198,6 +204,31 @@ export class CouponForm extends Base<Data> {
     { label: 'date_modified', path: 'date_modified', type: Type.Date },
   ];
 
+  private readonly __customerSubscriptionRestrictionsGetValue = () => {
+    const items = this.form.customer_subscription_restrictions
+      ?.split(',')
+      .map(value => value.trim())
+      .filter((value, index, values) => !!value && values.indexOf(value) === index)
+      .map(value => ({ value }));
+
+    return items ?? [];
+  };
+
+  private readonly __customerSubscriptionRestrictionsSetValue = (newValue: Item[]) => {
+    this.edit({
+      customer_subscription_restrictions: newValue
+        .map(({ value }) => value.trim())
+        .filter((value, index, values) => !!value && values.indexOf(value) === index)
+        .join(),
+    });
+
+    this.edit({
+      customer_auto_apply:
+        !!this.form.customer_subscription_restrictions ||
+        !!this.form.customer_attribute_restrictions,
+    });
+  };
+
   private __codesTableQuery: string | null = null;
 
   private __itemCategories = '';
@@ -215,6 +246,17 @@ export class CouponForm extends Base<Data> {
         ${hidden.matches('category-restrictions', true) || !this.data
           ? ''
           : this.__renderCategoryRestrictions()}
+
+        <foxy-internal-editable-list-control
+          infer="customer-subscription-restrictions"
+          .getValue=${this.__customerSubscriptionRestrictionsGetValue}
+          .setValue=${this.__customerSubscriptionRestrictionsSetValue}
+        >
+        </foxy-internal-editable-list-control>
+
+        ${hidden.matches('customer-attribute-restrictions', true)
+          ? ''
+          : this.__renderCustomerAttributeRestrictions()}
         ${hidden.matches('options', true) ? '' : this.__renderOptions()}
         ${hidden.matches('timestamps', true) ? '' : this.__renderTimestamps()}
         ${hidden.matches('create', true) || !!this.data ? '' : this.__renderCreate()}
@@ -1161,6 +1203,48 @@ export class CouponForm extends Base<Data> {
         </div>
 
         ${this.renderTemplateOrSlot('category-restrictions:after')}
+      </div>
+    `;
+  }
+
+  private __renderCustomerAttributeRestrictions() {
+    const scope = 'customer-attribute-restrictions';
+    const isDisabled = this.disabledSelector.matches(scope, true);
+    const isReadonly = this.readonlySelector.matches(scope, true);
+
+    return html`
+      <div data-testid="customer-attribute-restrictions">
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+        <div
+          class=${classMap({
+            'grid gap-xs leading-xs transition-colors': true,
+            'text-secondary hover-text-body': !isDisabled && !isReadonly,
+            'text-disabled': isDisabled,
+            'text-body': isReadonly,
+          })}
+        >
+          <foxy-i18n class="text-s font-medium" infer=${scope} key="label"></foxy-i18n>
+
+          <foxy-query-builder
+            infer=${scope}
+            .value=${this.form.customer_attribute_restrictions ?? null}
+            @change=${(evt: CustomEvent) => {
+              const queryBuilder = evt.currentTarget as QueryBuilder;
+              this.edit({ customer_attribute_restrictions: queryBuilder.value ?? '' });
+              this.edit({
+                customer_auto_apply:
+                  !!this.form.customer_subscription_restrictions ||
+                  !!this.form.customer_attribute_restrictions,
+              });
+            }}
+          >
+          </foxy-query-builder>
+
+          <foxy-i18n class="text-xs" infer=${scope} key="helper_text"></foxy-i18n>
+        </div>
+
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
