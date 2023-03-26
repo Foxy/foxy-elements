@@ -169,36 +169,6 @@ If an aggregated designation is to be the default choice, set the `designation` 
   </Story>
 </Canvas>
 
-Just like with the amount, you can enable custom designations by adding "designation" to the `custom` attribute array: `custom='["amount", "designation"]'`. This works both in single and multiple selection modes.
-
-<Canvas
-  mdxSource={dedent`
-    <foxy-donation
-      designations='["Medical Care", "Daily Meals", "Housing"]'
-      designation='Housing'
-      currency="usd"
-      amounts="[25, 50, 75]"
-      amount="25"
-      custom='["amount", "designation"]'
-      store="jamstackecommerceexample"
-      name="One-Time Donation"
-    >
-    </foxy-donation>
-  `}
->
-  <Story
-    name="Custom designation"
-    args={{
-      designations: ['Medical Care', 'Daily Meals', 'Housing'],
-      designation: 'Housing',
-      amounts: [25, 50, 75],
-      custom: ['amount', 'designation'],
-    }}
-  >
-    {args => html`${getTemplate(args)}`}
-  </Story>
-</Canvas>
-
 ## Enabling recurrent donations
 
 You can easily allow your website visitors to commit to a recurrent contribution by providing a recurrence pattern in the `frequency` attribute. Recurrent patterns consist of an integer (1, 2, 3...) and a unit (`d`, for days, `w` for weeks, `m` for months, `y` for years), e.g. `2w` translates to a bi-weekly donation and `1y` – to a yearly one. There's also a special value of `.5m` that creates a recurring payment running twice a month. Let's default to a monthly donation in the following example: `frequency="1m"`.
