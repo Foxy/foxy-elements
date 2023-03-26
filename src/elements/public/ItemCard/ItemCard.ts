@@ -136,7 +136,7 @@ export class ItemCard extends Base<Data> {
 
         <div class="flex-1 min-w-0">
           <div class="flex-1 h-s flex items-center">
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
               <div class="font-medium text-m truncate">${this.data?.name}</div>
               <div class="text-tertiary text-s truncate">
                 ${quantity} &times;
