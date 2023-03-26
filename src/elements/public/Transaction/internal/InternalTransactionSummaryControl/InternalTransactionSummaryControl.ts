@@ -1,5 +1,6 @@
 import { html, TemplateResult } from 'lit-html';
 import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
+import { Data } from '../../types';
 
 export class InternalTransactionSummaryControl extends InternalControl {
   renderControl(): TemplateResult {
@@ -51,20 +52,37 @@ export class InternalTransactionSummaryControl extends InternalControl {
 
   private __renderTotals() {
     const keys = ['total_item_price', 'total_shipping', 'total_tax'] as const;
-    const data = this.nucleon?.data;
+    const data = this.nucleon?.data as Data | undefined;
+    const discounts = data?._embedded?.['fx:discounts'];
+    const discount = discounts?.reduce((p, c) => p + c.amount, 0);
     const currency = data?.currency_code;
 
-    return keys.map(key => {
-      const options = { amount: `${data?.[key]} ${currency}` };
+    return html`
+      ${keys.map(key => {
+        const options = { amount: `${data?.[key]} ${currency}` };
 
-      return html`
-        <div class="flex justify-between text-m text-secondary">
-          <foxy-i18n key=${key} infer=""></foxy-i18n>
-          ${data
-            ? html`<foxy-i18n infer="" key="price" .options=${options}></foxy-i18n>`
-            : html`<span>--</span>`}
-        </div>
-      `;
-    });
+        return html`
+          <div class="flex justify-between text-m text-secondary">
+            <foxy-i18n key=${key} infer=""></foxy-i18n>
+            ${data
+              ? html`<foxy-i18n infer="" key="price" .options=${options}></foxy-i18n>`
+              : html`<span>--</span>`}
+          </div>
+        `;
+      })}
+      ${discount
+        ? html`
+            <div class="flex justify-between text-m text-secondary">
+              <foxy-i18n key="total_discount" infer=""></foxy-i18n>
+              <foxy-i18n
+                infer=""
+                key=${discounts?.length === 20 ? 'total_discount_see_below' : 'price'}
+                .options=${{ amount: `${discount} ${currency}` }}
+              >
+              </foxy-i18n>
+            </div>
+          `
+        : ''}
+    `;
   }
 }
