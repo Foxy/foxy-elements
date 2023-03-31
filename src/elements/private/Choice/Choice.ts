@@ -1,6 +1,7 @@
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-lumo-styles/icons';
 import '@vaadin/vaadin-text-field/vaadin-integer-field';
+import '@vaadin/vaadin-text-field/vaadin-number-field';
 import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
 
@@ -80,6 +81,7 @@ export class Choice extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-integer-field': customElements.get('vaadin-integer-field'),
+      'vaadin-number-field': customElements.get('vaadin-number-field'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'x-frequency-input': FrequencyInput,
       'vaadin-text-area': customElements.get('vaadin-text-area'),
@@ -172,11 +174,11 @@ export class Choice extends Translatable {
     this.__service.send('SET_CUSTOM', { data });
   }
 
-  public get type(): 'text' | 'textarea' | 'integer' | 'frequency' {
+  public get type(): 'text' | 'textarea' | 'integer' | 'number' | 'frequency' {
     return this.__service.state.context.type;
   }
 
-  public set type(data: 'text' | 'textarea' | 'integer' | 'frequency') {
+  public set type(data: 'text' | 'textarea' | 'integer' | 'number' | 'frequency') {
     this.__service.send('SET_TYPE', { data });
   }
 
@@ -305,6 +307,8 @@ export class Choice extends Translatable {
       return html`<x-frequency-input ...=${attributes}></x-frequency-input>`;
     } else if (this.type === 'integer') {
       return html`<vaadin-integer-field ...=${attributes} has-controls></vaadin-integer-field>`;
+    } else if (this.type === 'number') {
+      return html`<vaadin-number-field ...=${attributes} has-controls></vaadin-number-field>`;
     } else if (this.type === 'textarea') {
       return html`<vaadin-text-area ...=${attributes}></vaadin-text-area>`;
     } else {
