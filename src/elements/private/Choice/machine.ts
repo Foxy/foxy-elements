@@ -81,6 +81,7 @@ export const machine = createMachine<Context>(
                 states: {
                   unknown: {
                     always: [
+                      { target: 'number', cond: 'showsNumberField' },
                       { target: 'integer', cond: 'showsIntegerField' },
                       { target: 'textarea', cond: 'showsTextarea' },
                       { target: 'frequency', cond: 'showsFrequency' },
@@ -91,6 +92,37 @@ export const machine = createMachine<Context>(
                   frequency: {},
                   textarea: {},
                   integer: {
+                    type: 'parallel',
+                    states: {
+                      min: {
+                        initial: 'unknown',
+                        states: {
+                          unknown: {
+                            always: [
+                              { target: 'custom', cond: 'hasMinConstraint' },
+                              { target: 'none' },
+                            ],
+                          },
+                          none: {},
+                          custom: {},
+                        },
+                      },
+                      max: {
+                        initial: 'unknown',
+                        states: {
+                          unknown: {
+                            always: [
+                              { target: 'custom', cond: 'hasMaxConstraint' },
+                              { target: 'none' },
+                            ],
+                          },
+                          none: {},
+                          custom: {},
+                        },
+                      },
+                    },
+                  },
+                  number: {
                     type: 'parallel',
                     states: {
                       min: {
@@ -144,6 +176,7 @@ export const machine = createMachine<Context>(
       isPayloadTruthy: (_, evt) => !!evt.data,
       isValueArray: ctx => Array.isArray(ctx.value),
       showsIntegerField: ctx => ctx.type === 'integer',
+      showsNumberField: ctx => ctx.type === 'number',
       showsFrequency: ctx => ctx.type === 'frequency',
       showsTextarea: ctx => ctx.type === 'textarea',
       hasMinConstraint: ctx => typeof ctx.min === 'number',
