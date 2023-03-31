@@ -247,6 +247,50 @@ config!.states!.extension.states!.present.states!.selected.states!.integer.state
     },
   };
 
+config!.states!.extension.states!.present.states!.selected.states!.number.meta = {
+  async test(element: TestChoice) {
+    await element.whenReady;
+    const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+    expect(field.localName).to.equal('vaadin-number-field');
+  },
+};
+
+config!.states!.extension.states!.present.states!.selected.states!.number.states!.min.states!.none.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.be.undefined;
+    },
+  };
+
+config!.states!.extension.states!.present.states!.selected.states!.number.states!.min.states!.custom.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.min).to.equal(element.min);
+    },
+  };
+
+config!.states!.extension.states!.present.states!.selected.states!.number.states!.max.states!.none.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.be.undefined;
+    },
+  };
+
+config!.states!.extension.states!.present.states!.selected.states!.number.states!.max.states!.custom.meta =
+  {
+    async test(element: TestChoice) {
+      await element.whenReady;
+      const field = element.shadowRoot!.querySelector('[data-testid=field]') as HTMLInputElement;
+      expect(field.max).to.equal(element.max);
+    },
+  };
+
 const model = createModel<TestChoice>(createMachine(config, machine.options)).withEvents({
   SET_DISABLED: {
     exec: whenIdle((element, evt) => (element.disabled = (evt as AnyEventObject).data)),
@@ -266,7 +310,7 @@ const model = createModel<TestChoice>(createMachine(config, machine.options)).wi
   },
   SET_TYPE: {
     exec: whenIdle((element, evt) => (element.type = (evt as AnyEventObject).data)),
-    cases: [{ data: 'integer' }, { data: 'textarea' }],
+    cases: [{ data: 'number' }, { data: 'integer' }, { data: 'textarea' }],
   },
   SET_MIN: {
     exec: whenIdle((element, evt) => (element.min = (evt as AnyEventObject).data)),

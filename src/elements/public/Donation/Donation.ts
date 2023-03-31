@@ -277,16 +277,16 @@ export class Donation extends Translatable {
                 <x-i18n ns=${this.ns} lang=${this.lang} key="amount" slot="header"></x-i18n>
                 <x-choice
                   ?custom=${!!this.custom?.includes('amount')}
-                  .getText=${(v: string) => this.__translateAmount(parseInt(v, 10))}
+                  .getText=${(v: string) => this.__translateAmount(parseFloat(v))}
                   .items=${this.amounts.map(String)}
                   .value=${this.amount.toString()}
-                  type="integer"
+                  type="number"
                   lang=${this.lang}
                   min="1"
                   ns=${this.ns}
                   data-testid="amount"
                   @change=${(evt: ChoiceChangeEvent) => {
-                    const value = parseInt(evt.detail as string);
+                    const value = parseFloat(evt.detail as string);
                     this.amount = isNaN(value) ? /* istanbul ignore next */ 1 : value;
                   }}
                 >
