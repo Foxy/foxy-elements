@@ -27,6 +27,8 @@ import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { InternalEditableListControl } from '../../internal/InternalEditableListControl/InternalEditableListControl';
+import { DiscountBuilder } from '../DiscountBuilder';
+import { getByTag } from '../../../testgen/getByTag';
 
 describe('CouponForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -530,378 +532,38 @@ describe('CouponForm', () => {
       );
     });
 
-    it('renders tiers from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: '1-2|3+4' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      let labels = [...tiers[0].querySelectorAll('label')];
-      let from = labels.find(v => !!v.querySelector('[key="from"]'));
-      let reduce = labels.find(v => !!v.querySelector('[key="reduce"]'));
-      let increase = labels.find(v => !!v.querySelector('[key="increase"]'));
-      let adjustment = labels.find(v => !!v.querySelector('[key="adjustment"]'));
-
-      expect(from?.control).to.have.value('1');
-      expect(reduce?.control).to.have.attribute('checked');
-      expect(increase?.control).to.not.have.attribute('checked');
-      expect(adjustment?.control).to.have.value('2');
-
-      labels = [...tiers[1].querySelectorAll('label')];
-      from = labels.find(v => !!v.querySelector('[key="from"]'));
-      reduce = labels.find(v => !!v.querySelector('[key="reduce"]'));
-      increase = labels.find(v => !!v.querySelector('[key="increase"]'));
-      adjustment = labels.find(v => !!v.querySelector('[key="adjustment"]'));
-
-      expect(from?.control).to.have.value('3');
-      expect(reduce?.control).to.not.have.attribute('checked');
-      expect(increase?.control).to.have.attribute('checked');
-      expect(adjustment?.control).to.have.value('4');
-    });
-
-    it('supports "allunits" discount method from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: 'allunits|1-2|3+4' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const target = labels.find(v => !!v.querySelector('[key="target"]'));
-        expect(target?.control).to.have.nested.property('selectedOptions[0].value', 'allunits');
-      }
-    });
-
-    it('supports "incremental" discount method from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: 'incremental|1-2|3+4' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const target = labels.find(v => !!v.querySelector('[key="target"]'));
-        expect(target?.control).to.have.nested.property('selectedOptions[0].value', 'incremental');
-      }
-    });
-
-    it('supports "repeat" discount method from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: 'repeat|1-2' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(1);
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const target = labels.find(v => !!v.querySelector('[key="target"]'));
-        expect(target?.control).to.have.nested.property('selectedOptions[0].value', 'repeat');
-      }
-    });
-
-    it('supports "single" discount method from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: 'single|1-2|3+4' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const target = labels.find(v => !!v.querySelector('[key="target"]'));
-        expect(target?.control).to.have.nested.property('selectedOptions[0].value', 'single');
-      }
-    });
-
-    it('supports "quantity_percentage" discount type from form.coupon_discount_details', async () => {
+    it('renders discount builder', async () => {
       const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
       const element = await fixture<CouponForm>(layout);
 
       element.edit({
-        coupon_discount_details: '1-2|3+4',
-        coupon_discount_type: 'quantity_percentage',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const price = labels.find(v => !!v.querySelector('[key="total"]'));
-        const quantity = labels.find(v => !!v.querySelector('[key="quantity"]'));
-
-        expect(price?.control).to.not.have.attribute('checked');
-        expect(quantity?.control).to.have.attribute('checked');
-
-        const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-        const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
-
-        expect(amount?.control).to.not.have.attribute('checked');
-        expect(percentage?.control).to.have.attribute('checked');
-      }
-    });
-
-    it('supports "quantity_amount" discount type from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({
-        coupon_discount_details: '1-2|3+4',
-        coupon_discount_type: 'quantity_amount',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const price = labels.find(v => !!v.querySelector('[key="total"]'));
-        const quantity = labels.find(v => !!v.querySelector('[key="quantity"]'));
-
-        expect(price?.control).to.not.have.attribute('checked');
-        expect(quantity?.control).to.have.attribute('checked');
-
-        const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-        const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
-
-        expect(amount?.control).to.have.attribute('checked');
-        expect(percentage?.control).to.not.have.attribute('checked');
-      }
-    });
-
-    it('supports "price_percentage" discount type from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({
-        coupon_discount_details: '1-2|3+4',
-        coupon_discount_type: 'price_percentage',
-      });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const price = labels.find(v => !!v.querySelector('[key="total"]'));
-        const quantity = labels.find(v => !!v.querySelector('[key="quantity"]'));
-
-        expect(price?.control).to.have.attribute('checked');
-        expect(quantity?.control).to.not.have.attribute('checked');
-
-        const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-        const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
-
-        expect(amount?.control).to.not.have.attribute('checked');
-        expect(percentage?.control).to.have.attribute('checked');
-      }
-    });
-
-    it('supports "price_amount" discount type from form.coupon_discount_details', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({
-        coupon_discount_details: '1-2|3+4',
+        coupon_discount_details: '1-2|3-4',
         coupon_discount_type: 'price_amount',
+        name: 'Test',
       });
 
       const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
+      const builder = (await getByTag(control, 'foxy-discount-builder')) as DiscountBuilder;
 
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      for (const tier of tiers) {
-        const labels = [...tier.querySelectorAll('label')];
-        const price = labels.find(v => !!v.querySelector('[key="total"]'));
-        const quantity = labels.find(v => !!v.querySelector('[key="quantity"]'));
-
-        expect(price?.control).to.have.attribute('checked');
-        expect(quantity?.control).to.not.have.attribute('checked');
-
-        const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-        const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
-
-        expect(amount?.control).to.have.attribute('checked');
-        expect(percentage?.control).to.not.have.attribute('checked');
-      }
-    });
-
-    it('can edit discount method', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: '1-2|3+4' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const anyTier = (await getByTestClass<HTMLElement>(control, 'rules:tier'))[0];
-      const labels = [...anyTier.querySelectorAll('label')];
-      const target = labels.find(v => !!v.querySelector('[key="target"]')) as HTMLLabelElement;
-      const select = target.control as HTMLSelectElement;
-
-      ['incremental', 'allunits', 'repeat', 'single'].forEach((method, index) => {
-        select.selectedIndex = index;
-        select.dispatchEvent(new Event('change'));
-        expect(element.form.coupon_discount_details).to.equal(`${method}|1-2|3+4`);
+      expect(builder).to.exist;
+      expect(builder).to.have.attribute('lang', 'es');
+      expect(builder).to.have.attribute('ns', 'foo');
+      expect(builder).to.have.deep.property('parsedValue', {
+        details: '1-2|3-4',
+        type: 'price_amount',
+        name: 'Rules',
       });
-    });
 
-    it('can edit discount type', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
+      builder.parsedValue = {
+        details: '8-9|6+10',
+        type: 'quantity_percentage',
+        name: 'Whatever',
+      };
 
-      element.edit({ coupon_discount_details: '1-2|3+4', coupon_discount_type: 'quantity_amount' });
+      builder.dispatchEvent(new CustomEvent('change'));
 
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tier = (await getByTestClass<HTMLElement>(control, 'rules:tier'))[0];
-      const labels = [...tier.querySelectorAll('label')];
-
-      const price = labels.find(v => !!v.querySelector('[key="total"]'));
-      const priceControl = price?.control as HTMLInputElement;
-
-      const quantity = labels.find(v => !!v.querySelector('[key="quantity"]'));
-      const quantityControl = quantity?.control as HTMLInputElement;
-
-      const amount = labels.find(v => !!v.querySelector('[key="¤"]'));
-      const amountControl = amount?.control as HTMLInputElement;
-
-      const percentage = labels.find(v => !!v.querySelector('[key="%"]'));
-      const percentageControl = percentage?.control as HTMLInputElement;
-
-      priceControl.checked = true;
-      priceControl.dispatchEvent(new Event('change'));
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property('form.coupon_discount_type', 'price_amount');
-
-      percentageControl.checked = true;
-      percentageControl.dispatchEvent(new Event('change'));
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property('form.coupon_discount_type', 'price_percentage');
-
-      quantityControl.checked = true;
-      quantityControl.dispatchEvent(new Event('change'));
-      await element.updateComplete;
-
+      expect(element).to.have.nested.property('form.coupon_discount_details', '8-9|6+10');
       expect(element).to.have.nested.property('form.coupon_discount_type', 'quantity_percentage');
-
-      amountControl.checked = true;
-      amountControl.dispatchEvent(new Event('change'));
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property('form.coupon_discount_type', 'quantity_amount');
-    });
-
-    it('can edit tiers', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: 'single|1-2|3+4' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      const labels = [...tiers[1].querySelectorAll('label')];
-      const from = labels.find(v => !!v.querySelector('[key="from"]'));
-      const fromInput = from?.control as HTMLInputElement;
-      const reduce = labels.find(v => !!v.querySelector('[key="reduce"]'));
-      const reduceInput = reduce?.control as HTMLInputElement;
-      const adjustment = labels.find(v => !!v.querySelector('[key="adjustment"]'));
-      const adjustmentInput = adjustment?.control as HTMLInputElement;
-
-      fromInput.value = '7';
-      fromInput.dispatchEvent(new Event('input'));
-      await element.updateComplete;
-
-      reduceInput.checked = true;
-      reduceInput.dispatchEvent(new Event('change'));
-      await element.updateComplete;
-
-      adjustmentInput.value = '9';
-      adjustmentInput.dispatchEvent(new Event('input'));
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property('form.coupon_discount_details', 'single|1-2|7-9');
-    });
-
-    it('can add tiers', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(1); // 1 placeholder
-
-      const labels = [...tiers[0].querySelectorAll('label')];
-      const from = labels.find(v => !!v.querySelector('[key="from"]'));
-      const fromInput = from?.control as HTMLInputElement;
-      const reduce = labels.find(v => !!v.querySelector('[key="reduce"]'));
-      const reduceInput = reduce?.control as HTMLInputElement;
-      const adjustment = labels.find(v => !!v.querySelector('[key="adjustment"]'));
-      const adjustmentInput = adjustment?.control as HTMLInputElement;
-
-      fromInput.value = '1';
-      fromInput.dispatchEvent(new Event('input'));
-      await element.updateComplete;
-
-      reduceInput.checked = true;
-      reduceInput.dispatchEvent(new Event('change'));
-      await element.updateComplete;
-
-      adjustmentInput.value = '2';
-      adjustmentInput.dispatchEvent(new Event('input'));
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property('form.coupon_discount_details', 'single|1-2');
-    });
-
-    it('can delete tiers', async () => {
-      const layout = html`<foxy-coupon-form lang="es" ns="foo"></foxy-coupon-form>`;
-      const element = await fixture<CouponForm>(layout);
-
-      element.edit({ coupon_discount_details: 'single|1-2|3+4' });
-
-      const control = (await getByTestId(element, 'rules')) as HTMLElement;
-      const tiers = await getByTestClass<HTMLElement>(control, 'rules:tier');
-
-      expect(tiers).to.have.length(3); // 2 tiers + 1 placeholder
-
-      tiers[0].querySelector<HTMLElement>('button[aria-label="delete"]')?.click();
-      await element.updateComplete;
-
-      expect(element).to.have.nested.property('form.coupon_discount_details', 'single|3+4');
     });
   });
 

@@ -10,6 +10,7 @@ import '../../internal/InternalSandbox/index';
 import '../GenerateCodesForm/index';
 import '../CouponCodesForm/index';
 import '../CopyToClipboard/index';
+import '../DiscountBuilder/index';
 import '../CouponCodeForm/index';
 import '../QueryBuilder/index';
 import '../Pagination/index';
