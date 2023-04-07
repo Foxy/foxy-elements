@@ -784,11 +784,14 @@ export class CouponForm extends Base<Data> {
 
     if (restrictions) {
       restrictions.split(',').forEach(value => {
-        const isBlocklistValue = value.startsWith('-');
-        const target = isBlocklistValue ? 1 : 0;
-        const label = isBlocklistValue ? value.substring(1) : value;
+        const trimmedValue = value.trim();
+        if (!trimmedValue) return;
 
-        groups[target].items.push({ label, value });
+        const isBlocklistValue = trimmedValue.startsWith('-');
+        const target = isBlocklistValue ? 1 : 0;
+        const label = isBlocklistValue ? trimmedValue.substring(1) : trimmedValue;
+
+        groups[target].items.push({ label, value: trimmedValue });
       });
     }
 

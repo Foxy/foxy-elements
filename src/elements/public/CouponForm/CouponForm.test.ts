@@ -1594,7 +1594,7 @@ describe('CouponForm', () => {
       const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
       const element = await fixture<CouponForm>(layout);
 
-      element.edit({ product_code_restrictions: 'foo,-bar-*,b*z,-qux' });
+      element.edit({ product_code_restrictions: 'foo, -bar-*,   b*z,-qux' });
 
       const control = (await getByTestId(element, 'product-restrictions')) as HTMLElement;
       const allow = (await getByTestId(control, 'product-restrictions:allow')) as EditableList;
