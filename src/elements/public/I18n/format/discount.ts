@@ -19,7 +19,7 @@ export const discount: FormatFunction = ({ ns, type, details }: Value, format, l
     const adjustment = parseFloat(tier.substring(signIndex)) * factor;
     const from = parseFloat(tier.substring(0, signIndex));
 
-    return `$t(${i18nKey}, ${JSON.stringify({ adjustment, from, ns })})`;
+    return `$t(${i18nKey}, ${JSON.stringify({ maximumFractionDigits: 10, adjustment, from, ns })})`;
   });
 
   return translatedTiers.join('; ');
