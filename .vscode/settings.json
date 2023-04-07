@@ -121,6 +121,10 @@
       "url": "./src/static/schemas/donation.json"
     },
     {
+      "fileMatch": ["/src/static/translations/downloadable-card/*.json"],
+      "url": "./src/static/schemas/downloadable-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/email-template-card/*.json"],
       "url": "./src/static/schemas/email-template-card.json"
     },

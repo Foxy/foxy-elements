@@ -34,6 +34,7 @@ export { DiscountDetailCard } from './DiscountDetailCard/index';
 export { ReportForm } from './ReportForm/index';
 export { ReportsTable } from './ReportsTable/index';
 export { Donation } from './Donation/index';
+export { DownloadableCard } from './DownloadableCard/index';
 export { EmailTemplateCard } from './EmailTemplateCard/index';
 export { EmailTemplateForm } from './EmailTemplateForm/index';
 export { ErrorEntryCard } from './ErrorEntryCard/index';

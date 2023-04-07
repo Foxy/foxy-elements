@@ -316,6 +316,10 @@ export const groups = [
     files: './src/elements/public/Donation/**/*.test.ts',
   },
   {
+    name: 'foxy-downloadable-card',
+    files: './src/elements/public/DownloadableCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-email-template-card',
     files: './src/elements/public/EmailTemplateCard/**/*.test.ts',
   },
