@@ -28,8 +28,16 @@ export class FormDialog extends Dialog {
       group: { type: String },
       parent: { type: String },
       related: { type: Array },
+      keepOpenOnPost: { type: Boolean, attribute: 'keep-open-on-post' },
+      keepOpenOnDelete: { type: Boolean, attribute: 'keep-open-on-delete' },
     };
   }
+
+  /** If true, FormDialog won't automatically close after the associated form deletes the resource. */
+  keepOpenOnDelete = false;
+
+  /** If true, FormDialog won't automatically close after the associated form creates a resource. */
+  keepOpenOnPost = false;
 
   /** Optional URI list of the related resources (passed to form). */
   related: string[] = [];
@@ -51,20 +59,22 @@ export class FormDialog extends Dialog {
 
     evt.stopImmediatePropagation();
     evt.preventDefault();
-    evt.respondWith(
-      new API(this).fetch(evt.request).then(response => {
-        const wasDeleting = evt.request.url === this.href && evt.request.method === 'DELETE';
-        const wasAdding = evt.request.url === this.parent && evt.request.method === 'POST';
-
-        if (response.ok && (wasDeleting || wasAdding)) this.open = false;
-        return response;
-      })
-    );
+    evt.respondWith(new API(this).fetch(evt.request));
   };
 
   private __handleUpdate = (evt: Event) => {
     if (!(evt instanceof UpdateEvent)) return;
+
+    const result = evt.detail?.result;
+    const Result = UpdateEvent.UpdateResult;
+
+    if (!this.keepOpenOnPost && result === Result.ResourceCreated) this.open = false;
+    if (!this.keepOpenOnDelete && result === Result.ResourceDeleted) this.open = false;
+
     const target = evt.currentTarget as NucleonElement<never>;
+
+    if (this.parent !== target.parent) this.parent = target.parent;
+    if (this.href !== target.href) this.href = target.href;
 
     this.closable = !target.in('busy');
     this.editable =

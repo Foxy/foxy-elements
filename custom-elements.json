@@ -9796,11 +9796,11 @@
     {
       "name": "foxy-downloadable-form",
       "path": "./src/elements/public/DownloadableForm/index.ts",
-      "description": "Basic form for managing `fx:downloadable` resources.",
+      "description": "Basic form for managing `fx:downloadable` resources.\nThis element requires an augmented version of hAPI currently limited\nonly to the new Foxy Admin.",
       "attributes": [
         {
-          "name": "item-categories",
-          "description": "URL of the `fx:item_categories` collection for the store."
+          "name": "downloadable-item-categories",
+          "description": "URL of the `fx:downloadable_item_categories` collection for the store."
         },
         {
           "name": "ns",
@@ -9875,9 +9875,9 @@
       ],
       "properties": [
         {
-          "name": "itemCategories",
-          "attribute": "item-categories",
-          "description": "URL of the `fx:item_categories` collection for the store."
+          "name": "downloadableItemCategories",
+          "attribute": "downloadable-item-categories",
+          "description": "URL of the `fx:downloadable_item_categories` collection for the store."
         },
         {
           "name": "ns",
@@ -10770,6 +10770,18 @@
       "description": "Dialog wrapper for the forms made with NucleonElement.",
       "attributes": [
         {
+          "name": "keep-open-on-delete",
+          "description": "If true, FormDialog won't automatically close after the associated form deletes the resource.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "keep-open-on-post",
+          "description": "If true, FormDialog won't automatically close after the associated form creates a resource.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
           "name": "related",
           "description": "Optional URI list of the related resources (passed to form).",
           "type": "array",
@@ -10886,6 +10898,20 @@
         }
       ],
       "properties": [
+        {
+          "name": "keepOpenOnDelete",
+          "attribute": "keep-open-on-delete",
+          "description": "If true, FormDialog won't automatically close after the associated form deletes the resource.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "keepOpenOnPost",
+          "attribute": "keep-open-on-post",
+          "description": "If true, FormDialog won't automatically close after the associated form creates a resource.",
+          "type": "boolean",
+          "default": "false"
+        },
         {
           "name": "related",
           "attribute": "related",
