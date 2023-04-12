@@ -320,6 +320,10 @@ export const groups = [
     files: './src/elements/public/DownloadableCard/**/*.test.ts',
   },
   {
+    name: 'foxy-downloadable-form',
+    files: './src/elements/public/DownloadableForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-email-template-card',
     files: './src/elements/public/EmailTemplateCard/**/*.test.ts',
   },

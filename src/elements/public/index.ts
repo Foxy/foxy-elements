@@ -35,6 +35,7 @@ export { ReportForm } from './ReportForm/ReportForm';
 export { ReportsTable } from './ReportsTable/ReportsTable';
 export { Donation } from './Donation/Donation';
 export { DownloadableCard } from './DownloadableCard/DownloadableCard';
+export { DownloadableForm } from './DownloadableForm/DownloadableForm';
 export { EmailTemplateCard } from './EmailTemplateCard/EmailTemplateCard';
 export { EmailTemplateForm } from './EmailTemplateForm/EmailTemplateForm';
 export { ErrorEntryCard } from './ErrorEntryCard/ErrorEntryCard';

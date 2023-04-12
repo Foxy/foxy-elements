@@ -125,6 +125,10 @@
       "url": "./src/static/schemas/downloadable-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/downloadable-form/*.json"],
+      "url": "./src/static/schemas/downloadable-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/email-template-card/*.json"],
       "url": "./src/static/schemas/email-template-card.json"
     },
