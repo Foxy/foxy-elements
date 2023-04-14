@@ -6,15 +6,27 @@ import { TemplateResult } from 'lit-html';
 
 export type PathParams = {
   parsedValue: ParsedValue;
+  readonly: boolean;
+  disabled: boolean;
   options: Option[];
   option: Option | null;
   t: I18n['t'];
   onChange: (newValue: ParsedValue) => void;
 };
 
-export function Path({ parsedValue, option, options, t, onChange }: PathParams): TemplateResult {
+export function Path({
+  parsedValue,
+  disabled,
+  readonly,
+  options,
+  option,
+  t,
+  onChange,
+}: PathParams): TemplateResult {
   return Input({
     displayValue: option?.label,
+    disabled,
+    readonly,
     value: parsedValue.path,
     label: 'field',
     list: options.map(option => ({ ...option, value: option.path })),

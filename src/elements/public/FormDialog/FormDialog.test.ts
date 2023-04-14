@@ -3,7 +3,6 @@ import '../AttributeForm/index';
 
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
-import { API } from '@foxy.io/sdk/core';
 import { Dialog } from '../../private';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { FormDialog } from './FormDialog';
@@ -65,18 +64,44 @@ describe('FormDialog', () => {
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
-      new FetchEvent('fetch', {
-        cancelable: true,
-        composed: true,
-        bubbles: true,
-        request: new API.WHATWGRequest(href, { method: 'DELETE' }),
-        resolve: r => void r,
-        reject: e => void e,
+      new UpdateEvent('update', {
+        detail: {
+          result: UpdateEvent.UpdateResult.ResourceDeleted,
+        },
       })
     );
 
     await whenGotHideEvent;
     expect(dialog).to.have.property('open', false);
+  });
+
+  it('keeps itself open on successful DELETE request from form if keepOpenOnDelete is true', async () => {
+    const href = 'https://demo.api/hapi/customer_attributes/0';
+    const form = 'foxy-attribute-form';
+    const dialog = await fixture<FormDialog>(html`
+      <foxy-form-dialog href=${href} form=${form} keep-open-on-delete></foxy-form-dialog>
+    `);
+
+    await dialog.show();
+
+    dialog.addEventListener(
+      'fetch',
+      evt => (evt as FetchEvent).respondWith(Promise.resolve(new Response())),
+      { once: true }
+    );
+
+    const formElement = dialog.renderRoot.querySelector('#form');
+
+    formElement?.dispatchEvent(
+      new UpdateEvent('update', {
+        detail: {
+          result: UpdateEvent.UpdateResult.ResourceDeleted,
+        },
+      })
+    );
+
+    await new Promise(r => setTimeout(r, 5000));
+    expect(dialog).to.have.property('open', true);
   });
 
   it('closes itself on successful POST request from form', async () => {
@@ -98,18 +123,44 @@ describe('FormDialog', () => {
     const whenGotHideEvent = oneEvent(dialog, 'hide');
 
     formElement?.dispatchEvent(
-      new FetchEvent('fetch', {
-        cancelable: true,
-        composed: true,
-        bubbles: true,
-        request: new API.WHATWGRequest(parent, { method: 'POST' }),
-        resolve: r => void r,
-        reject: e => void e,
+      new UpdateEvent('update', {
+        detail: {
+          result: UpdateEvent.UpdateResult.ResourceCreated,
+        },
       })
     );
 
     await whenGotHideEvent;
     expect(dialog).to.have.property('open', false);
+  });
+
+  it('keeps itself open on successful POST request from form if keepOpenOnPost is true', async () => {
+    const href = 'https://demo.api/hapi/customer_attributes';
+    const form = 'foxy-attribute-form';
+    const dialog = await fixture<FormDialog>(html`
+      <foxy-form-dialog parent=${href} form=${form} keep-open-on-post></foxy-form-dialog>
+    `);
+
+    await dialog.show();
+
+    dialog.addEventListener(
+      'fetch',
+      evt => (evt as FetchEvent).respondWith(Promise.resolve(new Response())),
+      { once: true }
+    );
+
+    const formElement = dialog.renderRoot.querySelector('#form');
+
+    formElement?.dispatchEvent(
+      new UpdateEvent('update', {
+        detail: {
+          result: UpdateEvent.UpdateResult.ResourceCreated,
+        },
+      })
+    );
+
+    await new Promise(r => setTimeout(r, 5000));
+    expect(dialog).to.have.property('open', true);
   });
 
   it('becomes unclosable when form is busy', async () => {

@@ -9,9 +9,12 @@ import { parse } from './utils/parse';
 import { stringify } from './utils/stringify';
 import { styles } from './styles';
 import { InferrableMixin } from '../../../mixins/inferrable';
+import { ConfigurableMixin } from '../../../mixins/configurable';
 
 const NS = 'query-builder';
-const Base = ResponsiveMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)));
+const Base = ConfigurableMixin(
+  ResponsiveMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)))
+);
 
 /**
  * UI component for creating Foxy hAPI filters visually. Compatible with
@@ -52,6 +55,8 @@ class QueryBuilder extends Base {
   render(): TemplateResult {
     return Group({
       parsedValues: parse(this.value ?? ''),
+      disabled: this.disabled,
+      readonly: this.readonly,
       options: this.options ?? [],
       t: this.t.bind(this),
       onChange: newValue => {

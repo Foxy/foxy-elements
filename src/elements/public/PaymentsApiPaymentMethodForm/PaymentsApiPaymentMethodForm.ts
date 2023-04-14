@@ -253,7 +253,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
       </foxy-nucleon>
 
       <foxy-i18n
-        class="block text-xxl font-bold border-b border-contrast-10 pb-m"
+        class="block text-xxl font-medium border-b border-contrast-10 pb-m"
         infer=""
         key="select_method_title"
       >
@@ -263,7 +263,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
         <div class="-my-s">
           ${this.__groupedAvailablePaymentMethods.map(({ name, items }) => {
             return html`
-              <p class="w-m text-center font-semibold text-tertiary py-s">${name}</p>
+              <p class="w-m text-center font-medium text-tertiary py-s">${name}</p>
               <ul class="grid grid-cols-1">
                 ${items.map(item => html`<li>${this.__renderPaymentMethodButton(item)}</li>`)}
               </ul>
@@ -286,7 +286,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
           @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
         />
 
-        <figcaption class="relative min-w-0 font-bold text-xl text-center">
+        <figcaption class="relative min-w-0 font-medium text-xl text-center">
           ${this.form.helper?.name ?? this.form.type}&ZeroWidthSpace;
         </figcaption>
       </figure>
@@ -436,7 +436,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
               'text-tertiary': !!helper.conflict,
             })}
           >
-            <div class="font-semibold">${helper.name}&ZeroWidthSpace;</div>
+            <div class="font-medium">${helper.name}&ZeroWidthSpace;</div>
             ${helper.conflict
               ? html`
                   <foxy-i18n

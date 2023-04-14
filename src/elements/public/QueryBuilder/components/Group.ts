@@ -7,6 +7,8 @@ import { repeat } from 'lit-html/directives/repeat';
 
 export type GroupParams = {
   parsedValues: (ParsedValue | ParsedValue[])[];
+  disabled: boolean;
+  readonly: boolean;
   options: Option[];
   t: I18n['t'];
   isNested?: boolean;
@@ -18,7 +20,7 @@ export function Group(params: GroupParams): TemplateResult {
 
   const orDivider = html`
     <div class="flex items-center h-s">
-      <div class="w-m text-center leading-none uppercase font-semibold text-xs text-contrast-30">
+      <div class="w-m text-center leading-none uppercase font-medium text-xs text-contrast-30">
         ${params.t('or')}
       </div>
 
@@ -42,6 +44,8 @@ export function Group(params: GroupParams): TemplateResult {
               Rule({
                 isFullSize: !params.isNested && params.parsedValues.length === 0,
                 isNested: params.isNested,
+                disabled: params.disabled,
+                readonly: params.readonly,
                 options: params.options,
                 parsedValue: { path: '', operator: null, value: '' },
                 t: params.t,
@@ -58,6 +62,8 @@ export function Group(params: GroupParams): TemplateResult {
                   ${Group({
                     parsedValues: rule,
                     isNested: true,
+                    disabled: params.disabled,
+                    readonly: params.readonly,
                     options: params.options,
                     t: params.t,
                     onChange: newRule => {
@@ -77,6 +83,8 @@ export function Group(params: GroupParams): TemplateResult {
             Rule({
               parsedValue: rule,
               isNested: params.isNested,
+              disabled: params.disabled,
+              readonly: params.readonly,
               options: params.options,
               t: params.t,
               onChange: newValue => {

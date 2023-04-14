@@ -247,6 +247,18 @@ describe('CouponCodesForm', () => {
       expect(element).to.have.deep.nested.property('form.coupon_codes', ['foo', 'baz']);
     });
 
+    it('adds unique space- or newline-separated items to form.coupon_codes on change', async () => {
+      const layout = html`<foxy-coupon-codes-form></foxy-coupon-codes-form>`;
+      const element = await fixture<CouponCodesForm>(layout);
+      const control = (await getByTestId(element, 'codes')) as HTMLElement;
+      const list = (await getByTestId(control, 'codes:list')) as EditableList;
+
+      list.items = ['foo', 'foo', 'b az'].map(value => ({ value }));
+      list.dispatchEvent(new CustomEvent('change'));
+
+      expect(element).to.have.deep.nested.property('form.coupon_codes', ['foo', 'b', 'az']);
+    });
+
     it('adds unique space- or newline-separated items to form.coupon_codes on paste', async () => {
       const layout = html`<foxy-coupon-codes-form></foxy-coupon-codes-form>`;
       const element = await fixture<CouponCodesForm>(layout);

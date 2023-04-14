@@ -168,7 +168,7 @@ export class Customer extends Base<Data> {
         class="flex items-center justify-between space-x-m pb-s border-b border-contrast-10"
         data-testid="header"
       >
-        <h1 class="text-xxl font-bold truncate min-w-0 flex-1">
+        <h1 class="text-xxl font-medium truncate min-w-0 flex-1">
           ${this.in({ idle: 'snapshot' })
             ? html`${this.data.first_name} ${this.data.last_name}`
             : html`<x-skeleton class="w-full" variant=${variant}>&nbsp;</x-skeleton>`}
@@ -354,7 +354,7 @@ export class Customer extends Base<Data> {
 
       <section class="pt-m" data-testid="addresses">
         <header class="space-x-m flex items-center mb-s">
-          <h2 class="text-l font-semibold">
+          <h2 class="text-l font-medium">
             <foxy-i18n ns=${ns} lang=${lang} key="address_plural"></foxy-i18n>
           </h2>
 
@@ -405,7 +405,7 @@ export class Customer extends Base<Data> {
       ${this.renderTemplateOrSlot('payment-methods:before')}
 
       <div class="pt-m" data-testid="payment-methods">
-        <h2 class="text-l font-semibold mb-s">
+        <h2 class="text-l font-medium mb-s">
           <foxy-i18n
             data-testclass="i18n"
             lang=${this.lang}
@@ -592,7 +592,7 @@ export class Customer extends Base<Data> {
 
       <section class="pt-m" data-testid="attributes">
         <header class="space-x-m flex items-center mb-s">
-          <h2 class="text-l font-semibold">
+          <h2 class="text-l font-medium">
             <foxy-i18n ns=${ns} lang=${lang} key="attribute_plural"></foxy-i18n>
           </h2>
 

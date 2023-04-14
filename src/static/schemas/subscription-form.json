@@ -53,6 +53,21 @@
     "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
     "yearly": { "type": "string", "default": "Yearly" },
     "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
+    "customer": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Customer" },
+        "spinner": {
+          "additionalProperties": false,
+          "properties": {
+            "loading_busy": { "type": "string", "default": "Loading" },
+            "loading_error": { "type": "string", "default": "Failed to load" }
+          },
+          "required": ["loading_busy", "loading_error"]
+        }
+      },
+      "required": ["label", "spinner"]
+    },
     "past-due-amount": {
       "additionalProperties": false,
       "properties": {
@@ -389,6 +404,7 @@
     "weekly_plural",
     "yearly",
     "yearly_plural",
+    "customer",
     "past-due-amount",
     "attributes",
     "items",

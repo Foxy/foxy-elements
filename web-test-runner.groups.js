@@ -316,6 +316,14 @@ export const groups = [
     files: './src/elements/public/Donation/**/*.test.ts',
   },
   {
+    name: 'foxy-downloadable-card',
+    files: './src/elements/public/DownloadableCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-downloadable-form',
+    files: './src/elements/public/DownloadableForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-email-template-card',
     files: './src/elements/public/EmailTemplateCard/**/*.test.ts',
   },
@@ -472,6 +480,10 @@ export const groups = [
     files: './src/elements/public/Spinner/**/*.test.ts',
   },
   {
+    name: 'foxy-store-card',
+    files: './src/elements/public/StoreCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-store-form',
     files: './src/elements/public/StoreForm/**/*.test.ts',
   },
@@ -538,6 +550,10 @@ export const groups = [
   {
     name: 'foxy-transactions-table',
     files: './src/elements/public/TransactionsTable/**/*.test.ts',
+  },
+  {
+    name: 'foxy-user-card',
+    files: './src/elements/public/UserCard/**/*.test.ts',
   },
   {
     name: 'foxy-user-form',

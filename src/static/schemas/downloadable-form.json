@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "item-category-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Item category" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": {
+          "type": "string",
+          "default": "The item category this product is part of (only categories with item delivery type of \"downloaded\" are displayed)."
+        },
+        "v8n_required": { "type": "string", "default": "Please select an item category" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Name" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": {
+          "type": "string",
+          "default": "The name of this downloadable. This will be shown to the customer in the cart."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a name" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Please shorten the name to 100 characters or less"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+    },
+    "code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Code" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": {
+          "type": "string",
+          "default": "The code for this downloadable. When adding this item to the cart, this is the code which will be used."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a code" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Please shorten the code to 50 characters or less"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+    },
+    "price": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Price" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": {
+          "type": "string",
+          "default": "The item total for this downloadable. This is the amount the customer will pay to purchase this downloadable item."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a price" },
+        "v8n_negative": {
+          "type": "string",
+          "default": "Downloadable products can't have a negative price"
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_negative"]
+    },
+    "upload": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "File" },
+        "helper_text": {
+          "type": "string",
+          "default": "Any file you'd like your customers to have access to after purchasing this item. Maximum size is 250MB."
+        },
+        "drop_label": { "type": "string", "default": "or drag it here" },
+        "select_label": { "type": "string", "default": "Select file..." },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "error_too_many_files": { "type": "string", "default": "Too many files" },
+        "error_too_large": { "type": "string", "default": "File is too large" },
+        "status_connecting": { "type": "string", "default": "Connecting..." },
+        "status_stalled": { "type": "string", "default": "Stalled" },
+        "status_processing": { "type": "string", "default": "Processing..." },
+        "status_held": { "type": "string", "default": "Save changes to upload" },
+        "status_complete": { "type": "string", "default": "Available for download" },
+        "remaining_prefix": { "type": "string", "default": "remaining time: " },
+        "remaining_unknown": { "type": "string", "default": "unknown remaining time" },
+        "error_server_unavailable": { "type": "string", "default": "Server unavailable" },
+        "error_unexpected_server_error": { "type": "string", "default": "Unexpected server error" },
+        "error_forbidden": { "type": "string", "default": "Forbidden" }
+      },
+      "required": [
+        "label",
+        "helper_text",
+        "drop_label",
+        "select_label",
+        "cancel",
+        "error_too_many_files",
+        "error_too_large",
+        "status_connecting",
+        "status_stalled",
+        "status_processing",
+        "status_held",
+        "status_complete",
+        "remaining_prefix",
+        "remaining_unknown",
+        "error_server_unavailable",
+        "error_unexpected_server_error",
+        "error_forbidden"
+      ]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this downloadable? You won't be able to bring it back."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
+    }
+  },
+  "required": [
+    "item-category-uri",
+    "name",
+    "code",
+    "price",
+    "upload",
+    "timestamps",
+    "delete",
+    "create",
+    "spinner"
+  ]
+}

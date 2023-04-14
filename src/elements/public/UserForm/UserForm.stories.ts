@@ -10,7 +10,10 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-user-form',
   translatable: true,
-  configurable: {},
+  configurable: {
+    buttons: ['create', 'delete'],
+    inputs: ['first-name', 'last-name', 'email', 'phone', 'role'],
+  },
 };
 
 export default getMeta(summary);

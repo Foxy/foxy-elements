@@ -89,7 +89,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
             <foxy-copy-to-clipboard infer="copy-to-clipboard" text=${this.href || this.parent}>
             </foxy-copy-to-clipboard>
 
-            <span class="font-semibold truncate">${this.__renderTitle()}</span>
+            <span class="font-medium truncate">${this.__renderTitle()}</span>
             <span class="flex-1"></span>
 
             ${this.in({ idle: { snapshot: 'dirty' } }) || this.in({ idle: 'template' })
@@ -290,7 +290,7 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
           >
             <div class="flex items-center">
               <div class="flex-1 space-y-xs px-s min-w-0 text-s">
-                <div class="truncate font-semibold">${title || href}</div>
+                <div class="truncate font-medium">${title || href}</div>
                 <div class="opacity-75 truncate">${curie}</div>
               </div>
 

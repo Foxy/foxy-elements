@@ -30,6 +30,15 @@ describe('GenerateCodesForm', () => {
     expect(new GenerateCodesForm()).to.have.property('ns', 'generate-codes-form');
   });
 
+  it('produces the prefix_has_spaces error if entered prefix includes spaces', () => {
+    const form = new GenerateCodesForm();
+    expect(form.errors).to.not.include('prefix_has_spaces');
+    form.edit({ prefix: 'ab c' });
+    expect(form.errors).to.include('prefix_has_spaces');
+    form.edit({ prefix: 'abc' });
+    expect(form.errors).to.not.include('prefix_has_spaces');
+  });
+
   describe('length', () => {
     it('has i18n label key "length"', async () => {
       const layout = html`<foxy-generate-codes-form></foxy-generate-codes-form>`;

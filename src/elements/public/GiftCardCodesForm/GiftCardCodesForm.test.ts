@@ -260,6 +260,18 @@ describe('GiftCardCodesForm', () => {
       expect(element).to.have.deep.nested.property('form.gift_card_codes', ['foo', 'baz']);
     });
 
+    it('adds unique space- or newline-separated items to form.gift_card_codes on change', async () => {
+      const layout = html`<foxy-gift-card-codes-form></foxy-gift-card-codes-form>`;
+      const element = await fixture<GiftCardCodesForm>(layout);
+      const control = (await getByTestId(element, 'codes')) as HTMLElement;
+      const list = (await getByTestId(control, 'codes:list')) as EditableList;
+
+      list.items = ['foo', 'foo', 'b az'].map(value => ({ value }));
+      list.dispatchEvent(new CustomEvent('change'));
+
+      expect(element).to.have.deep.nested.property('form.gift_card_codes', ['foo', 'b', 'az']);
+    });
+
     it('adds unique space- or newline-separated items to form.gift_card_codes on paste', async () => {
       const layout = html`<foxy-gift-card-codes-form></foxy-gift-card-codes-form>`;
       const element = await fixture<GiftCardCodesForm>(layout);

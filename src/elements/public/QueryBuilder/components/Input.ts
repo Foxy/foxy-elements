@@ -12,7 +12,8 @@ export type InputParams = {
   type: string;
   label: string;
   value: string;
-  disabled?: boolean;
+  disabled: boolean;
+  readonly: boolean;
   displayValue?: string;
   onChange: (newValue: string) => void;
 };
@@ -36,7 +37,12 @@ export function Input(params: InputParams): TemplateResult {
           ? html`
               <div
                 aria-hidden="true"
-                class="absolute inset-0 h-m px-s font-medium text-body flex items-center"
+                class=${classMap({
+                  'absolute inset-0 h-m px-s font-medium flex items-center': true,
+                  'text-body': !params.disabled && !params.readonly,
+                  'text-disabled': params.disabled,
+                  'text-secondary': params.readonly,
+                })}
               >
                 <div class="truncate">${params.t(params.displayValue!)}</div>
               </div>
@@ -46,7 +52,10 @@ export function Input(params: InputParams): TemplateResult {
         <input
           placeholder=${normalizedValue || params.type === 'date' ? '' : params.t(params.label)}
           class=${classMap({
-            'bg-base text-body relative flex h-m px-s font-medium w-full': true,
+            'bg-base relative flex h-m px-s font-medium w-full': true,
+            'text-body': !params.disabled && !params.readonly,
+            'text-disabled': params.disabled,
+            'text-secondary': params.readonly,
             'flex max-w-full whitespace-nowrap': true, // ugh safari
             'focus-outline-none': true,
             'opacity-0 focus-opacity-100': hasDisplayValue,
@@ -55,7 +64,7 @@ export function Input(params: InputParams): TemplateResult {
           type=${params.type}
           max=${ifDefined(params.type === 'date' ? '9999-12-31' : '')}
           .value=${normalizedValue}
-          ?disabled=${params.disabled}
+          ?disabled=${params.disabled || params.readonly}
           @input=${(evt: Event) => {
             const input = evt.currentTarget as HTMLInputElement;
 
@@ -75,6 +84,9 @@ export function Input(params: InputParams): TemplateResult {
           'font-tnum text-xs font-medium border border-current mr-s px-xs rounded-s': true,
           'inline-block': !!normalizedValue || params.type === 'date',
           'sr-only': !normalizedValue && params.type !== 'date',
+          'text-body': !params.disabled && !params.readonly,
+          'text-disabled': params.disabled,
+          'text-secondary': params.readonly,
         })}
       >
         ${params.t(params.label)}
@@ -89,7 +101,7 @@ export function Input(params: InputParams): TemplateResult {
             </datalist>
           `
         : ''}
-      ${params.disabled
+      ${params.disabled || params.readonly
         ? ''
         : html`
             <div

@@ -16,6 +16,10 @@
     },
     "v8n_required": { "type": "string", "default": "Required" },
     "v8n_too_long": { "type": "string", "default": "Too long" },
+    "v8n_code_has_spaces": {
+      "type": "string",
+      "default": "Spaces are not allowed in coupon codes"
+    },
     "spinner": {
       "additionalProperties": false,
       "properties": {
@@ -37,6 +41,7 @@
     "delete_prompt",
     "v8n_required",
     "v8n_too_long",
+    "v8n_code_has_spaces",
     "spinner"
   ]
 }

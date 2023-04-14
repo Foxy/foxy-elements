@@ -133,6 +133,12 @@ export class GiftCardCodesForm extends Base<Data> {
 
     const visibleCodes = codes.length > maxVisible ? codes.slice(-maxVisible) : codes;
     const hiddenCodes = codes.length > maxVisible ? codes.slice(0, -maxVisible) : [];
+    const parse = (value: string) => {
+      return value
+        .split(/\s/)
+        .map(code => code.trim())
+        .filter(code => code.length > 0);
+    };
 
     const items = visibleCodes.map(code => {
       let href: string;
@@ -175,18 +181,14 @@ export class GiftCardCodesForm extends Base<Data> {
             .items=${items}
             @change=${(evt: CustomEvent) => {
               const list = evt.currentTarget as EditableList;
-              const newCodes = new Set([...hiddenCodes, ...list.items.map(item => item.value)]);
+              const codes = list.items.reduce<string[]>((p, c) => [...p, ...parse(c.value)], []);
+              const newCodes = new Set([...hiddenCodes, ...codes]);
               this.edit({ gift_card_codes: [...newCodes] });
             }}
             @paste=${(evt: ClipboardEvent) => {
               evt.preventDefault();
-
               const text = evt.clipboardData?.getData('text') ?? '';
-              const pastedCodes = text
-                .split(/\s/)
-                .map(code => code.trim())
-                .filter(code => code.length > 0);
-
+              const pastedCodes = parse(text);
               this.edit({ gift_card_codes: Array.from(new Set([...codes, ...pastedCodes])) });
             }}
           >

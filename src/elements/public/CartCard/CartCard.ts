@@ -101,7 +101,7 @@ export class CartCard extends Base<Data> {
 
       <div class="text-left leading-s">
         <div class="flex items-center space-x-s">
-          <span class="flex-1 font-semibold text-body truncate">
+          <span class="flex-1 font-medium text-body truncate">
             ${line1Options && line1Key
               ? html`<foxy-i18n infer="" key=${line1Key} .options=${line1Options}></foxy-i18n>`
               : html`&ZeroWidthSpace;`}

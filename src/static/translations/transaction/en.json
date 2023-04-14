@@ -264,6 +264,8 @@
     "total_item_price": "Total item price",
     "total_shipping": "Total shipping",
     "total_tax": "Total tax",
+    "total_discount": "Total discount",
+    "total_discount_see_below": "See below",
     "transaction_approved": "Approved",
     "transaction_authorized": "Authorized",
     "transaction_captured": "Captured",

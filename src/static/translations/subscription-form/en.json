@@ -38,6 +38,13 @@
   "weekly_plural": "Every {{count}} weeks",
   "yearly": "Yearly",
   "yearly_plural": "Every {{count}} years",
+  "customer": {
+    "label": "Customer",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
   "past-due-amount": {
     "label": "Past due amount",
     "placeholder": "",

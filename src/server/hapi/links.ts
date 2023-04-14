@@ -1,6 +1,13 @@
 import { Links } from '../router/types';
 
 export const links: Links = {
+  downloadables: ({ id, store_id, item_category_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:item_category': { href: `./item_categories/${item_category_id}` },
+    'fx:create_upload_url': { href: `./downloadables/${id}/create_upload_url` },
+    'fx:downloadable_item_categories': { href: './item_categories?item_delivery_type=downloaded' },
+  }),
+
   applied_taxes: ({ tax_id, store_id, transaction_id }) => ({
     'fx:tax': { href: `./taxes/${tax_id}` },
     'fx:store': { href: `./stores/${store_id}` },

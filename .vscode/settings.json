@@ -121,6 +121,14 @@
       "url": "./src/static/schemas/donation.json"
     },
     {
+      "fileMatch": ["/src/static/translations/downloadable-card/*.json"],
+      "url": "./src/static/schemas/downloadable-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/downloadable-form/*.json"],
+      "url": "./src/static/schemas/downloadable-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/email-template-card/*.json"],
       "url": "./src/static/schemas/email-template-card.json"
     },
@@ -265,6 +273,10 @@
       "url": "./src/static/schemas/spinner.json"
     },
     {
+      "fileMatch": ["/src/static/translations/store-card/*.json"],
+      "url": "./src/static/schemas/store-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/store-form/*.json"],
       "url": "./src/static/schemas/store-form.json"
     },
@@ -323,6 +335,10 @@
     {
       "fileMatch": ["/src/static/translations/transactions-table/*.json"],
       "url": "./src/static/schemas/transactions-table.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/user-card/*.json"],
+      "url": "./src/static/schemas/user-card.json"
     },
     {
       "fileMatch": ["/src/static/translations/user-form/*.json"],

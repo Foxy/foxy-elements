@@ -108,7 +108,7 @@ export class ErrorEntryCard extends Base<Data> {
 
     return html`
       <div class="relative leading-xs pt-s">
-        <div class="absolute font-semibold right-0 text-tertiary text-xs top-0 mt-s">${method}</div>
+        <div class="absolute font-medium right-0 text-tertiary text-xs top-0 mt-s">${method}</div>
         <x-data-list data=${JSON.stringify(Array.from(params.entries()))}></x-data-list>
       </div>
     `;
@@ -119,7 +119,7 @@ export class ErrorEntryCard extends Base<Data> {
       <span class="text-secondary">Navigated from</span>
       <a
         target="_blank"
-        class="font-semibold text-primary hover-underline"
+        class="font-medium text-primary hover-underline"
         href=${referrer}
         rel="nofollow noopener noreferrer"
       >
@@ -166,7 +166,7 @@ export class ErrorEntryCard extends Base<Data> {
 
           <div class="mx-xs p-s text-s divide-y divide-contrast-10 space-y-s">
             <p>
-              <span class="block font-semibold">${data.url}</span>
+              <span class="block font-medium">${data.url}</span>
               ${data.referrer ? this.__renderReferrer(data.referrer) : ''}
             </p>
 
@@ -180,7 +180,7 @@ export class ErrorEntryCard extends Base<Data> {
           <foxy-i18n slot="header" lang=${this.lang} key="client" ns=${this.ns}></foxy-i18n>
 
           <div class="text-s flex flex-col mx-xs p-s">
-            <span class="font-semibold">
+            <span class="font-medium">
               ${data.ip_address}
               ${data.ip_country
                 ? html`<span class="text-tertiary"> • </span>${data.ip_country}`

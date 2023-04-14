@@ -18,6 +18,8 @@ const summary: Summary = {
       'usage',
       'product-restrictions',
       'category-restrictions',
+      'customer-subscription-restrictions',
+      'customer-attribute-restrictions',
       'options',
     ],
     sections: ['timestamps'],

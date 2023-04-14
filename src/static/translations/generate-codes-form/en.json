@@ -12,6 +12,7 @@
   "template": "Template",
   "v8n_negative": "Negative values are not allowed",
   "v8n_required": "Required",
+  "v8n_prefix_has_spaces": "Spaces are not allowed in code prefix",
   "spinner": {
     "loading_busy": "Loading",
     "loading_error": "Failed to load"

@@ -42,7 +42,7 @@ export class AddressCard extends Base<Data> {
       <div class="mb-s leading-none">
         ${this.renderTemplateOrSlot('address-name:before')}
 
-        <span class="font-semibold">
+        <span class="font-medium">
           ${isDefaultBilling || isDefaultShipping
             ? html`
                 <foxy-i18n

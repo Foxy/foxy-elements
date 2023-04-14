@@ -4,6 +4,25 @@ import { increment } from '../router/utils';
 import uniqueId from 'lodash-es/uniqueId';
 
 export const defaults: Defaults = {
+  downloadables: (query, dataset) => {
+    const itemCategoryId = parseInt(query.get('item_category_id') ?? '0');
+
+    return {
+      id: increment('downloadables', dataset),
+      store_id: parseInt(query.get('store_id') ?? '0'),
+      item_category_id: itemCategoryId,
+      item_category_uri: `https://demo.api/hapi/item_categories/${itemCategoryId}`,
+      name: '',
+      code: '',
+      price: 0,
+      file_name: '',
+      file_size: 0,
+      upload_date: new Date().toISOString(),
+      date_created: new Date().toISOString(),
+      date_modified: new Date().toISOString(),
+    };
+  },
+
   applied_taxes: (query, dataset) => ({
     id: increment('applied_taxes', dataset),
     tax_id: parseInt(query.get('tax_id') ?? '0'),
@@ -460,6 +479,9 @@ export const defaults: Defaults = {
     coupon_discount_type: 'quantity_amount',
     coupon_discount_details: '',
     combinable: false,
+    customer_auto_apply: false,
+    customer_attribute_restrictions: '',
+    customer_subscription_restrictions: '',
     multiple_codes_allowed: false,
     product_code_restrictions: '',
     exclude_category_discounts: false,

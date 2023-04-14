@@ -25,7 +25,7 @@ export class IntegrationCard extends Base<Data> {
       <div class="flex flex-wrap gap-xs leading-s">
         <div class="min-w-full">
           <div class="flex justify-between gap-s">
-            <span class="font-semibold truncate min-w-0">
+            <span class="font-medium truncate min-w-0">
               ${data?.project_name}&ZeroWidthSpace;
             </span>
 
@@ -50,12 +50,12 @@ export class IntegrationCard extends Base<Data> {
         </div>
 
         <div class="text-secondary text-xs bg-contrast-5 rounded overflow-hidden flex">
-          <span class="font-semibold px-xs bg-contrast-5" lang="en">ID</span>
+          <span class="font-medium px-xs bg-contrast-5" lang="en">ID</span>
           <span class="px-xs"><code>${data?.client_id}</code>&ZeroWidthSpace;</span>
         </div>
 
         <div class="text-secondary text-xs bg-contrast-5 rounded overflow-hidden flex">
-          <span class="font-semibold px-xs bg-contrast-5" lang="en">Email</span>
+          <span class="font-medium px-xs bg-contrast-5" lang="en">Email</span>
           <span class="px-xs"><code>${data?.added_by_email}</code>&ZeroWidthSpace;</span>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { expect, fixture, html } from '@open-wc/testing';
 import { API } from '@foxy.io/sdk/customer';
 import { CustomerApi } from '../CustomerApi';
 import { CustomerPortal } from './CustomerPortal';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 import { InternalCustomerPortalLoggedInView } from './InternalCustomerPortalLoggedInView';
 import { InternalCustomerPortalLoggedOutView } from './InternalCustomerPortalLoggedOutView';
 
@@ -15,6 +16,21 @@ describe('CustomerPortal', () => {
 
   it('registers as foxy-customer-portal', () => {
     expect(customElements.get('foxy-customer-portal')).to.equal(CustomerPortal);
+  });
+
+  it('has a reactive property "transactionsTableColumns"', () => {
+    expect(CustomerPortal).to.have.deep.nested.property('properties.transactionsTableColumns', {
+      attribute: false,
+    });
+
+    expect(new CustomerPortal()).to.have.deep.property('transactionsTableColumns', [
+      TransactionsTable.priceColumn,
+      TransactionsTable.summaryColumn,
+      TransactionsTable.statusColumn,
+      TransactionsTable.idColumn,
+      TransactionsTable.dateColumn,
+      TransactionsTable.receiptColumn,
+    ]);
   });
 
   it('has an empty group property by default', () => {
@@ -71,6 +87,8 @@ describe('CustomerPortal', () => {
   it('renders foxy-internal-customer-portal-logged-in-view when logged in', async () => {
     localStorage.setItem(API.SESSION, 'session-stub');
 
+    const transactionsTableColumns = [TransactionsTable.idColumn];
+
     const layout = html`
       <foxy-customer-portal
         disabledcontrols="sign-in:recover"
@@ -79,6 +97,7 @@ describe('CustomerPortal', () => {
         group="foo"
         base="https://demo.api/portal/"
         lang="es"
+        .transactionsTableColumns=${transactionsTableColumns}
       >
         <template slot="sign-in:header:before">
           <div>Test</div>
@@ -91,6 +110,7 @@ describe('CustomerPortal', () => {
 
     expect(view).to.be.instanceOf(InternalCustomerPortalLoggedInView);
     expect(view).to.have.property('localName', 'foxy-internal-customer-portal-logged-in-view');
+    expect(view).to.have.property('transactionsTableColumns', transactionsTableColumns);
     expect(view).to.have.attribute('disabledcontrols', 'sign-in:recover');
     expect(view).to.have.attribute('readonlycontrols', 'customer:header:actions:edit:form');
     expect(view).to.have.attribute('hiddencontrols', 'access-recovery:header');

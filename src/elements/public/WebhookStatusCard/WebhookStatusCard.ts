@@ -23,7 +23,7 @@ export class WebhookStatusCard extends Base<Data> {
       <p class="flex justify-between items-center leading-none">
         <foxy-i18n
           .options=${{ value: this.data?.date_created }}
-          class="font-semibold"
+          class="font-medium"
           infer=""
           key="date"
         >

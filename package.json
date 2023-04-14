@@ -14,7 +14,7 @@
   "scripts": {
     "wca": "wca analyze \"src/elements/public/*/index.ts\" --outFile custom-elements.json --format json",
     "generate-schemas": "node \"./.scripts/generate-schemas.js\" && prettier \"./src/static/schemas/*.json\" \"./.vscode/settings.json\" --write",
-    "generate-groups": "node \"./.scripts/generate-groups.js\" && prettier \"./web-test-runner-groups.config.js\" --write",
+    "generate-groups": "node \"./.scripts/generate-groups.js\" && prettier \"./web-test-runner.groups.js\" --write",
     "storybook": "wds --watch",
     "storybook:build": "NODE_OPTIONS=--openssl-legacy-provider build-storybook",
     "lint": "npm run lint:eslint && npm run lint:prettier",

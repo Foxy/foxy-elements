@@ -73,6 +73,7 @@ export class GiftCardCodeForm extends Base<Data> {
     return [
       ({ code: v }) => !!v || 'code_required',
       ({ code: v }) => !v || v.length <= 50 || 'code_too_long',
+      ({ code: v }) => !v?.includes(' ') || 'code_has_spaces',
       ({ current_balance: v }) => !!v || 'current_balance_required',
       ({ current_balance: v }) => !v || !isNaN(v) || 'current_balance_required',
     ];

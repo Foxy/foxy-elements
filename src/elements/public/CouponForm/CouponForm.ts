@@ -1,10 +1,7 @@
-import {
-  Data,
-  RulesTierFieldParams,
-  RulesTierParams,
-  RulesTierSelectParams,
-  RulesTierSwitchParams,
-} from './types';
+import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
+import type { Item } from '../../internal/InternalEditableListControl/types';
+import type { Data } from './types';
+
 import { Option, Type } from '../QueryBuilder/types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -35,8 +32,6 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { live } from 'lit-html/directives/live';
-import { operatorGreaterThanOrEqual } from '../QueryBuilder/icons/operatorGreaterThanOrEqual';
-import { repeat } from 'lit-html/directives/repeat';
 import { serializeDate } from '../../../utils/serialize-date';
 
 const NS = 'coupon-form';
@@ -91,9 +86,13 @@ export class CouponForm extends Base<Data> {
       'iron-dropdown': customElements.get('iron-dropdown'),
       'iron-icon': customElements.get('iron-icon'),
 
+      'foxy-internal-editable-list-control': customElements.get(
+        'foxy-internal-editable-list-control'
+      ),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
       'foxy-copy-to-clipboard': customElements.get('foxy-copy-to-clipboard'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
+      'foxy-discount-builder': customElements.get('foxy-discount-builder'),
       'foxy-query-builder': customElements.get('foxy-query-builder'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'foxy-pagination': customElements.get('foxy-pagination'),
@@ -198,6 +197,31 @@ export class CouponForm extends Base<Data> {
     { label: 'date_modified', path: 'date_modified', type: Type.Date },
   ];
 
+  private readonly __customerSubscriptionRestrictionsGetValue = () => {
+    const items = this.form.customer_subscription_restrictions
+      ?.split(',')
+      .map(value => value.trim())
+      .filter((value, index, values) => !!value && values.indexOf(value) === index)
+      .map(value => ({ value }));
+
+    return items ?? [];
+  };
+
+  private readonly __customerSubscriptionRestrictionsSetValue = (newValue: Item[]) => {
+    this.edit({
+      customer_subscription_restrictions: newValue
+        .map(({ value }) => value.trim())
+        .filter((value, index, values) => !!value && values.indexOf(value) === index)
+        .join(),
+    });
+
+    this.edit({
+      customer_auto_apply:
+        !!this.form.customer_subscription_restrictions ||
+        !!this.form.customer_attribute_restrictions,
+    });
+  };
+
   private __codesTableQuery: string | null = null;
 
   private __itemCategories = '';
@@ -215,6 +239,17 @@ export class CouponForm extends Base<Data> {
         ${hidden.matches('category-restrictions', true) || !this.data
           ? ''
           : this.__renderCategoryRestrictions()}
+
+        <foxy-internal-editable-list-control
+          infer="customer-subscription-restrictions"
+          .getValue=${this.__customerSubscriptionRestrictionsGetValue}
+          .setValue=${this.__customerSubscriptionRestrictionsSetValue}
+        >
+        </foxy-internal-editable-list-control>
+
+        ${hidden.matches('customer-attribute-restrictions', true)
+          ? ''
+          : this.__renderCustomerAttributeRestrictions()}
         ${hidden.matches('options', true) ? '' : this.__renderOptions()}
         ${hidden.matches('timestamps', true) ? '' : this.__renderTimestamps()}
         ${hidden.matches('create', true) || !!this.data ? '' : this.__renderCreate()}
@@ -363,265 +398,6 @@ export class CouponForm extends Base<Data> {
     `;
   }
 
-  private __renderRulesTierSelect({ label, value, options, onChange }: RulesTierSelectParams) {
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
-    const isReadonly = this.readonlySelector.matches('rules', true);
-    const isInteractive = !isDisabled && !isReadonly;
-
-    return html`
-      <label
-        class=${classMap({
-          'h-xs whitespace-nowrap block ring-primary-50 rounded-s pl-s transition-colors': true,
-          'hover-bg-primary hover-text-primary-contrast focus-within-ring-2': isInteractive,
-          'bg-primary-10 text-primary': isInteractive,
-          'bg-contrast-5 text-disabled': isDisabled,
-          'bg-contrast-5 text-secondary': isReadonly && !isDisabled,
-        })}
-      >
-        <foxy-i18n class="sr-only" lang=${this.lang} key=${label} ns=${this.ns}></foxy-i18n>
-
-        <span class="relative leading-none font-medium flex items-center h-full">
-          <span class="truncate">${this.t(options[value])}</span>
-          <iron-icon class="icon-inline text-xl ml-xs" icon="icons:expand-more"></iron-icon>
-
-          <select
-            data-testclass="interactive editable"
-            class="opacity-0 absolute inset-0 focus-outline-none"
-            ?disabled=${!isInteractive}
-            @change=${(evt: Event) => {
-              const select = evt.currentTarget as HTMLSelectElement;
-              onChange(select.options[select.selectedIndex].value);
-            }}
-          >
-            ${Object.entries(options).map(([optionValue, optionKey]) => {
-              return html`
-                <option value=${optionValue} ?selected=${optionValue === value}>
-                  ${this.t(optionKey)}
-                </option>
-              `;
-            })}
-          </select>
-        </span>
-      </label>
-    `;
-  }
-
-  private __renderRulesTierSwitch({ value, options, onChange }: RulesTierSwitchParams) {
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
-    const isReadonly = this.readonlySelector.matches('rules', true);
-    const isInteractive = !isDisabled && !isReadonly;
-    const name = `switch-${Math.floor(Math.random() * Math.pow(10, 10))}`;
-    const dotStyle = 'width: 0.4rem; height: 0.4rem';
-
-    return html`
-      <div
-        class=${classMap({
-          'h-xs px-xs space-x-xs flex items-center rounded-s transition-colors': true,
-          'hover-bg-primary hover-text-primary-contrast focus-within-ring-2': isInteractive,
-          'ring-primary-50 cursor-pointer bg-primary-10 text-primary': isInteractive,
-          'bg-contrast-5 text-disabled': isDisabled,
-          'bg-contrast-5 text-secondary': isReadonly && !isDisabled,
-        })}
-        @click=${(evt: Event) => {
-          if (!isInteractive) return;
-
-          const target = evt.currentTarget as HTMLDivElement;
-          const firstInput = target.querySelector('input') as HTMLInputElement;
-
-          firstInput.focus();
-          onChange(value === 0 ? 1 : 0);
-        }}
-      >
-        <div class="leading-none font-medium px-xs pointer-events-none">
-          ${options.map((option, optionIndex) => {
-            return html`
-              <label>
-                <foxy-i18n
-                  class=${classMap({ 'sr-only': optionIndex !== value })}
-                  lang=${this.lang}
-                  key=${option}
-                  ns=${this.ns}
-                >
-                </foxy-i18n>
-
-                <input
-                  data-testclass="interactive editable"
-                  class="sr-only"
-                  value=${option}
-                  name=${name}
-                  type="radio"
-                  ?disabled=${!isInteractive}
-                  ?checked=${optionIndex === value}
-                  @change=${(evt: Event) => {
-                    const input = evt.currentTarget as HTMLInputElement;
-                    if (input.checked) onChange(optionIndex);
-                  }}
-                />
-              </label>
-            `;
-          })}
-        </div>
-
-        <div class="flex justify-evenly h-full ${value ? 'flex-col-reverse' : 'flex-col'}">
-          <div style=${dotStyle} class="bg-current rounded-full"></div>
-          <div style=${dotStyle} class="border border-current rounded-full"></div>
-        </div>
-      </div>
-    `;
-  }
-
-  private __renderRulesTierField({ value, label, onChange }: RulesTierFieldParams) {
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
-    const isReadonly = this.readonlySelector.matches('rules', true);
-    const isInteractive = !isDisabled && !isReadonly;
-
-    return html`
-      <label>
-        <foxy-i18n class="sr-only" lang=${this.lang} key=${label} ns=${this.ns}></foxy-i18n>
-        <input
-          data-testclass="interactive editable"
-          class=${classMap({
-            'transition-colors border p-xs h-xs font-medium text-m rounded-s w-xl': true,
-            'ring-primary-50 text-body bg-contrast-10': isInteractive,
-            'hover-bg-contrast-20': isInteractive,
-            'focus-outline-none focus-ring-2': isInteractive,
-            'text-disabled bg-contrast-5': isDisabled,
-            'text-secondary': isReadonly && !isDisabled,
-            'border-transparent border-solid': !isReadonly,
-            'border-dashed border-contrast-30': isReadonly,
-          })}
-          type="number"
-          min="0"
-          ?disabled=${!isInteractive}
-          .value=${value}
-          @input=${(evt: InputEvent) => {
-            const input = evt.currentTarget as HTMLInputElement;
-            onChange(input.value);
-          }}
-        />
-      </label>
-    `;
-  }
-
-  private __renderRulesTier(params: RulesTierParams) {
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
-    const isReadonly = this.readonlySelector.matches('rules', true);
-    const tier = params.tier ?? '0-0';
-    const sign = tier.includes('+') ? '+' : '-';
-    const [from, adjustment] = tier.split(/[-+]/).map(v => parseFloat(v));
-
-    return html`
-      <div
-        data-testclass="rules:tier"
-        aria-label=${this.t('tier')}
-        class=${classMap({
-          'flex items-start justify-between rounded': true,
-          'border border-contrast-10': true,
-          'border-dashed': !params.tier,
-        })}
-      >
-        <div
-          class=${classMap({
-            'transition-colors flex flex-wrap items-center gap-s p-s': true,
-            'text-tertiary': !isDisabled,
-            'text-disabled': isDisabled,
-          })}
-        >
-          <foxy-i18n
-            class="uppercase text-s font-semibold"
-            lang=${this.lang}
-            key="tier_if"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          ${this.__renderRulesTierSwitch({
-            options: ['total', 'quantity'],
-            value: params.source === 'price' ? 0 : 1,
-            onChange: i => params.onChange({ source: i ? 'quantity' : 'price' }),
-          })}
-
-          <div class="h-s w-s">${operatorGreaterThanOrEqual}</div>
-
-          ${this.__renderRulesTierField({
-            label: 'from',
-            value: String(from),
-            onChange: v => params.onChange({ tier: `${v}${sign}${adjustment}` }),
-          })}
-
-          <foxy-i18n
-            class="uppercase text-s font-semibold"
-            lang=${this.lang}
-            key="tier_then"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          ${this.__renderRulesTierSwitch({
-            options: ['reduce', 'increase'],
-            value: sign === '-' ? 0 : 1,
-            onChange: i => params.onChange({ tier: `${from}${i ? '+' : '-'}${adjustment}` }),
-          })}
-
-          <!---->
-
-          ${this.__renderRulesTierSelect({
-            options: {
-              incremental: 'tier_incremental',
-              allunits: 'tier_allunits',
-              repeat: 'tier_repeat',
-              single: 'tier_single',
-            },
-            value: params.method,
-            label: 'target',
-            onChange: v => params.onChange({ method: v }),
-          })}
-
-          <foxy-i18n
-            class="uppercase text-s font-semibold"
-            lang=${this.lang}
-            key="tier_by"
-            ns=${this.ns}
-          >
-          </foxy-i18n>
-
-          ${this.__renderRulesTierField({
-            label: 'adjustment',
-            value: String(adjustment),
-            onChange: v => params.onChange({ tier: `${from}${sign}${v}` }),
-          })}
-
-          <!---->
-
-          ${this.__renderRulesTierSwitch({
-            value: params.units === 'percentage' ? 0 : 1,
-            options: ['%', '¤'],
-            onChange: i => params.onChange({ units: i ? 'amount' : 'percentage' }),
-          })}
-        </div>
-
-        ${params.tier
-          ? html`
-              <button
-                data-testclass="interactive"
-                aria-label=${this.t('delete')}
-                class=${classMap({
-                  'w-s h-s m-s flex-shrink-0 rounded transition-colors ring-primary-50': true,
-                  'text-tertiary hover-text-secondary focus-outline-none focus-ring-2': !isDisabled,
-                  'text-disabled cursor-default': isDisabled,
-                })}
-                ?disabled=${isDisabled}
-                ?hidden=${isReadonly}
-                @click=${() => params.onDelete()}
-              >
-                <iron-icon icon="lumo:cross"></iron-icon>
-              </button>
-            `
-          : ''}
-      </div>
-    `;
-  }
-
   private __renderRulesUrlParameter() {
     const name = this.form.name ?? '';
     const type = this.form.coupon_discount_type ?? 'quantity_amount';
@@ -688,14 +464,9 @@ export class CouponForm extends Base<Data> {
 
   private __renderRules() {
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('rules', true);
-
+    const isReadonly = this.readonlySelector.matches('rules', true);
     const details = this.form.coupon_discount_details ?? '';
-    const tiers = details.split('|').filter(v => !!v.trim());
-    const method = (/[-+]/.test(tiers[0]) ? null : tiers.shift()) ?? 'single';
-    const renderedTiers = method === 'repeat' ? [tiers[0]] : [...tiers, undefined];
-
     const type = this.form.coupon_discount_type ?? 'quantity_amount';
-    const [source, units] = type.split('_');
 
     return html`
       <div data-testid="rules">
@@ -718,35 +489,23 @@ export class CouponForm extends Base<Data> {
             <div class="min-w-0">${this.__renderRulesPreset()}</div>
           </div>
 
-          <div class="space-y-s">
-            ${repeat(renderedTiers, (tier, tierIndex) => {
-              const onChange = (changedParams: Partial<RulesTierParams>) => {
-                const newMethod = changedParams.method ?? method;
-                const newSource = changedParams.source ?? source;
-                const newUnits = changedParams.units ?? units;
-                const newTier = changedParams.tier;
-                const newTiers = [...tiers];
-
-                if (newTier) {
-                  const newTierIndex = tier ? tierIndex : newTiers.length;
-                  const oldTiersCount = tier ? 1 : 0;
-                  newTiers.splice(newTierIndex, oldTiersCount, newTier);
-                }
-
-                this.edit({
-                  coupon_discount_details: `${newMethod}|${newTiers.join('|')}`,
-                  coupon_discount_type: `${newSource}_${newUnits}` as Data['coupon_discount_type'],
-                });
-              };
-
-              const onDelete = () => {
-                const newTiers = tiers.filter((_, i) => i !== tierIndex);
-                this.edit({ coupon_discount_details: `${method}|${newTiers.join('|')}` });
-              };
-
-              return this.__renderRulesTier({ source, method, units, tier, onChange, onDelete });
-            })}
-          </div>
+          <foxy-discount-builder
+            data-testclass="interactive"
+            lang=${this.lang}
+            ns=${this.ns}
+            ?readonly=${isReadonly}
+            ?disabled=${isDisabled}
+            .parsedValue=${{ details, type, name: 'Rules' }}
+            @change=${(evt: CustomEvent) => {
+              const builder = evt.currentTarget as DiscountBuilder;
+              const newParsedValue = builder.parsedValue;
+              this.edit({
+                coupon_discount_details: newParsedValue.details,
+                coupon_discount_type: newParsedValue.type,
+              });
+            }}
+          >
+          </foxy-discount-builder>
 
           <div class="space-y-xs mt-m">
             ${this.__renderRulesUrlParameter()} ${this.__renderRulesDescription()}
@@ -1025,11 +784,14 @@ export class CouponForm extends Base<Data> {
 
     if (restrictions) {
       restrictions.split(',').forEach(value => {
-        const isBlocklistValue = value.startsWith('-');
-        const target = isBlocklistValue ? 1 : 0;
-        const label = isBlocklistValue ? value.substring(1) : value;
+        const trimmedValue = value.trim();
+        if (!trimmedValue) return;
 
-        groups[target].items.push({ label, value });
+        const isBlocklistValue = trimmedValue.startsWith('-');
+        const target = isBlocklistValue ? 1 : 0;
+        const label = isBlocklistValue ? trimmedValue.substring(1) : trimmedValue;
+
+        groups[target].items.push({ label, value: trimmedValue });
       });
     }
 
@@ -1161,6 +923,48 @@ export class CouponForm extends Base<Data> {
         </div>
 
         ${this.renderTemplateOrSlot('category-restrictions:after')}
+      </div>
+    `;
+  }
+
+  private __renderCustomerAttributeRestrictions() {
+    const scope = 'customer-attribute-restrictions';
+    const isDisabled = this.disabledSelector.matches(scope, true);
+    const isReadonly = this.readonlySelector.matches(scope, true);
+
+    return html`
+      <div data-testid="customer-attribute-restrictions">
+        ${this.renderTemplateOrSlot(`${scope}:before`)}
+
+        <div
+          class=${classMap({
+            'grid gap-xs leading-xs transition-colors': true,
+            'text-secondary hover-text-body': !isDisabled && !isReadonly,
+            'text-disabled': isDisabled,
+            'text-body': isReadonly,
+          })}
+        >
+          <foxy-i18n class="text-s font-medium" infer=${scope} key="label"></foxy-i18n>
+
+          <foxy-query-builder
+            infer=${scope}
+            .value=${this.form.customer_attribute_restrictions ?? null}
+            @change=${(evt: CustomEvent) => {
+              const queryBuilder = evt.currentTarget as QueryBuilder;
+              this.edit({ customer_attribute_restrictions: queryBuilder.value ?? '' });
+              this.edit({
+                customer_auto_apply:
+                  !!this.form.customer_subscription_restrictions ||
+                  !!this.form.customer_attribute_restrictions,
+              });
+            }}
+          >
+          </foxy-query-builder>
+
+          <foxy-i18n class="text-xs" infer=${scope} key="helper_text"></foxy-i18n>
+        </div>
+
+        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }

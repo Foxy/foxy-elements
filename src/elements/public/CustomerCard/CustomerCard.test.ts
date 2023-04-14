@@ -27,13 +27,14 @@ describe('CustomerCard', () => {
   });
 
   describe('name', () => {
-    it('renders name once loaded', async () => {
+    it('renders name and customer id once loaded', async () => {
       const data = await getTestData<Data>('./hapi/customers/0');
       const layout = html`<foxy-customer-card .data=${data}></foxy-customer-card>`;
       const element = await fixture<CustomerCard>(layout);
       const name = await getByTestId(element, 'name');
 
       expect(name).to.include.text(`${data.first_name} ${data.last_name}`);
+      expect(name).to.include.text(`ID 0`);
     });
 
     it('renders "name:before" slot by default', async () => {

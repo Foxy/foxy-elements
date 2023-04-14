@@ -1269,7 +1269,7 @@ export class StoreForm extends Base<Data> {
           ? html`
               <a
                 target="_blank"
-                class="font-semibold hover-underline rounded focus-outline-none focus-ring-2 focus-ring-primary"
+                class="font-medium hover-underline rounded focus-outline-none focus-ring-2 focus-ring-primary"
                 href=${link.href}
                 lang="en"
               >

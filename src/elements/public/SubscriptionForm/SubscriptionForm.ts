@@ -1,4 +1,4 @@
-import type { Data, Settings, Templates, TransactionPageGetter } from './types';
+import type { CustomerPageGetter, Data, Settings, Templates, TransactionPageGetter } from './types';
 import type { PropertyDeclarations } from 'lit-element';
 import type { ScopedElementsMap } from '@open-wc/scoped-elements';
 import type { InternalCalendar } from '../../internal/InternalCalendar';
@@ -17,6 +17,7 @@ import { parseFrequency } from '../../../utils/parse-frequency';
 import { serializeDate } from '../../../utils/serialize-date';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
 
 import {
@@ -75,6 +76,7 @@ export class SubscriptionForm extends Base<Data> {
       'foxy-internal-calendar': customElements.get('foxy-internal-calendar'),
       'foxy-collection-pages': customElements.get('foxy-collection-pages'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
+      'foxy-customer-card': customElements.get('foxy-customer-card'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'foxy-form-dialog': customElements.get('foxy-form-dialog'),
       'vaadin-button': customElements.get('vaadin-button'),
@@ -94,6 +96,7 @@ export class SubscriptionForm extends Base<Data> {
     return {
       ...super.properties,
       getTransactionPageHref: { attribute: false },
+      getCustomerPageHref: { attribute: false },
       customerAddresses: { attribute: 'customer-addresses' },
       itemCategories: { attribute: 'item-categories' },
       localeCodes: { attribute: 'locale-codes' },
@@ -105,6 +108,8 @@ export class SubscriptionForm extends Base<Data> {
   getTransactionPageHref: TransactionPageGetter = (_, data: any) => {
     return data?._links['fx:receipt'].href;
   };
+
+  getCustomerPageHref: CustomerPageGetter | null = null;
 
   customerAddresses: string | null = null;
 
@@ -217,7 +222,7 @@ export class SubscriptionForm extends Base<Data> {
     return html`
       <div data-testid="header" class="sm-col-span-2">
         ${this.renderTemplateOrSlot('header:before')}
-        <div class="leading-xs text-xxl font-bold truncate">
+        <div class="leading-xs text-xxl font-medium truncate">
           ${this.__renderHeaderTitle(currencyCode, currencyDisplay)}
         </div>
         <div class="leading-xs text-l">${this.__renderHeaderSubtitle()}</div>
@@ -466,6 +471,35 @@ export class SubscriptionForm extends Base<Data> {
     `;
   };
 
+  private readonly __renderCustomer = () => {
+    const customerHref = this.data?._links['fx:customer'].href;
+    const customerPageHref = customerHref ? this.getCustomerPageHref?.(customerHref) : void 0;
+
+    return html`
+      <div data-testid="customer" class="sm-col-span-2">
+        ${this.renderTemplateOrSlot('customer:before')}
+
+        <foxy-i18n infer="customer" class="block text-s font-medium leading-xs mb-xs" key="label">
+        </foxy-i18n>
+
+        <a
+          class=${classMap({
+            'block rounded transition-colors': true,
+            'ring-1 ring-contrast-10': !customerPageHref,
+            'cursor-pointer bg-contrast-5 hover-bg-contrast-10': !!customerPageHref,
+            'focus-outline-none focus-ring-2 focus-ring-primary-50': !!customerPageHref,
+          })}
+          style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+          href=${ifDefined(customerPageHref)}
+        >
+          <foxy-customer-card infer="customer" href=${ifDefined(customerHref)}></foxy-customer-card>
+        </a>
+
+        ${this.renderTemplateOrSlot('customer:after')}
+      </div>
+    `;
+  };
+
   get hiddenSelector(): BooleanSelector {
     return new BooleanSelector(`items:pagination:card:autorenew-icon ${super.hiddenSelector}`);
   }
@@ -547,6 +581,7 @@ export class SubscriptionForm extends Base<Data> {
         ${this.hiddenSelector.matches('header', true)
           ? ''
           : this.__renderHeader(currencyCode ?? void 0, currencyDisplay)}
+        ${this.hiddenSelector.matches('customer', true) ? '' : this.__renderCustomer()}
         ${this.hiddenSelector.matches('items', true) ? '' : this.__renderItems()}
         ${this.__isFrequencyVisible ? this.__renderFrequency() : ''}
         ${this.__isStartDateVisible ? this.__renderStartDate() : ''}
@@ -594,7 +629,7 @@ export class SubscriptionForm extends Base<Data> {
     type Embed = Resource<Rels.TransactionTemplate>;
 
     const data = this.data as DataWithEmbeds | null;
-    const embed = data?._embedded['fx:transaction_template'] as Embed | undefined;
+    const embed = data?._embedded?.['fx:transaction_template'] as Embed | undefined;
 
     return embed ? void 0 : data?._links['fx:transaction_template'].href;
   }
@@ -634,7 +669,7 @@ export class SubscriptionForm extends Base<Data> {
     type Embed = Resource<Rels.TransactionTemplate>;
 
     const data = this.data as DataWithEmbeds | null;
-    const embed = data?._embedded['fx:transaction_template'] as Embed | undefined;
+    const embed = data?._embedded?.['fx:transaction_template'] as Embed | undefined;
     const selector = `#${this.__transactionTemplateLoaderId}`;
 
     return embed ?? this.renderRoot.querySelector<Loader>(selector)?.data ?? null;

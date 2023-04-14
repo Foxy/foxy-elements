@@ -50,7 +50,7 @@ export class SubscriptionCard extends Base<Data> {
 
           <div class="flex-1 min-w-0 leading-xs flex flex-col sm-flex-row sm-items-center">
             <div class="order-1 sm-order-0">
-              <div class="text-body font-semibold origin-top-left text-m">
+              <div class="text-body font-medium origin-top-left text-m">
                 <foxy-i18n
                   data-testid="summary"
                   options=${JSON.stringify(this.__getSummaryOptions())}
@@ -83,7 +83,7 @@ export class SubscriptionCard extends Base<Data> {
             </div>
 
             <div
-              class="flex-1 font-semibold leading-xs mb-xs sm-mb-0 sm-text-right text-xxs sm-text-l tracking-wide sm-tracking-normal uppercase sm-normal-case order-0 sm-order-1 font-tnum text-secondary sm-text-body"
+              class="flex-1 font-medium leading-xs mb-xs sm-mb-0 sm-text-right text-xxs sm-text-l tracking-wide sm-tracking-normal uppercase sm-normal-case order-0 sm-order-1 font-tnum text-secondary sm-text-body"
             >
               <foxy-i18n
                 data-testid="price"

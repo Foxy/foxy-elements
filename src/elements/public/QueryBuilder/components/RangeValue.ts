@@ -7,13 +7,15 @@ import { Select } from './Select';
 
 export type RangeValueParams = {
   parsedValue: ParsedValue;
+  readonly: boolean;
+  disabled: boolean;
   option: Option | null;
   t: I18n['t'];
   onChange: (newValue: ParsedValue) => void;
 };
 
 export function RangeValue(params: RangeValueParams): TemplateResult {
-  const { t, parsedValue, option, onChange } = params;
+  const { t, parsedValue, option, readonly, disabled, onChange } = params;
   const splitValue = parsedValue.value.split('..');
   const from = splitValue.length >= 1 ? splitValue[0] : '';
   const to = splitValue.length >= 2 ? splitValue[1] : '';
@@ -28,6 +30,8 @@ export function RangeValue(params: RangeValueParams): TemplateResult {
       <div class="bg-base">
         ${Field({
           displayValue: list?.find(v => v.value === from)?.label,
+          readonly,
+          disabled,
           value: from,
           label: 'range_from',
           type: type,
@@ -40,6 +44,8 @@ export function RangeValue(params: RangeValueParams): TemplateResult {
       <div class="bg-base">
         ${Field({
           displayValue: list?.find(v => v.value === to)?.label,
+          readonly,
+          disabled,
           label: 'range_to',
           value: to,
           type: type,

@@ -40,6 +40,7 @@ export class GenerateCodesForm extends Base<Data> {
       ({ number_of_codes: v }) => (v && v > 0) || 'number_of_codes_required',
       ({ current_balance: v }) => !v || v >= 0 || 'current_balance_negative',
       ({ length: v }) => (v && v > 0) || 'length_required',
+      ({ prefix: v }) => !v?.includes(' ') || 'prefix_has_spaces',
     ];
   }
 

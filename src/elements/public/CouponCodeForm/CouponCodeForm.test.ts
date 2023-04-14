@@ -30,6 +30,15 @@ describe('CouponCodeForm', () => {
     expect(new CouponCodeForm()).to.have.property('ns', 'coupon-code-form');
   });
 
+  it('produces the code_has_spaces error if entered code includes spaces', () => {
+    const form = new CouponCodeForm();
+    expect(form.errors).to.not.include('code_has_spaces');
+    form.edit({ code: 'ab c' });
+    expect(form.errors).to.include('code_has_spaces');
+    form.edit({ code: 'abc' });
+    expect(form.errors).to.not.include('code_has_spaces');
+  });
+
   describe('code', () => {
     it('has i18n label key "code"', async () => {
       const layout = html`<foxy-coupon-code-form></foxy-coupon-code-form>`;

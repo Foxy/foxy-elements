@@ -1,28 +1,50 @@
-import { Checkbox, Group } from '../../private/index';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-element';
+import type { InternalConfirmDialog } from '../../internal/InternalConfirmDialog';
+import type { ScopedElementsMap } from '@open-wc/scoped-elements';
+import type { Data, Templates } from './types';
+import type { TemplateResult } from 'lit-html';
+import type { NucleonV8N } from '../NucleonElement/types';
 
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { Data } from './types';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { NucleonV8N } from '../NucleonElement/types';
-import { ThemeableMixin } from '../../../mixins/themeable';
-import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
-import { ifDefined } from 'lit-html/directives/if-defined';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { validate as isEmail } from 'email-validator';
-import memoize from 'lodash-es/memoize';
+import { TranslatableMixin } from '../../../mixins/translatable';
+import { ResponsiveMixin } from '../../../mixins/responsive';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { Checkbox } from '../../private/Checkbox/Checkbox';
+import { Group } from '../../private/Group/Group';
 import { roles } from './roles';
+import { html } from 'lit-html';
 
-const Base = ScopedElementsMixin(
-  ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 'user-form')))
-);
+import memoize from 'lodash-es/memoize';
 
+const Base = ScopedElementsMixin(ResponsiveMixin(TranslatableMixin(InternalForm, 'user-form')));
+
+/**
+ * Form element for `fx:user` resources.
+ *
+ * @slot first-name:before – new in v1.22.0
+ * @slot first-name:after – new in v1.22.0
+ * @slot last-name:before – new in v1.22.0
+ * @slot last-name:after – new in v1.22.0
+ * @slot email:before – new in v1.22.0
+ * @slot email:after – new in v1.22.0
+ * @slot phone:before – new in v1.22.0
+ * @slot phone:after – new in v1.22.0
+ * @slot role:before – new in v1.22.0
+ * @slot role:after – new in v1.22.0
+ * @slot create:before – new in v1.22.0
+ * @slot create:after – new in v1.22.0
+ * @slot delete:before – new in v1.22.0
+ * @slot delete:after – new in v1.22.0
+ *
+ * @element foxy-user-form
+ * @since 1.3.0
+ */
 export class UserForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
@@ -37,11 +59,13 @@ export class UserForm extends Base<Data> {
       ({ first_name: v }) => !v || v.length <= 50 || 'first_name_too_long',
       ({ last_name: v }) => !v || v.length <= 50 || 'last_name_too_long',
       ({ email: v }) => (v && v.length > 0) || 'email_required',
-      ({ email: v }) => (v && v.length <= 100) || 'email_too_long',
-      ({ email: v }) => (v && isEmail(v)) || 'email_invalid_email',
+      ({ email: v }) => !v || v.length <= 100 || 'email_too_long',
+      ({ email: v }) => !v || isEmail(v) || 'email_invalid_email',
       ({ phone: v }) => !v || v.length <= 50 || 'phone_too_long',
     ];
   }
+
+  templates: Templates = {};
 
   private __getValidator = memoize((prefix: string) => () => {
     return !this.errors.some(err => err.startsWith(prefix));
@@ -54,56 +78,55 @@ export class UserForm extends Base<Data> {
     };
   });
 
-  render(): TemplateResult {
-    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
-    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isValid = isTemplateValid || isSnapshotValid;
-    const isBusy = this.in('busy');
-    const isFail = this.in('fail');
-    const isDisabled = isBusy || isFail || this.disabled;
+  renderBody(): TemplateResult {
+    const hiddenSelector = this.hiddenSelector;
+    const action = this.href ? 'delete' : 'create';
+    const fields = ['first_name', 'last_name', 'email', 'phone'] as const;
 
     return html`
-      <foxy-internal-confirm-dialog
-        data-testid="confirm"
-        message="delete_prompt"
-        confirm="delete"
-        cancel="cancel"
-        header="delete"
-        theme="primary error"
-        lang=${this.lang}
-        ns=${this.ns}
-        id="confirm"
-        @hide=${this.__handleConfirmHide}
-      >
-      </foxy-internal-confirm-dialog>
+      <div class="grid sm-grid-cols-2 gap-m">
+        ${fields.map(field => this.__renderField(field))}
+        ${hiddenSelector.matches('role', true) ? '' : this.__renderRole()}
+        ${hiddenSelector.matches(action, true) ? '' : this.__renderAction()}
+      </div>
+    `;
+  }
 
-      <div
-        data-testid="wrapper"
-        aria-busy=${this.in('busy')}
-        aria-live="polite"
-        class="space-y-l relative"
-      >
-        <div class="grid grid-cols-1 sm-grid-cols-2 gap-m">
-          ${(['first_name', 'last_name', 'email', 'phone'] as const).map(
-            field => html`
-              <vaadin-text-field
-                error-message=${this.__getErrorMessage(field)}
-                data-testid=${field}
-                ?disabled=${isDisabled}
-                ?readonly=${this.readonly}
-                class="w-full"
-                label=${this.t(field)}
-                value=${ifDefined((this.form as any)[field])}
-                .checkValidity=${this.__getValidator(field)}
-                @input=${this.__bindField(field)}
-                @keydown=${this.__handleKeyDown}
-              >
-              </vaadin-text-field>
-            `
-          )}
-        </div>
+  private __renderField(property: keyof Data) {
+    const control = property.replace('_', '-');
+    if (this.hiddenSelector.matches(control)) return;
 
-        <x-group frame>
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${control}:before`)}
+
+        <vaadin-text-field
+          error-message=${this.__getErrorMessage(property)}
+          data-testid=${property}
+          label=${this.t(property)}
+          class="w-full"
+          value=${ifDefined((this.form as any)[property])}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(control, true)}
+          ?readonly=${this.readonlySelector.matches(control, true)}
+          .checkValidity=${this.__getValidator(property)}
+          @input=${this.__bindField(property)}
+          @keydown=${this.__handleKeyDown}
+        >
+        </vaadin-text-field>
+
+        ${this.renderTemplateOrSlot(`${control}:after`)}
+      </div>
+    `;
+  }
+
+  private __renderRole() {
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('role', true);
+
+    return html`
+      <div class="sm-col-span-2">
+        ${this.renderTemplateOrSlot('role:before')}
+
+        <x-group data-testid="role" frame>
           ${roles.map(
             (role, index) => html`
               <hr
@@ -112,23 +135,23 @@ export class UserForm extends Base<Data> {
               />
 
               <x-checkbox
+                data-testclass="role-option"
                 class="w-full p-m"
-                ?readonly=${this.readonly}
+                ?readonly=${this.readonlySelector.matches('role', true)}
                 ?disabled=${isDisabled}
                 ?checked=${this.form[role.property]}
                 @change=${(evt: CustomEvent) => {
-                  const checkbox = evt.target as Checkbox;
+                  const checkbox = evt.currentTarget as Checkbox;
                   this.edit({ [role.property]: checkbox.checked });
                 }}
               >
                 <div class="flex items-start leading-s">
                   <div class="flex-1 flex flex-col">
-                    <foxy-i18n key=${role.key} lang=${this.lang} ns=${this.ns}></foxy-i18n>
+                    <foxy-i18n key=${role.key} infer=""></foxy-i18n>
                     <foxy-i18n
-                      class="text-s text-secondary"
-                      lang=${this.lang}
+                      class="text-s ${isDisabled ? '' : 'text-secondary'}"
+                      infer=""
                       key="${role.key}_explainer"
-                      ns=${this.ns}
                     >
                     </foxy-i18n>
                   </div>
@@ -140,33 +163,51 @@ export class UserForm extends Base<Data> {
           )}
         </x-group>
 
+        ${this.renderTemplateOrSlot('role:after')}
+      </div>
+    `;
+  }
+
+  private __renderAction() {
+    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
+    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
+    const isValid = isTemplateValid || isSnapshotValid;
+    const action = this.href ? 'delete' : 'create';
+    const isActionDisabled =
+      (this.in({ idle: 'template' }) && !isValid) ||
+      this.in('busy') ||
+      this.in('fail') ||
+      this.disabledSelector.matches(action, true);
+
+    return html`
+      <div class="sm-col-span-2">
+        ${this.renderTemplateOrSlot(`${action}:before`)}
+
+        <foxy-internal-confirm-dialog
+          data-testid="confirm"
+          message="delete_prompt"
+          confirm="delete"
+          cancel="cancel"
+          header="delete"
+          theme="primary error"
+          lang=${this.lang}
+          ns=${this.ns}
+          id="confirm"
+          @hide=${this.__handleConfirmHide}
+        >
+        </foxy-internal-confirm-dialog>
+
         <vaadin-button
-          data-testid="action"
+          data-testid=${action}
           theme=${this.in('idle') ? `${this.href ? 'error' : 'primary success'}` : ''}
           class="w-full"
-          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled}
+          ?disabled=${isActionDisabled}
           @click=${this.__handleActionClick}
         >
-          <foxy-i18n lang=${this.lang} key=${this.href ? 'delete' : 'create'} ns=${this.ns}>
-          </foxy-i18n>
+          <foxy-i18n lang=${this.lang} key=${action} ns=${this.ns}></foxy-i18n>
         </vaadin-button>
 
-        <div
-          data-testid="spinner"
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !isBusy && !isFail,
-          })}
-        >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
+        ${this.renderTemplateOrSlot(`${action}:after`)}
       </div>
     `;
   }

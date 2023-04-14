@@ -15,7 +15,7 @@ export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')
   renderBody(): TemplateResult {
     return html`
       <div class="grid grid-cols-1 gap-s leading-none">
-        <p class="flex justify-between items-center font-semibold">
+        <p class="flex justify-between items-center font-medium">
           <span class="truncate">${this.data?.name}&ZeroWidthSpace;</span>
           <span class="uppercase inline-block text-xs bg-contrast-5 rounded p-xs flex-shrink-0">
             ${this.data?.format}&ZeroWidthSpace;

@@ -18,6 +18,8 @@ export type RuleParams = {
   parsedValue: ParsedValue;
   isFullSize?: boolean;
   isNested?: boolean;
+  disabled: boolean;
+  readonly: boolean;
   options: Option[];
   t: I18n['t'];
   onChange: (newValue: ParsedValue) => void;
@@ -26,12 +28,31 @@ export type RuleParams = {
 };
 
 export function Rule(params: RuleParams): TemplateResult {
-  const { parsedValue, options, t, isNested, isFullSize, onChange, onDelete, onConvert } = params;
+  const {
+    parsedValue,
+    isFullSize,
+    isNested,
+    readonly,
+    disabled,
+    options,
+    t,
+    onConvert,
+    onDelete,
+    onChange,
+  } = params;
 
   const option = options.find(o => o.path === parsedValue.path) ?? null;
   const type = option?.type ?? Type.Any;
   const operator = parsedValue.operator;
-  const componentParams = { parsedValue: parsedValue, option, options, t, onChange };
+  const componentParams = {
+    parsedValue: parsedValue,
+    disabled,
+    readonly,
+    options,
+    option,
+    t,
+    onChange,
+  };
 
   const typeToIcon = {
     [Type.Attribute]: icons.typeAttribute,
@@ -47,14 +68,23 @@ export function Rule(params: RuleParams): TemplateResult {
       <div
         class=${classMap({
           'flex-1 bg-base rounded overflow-hidden border': true,
-          'border-contrast-10': !isNested,
-          'border-contrast-50': !!isNested,
+          'border-contrast-10': !isNested && !readonly,
+          'border-contrast-50': !!isNested || readonly,
+          'border-dashed': readonly,
+          'border-solid': !readonly,
         })}
       >
         <div class="bg-contrast-10">
           <div class="grid gap-1px grid-vertical sm-grid-horizontal">
             <div class="bg-base" title=${t(`type_${type}`)}>
-              <div class="w-m h-m text-tertiary" aria-hidden="true">
+              <div
+                class=${classMap({
+                  'w-m h-m': true,
+                  'text-tertiary': !readonly && !disabled,
+                  'text-disabled': readonly || disabled,
+                })}
+                aria-hidden="true"
+              >
                 ${option ? typeToIcon[type] : icons.typeAny}
               </div>
             </div>
@@ -91,7 +121,7 @@ export function Rule(params: RuleParams): TemplateResult {
         class=${classMap({
           '-mr-s self-start flex-col sm-flex-row flex-shrink-0 items-center': true,
           'border-t border-b border-transparent divide-y divide-transparent': true,
-          'hidden': !!isFullSize,
+          'hidden': !!isFullSize || readonly,
           'flex': !isFullSize,
         })}
       >
@@ -99,11 +129,12 @@ export function Rule(params: RuleParams): TemplateResult {
           aria-label=${t('delete')}
           class=${classMap({
             'box-content flex w-m h-m rounded-full transition-colors': true,
-            'text-secondary hover-bg-contrast-5 hover-text-error': true,
+            'text-secondary hover-bg-contrast-5 hover-text-error': !disabled,
+            'cursor-default text-disabled': disabled,
             'focus-outline-none focus-ring-2 ring-primary-50': true,
             'opacity-0': !parsedValue.path,
           })}
-          ?disabled=${!parsedValue.path}
+          ?disabled=${disabled || readonly || !parsedValue.path}
           @click=${onDelete}
         >
           <iron-icon
@@ -117,11 +148,13 @@ export function Rule(params: RuleParams): TemplateResult {
         <button
           aria-label=${t('add_or_clause')}
           class=${classMap({
-            'box-content flex w-m h-m rounded-full transition-colors text-success': true,
-            'hover-bg-contrast-5 focus-outline-none focus-ring-2 ring-primary-50': true,
+            'box-content flex w-m h-m rounded-full transition-colors': true,
+            'text-success hover-bg-contrast-5': !disabled,
+            'cursor-default text-disabled': disabled,
+            'focus-outline-none focus-ring-2 ring-primary-50': true,
             'opacity-0': !parsedValue.path || !!isNested,
           })}
-          ?disabled=${!parsedValue.path}
+          ?disabled=${disabled || readonly || !parsedValue.path}
           @click=${onConvert}
         >
           <iron-icon

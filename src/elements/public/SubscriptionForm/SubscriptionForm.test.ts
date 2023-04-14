@@ -20,6 +20,7 @@ import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { parseFrequency } from '../../../utils/parse-frequency';
 import { AttributeCard } from '../AttributeCard/AttributeCard';
 import { AttributeForm } from '../AttributeForm/AttributeForm';
+import { CustomerCard } from '../CustomerCard/CustomerCard';
 import { createRouter } from '../../../server/index';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { getTestData } from '../../../testgen/getTestData';
@@ -112,6 +113,11 @@ describe('SubscriptionForm', () => {
     expect(element).to.equal(AttributeForm);
   });
 
+  it('imports and defines foxy-customer-card', () => {
+    const element = customElements.get('foxy-customer-card');
+    expect(element).to.equal(CustomerCard);
+  });
+
   it('imports and defines foxy-form-dialog', () => {
     const element = customElements.get('foxy-form-dialog');
     expect(element).to.equal(FormDialog);
@@ -147,6 +153,12 @@ describe('SubscriptionForm', () => {
     expect(Form).to.have.deep.nested.property('properties.getTransactionPageHref', definition);
     expect(new Form()).to.have.property('getTransactionPageHref');
     expect(new Form().getTransactionPageHref('', data)).to.equal('test');
+  });
+
+  it('has a reactive property "getCustomerPageHref"', () => {
+    const definition = { attribute: false };
+    expect(Form).to.have.deep.nested.property('properties.getCustomerPageHref', definition);
+    expect(new Form()).to.have.property('getCustomerPageHref', null);
   });
 
   it('has a reactive property "customerAddresses"', () => {
@@ -565,6 +577,142 @@ describe('SubscriptionForm', () => {
 
       expect(slot).to.not.exist;
       expect(sandbox).to.contain.html(value);
+    });
+  });
+
+  describe('customer', () => {
+    it('is hidden when form is hidden', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data} hidden></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+
+      expect(await getByTestId(element, 'customer')).not.to.exist;
+    });
+
+    it('is hidden when hiddencontrols includes "customer"', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data} hiddencontrols="customer"> </foxy-subscription-form>
+      `);
+
+      expect(await getByTestId(element, 'customer')).not.to.exist;
+    });
+
+    it('renders "customer:before" slot when appropriate', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const slot = await getByName(element, 'customer:before');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "customer:before" slot with template "customer:before" if available', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const name = 'customer:before';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders "customer:after" slot when appropriate', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const layout = html`<foxy-subscription-form .data=${data}></foxy-subscription-form>`;
+      const element = await fixture<Form>(layout);
+      const slot = await getByName(element, 'customer:after');
+
+      expect(slot).to.have.property('localName', 'slot');
+    });
+
+    it('replaces "customer:after" slot with template "customer:after" if available', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const name = 'customer:after';
+      const value = `<p>Value of the "${name}" template.</p>`;
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}>
+          <template slot=${name}>${unsafeHTML(value)}</template>
+        </foxy-subscription-form>
+      `);
+
+      const slot = await getByName<HTMLSlotElement>(element, name);
+      const sandbox = (await getByTestId<InternalSandbox>(element, name))!.renderRoot;
+
+      expect(slot).to.not.exist;
+      expect(sandbox).to.contain.html(value);
+    });
+
+    it('renders foxy-i18n label with key "label" when visible', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form lang="es" .data=${data}> </foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'customer'))!;
+      const label = await getByKey(control, 'label');
+
+      expect(label).to.exist;
+      expect(label).to.have.attribute('infer', 'customer');
+    });
+
+    it('renders plain customer card when .getCustomerPageHref is not set', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form .data=${data}></foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'customer'))!;
+      const card = (await getByTag(control, 'foxy-customer-card'))!;
+      const link = card.closest('a');
+
+      expect(card).to.exist;
+      expect(card).to.have.attribute('infer', 'customer');
+      expect(card).to.have.attribute('href', data._links['fx:customer'].href);
+
+      expect(link).to.exist;
+      expect(link).to.not.have.attribute('href');
+    });
+
+    it('renders clickable customer card when .getCustomerPageHref is set', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form
+          .getCustomerPageHref=${(href: string) => `https://example.com?from=${href}`}
+          .data=${data}
+        >
+        </foxy-subscription-form>
+      `);
+
+      const control = (await getByTestId(element, 'customer'))!;
+      const card = (await getByTag(control, 'foxy-customer-card'))!;
+      const link = card.closest('a');
+
+      expect(card).to.exist;
+      expect(card).to.have.attribute('infer', 'customer');
+      expect(card).to.have.attribute('href', data._links['fx:customer'].href);
+
+      expect(link).to.exist;
+      expect(link).to.have.attribute(
+        'href',
+        `https://example.com?from=${data._links['fx:customer'].href}`
+      );
     });
   });
 

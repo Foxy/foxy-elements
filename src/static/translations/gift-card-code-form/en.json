@@ -12,6 +12,7 @@
   "end_date": "End date",
   "v8n_required": "Required",
   "v8n_too_long": "Too long",
+  "v8n_code_has_spaces": "Spaces are not allowed in gift card codes",
   "cart-item": {
     "title": "Cart item",
     "item-card": {

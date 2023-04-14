@@ -2,8 +2,8 @@ import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { html } from 'lit-html';
 import { stub } from 'sinon';
 import { createRouter } from '../../../server/index';
+import { getByKey } from '../../../testgen/getByKey';
 import { InternalAsyncDetailsControl } from '../../internal/InternalAsyncDetailsControl';
-import { AddressCard } from '../AddressCard';
 import { FormDialog } from '../FormDialog';
 import { FormRenderer } from '../FormDialog/types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
@@ -18,10 +18,6 @@ describe('ShipmentCard', () => {
     expect(customElements.get('foxy-internal-card')).to.exist;
   });
 
-  it('imports and defines foxy-address-card', () => {
-    expect(customElements.get('foxy-address-card')).to.exist;
-  });
-
   it('imports and defines foxy-item-card', () => {
     expect(customElements.get('foxy-item-card')).to.exist;
   });
@@ -34,11 +30,15 @@ describe('ShipmentCard', () => {
     expect(customElements.get('foxy-i18n')).to.exist;
   });
 
+  it('imports and defines iron-icon', () => {
+    expect(customElements.get('iron-icon')).to.exist;
+  });
+
   it('imports and defines itself as foxy-shipment-card', () => {
     expect(customElements.get('foxy-shipment-card')).to.equal(ShipmentCard);
   });
 
-  it('renders shipping address in a foxy-address-card', async () => {
+  it('renders shipping address', async () => {
     const router = createRouter();
     const element = await fixture<ShipmentCard>(html`
       <foxy-shipment-card
@@ -49,12 +49,19 @@ describe('ShipmentCard', () => {
     `);
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
-    const addressCard = element.renderRoot.querySelector('foxy-address-card') as AddressCard;
+    const address = await getByKey(element, 'full_address');
+    const { address_name, address1, address2, city, region, postal_code } = element.data!;
 
-    expect(addressCard).to.exist;
-    expect(addressCard).to.have.property('infer', 'address');
-    expect(addressCard).to.have.property('href', element.data!._links['fx:customer_address'].href);
-    expect(addressCard.hiddenSelector.toString()).to.equal('not=full-address');
+    expect(address).to.exist;
+    expect(address).to.have.attribute('infer', 'address');
+    expect(address).to.have.deep.property('options', {
+      address_name,
+      address1,
+      address2,
+      city,
+      region,
+      postal_code,
+    });
   });
 
   it('renders shipping service description', async () => {
@@ -95,7 +102,7 @@ describe('ShipmentCard', () => {
     const price = element.renderRoot.querySelector('foxy-i18n[key="price"]');
 
     expect(price).to.exist;
-    expect(price).to.have.property('infer', '');
+    expect(price).to.have.property('infer', 'address');
     expect(price).to.have.deep.property('options', {
       amount: '123 USD',
       currencyDisplay: 'code',

@@ -148,7 +148,7 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
       </foxy-nucleon>
 
       <foxy-i18n
-        class="block text-xxl font-bold border-b border-contrast-10 pb-m"
+        class="block text-xxl font-medium border-b border-contrast-10 pb-m"
         infer=""
         key="select_protection_title"
       >
@@ -173,7 +173,7 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
                       }}
                     />
 
-                    <figcaption class="min-w-0 flex-1 truncate leading-s font-semibold">
+                    <figcaption class="min-w-0 flex-1 truncate leading-s font-medium">
                       ${helper.name}&ZeroWidthSpace;
                     </figcaption>
                   </figure>
@@ -198,7 +198,7 @@ export class PaymentsApiFraudProtectionForm extends Base<Data> {
           @error=${(evt: Event) => ((evt.currentTarget as HTMLImageElement).src = defaultSrc)}
         />
 
-        <figcaption class="relative min-w-0 font-bold text-xl text-center">
+        <figcaption class="relative min-w-0 font-medium text-xl text-center">
           ${this.form.helper?.name ?? this.form.type}&ZeroWidthSpace;
         </figcaption>
       </figure>

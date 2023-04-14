@@ -31,7 +31,7 @@ export class TwoLineCard<TData extends HALJSONResource> extends Base<TData> {
       <div data-testid="title">
         ${this.renderTemplateOrSlot('title:before')}
 
-        <div class="font-semibold truncate">
+        <div class="font-medium truncate">
           ${this.data ? content?.(this.data) : ''}&ZeroWidthSpace;
         </div>
 

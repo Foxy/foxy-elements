@@ -30,6 +30,15 @@ describe('GiftCardCodeForm', () => {
     expect(new GiftCardCodeForm()).to.have.property('ns', 'gift-card-code-form');
   });
 
+  it('produces the code_has_spaces error if entered code includes spaces', () => {
+    const form = new GiftCardCodeForm();
+    expect(form.errors).to.not.include('code_has_spaces');
+    form.edit({ code: 'ab c' });
+    expect(form.errors).to.include('code_has_spaces');
+    form.edit({ code: 'abc' });
+    expect(form.errors).to.not.include('code_has_spaces');
+  });
+
   describe('code', () => {
     it('has i18n label key "code"', async () => {
       const layout = html`<foxy-gift-card-code-form></foxy-gift-card-code-form>`;

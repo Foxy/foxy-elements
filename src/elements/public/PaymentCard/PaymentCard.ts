@@ -134,7 +134,7 @@ export class PaymentCard extends Base<Data> {
     const ns = this.ns;
 
     return html`
-      <div class="flex font-semibold text-m" data-testid="subtitle">
+      <div class="flex font-medium text-m" data-testid="subtitle">
         ${this.renderTemplateOrSlot('subtitle:before')}
 
         <foxy-i18n options=${amountOptions} lang=${lang} key="price" ns=${ns}></foxy-i18n>
@@ -161,7 +161,7 @@ export class PaymentCard extends Base<Data> {
 
         <div class="truncate flex items-center h-s rounded overflow-hidden bg-contrast-5">
           <div class="h-s">${logos[type] ?? logos.unknown}</div>
-          <div class="text-m font-semibold px-s">•••• ${last4Digits} ${month}/${year}</div>
+          <div class="text-m font-medium px-s">•••• ${last4Digits} ${month}/${year}</div>
         </div>
 
         ${this.renderTemplateOrSlot('card-info:after')}
@@ -180,7 +180,7 @@ export class PaymentCard extends Base<Data> {
 
         <foxy-i18n
           options=${JSON.stringify({ score })}
-          class="truncate flex font-semibold h-s items-center px-s rounded text-m ${color} ${background}"
+          class="truncate flex font-medium h-s items-center px-s rounded text-m ${color} ${background}"
           lang=${this.lang}
           key="fraud_risk"
           ns=${this.ns}

@@ -50,6 +50,7 @@ export abstract class Dialog extends Base {
       closable: { type: Boolean },
       editable: { type: Boolean },
       header: { type: String },
+      group: {},
       alert: { type: Boolean },
       wide: { type: Boolean },
       open: { type: Boolean, noAccessor: true },
@@ -81,6 +82,9 @@ export abstract class Dialog extends Base {
 
   /** Header text or a i18next key for it. */
   header = '';
+
+  /** NucleonElement's Rumour sync group. */
+  group = '';
 
   /** When true, centers a dialog on the screen and does not animate the stack under. */
   alert = false;
@@ -169,11 +173,13 @@ export abstract class Dialog extends Base {
         ></div>
 
         <div
+          tabindex="0"
           role="dialog"
           aria-labelledby="dialog-title"
           class=${classMap({
-            'transform origin-bottom ease-in-out transition duration-500 relative h-full ml-auto sm-origin-center':
-              true,
+            'transform ease-in-out transition duration-500 relative h-full ml-auto': true,
+            'origin-bottom sm-origin-center': true,
+            'focus-outline-none': true,
             'sm-max-w-modal': !this.wide,
             'sm-max-w-modal-wide': this.wide,
             'flex justify-center items-end sm-items-center mr-auto': this.alert,
@@ -245,6 +251,27 @@ export abstract class Dialog extends Base {
     `;
   }
 
+  updated(changes: Map<keyof this, unknown>): void {
+    super.updated(changes);
+
+    const dialogWindow = Dialog.dialogWindows.get(this);
+
+    if (dialogWindow) {
+      dialogWindow.disabledControls = this.disabledControls;
+      dialogWindow.disabled = this.disabled;
+
+      dialogWindow.readonlyControls = this.readonlyControls;
+      dialogWindow.readonly = this.readonly;
+
+      dialogWindow.hiddenControls = this.hiddenControls;
+      dialogWindow.hidden = this.hidden;
+
+      dialogWindow.group = this.group;
+      dialogWindow.lang = this.lang;
+      dialogWindow.ns = this.ns;
+    }
+  }
+
   /**
    * Hides the dialog. Returns a promise that resolves when the dialog
    * finishes leaving the screen.
@@ -272,9 +299,7 @@ export abstract class Dialog extends Base {
     await this.__setConnected(true);
     await this.__setOpenDialogs([this, ...Dialog.openDialogs]);
 
-    const closeButton = this.renderRoot.querySelector('#close-button') as HTMLButtonElement;
-    closeButton?.focus();
-
+    this.renderRoot.querySelector<HTMLDivElement>('[role="dialog"]')?.focus();
     this.dispatchEvent(new Dialog.ShowEvent());
   }
 

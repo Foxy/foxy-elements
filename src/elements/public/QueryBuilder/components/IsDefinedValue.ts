@@ -5,12 +5,16 @@ import { TemplateResult } from 'lit-html';
 
 export type IsDefinedValueParams = {
   parsedValue: ParsedValue;
+  readonly: boolean;
+  disabled: boolean;
   t: I18n['t'];
   onChange: (newValue: ParsedValue) => void;
 };
 
 export function IsDefinedValue(params: IsDefinedValueParams): TemplateResult {
   return Select({
+    readonly: params.readonly,
+    disabled: params.disabled,
     value: params.parsedValue.value,
     label: 'value',
     list: [

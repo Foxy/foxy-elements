@@ -142,7 +142,7 @@ export class DiscountBuilder extends Base {
     return html`
       <label
         class=${classMap({
-          'h-xs whitespace-nowrap block ring-primary-50 rounded pl-s transition-colors': true,
+          'h-xs whitespace-nowrap block ring-primary-50 rounded-s pl-s transition-colors': true,
           'hover-bg-primary hover-text-primary-contrast focus-within-ring-2': isInteractive,
           'bg-primary-10 text-primary': isInteractive,
           'bg-contrast-5 text-disabled': this.disabled,
@@ -157,7 +157,7 @@ export class DiscountBuilder extends Base {
 
           <select
             data-testclass="interactive editable"
-            class="opacity-0 absolute inset-0 focus-outline-none"
+            class="opacity-0 absolute inset-0 w-full focus-outline-none"
             ?disabled=${!isInteractive}
             @change=${(evt: Event) => {
               const select = evt.currentTarget as HTMLSelectElement;
@@ -240,14 +240,17 @@ export class DiscountBuilder extends Base {
 
   private __renderField({ value, label, onChange }: RulesTierFieldParams) {
     const isInteractive = !this.disabled && !this.readonly;
+    const length = value.toString().length;
+    const factor = length <= 2 ? 1 : 2.5;
 
     return html`
       <label>
         <foxy-i18n class="sr-only" infer="" key=${label}></foxy-i18n>
         <input
           data-testclass="interactive editable"
+          style="width: calc(var(--lumo-size-xl) * ${factor})"
           class=${classMap({
-            'transition-colors border p-xs h-xs font-medium text-m rounded-s w-xl': true,
+            'transition-colors border p-xs h-xs font-medium text-m rounded-s': true,
             'ring-primary-50 text-body bg-contrast-10': isInteractive,
             'hover-bg-contrast-20': isInteractive,
             'focus-outline-none focus-ring-2': isInteractive,
@@ -257,12 +260,13 @@ export class DiscountBuilder extends Base {
             'border-dashed border-contrast-30': this.readonly,
           })}
           type="number"
+          lang=${this.lang}
           min="0"
           ?disabled=${!isInteractive}
           .value=${value}
           @input=${(evt: InputEvent) => {
             const input = evt.currentTarget as HTMLInputElement;
-            onChange(input.value);
+            onChange(input.value || '0');
           }}
         />
       </label>
@@ -291,7 +295,7 @@ export class DiscountBuilder extends Base {
             'text-disabled': this.disabled,
           })}
         >
-          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_if"></foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-medium" infer="" key="tier_if"></foxy-i18n>
 
           ${this.__renderSwitch({
             options: ['total', 'quantity'],
@@ -307,7 +311,7 @@ export class DiscountBuilder extends Base {
             onChange: v => params.onChange({ tier: `${v}${sign}${adjustment}` }),
           })}
 
-          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_then"></foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-medium" infer="" key="tier_then"></foxy-i18n>
 
           ${this.__renderSwitch({
             options: ['reduce', 'increase'],
@@ -329,7 +333,7 @@ export class DiscountBuilder extends Base {
             onChange: v => params.onChange({ method: v }),
           })}
 
-          <foxy-i18n class="uppercase text-s font-semibold" infer="" key="tier_by"></foxy-i18n>
+          <foxy-i18n class="uppercase text-s font-medium" infer="" key="tier_by"></foxy-i18n>
 
           ${this.__renderField({
             label: 'adjustment',

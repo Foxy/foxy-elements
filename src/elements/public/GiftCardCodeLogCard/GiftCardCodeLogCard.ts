@@ -64,7 +64,7 @@ export class GiftCardCodeLogCard extends Base<Data> {
 
       <div class="leading-s">
         <div class="flex justify-between items-center">
-          <span class="text-body font-semibold truncate">
+          <span class="text-body font-medium truncate">
             <foxy-i18n infer="" key=${titleKey}></foxy-i18n>
           </span>
           <span class="text-s text-tertiary flex-shrink-0">

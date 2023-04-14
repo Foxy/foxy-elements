@@ -17,7 +17,7 @@ export class ReportsTable extends TranslatableMixin(Table, 'reports-table')<Data
 
     cell: ({ html, data, lang, ns }) => {
       const key = `report_name_${data.name}`;
-      return html`<foxy-i18n class="font-semibold" lang=${lang} key=${key} ns=${ns}></foxy-i18n>`;
+      return html`<foxy-i18n class="font-medium" lang=${lang} key=${key} ns=${ns}></foxy-i18n>`;
     },
   };
 

@@ -8,6 +8,8 @@ import { classMap } from '../../../../utils/class-map';
 
 export type OperatorToggleParams = {
   parsedValue: ParsedValue;
+  readonly: boolean;
+  disabled: boolean;
   option: Option | null;
   t: I18n['t'];
   onChange: (newValue: ParsedValue) => void;
@@ -48,7 +50,8 @@ export function OperatorToggle(params: OperatorToggleParams): TemplateResult {
     ? Object.values(Operator)
     : Object.values(Operator).filter(v => v !== Operator.IsDefined);
 
-  const isDisabled = operatorsForType.length === 0 || !params.parsedValue.path;
+  const isDisabled =
+    params.disabled || params.readonly || operatorsForType.length === 0 || !params.parsedValue.path;
 
   return html`
     <button
@@ -56,7 +59,7 @@ export function OperatorToggle(params: OperatorToggleParams): TemplateResult {
       class=${classMap({
         'flex items-center justify-center w-m h-m transition-colors': true,
         'focus-outline-none focus-ring-2 focus-ring-inset focus-ring-primary-50': true,
-        'text-tertiary cursor-default': isDisabled,
+        'text-disabled cursor-default': isDisabled,
         'hover-bg-contrast-5': !isDisabled,
       })}
       ?disabled=${isDisabled}

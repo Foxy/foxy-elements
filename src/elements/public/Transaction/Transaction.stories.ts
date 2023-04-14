@@ -5,8 +5,8 @@ import { getMeta } from '../../../storygen/getMeta';
 import { getStory } from '../../../storygen/getStory';
 
 const summary: Summary = {
-  href: 'https://demo.api/hapi/transactions/0',
-  parent: 'https://demo.api/hapi/transactions',
+  href: 'https://demo.api/hapi/transactions/0?zoom=discounts',
+  parent: 'https://demo.api/hapi/transactions?zoom=discounts',
   nucleon: true,
   localName: 'foxy-transaction',
   translatable: true,

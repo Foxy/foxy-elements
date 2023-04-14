@@ -69,7 +69,7 @@ export class CouponCard extends Base<Data> {
         ${this.renderTemplateOrSlot('title:before')}
 
         <div class="flex items-center justify-between">
-          <div class="font-semibold truncate">${this.data?.name ?? html`&ZeroWidthSpace;`}</div>
+          <div class="font-medium truncate">${this.data?.name ?? html`&ZeroWidthSpace;`}</div>
 
           <foxy-i18n
             options=${JSON.stringify({ count, total })}

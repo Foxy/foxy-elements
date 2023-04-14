@@ -10,10 +10,19 @@ import { getByKey } from '../../../testgen/getByKey';
 import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 
 describe('InternalCustomerPortalTransactions', () => {
   it('extends LitElement', () => {
     expect(new InternalCustomerPortalTransactions()).to.be.instanceOf(LitElement);
+  });
+
+  it('has a reactive property "columns"', () => {
+    const definition = { attribute: false };
+    const View = InternalCustomerPortalTransactions;
+
+    expect(View).to.have.deep.nested.property('properties.columns', definition);
+    expect(new View()).to.have.deep.property('columns', []);
   });
 
   it('registers as foxy-internal-customer-portal-transactions', () => {
@@ -108,10 +117,12 @@ describe('InternalCustomerPortalTransactions', () => {
 
     it('renders custom foxy-collection-pages displaying transactions', async () => {
       const customer = await getTestData('./hapi/customers/0');
+      const columns = [TransactionsTable.idColumn];
       const view = await fixture<InternalCustomerPortalTransactions>(html`
         <foxy-internal-customer-portal-transactions
           group="test"
           lang="es"
+          .columns=${columns}
           .customer=${customer}
           .templates=${{ 'table:default': () => '' }}
         >
@@ -131,6 +142,8 @@ describe('InternalCustomerPortalTransactions', () => {
       expect(pages).to.have.attribute('page', 'foxy-transactions-table');
 
       expect(pages).to.have.property('templates');
+      expect(pages).to.have.property('props');
+      expect(pages.props).to.have.property('.columns', columns);
       expect(pages.templates).to.have.key('default');
     });
 

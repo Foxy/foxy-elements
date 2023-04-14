@@ -10,6 +10,7 @@
   "delete_prompt": "This resource will be permanently removed. Are you sure?",
   "v8n_required": "Required",
   "v8n_too_long": "Too long",
+  "v8n_code_has_spaces": "Spaces are not allowed in coupon codes",
   "spinner": {
     "loading_busy": "Loading",
     "loading_error": "Failed to load"

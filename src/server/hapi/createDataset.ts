@@ -1,6 +1,23 @@
 import { Dataset } from '../router/types';
 
 export const createDataset: () => Dataset = () => ({
+  downloadables: [
+    {
+      id: 0,
+      store_id: 0,
+      item_category_id: 0,
+      item_category_uri: 'https://demo.api/hapi/item_categories/0',
+      name: '1 Year Workout Plan',
+      code: '1YRWT',
+      price: 25,
+      file_name: '1_year_workout.pdf',
+      file_size: 32 * 1024 * 1024,
+      upload_date: '2023-02-21T12:20:10-0700',
+      date_created: '2023-02-21T12:20:10-0700',
+      date_modified: '2023-02-21T12:20:10-0700',
+    },
+  ],
+
   applied_taxes: [
     {
       id: 0,
@@ -723,6 +740,9 @@ export const createDataset: () => Dataset = () => ({
     number_of_uses_allowed_per_code: 0,
     coupon_discount_type: 'quantity_percentage',
     coupon_discount_details: 'repeat|6-10',
+    customer_auto_apply: false,
+    customer_attribute_restrictions: '',
+    customer_subscription_restrictions: '',
     combinable: true,
     multiple_codes_allowed: true,
     product_code_restrictions: 'abc123,fun_*,*_small,-foobar,-*_example,-test_code',
