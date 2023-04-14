@@ -6,6 +6,7 @@ import { Resource } from '@foxy.io/sdk/core';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InferrableMixin } from '../../../mixins/inferrable';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 
 const NS = 'customer-portal';
 const Base = ConfigurableMixin(ThemeableMixin(TranslatableMixin(InferrableMixin(LitElement), NS)));
@@ -15,11 +16,14 @@ export class InternalCustomerPortalTransactions extends Base {
     return {
       ...super.properties,
       customer: { attribute: false },
+      columns: { attribute: false },
       group: { type: String },
     };
   }
 
   customer: Resource<Graph> | null = null;
+
+  columns: TransactionsTable['columns'] = [];
 
   group = '';
 
@@ -64,6 +68,7 @@ export class InternalCustomerPortalTransactions extends Base {
           ns=${this.ns}
           manual
           .templates=${this.getNestedTemplates('table')}
+          .props=${{ '.columns': this.columns }}
         >
         </foxy-collection-pages>
 

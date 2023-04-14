@@ -16,12 +16,21 @@ import { createRouter } from '../../../server/index';
 import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 
 const router = createRouter();
 
 describe('InternalCustomerPortalLoggedInViewTest', () => {
   it('extends NucleonElement', () => {
     expect(new InternalCustomerPortalLoggedInView()).to.be.instanceOf(NucleonElement);
+  });
+
+  it('has a reactive property "transactionsTableColumns"', () => {
+    const definition = { attribute: false };
+    const View = InternalCustomerPortalLoggedInView;
+
+    expect(View).to.have.deep.nested.property('properties.transactionsTableColumns', definition);
+    expect(new View()).to.have.deep.property('transactionsTableColumns', []);
   });
 
   it('renders configurable foxy-customer by default', async () => {
@@ -397,6 +406,8 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
 
   describe('transactions', () => {
     it('renders foxy-internal-customer-portal-transactions in the default template sandbox of foxy-customer', async () => {
+      const transactionsTableColumns = [TransactionsTable.idColumn];
+
       const view = await fixture<InternalCustomerPortalLoggedInView>(html`
         <foxy-internal-customer-portal-logged-in-view
           readonlycontrols="customer:transactions:foo"
@@ -406,6 +417,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
           group="test"
           lang="es"
           href="https://demo.api/portal/customer_portal_settings"
+          .transactionsTableColumns=${transactionsTableColumns}
           .templates=${{ 'customer:transactions:qux': () => html`Test` }}
           @fetch=${(evt: FetchEvent) => {
             const token = `0-${Date.now() + Math.pow(10, 10)}`;
@@ -436,6 +448,7 @@ describe('InternalCustomerPortalLoggedInViewTest', () => {
       expect(element.templates).to.have.key('qux');
 
       expect(element).to.have.deep.property('customer', customer.data);
+      expect(element).to.have.property('columns', transactionsTableColumns);
     });
 
     it('renders custom customer:transactions:before template in the default template sandbox of foxy-customer if present', async () => {

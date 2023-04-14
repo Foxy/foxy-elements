@@ -11,6 +11,7 @@ import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
 import { Templates } from './types';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
 
 const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement)));
 type Data = Resource<Rels.CustomerPortalSettings>;
@@ -21,6 +22,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       ...super.properties,
       customer: { type: String },
       loggingOutState: { attribute: false },
+      transactionsTableColumns: { attribute: false },
       loggingOutStateResetTimeout: { attribute: false },
     };
   }
@@ -30,6 +32,8 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
   customer = '';
 
   loggingOutState: 'idle' | 'busy' | 'fail' = 'idle';
+
+  transactionsTableColumns: TransactionsTable['columns'] = [];
 
   loggingOutStateResetTimeout: NodeJS.Timeout | null = null;
 
@@ -137,6 +141,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         ns=${host.ns}
         .templates=${this.getNestedTemplates(scope)}
         .customer=${host.data}
+        .columns=${this.transactionsTableColumns}
       >
       </foxy-internal-customer-portal-transactions>
 

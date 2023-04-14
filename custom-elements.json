@@ -7362,6 +7362,10 @@
           "default": "\"idle\""
         },
         {
+          "name": "transactionsTableColumns",
+          "default": "[]"
+        },
+        {
           "name": "loggingOutStateResetTimeout"
         },
         {
@@ -7887,6 +7891,10 @@
           "name": "customer"
         },
         {
+          "name": "columns",
+          "default": "[]"
+        },
+        {
           "name": "group",
           "attribute": "group",
           "type": "string",
@@ -8188,6 +8196,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "transactionsTableColumns",
+          "description": "Same as `.columns` property on `foxy-transactions-table`. Sets columns of that table.",
+          "default": "[\"priceColumn\",\"summaryColumn\",\"statusColumn\",\"idColumn\",\"dateColumn\",\"receiptColumn\"]"
+        },
         {
           "name": "group",
           "attribute": "group",
