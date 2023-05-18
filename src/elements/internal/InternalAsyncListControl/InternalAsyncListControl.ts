@@ -14,6 +14,8 @@ export class InternalAsyncListControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      keepDialogOpenOnDelete: { type: Boolean, attribute: 'keep-dialog-open-on-delete' },
+      keepDialogOpenOnPost: { type: Boolean, attribute: 'keep-dialog-open-on-post' },
       hideDeleteButton: { type: Boolean, attribute: 'hide-delete-button' },
       hideCreateButton: { type: Boolean, attribute: 'hide-create-button' },
       createPageHref: { attribute: 'create-page-href' },
@@ -27,6 +29,12 @@ export class InternalAsyncListControl extends InternalEditableControl {
       alert: { type: Boolean },
     };
   }
+
+  /** If true, FormDialog won't automatically close after the associated form deletes the resource. */
+  keepDialogOpenOnDelete = false;
+
+  /** If true, FormDialog won't automatically close after the associated form creates a resource. */
+  keepDialogOpenOnPost = false;
 
   /** If provided, renders Create button as a link to this page. */
   createPageHref: string | null = null;
@@ -159,6 +167,8 @@ export class InternalAsyncListControl extends InternalEditableControl {
               id="form"
               ?wide=${this.wide}
               ?alert=${this.alert}
+              ?keep-open-on-post=${this.keepDialogOpenOnPost}
+              ?keep-open-on-delete=${this.keepDialogOpenOnDelete}
               .related=${this.related}
               .form=${this.form as any}
             >
