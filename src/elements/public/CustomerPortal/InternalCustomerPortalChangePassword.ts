@@ -114,7 +114,7 @@ export class InternalCustomerPortalChangePassword extends Base {
         readonlycontrols=${readonlyControls.join(' ')}
         hiddencontrols=${hiddenControls.join(' ')}
         parent=${this.session}
-        class="mt-s sm-w-narrow-modal"
+        class="mt-s"
         lang=${ctx.dialog.lang}
         ns=${ctx.dialog.ns}
         @update=${(evt: UpdateEvent) => this.__handleSignInFormUpdate(evt, ctx)}
@@ -145,6 +145,7 @@ export class InternalCustomerPortalChangePassword extends Base {
         ns=${this.ns}
         alert
         id="dialog"
+        keep-open-on-post
         .form=${this.__renderSignInForm}
       >
       </foxy-form-dialog>

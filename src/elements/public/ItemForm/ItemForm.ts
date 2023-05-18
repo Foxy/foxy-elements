@@ -93,6 +93,22 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
       </div>
 
       <foxy-internal-item-form-subscription-control></foxy-internal-item-form-subscription-control>
+
+      ${this.data
+        ? html`
+            <foxy-internal-async-details-control
+              infer="item-options"
+              first=${this.data._links['fx:item_options'].href}
+              limit="5"
+              form="foxy-item-option-form"
+              item="foxy-item-option-card"
+              .related=${this.__itemOptionRelatedUrls}
+              .props=${{ 'locale-codes': this.localeCodes ?? '' }}
+            >
+            </foxy-internal-async-details-control>
+          `
+        : ''}
+
       <foxy-internal-item-form-line-item-discount-control></foxy-internal-item-form-line-item-discount-control>
       <foxy-internal-item-form-cart-control></foxy-internal-item-form-cart-control>
       <foxy-internal-item-form-shipping-control></foxy-internal-item-form-shipping-control>
@@ -122,17 +138,6 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
               limit="5"
               item="foxy-attribute-card"
               form="foxy-attribute-form"
-            >
-            </foxy-internal-async-details-control>
-
-            <foxy-internal-async-details-control
-              infer="item-options"
-              first=${this.data._links['fx:item_options'].href}
-              limit="5"
-              form="foxy-item-option-form"
-              item="foxy-item-option-card"
-              .related=${this.__itemOptionRelatedUrls}
-              .props=${{ 'locale-codes': this.localeCodes ?? '' }}
             >
             </foxy-internal-async-details-control>
           `

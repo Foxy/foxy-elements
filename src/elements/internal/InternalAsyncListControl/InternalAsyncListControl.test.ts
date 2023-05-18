@@ -73,6 +73,22 @@ describe('InternalAsyncListControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
 
+  it('has a reactive property "keepDialogOpenOnDelete"', () => {
+    expect(new Control()).to.have.property('keepDialogOpenOnDelete', false);
+    expect(Control).to.have.deep.nested.property('properties.keepDialogOpenOnDelete', {
+      type: Boolean,
+      attribute: 'keep-dialog-open-on-delete',
+    });
+  });
+
+  it('has a reactive property "keepDialogOpenOnPost"', () => {
+    expect(new Control()).to.have.property('keepDialogOpenOnPost', false);
+    expect(Control).to.have.deep.nested.property('properties.keepDialogOpenOnPost', {
+      type: Boolean,
+      attribute: 'keep-dialog-open-on-post',
+    });
+  });
+
   it('has a reactive property "hideDeleteButton"', () => {
     expect(new Control()).to.have.property('hideDeleteButton', false);
     expect(Control).to.have.deep.nested.property('properties.hideDeleteButton', {
@@ -150,10 +166,14 @@ describe('InternalAsyncListControl', () => {
     expect(form).to.have.attribute('infer', 'dialog');
     expect(form).to.have.property('form', 'foxy-attribute-form');
     expect(form).to.have.deep.property('related', []);
+    expect(form).to.not.have.attribute('keep-open-on-delete');
+    expect(form).to.not.have.attribute('keep-open-on-post');
     expect(form).to.not.have.attribute('parent');
     expect(form).to.not.have.attribute('alert');
     expect(form).to.not.have.attribute('wide');
 
+    control.keepDialogOpenOnDelete = true;
+    control.keepDialogOpenOnPost = true;
     control.related = ['https://demo.api/virtual/error'];
     control.first = 'https://demo.api/virtual/stall';
     control.alert = true;
@@ -162,6 +182,8 @@ describe('InternalAsyncListControl', () => {
     await control.updateComplete;
 
     expect(form).to.have.deep.property('related', ['https://demo.api/virtual/error']);
+    expect(form).to.have.attribute('keep-open-on-delete');
+    expect(form).to.have.attribute('keep-open-on-post');
     expect(form).to.have.attribute('parent', 'https://demo.api/virtual/stall');
     expect(form).to.have.attribute('alert');
     expect(form).to.have.attribute('wide');
