@@ -145,6 +145,7 @@ export class InternalCustomerPortalChangePassword extends Base {
         ns=${this.ns}
         alert
         id="dialog"
+        keep-open-on-post
         .form=${this.__renderSignInForm}
       >
       </foxy-form-dialog>
