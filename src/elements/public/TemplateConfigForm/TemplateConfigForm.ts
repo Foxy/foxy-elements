@@ -1187,49 +1187,6 @@ export class TemplateConfigForm extends Base<Data> {
     `;
   }
 
-  private __renderSegmentIo(json: TemplateConfigJSON) {
-    const config = json.analytics_config;
-    const sioConfig = config.segment_io;
-    const gaConfig = config.google_analytics;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('segment-io', true);
-    const isReadonly = this.readonlySelector.matches('segment-io', true);
-
-    return html`
-      <div data-testid="segment-io">
-        ${this.renderTemplateOrSlot('segment-io:before')}
-
-        <x-group frame>
-          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Segment.io</span>
-
-          <div class="p-m">
-            <vaadin-text-field
-              data-testid="segment-io-field"
-              style="--lumo-border-radius: var(--lumo-border-radius-s)"
-              class="w-full"
-              label=${this.t('sio_account_id')}
-              placeholder="MY-WRITE-KEY"
-              helper-text=${this.t('sio_account_id_explainer')}
-              .value=${live(sioConfig.account_id)}
-              ?disabled=${isDisabled}
-              ?readonly=${isReadonly}
-              clear-button-visible
-              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
-              @input=${(evt: InputEvent) => {
-                sioConfig.account_id = (evt.currentTarget as TextFieldElement).value;
-                sioConfig.usage = sioConfig.account_id ? 'required' : 'none';
-                config.usage = gaConfig.account_id || sioConfig.account_id ? 'required' : 'none';
-                this.edit({ json: JSON.stringify(json) });
-              }}
-            >
-            </vaadin-text-field>
-          </div>
-        </x-group>
-
-        ${this.renderTemplateOrSlot('segment-io:after')}
-      </div>
-    `;
-  }
-
   private __renderTroubleshooting(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.debug;
