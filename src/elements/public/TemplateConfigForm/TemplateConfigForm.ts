@@ -125,6 +125,7 @@ export class TemplateConfigForm extends Base<Data> {
           ${hidden.matches('consent', true) ? '' : this.__renderConsent(json)}
           ${hidden.matches('fields', true) ? '' : this.__renderFields(json)}
           ${hidden.matches('google-analytics', true) ? '' : this.__renderGoogleAnalytics(json)}
+          ${hidden.matches('google-tag', true) ? '' : this.__renderGoogleTag(json)}
           ${hidden.matches('troubleshooting', true) ? '' : this.__renderTroubleshooting(json)}
           ${hidden.matches('custom-config', true) ? '' : this.__renderCustomConfig(json)}
           ${hidden.matches('header', true) ? '' : this.__renderHeader(json)}
@@ -1117,7 +1118,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderGoogleAnalytics(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.analytics_config;
-    const sioConfig = config.segment_io;
+    const gtConfig = config.google_tag;
     const gaConfig = config.google_analytics;
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('google-analytics', true);
     const isReadonly = this.readonlySelector.matches('google-analytics', true);
@@ -1152,7 +1153,7 @@ export class TemplateConfigForm extends Base<Data> {
               @input=${(evt: InputEvent) => {
                 gaConfig.account_id = (evt.currentTarget as TextFieldElement).value;
                 gaConfig.usage = gaConfig.account_id ? 'required' : 'none';
-                config.usage = gaConfig.account_id || sioConfig.account_id ? 'required' : 'none';
+                config.usage = gaConfig.account_id || gtConfig.account_id ? 'required' : 'none';
                 this.edit({ json: JSON.stringify(json) });
               }}
             >
@@ -1183,6 +1184,87 @@ export class TemplateConfigForm extends Base<Data> {
         </x-group>
 
         ${this.renderTemplateOrSlot('google-analytics:after')}
+      </div>
+    `;
+  }
+
+  private __renderGoogleTag(json: TemplateConfigJSON) {
+    const config = json.analytics_config;
+    const gtConfig = config.google_tag;
+    const gaConfig = config.google_analytics;
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('google-tag', true);
+    const isReadonly = this.readonlySelector.matches('google-tag', true);
+
+    return html`
+      <div data-testid="google-tag">
+        ${this.renderTemplateOrSlot('google-tag:before')}
+
+        <x-group frame>
+          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Google Tag</span>
+
+          <div class="p-m space-y-m">
+            <vaadin-text-field
+              data-testid="google-tag-account-id"
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
+              class="w-full"
+              label=${this.t('gt_account_id')}
+              placeholder="G-123456789"
+              helper-text=${this.t('gt_account_id_explainer')}
+              .value=${live(gtConfig.account_id)}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+              clear-button-visible
+              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+              @input=${(evt: InputEvent) => {
+                gtConfig.account_id = (evt.currentTarget as TextFieldElement).value;
+                gtConfig.usage = gtConfig.account_id ? 'required' : 'none';
+                config.usage = gtConfig.account_id || gaConfig.account_id ? 'required' : 'none';
+                this.edit({ json: JSON.stringify(json) });
+              }}
+            >
+            </vaadin-text-field>
+
+            <vaadin-text-field
+              data-testid="google-tag-send-to"
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
+              class="w-full"
+              label=${this.t('gt_send_to')}
+              placeholder="AW-123456789/sABDCLqU3K2BEJb8cxDE"
+              helper-text=${this.t('gt_send_to_explainer')}
+              .value=${live(gtConfig.send_to)}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+              clear-button-visible
+              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+              @input=${(evt: InputEvent) => {
+                gtConfig.send_to = (evt.currentTarget as TextFieldElement).value;
+                gtConfig.usage = gtConfig.account_id ? 'required' : 'none';
+                config.usage = gtConfig.account_id || gaConfig.account_id ? 'required' : 'none';
+                this.edit({ json: JSON.stringify(json) });
+              }}
+            >
+            </vaadin-text-field>
+
+            <p class="text-xs text-secondary">
+              <foxy-i18n infer="" key="gt_usage_notice"></foxy-i18n>
+              <a
+                target="_blank"
+                class="cursor-pointer group text-primary rounded-s font-medium focus-outline-none focus-ring-2 focus-ring-primary-50"
+                href="https://wiki.foxycart.com/v/2.0/analytics#google_tag_ga4_google_ads"
+                rel="nofollow noreferrer noopener"
+              >
+                <foxy-i18n
+                  class="transition-opacity group-hover-opacity-80"
+                  infer=""
+                  key="gt_docs_link"
+                >
+                </foxy-i18n>
+              </a>
+            </p>
+          </div>
+        </x-group>
+
+        ${this.renderTemplateOrSlot('google-tag:after')}
       </div>
     `;
   }
