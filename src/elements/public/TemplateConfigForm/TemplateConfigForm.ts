@@ -56,9 +56,6 @@ const Base = ScopedElementsMixin(
  * @slot google-analytics:before
  * @slot google-analytics:after
  *
- * @slot segment-io:before
- * @slot segment-io:after
- *
  * @slot troubleshooting:before
  * @slot troubleshooting:after
  *
@@ -128,7 +125,6 @@ export class TemplateConfigForm extends Base<Data> {
           ${hidden.matches('consent', true) ? '' : this.__renderConsent(json)}
           ${hidden.matches('fields', true) ? '' : this.__renderFields(json)}
           ${hidden.matches('google-analytics', true) ? '' : this.__renderGoogleAnalytics(json)}
-          ${hidden.matches('segment-io', true) ? '' : this.__renderSegmentIo(json)}
           ${hidden.matches('troubleshooting', true) ? '' : this.__renderTroubleshooting(json)}
           ${hidden.matches('custom-config', true) ? '' : this.__renderCustomConfig(json)}
           ${hidden.matches('header', true) ? '' : this.__renderHeader(json)}
