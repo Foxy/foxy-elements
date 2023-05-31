@@ -79,7 +79,7 @@ const Base = ConfigurableMixin(
 export class TaxForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
-      'vaadin-integer-field': customElements.get('vaadin-integer-field'),
+      'vaadin-number-field': customElements.get('vaadin-number-field'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
       'vaadin-button': customElements.get('vaadin-button'),
@@ -561,14 +561,12 @@ export class TaxForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('rate:before')}
 
-        <vaadin-integer-field
+        <vaadin-number-field
           data-testid="rate"
           class="w-full"
           label=${this.t('tax_rate')}
           value=${ifDefined(this.form.rate)}
           min="0"
-          prevent-invalid-input
-          has-controls
           .checkValidity=${this.__getValidator('rate')}
           .errorMessage=${this.__getErrorMessage('rate')}
           ?disabled=${!this.in('idle') || this.disabledSelector.matches('rate', true)}
@@ -576,11 +574,11 @@ export class TaxForm extends Base<Data> {
           required
           @keydown=${this.__submitOnEnter}
           @change=${(evt: CustomEvent) => {
-            const newRate = parseInt((evt.currentTarget as IntegerFieldElement).value);
-            this.edit({ rate: newRate });
+            const newRate = parseFloat((evt.currentTarget as IntegerFieldElement).value);
+            if (!isNaN(newRate)) this.edit({ rate: newRate });
           }}
         >
-        </vaadin-integer-field>
+        </vaadin-number-field>
 
         ${this.renderTemplateOrSlot('rate:after')}
       </div>

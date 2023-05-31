@@ -305,7 +305,7 @@ describe('TaxForm', () => {
       element.edit({
         name: 'Test Tax',
         type: 'global',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -499,7 +499,7 @@ describe('TaxForm', () => {
         name: 'Test Tax',
         type: 'country',
         country: 'US',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -742,7 +742,7 @@ describe('TaxForm', () => {
         type: 'region',
         country: 'US',
         region: 'AL',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -857,7 +857,7 @@ describe('TaxForm', () => {
         country: 'US',
         region: 'AL',
         city: 'Nullville',
-        rate: 10,
+        rate: 12.34,
       });
 
       const control = await getByTestId<TextFieldElement>(element, 'city');
@@ -967,7 +967,7 @@ describe('TaxForm', () => {
         country: 'US',
         region: 'AL',
         city: 'Nullville',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -1159,7 +1159,7 @@ describe('TaxForm', () => {
         name: 'Test Tax',
         type: 'union',
         service_provider: 'avalara',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -1249,10 +1249,10 @@ describe('TaxForm', () => {
       const layout = html`<foxy-tax-form></foxy-tax-form>`;
       const element = await fixture<TaxForm>(layout);
 
-      element.edit({ rate: 10 });
+      element.edit({ rate: 12.34 });
 
       const control = await getByTestId<TextFieldElement>(element, 'rate');
-      expect(control).to.have.property('value', '10');
+      expect(control).to.have.property('value', '12.34');
     });
 
     it('writes to form.rate on change', async () => {
@@ -1260,10 +1260,10 @@ describe('TaxForm', () => {
       const element = await fixture<TaxForm>(layout);
       const control = await getByTestId<TextFieldElement>(element, 'rate');
 
-      control!.value = '10';
+      control!.value = '12.34';
       control!.dispatchEvent(new CustomEvent('change'));
 
-      expect(element).to.have.nested.property('form.rate', 10);
+      expect(element).to.have.nested.property('form.rate', 12.34);
     });
 
     it('submits valid form on enter', async () => {
@@ -1274,7 +1274,7 @@ describe('TaxForm', () => {
       element.edit({
         name: 'Test Tax',
         type: 'global',
-        rate: 10,
+        rate: 12.34,
       });
 
       const control = await getByTestId<TextFieldElement>(element, 'rate');
@@ -1359,7 +1359,7 @@ describe('TaxForm', () => {
       element.edit({
         name: 'Test Tax',
         type: 'global',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -1519,7 +1519,7 @@ describe('TaxForm', () => {
       element.edit({
         name: 'Test Tax',
         type: 'global',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -1697,7 +1697,7 @@ describe('TaxForm', () => {
         service_provider: '',
         name: 'Test Tax',
         type: 'union',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -1868,7 +1868,7 @@ describe('TaxForm', () => {
         service_provider: '',
         name: 'Test Tax',
         type: 'global',
-        rate: 10,
+        rate: 12.34,
       });
 
       element.submit();
@@ -2050,7 +2050,7 @@ describe('TaxForm', () => {
     it('submits valid form on click', async () => {
       const element = await fixture<TaxForm>(html`<foxy-tax-form></foxy-tax-form>`);
       const submit = stub(element, 'submit');
-      element.edit({ name: 'Foo', type: 'global', rate: 10 });
+      element.edit({ name: 'Foo', type: 'global', rate: 12.34 });
 
       const control = await getByTestId<ButtonElement>(element, 'create');
       control!.dispatchEvent(new CustomEvent('click'));
