@@ -125,6 +125,10 @@
       "type": "string",
       "default": "Enable Google Analytics on any page where the loader.js file is included."
     },
+    "ga_deprecation_notice": {
+      "type": "string",
+      "default": "Google is dropping support for this integration in July 2023. Please use the newer Google Tag integration below."
+    },
     "hidden": { "type": "string", "default": "Hidden" },
     "hidden_fields": { "type": "string", "default": "Hidden fields" },
     "last_name": { "type": "string", "default": "Last name" },
@@ -254,6 +258,7 @@
     "ga_account_id_explainer",
     "ga_include_on_site",
     "ga_include_on_site_explainer",
+    "ga_deprecation_notice",
     "hidden",
     "hidden_fields",
     "last_name",

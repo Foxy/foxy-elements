@@ -1129,6 +1129,13 @@ export class TemplateConfigForm extends Base<Data> {
         <x-group frame>
           <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Google Analytics</span>
 
+          <foxy-i18n
+            class="block bg-error-10 text-error font-medium rounded-t p-m"
+            infer=""
+            key="ga_deprecation_notice"
+          >
+          </foxy-i18n>
+
           <div class="p-m space-y-m">
             <vaadin-text-field
               data-testid="google-analytics-field"

@@ -3276,6 +3276,16 @@ describe('TemplateConfigForm', () => {
       expect(explainer).to.have.attribute('lang', 'es');
       expect(explainer).to.have.attribute('ns', 'foo');
     });
+
+    it('renders translatable deprecation notice', async () => {
+      const layout = html`<foxy-template-config-form></foxy-template-config-form>`;
+      const element = await fixture<TemplateConfigForm>(layout);
+      const control = (await getByTestId(element, 'google-analytics')) as HTMLElement;
+      const notice = control.querySelector(`foxy-i18n[key="ga_deprecation_notice"]`);
+
+      expect(notice).to.exist;
+      expect(notice).to.have.attribute('infer', '');
+    });
   });
 
   describe('troubleshooting', () => {

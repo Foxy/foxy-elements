@@ -65,6 +65,7 @@
   "ga_account_id_explainer": "You can find the ID in the Admin section of your Analytics in Tracking info > Tracking code.",
   "ga_include_on_site": "Include via loader.js",
   "ga_include_on_site_explainer": "Enable Google Analytics on any page where the loader.js file is included.",
+  "ga_deprecation_notice": "Google is dropping support for this integration in July 2023. Please use the newer Google Tag integration below.",
   "hidden": "Hidden",
   "hidden_fields": "Hidden fields",
   "last_name": "Last name",
