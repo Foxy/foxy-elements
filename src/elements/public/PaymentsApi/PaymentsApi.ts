@@ -20,38 +20,97 @@ import { API } from '../NucleonElement/API';
 export class PaymentsApi extends LitElement {
   static get properties(): PropertyDeclarations {
     return {
+      paymentMethodSetHostedPaymentGatewayBaseUrl: {
+        attribute: 'payment-method-set-hosted-payment-gateway-base-url',
+      },
+
       paymentMethodSetHostedPaymentGatewaysUrl: {
         attribute: 'payment-method-set-hosted-payment-gateways-url',
       },
 
       hostedPaymentGatewaysHelperUrl: { attribute: 'hosted-payment-gateways-helper-url' },
+      hostedPaymentGatewayBaseUrl: { attribute: 'hosted-payment-gateway-base-url' },
       hostedPaymentGatewaysUrl: { attribute: 'hosted-payment-gateways-url' },
       paymentGatewaysHelperUrl: { attribute: 'payment-gateways-helper-url' },
+      paymentMethodSetBaseUrl: { attribute: 'payment-method-set-base-url' },
       paymentMethodSetsUrl: { attribute: 'payment-method-sets-url' },
+      fraudProtectionBaseUrl: { attribute: 'fraud-protection-base-url' },
       fraudProtectionsUrl: { attribute: 'fraud-protections-url' },
+      paymentGatewayBaseUrl: { attribute: 'payment-gateway-base-url' },
       paymentGatewaysUrl: { attribute: 'payment-gateways-url' },
     };
   }
 
-  /** URL of the `fx:payment_method_set_hosted_payment_gateways` collection. */
+  /**
+   * Base URL of the `fx:payment_method_set_hosted_payment_gateway` resource (without ID).
+   * @example https://api.foxy.io/payment_method_set_hosted_payment_gateways/
+   */
+  paymentMethodSetHostedPaymentGatewayBaseUrl: string | null = null;
+
+  /**
+   * URL of the `fx:payment_method_set_hosted_payment_gateways` collection.
+   * @example https://api.foxy.io/stores/0/payment_method_set_hosted_payment_gateways
+   */
   paymentMethodSetHostedPaymentGatewaysUrl: string | null = null;
 
-  /** URL of the `fx:hosted_payment_gateways` property helper. */
+  /**
+   * URL of the `fx:hosted_payment_gateways` property helper.
+   * @example https://api.foxy.io/property_helpers/hosted_payment_gateways
+   */
   hostedPaymentGatewaysHelperUrl: string | null = null;
 
-  /** URL of the `fx:hosted_payment_gateways` collection. */
+  /**
+   * Base URL of the `fx:hosted_payment_gateway` resource (without ID).
+   * @example https://api.foxy.io/hosted_payment_gateways/
+   */
+  hostedPaymentGatewayBaseUrl: string | null = null;
+
+  /**
+   * URL of the `fx:hosted_payment_gateways` collection.
+   * @example https://api.foxy.io/stores/0/hosted_payment_gateways
+   */
   hostedPaymentGatewaysUrl: string | null = null;
 
-  /** URL of the `fx:payment_gateways` property helper. */
+  /**
+   * URL of the `fx:payment_gateways` property helper.
+   * @example https://api.foxy.io/property_helpers/payment_gateways
+   */
   paymentGatewaysHelperUrl: string | null = null;
 
-  /** URL of the `fx:payment_method_sets` collection. */
+  /**
+   * Base URL of the `fx:payment_method_set` resource (without ID).
+   * @example https://api.foxy.io/payment_method_sets/
+   */
+  paymentMethodSetBaseUrl: string | null = null;
+
+  /**
+   * URL of the `fx:payment_method_sets` collection.
+   * @example https://api.foxy.io/stores/0/payment_method_sets
+   */
   paymentMethodSetsUrl: string | null = null;
 
-  /** URL of the `fx:fraud_protections` collection. */
+  /**
+   * Base URL of the `fx:fraud_protection` resource (without ID).
+   * @example https://api.foxy.io/fraud_protections/
+   */
+  fraudProtectionBaseUrl: string | null = null;
+
+  /**
+   * URL of the `fx:fraud_protections` collection.
+   * @example https://api.foxy.io/stores/0/fraud_protections
+   */
   fraudProtectionsUrl: string | null = null;
 
-  /** URL of the `fx:payment_gateways` collection. */
+  /**
+   * Base URL of the `fx:payment_gateway` resource (without ID).
+   * @example https://api.foxy.io/payment_gateways/
+   */
+  paymentGatewayBaseUrl: string | null = null;
+
+  /**
+   * URL of the `fx:payment_gateways` collection.
+   * @example https://api.foxy.io/stores/0/payment_gateways
+   */
   paymentGatewaysUrl: string | null = null;
 
   private readonly __api = new API(this);
@@ -65,21 +124,31 @@ export class PaymentsApi extends LitElement {
 
     const {
       paymentMethodSetHostedPaymentGatewaysUrl,
+      paymentMethodSetHostedPaymentGatewayBaseUrl = paymentMethodSetHostedPaymentGatewaysUrl,
       hostedPaymentGatewaysHelperUrl,
       paymentGatewaysHelperUrl,
       hostedPaymentGatewaysUrl,
+      hostedPaymentGatewayBaseUrl = hostedPaymentGatewaysUrl,
       paymentMethodSetsUrl,
+      paymentMethodSetBaseUrl = paymentMethodSetsUrl,
       fraudProtectionsUrl,
+      fraudProtectionBaseUrl = fraudProtectionsUrl,
       paymentGatewaysUrl,
+      paymentGatewayBaseUrl = paymentGatewaysUrl,
     } = this;
 
     if (paymentMethodSetHostedPaymentGatewaysUrl === null) return;
+    if (paymentMethodSetHostedPaymentGatewayBaseUrl === null) return;
     if (hostedPaymentGatewaysHelperUrl === null) return;
     if (paymentGatewaysHelperUrl === null) return;
     if (hostedPaymentGatewaysUrl === null) return;
+    if (hostedPaymentGatewayBaseUrl === null) return;
     if (paymentMethodSetsUrl === null) return;
+    if (paymentMethodSetBaseUrl === null) return;
     if (fraudProtectionsUrl === null) return;
+    if (fraudProtectionBaseUrl === null) return;
     if (paymentGatewaysUrl === null) return;
+    if (paymentGatewayBaseUrl === null) return;
 
     const createGetter = (link: string) => (id: string) => {
       const url = new URL(link);
@@ -100,10 +169,10 @@ export class PaymentsApi extends LitElement {
         paymentMethodSetHostedPaymentGatewaysUrl
       ),
 
-      getHostedPaymentGatewayUrl: createGetter(hostedPaymentGatewaysUrl),
-      getPaymentMethodSetUrl: createGetter(paymentMethodSetsUrl),
-      getFraudProtectionUrl: createGetter(fraudProtectionsUrl),
-      getPaymentGatewayUrl: createGetter(paymentGatewaysUrl),
+      getHostedPaymentGatewayUrl: createGetter(hostedPaymentGatewayBaseUrl),
+      getPaymentMethodSetUrl: createGetter(paymentMethodSetBaseUrl),
+      getFraudProtectionUrl: createGetter(fraudProtectionBaseUrl),
+      getPaymentGatewayUrl: createGetter(paymentGatewayBaseUrl),
 
       request: evt.request,
       fetch: this.__fetch,
