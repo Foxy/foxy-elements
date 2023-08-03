@@ -16625,12 +16625,20 @@
       "description": "Adapter element for Payments API. This element requires an additional hAPI adapter\nthat will handle authentication and session management.\n\n_Payments API is a client-side virtual API layer built on top of hAPI\nin an attempt to streamline access to stores' payment method settings\nthat is currently a bit quirky due to the legacy functionality. To use\nPayments API elements with hAPI, wrap them into this node._",
       "attributes": [
         {
+          "name": "payment-method-set-hosted-payment-gateway-base-url",
+          "description": "Base URL of the `fx:payment_method_set_hosted_payment_gateway` resource (without ID)."
+        },
+        {
           "name": "payment-method-set-hosted-payment-gateways-url",
           "description": "URL of the `fx:payment_method_set_hosted_payment_gateways` collection."
         },
         {
           "name": "hosted-payment-gateways-helper-url",
           "description": "URL of the `fx:hosted_payment_gateways` property helper."
+        },
+        {
+          "name": "hosted-payment-gateway-base-url",
+          "description": "Base URL of the `fx:hosted_payment_gateway` resource (without ID)."
         },
         {
           "name": "hosted-payment-gateways-url",
@@ -16641,12 +16649,24 @@
           "description": "URL of the `fx:payment_gateways` property helper."
         },
         {
+          "name": "payment-method-set-base-url",
+          "description": "Base URL of the `fx:payment_method_set` resource (without ID)."
+        },
+        {
           "name": "payment-method-sets-url",
           "description": "URL of the `fx:payment_method_sets` collection."
         },
         {
+          "name": "fraud-protection-base-url",
+          "description": "Base URL of the `fx:fraud_protection` resource (without ID)."
+        },
+        {
           "name": "fraud-protections-url",
           "description": "URL of the `fx:fraud_protections` collection."
+        },
+        {
+          "name": "payment-gateway-base-url",
+          "description": "Base URL of the `fx:payment_gateway` resource (without ID)."
         },
         {
           "name": "payment-gateways-url",
@@ -16654,6 +16674,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "paymentMethodSetHostedPaymentGatewayBaseUrl",
+          "attribute": "payment-method-set-hosted-payment-gateway-base-url",
+          "description": "Base URL of the `fx:payment_method_set_hosted_payment_gateway` resource (without ID)."
+        },
         {
           "name": "paymentMethodSetHostedPaymentGatewaysUrl",
           "attribute": "payment-method-set-hosted-payment-gateways-url",
@@ -16663,6 +16688,11 @@
           "name": "hostedPaymentGatewaysHelperUrl",
           "attribute": "hosted-payment-gateways-helper-url",
           "description": "URL of the `fx:hosted_payment_gateways` property helper."
+        },
+        {
+          "name": "hostedPaymentGatewayBaseUrl",
+          "attribute": "hosted-payment-gateway-base-url",
+          "description": "Base URL of the `fx:hosted_payment_gateway` resource (without ID)."
         },
         {
           "name": "hostedPaymentGatewaysUrl",
@@ -16675,14 +16705,29 @@
           "description": "URL of the `fx:payment_gateways` property helper."
         },
         {
+          "name": "paymentMethodSetBaseUrl",
+          "attribute": "payment-method-set-base-url",
+          "description": "Base URL of the `fx:payment_method_set` resource (without ID)."
+        },
+        {
           "name": "paymentMethodSetsUrl",
           "attribute": "payment-method-sets-url",
           "description": "URL of the `fx:payment_method_sets` collection."
         },
         {
+          "name": "fraudProtectionBaseUrl",
+          "attribute": "fraud-protection-base-url",
+          "description": "Base URL of the `fx:fraud_protection` resource (without ID)."
+        },
+        {
           "name": "fraudProtectionsUrl",
           "attribute": "fraud-protections-url",
           "description": "URL of the `fx:fraud_protections` collection."
+        },
+        {
+          "name": "paymentGatewayBaseUrl",
+          "attribute": "payment-gateway-base-url",
+          "description": "Base URL of the `fx:payment_gateway` resource (without ID)."
         },
         {
           "name": "paymentGatewaysUrl",
@@ -23293,12 +23338,6 @@
         },
         {
           "name": "google-analytics:after"
-        },
-        {
-          "name": "segment-io:before"
-        },
-        {
-          "name": "segment-io:after"
         },
         {
           "name": "troubleshooting:before"
