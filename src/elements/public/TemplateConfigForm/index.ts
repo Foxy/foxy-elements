@@ -1,7 +1,7 @@
 import '@polymer/iron-icons';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-text-field/vaadin-text-area';
+import '../../internal/InternalSourceControl/index';
 import '../../internal/InternalSandbox/index';
 import '../Spinner/index';
 import '../I18n/index';

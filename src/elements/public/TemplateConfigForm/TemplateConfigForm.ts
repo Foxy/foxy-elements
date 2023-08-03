@@ -13,7 +13,6 @@ import { Group } from '../../private/Group/Group';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PropertyDeclarations } from 'lit-element';
 import { ResponsiveMixin } from '../../../mixins/responsive';
-import { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
 import { TextFieldElement } from '@vaadin/vaadin-text-field/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -78,8 +77,8 @@ export class TemplateConfigForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'iron-icon': customElements.get('iron-icon'),
+      'foxy-internal-source-control': customElements.get('foxy-internal-source-control'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -127,10 +126,70 @@ export class TemplateConfigForm extends Base<Data> {
           ${hidden.matches('google-analytics', true) ? '' : this.__renderGoogleAnalytics(json)}
           ${hidden.matches('google-tag', true) ? '' : this.__renderGoogleTag(json)}
           ${hidden.matches('troubleshooting', true) ? '' : this.__renderTroubleshooting(json)}
-          ${hidden.matches('custom-config', true) ? '' : this.__renderCustomConfig(json)}
-          ${hidden.matches('header', true) ? '' : this.__renderHeader(json)}
-          ${hidden.matches('custom-fields', true) ? '' : this.__renderCustomFields(json)}
-          ${hidden.matches('footer', true) ? '' : this.__renderFooter(json)}
+
+          <foxy-internal-source-control
+            data-testid="custom-config"
+            helper-text=${this.t('custom_config_helper_text')}
+            placeholder='{ "key": "value" }'
+            label=${this.t('custom_config')}
+            infer="custom-config"
+            .getValue=${() => {
+              if (typeof json.custom_config === 'string') return json.custom_config;
+              return JSON.stringify(json.custom_config, null, 2);
+            }}
+            .setValue=${(newValue: string) => {
+              try {
+                json.custom_config = JSON.parse(newValue);
+              } catch {
+                json.custom_config = newValue;
+              }
+
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
+
+          <foxy-internal-source-control
+            data-testid="header"
+            placeholder="<style>h1 { color: red }</style>"
+            helper-text=${this.t('custom_header_helper_text')}
+            label=${this.t('custom_header')}
+            infer="header"
+            .getValue=${() => json.custom_script_values.header}
+            .setValue=${(newValue: string) => {
+              json.custom_script_values.header = newValue;
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
+
+          <foxy-internal-source-control
+            data-testid="custom-fields"
+            placeholder='<label>Comment: <input name="comment"></label>'
+            helper-text=${this.t('custom_fields_helper_text')}
+            label=${this.t('custom_fields')}
+            infer="custom-fields"
+            .getValue=${() => json.custom_script_values.checkout_fields}
+            .setValue=${(newValue: string) => {
+              json.custom_script_values.checkout_fields = newValue;
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
+
+          <foxy-internal-source-control
+            data-testid="footer"
+            placeholder='<script src="https://example.com/code.js"></script>'
+            helper-text=${this.t('custom_footer_helper_text')}
+            label=${this.t('custom_footer')}
+            infer="footer"
+            .getValue=${() => json.custom_script_values.footer}
+            .setValue=${(newValue: string) => {
+              json.custom_script_values.footer = newValue;
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
         </div>
 
         <div
@@ -1315,125 +1374,6 @@ export class TemplateConfigForm extends Base<Data> {
         </x-group>
 
         ${this.renderTemplateOrSlot('troubleshooting:after')}
-      </div>
-    `;
-  }
-
-  private __renderCustomConfig(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="custom-config">
-        ${this.renderTemplateOrSlot('custom-config:before')}
-
-        <vaadin-text-area
-          data-testid="custom-config-field"
-          class="w-full"
-          label=${this.t('custom_config')}
-          placeholder='{ "key": "value" }'
-          helper-text=${this.t('custom_config_helper_text')}
-          .value=${json.custom_config ? JSON.stringify(json.custom_config, null, 2) : ''}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('custom-config', true)}
-          ?readonly=${this.readonlySelector.matches('custom-config', true)}
-          @input=${(evt: CustomEvent) => {
-            const input = evt.currentTarget as TextAreaElement;
-
-            try {
-              json.custom_config = input.value ? JSON.parse(input.value) : '';
-              this.edit({ json: JSON.stringify(json) });
-              input.invalid = false;
-            } catch {
-              input.invalid = true;
-            }
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('custom-config:after')}
-      </div>
-    `;
-  }
-
-  private __renderHeader(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="header">
-        ${this.renderTemplateOrSlot('header:before')}
-
-        <vaadin-text-area
-          data-testid="header-field"
-          class="w-full"
-          label=${this.t('custom_header')}
-          helper-text=${this.t('custom_header_helper_text')}
-          .value=${json.custom_script_values.header}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('header', true)}
-          ?readonly=${this.readonlySelector.matches('header', true)}
-          @input=${(evt: CustomEvent) => {
-            const target = evt.currentTarget as TextAreaElement;
-            const newConfig: TemplateConfigJSON['custom_script_values'] = {
-              ...json.custom_script_values,
-              header: target.value,
-            };
-
-            this.edit({ json: JSON.stringify({ ...json, custom_script_values: newConfig }) });
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('header:after')}
-      </div>
-    `;
-  }
-
-  private __renderCustomFields(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="custom-fields">
-        ${this.renderTemplateOrSlot('custom-fields:before')}
-
-        <vaadin-text-area
-          data-testid="custom-fields-field"
-          class="w-full"
-          label=${this.t('custom_fields')}
-          helper-text=${this.t('custom_fields_helper_text')}
-          .value=${json.custom_script_values.checkout_fields}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('custom-fields', true)}
-          ?readonly=${this.readonlySelector.matches('custom-fields', true)}
-          @input=${(evt: CustomEvent) => {
-            const newValue = (evt.currentTarget as TextAreaElement).value;
-            json.custom_script_values.checkout_fields = newValue;
-            this.edit({ json: JSON.stringify(json) });
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('custom-fields:after')}
-      </div>
-    `;
-  }
-
-  private __renderFooter(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="footer">
-        ${this.renderTemplateOrSlot('footer:before')}
-
-        <vaadin-text-area
-          data-testid="footer-field"
-          class="w-full"
-          label=${this.t('custom_footer')}
-          helper-text=${this.t('custom_footer_helper_text')}
-          .value=${json.custom_script_values.footer}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('footer', true)}
-          ?readonly=${this.readonlySelector.matches('footer', true)}
-          @input=${(evt: CustomEvent) => {
-            const target = evt.currentTarget as TextAreaElement;
-            const newConfig: TemplateConfigJSON['custom_script_values'] = {
-              ...json.custom_script_values,
-              footer: target.value,
-            };
-
-            this.edit({ json: JSON.stringify({ ...json, custom_script_values: newConfig }) });
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('footer:after')}
       </div>
     `;
   }
