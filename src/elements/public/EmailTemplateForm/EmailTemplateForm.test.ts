@@ -20,6 +20,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 import { createRouter } from '../../../server/index';
+import { InternalSourceControl } from '../../internal/InternalSourceControl/InternalSourceControl';
 
 describe('EmailTemplateForm', () => {
   it('extends NucleonElement', () => {
@@ -270,7 +271,7 @@ describe('EmailTemplateForm', () => {
         });
 
         ['default', 'url', 'clipboard'].forEach(contentType => {
-          it(`renders title and explainer for choice "${contentType}"`, async () => {
+          it(`renders title for choice "${contentType}"`, async () => {
             const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
             const element = await fixture<EmailTemplateForm>(layout);
             const control = (await getByTestId(element, 'content')) as HTMLElement;
@@ -278,7 +279,6 @@ describe('EmailTemplateForm', () => {
             const wrapper = choice.querySelector(`[slot="${contentType}-label"]`) as HTMLElement;
 
             expect(await getByKey(wrapper, `template_${contentType}`)).to.exist;
-            expect(await getByKey(wrapper, `template_${contentType}_explainer`)).to.exist;
           });
         });
 
@@ -379,48 +379,45 @@ describe('EmailTemplateForm', () => {
           expect(event).to.have.nested.property('request.method', 'POST');
         });
 
-        it('shows text field for clipboard content type', async () => {
+        it('shows source control for clipboard content type', async () => {
           const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
           const element = await fixture<EmailTemplateForm>(layout);
           element.edit({ [`content_${type}`]: 'Test Template' });
 
           const control = (await getByTestId(element, 'content')) as HTMLElement;
           const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="clipboard"]');
+          const field = choice.querySelector('[slot="clipboard"]');
 
-          expect(wrapper).to.not.have.attribute('hidden');
+          expect(field).to.have.attribute('placeholder', 'clipboard_source_placeholder');
+          expect(field).to.have.attribute('label', 'clipboard_source_label');
+          expect(field).to.have.attribute('property', `content_${type}`);
+          expect(field).to.have.attribute('infer', 'content');
+
+          expect(field).to.not.have.attribute('hidden');
+          expect(field).to.be.instanceOf(InternalSourceControl);
         });
 
-        it(`sets value of form.content_${type} to the text field`, async () => {
+        it('shows source control for url content type', async () => {
           const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
           const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}`]: 'Test Template' });
+
+          element.edit({
+            [`content_${type}_url`]: 'https://example.com/template',
+            [`content_${type}`]: 'Test Template',
+          });
 
           const control = (await getByTestId(element, 'content')) as HTMLElement;
           const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="clipboard"]') as HTMLElement;
-          const field = await getByTestId(wrapper, `content-${type}-clipboard`);
+          const group = choice.querySelector('[slot="url"]');
+          const field = group?.querySelector('foxy-internal-source-control');
 
-          expect(field).to.have.value('Test Template');
-        });
+          expect(field).to.have.attribute('placeholder', 'url_source_placeholder');
+          expect(field).to.have.attribute('label', 'url_source_label');
+          expect(field).to.have.attribute('property', `content_${type}`);
+          expect(field).to.have.attribute('infer', 'content');
 
-        it(`content field writes to form.content_${type} on input`, async () => {
-          const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-          const element = await fixture<EmailTemplateForm>(layout);
-          element.edit({ [`content_${type}`]: 'Test Template' });
-
-          const control = (await getByTestId(element, 'content')) as HTMLElement;
-          const choice = (await getByTestId(control, `content-${type}-type`)) as Choice;
-          const wrapper = choice.querySelector('[slot="clipboard"]') as HTMLElement;
-          const field = (await getByTestId(
-            wrapper,
-            `content-${type}-clipboard`
-          )) as TextFieldElement;
-
-          field.value = 'Foo';
-          field.dispatchEvent(new CustomEvent('input'));
-
-          expect(element.form).to.have.property(`content_${type}`, 'Foo');
+          expect(field).to.not.have.attribute('hidden');
+          expect(field).to.be.instanceOf(InternalSourceControl);
         });
 
         it('is editable by default', async () => {
@@ -429,11 +426,9 @@ describe('EmailTemplateForm', () => {
           const control = (await getByTestId(element, 'content')) as HTMLElement;
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).not.to.have.attribute('readonly');
           expect(urlField).not.to.have.attribute('readonly');
-          expect(clipboardField).not.to.have.attribute('readonly');
         });
 
         it('is readonly when element is readonly', async () => {
@@ -442,11 +437,9 @@ describe('EmailTemplateForm', () => {
           const control = (await getByTestId(element, 'content')) as HTMLElement;
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).to.have.attribute('readonly');
           expect(urlField).to.have.attribute('readonly');
-          expect(clipboardField).to.have.attribute('readonly');
         });
 
         it('is readonly when readonlycontrols includes content', async () => {
@@ -457,11 +450,9 @@ describe('EmailTemplateForm', () => {
           const control = (await getByTestId(element, 'content')) as HTMLElement;
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).to.have.attribute('readonly');
           expect(urlField).to.have.attribute('readonly');
-          expect(clipboardField).to.have.attribute('readonly');
         });
 
         it('is enabled by default', async () => {
@@ -471,12 +462,10 @@ describe('EmailTemplateForm', () => {
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
           const cacheButton = await getByTestId(control, `content-${type}-cache`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).not.to.have.attribute('disabled');
           expect(urlField).not.to.have.attribute('disabled');
           expect(cacheButton).not.to.have.attribute('disabled');
-          expect(clipboardField).not.to.have.attribute('disabled');
         });
 
         it('is disabled when form is loading', async () => {
@@ -487,12 +476,10 @@ describe('EmailTemplateForm', () => {
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
           const cacheButton = await getByTestId(control, `content-${type}-cache`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).to.have.attribute('disabled');
           expect(urlField).to.have.attribute('disabled');
           expect(cacheButton).to.have.attribute('disabled');
-          expect(clipboardField).to.have.attribute('disabled');
         });
 
         it('is disabled when form has failed to load data', async () => {
@@ -503,12 +490,10 @@ describe('EmailTemplateForm', () => {
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
           const cacheButton = await getByTestId(control, `content-${type}-cache`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).to.have.attribute('disabled');
           expect(urlField).to.have.attribute('disabled');
           expect(cacheButton).to.have.attribute('disabled');
-          expect(clipboardField).to.have.attribute('disabled');
         });
 
         it('is disabled when element is disabled', async () => {
@@ -518,12 +503,10 @@ describe('EmailTemplateForm', () => {
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
           const cacheButton = await getByTestId(control, `content-${type}-cache`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).to.have.attribute('disabled');
           expect(urlField).to.have.attribute('disabled');
           expect(cacheButton).to.have.attribute('disabled');
-          expect(clipboardField).to.have.attribute('disabled');
         });
 
         it('is disabled when disabledcontrols includes content', async () => {
@@ -535,12 +518,10 @@ describe('EmailTemplateForm', () => {
           const choice = await getByTestId(control, `content-${type}-type`);
           const urlField = await getByTestId(control, `content-${type}-url`);
           const cacheButton = await getByTestId(control, `content-${type}-cache`);
-          const clipboardField = await getByTestId(control, `content-${type}-clipboard`);
 
           expect(choice).to.have.attribute('disabled');
           expect(urlField).to.have.attribute('disabled');
           expect(cacheButton).to.have.attribute('disabled');
-          expect(clipboardField).to.have.attribute('disabled');
         });
 
         it('is visible by default', async () => {
@@ -569,52 +550,6 @@ describe('EmailTemplateForm', () => {
           expect(control).to.not.exist;
         });
       });
-    });
-
-    it('renders "content:before" slot by default', async () => {
-      const layout = html`<foxy-email-template-form></foxy-email-template-form>`;
-      const element = await fixture<EmailTemplateForm>(layout);
-      expect(await getByName(element, 'content:before')).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "content:before" slot with template "content:before" if available', async () => {
-      const content = 'content:before';
-      const value = `<p>Value of the "${content}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form>
-          <template slot=${content}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, content);
-      const sandbox = (await getByTestId<InternalSandbox>(element, content))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
-    });
-
-    it('renders "content:after" slot by default', async () => {
-      const element = await fixture<EmailTemplateForm>(
-        html`<foxy-email-template-form></foxy-email-template-form>`
-      );
-      const slot = await getByName<HTMLSlotElement>(element, 'content:after');
-      expect(slot).to.have.property('localName', 'slot');
-    });
-
-    it('replaces "content:after" slot with template "content:after" if available', async () => {
-      const content = 'content:after';
-      const value = `<p>Value of the "${content}" template.</p>`;
-      const element = await fixture<EmailTemplateForm>(html`
-        <foxy-email-template-form>
-          <template slot=${content}>${unsafeHTML(value)}</template>
-        </foxy-email-template-form>
-      `);
-
-      const slot = await getByName<HTMLSlotElement>(element, content);
-      const sandbox = (await getByTestId<InternalSandbox>(element, content))!.renderRoot;
-
-      expect(slot).to.not.exist;
-      expect(sandbox).to.contain.html(value);
     });
   });
 

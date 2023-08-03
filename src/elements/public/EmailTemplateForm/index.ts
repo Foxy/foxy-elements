@@ -1,9 +1,9 @@
 import '@vaadin/vaadin-text-field/vaadin-text-field';
-import '@vaadin/vaadin-text-field/vaadin-text-area';
 import '@vaadin/vaadin-button';
 
 import '../../internal/InternalSelectControl/index';
 import '../../internal/InternalConfirmDialog/index';
+import '../../internal/InternalSourceControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalSandbox/index';
 

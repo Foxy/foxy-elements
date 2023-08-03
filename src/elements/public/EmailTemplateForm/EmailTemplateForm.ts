@@ -1,19 +1,20 @@
-import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
-import { Choice, Group, PropertyTable } from '../../private/index';
-import { Data, Templates } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
+import type { ScopedElementsMap } from '@open-wc/scoped-elements';
+import type { TextFieldElement } from '@vaadin/vaadin-text-field';
+import type { Data, Templates } from './types';
 
+import { Choice, Group, PropertyTable } from '../../private/index';
+import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfigurableMixin } from '../../../mixins/configurable';
-import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
-import { TextFieldElement } from '@vaadin/vaadin-text-field';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { ThemeableMixin } from '../../../mixins/themeable';
+import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { classMap } from '../../../utils/class-map';
+import { html } from 'lit-element';
 
 const NS = 'email-template-form';
 const Base = ScopedElementsMixin(
@@ -53,27 +54,16 @@ export class EmailTemplateForm extends Base<Data> {
     };
   }
 
-  static get styles(): CSSResultArray {
-    return [
-      ...super.styles,
-      css`
-        #cached-content::part(input-field) {
-          max-height: 15em;
-        }
-      `,
-    ];
-  }
-
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-internal-select-control': customElements.get('foxy-internal-select-control'),
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-source-control': customElements.get('foxy-internal-source-control'),
       'foxy-internal-text-control': customElements.get('foxy-internal-text-control'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'vaadin-button': customElements.get('vaadin-button'),
       'x-property-table': PropertyTable,
       'x-choice': Choice,
@@ -83,10 +73,6 @@ export class EmailTemplateForm extends Base<Data> {
 
   templates: Templates = {};
 
-  private __cacheState: 'idle' | 'busy' | 'fail' = 'idle';
-
-  private __contentChoice: 'default' | 'url' | 'clipboard' = 'default';
-
   private __templateLanguageOptions = [
     { label: 'Nunjucks', value: 'nunjucks' },
     { label: 'Handlebars', value: 'handlebars' },
@@ -94,6 +80,12 @@ export class EmailTemplateForm extends Base<Data> {
     { label: 'Twig', value: 'twig' },
     { label: 'EJS', value: 'ejs' },
   ];
+
+  private __textContentChoice: 'default' | 'url' | 'clipboard' = 'default';
+
+  private __htmlContentChoice: 'default' | 'url' | 'clipboard' = 'default';
+
+  private __cacheState: 'idle' | 'busy' | 'fail' = 'idle';
 
   render(): TemplateResult {
     const { hiddenSelector, href, lang, ns } = this;
@@ -143,6 +135,30 @@ export class EmailTemplateForm extends Base<Data> {
     `;
   }
 
+  protected async _sendPost(edits: Partial<Data>): Promise<Data> {
+    const data = await super._sendPost(edits);
+    if (!data.content_html_url && !data.content_text_url) return data;
+
+    this.__cacheState = 'busy';
+    const url = data._links['fx:cache'].href;
+    const response = await new EmailTemplateForm.API(this).fetch(url, { method: 'POST' });
+    this.__cacheState = response.ok ? 'idle' : 'fail';
+
+    return await this._fetch(data._links.self.href);
+  }
+
+  protected async _sendPatch(edits: Partial<Data>): Promise<Data> {
+    const data = await super._sendPatch(edits);
+    if (!data.content_html_url && !data.content_text_url) return data;
+
+    this.__cacheState = 'busy';
+    const url = data._links['fx:cache'].href;
+    const response = await new EmailTemplateForm.API(this).fetch(url, { method: 'POST' });
+    this.__cacheState = response.ok ? 'idle' : 'fail';
+
+    return await this._fetch(data._links.self.href);
+  }
+
   private __renderDescription() {
     const scope = 'description';
 
@@ -170,32 +186,26 @@ export class EmailTemplateForm extends Base<Data> {
   }
 
   private __renderContent() {
+    const variants = ['text', 'html'] as const;
     return html`
       <div data-testid="content">
-        ${this.renderTemplateOrSlot('content:before')}
-
-        <div class="space-y-l">
-          ${this.__renderContentVariant('content_text_url', 'content_text', 'text_template')}
-          ${this.__renderContentVariant('content_html_url', 'content_html', 'html_template')}
-        </div>
-
-        ${this.renderTemplateOrSlot('content:after')}
+        <div class="space-y-l">${variants.map(v => this.__renderContentVariant(v))}</div>
       </div>
     `;
   }
 
-  private __renderContentVariant(
-    urlPath: 'content_text_url' | 'content_html_url',
-    textPath: 'content_text' | 'content_html',
-    header: string
-  ) {
+  private __renderContentVariant(variant: 'text' | 'html') {
+    const urlPath = variant === 'text' ? 'content_text_url' : 'content_html_url';
+    const textPath = variant === 'text' ? 'content_text' : 'content_html';
+    const header = variant === 'text' ? 'text_template' : 'html_template';
+    const urlValue = this.form[urlPath];
+    const textValue = this.form[textPath];
+    const contentChoiceKey = variant === 'text' ? '__textContentChoice' : '__htmlContentChoice';
+    const contentChoice = urlValue ? 'url' : textValue ? 'clipboard' : this[contentChoiceKey];
+
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('content', true);
     const isReadonly = this.readonlySelector.matches('content', true);
-    const contentChoice = this.form[urlPath]
-      ? 'url'
-      : this.form[textPath]
-      ? 'clipboard'
-      : this.__contentChoice;
+    const isSyncProhibited = isReadonly || !this.data?.[urlPath] || urlValue !== this.data[urlPath];
 
     return html`
       <x-group frame>
@@ -217,7 +227,7 @@ export class EmailTemplateForm extends Base<Data> {
           @change=${(evt: Event) => {
             if (evt instanceof ChoiceChangeEvent) {
               this.edit({ [textPath]: '', [urlPath]: '' });
-              this.__contentChoice = evt.detail as 'url' | 'clipboard' | 'default';
+              this[contentChoiceKey] = evt.detail as 'url' | 'clipboard' | 'default';
             }
           }}
         >
@@ -226,28 +236,23 @@ export class EmailTemplateForm extends Base<Data> {
               <div slot="${value}-label" class="py-s leading-s">
                 <foxy-i18n class="block" lang=${this.lang} key="template_${value}" ns=${this.ns}>
                 </foxy-i18n>
-
-                <foxy-i18n
-                  class="block text-s opacity-70"
-                  lang=${this.lang}
-                  key="template_${value}_explainer"
-                  ns=${this.ns}
-                >
-                </foxy-i18n>
               </div>
             `;
           })}
 
           <div
             style="--lumo-border-radius: var(--lumo-border-radius-s)"
+            class="mb-m"
             slot="url"
             ?hidden=${contentChoice !== 'url'}
           >
-            <div class="flex items-center mt-0 mb-m">
+            <div class="flex items-end mt-0">
               <vaadin-text-field
                 data-testid="${textPath.replace('_', '-')}-url"
+                placeholder="https://example.com/my-template"
+                label=${this.t('url')}
+                class="flex-1 min-w-0"
                 value=${ifDefined(this.form[urlPath])}
-                class="mr-s flex-grow"
                 ?readonly=${isReadonly}
                 ?disabled=${isDisabled}
                 @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
@@ -260,9 +265,9 @@ export class EmailTemplateForm extends Base<Data> {
 
               <vaadin-button
                 data-testid="${textPath.replace('_', '-')}-cache"
-                class="relative"
+                class="relative flex-shrink-0 ml-s"
                 ?disabled=${isDisabled || this.__cacheState === 'busy'}
-                ?hidden=${isReadonly || this.form[urlPath] !== this.data?.[urlPath]}
+                ?hidden=${isSyncProhibited}
                 @click=${this.__cache}
               >
                 <foxy-i18n
@@ -293,27 +298,28 @@ export class EmailTemplateForm extends Base<Data> {
                 </div>
               </vaadin-button>
             </div>
+
+            <foxy-internal-source-control
+              placeholder=${this.t('url_source_placeholder')}
+              property=${textPath}
+              label=${this.t('url_source_label')}
+              infer="content"
+              class="mt-m${this.data?.[textPath] ? '' : ' hidden'}"
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
+            >
+            </foxy-internal-source-control>
           </div>
 
-          <div
+          <foxy-internal-source-control
+            placeholder=${this.t('clipboard_source_placeholder')}
+            property=${textPath}
+            label=${this.t('clipboard_source_label')}
+            infer="content"
+            class="mb-m${contentChoice === 'clipboard' ? '' : ' hidden'}"
             style="--lumo-border-radius: var(--lumo-border-radius-s)"
             slot="clipboard"
-            ?hidden=${contentChoice !== 'clipboard'}
           >
-            <vaadin-text-area
-              data-testid="${textPath.replace('_', '-')}-clipboard"
-              id="cached-content"
-              class="w-full mb-m"
-              ?readonly=${isReadonly}
-              ?disabled=${isDisabled}
-              .value=${this.form[textPath]}
-              @input=${(evt: CustomEvent) => {
-                const value = (evt.currentTarget as TextAreaElement).value;
-                this.edit({ [textPath]: value, [urlPath]: '' });
-              }}
-            >
-            </vaadin-text-area>
-          </div>
+          </foxy-internal-source-control>
         </x-choice>
       </x-group>
     `;
@@ -400,8 +406,8 @@ export class EmailTemplateForm extends Base<Data> {
     try {
       const url = this.data?._links['fx:cache'].href ?? '';
       const response = await new EmailTemplateForm.API(this).fetch(url, { method: 'POST' });
-
       this.__cacheState = response.ok ? 'idle' : 'fail';
+      this.refresh();
     } catch {
       this.__cacheState = 'fail';
     }

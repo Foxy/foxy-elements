@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "cache": { "type": "string", "default": "Cache" },
+    "cache": { "type": "string", "default": "Sync" },
     "cancel": { "type": "string", "default": "Cancel" },
     "create": { "type": "string", "default": "Create" },
     "date": { "type": "string", "default": "{{value, date}}" },
@@ -16,17 +16,19 @@
     },
     "description": { "type": "string", "default": "Description" },
     "template": { "type": "string", "default": "Template" },
-    "template_clipboard": { "type": "string", "default": "From clipboard" },
-    "template_clipboard_explainer": {
+    "template_clipboard": { "type": "string", "default": "Upload source code" },
+    "template_default": { "type": "string", "default": "Use default template" },
+    "template_url": { "type": "string", "default": "Pull from public URL" },
+    "url": { "type": "string", "default": "URL" },
+    "url_source_label": { "type": "string", "default": "Cached source" },
+    "url_source_placeholder": {
       "type": "string",
-      "default": "Paste the template here to use it"
+      "default": "Template markup will appear here once cached"
     },
-    "template_default": { "type": "string", "default": "Default" },
-    "template_default_explainer": { "type": "string", "default": "Use the default template" },
-    "template_url": { "type": "string", "default": "From URL" },
-    "template_url_explainer": {
+    "clipboard_source_label": { "type": "string", "default": "Source" },
+    "clipboard_source_placeholder": {
       "type": "string",
-      "default": "Fetch the template from a public URL"
+      "default": "Enter your template markup here"
     },
     "spinner": {
       "additionalProperties": false,
@@ -50,11 +52,13 @@
     "description",
     "template",
     "template_clipboard",
-    "template_clipboard_explainer",
     "template_default",
-    "template_default_explainer",
     "template_url",
-    "template_url_explainer",
+    "url",
+    "url_source_label",
+    "url_source_placeholder",
+    "clipboard_source_label",
+    "clipboard_source_placeholder",
     "spinner"
   ]
 }
