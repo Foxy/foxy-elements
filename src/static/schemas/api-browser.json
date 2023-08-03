@@ -21,6 +21,17 @@
     "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
     "previous": { "type": "string", "default": "Previous" },
     "undo": { "type": "string", "default": "Undo" },
+    "editor": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Resource JSON" },
+        "placeholder": {
+          "type": "string",
+          "default": "Enter resource JSON here and click Submit to save"
+        }
+      },
+      "required": ["label", "placeholder"]
+    },
     "copy-to-clipboard": {
       "additionalProperties": false,
       "properties": {
@@ -68,6 +79,7 @@
     "pagination",
     "previous",
     "undo",
+    "editor",
     "copy-to-clipboard",
     "spinner",
     "delete",

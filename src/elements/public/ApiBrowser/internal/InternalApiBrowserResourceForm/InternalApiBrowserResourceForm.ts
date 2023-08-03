@@ -30,14 +30,6 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
     return [
       ...super.styles,
       css`
-        .monospace {
-          font-family: monospace;
-        }
-
-        .resize-none {
-          resize: none;
-        }
-
         .resource {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(calc(18.75 * var(--lumo-space-m)), 1fr));
@@ -49,8 +41,25 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
           grid-column-end: -2;
         }
 
-        textarea::selection {
-          background: var(--lumo-contrast-10pct);
+        foxy-internal-source-control::part(editor) {
+          border-radius: 0;
+          max-height: none;
+          box-shadow: none;
+          border: none;
+        }
+
+        foxy-internal-source-control::part(label),
+        foxy-internal-source-control::part(helper-text) {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding-top: 0px;
+          margin-top: -1px;
+          overflow-x: hidden;
+          overflow-y: hidden;
+          clip: rect(0px, 0px, 0px, 0px);
+          white-space: nowrap;
+          border-top-width: 0px;
         }
       `,
     ];
@@ -124,11 +133,6 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
     `;
   }
 
-  updated(changes: Map<keyof this, unknown>): void {
-    super.updated(changes);
-    this.__setTextAreaHeight();
-  }
-
   protected async _fetch<TResult = any>(...args: Parameters<Window['fetch']>): Promise<TResult> {
     try {
       const request = args[0] instanceof Request ? args[0] : new Request(...args);
@@ -138,16 +142,6 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
       return await super._fetch(request.url, { method: 'POST', body });
     } catch (err) {
       throw ['invalid_json'];
-    }
-  }
-
-  private __setTextAreaHeight() {
-    const textarea = this.renderRoot.querySelector<HTMLTextAreaElement>('textarea');
-
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-      textarea.style.overflowY = 'hidden';
     }
   }
 
@@ -195,26 +189,13 @@ export class InternalApiBrowserResourceForm extends TranslatableMixin(InternalFo
     return html`
       <div class="bg-base">
         <div class="${this.data ? 'resource' : ''} border-t border-contrast-5 bg-contrast-10">
-          <div class="flex-1 flex bg-base">
-            <div class="monospace bg-contrast-5 leading-s text-s p-m text-tertiary text-right">
-              ${this.__formAsString.split('\n').map((_, index) => html`<div>${index + 1}</div>`)}
-            </div>
-
-            <textarea
-              class=${classMap({
-                'whitespace-pre leading-s text-s focus-outline-none': true,
-                'monospace resize-none p-m block w-full select-text': true,
-                'bg-error-10': this.errors.length > 0,
-                'bg-base': this.errors.length === 0,
-              })}
-              .value=${this.__formAsString}
-              @input=${(evt: InputEvent) => {
-                const textarea = evt.currentTarget as HTMLTextAreaElement;
-                this.__formAsString = textarea.value;
-              }}
-            >
-            </textarea>
-          </div>
+          <foxy-internal-source-control
+            infer="editor"
+            class="flex-1 bg-base"
+            .getValue=${() => this.__formAsString}
+            .setValue=${(newValue: string) => (this.__formAsString = newValue)}
+          >
+          </foxy-internal-source-control>
 
           ${this.data
             ? html`
