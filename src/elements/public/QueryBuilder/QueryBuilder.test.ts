@@ -181,14 +181,14 @@ describe('QueryBuilder', () => {
     const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
 
     const values = [
-      'foo%5Bbar%5D%3Alessthanorequal=',
-      'foo%5Bbar%5D%3Alessthan=',
-      'foo%5Bbar%5D%3Agreaterthanorequal=',
-      'foo%5Bbar%5D%3Agreaterthan=',
-      'foo%5Bbar%5D%3Aisdefined=',
-      'foo%5Bbar%5D%3Anot=',
-      'foo%5Bbar%5D%3Ain=',
-      'foo%5Bbar%5D=',
+      'foo%3Aname%5Bbar%5D%3Alessthanorequal=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Alessthan=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Agreaterthanorequal=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Agreaterthan=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Aisdefined=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Anot=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Ain=&zoom=foo',
+      'foo%3Aname%5Bbar%5D=&zoom=foo',
     ];
 
     for (const value of values) {
@@ -215,10 +215,10 @@ describe('QueryBuilder', () => {
     const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
 
     const values = [
-      'foo%5Bbar%5D%3Ain=',
-      'foo%5Bbar%5D%3Anot=',
-      'foo%5Bbar%5D%3Aisdefined=',
-      'foo%5Bbar%5D=',
+      'foo%3Aname%5Bbar%5D%3Ain=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Anot=&zoom=foo',
+      'foo%3Aname%5Bbar%5D%3Aisdefined=&zoom=foo',
+      'foo%3Aname%5Bbar%5D=&zoom=foo',
     ];
 
     for (const value of values) {
