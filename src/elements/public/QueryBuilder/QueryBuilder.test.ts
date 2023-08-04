@@ -3,6 +3,7 @@ import { expect, fixture, oneEvent } from '@open-wc/testing';
 
 import { QueryBuilder } from './index';
 import { Type } from './types';
+import { serializeDateTime } from '../../../utils/serialize-date';
 
 describe('QueryBuilder', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -358,32 +359,38 @@ describe('QueryBuilder', () => {
   });
 
   it('supports ranges for known date fields', async () => {
+    const fromDate = new Date(2020, 0, 1);
+    const toDate = new Date(2021, 0, 1);
+    const getRange = () => [fromDate, toDate].map(v => v.toISOString()).join('..');
+
     const layout = html`
       <foxy-query-builder
         options=${JSON.stringify([{ path: 'foo', type: 'date', label: 'Foo' }])}
-        value="foo=2020-01-01T00%3A00%3A00.000Z..2021-01-01T00%3A00%3A00.000Z"
+        value="foo=${encodeURIComponent(getRange())}"
       >
       </foxy-query-builder>
     `;
 
     const element = await fixture<QueryBuilder>(layout);
     const root = element.renderRoot;
-    const [from, to] = [...root.querySelectorAll<HTMLInputElement>('input[type="date"]')];
+    const [from, to] = [...root.querySelectorAll<HTMLInputElement>('input[type="datetime-local"]')];
 
-    expect(from).to.have.property('value', '2020-01-01');
-    expect(to).to.have.property('value', '2021-01-01');
+    expect(from).to.have.property('value', serializeDateTime(fromDate));
+    expect(to).to.have.property('value', serializeDateTime(toDate));
 
-    from.value = '2022-01-01';
+    fromDate.setFullYear(2022);
+    from.value = serializeDateTime(fromDate);
     from.dispatchEvent(new InputEvent('input'));
     await element.updateComplete;
 
-    expect(element).to.have.value('foo=2022-01-01T00%3A00%3A00.000Z..2021-01-01T00%3A00%3A00.000Z');
+    expect(element).to.have.value(`foo=${encodeURIComponent(getRange())}`);
 
-    to.value = '2024-01-01';
+    toDate.setFullYear(2024);
+    to.value = serializeDateTime(toDate);
     to.dispatchEvent(new InputEvent('input'));
     await element.updateComplete;
 
-    expect(element).to.have.value('foo=2022-01-01T00%3A00%3A00.000Z..2024-01-01T00%3A00%3A00.000Z');
+    expect(element).to.have.value(`foo=${encodeURIComponent(getRange())}`);
   });
 
   it('supports ranges for known number fields', async () => {
@@ -416,10 +423,14 @@ describe('QueryBuilder', () => {
   });
 
   it('supports lists for known date fields', async () => {
+    const date1 = new Date(2020, 0, 1);
+    const date2 = new Date(2021, 0, 1);
+    const getList = (...dates: Date[]) => dates.map(v => v.toISOString()).join();
+
     const layout = html`
       <foxy-query-builder
         options=${JSON.stringify([{ path: 'foo', type: 'date', label: 'Foo' }])}
-        value="foo%3Ain=2020-01-01T00%3A00%3A00.000Z%2C2021-01-01T00%3A00%3A00.000Z"
+        value="foo%3Ain=${encodeURIComponent(getList(date1, date2))}"
       >
       </foxy-query-builder>
     `;
@@ -427,43 +438,38 @@ describe('QueryBuilder', () => {
     const element = await fixture<QueryBuilder>(layout);
     const root = element.renderRoot;
     const [first, second, addNew] = [
-      ...root.querySelectorAll<HTMLInputElement>('input[type="date"]'),
+      ...root.querySelectorAll<HTMLInputElement>('input[type="datetime-local"]'),
     ];
 
-    expect(first).to.have.property('value', '2020-01-01');
-    expect(second).to.have.property('value', '2021-01-01');
+    expect(first).to.have.property('value', serializeDateTime(date1));
+    expect(second).to.have.property('value', serializeDateTime(date2));
 
-    first.value = '2022-01-01';
+    date1.setFullYear(2022);
+    first.value = serializeDateTime(date1);
     first.dispatchEvent(new InputEvent('input'));
     await element.updateComplete;
 
-    expect(element).to.have.value(
-      'foo%3Ain=2022-01-01T00%3A00%3A00.000Z%2C2021-01-01T00%3A00%3A00.000Z'
-    );
+    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
 
-    second.value = '2024-01-01';
+    date2.setFullYear(2024);
+    second.value = serializeDateTime(date2);
     second.dispatchEvent(new InputEvent('input'));
     await element.updateComplete;
 
-    expect(element).to.have.value(
-      'foo%3Ain=2022-01-01T00%3A00%3A00.000Z%2C2024-01-01T00%3A00%3A00.000Z'
-    );
+    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
 
-    addNew.value = '2026-01-01';
+    const date3 = new Date(2026, 0, 1);
+    addNew.value = serializeDateTime(date3);
     addNew.dispatchEvent(new InputEvent('input'));
     await element.updateComplete;
 
-    expect(element).to.have.value(
-      'foo%3Ain=2022-01-01T00%3A00%3A00.000Z%2C2024-01-01T00%3A00%3A00.000Z%2C2026-01-01T00%3A00%3A00.000Z'
-    );
+    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2, date3))}`);
 
     addNew.value = '';
     addNew.dispatchEvent(new InputEvent('input'));
     await element.updateComplete;
 
-    expect(element).to.have.value(
-      'foo%3Ain=2022-01-01T00%3A00%3A00.000Z%2C2024-01-01T00%3A00%3A00.000Z'
-    );
+    expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
   });
 
   it('supports lists for known number fields', async () => {

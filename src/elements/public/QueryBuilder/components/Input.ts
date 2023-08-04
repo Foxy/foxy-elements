@@ -3,7 +3,7 @@ import { TemplateResult, html } from 'lit-html';
 import { I18n } from '../../I18n/I18n';
 import { classMap } from '../../../../utils/class-map';
 import { ifDefined } from 'lit-html/directives/if-defined';
-import { serializeDateUTC } from '../../../../utils/serialize-date';
+import { serializeDateTime } from '../../../../utils/serialize-date';
 
 export type InputParams = {
   t: I18n['t'];
@@ -27,7 +27,7 @@ export function Input(params: InputParams): TemplateResult {
 
   if (params.type === 'date') {
     const date = new Date(params.value);
-    normalizedValue = isNaN(date.getTime()) ? '' : serializeDateUTC(date);
+    normalizedValue = isNaN(date.getTime()) ? '' : serializeDateTime(date);
   }
 
   return html`
@@ -61,20 +61,24 @@ export function Input(params: InputParams): TemplateResult {
             'opacity-0 focus-opacity-100': hasDisplayValue,
           })}
           list=${ifDefined(params.list ? listId : undefined)}
-          type=${params.type}
-          max=${ifDefined(params.type === 'date' ? '9999-12-31' : '')}
+          type=${params.type === 'date' ? 'datetime-local' : params.type}
+          max=${ifDefined(params.type === 'date' ? '9999-12-31T23:59' : '')}
           .value=${normalizedValue}
           ?disabled=${params.disabled || params.readonly}
           @input=${(evt: Event) => {
             const input = evt.currentTarget as HTMLInputElement;
+            let newValue = input.value;
 
             try {
-              const valueAsDate = input.valueAsDate as Date;
-              if (valueAsDate.getFullYear() > 9999) valueAsDate.setFullYear(9999);
-              params.onChange(valueAsDate.toISOString());
+              if (params.type === 'date') {
+                const newDate = new Date(input.value);
+                if (!isNaN(newDate.getTime())) newValue = newDate.toISOString();
+              }
             } catch {
-              params.onChange(input.value);
+              // ignore
             }
+
+            params.onChange(newValue);
           }}
         />
       </div>
