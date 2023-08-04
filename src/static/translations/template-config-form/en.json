@@ -65,7 +65,7 @@
   "ga_account_id_explainer": "You can find the ID in the Admin section of your Analytics in Tracking info > Tracking code.",
   "ga_include_on_site": "Include via loader.js",
   "ga_include_on_site_explainer": "Enable Google Analytics on any page where the loader.js file is included.",
-  "ga_deprecation_notice": "Google is dropping support for this integration in July 2023. Please use the newer Google Tag integration below.",
+  "ga_deprecation_notice": "Google has ended support for this integration in July 2023. Please use the newer Google Tag integration below.",
   "gt_account_id": "Tag ID",
   "gt_account_id_explainer": "Tag ID prefixed with G- or AW-. Values prefixed with GT- are not fully supported at this time.",
   "gt_send_to": "Ads send to",
