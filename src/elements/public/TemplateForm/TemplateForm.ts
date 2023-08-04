@@ -257,6 +257,7 @@ export class TemplateForm extends Base<Data> {
 
               <foxy-internal-source-control
                 placeholder=${this.t('url_source_placeholder')}
+                helper-text=""
                 label=${this.t('url_source_label')}
                 infer="content"
                 class="mt-m${this.data?.content ? '' : ' hidden'}"
@@ -266,6 +267,7 @@ export class TemplateForm extends Base<Data> {
 
             <foxy-internal-source-control
               placeholder=${this.t('clipboard_source_placeholder')}
+              helper-text=""
               label=${this.t('clipboard_source_label')}
               infer="content"
               class="mb-m${contentChoice === 'clipboard' ? '' : ' hidden'}"

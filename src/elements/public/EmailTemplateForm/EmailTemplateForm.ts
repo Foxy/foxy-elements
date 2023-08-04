@@ -301,6 +301,7 @@ export class EmailTemplateForm extends Base<Data> {
 
             <foxy-internal-source-control
               placeholder=${this.t('url_source_placeholder')}
+              helper-text=""
               property=${textPath}
               label=${this.t('url_source_label')}
               infer="content"
@@ -312,6 +313,7 @@ export class EmailTemplateForm extends Base<Data> {
 
           <foxy-internal-source-control
             placeholder=${this.t('clipboard_source_placeholder')}
+            helper-text=""
             property=${textPath}
             label=${this.t('clipboard_source_label')}
             infer="content"
