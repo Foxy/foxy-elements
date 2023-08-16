@@ -14,6 +14,7 @@ function parseGroup(search: string): ParsedValue {
   if (path.endsWith(']') && nameStart !== -1) {
     name = path.substring(nameStart + 1, path.length - 1);
     path = path.substring(0, nameStart);
+    if (path.endsWith(':name')) path = path.substring(0, path.length - 5);
   }
 
   return { name, path, value, operator };

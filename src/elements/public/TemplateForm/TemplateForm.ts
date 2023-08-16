@@ -1,4 +1,4 @@
-import { CSSResultArray, PropertyDeclarations, TemplateResult, css, html } from 'lit-element';
+import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { Choice, Group, PropertyTable } from '../../private/index';
 import { Data, Templates } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -8,12 +8,10 @@ import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
-import { live } from 'lit-html/directives/live';
 
 const NS = 'template-form';
 const Base = ScopedElementsMixin(
@@ -50,25 +48,14 @@ export class TemplateForm extends Base<Data> {
     };
   }
 
-  static get styles(): CSSResultArray {
-    return [
-      ...super.styles,
-      css`
-        #cached-content::part(input-field) {
-          max-height: 15em;
-        }
-      `,
-    ];
-  }
-
   static get scopedElements(): ScopedElementsMap {
     return {
       'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
+      'foxy-internal-source-control': customElements.get('foxy-internal-source-control'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'vaadin-button': customElements.get('vaadin-button'),
       'x-property-table': PropertyTable,
       'x-choice': Choice,
@@ -115,6 +102,30 @@ export class TemplateForm extends Base<Data> {
     `;
   }
 
+  protected async _sendPost(edits: Partial<Data>): Promise<Data> {
+    const data = await super._sendPost(edits);
+    if (!data.content_url) return data;
+
+    this.__cacheState = 'busy';
+    const url = data._links['fx:cache'].href;
+    const response = await new TemplateForm.API(this).fetch(url, { method: 'POST' });
+    this.__cacheState = response.ok ? 'idle' : 'fail';
+
+    return await this._fetch(data._links.self.href);
+  }
+
+  protected async _sendPatch(edits: Partial<Data>): Promise<Data> {
+    const data = await super._sendPatch(edits);
+    if (!edits.content_url) return data;
+
+    this.__cacheState = 'busy';
+    const url = data._links['fx:cache'].href;
+    const response = await new TemplateForm.API(this).fetch(url, { method: 'POST' });
+    this.__cacheState = response.ok ? 'idle' : 'fail';
+
+    return await this._fetch(data._links.self.href);
+  }
+
   private __renderDescription() {
     const scope = 'description';
 
@@ -143,18 +154,16 @@ export class TemplateForm extends Base<Data> {
 
   private __renderContent() {
     const scope = 'content';
+    const url = this.form.content_url;
+    const source = this.form.content;
+    const contentChoice = url ? 'url' : source ? 'clipboard' : this.__contentChoice;
+
     const isDisabled = !this.in('idle') || this.disabledSelector.matches(scope);
     const isReadonly = this.readonlySelector.matches(scope);
-    const contentChoice = this.form.content_url
-      ? 'url'
-      : this.form.content
-      ? 'clipboard'
-      : this.__contentChoice;
+    const isSyncProhibited = isReadonly || !this.data?.content_url || url !== this.data.content_url;
 
     return html`
       <div data-testid="content">
-        ${this.renderTemplateOrSlot(`${scope}:before`)}
-
         <x-group frame>
           <foxy-i18n
             class=${classMap({ 'transition-colors': true, 'text-disabled': isDisabled })}
@@ -183,27 +192,22 @@ export class TemplateForm extends Base<Data> {
                 <div slot="${value}-label" class="py-s leading-s">
                   <foxy-i18n class="block" lang=${this.lang} key="template_${value}" ns=${this.ns}>
                   </foxy-i18n>
-
-                  <foxy-i18n
-                    class="block text-s opacity-70"
-                    lang=${this.lang}
-                    key="template_${value}_explainer"
-                    ns=${this.ns}
-                  >
-                  </foxy-i18n>
                 </div>
               `;
             })}
 
             <div
               style="--lumo-border-radius: var(--lumo-border-radius-s)"
+              class="mb-m"
               slot="url"
               ?hidden=${contentChoice !== 'url'}
             >
-              <div class="flex items-center mt-0 mb-m">
+              <div class="flex items-end mt-0">
                 <vaadin-text-field
                   data-testid="content-url"
-                  class="mr-s flex-grow"
+                  placeholder="https://example.com/my-template"
+                  label=${this.t('url')}
+                  class="flex-1 min-w-0"
                   ?readonly=${isReadonly}
                   ?disabled=${isDisabled}
                   .value=${this.form.content_url}
@@ -217,8 +221,8 @@ export class TemplateForm extends Base<Data> {
 
                 <vaadin-button
                   data-testid="cache"
-                  class="relative"
-                  ?hidden=${isReadonly || this.form.content_url !== this.data?.content_url}
+                  class="relative flex-shrink-0 ml-s"
+                  ?hidden=${isSyncProhibited}
                   ?disabled=${isDisabled || this.__cacheState === 'busy'}
                   @click=${this.__cache}
                 >
@@ -250,31 +254,29 @@ export class TemplateForm extends Base<Data> {
                   </div>
                 </vaadin-button>
               </div>
+
+              <foxy-internal-source-control
+                placeholder=${this.t('url_source_placeholder')}
+                helper-text=""
+                label=${this.t('url_source_label')}
+                infer="content"
+                class="mt-m${this.data?.content ? '' : ' hidden'}"
+              >
+              </foxy-internal-source-control>
             </div>
 
-            <div
+            <foxy-internal-source-control
+              placeholder=${this.t('clipboard_source_placeholder')}
+              helper-text=""
+              label=${this.t('clipboard_source_label')}
+              infer="content"
+              class="mb-m${contentChoice === 'clipboard' ? '' : ' hidden'}"
               style="--lumo-border-radius: var(--lumo-border-radius-s)"
               slot="clipboard"
-              ?hidden=${contentChoice !== 'clipboard'}
             >
-              <vaadin-text-area
-                id="cached-content"
-                data-testid="content-clipboard"
-                class="w-full mb-m"
-                ?readonly=${isReadonly}
-                ?disabled=${isDisabled}
-                .value=${live(this.form.content)}
-                @input=${(evt: CustomEvent) => {
-                  const value = (evt.currentTarget as TextAreaElement).value;
-                  this.edit({ content: value, content_url: '' });
-                }}
-              >
-              </vaadin-text-area>
-            </div>
+            </foxy-internal-source-control>
           </x-choice>
         </x-group>
-
-        ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>
     `;
   }
@@ -360,8 +362,8 @@ export class TemplateForm extends Base<Data> {
     try {
       const url = this.data?._links['fx:cache'].href ?? '';
       const response = await new TemplateForm.API(this).fetch(url, { method: 'POST' });
-
       this.__cacheState = response.ok ? 'idle' : 'fail';
+      this.refresh();
     } catch {
       this.__cacheState = 'fail';
     }

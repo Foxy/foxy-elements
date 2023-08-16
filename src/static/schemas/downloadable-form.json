@@ -72,7 +72,7 @@
         "label": { "type": "string", "default": "File" },
         "helper_text": {
           "type": "string",
-          "default": "Any file you'd like your customers to have access to after purchasing this item. Maximum size is 250MB."
+          "default": "Any file you'd like your customers to have access to after purchasing this item. Maximum size is 500MB."
         },
         "drop_label": { "type": "string", "default": "or drag it here" },
         "select_label": { "type": "string", "default": "Select file..." },

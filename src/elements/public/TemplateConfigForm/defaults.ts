@@ -23,8 +23,9 @@ export const getDefaultJSON = (): TemplateConfigJSON => ({
       account_id: '',
       include_on_site: false,
     },
-    segment_io: {
+    google_tag: {
       usage: 'none',
+      send_to: '',
       account_id: '',
     },
   },

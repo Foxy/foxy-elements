@@ -21,7 +21,7 @@ const summary: Summary = {
       'consent',
       'fields',
       'google-analytics',
-      'segment-io',
+      'google-tag',
       'troubleshooting',
       'custom-config',
       'header',

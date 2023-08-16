@@ -1,6 +1,7 @@
 import { expect, fixture, html, oneEvent, waitUntil } from '@open-wc/testing';
 import { createRouter } from '../../../../../server/index';
 import { InternalForm } from '../../../../internal/InternalForm/InternalForm';
+import { InternalSourceControl } from '../../../../internal/InternalSourceControl/InternalSourceControl';
 import { FetchEvent } from '../../../NucleonElement/FetchEvent';
 import { SwipeActions } from '../../../SwipeActions/SwipeActions';
 import { InternalApiBrowserResourceForm } from './index';
@@ -13,6 +14,10 @@ describe('ApiBrowser', () => {
 
     it('imports and defines iron-icon', () => {
       expect(customElements.get('iron-icon')).to.exist;
+    });
+
+    it('imports and defines foxy-internal-source-control', () => {
+      expect(customElements.get('foxy-internal-source-control')).to.exist;
     });
 
     it('imports and defines foxy-internal-delete-control', () => {
@@ -245,7 +250,7 @@ describe('ApiBrowser', () => {
       expect(control).to.not.exist;
     });
 
-    it('renders a textarea with serialized form data when open', async () => {
+    it('renders a source control with form data when open', async () => {
       const router = createRouter();
       const form = await fixture<InternalApiBrowserResourceForm>(html`
         <foxy-internal-api-browser-resource-form
@@ -258,9 +263,11 @@ describe('ApiBrowser', () => {
 
       await waitUntil(() => form.in({ idle: 'snapshot' }));
 
-      const textarea = form.renderRoot.querySelector('textarea')!;
+      const control = form.renderRoot.querySelector<InternalSourceControl>(
+        'foxy-internal-source-control'
+      )!;
 
-      expect(textarea.value).to.include(
+      expect(control.getValue()).to.include(
         JSON.stringify(
           form.form,
           Object.keys(form.form).filter(key => !key.startsWith('_')),
@@ -270,8 +277,7 @@ describe('ApiBrowser', () => {
 
       form.data = null;
       await form.updateComplete;
-      textarea.value = '{ "first_name": "Test" }';
-      textarea.dispatchEvent(new CustomEvent('input'));
+      control.setValue('{ "first_name": "Test" }');
 
       expect(form).to.have.deep.property('form', { first_name: 'Test' });
     });

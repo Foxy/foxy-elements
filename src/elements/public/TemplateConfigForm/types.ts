@@ -88,8 +88,9 @@ export type TemplateConfigJSON = {
       account_id: string;
       include_on_site: boolean;
     };
-    segment_io: {
+    google_tag: {
       usage: 'none' | 'required';
+      send_to: string;
       account_id: string;
     };
   };

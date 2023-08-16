@@ -13,7 +13,6 @@ import { Group } from '../../private/Group/Group';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PropertyDeclarations } from 'lit-element';
 import { ResponsiveMixin } from '../../../mixins/responsive';
-import { TextAreaElement } from '@vaadin/vaadin-text-field/vaadin-text-area';
 import { TextFieldElement } from '@vaadin/vaadin-text-field/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -56,9 +55,6 @@ const Base = ScopedElementsMixin(
  * @slot google-analytics:before
  * @slot google-analytics:after
  *
- * @slot segment-io:before
- * @slot segment-io:after
- *
  * @slot troubleshooting:before
  * @slot troubleshooting:after
  *
@@ -81,8 +77,8 @@ export class TemplateConfigForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
     return {
       'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-text-area': customElements.get('vaadin-text-area'),
       'iron-icon': customElements.get('iron-icon'),
+      'foxy-internal-source-control': customElements.get('foxy-internal-source-control'),
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -128,12 +124,72 @@ export class TemplateConfigForm extends Base<Data> {
           ${hidden.matches('consent', true) ? '' : this.__renderConsent(json)}
           ${hidden.matches('fields', true) ? '' : this.__renderFields(json)}
           ${hidden.matches('google-analytics', true) ? '' : this.__renderGoogleAnalytics(json)}
-          ${hidden.matches('segment-io', true) ? '' : this.__renderSegmentIo(json)}
+          ${hidden.matches('google-tag', true) ? '' : this.__renderGoogleTag(json)}
           ${hidden.matches('troubleshooting', true) ? '' : this.__renderTroubleshooting(json)}
-          ${hidden.matches('custom-config', true) ? '' : this.__renderCustomConfig(json)}
-          ${hidden.matches('header', true) ? '' : this.__renderHeader(json)}
-          ${hidden.matches('custom-fields', true) ? '' : this.__renderCustomFields(json)}
-          ${hidden.matches('footer', true) ? '' : this.__renderFooter(json)}
+
+          <foxy-internal-source-control
+            data-testid="custom-config"
+            helper-text=${this.t('custom_config_helper_text')}
+            placeholder='{ "key": "value" }'
+            label=${this.t('custom_config')}
+            infer="custom-config"
+            .getValue=${() => {
+              if (typeof json.custom_config === 'string') return json.custom_config;
+              return JSON.stringify(json.custom_config, null, 2);
+            }}
+            .setValue=${(newValue: string) => {
+              try {
+                json.custom_config = JSON.parse(newValue);
+              } catch {
+                json.custom_config = newValue;
+              }
+
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
+
+          <foxy-internal-source-control
+            data-testid="header"
+            placeholder="<style>h1 { color: red }</style>"
+            helper-text=${this.t('custom_header_helper_text')}
+            label=${this.t('custom_header')}
+            infer="header"
+            .getValue=${() => json.custom_script_values.header}
+            .setValue=${(newValue: string) => {
+              json.custom_script_values.header = newValue;
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
+
+          <foxy-internal-source-control
+            data-testid="custom-fields"
+            placeholder='<label>Comment: <input name="comment"></label>'
+            helper-text=${this.t('custom_fields_helper_text')}
+            label=${this.t('custom_fields')}
+            infer="custom-fields"
+            .getValue=${() => json.custom_script_values.checkout_fields}
+            .setValue=${(newValue: string) => {
+              json.custom_script_values.checkout_fields = newValue;
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
+
+          <foxy-internal-source-control
+            data-testid="footer"
+            placeholder='<script src="https://example.com/code.js"></script>'
+            helper-text=${this.t('custom_footer_helper_text')}
+            label=${this.t('custom_footer')}
+            infer="footer"
+            .getValue=${() => json.custom_script_values.footer}
+            .setValue=${(newValue: string) => {
+              json.custom_script_values.footer = newValue;
+              this.edit({ json: JSON.stringify(json) });
+            }}
+          >
+          </foxy-internal-source-control>
         </div>
 
         <div
@@ -1121,7 +1177,7 @@ export class TemplateConfigForm extends Base<Data> {
   private __renderGoogleAnalytics(json: TemplateConfigJSON) {
     const { lang, ns } = this;
     const config = json.analytics_config;
-    const sioConfig = config.segment_io;
+    const gtConfig = config.google_tag;
     const gaConfig = config.google_analytics;
     const isDisabled = !this.in('idle') || this.disabledSelector.matches('google-analytics', true);
     const isReadonly = this.readonlySelector.matches('google-analytics', true);
@@ -1132,6 +1188,13 @@ export class TemplateConfigForm extends Base<Data> {
 
         <x-group frame>
           <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Google Analytics</span>
+
+          <foxy-i18n
+            class="block bg-error-10 text-error font-medium rounded-t p-m"
+            infer=""
+            key="ga_deprecation_notice"
+          >
+          </foxy-i18n>
 
           <div class="p-m space-y-m">
             <vaadin-text-field
@@ -1149,7 +1212,7 @@ export class TemplateConfigForm extends Base<Data> {
               @input=${(evt: InputEvent) => {
                 gaConfig.account_id = (evt.currentTarget as TextFieldElement).value;
                 gaConfig.usage = gaConfig.account_id ? 'required' : 'none';
-                config.usage = gaConfig.account_id || sioConfig.account_id ? 'required' : 'none';
+                config.usage = gaConfig.account_id || gtConfig.account_id ? 'required' : 'none';
                 this.edit({ json: JSON.stringify(json) });
               }}
             >
@@ -1184,45 +1247,83 @@ export class TemplateConfigForm extends Base<Data> {
     `;
   }
 
-  private __renderSegmentIo(json: TemplateConfigJSON) {
+  private __renderGoogleTag(json: TemplateConfigJSON) {
     const config = json.analytics_config;
-    const sioConfig = config.segment_io;
+    const gtConfig = config.google_tag;
     const gaConfig = config.google_analytics;
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches('segment-io', true);
-    const isReadonly = this.readonlySelector.matches('segment-io', true);
+    const isDisabled = !this.in('idle') || this.disabledSelector.matches('google-tag', true);
+    const isReadonly = this.readonlySelector.matches('google-tag', true);
 
     return html`
-      <div data-testid="segment-io">
-        ${this.renderTemplateOrSlot('segment-io:before')}
+      <div data-testid="google-tag">
+        ${this.renderTemplateOrSlot('google-tag:before')}
 
         <x-group frame>
-          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Segment.io</span>
+          <span class=${isDisabled ? 'text-disabled' : ''} slot="header">Google Tag</span>
 
-          <div class="p-m">
+          <div class="p-m space-y-m">
             <vaadin-text-field
-              data-testid="segment-io-field"
+              data-testid="google-tag-account-id"
               style="--lumo-border-radius: var(--lumo-border-radius-s)"
               class="w-full"
-              label=${this.t('sio_account_id')}
-              placeholder="MY-WRITE-KEY"
-              helper-text=${this.t('sio_account_id_explainer')}
-              .value=${live(sioConfig.account_id)}
+              label=${this.t('gt_account_id')}
+              placeholder="G-123456789"
+              helper-text=${this.t('gt_account_id_explainer')}
+              .value=${live(gtConfig.account_id)}
               ?disabled=${isDisabled}
               ?readonly=${isReadonly}
               clear-button-visible
               @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
               @input=${(evt: InputEvent) => {
-                sioConfig.account_id = (evt.currentTarget as TextFieldElement).value;
-                sioConfig.usage = sioConfig.account_id ? 'required' : 'none';
-                config.usage = gaConfig.account_id || sioConfig.account_id ? 'required' : 'none';
+                gtConfig.account_id = (evt.currentTarget as TextFieldElement).value;
+                gtConfig.usage = gtConfig.account_id ? 'required' : 'none';
+                config.usage = gtConfig.account_id || gaConfig.account_id ? 'required' : 'none';
                 this.edit({ json: JSON.stringify(json) });
               }}
             >
             </vaadin-text-field>
+
+            <vaadin-text-field
+              data-testid="google-tag-send-to"
+              style="--lumo-border-radius: var(--lumo-border-radius-s)"
+              class="w-full"
+              label=${this.t('gt_send_to')}
+              placeholder="AW-123456789/sABDCLqU3K2BEJb8cxDE"
+              helper-text=${this.t('gt_send_to_explainer')}
+              .value=${live(gtConfig.send_to)}
+              ?disabled=${isDisabled}
+              ?readonly=${isReadonly}
+              clear-button-visible
+              @keydown=${(evt: KeyboardEvent) => evt.key === 'Enter' && this.submit()}
+              @input=${(evt: InputEvent) => {
+                gtConfig.send_to = (evt.currentTarget as TextFieldElement).value;
+                gtConfig.usage = gtConfig.account_id ? 'required' : 'none';
+                config.usage = gtConfig.account_id || gaConfig.account_id ? 'required' : 'none';
+                this.edit({ json: JSON.stringify(json) });
+              }}
+            >
+            </vaadin-text-field>
+
+            <p class="text-xs text-secondary">
+              <foxy-i18n infer="" key="gt_usage_notice"></foxy-i18n>
+              <a
+                target="_blank"
+                class="cursor-pointer group text-primary rounded-s font-medium focus-outline-none focus-ring-2 focus-ring-primary-50"
+                href="https://wiki.foxycart.com/v/2.0/analytics#google_tag_ga4_google_ads"
+                rel="nofollow noreferrer noopener"
+              >
+                <foxy-i18n
+                  class="transition-opacity group-hover-opacity-80"
+                  infer=""
+                  key="gt_docs_link"
+                >
+                </foxy-i18n>
+              </a>
+            </p>
           </div>
         </x-group>
 
-        ${this.renderTemplateOrSlot('segment-io:after')}
+        ${this.renderTemplateOrSlot('google-tag:after')}
       </div>
     `;
   }
@@ -1273,125 +1374,6 @@ export class TemplateConfigForm extends Base<Data> {
         </x-group>
 
         ${this.renderTemplateOrSlot('troubleshooting:after')}
-      </div>
-    `;
-  }
-
-  private __renderCustomConfig(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="custom-config">
-        ${this.renderTemplateOrSlot('custom-config:before')}
-
-        <vaadin-text-area
-          data-testid="custom-config-field"
-          class="w-full"
-          label=${this.t('custom_config')}
-          placeholder='{ "key": "value" }'
-          helper-text=${this.t('custom_config_helper_text')}
-          .value=${json.custom_config ? JSON.stringify(json.custom_config, null, 2) : ''}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('custom-config', true)}
-          ?readonly=${this.readonlySelector.matches('custom-config', true)}
-          @input=${(evt: CustomEvent) => {
-            const input = evt.currentTarget as TextAreaElement;
-
-            try {
-              json.custom_config = input.value ? JSON.parse(input.value) : '';
-              this.edit({ json: JSON.stringify(json) });
-              input.invalid = false;
-            } catch {
-              input.invalid = true;
-            }
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('custom-config:after')}
-      </div>
-    `;
-  }
-
-  private __renderHeader(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="header">
-        ${this.renderTemplateOrSlot('header:before')}
-
-        <vaadin-text-area
-          data-testid="header-field"
-          class="w-full"
-          label=${this.t('custom_header')}
-          helper-text=${this.t('custom_header_helper_text')}
-          .value=${json.custom_script_values.header}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('header', true)}
-          ?readonly=${this.readonlySelector.matches('header', true)}
-          @input=${(evt: CustomEvent) => {
-            const target = evt.currentTarget as TextAreaElement;
-            const newConfig: TemplateConfigJSON['custom_script_values'] = {
-              ...json.custom_script_values,
-              header: target.value,
-            };
-
-            this.edit({ json: JSON.stringify({ ...json, custom_script_values: newConfig }) });
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('header:after')}
-      </div>
-    `;
-  }
-
-  private __renderCustomFields(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="custom-fields">
-        ${this.renderTemplateOrSlot('custom-fields:before')}
-
-        <vaadin-text-area
-          data-testid="custom-fields-field"
-          class="w-full"
-          label=${this.t('custom_fields')}
-          helper-text=${this.t('custom_fields_helper_text')}
-          .value=${json.custom_script_values.checkout_fields}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('custom-fields', true)}
-          ?readonly=${this.readonlySelector.matches('custom-fields', true)}
-          @input=${(evt: CustomEvent) => {
-            const newValue = (evt.currentTarget as TextAreaElement).value;
-            json.custom_script_values.checkout_fields = newValue;
-            this.edit({ json: JSON.stringify(json) });
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('custom-fields:after')}
-      </div>
-    `;
-  }
-
-  private __renderFooter(json: TemplateConfigJSON) {
-    return html`
-      <div data-testid="footer">
-        ${this.renderTemplateOrSlot('footer:before')}
-
-        <vaadin-text-area
-          data-testid="footer-field"
-          class="w-full"
-          label=${this.t('custom_footer')}
-          helper-text=${this.t('custom_footer_helper_text')}
-          .value=${json.custom_script_values.footer}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches('footer', true)}
-          ?readonly=${this.readonlySelector.matches('footer', true)}
-          @input=${(evt: CustomEvent) => {
-            const target = evt.currentTarget as TextAreaElement;
-            const newConfig: TemplateConfigJSON['custom_script_values'] = {
-              ...json.custom_script_values,
-              footer: target.value,
-            };
-
-            this.edit({ json: JSON.stringify({ ...json, custom_script_values: newConfig }) });
-          }}
-        >
-        </vaadin-text-area>
-
-        ${this.renderTemplateOrSlot('footer:after')}
       </div>
     `;
   }

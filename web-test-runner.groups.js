@@ -88,6 +88,10 @@ export const groups = [
     files: './src/elements/internal/InternalSelectControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-source-control',
+    files: './src/elements/internal/InternalSourceControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-text-area-control',
     files: './src/elements/internal/InternalTextAreaControl/**/*.test.ts',
   },

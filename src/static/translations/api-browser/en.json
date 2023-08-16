@@ -12,6 +12,10 @@
   "pagination": "{{from}}-{{to}} out of {{total}}",
   "previous": "Previous",
   "undo": "Undo",
+  "editor": {
+    "label": "Resource JSON",
+    "placeholder": "Enter resource JSON here and click Submit to save"
+  },
   "copy-to-clipboard": {
     "click_to_copy": "Click to copy",
     "copying": "Copying",

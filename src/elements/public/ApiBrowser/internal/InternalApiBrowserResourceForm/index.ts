@@ -4,6 +4,7 @@ import '@polymer/iron-icon';
 
 import '../../../../internal/InternalDeleteControl/index';
 import '../../../../internal/InternalCreateControl/index';
+import '../../../../internal/InternalSourceControl/index';
 import '../../../../internal/InternalForm/index';
 import '../../../CopyToClipboard/index';
 import '../../../SwipeActions/index';

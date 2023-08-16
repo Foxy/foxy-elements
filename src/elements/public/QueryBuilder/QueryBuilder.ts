@@ -1,5 +1,5 @@
 import { CSSResultArray, LitElement, PropertyDeclarations, TemplateResult } from 'lit-element';
-import { Operator, Option, Type } from './types';
+import { ParsedValue, Operator, Option, Type } from './types';
 
 import { Group } from './components/Group';
 import { ResponsiveMixin } from '../../../mixins/responsive';
@@ -53,14 +53,23 @@ class QueryBuilder extends Base {
   value: string | null = null;
 
   render(): TemplateResult {
+    const reservedPaths = new Set(['zoom', 'limit', 'offset', 'order', 'fields']);
+    const hiddenValues: (ParsedValue | ParsedValue[])[] = [];
+    const visibleValues: (ParsedValue | ParsedValue[])[] = [];
+
+    parse(this.value ?? '').forEach(value => {
+      const isVisible = Array.isArray(value) || !reservedPaths.has(value.path);
+      isVisible ? visibleValues.push(value) : hiddenValues.push(value);
+    });
+
     return Group({
-      parsedValues: parse(this.value ?? ''),
+      parsedValues: visibleValues,
       disabled: this.disabled,
       readonly: this.readonly,
       options: this.options ?? [],
       t: this.t.bind(this),
       onChange: newValue => {
-        this.value = stringify(newValue);
+        this.value = stringify([...newValue, ...hiddenValues]);
         this.dispatchEvent(new QueryBuilder.ChangeEvent('change'));
       },
     });
