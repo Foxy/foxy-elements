@@ -127,7 +127,7 @@
     },
     "ga_deprecation_notice": {
       "type": "string",
-      "default": "Google is dropping support for this integration in July 2023. Please use the newer Google Tag integration below."
+      "default": "Google has ended support for this integration in July 2023. Please use the newer Google Tag integration below."
     },
     "gt_account_id": { "type": "string", "default": "Tag ID" },
     "gt_account_id_explainer": {
