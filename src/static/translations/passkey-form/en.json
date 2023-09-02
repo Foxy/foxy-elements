@@ -1,0 +1,34 @@
+{
+  "credential-id": {
+    "label": "Credential ID",
+    "placeholder": "",
+    "helper_text": "Unique identifier of your passkey. You might be able to find this passkey by Credential ID in your password manager."
+  },
+  "last-login-date": {
+    "label": "Last login date",
+    "placeholder": "",
+    "helper_text": "The last time this passkey was used to sign in to your Foxy Account."
+  },
+  "last-login-ua": {
+    "label": "Last browser",
+    "placeholder": "",
+    "helper_text": "User agent string of the browser that was last used to sign in to your Foxy Account with this passkey."
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Once deleted, this passkey will no longer be accepted on login but will remain in your password manager. Sessions created with this passkey will stay active."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

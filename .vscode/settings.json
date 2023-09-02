@@ -221,6 +221,10 @@
       "url": "./src/static/schemas/passkey-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/passkey-form/*.json"],
+      "url": "./src/static/schemas/passkey-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/payment-card/*.json"],
       "url": "./src/static/schemas/payment-card.json"
     },
