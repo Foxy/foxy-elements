@@ -57,6 +57,10 @@
       "url": "./src/static/schemas/client-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/client-form/*.json"],
+      "url": "./src/static/schemas/client-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/copy-to-clipboard/*.json"],
       "url": "./src/static/schemas/copy-to-clipboard.json"
     },

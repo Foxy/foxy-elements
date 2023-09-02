@@ -240,6 +240,10 @@ export const groups = [
     files: './src/elements/public/ClientCard/**/*.test.ts',
   },
   {
+    name: 'foxy-client-form',
+    files: './src/elements/public/ClientForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-collection-page',
     files: './src/elements/public/CollectionPage/**/*.test.ts',
   },

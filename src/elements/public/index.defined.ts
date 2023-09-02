@@ -11,6 +11,8 @@ export { AttributeForm } from './AttributeForm/index';
 export { CancellationForm } from './CancellationForm/index';
 export { CartCard } from './CartCard/index';
 export { CartForm } from './CartForm/index';
+export { ClientCard } from './ClientCard/index';
+export { ClientForm } from './ClientForm/index';
 export { CollectionPage } from './CollectionPage/index';
 export { CollectionPages } from './CollectionPages/index';
 export { CopyToClipboard } from './CopyToClipboard/index';

@@ -1,0 +1,74 @@
+{
+  "client-id": {
+    "label": "Client ID",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "client-secret": {
+    "label": "Client secret",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "project-name": {
+    "label": "Project name",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "project-description": {
+    "label": "Project description",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "redirect-uri": {
+    "label": "Redirect URI",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "company-name": {
+    "label": "Company name",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "company-url": {
+    "label": "Company url",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "company-logo": {
+    "label": "Company logo",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "contact-name": {
+    "label": "Contact name",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "contact-email": {
+    "label": "Contact email",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "contact-phone": {
+    "label": "Contact phone",
+    "placeholder": "",
+    "helper_text": ""
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Once deleted, applications using this client will no longer be able to access Foxy stores and users."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

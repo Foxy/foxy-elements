@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "client-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Client ID" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "client-secret": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Client secret" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "project-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Project name" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "project-description": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Project description" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "redirect-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Redirect URI" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "company-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Company name" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "company-url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Company url" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "company-logo": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Company logo" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "contact-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Contact name" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "contact-email": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Contact email" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "contact-phone": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Contact phone" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Once deleted, applications using this client will no longer be able to access Foxy stores and users."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
+    }
+  },
+  "required": [
+    "client-id",
+    "client-secret",
+    "project-name",
+    "project-description",
+    "redirect-uri",
+    "company-name",
+    "company-url",
+    "company-logo",
+    "contact-name",
+    "contact-email",
+    "contact-phone",
+    "timestamps",
+    "delete",
+    "create",
+    "spinner"
+  ]
+}
