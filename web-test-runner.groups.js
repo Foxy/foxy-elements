@@ -236,6 +236,10 @@ export const groups = [
     files: './src/elements/public/CartForm/**/*.test.ts',
   },
   {
+    name: 'foxy-client-card',
+    files: './src/elements/public/ClientCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-collection-page',
     files: './src/elements/public/CollectionPage/**/*.test.ts',
   },

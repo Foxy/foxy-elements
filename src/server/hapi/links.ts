@@ -1,6 +1,9 @@
 import { Links } from '../router/types';
 
 export const links: Links = {
+  clients: ({ id }) => ({
+    'fx:attributes': { href: `./client_attributes?client_id=${id}` },
+  }),
   downloadables: ({ id, store_id, item_category_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:item_category': { href: `./item_categories/${item_category_id}` },

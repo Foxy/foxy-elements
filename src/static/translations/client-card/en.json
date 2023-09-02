@@ -1,0 +1,10 @@
+{
+  "no_project_name": "Unnamed project",
+  "no_project_description": "No description provided",
+  "no_company_name": "Unknown company",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

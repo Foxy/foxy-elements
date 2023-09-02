@@ -4,6 +4,22 @@ import { increment } from '../router/utils';
 import uniqueId from 'lodash-es/uniqueId';
 
 export const defaults: Defaults = {
+  clients: (query, dataset) => ({
+    id: increment('clients', dataset),
+    client_id: '',
+    client_secret: '',
+    redirect_uri: '',
+    javascript_origin_uri: '',
+    project_name: '',
+    project_description: '',
+    company_name: '',
+    company_url: '',
+    company_logo: '',
+    contact_name: '',
+    contact_email: '',
+    contact_phone: '',
+  }),
+
   downloadables: (query, dataset) => {
     const itemCategoryId = parseInt(query.get('item_category_id') ?? '0');
 

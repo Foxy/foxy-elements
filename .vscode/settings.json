@@ -53,6 +53,10 @@
       "url": "./src/static/schemas/cart-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/client-card/*.json"],
+      "url": "./src/static/schemas/client-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/copy-to-clipboard/*.json"],
       "url": "./src/static/schemas/copy-to-clipboard.json"
     },

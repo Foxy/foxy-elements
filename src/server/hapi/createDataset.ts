@@ -1,6 +1,38 @@
 import { Dataset } from '../router/types';
 
 export const createDataset: () => Dataset = () => ({
+  clients: [
+    {
+      id: 0,
+      client_id: 'client_JnVvPWxBz4Ep7YcpJFeU',
+      client_secret: '7dn2cmvUS5btm1S6Mfygd7vaVBuv7Cf8Fx1HKqsx',
+      redirect_uri: 'https://admin.acme.test',
+      javascript_origin_uri: '',
+      project_name: 'Foxy Widgets for Acme Admin',
+      project_description: 'View your recent transactions from Foxy right in the Acme Admin.',
+      company_name: 'Acme Inc.',
+      company_url: 'https://acme.test',
+      company_logo: 'https://picsum.photos/64',
+      contact_name: 'Sally Sims',
+      contact_email: 'sally.sims@example.com',
+      contact_phone: '555-555-5555',
+    },
+    {
+      id: 1,
+      client_id: 'client_ApVvPWxBz4ap7YcpJoe1',
+      client_secret: 'lln2cmvasdbtm1S6Mfygd7vaVBuv23f8Fx1HKqs2',
+      redirect_uri: 'https://admin.acme.test',
+      javascript_origin_uri: '',
+      project_name: '',
+      project_description: '',
+      company_name: '',
+      company_url: '',
+      company_logo: '',
+      contact_name: '',
+      contact_email: '',
+      contact_phone: '',
+    },
+  ],
   downloadables: [
     {
       id: 0,
