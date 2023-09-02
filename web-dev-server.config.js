@@ -48,6 +48,7 @@ export default {
         '**/traverse/**/*',
         '**/consola/**/*',
         '**/jsonata/**/*',
+        '**/uainfer/**/*',
         '**/dedent/**/*',
         '**/@babel/**/*',
         '**/chalk/**/*',

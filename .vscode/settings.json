@@ -217,6 +217,10 @@
       "url": "./src/static/schemas/pagination.json"
     },
     {
+      "fileMatch": ["/src/static/translations/passkey-card/*.json"],
+      "url": "./src/static/schemas/passkey-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/payment-card/*.json"],
       "url": "./src/static/schemas/payment-card.json"
     },

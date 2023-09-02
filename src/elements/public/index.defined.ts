@@ -61,6 +61,7 @@ export { ItemOptionForm } from './ItemOptionForm/index';
 export { ItemsForm, Item } from './ItemsForm/index';
 export { NucleonElement } from './NucleonElement/index';
 export { Pagination } from './Pagination/index';
+export { PasskeyCard } from './PasskeyCard/index';
 export { PaymentCard } from './PaymentCard/index';
 export { ShipmentCard } from './ShipmentCard/index';
 export { ShippingMethodCard } from './ShippingMethodCard/index';

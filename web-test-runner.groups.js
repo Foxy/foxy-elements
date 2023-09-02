@@ -428,6 +428,10 @@ export const groups = [
     files: './src/elements/public/Pagination/**/*.test.ts',
   },
   {
+    name: 'foxy-passkey-card',
+    files: './src/elements/public/PasskeyCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-payment-card',
     files: './src/elements/public/PaymentCard/**/*.test.ts',
   },

@@ -33,6 +33,31 @@ export const createDataset: () => Dataset = () => ({
       contact_phone: '',
     },
   ],
+
+  passkeys: [
+    {
+      id: 0,
+      user_id: 0,
+      credential_id: 'EVAfAKj33924v0A3V4RQ-RVew4r4WEFDL',
+      user_name: 'sally.sims@example.com',
+      last_login_date: '2023-02-21T12:20:10-0700',
+      last_login_ua:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+      date_created: '2023-02-21T12:20:10-0700',
+      date_modified: null,
+    },
+    {
+      id: 1,
+      user_id: 0,
+      credential_id: 'EVAfAKj33924v0A3V4RQ-RVew4r4WEFDL',
+      user_name: 'sally.sims@example.com',
+      last_login_date: null,
+      last_login_ua: null,
+      date_created: null,
+      date_modified: null,
+    },
+  ],
+
   downloadables: [
     {
       id: 0,

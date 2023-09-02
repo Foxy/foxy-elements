@@ -20,6 +20,17 @@ export const defaults: Defaults = {
     contact_phone: '',
   }),
 
+  passkeys: (query, dataset) => ({
+    id: increment('passkeys', dataset),
+    user_id: parseInt(query.get('user_id') ?? '0'),
+    credential_id: '',
+    user_name: null,
+    last_login_date: null,
+    last_login_ua: null,
+    date_created: null,
+    date_modified: null,
+  }),
+
   downloadables: (query, dataset) => {
     const itemCategoryId = parseInt(query.get('item_category_id') ?? '0');
 
