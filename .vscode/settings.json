@@ -149,6 +149,10 @@
       "url": "./src/static/schemas/error-entry-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/filter-attribute-card/*.json"],
+      "url": "./src/static/schemas/filter-attribute-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/generate-codes-form/*.json"],
       "url": "./src/static/schemas/generate-codes-form.json"
     },

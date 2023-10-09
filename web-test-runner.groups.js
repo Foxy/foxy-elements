@@ -348,6 +348,14 @@ export const groups = [
     files: './src/elements/public/ErrorEntryCard/**/*.test.ts',
   },
   {
+    name: 'foxy-filter-attribute-card',
+    files: './src/elements/public/FilterAttributeCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-filter-attribute-form',
+    files: './src/elements/public/FilterAttributeForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-form-dialog',
     files: './src/elements/public/FormDialog/**/*.test.ts',
   },

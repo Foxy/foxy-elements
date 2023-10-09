@@ -134,6 +134,16 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  store_attributes: (query, dataset) => ({
+    id: increment('store_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   customer_attributes: (query, dataset) => ({
     id: increment('customer_attributes', dataset),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
@@ -277,6 +287,8 @@ export const defaults: Defaults = {
     status: '',
     currency_code: '',
     currency_symbol: '',
+    source: '',
+    type: '',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

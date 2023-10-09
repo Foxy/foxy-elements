@@ -45,6 +45,10 @@ export const links: Links = {
     'fx:transaction': { href: `./transactions/${transaction_id}` },
   }),
 
+  store_attributes: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
+
   customer_attributes: ({ store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
   }),

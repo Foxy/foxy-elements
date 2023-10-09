@@ -169,6 +169,19 @@ export const createDataset: () => Dataset = () => ({
     },
   ],
 
+  store_attributes: [
+    {
+      id: 0,
+      name: 'foxy-admin-bookmark',
+      value:
+        '/stores/0/transactions?filter_name=Red%20%26%20Heavy&amp;filter_query=color%3Dred%26weight%3Agreaterthan%3D4',
+      store_id: 0,
+      visibility: 'private',
+      date_created: '2013-08-05T14:15:59-0700',
+      date_modified: '2013-08-05T14:15:59-0700',
+    },
+  ],
+
   customer_attributes: [
     {
       id: 0,
@@ -422,6 +435,8 @@ export const createDataset: () => Dataset = () => ({
       currency_code: 'USD',
       currency_symbol: '$',
       status: 'completed',
+      source: 'cit_ecommerce',
+      type: 'subscription_renewal',
     },
     {
       id: 1,

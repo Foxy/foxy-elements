@@ -43,6 +43,7 @@ export default {
       include: [
         '**/email-validator/**/*',
         '**/cookie-storage/**/*',
+        '**/html-entities/**/*',
         '**/highlight.js/**/*',
         '**/url-pattern/**/*',
         '**/traverse/**/*',
