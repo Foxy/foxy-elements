@@ -153,6 +153,10 @@
       "url": "./src/static/schemas/filter-attribute-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/filter-attribute-form/*.json"],
+      "url": "./src/static/schemas/filter-attribute-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/generate-codes-form/*.json"],
       "url": "./src/static/schemas/generate-codes-form.json"
     },

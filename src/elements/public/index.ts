@@ -42,6 +42,7 @@ export { EmailTemplateCard } from './EmailTemplateCard/EmailTemplateCard';
 export { EmailTemplateForm } from './EmailTemplateForm/EmailTemplateForm';
 export { ErrorEntryCard } from './ErrorEntryCard/ErrorEntryCard';
 export { FilterAttributeCard } from './FilterAttributeCard/FilterAttributeCard';
+export { FilterAttributeForm } from './FilterAttributeForm/FilterAttributeForm';
 export { FormDialog } from './FormDialog/FormDialog';
 export { GenerateCodesForm } from './GenerateCodesForm/GenerateCodesForm';
 export { GiftCardCard } from './GiftCardCard/GiftCardCard';
