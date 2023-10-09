@@ -95,8 +95,22 @@ class TransactionCard extends Base<Data> {
     if (data) {
       const amount = `${data.total_order} ${data.currency_code}`;
       const currencyDisplay = this.__currencyDisplay;
+      const apiTypes = [
+        'subscription_cancellation',
+        'subscription_modification',
+        'subscription_renewal',
+        'updateinfo',
+      ];
+
+      const type = apiTypes.includes(data.type)
+        ? data.type
+        : 'fx:subscription' in data._links
+        ? 'new_subscription'
+        : 'new_order';
 
       content = html`
+        <foxy-i18n lang=${this.lang} key="type_${type}" ns=${this.ns}></foxy-i18n>
+        <span> &bull; </span>
         <foxy-i18n
           options=${JSON.stringify({ amount, currencyDisplay })}
           lang=${this.lang}
@@ -134,12 +148,21 @@ class TransactionCard extends Base<Data> {
     };
 
     const status = this.data?.status || 'completed';
+    const source = this.data?.source.substring(0, 3).toUpperCase();
 
     return html`
       <div data-testid="status">
         ${this.renderTemplateOrSlot('status:before')}
 
         <div class="text-tertiary text-s flex items-center space-x-s">
+          ${source
+            ? html`
+                <div class="bg-contrast-5 rounded-s px-xs" title=${this.t(`source_${source}`)}>
+                  ${source}
+                </div>
+              `
+            : ''}
+
           <foxy-i18n
             options=${JSON.stringify({ value: this.data?.transaction_date })}
             lang=${this.lang}
