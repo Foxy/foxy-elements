@@ -83,7 +83,7 @@
         "label": { "type": "string", "default": "Resource" },
         "helper_text": {
           "type": "string",
-          "default": "Changes in selected resource type will trigger this webhook."
+          "default": "Changes in selected resource type will trigger this webhook. Resource type cannot be changed after the webhook has been created."
         },
         "event_resource_subscription": { "type": "string", "default": "Subscription" },
         "event_resource_transaction": { "type": "string", "default": "Transaction" },

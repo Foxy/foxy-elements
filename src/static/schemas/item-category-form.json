@@ -319,7 +319,7 @@
     "admin-email-template-uri": {
       "additionalProperties": false,
       "properties": {
-        "label": { "type": "string", "default": "Email to admin" },
+        "label": { "type": "string", "default": "Message to admin" },
         "placeholder": { "type": "string", "default": "None (don't send)" },
         "helper_text": { "type": "string", "default": "" }
       },
@@ -338,7 +338,7 @@
     "customer-email-template-uri": {
       "additionalProperties": false,
       "properties": {
-        "label": { "type": "string", "default": "Email to customer" },
+        "label": { "type": "string", "default": "Message to customer" },
         "placeholder": { "type": "string", "default": "None (don't send)" },
         "helper_text": { "type": "string", "default": "" }
       },
@@ -347,7 +347,7 @@
     "gift-recipient-email-template-uri": {
       "additionalProperties": false,
       "properties": {
-        "label": { "type": "string", "default": "Email to gift recipient" },
+        "label": { "type": "string", "default": "Message to gift recipient" },
         "placeholder": { "type": "string", "default": "None (don't send)" },
         "helper_text": { "type": "string", "default": "" }
       },
