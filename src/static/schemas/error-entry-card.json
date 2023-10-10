@@ -3,10 +3,24 @@
   "additionalProperties": false,
   "properties": {
     "client": { "type": "string", "default": "Client" },
+    "customer": { "type": "string", "default": "Customer" },
+    "cart": { "type": "string", "default": "Cart" },
+    "subscription": { "type": "string", "default": "Subscription" },
+    "transaction": { "type": "string", "default": "Transaction" },
     "date": { "type": "string", "default": "{{value, date}}" },
     "error": { "type": "string", "default": "Error" },
     "request": { "type": "string", "default": "Request" },
     "time": { "type": "string", "default": "{{value, time}}" }
   },
-  "required": ["client", "date", "error", "request", "time"]
+  "required": [
+    "client",
+    "customer",
+    "cart",
+    "subscription",
+    "transaction",
+    "date",
+    "error",
+    "request",
+    "time"
+  ]
 }
