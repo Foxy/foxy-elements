@@ -2,7 +2,7 @@ import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements
 
 import { DataList } from './DataList';
 import { NucleonElement } from '../NucleonElement/index';
-import { Resource } from '@foxy.io/sdk/core';
+import { getResourceId, Resource } from '@foxy.io/sdk/core';
 import { TemplateResult } from 'lit-element';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -28,6 +28,13 @@ export class ResourceViewer extends Base<Resource<Rel>> {
     if (this.in({ idle: 'snapshot' })) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { _links, _embedded, ...data } = this.data;
+
+      try {
+        const id = getResourceId(_links.self.href);
+        if (id !== null) data.id = id;
+      } catch {
+        // ignore
+      }
 
       return html`
         <x-data-list
