@@ -10,6 +10,7 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
+import { decode } from 'html-entities';
 
 const NS = 'error-entry-card';
 const Base = TranslatableMixin(ThemeableMixin(ScopedElementsMixin(NucleonElement)), NS);
@@ -103,7 +104,7 @@ export class ErrorEntryCard extends Base<Data> {
 
   private __renderGetOrPostValues(getValues: string, postValues: string) {
     const values = getValues || postValues;
-    const params = new URLSearchParams(this.__decodeHtml(values));
+    const params = new URLSearchParams(decode(values));
     const method = getValues ? 'GET' : 'POST';
 
     return html`
@@ -222,11 +223,5 @@ export class ErrorEntryCard extends Base<Data> {
     }
 
     this.open = details.open;
-  }
-
-  private __decodeHtml(html: string) {
-    const areaElement = document.createElement('textarea');
-    areaElement.innerHTML = html;
-    return areaElement.value;
   }
 }
