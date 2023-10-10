@@ -1,9 +1,12 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import type { Templates, Data } from './types';
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
 import type { ParsedValue } from '../DiscountBuilder/types';
 import type { NucleonV8N } from '../NucleonElement/types';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
@@ -240,11 +243,41 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
     { label: 'option_flat_percent_with_minimum', value: 'flat_percent_with_minimum' },
   ];
 
+  private readonly __giftRecipientEmailTemplateLoaderId = 'gift-recipient-email-template-loader';
+
+  private readonly __customerEmailTemplateLoaderId = 'customer-email-template-loader';
+
+  private readonly __adminEmailTemplateLoaderId = 'admin-email-template-loader';
+
   renderBody(): TemplateResult {
     const itemDeliveryType = this.form.item_delivery_type;
     const handlingFeeType = this.form.handling_fee_type ?? 'none';
 
     return html`
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this.form.customer_email_template_uri || undefined)}
+        id=${this.__customerEmailTemplateLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this.form.gift_recipient_email_template_uri || undefined)}
+        id=${this.__giftRecipientEmailTemplateLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this.form.admin_email_template_uri || undefined)}
+        id=${this.__adminEmailTemplateLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
       <div class="grid grid-cols-2 gap-m">
         <foxy-internal-text-control infer="name" class="col-span-2"></foxy-internal-text-control>
         <foxy-internal-text-control infer="code" class="col-span-2"></foxy-internal-text-control>
@@ -292,6 +325,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
           first=${ifDefined(this.emailTemplates ?? undefined)}
           infer="admin-email-template-uri"
           class=${this.form.send_admin_email ? '' : 'col-span-2'}
+          .selectedItem=${this.__adminEmailTemplateLoader?.data}
           @change=${(evt: CustomEvent) => {
             this.edit({
               send_admin_email: !!evt.detail,
@@ -309,6 +343,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
           first=${ifDefined(this.emailTemplates ?? undefined)}
           infer="customer-email-template-uri"
           class="col-span-2"
+          .selectedItem=${this.__customerEmailTemplateLoader?.data}
           @change=${(evt: CustomEvent) => this.edit({ send_customer_email: !!evt.detail })}
         >
         </foxy-internal-async-combo-box-control>
@@ -319,6 +354,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
           first=${ifDefined(this.emailTemplates ?? undefined)}
           infer="gift-recipient-email-template-uri"
           class="col-span-2"
+          .selectedItem=${this.__giftRecipientEmailTemplateLoader?.data}
         >
         </foxy-internal-async-combo-box-control>
 
@@ -327,6 +363,24 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
 
       ${super.renderBody()}
     `;
+  }
+
+  private get __giftRecipientEmailTemplateLoader() {
+    const id = this.__giftRecipientEmailTemplateLoaderId;
+    type Loader = NucleonElement<Resource<Rels.EmailTemplate>>;
+    return this.renderRoot.querySelector<Loader>(`#${id}`);
+  }
+
+  private get __customerEmailTemplateLoader() {
+    const id = this.__customerEmailTemplateLoaderId;
+    type Loader = NucleonElement<Resource<Rels.EmailTemplate>>;
+    return this.renderRoot.querySelector<Loader>(`#${id}`);
+  }
+
+  private get __adminEmailTemplateLoader() {
+    const id = this.__adminEmailTemplateLoaderId;
+    type Loader = NucleonElement<Resource<Rels.EmailTemplate>>;
+    return this.renderRoot.querySelector<Loader>(`#${id}`);
   }
 
   private __renderHandlingFee() {

@@ -11,6 +11,7 @@ import { InternalNumberControl } from '../../internal/InternalNumberControl/Inte
 import { InternalSelectControl } from '../../internal/InternalSelectControl/InternalSelectControl';
 import { InternalTextControl } from '../../internal/InternalTextControl/InternalTextControl';
 import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { createRouter } from '../../../server/index';
 
@@ -54,6 +55,11 @@ describe('ItemCategoryForm', () => {
   it('imports and defines foxy-discount-builder', () => {
     const element = customElements.get('foxy-discount-builder');
     expect(element).to.equal(DiscountBuilder);
+  });
+
+  it('imports and defines foxy-nucleon', () => {
+    const element = customElements.get('foxy-nucleon');
+    expect(element).to.equal(NucleonElement);
   });
 
   it('imports and defines foxy-internal-item-category-form-taxes-control', () => {
