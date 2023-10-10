@@ -175,4 +175,13 @@ describe('WebhookForm', () => {
     expect(control).to.have.property('first', webhook._links['fx:logs'].href);
     expect(control).to.have.property('item', 'foxy-webhook-log-card');
   });
+
+  it('makes event resource selector readonly when loaded', async () => {
+    const webhook = await getTestData<Data>('./hapi/webhooks/0');
+    const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
+
+    expect(element.readonlySelector.matches('event-resource', true)).to.be.false;
+    element.data = webhook;
+    expect(element.readonlySelector.matches('event-resource', true)).to.be.true;
+  });
 });
