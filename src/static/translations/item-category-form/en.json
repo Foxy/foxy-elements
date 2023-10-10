@@ -156,7 +156,7 @@
     "increase": "increase"
   },
   "admin-email-template-uri": {
-    "label": "Email to admin",
+    "label": "Message to admin",
     "placeholder": "None (don't send)",
     "helper_text": ""
   },
@@ -167,12 +167,12 @@
     "v8n_required": "Please enter an email"
   },
   "customer-email-template-uri": {
-    "label": "Email to customer",
+    "label": "Message to customer",
     "placeholder": "None (don't send)",
     "helper_text": ""
   },
   "gift-recipient-email-template-uri": {
-    "label": "Email to gift recipient",
+    "label": "Message to gift recipient",
     "placeholder": "None (don't send)",
     "helper_text": ""
   },
