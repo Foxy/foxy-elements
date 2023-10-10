@@ -255,6 +255,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
 
     return html`
       <foxy-nucleon
+        class="hidden"
         infer=""
         href=${ifDefined(this.form.customer_email_template_uri || undefined)}
         id=${this.__customerEmailTemplateLoaderId}
@@ -263,6 +264,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
       </foxy-nucleon>
 
       <foxy-nucleon
+        class="hidden"
         infer=""
         href=${ifDefined(this.form.gift_recipient_email_template_uri || undefined)}
         id=${this.__giftRecipientEmailTemplateLoaderId}
@@ -271,6 +273,7 @@ export class ItemCategoryForm extends TranslatableMixin(InternalForm, 'item-cate
       </foxy-nucleon>
 
       <foxy-nucleon
+        class="hidden"
         infer=""
         href=${ifDefined(this.form.admin_email_template_uri || undefined)}
         id=${this.__adminEmailTemplateLoaderId}
