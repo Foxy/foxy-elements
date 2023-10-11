@@ -18,6 +18,7 @@ import { getTestData } from '../../../testgen/getTestData';
 import { html } from 'lit-element';
 import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { countries } from './countries';
 
 describe('AddressForm', () => {
   it('extends NucleonElement', () => {
@@ -1130,6 +1131,18 @@ describe('AddressForm', () => {
   });
 
   describe('country', () => {
+    it('renders a list of countries', async () => {
+      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
+      const control = await getByTestId<SelectElement>(element, 'country');
+      expect(control).to.have.deep.property(
+        'items',
+        Object.keys(countries).map(code => ({
+          text: `country_${code.toLowerCase()}`,
+          code,
+        }))
+      );
+    });
+
     it('has i18n label key "country"', async () => {
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<SelectElement>(element, 'country');
@@ -1152,6 +1165,17 @@ describe('AddressForm', () => {
       control!.dispatchEvent(new CustomEvent('change'));
 
       expect(element).to.have.nested.property('form.country', 'US');
+    });
+
+    it('clears form.region on change', async () => {
+      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
+      element.edit({ country: 'US', region: 'TX' });
+
+      const control = await getByTestId<SelectElement>(element, 'country');
+      control!.value = 'AU';
+      control!.dispatchEvent(new CustomEvent('change'));
+
+      expect(element).to.have.nested.property('form.region', '');
     });
 
     it('renders "country:before" slot by default', async () => {
@@ -1268,6 +1292,48 @@ describe('AddressForm', () => {
   });
 
   describe('region', () => {
+    it('renders an empty list by default', async () => {
+      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
+      const control = await getByTestId<SelectElement>(element, 'region');
+      expect(control).to.have.deep.property('items', []);
+    });
+
+    it("renders a list of regions for a country when it's selected", async () => {
+      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
+      element.edit({ country: 'US' });
+
+      const control = await getByTestId<SelectElement>(element, 'region');
+      expect(control).to.have.deep.property(
+        'items',
+        countries.US.map(code => ({
+          text: `country_us_region_${code.toLowerCase()}`,
+          code,
+        }))
+      );
+
+      element.edit({ country: 'AU' });
+      await element.updateComplete;
+
+      expect(control).to.have.deep.property(
+        'items',
+        countries.AU.map(code => ({
+          text: `country_au_region_${code.toLowerCase()}`,
+          code,
+        }))
+      );
+    });
+
+    it('allows custom value when selected country has no predefined regions', async () => {
+      const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
+      element.edit({ country: 'US' });
+      const control = await getByTestId<SelectElement>(element, 'region');
+      expect(control).to.not.have.attribute('allow-custom-value');
+
+      element.edit({ country: 'CD' });
+      await element.updateComplete;
+      expect(control).to.have.attribute('allow-custom-value');
+    });
+
     it('has i18n label key "region"', async () => {
       const element = await fixture<AddressForm>(html`<foxy-address-form></foxy-address-form>`);
       const control = await getByTestId<SelectElement>(element, 'region');
