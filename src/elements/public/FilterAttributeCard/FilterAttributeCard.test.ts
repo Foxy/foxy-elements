@@ -30,7 +30,7 @@ describe('FilterAttributeCard', () => {
   });
 
   it('has a static property "countRefreshInterval"', () => {
-    expect(Card).to.have.property('countRefreshInterval', 60000);
+    expect(Card).to.have.property('countRefreshInterval', 600000);
   });
 
   it('has a static property "filterQueryKey"', () => {

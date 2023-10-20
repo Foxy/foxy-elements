@@ -25,7 +25,7 @@ const Base = TranslatableMixin(InternalCard, NS);
  * @since 1.24.0
  */
 export class FilterAttributeCard extends Base<Data> {
-  static readonly countRefreshInterval: number = 60000;
+  static readonly countRefreshInterval: number = 600000;
 
   static readonly filterQueryKey: string = 'filter_query';
 
