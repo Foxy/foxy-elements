@@ -374,24 +374,55 @@ export class Customer extends Base<Data> {
 
   private readonly __renderPaymentMethodsList = () => {
     const cardId = 'payment-methods:list:card';
+    const formId = 'payment-methods:list:card:form';
+    const href = this.data?._links['fx:default_payment_method'].href ?? '';
+    const isDisabled = this.disabledSelector.matches(cardId, true);
 
     return html`
       <div data-testid="payment-methods:list">
         ${this.renderTemplateOrSlot('payment-methods:list:before')}
 
-        <foxy-payment-method-card
-          readonlycontrols=${this.readonlySelector.zoom(cardId).toString()}
-          disabledcontrols=${this.disabledSelector.zoom(cardId).toString()}
-          hiddencontrols=${this.hiddenSelector.zoom(cardId).toString()}
-          data-testid=${cardId}
-          group=${this.group}
-          class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
-          href=${this.data?._links['fx:default_payment_method'].href ?? ''}
+        <foxy-form-dialog
+          readonlycontrols=${this.readonlySelector.zoom(formId)}
+          disabledcontrols=${this.disabledSelector.zoom(formId)}
+          hiddencontrols=${this.hiddenSelector.zoom(formId)}
+          header="dialog_header"
+          form="foxy-payment-method-form"
+          href=${href}
           lang=${this.lang}
-          ns="${this.ns} ${customElements.get('foxy-payment-method-card')?.defaultNS ?? ''}"
-          .templates=${this.getNestedTemplates(cardId)}
+          ns="${this.ns} payment-method-card dialog"
+          alert
         >
-        </foxy-payment-method-card>
+        </foxy-form-dialog>
+
+        <button
+          class=${classMap({
+            'focus-outline-none focus-ring-2 focus-ring-primary-50': true,
+            'transition-opacity rounded-t-l rounded-b-l': true,
+            'cursor-pointer hover-opacity-90': !isDisabled,
+            'cursor-default': isDisabled,
+          })}
+          ?disabled=${isDisabled}
+          @click=${(evt: MouseEvent) => {
+            const button = evt.currentTarget as HTMLButtonElement;
+            const dialog = button.previousElementSibling as FormDialog;
+            dialog.show(button);
+          }}
+        >
+          <foxy-payment-method-card
+            readonlycontrols=${this.readonlySelector.zoom(cardId)}
+            disabledcontrols=${this.disabledSelector.zoom(cardId)}
+            hiddencontrols=${`actions ${this.hiddenSelector.zoom(cardId)}`.trim()}
+            data-testid=${cardId}
+            group=${this.group}
+            class="w-payment-method-card border-radius-overflow-fix rounded-t-l rounded-b-l overflow-hidden"
+            href=${href}
+            lang=${this.lang}
+            ns="${this.ns} payment-method-card"
+            .templates=${this.getNestedTemplates(cardId)}
+          >
+          </foxy-payment-method-card>
+        </button>
 
         ${this.renderTemplateOrSlot('payment-methods:list:after')}
       </div>

@@ -681,12 +681,86 @@
     }
   },
   "payment-method-card": {
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "delete_prompt": "This resource will be permanently removed. Are you sure?",
     "expires": "Expires",
     "last_4_digits": "Last 4 digits",
     "unknown": "Unknown",
+    "dialog": {
+      "dialog_header": "Default payment method",
+      "close": "Close",
+      "cancel": "Cancel",
+      "save": "Save",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "payment-method-form": {
+        "tab_0": "Use the saved card",
+        "tab_1": "Add a new card",
+        "cc-number": {
+          "label": "Card number",
+          "placeholder": "",
+          "helper_text": ""
+        },
+        "cc-exp": {
+          "label": "Expires on",
+          "placeholder": "",
+          "helper_text": ""
+        },
+        "cc-csc": {
+          "label": "CSC",
+          "placeholder": "",
+          "helper_text": ""
+        },
+        "cc-token": {
+          "cc-number": {
+            "label": "Card number",
+            "placeholder": "1234 1234 1234 1234",
+            "v8n_required": "Enter a card number",
+            "v8n_invalid": "Check your card number – it doesn't seem to be valid",
+            "v8n_unsupported": "We don't support this card type"
+          },
+          "cc-exp": {
+            "label": "Expires on",
+            "placeholder": "MM/YYYY",
+            "v8n_required": "Enter an expiry date",
+            "v8n_invalid": "Enter a date as MM/YYYY",
+            "v8n_expired": "Your card has expired"
+          },
+          "cc-csc": {
+            "label": "CSC",
+            "placeholder": "XXX",
+            "v8n_required": "Enter a security code",
+            "v8n_invalid": "Enter a 3-4 digits code"
+          },
+          "supported-cards": {
+            "label": "Accepted cards"
+          },
+          "status-message": {
+            "idle": "Your card details are protected with SSL and a NSA-approved encryption algorithm.",
+            "busy": "Encrypting your card details...",
+            "fail_5xx": "Card tokenization service is currently unavailable. Please try again later.",
+            "fail_4xx": "This card doesn't appear to be valid. Please check the details and try again."
+          }
+        },
+        "timestamps": {
+          "date_created": "Added on",
+          "date_modified": "Last updated",
+          "date": "{{value, date}}"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "If you have any active subscriptions, they will fail on next payment date. Are you sure you'd like to remove this card?"
+        },
+        "create": {
+          "create": "Add card"
+        },
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
     "spinner": {
       "loading_busy": "Loading",
       "loading_empty": "No data",

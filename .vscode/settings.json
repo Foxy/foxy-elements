@@ -241,6 +241,10 @@
       "url": "./src/static/schemas/payment-method-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/payment-method-form/*.json"],
+      "url": "./src/static/schemas/payment-method-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/payments-api-fraud-protection-card/*.json"],
       "url": "./src/static/schemas/payments-api-fraud-protection-card.json"
     },

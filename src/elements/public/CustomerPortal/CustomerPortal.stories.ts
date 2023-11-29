@@ -29,7 +29,6 @@ const summary: Summary = {
       'customer:addresses:list:card:phone',
       'customer:payment-methods',
       'customer:payment-methods:list',
-      'customer:payment-methods:list:card:actions',
       'customer:transactions',
       'customer:transactions:table:default',
       'customer:transactions:header',
