@@ -234,6 +234,7 @@ export const defaults: Defaults = {
 
   payment_methods: (query, dataset) => ({
     id: increment('payment_methods', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
     customer_id: parseInt(query.get('customer_id') ?? '0'),
     save_cc: true,
     cc_type: '',

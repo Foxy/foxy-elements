@@ -69,6 +69,7 @@ export { PaymentCard } from './PaymentCard/index';
 export { ShipmentCard } from './ShipmentCard/index';
 export { ShippingMethodCard } from './ShippingMethodCard/index';
 export { PaymentMethodCard } from './PaymentMethodCard/index';
+export { PaymentMethodForm } from './PaymentMethodForm/index';
 export { PaymentsApi } from './PaymentsApi/index';
 export { PaymentsApiFraudProtectionCard } from './PaymentsApiFraudProtectionCard/index';
 export { PaymentsApiFraudProtectionForm } from './PaymentsApiFraudProtectionForm/index';

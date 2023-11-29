@@ -1397,15 +1397,196 @@
     "payment-method-card": {
       "additionalProperties": false,
       "properties": {
-        "cancel": { "type": "string", "default": "Cancel" },
-        "delete": { "type": "string", "default": "Delete" },
-        "delete_prompt": {
-          "type": "string",
-          "default": "This resource will be permanently removed. Are you sure?"
-        },
         "expires": { "type": "string", "default": "Expires" },
         "last_4_digits": { "type": "string", "default": "Last 4 digits" },
         "unknown": { "type": "string", "default": "Unknown" },
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "dialog_header": { "type": "string", "default": "Default payment method" },
+            "close": { "type": "string", "default": "Close" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "save": { "type": "string", "default": "Save" },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "payment-method-form": {
+              "additionalProperties": false,
+              "properties": {
+                "tab_0": { "type": "string", "default": "Use the saved card" },
+                "tab_1": { "type": "string", "default": "Add a new card" },
+                "cc-number": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Card number" },
+                    "placeholder": { "type": "string", "default": "" },
+                    "helper_text": { "type": "string", "default": "" }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "cc-exp": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Expires on" },
+                    "placeholder": { "type": "string", "default": "" },
+                    "helper_text": { "type": "string", "default": "" }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "cc-csc": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "CSC" },
+                    "placeholder": { "type": "string", "default": "" },
+                    "helper_text": { "type": "string", "default": "" }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "cc-token": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "cc-number": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "label": { "type": "string", "default": "Card number" },
+                        "placeholder": { "type": "string", "default": "1234 1234 1234 1234" },
+                        "v8n_required": { "type": "string", "default": "Enter a card number" },
+                        "v8n_invalid": {
+                          "type": "string",
+                          "default": "Check your card number – it doesn't seem to be valid"
+                        },
+                        "v8n_unsupported": {
+                          "type": "string",
+                          "default": "We don't support this card type"
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "placeholder",
+                        "v8n_required",
+                        "v8n_invalid",
+                        "v8n_unsupported"
+                      ]
+                    },
+                    "cc-exp": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "label": { "type": "string", "default": "Expires on" },
+                        "placeholder": { "type": "string", "default": "MM/YYYY" },
+                        "v8n_required": { "type": "string", "default": "Enter an expiry date" },
+                        "v8n_invalid": { "type": "string", "default": "Enter a date as MM/YYYY" },
+                        "v8n_expired": { "type": "string", "default": "Your card has expired" }
+                      },
+                      "required": [
+                        "label",
+                        "placeholder",
+                        "v8n_required",
+                        "v8n_invalid",
+                        "v8n_expired"
+                      ]
+                    },
+                    "cc-csc": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "label": { "type": "string", "default": "CSC" },
+                        "placeholder": { "type": "string", "default": "XXX" },
+                        "v8n_required": { "type": "string", "default": "Enter a security code" },
+                        "v8n_invalid": { "type": "string", "default": "Enter a 3-4 digits code" }
+                      },
+                      "required": ["label", "placeholder", "v8n_required", "v8n_invalid"]
+                    },
+                    "supported-cards": {
+                      "additionalProperties": false,
+                      "properties": { "label": { "type": "string", "default": "Accepted cards" } },
+                      "required": ["label"]
+                    },
+                    "status-message": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "idle": {
+                          "type": "string",
+                          "default": "Your card details are protected with SSL and a NSA-approved encryption algorithm."
+                        },
+                        "busy": { "type": "string", "default": "Encrypting your card details..." },
+                        "fail_5xx": {
+                          "type": "string",
+                          "default": "Card tokenization service is currently unavailable. Please try again later."
+                        },
+                        "fail_4xx": {
+                          "type": "string",
+                          "default": "This card doesn't appear to be valid. Please check the details and try again."
+                        }
+                      },
+                      "required": ["idle", "busy", "fail_5xx", "fail_4xx"]
+                    }
+                  },
+                  "required": ["cc-number", "cc-exp", "cc-csc", "supported-cards", "status-message"]
+                },
+                "timestamps": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "date_created": { "type": "string", "default": "Added on" },
+                    "date_modified": { "type": "string", "default": "Last updated" },
+                    "date": { "type": "string", "default": "{{value, date}}" }
+                  },
+                  "required": ["date_created", "date_modified", "date"]
+                },
+                "delete": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "delete": { "type": "string", "default": "Delete" },
+                    "cancel": { "type": "string", "default": "Cancel" },
+                    "delete_prompt": {
+                      "type": "string",
+                      "default": "If you have any active subscriptions, they will fail on next payment date. Are you sure you'd like to remove this card?"
+                    }
+                  },
+                  "required": ["delete", "cancel", "delete_prompt"]
+                },
+                "create": {
+                  "additionalProperties": false,
+                  "properties": { "create": { "type": "string", "default": "Add card" } },
+                  "required": ["create"]
+                },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_error"]
+                }
+              },
+              "required": [
+                "tab_0",
+                "tab_1",
+                "cc-number",
+                "cc-exp",
+                "cc-csc",
+                "cc-token",
+                "timestamps",
+                "delete",
+                "create",
+                "spinner"
+              ]
+            }
+          },
+          "required": [
+            "dialog_header",
+            "close",
+            "cancel",
+            "save",
+            "undo_cancel",
+            "undo_confirm",
+            "undo_header",
+            "undo_message",
+            "payment-method-form"
+          ]
+        },
         "spinner": {
           "additionalProperties": false,
           "properties": {
@@ -1416,15 +1597,7 @@
           "required": ["loading_busy", "loading_empty", "loading_error"]
         }
       },
-      "required": [
-        "cancel",
-        "delete",
-        "delete_prompt",
-        "expires",
-        "last_4_digits",
-        "unknown",
-        "spinner"
-      ]
+      "required": ["expires", "last_4_digits", "unknown", "dialog", "spinner"]
     },
     "spinner": {
       "additionalProperties": false,

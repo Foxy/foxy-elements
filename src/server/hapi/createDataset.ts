@@ -375,6 +375,7 @@ export const createDataset: () => Dataset = () => ({
   payment_methods: [
     {
       id: 0,
+      store_id: 1,
       customer_id: 0,
       save_cc: true,
       cc_type: 'MasterCard',
