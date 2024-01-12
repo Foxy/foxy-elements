@@ -23,8 +23,9 @@ const samples = {
   },
 };
 
-function getRefs(element: TestJSONataInput) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
+async function getRefs(element: TestJSONataInput) {
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector);
 
   return {
     input: $('[data-testid=input]') as TextFieldElement | null,
@@ -32,26 +33,26 @@ function getRefs(element: TestJSONataInput) {
   };
 }
 
-function testEnabled(element: TestJSONataInput) {
-  const refs = getRefs(element);
+async function testEnabled(element: TestJSONataInput) {
+  const refs = await getRefs(element);
   expect(refs.choice.disabled).to.be.false;
   expect(refs.input?.disabled).to.be.oneOf([false, undefined]);
 }
 
-function testDisabled(element: TestJSONataInput) {
-  const refs = getRefs(element);
+async function testDisabled(element: TestJSONataInput) {
+  const refs = await getRefs(element);
   expect(refs.choice.disabled).to.be.true;
   expect(refs.input?.disabled).to.be.oneOf([true, undefined]);
 }
 
-function testWildcard(element: TestJSONataInput) {
-  const { choice, input } = getRefs(element);
+async function testWildcard(element: TestJSONataInput) {
+  const { choice, input } = await getRefs(element);
   expect(choice.value).to.equal('all');
   expect(input).to.be.null;
 }
 
 async function testCustom(element: TestJSONataInput) {
-  const { choice, input } = getRefs(element);
+  const { choice, input } = await getRefs(element);
 
   expect(element.value).to.equal(samples.value.custom[0]);
   expect(choice.value).to.equal('some');
@@ -136,7 +137,7 @@ const model = createModel<TestJSONataInput>(machine).withEvents({
   SET_WILDCARD: { exec: element => void (element.value = samples.value.wildcard) },
   CHOOSE_WILDCARD: {
     exec: async element => {
-      const { choice } = getRefs(element);
+      const { choice } = await getRefs(element);
       const whenChanged = new Promise(resolve =>
         element.addEventListener('change', resolve, { once: true })
       );
@@ -148,7 +149,7 @@ const model = createModel<TestJSONataInput>(machine).withEvents({
   },
   CHOOSE_CUSTOM: {
     exec: async element => {
-      const { choice } = getRefs(element);
+      const { choice } = await getRefs(element);
       const whenChanged = new Promise(resolve =>
         element.addEventListener('change', resolve, { once: true })
       );
@@ -161,6 +162,12 @@ const model = createModel<TestJSONataInput>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> JSONataInput', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

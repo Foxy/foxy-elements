@@ -22,8 +22,9 @@ class TestNextDateModificationRule extends NextDateModificationRule {
 
 customElements.define('x-next-date-modification-rule', TestNextDateModificationRule);
 
-function getRefs(element: TestNextDateModificationRule) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
+async function getRefs(element: TestNextDateModificationRule) {
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector);
 
   return {
     disallowed: $('[data-testid=disallowed]') as DisallowedDates | null,
@@ -49,10 +50,8 @@ function testInteractivity(disabled: boolean) {
 
 function testDisplay(open: boolean) {
   return async (element: TestNextDateModificationRule) => {
-    await element.updateComplete;
-
     expect(element.open).to.equal(open);
-    const refs = getRefs(element);
+    const refs = await getRefs(element);
 
     if (open) {
       expect(refs.allowed).to.not.be.null;
@@ -65,9 +64,7 @@ function testDisplay(open: boolean) {
 }
 
 async function testContent(element: TestNextDateModificationRule) {
-  await element.updateComplete;
-
-  const refs = getRefs(element);
+  const refs = await getRefs(element);
   const rule = element.value;
 
   expect(refs.allowed?.value).to.deep.equal(rule.allowedDays);
@@ -154,7 +151,7 @@ const model = createModel<TestNextDateModificationRule>(machine).withEvents({
   },
   ENTER_CUSTOM: {
     exec: async element => {
-      const refs = getRefs(element);
+      const refs = await getRefs(element);
       const rule = {
         min: '4m',
         max: '2d',
@@ -190,12 +187,11 @@ const model = createModel<TestNextDateModificationRule>(machine).withEvents({
   },
   REMOVE: {
     exec: async element => {
-      await element.updateComplete;
       const whenRemoved = new Promise(resolve =>
         element.addEventListener('remove', resolve, { once: true })
       );
 
-      getRefs(element).remove.click();
+      (await getRefs(element)).remove.click();
       expect(await whenRemoved).to.be.instanceOf(NextDateModificationRuleRemoveEvent);
     },
   },

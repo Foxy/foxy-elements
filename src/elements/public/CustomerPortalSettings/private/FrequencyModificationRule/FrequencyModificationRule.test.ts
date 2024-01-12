@@ -22,8 +22,9 @@ const samples = {
   custom: { jsonataQuery: '$contains(frequency, "w")', values: ['.5m', '1y'] },
 };
 
-function getRefs(element: TestFrequencyModificationRule) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
+async function getRefs(element: TestFrequencyModificationRule) {
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector);
 
   return {
     remove: $('[data-testid=remove]') as HTMLButtonElement,
@@ -35,8 +36,7 @@ function getRefs(element: TestFrequencyModificationRule) {
 
 function testDisabled(value: boolean) {
   return async (element: TestFrequencyModificationRule) => {
-    await element.updateComplete;
-    const { remove, jsonata, frequency } = getRefs(element);
+    const { remove, jsonata, frequency } = await getRefs(element);
 
     expect(element, 'element must be disabled').to.have.property('disabled', value);
     expect(remove, 'remove button must be disabled').to.have.property('disabled', value);
@@ -53,8 +53,7 @@ function testDisabled(value: boolean) {
 
 function testOpen(value: boolean) {
   return async (element: TestFrequencyModificationRule) => {
-    await element.updateComplete;
-    const { details } = getRefs(element);
+    const { details } = await getRefs(element);
 
     expect(element).to.have.property('open', value);
     expect(details).to.have.property('open', value);
@@ -63,8 +62,7 @@ function testOpen(value: boolean) {
 
 function testContent(value: Rule) {
   return async (element: TestFrequencyModificationRule) => {
-    await element.updateComplete;
-    const { jsonata, frequency } = getRefs(element);
+    const { jsonata, frequency } = await getRefs(element);
 
     expect(element).to.have.deep.property('value', value);
     expect(jsonata).to.have.property('value', value.jsonataQuery);
@@ -100,11 +98,17 @@ const machine = createMachine({
 });
 
 describe('CustomerPortalSettings >>> FrequencyModificationRule', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   describe('Actor: USER', () => {
     const model = createModel<TestFrequencyModificationRule>(machine).withEvents({
       CUSTOMIZE: {
         exec: async element => {
-          const { jsonata, frequency } = getRefs(element);
+          const { jsonata, frequency } = await getRefs(element);
 
           jsonata.value = samples.custom.jsonataQuery;
           jsonata.dispatchEvent(new JSONataInputChangeEvent(jsonata.value));
@@ -115,8 +119,18 @@ describe('CustomerPortalSettings >>> FrequencyModificationRule', () => {
       },
       DISABLE: { exec: async element => (element.disabled = true) },
       ENABLE: { exec: async element => (element.disabled = false) },
-      CLOSE: { exec: async element => getRefs(element).details.dispatchEvent(new Event('toggle')) },
-      OPEN: { exec: async element => getRefs(element).details.dispatchEvent(new Event('toggle')) },
+      CLOSE: {
+        exec: async element => {
+          const { details } = await getRefs(element);
+          details.dispatchEvent(new Event('toggle'));
+        },
+      },
+      OPEN: {
+        exec: async element => {
+          const { details } = await getRefs(element);
+          details.dispatchEvent(new Event('toggle'));
+        },
+      },
     });
 
     model.getShortestPathPlans().forEach(plan => {

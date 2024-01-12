@@ -7,7 +7,7 @@ export async function getByTestId<T extends HTMLElement>(
   let root: Element | DocumentFragment = element;
 
   if (element instanceof LitElement) {
-    await element.updateComplete;
+    await element.requestUpdate();
     root = element.renderRoot;
   }
 

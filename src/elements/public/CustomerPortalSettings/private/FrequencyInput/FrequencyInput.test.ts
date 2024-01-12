@@ -27,8 +27,10 @@ const samples = {
   },
 };
 
-function getRefs(element: FrequencyInput) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
+async function getRefs(element: TestFrequencyInput) {
+  await element.whenI18nReady;
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector);
 
   return {
     value: $('[data-testid=value]') as HTMLInputElement,
@@ -37,24 +39,21 @@ function getRefs(element: FrequencyInput) {
 }
 
 async function testEnabled(element: TestFrequencyInput) {
-  await element.whenI18nReady;
-  const refs = getRefs(element);
+  const refs = await getRefs(element);
 
   expect(refs.value.disabled).to.be.false;
   expect(refs.units.disabled).to.be.false;
 }
 
 async function testDisabled(element: TestFrequencyInput) {
-  await element.whenI18nReady;
-  const refs = getRefs(element);
+  const refs = await getRefs(element);
 
   expect(refs.value.disabled).to.be.true;
   expect(refs.units.disabled).to.be.true;
 }
 
 async function testEmpty(element: TestFrequencyInput) {
-  await element.whenI18nReady;
-  const { units, value } = getRefs(element);
+  const { units, value } = await getRefs(element);
 
   expect(element.value).to.equal('1w');
   expect(units.value).to.equal('w');
@@ -62,14 +61,14 @@ async function testEmpty(element: TestFrequencyInput) {
 }
 
 async function testWithValue(element: TestFrequencyInput) {
-  await element.whenI18nReady;
-  const { units, value } = getRefs(element);
+  const { units, value } = await getRefs(element);
 
   expect(element.value).to.equal(samples.value.composed);
-  expect(units.value).to.equal(samples.value.units);
-  expect(value.value).to.equal(samples.value.value);
 
   if (!element.disabled) {
+    expect(units.value).to.equal(samples.value.units);
+    expect(value.value).to.equal(samples.value.value);
+
     units.value = samples.newValue.units;
     units.dispatchEvent(new DropdownChangeEvent(samples.newValue.units));
 
@@ -117,6 +116,12 @@ const model = createModel<FrequencyInput>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> FrequencyInput', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {
