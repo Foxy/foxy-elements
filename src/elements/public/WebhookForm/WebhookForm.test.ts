@@ -46,35 +46,42 @@ describe('WebhookForm', () => {
   });
 
   it('produces an v8n error if webhook name is missing', () => {
-    expect(WebhookForm.v8n.map(fn => fn({}))).to.include('name:v8n_required');
+    const form = new WebhookForm();
+    expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('name:v8n_required');
   });
 
   it('produces an v8n error if webhook name is too long', () => {
     const name = 'A'.repeat(256);
-    expect(WebhookForm.v8n.map(fn => fn({ name }))).to.include('name:v8n_too_long');
+    const form = new WebhookForm();
+    expect(WebhookForm.v8n.map(fn => fn({ name }, form))).to.include('name:v8n_too_long');
   });
 
   it('produces an v8n error if webhook version is missing', () => {
-    expect(WebhookForm.v8n.map(fn => fn({}))).to.include('version:v8n_required');
+    const form = new WebhookForm();
+    expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('version:v8n_required');
   });
 
   it('produces an v8n error if webhook format is missing', () => {
-    expect(WebhookForm.v8n.map(fn => fn({}))).to.include('format:v8n_required');
+    const form = new WebhookForm();
+    expect(WebhookForm.v8n.map(fn => fn({}, form))).to.include('format:v8n_required');
   });
 
   it('produces an v8n error if webhook url is too long', () => {
     const url = 'A'.repeat(1001);
-    expect(WebhookForm.v8n.map(fn => fn({ url }))).to.include('url:v8n_too_long');
+    const form = new WebhookForm();
+    expect(WebhookForm.v8n.map(fn => fn({ url }, form))).to.include('url:v8n_too_long');
   });
 
   it('produces an v8n error if webhook query is too long', () => {
     const query = 'A'.repeat(1001);
-    expect(WebhookForm.v8n.map(fn => fn({ query }))).to.include('query:v8n_too_long');
+    const form = new WebhookForm();
+    expect(WebhookForm.v8n.map(fn => fn({ query }, form))).to.include('query:v8n_too_long');
   });
 
   it('produces an v8n error if webhook encryption-key is too long', () => {
     const encryption_key = 'A'.repeat(1001);
-    const errors = WebhookForm.v8n.map(fn => fn({ encryption_key }));
+    const form = new WebhookForm();
+    const errors = WebhookForm.v8n.map(fn => fn({ encryption_key }, form));
     expect(errors).to.include('encryption-key:v8n_too_long');
   });
 
