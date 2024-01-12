@@ -5,12 +5,12 @@
     "access-recovery-form": {
       "additionalProperties": false,
       "properties": {
-        "back": { "type": "string", "default": "Back" },
+        "back": { "type": "string", "default": "Go back" },
         "email": { "type": "string", "default": "Email" },
         "recover_access": { "type": "string", "default": "Get temporary password" },
         "recover_access_hint": {
           "type": "string",
-          "default": "Enter your email and we'll send you a temporary password"
+          "default": "Enter your email to get a temporary password"
         },
         "recover_access_success": {
           "type": "string",
@@ -1327,94 +1327,177 @@
           "additionalProperties": false,
           "properties": {
             "cancel": { "type": "string", "default": "Cancel" },
-            "change_password": { "type": "string", "default": "Change password" },
-            "change_password_step_1": {
-              "type": "string",
-              "default": "Let's start with your current password. A temporary password also works if you have one."
-            },
-            "change_password_step_2": {
-              "type": "string",
-              "default": "Now enter a new password and hit Continue to apply changes to your account."
-            },
-            "change_password_step_3": {
-              "type": "string",
-              "default": "All done! You can now use your new password when logging in."
-            },
             "close": { "type": "string", "default": "Close" },
-            "date": { "type": "string", "default": "{{value, date}}" },
-            "date_created": { "type": "string", "default": "Created on" },
-            "date_modified": { "type": "string", "default": "Last updated" },
-            "email": { "type": "string", "default": "Email" },
-            "first_name": { "type": "string", "default": "First name" },
-            "invalid_credential_error": {
-              "type": "string",
-              "default": "Incorrect password. Please make sure you've entered your current or temporary password and try again."
-            },
-            "last_name": { "type": "string", "default": "Last name" },
-            "new_password": { "type": "string", "default": "New password" },
-            "password": { "type": "string", "default": "Password" },
-            "sign_in": { "type": "string", "default": "Continue" },
-            "tax_id": { "type": "string", "default": "Tax ID" },
-            "undo_cancel": { "type": "string", "default": "Review" },
-            "undo_confirm": { "type": "string", "default": "Discard" },
-            "undo_header": { "type": "string", "default": "Unsaved changes" },
-            "undo_message": {
-              "type": "string",
-              "default": "Looks like you didn't save your changes! What would you like to do with them?"
-            },
-            "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
-            "v8n_required": { "type": "string", "default": "Required" },
-            "v8n_too_long": { "type": "string", "default": "Too long" },
-            "sign-in-form": {
+            "message": {
               "additionalProperties": false,
               "properties": {
-                "spinner": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
-                  },
-                  "required": ["loading_busy", "loading_error"]
+                "password_change_success": {
+                  "type": "string",
+                  "default": "You have successfully set a new password for your account."
+                },
+                "close": { "type": "string", "default": "Close" }
+              },
+              "required": ["password_change_success", "close"]
+            },
+            "error": {
+              "additionalProperties": false,
+              "properties": {
+                "old_password_incorrect": {
+                  "type": "string",
+                  "default": "The old password you entered is incorrect. Please try again."
+                },
+                "email_already_used": {
+                  "type": "string",
+                  "default": "This email is already in use. Please use a different email."
                 }
               },
-              "required": ["spinner"]
+              "required": ["old_password_incorrect", "email_already_used"]
+            },
+            "first-name": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "First name" },
+                "placeholder": { "type": "string", "default": "Not set" },
+                "helper_text": { "type": "string", "default": "Your given name, optional." },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "We can't store first names longer than 50 characters."
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "last-name": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Last name" },
+                "placeholder": { "type": "string", "default": "Not set" },
+                "helper_text": { "type": "string", "default": "Your surname, optional." },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "We can't store last names longer than 50 characters."
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "tax-id": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Tax ID" },
+                "placeholder": { "type": "string", "default": "Not set" },
+                "helper_text": {
+                  "type": "string",
+                  "default": "Your tax identification number, optional."
+                },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "We can't store tax IDs longer than 50 characters."
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "email": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Email" },
+                "placeholder": { "type": "string", "default": "Required" },
+                "helper_text": {
+                  "type": "string",
+                  "default": "We'll use this email as the login to the Checkout and Customer Portal."
+                },
+                "helper_text_last_login_date": {
+                  "type": "string",
+                  "default": "Your login to the Checkout and Customer Portal. Last used on {{ date, date }} at {{ date, time }}."
+                },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "We can't store emails longer than 100 characters."
+                },
+                "v8n_invalid_email": { "type": "string", "default": "This email is invalid." },
+                "v8n_required": { "type": "string", "default": "Please fill out this field." }
+              },
+              "required": [
+                "label",
+                "placeholder",
+                "helper_text",
+                "helper_text_last_login_date",
+                "v8n_too_long",
+                "v8n_invalid_email",
+                "v8n_required"
+              ]
+            },
+            "password": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Password" },
+                "placeholder": { "type": "string", "default": "Required" },
+                "placeholder_new": { "type": "string", "default": "Keep current password" },
+                "helper_text_new": {
+                  "type": "string",
+                  "default": "To change your password, enter a new password here. If you leave this field blank, your password will remain the same."
+                },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Please use a password that is no longer than 50 characters."
+                },
+                "v8n_too_weak": {
+                  "type": "string",
+                  "default": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters."
+                },
+                "v8n_required": { "type": "string", "default": "Please fill out this field." }
+              },
+              "required": [
+                "label",
+                "placeholder",
+                "placeholder_new",
+                "helper_text_new",
+                "v8n_too_long",
+                "v8n_too_weak",
+                "v8n_required"
+              ]
+            },
+            "password-old": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Old password" },
+                "placeholder": { "type": "string", "default": "" },
+                "helper_text": {
+                  "type": "string",
+                  "default": "Enter your old password to confirm password change."
+                },
+                "v8n_required": { "type": "string", "default": "Please fill out this field." }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_required"]
+            },
+            "timestamps": {
+              "additionalProperties": false,
+              "properties": {
+                "date_created": { "type": "string", "default": "Created on" },
+                "date_modified": { "type": "string", "default": "Last updated" },
+                "date": { "type": "string", "default": "{{value, date}}" }
+              },
+              "required": ["date_created", "date_modified", "date"]
             },
             "spinner": {
               "additionalProperties": false,
               "properties": {
                 "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No data" },
                 "loading_error": { "type": "string", "default": "Failed to load" }
               },
-              "required": ["loading_busy", "loading_empty", "loading_error"]
+              "required": ["loading_busy", "loading_error"]
             }
           },
           "required": [
             "cancel",
-            "change_password",
-            "change_password_step_1",
-            "change_password_step_2",
-            "change_password_step_3",
             "close",
-            "date",
-            "date_created",
-            "date_modified",
+            "message",
+            "error",
+            "first-name",
+            "last-name",
+            "tax-id",
             "email",
-            "first_name",
-            "invalid_credential_error",
-            "last_name",
-            "new_password",
             "password",
-            "sign_in",
-            "tax_id",
-            "undo_cancel",
-            "undo_confirm",
-            "undo_header",
-            "undo_message",
-            "v8n_invalid_email",
-            "v8n_required",
-            "v8n_too_long",
-            "sign-in-form",
+            "password-old",
+            "timestamps",
             "spinner"
           ]
         },
@@ -1662,11 +1745,31 @@
                         },
                         "transaction_verified": { "type": "string", "default": "Verified" },
                         "transaction_voided": { "type": "string", "default": "Voided" },
+                        "type_subscription_cancellation": {
+                          "type": "string",
+                          "default": "Cancellation"
+                        },
+                        "type_subscription_modification": {
+                          "type": "string",
+                          "default": "Modification"
+                        },
+                        "type_subscription_renewal": { "type": "string", "default": "Renewal" },
+                        "type_updateinfo": { "type": "string", "default": "Update" },
+                        "type_new_order": { "type": "string", "default": "Order" },
+                        "type_new_subscription": { "type": "string", "default": "Subscription" },
+                        "source_MIT": {
+                          "type": "string",
+                          "default": "This transaction was initiated by merchant"
+                        },
+                        "source_CIT": {
+                          "type": "string",
+                          "default": "This transaction was initiated by customer"
+                        },
                         "spinner": {
                           "additionalProperties": false,
                           "properties": {
                             "loading_busy": { "type": "string", "default": "Loading" },
-                            "loading_empty": { "type": "string", "default": "No transactions" },
+                            "loading_empty": { "type": "string", "default": "No data" },
                             "loading_error": { "type": "string", "default": "Failed to load" }
                           },
                           "required": ["loading_busy", "loading_empty", "loading_error"]
@@ -1691,6 +1794,14 @@
                         "transaction_summary_plural",
                         "transaction_verified",
                         "transaction_voided",
+                        "type_subscription_cancellation",
+                        "type_subscription_modification",
+                        "type_subscription_renewal",
+                        "type_updateinfo",
+                        "type_new_order",
+                        "type_new_subscription",
+                        "source_MIT",
+                        "source_CIT",
                         "spinner"
                       ]
                     }
@@ -1842,6 +1953,7 @@
         "recover_access": { "type": "string", "default": "Get temporary password" },
         "sign_in": { "type": "string", "default": "Sign in" },
         "sign_in_hint": { "type": "string", "default": "Please enter your email and password" },
+        "sign_up": { "type": "string", "default": "Create account" },
         "unknown_error": {
           "type": "string",
           "default": "An unknown error has occured. Please try again later."
@@ -1864,12 +1976,155 @@
         "recover_access",
         "sign_in",
         "sign_in_hint",
+        "sign_up",
         "unknown_error",
         "v8n_invalid_email",
         "v8n_required",
         "spinner"
       ]
+    },
+    "sign-up-form": {
+      "additionalProperties": false,
+      "properties": {
+        "sign_up": { "type": "string", "default": "Sign up" },
+        "sign_up_hint": { "type": "string", "default": "Create an account to access the portal" },
+        "go_back": { "type": "string", "default": "Go back" },
+        "error": {
+          "additionalProperties": false,
+          "properties": {
+            "registration_disabled": {
+              "type": "string",
+              "default": "Customer registration is disabled for this store. If you're seeing this message as a customer, please contact the store owner."
+            },
+            "verification_failed": {
+              "type": "string",
+              "default": "Client verification failed. If you are seeing this message as a customer, please contact the store owner."
+            },
+            "email_already_used": {
+              "type": "string",
+              "default": "This email is already in use. Please use a different email or sign in instead."
+            }
+          },
+          "required": ["registration_disabled", "verification_failed", "email_already_used"]
+        },
+        "first-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "First name" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": { "type": "string", "default": "Your given name, optional." },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store first names longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "last-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Last name" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": { "type": "string", "default": "Your surname, optional." },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store last names longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "email": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Email" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": {
+              "type": "string",
+              "default": "We'll use this email as the login to the Checkout and Customer Portal."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store emails longer than 100 characters."
+            },
+            "v8n_invalid_email": { "type": "string", "default": "This email is invalid." },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "helper_text",
+            "v8n_too_long",
+            "v8n_invalid_email",
+            "v8n_required"
+          ]
+        },
+        "password": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Password" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": {
+              "type": "string",
+              "default": "To generate a secure random password for this account, use the ✨ button."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please use a password that is no longer than 50 characters."
+            },
+            "v8n_too_weak": {
+              "type": "string",
+              "default": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters."
+            },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "helper_text",
+            "v8n_too_long",
+            "v8n_too_weak",
+            "v8n_required"
+          ]
+        },
+        "legal-notice": {
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string",
+              "default": "By creating an account, you agree to our Terms of Service."
+            },
+            "link": { "type": "string", "default": "Click here to open them in a new tab." }
+          },
+          "required": ["text", "link"]
+        },
+        "create": {
+          "additionalProperties": false,
+          "properties": { "create": { "type": "string", "default": "Create account" } },
+          "required": ["create"]
+        },
+        "spinner": {
+          "additionalProperties": false,
+          "properties": {
+            "loading_busy": { "type": "string", "default": "Loading" },
+            "loading_error": { "type": "string", "default": "Failed to load" }
+          },
+          "required": ["loading_busy", "loading_error"]
+        }
+      },
+      "required": [
+        "sign_up",
+        "sign_up_hint",
+        "go_back",
+        "error",
+        "first-name",
+        "last-name",
+        "email",
+        "password",
+        "legal-notice",
+        "create",
+        "spinner"
+      ]
     }
   },
-  "required": ["access-recovery-form", "customer", "sign-in-form"]
+  "required": ["access-recovery-form", "customer", "sign-in-form", "sign-up-form"]
 }

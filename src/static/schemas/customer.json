@@ -1348,24 +1348,212 @@
     "customer-form": {
       "additionalProperties": false,
       "properties": {
-        "cancel": { "type": "string", "default": "Cancel" },
-        "confirm": { "type": "string", "default": "Confirm" },
-        "create": { "type": "string", "default": "Create" },
-        "date": { "type": "string", "default": "{{value, date}}" },
-        "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
-        "delete": { "type": "string", "default": "Delete" },
-        "delete_prompt": {
-          "type": "string",
-          "default": "This resource will be permanently removed. Are you sure?"
+        "status": {
+          "additionalProperties": false,
+          "properties": {
+            "password_change_success": {
+              "type": "string",
+              "default": "You have successfully set a new password for {{ email }}."
+            },
+            "close": { "type": "string", "default": "Close" }
+          },
+          "required": ["password_change_success", "close"]
         },
-        "email": { "type": "string", "default": "Email" },
-        "first_name": { "type": "string", "default": "First name" },
-        "last_name": { "type": "string", "default": "Last name" },
-        "tax_id": { "type": "string", "default": "Tax ID" },
-        "v8n_invalid_email": { "type": "string", "default": "Invalid email" },
-        "v8n_required": { "type": "string", "default": "Required" },
-        "v8n_too_long": { "type": "string", "default": "Too long" },
+        "error": {
+          "additionalProperties": false,
+          "properties": {
+            "email_already_used": {
+              "type": "string",
+              "default": "This email is already in use. Please use a different email."
+            }
+          },
+          "required": ["email_already_used"]
+        },
+        "first-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "First name" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": { "type": "string", "default": "Customer's given name, optional." },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store first names longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "last-name": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Last name" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": { "type": "string", "default": "Customer's surname, optional." },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store last names longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "tax-id": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Tax ID" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": {
+              "type": "string",
+              "default": "Tax identification number for this customer, optional."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store tax IDs longer than 50 characters."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+        },
+        "email": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Email" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "helper_text": {
+              "type": "string",
+              "default": "This email will be used as the login to the Checkout and Customer Portal."
+            },
+            "helper_text_last_login_date": {
+              "type": "string",
+              "default": "This customer's login to the Checkout and Customer Portal. Last used on {{ date, date }} at {{ date, time }}."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "We can't store emails longer than 100 characters."
+            },
+            "v8n_invalid_email": { "type": "string", "default": "This email is invalid." },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "helper_text",
+            "helper_text_last_login_date",
+            "v8n_too_long",
+            "v8n_invalid_email",
+            "v8n_required"
+          ]
+        },
+        "is-anonymous": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Account type" },
+            "helper_text": {
+              "type": "string",
+              "default": "Guest customers dont't have access to Customer Portal. Once the account type is set, it can not be changed."
+            },
+            "option_true": { "type": "string", "default": "Guest" },
+            "option_false": { "type": "string", "default": "Registered" }
+          },
+          "required": ["label", "helper_text", "option_true", "option_false"]
+        },
+        "password": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Password" },
+            "placeholder": { "type": "string", "default": "Required" },
+            "placeholder_new": { "type": "string", "default": "Keep current password" },
+            "helper_text_new": {
+              "type": "string",
+              "default": "To change this customer's password, enter a new password here. If you leave it blank, their password will remain the same."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please use a password that is no longer than 50 characters."
+            },
+            "v8n_too_weak": {
+              "type": "string",
+              "default": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters."
+            },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "placeholder_new",
+            "helper_text_new",
+            "v8n_too_long",
+            "v8n_too_weak",
+            "v8n_required"
+          ]
+        },
+        "password-old": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Old password" },
+            "placeholder": { "type": "string", "default": "" },
+            "helper_text": {
+              "type": "string",
+              "default": "Enter the old password to set a new password. If you're a store admin, you can leave this field blank."
+            },
+            "v8n_required": { "type": "string", "default": "Please fill out this field." }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required"]
+        },
+        "forgot-password": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "One-time code" },
+            "placeholder": { "type": "string", "default": "Not set" },
+            "helper_text": {
+              "type": "string",
+              "default": "Set a one-time code that this customer can use instead of a password to sign in. Keep in mind that this code will expire after 30 minutes."
+            },
+            "helper_text_expired_on": {
+              "type": "string",
+              "default": "A one-time code that this customer can use instead of a password to sign in. This code expired on {{ expiresOn, date }} at {{ expiresOn, time }}."
+            },
+            "helper_text_expires_in": {
+              "type": "string",
+              "default": "A one-time code that this customer can use instead of a password to sign in. This code will expire in {{ expiresInMin, relative }}."
+            },
+            "v8n_too_long": {
+              "type": "string",
+              "default": "Please use a code that is no longer than 50 characters."
+            }
+          },
+          "required": [
+            "label",
+            "placeholder",
+            "helper_text",
+            "helper_text_expired_on",
+            "helper_text_expires_in",
+            "v8n_too_long"
+          ]
+        },
+        "timestamps": {
+          "additionalProperties": false,
+          "properties": {
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated" },
+            "date": { "type": "string", "default": "{{value, date}}" }
+          },
+          "required": ["date_created", "date_modified", "date"]
+        },
+        "delete": {
+          "additionalProperties": false,
+          "properties": {
+            "delete": { "type": "string", "default": "Delete" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "delete_prompt": {
+              "type": "string",
+              "default": "This action is irreversible. Are you sure you want to delete this customer?"
+            }
+          },
+          "required": ["delete", "cancel", "delete_prompt"]
+        },
+        "create": {
+          "additionalProperties": false,
+          "properties": { "create": { "type": "string", "default": "Create" } },
+          "required": ["create"]
+        },
         "spinner": {
           "additionalProperties": false,
           "properties": {
@@ -1376,21 +1564,19 @@
         }
       },
       "required": [
-        "cancel",
-        "confirm",
-        "create",
-        "date",
-        "date_created",
-        "date_modified",
-        "delete",
-        "delete_prompt",
+        "status",
+        "error",
+        "first-name",
+        "last-name",
+        "tax-id",
         "email",
-        "first_name",
-        "last_name",
-        "tax_id",
-        "v8n_invalid_email",
-        "v8n_required",
-        "v8n_too_long",
+        "is-anonymous",
+        "password",
+        "password-old",
+        "forgot-password",
+        "timestamps",
+        "delete",
+        "create",
         "spinner"
       ]
     },

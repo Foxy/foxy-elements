@@ -1,19 +1,88 @@
 {
-  "cancel": "Cancel",
-  "confirm": "Confirm",
-  "create": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "email": "Email",
-  "first_name": "First name",
-  "last_name": "Last name",
-  "tax_id": "Tax ID",
-  "v8n_invalid_email": "Invalid email",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
+  "legal-notice": {
+    "text": "By creating an account, you agree to our Terms of Service.",
+    "link": "Click here to open them in a new tab."
+  },
+  "status": {
+    "password_change_success": "You have successfully set a new password for {{ email }}.",
+    "close": "Close"
+  },
+  "error": {
+    "old_password_incorrect": "The old password you entered is incorrect. Please try again.",
+    "registration_disabled": "Customer registration is disabled for this store. If you're seeing this message as a customer, please contact the store owner.",
+    "verification_failed": "Client verification failed. If you are seeing this message as a customer, please contact the store owner.",
+    "email_already_used": "This email is already in use. Please use a different email."
+  },
+  "first-name": {
+    "label": "First name",
+    "placeholder": "Not set",
+    "helper_text": "Customer's given name, optional.",
+    "v8n_too_long": "We can't store first names longer than 50 characters."
+  },
+  "last-name": {
+    "label": "Last name",
+    "placeholder": "Not set",
+    "helper_text": "Customer's surname, optional.",
+    "v8n_too_long": "We can't store last names longer than 50 characters."
+  },
+  "tax-id": {
+    "label": "Tax ID",
+    "placeholder": "Not set",
+    "helper_text": "Tax identification number for this customer, optional.",
+    "v8n_too_long": "We can't store tax IDs longer than 50 characters."
+  },
+  "email": {
+    "label": "Email",
+    "placeholder": "Required",
+    "helper_text": "This email will be used as the login to the Checkout and Customer Portal.",
+    "helper_text_last_login_date": "This customer's login to the Checkout and Customer Portal. Last used on {{ date, date }} at {{ date, time }}.",
+    "v8n_too_long": "We can't store emails longer than 100 characters.",
+    "v8n_invalid_email": "This email is invalid.",
+    "v8n_required": "Please fill out this field."
+  },
+  "is-anonymous": {
+    "label": "Account type",
+    "helper_text": "Guest customers dont't have access to Customer Portal. Once the account type is set, it can not be changed.",
+    "option_true": "Guest",
+    "option_false": "Registered"
+  },
+  "password": {
+    "label": "Password",
+    "placeholder": "Required",
+    "placeholder_new": "Keep current password",
+    "helper_text": "Set a password for this customer. To generate a secure random password for this account, use the ✨ button.",
+    "helper_text_new": "To change this customer's password, enter a new password here. If you leave it blank, their password will remain the same.",
+    "v8n_too_long": "Please use a password that is no longer than 50 characters.",
+    "v8n_too_weak": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters.",
+    "v8n_required": "Please fill out this field."
+  },
+  "password-old": {
+    "label": "Old password",
+    "placeholder": "",
+    "helper_text": "Enter the old password to set a new password. If you're a store admin, you can leave this field blank.",
+    "v8n_required": "Please fill out this field."
+  },
+  "forgot-password": {
+    "label": "One-time code",
+    "placeholder": "Not set",
+    "helper_text": "Set a one-time code that this customer can use instead of a password to sign in. Keep in mind that this code will expire after 30 minutes.",
+    "helper_text_expired_on": "A one-time code that this customer can use instead of a password to sign in. This code expired on {{ expiresOn, date }} at {{ expiresOn, time }}.",
+    "helper_text_expires_in": "A one-time code that this customer can use instead of a password to sign in. This code will expire in {{ expiresInMin, relative }}.",
+    "v8n_too_long": "Please use a code that is no longer than 50 characters."
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "This action is irreversible. Are you sure you want to delete this customer?"
+  },
+  "create": {
+    "create": "Create"
+  },
   "spinner": {
     "loading_busy": "Loading",
     "loading_error": "Failed to load"

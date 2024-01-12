@@ -41,6 +41,7 @@ export default {
 
     commonjsPlugin({
       include: [
+        '**/check-password-strength/**/*',
         '**/email-validator/**/*',
         '**/cookie-storage/**/*',
         '**/html-entities/**/*',

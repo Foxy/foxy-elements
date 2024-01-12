@@ -27,6 +27,28 @@ import { stub } from 'sinon';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 const router = createRouter();
+const settings = {
+  _links: { self: { href: '' } },
+  allowed_origins: [],
+  subscriptions: {
+    allow_frequency_modification: [],
+    allow_next_date_modification: false,
+  },
+  session_lifespan_in_minutes: 40320,
+  tos_checkbox_settings: {
+    usage: 'optional' as const,
+    url: 'https://foxy.io/terms-of-service/',
+    initial_state: 'unchecked' as const,
+    is_hidden: false,
+  },
+  sign_up: {
+    verification: { type: 'hcaptcha' as const, site_key: '123' },
+    enabled: true,
+  },
+  sso: true,
+  date_created: '',
+  date_modified: '',
+};
 
 describe('Customer', () => {
   it('extends NucleonElement', () => {
@@ -302,6 +324,7 @@ describe('Customer', () => {
               group="foo"
               lang="es"
               .data=${data}
+              .settings=${settings}
             >
               <template slot="header:actions:edit:form:items:before">Test</template>
             </foxy-customer>
@@ -324,6 +347,7 @@ describe('Customer', () => {
           expect(form!).to.have.attribute('form', 'foxy-customer-form');
           expect(form!).to.have.attribute('ns', 'customer');
           expect(form!.templates).to.have.key('items:before');
+          expect(form).to.have.deep.property('props', { '.settings': settings });
 
           expect(showMethod).to.have.been.called;
         });
@@ -1687,6 +1711,7 @@ describe('Customer', () => {
           group="foo"
           lang="es"
           href="https://demo.api/hapi/customers/0"
+          .settings=${settings}
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
           <template slot="subscriptions:form:header:before">
@@ -1721,6 +1746,7 @@ describe('Customer', () => {
       expect(form).to.have.attribute('ns', 'customer');
       expect(form).to.have.property('href', link.toString());
       expect(form!.templates).to.have.key('header:before');
+      expect(form).to.have.deep.property('props', { '.settings': settings });
     });
   });
 

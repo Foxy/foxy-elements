@@ -1612,6 +1612,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -1688,6 +1693,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -3184,6 +3201,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -3295,6 +3317,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -3784,6 +3818,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -3860,6 +3899,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -6682,6 +6733,11 @@
       "description": "All-in-one element for customer management.",
       "attributes": [
         {
+          "name": "settings",
+          "description": "Customer Portal settings for use in Customer mode.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -6753,6 +6809,12 @@
         }
       ],
       "properties": [
+        {
+          "name": "settings",
+          "attribute": "settings",
+          "description": "Customer Portal settings for use in Customer mode.",
+          "type": "object"
+        },
         {
           "name": "templates",
           "type": "Templates",
@@ -7101,6 +7163,11 @@
           "default": "\"class extends CustomEvent<void> {}\""
         },
         {
+          "name": "SignUpEvent",
+          "type": "typeof (Anonymous class)",
+          "default": "\"class extends CustomEvent<void> {}\""
+        },
+        {
           "name": "isLoggedIn",
           "type": "boolean"
         },
@@ -7197,6 +7264,10 @@
         {
           "name": "signin",
           "description": "Instance of `CustomerApi.SignInEvent`. Dispatched on an element once authenticated."
+        },
+        {
+          "name": "signup",
+          "description": "Instance of `CustomerApi.SignUpEvent`. Dispatched on an element once a customer is created (since v1.24.0)."
         }
       ]
     },
@@ -7453,6 +7524,27 @@
       "description": "Form element for creating or editing customers.",
       "attributes": [
         {
+          "name": "passwordless",
+          "description": "If true, won't require password when creating a customer.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "settings",
+          "description": "Full `fx:customer_portal_settings` resource from Customer API. If present, switches this element into the Customer API mode, enabling client verification.",
+          "type": "object"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -7483,11 +7575,6 @@
         {
           "name": "hiddencontrols",
           "default": "\"False\""
-        },
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
         },
         {
           "name": "lang",
@@ -7524,6 +7611,42 @@
         }
       ],
       "properties": [
+        {
+          "name": "passwordless",
+          "attribute": "passwordless",
+          "description": "If true, won't require password when creating a customer.",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "settings",
+          "attribute": "settings",
+          "description": "Full `fx:customer_portal_settings` resource from Customer API. If present, switches this element into the Customer API mode, enabling client verification.",
+          "type": "object"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
         {
           "name": "templates",
           "type": "Templates",
@@ -7579,17 +7702,6 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "UpdateEvent",
@@ -7713,6 +7825,46 @@
           "description": "**new in v1.4.0**"
         },
         {
+          "name": "is-anonymous:before",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "is-anonymous:after",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "password:before",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "password:after",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "password-old:before",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "password-old:after",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "forgot-password:before",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "forgot-password:after",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "legal-notice:before",
+          "description": "**new in v1.24.0**"
+        },
+        {
+          "name": "legal-notice:after",
+          "description": "**new in v1.24.0**"
+        },
+        {
           "name": "timestamps:before",
           "description": "**new in v1.4.0**"
         },
@@ -7748,6 +7900,16 @@
           "default": "\"\""
         },
         {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -7778,11 +7940,6 @@
         {
           "name": "hiddencontrols",
           "default": "\"False\""
-        },
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
         },
         {
           "name": "lang",
@@ -7835,6 +7992,29 @@
         },
         {
           "name": "loggingOutStateResetTimeout"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -7891,17 +8071,6 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "UpdateEvent",
@@ -7997,14 +8166,19 @@
       "path": "./src/elements/public/CustomerPortal/index.ts",
       "attributes": [
         {
-          "name": "group",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
           "name": "page",
           "type": "string",
           "default": "\"sign-in\""
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "mode",
@@ -8040,13 +8214,31 @@
         },
         {
           "name": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "ns",
+          "name": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
           "type": "string",
-          "default": "\"defaultNS\""
+          "default": "\"\""
+        },
+        {
+          "name": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         },
         {
           "name": "infer",
@@ -8056,16 +8248,33 @@
       ],
       "properties": [
         {
-          "name": "group",
-          "attribute": "group",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
           "name": "page",
           "attribute": "page",
           "type": "string",
           "default": "\"sign-in\""
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -8123,27 +8332,91 @@
           "type": "BooleanSelector"
         },
         {
+          "name": "UpdateEvent",
+          "description": "Instances of this event are dispatched on an element whenever it changes its\nstate (e.g. when going from `busy` to `idle` or on `form` data change).\nThis event isn't cancelable, and it does not bubble.",
+          "type": "typeof UpdateEvent",
+          "default": "\"UpdateEvent\""
+        },
+        {
+          "name": "Rumour",
+          "description": "Creates a tagged [Rumour](https://sdk.foxy.dev/classes/_core_index_.rumour.html)\ninstance if it doesn't exist or returns cached one otherwise. NucleonElements\nuse empty Rumour group by default.",
+          "type": "((group: string) => Rumour) & MemoizedFunction",
+          "default": "\"memoize<(group: string) => Rumour>(() => new Rumour())\""
+        },
+        {
+          "name": "API",
+          "description": "Universal [API](https://sdk.foxy.dev/classes/_core_index_.api.html) client\nthat dispatches cancellable `FetchEvent` on an element before each request.",
+          "type": "typeof API",
+          "default": "\"API\""
+        },
+        {
           "name": "lang",
           "attribute": "lang",
+          "description": "Optional ISO 639-1 code describing the language element content is written in.\nChanging the `lang` attribute will update the value of this property.",
           "type": "string",
           "default": "\"\""
         },
         {
-          "name": "ns",
-          "attribute": "ns",
+          "name": "parent",
+          "attribute": "parent",
+          "description": "Optional URL of the collection this element's resource belongs to.\nChanging the `parent` attribute will update the value of this property.",
           "type": "string",
-          "default": "\"defaultNS\""
+          "default": "\"\""
         },
         {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+          "name": "related",
+          "attribute": "related",
+          "description": "Optional URI list of the related resources. If Rumour encounters a related\nresource on creation or deletion, it will be reloaded from source.",
+          "type": "array",
+          "default": "[]"
+        },
+        {
+          "name": "failure",
+          "description": "If network request returns non-2XX code, the entire error response\nwill be available via this getter.\n\nThis property is readonly. Changing failure records via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override error status.",
+          "type": "Response | null"
+        },
+        {
+          "name": "errors",
+          "description": "Array of validation errors returned from `NucleonElement.v8n` checks.\n\nThis property is readonly. Adding or removing error codes via this property is\nnot guaranteed to work. NucleonElement does not provide a way to override validity status.",
+          "type": "string[]"
+        },
+        {
+          "name": "form",
+          "description": "Resource snapshot with edits applied. Empty object if unavailable.\n\nThis property and its value are readonly. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please use `element.edit({ foo: 'bar' })` instead.\nIf you need to replace the entire data object, consider using `element.data`.",
+          "type": "Partial<TData>"
+        },
+        {
+          "name": "data",
+          "description": "Resource snapshot as-is, no edits applied. Null if unavailable.\n\nReturned value is not reactive. Assignments like `element.data.foo = 'bar'`\nare not guaranteed to work. Please set the property instead: `element.data = { ...element.data, foo: 'bar' }`.\nIf you're processing user input, consider using `element.form` and `element.edit()` instead.",
+          "type": "TData | null"
+        },
+        {
+          "name": "group",
+          "attribute": "group",
+          "description": "Rumour group. Elements in different groups will not share updates. Empty by default.",
+          "type": "string"
+        },
+        {
+          "name": "href",
+          "attribute": "href",
+          "description": "Optional URL of the resource to load. Switches element to `idle.template` state if empty (default).",
+          "type": "string"
         },
         {
           "name": "infer",
           "attribute": "infer",
           "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
           "type": "string"
+        }
+      ],
+      "events": [
+        {
+          "name": "update",
+          "description": "Instance of `NucleonElement.UpdateEvent`. Dispatched on an element whenever it changes its state."
+        },
+        {
+          "name": "fetch",
+          "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
         }
       ]
     },
@@ -8449,107 +8722,6 @@
       ]
     },
     {
-      "name": "foxy-internal-customer-portal-change-password",
-      "path": "./src/elements/public/CustomerPortal/index.ts",
-      "attributes": [
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "customer",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "session",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "email",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "lang",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "infer",
-          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
-          "type": "string"
-        }
-      ],
-      "properties": [
-        {
-          "name": "fail"
-        },
-        {
-          "name": "isErrorVisible",
-          "default": "false"
-        },
-        {
-          "name": "disabled",
-          "attribute": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "customer",
-          "attribute": "customer",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "session",
-          "attribute": "session",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "email",
-          "attribute": "email",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "step",
-          "default": "1"
-        },
-        {
-          "name": "lang",
-          "attribute": "lang",
-          "type": "string",
-          "default": "\"\""
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
-        },
-        {
-          "name": "infer",
-          "attribute": "infer",
-          "description": "Set a name for this element here to enable property inference. Set to `null` to disable.",
-          "type": "string"
-        }
-      ]
-    },
-    {
       "name": "foxy-internal-customer-portal-link",
       "path": "./src/elements/public/CustomerPortal/index.ts",
       "attributes": [
@@ -8704,6 +8876,11 @@
           "default": "\"class extends CustomEvent<void> {}\""
         },
         {
+          "name": "SignUpEvent",
+          "type": "typeof (Anonymous class)",
+          "default": "\"class extends CustomEvent<void> {}\""
+        },
+        {
           "name": "isLoggedIn",
           "type": "boolean"
         },
@@ -8800,6 +8977,10 @@
         {
           "name": "signin",
           "description": "Instance of `CustomerApi.SignInEvent`. Dispatched on an element once authenticated."
+        },
+        {
+          "name": "signup",
+          "description": "Instance of `CustomerApi.SignUpEvent`. Dispatched on an element once a customer is created (since v1.24.0)."
         }
       ]
     },
@@ -10289,6 +10470,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -10370,6 +10556,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -11252,13 +11450,8 @@
       "attributes": [
         {
           "name": "count-refresh-interval",
-          "type": "number"
-        },
-        {
-          "name": "filter-query-key"
-        },
-        {
-          "name": "filter-name-key"
+          "type": "number",
+          "default": "600000"
         },
         {
           "name": "ns",
@@ -11301,35 +11494,23 @@
       ],
       "properties": [
         {
-          "name": "defaultCountRefreshInterval",
-          "type": "60000",
-          "default": "60000"
-        },
-        {
-          "name": "defaultFilterQueryKey",
-          "type": "\"filter_query\"",
+          "name": "filterQueryKey",
+          "type": "string",
           "default": "\"filter_query\""
         },
         {
-          "name": "defaultFilterNameKey",
-          "type": "\"filter_name\"",
+          "name": "filterNameKey",
+          "type": "string",
           "default": "\"filter_name\""
         },
         {
           "name": "countRefreshInterval",
           "attribute": "count-refresh-interval",
-          "type": "number"
+          "type": "number",
+          "default": "600000"
         },
         {
           "name": "getCountLoaderHref"
-        },
-        {
-          "name": "filterQueryKey",
-          "attribute": "filter-query-key"
-        },
-        {
-          "name": "filterNameKey",
-          "attribute": "filter-name-key"
         },
         {
           "name": "ns",
@@ -11441,25 +11622,24 @@
       "description": "Form element for creating and editing saved filters in Admin. Saved filters\nare powered by the Bookmark attribute format that allows adding custom sidebar items\nto Admin. Bookmark attributes are named `foxy-admin-bookmark` and contain a\nrelative URL of the bookmarked Admin page in the value.",
       "attributes": [
         {
-          "name": "filter-query-options",
+          "name": "pathname",
+          "description": "Admin page pathname."
+        },
+        {
+          "name": "options",
+          "description": "Filter options passed down to `QueryBuilder.options.`",
           "type": "array",
           "default": "[]"
-        },
-        {
-          "name": "filter-query-key"
-        },
-        {
-          "name": "filter-name-key"
-        },
-        {
-          "name": "defaults",
-          "type": "object",
-          "default": "{}"
         },
         {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "mode",
@@ -11529,34 +11709,36 @@
       ],
       "properties": [
         {
-          "name": "defaultFilterQueryKey",
-          "type": "\"filter_query\"",
-          "default": "\"filter_query\""
-        },
-        {
-          "name": "defaultFilterNameKey",
-          "type": "\"filter_name\"",
-          "default": "\"filter_name\""
-        },
-        {
-          "name": "filterQueryOptions",
-          "attribute": "filter-query-options",
-          "type": "array",
-          "default": "[]"
+          "name": "attributeVisibility",
+          "type": "\"public\" | \"private\" | \"restricted\"",
+          "default": "\"restricted\""
         },
         {
           "name": "filterQueryKey",
-          "attribute": "filter-query-key"
+          "type": "string",
+          "default": "\"filter_query\""
+        },
+        {
+          "name": "attributeName",
+          "type": "string",
+          "default": "\"foxy-admin-bookmark\""
         },
         {
           "name": "filterNameKey",
-          "attribute": "filter-name-key"
+          "type": "string",
+          "default": "\"filter_name\""
         },
         {
-          "name": "defaults",
-          "attribute": "defaults",
-          "type": "object",
-          "default": "{}"
+          "name": "pathname",
+          "attribute": "pathname",
+          "description": "Admin page pathname."
+        },
+        {
+          "name": "options",
+          "attribute": "options",
+          "description": "Filter options passed down to `QueryBuilder.options.`",
+          "type": "array",
+          "default": "[]"
         },
         {
           "name": "ns",
@@ -11568,6 +11750,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -11763,6 +11957,12 @@
           "default": "\"\""
         },
         {
+          "name": "props",
+          "description": "Properties to set on the form element using the `spread()` helper.",
+          "type": "object",
+          "default": "{}"
+        },
+        {
           "name": "href",
           "description": "Optional URL of the resource to load (passed to form).",
           "type": "string",
@@ -11894,6 +12094,13 @@
           "description": "Optional URL of the collection this resource belongs to (passed to form).",
           "type": "string",
           "default": "\"\""
+        },
+        {
+          "name": "props",
+          "attribute": "props",
+          "description": "Properties to set on the form element using the `spread()` helper.",
+          "type": "object",
+          "default": "{}"
         },
         {
           "name": "href",
@@ -14199,6 +14406,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -14275,6 +14487,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -14979,6 +15203,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -15065,6 +15294,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -15388,6 +15629,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -15487,6 +15733,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -15969,6 +16227,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -16045,6 +16308,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -17321,6 +17596,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -17397,6 +17677,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -18479,6 +18771,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -18559,6 +18856,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -19010,6 +19319,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -19090,6 +19404,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -19579,6 +19905,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -19663,6 +19994,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -21634,6 +21977,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -21755,6 +22103,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -22189,6 +22549,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -22270,6 +22635,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -22762,6 +23139,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -22866,6 +23248,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -23113,6 +23507,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -23189,6 +23588,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -25391,6 +25802,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -25487,6 +25903,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -25701,6 +26129,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -25777,6 +26210,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -26711,6 +27156,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -26787,6 +27237,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -27370,6 +27832,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -27446,6 +27913,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",

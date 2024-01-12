@@ -1,9 +1,9 @@
 {
   "access-recovery-form": {
-    "back": "Back",
+    "back": "Go back",
     "email": "Email",
     "recover_access": "Get temporary password",
-    "recover_access_hint": "Enter your email and we'll send you a temporary password",
+    "recover_access_hint": "Enter your email to get a temporary password",
     "recover_access_success": "Done! Please check your email for further instructions.",
     "unknown_error": "We can't issue a one-time code for this account at the moment. If you've already requested the code, please wait a few minutes before trying again.",
     "v8n_invalid_email": "Invalid email",
@@ -644,38 +644,64 @@
     },
     "customer-form": {
       "cancel": "Cancel",
-      "change_password": "Change password",
-      "change_password_step_1": "Let's start with your current password. A temporary password also works if you have one.",
-      "change_password_step_2": "Now enter a new password and hit Continue to apply changes to your account.",
-      "change_password_step_3": "All done! You can now use your new password when logging in.",
       "close": "Close",
-      "date": "{{value, date}}",
-      "date_created": "Created on",
-      "date_modified": "Last updated",
-      "email": "Email",
-      "first_name": "First name",
-      "invalid_credential_error": "Incorrect password. Please make sure you've entered your current or temporary password and try again.",
-      "last_name": "Last name",
-      "new_password": "New password",
-      "password": "Password",
-      "sign_in": "Continue",
-      "tax_id": "Tax ID",
-      "undo_cancel": "Review",
-      "undo_confirm": "Discard",
-      "undo_header": "Unsaved changes",
-      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-      "v8n_invalid_email": "Invalid email",
-      "v8n_required": "Required",
-      "v8n_too_long": "Too long",
-      "sign-in-form": {
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_error": "Failed to load"
-        }
+      "message": {
+        "password_change_success": "You have successfully set a new password for your account.",
+        "close": "Close"
+      },
+      "error": {
+        "old_password_incorrect": "The old password you entered is incorrect. Please try again.",
+        "email_already_used": "This email is already in use. Please use a different email."
+      },
+      "first-name": {
+        "label": "First name",
+        "placeholder": "Not set",
+        "helper_text": "Your given name, optional.",
+        "v8n_too_long": "We can't store first names longer than 50 characters."
+      },
+      "last-name": {
+        "label": "Last name",
+        "placeholder": "Not set",
+        "helper_text": "Your surname, optional.",
+        "v8n_too_long": "We can't store last names longer than 50 characters."
+      },
+      "tax-id": {
+        "label": "Tax ID",
+        "placeholder": "Not set",
+        "helper_text": "Your tax identification number, optional.",
+        "v8n_too_long": "We can't store tax IDs longer than 50 characters."
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "Required",
+        "helper_text": "We'll use this email as the login to the Checkout and Customer Portal.",
+        "helper_text_last_login_date": "Your login to the Checkout and Customer Portal. Last used on {{ date, date }} at {{ date, time }}.",
+        "v8n_too_long": "We can't store emails longer than 100 characters.",
+        "v8n_invalid_email": "This email is invalid.",
+        "v8n_required": "Please fill out this field."
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Required",
+        "placeholder_new": "Keep current password",
+        "helper_text_new": "To change your password, enter a new password here. If you leave this field blank, your password will remain the same.",
+        "v8n_too_long": "Please use a password that is no longer than 50 characters.",
+        "v8n_too_weak": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters.",
+        "v8n_required": "Please fill out this field."
+      },
+      "password-old": {
+        "label": "Old password",
+        "placeholder": "",
+        "helper_text": "Enter your old password to confirm password change.",
+        "v8n_required": "Please fill out this field."
+      },
+      "timestamps": {
+        "date_created": "Created on",
+        "date_modified": "Last updated",
+        "date": "{{value, date}}"
       },
       "spinner": {
         "loading_busy": "Loading",
-        "loading_empty": "No data",
         "loading_error": "Failed to load"
       }
     },
@@ -805,9 +831,17 @@
             "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
             "transaction_verified": "Verified",
             "transaction_voided": "Voided",
+            "type_subscription_cancellation": "Cancellation",
+            "type_subscription_modification": "Modification",
+            "type_subscription_renewal": "Renewal",
+            "type_updateinfo": "Update",
+            "type_new_order": "Order",
+            "type_new_subscription": "Subscription",
+            "source_MIT": "This transaction was initiated by merchant",
+            "source_CIT": "This transaction was initiated by customer",
             "spinner": {
               "loading_busy": "Loading",
-              "loading_empty": "No transactions",
+              "loading_empty": "No data",
               "loading_error": "Failed to load"
             }
           }
@@ -849,9 +883,59 @@
     "recover_access": "Get temporary password",
     "sign_in": "Sign in",
     "sign_in_hint": "Please enter your email and password",
+    "sign_up": "Create account",
     "unknown_error": "An unknown error has occured. Please try again later.",
     "v8n_invalid_email": "Invalid email",
     "v8n_required": "Required",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_error": "Failed to load"
+    }
+  },
+  "sign-up-form": {
+    "sign_up": "Sign up",
+    "sign_up_hint": "Create an account to access the portal",
+    "go_back": "Go back",
+    "error": {
+      "registration_disabled": "Customer registration is disabled for this store. If you're seeing this message as a customer, please contact the store owner.",
+      "verification_failed": "Client verification failed. If you are seeing this message as a customer, please contact the store owner.",
+      "email_already_used": "This email is already in use. Please use a different email or sign in instead."
+    },
+    "first-name": {
+      "label": "First name",
+      "placeholder": "Not set",
+      "helper_text": "Your given name, optional.",
+      "v8n_too_long": "We can't store first names longer than 50 characters."
+    },
+    "last-name": {
+      "label": "Last name",
+      "placeholder": "Not set",
+      "helper_text": "Your surname, optional.",
+      "v8n_too_long": "We can't store last names longer than 50 characters."
+    },
+    "email": {
+      "label": "Email",
+      "placeholder": "Required",
+      "helper_text": "We'll use this email as the login to the Checkout and Customer Portal.",
+      "v8n_too_long": "We can't store emails longer than 100 characters.",
+      "v8n_invalid_email": "This email is invalid.",
+      "v8n_required": "Please fill out this field."
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Required",
+      "helper_text": "To generate a secure random password for this account, use the ✨ button.",
+      "v8n_too_long": "Please use a password that is no longer than 50 characters.",
+      "v8n_too_weak": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters.",
+      "v8n_required": "Please fill out this field."
+    },
+    "legal-notice": {
+      "text": "By creating an account, you agree to our Terms of Service.",
+      "link": "Click here to open them in a new tab."
+    },
+    "create": {
+      "create": "Create account"
+    },
     "spinner": {
       "loading_busy": "Loading",
       "loading_error": "Failed to load"

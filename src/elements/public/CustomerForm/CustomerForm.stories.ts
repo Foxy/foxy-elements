@@ -11,9 +11,18 @@ const summary: Summary = {
   localName: 'foxy-customer-form',
   translatable: true,
   configurable: {
-    sections: ['timestamps'],
+    sections: ['legal-notice', 'timestamps'],
     buttons: ['delete', 'create'],
-    inputs: ['first-name', 'last-name', 'email', 'tax-id'],
+    inputs: [
+      'first-name',
+      'last-name',
+      'tax-id',
+      'email',
+      'is-anonymous',
+      'password',
+      'password-old',
+      'forgot-password',
+    ],
   },
 };
 

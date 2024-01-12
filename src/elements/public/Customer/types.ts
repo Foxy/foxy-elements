@@ -16,6 +16,7 @@ import { Templates as TransactionsTableTemplates } from '../TransactionsTable/ty
 
 export type CustomerAddresses = Resource<Rels.CustomerAddresses>;
 export type Attributes = Resource<Rels.Attributes>;
+export type Settings = Resource<Rels.CustomerPortalSettings>;
 export type Data = Resource<Graph>;
 export type Tab = { title: string; content: TemplateResult };
 
