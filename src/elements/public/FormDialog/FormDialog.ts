@@ -8,6 +8,7 @@ import { FormRenderer } from './types';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { UpdateEvent } from '../NucleonElement/UpdateEvent';
+import { spread } from '@open-wc/lit-helpers';
 
 /**
  * Dialog wrapper for the forms made with NucleonElement.
@@ -26,6 +27,7 @@ export class FormDialog extends Dialog {
       href: { type: String },
       form: { type: String, noAccessor: true },
       group: { type: String },
+      props: { type: Object },
       parent: { type: String },
       related: { type: Array },
       keepOpenOnPost: { type: Boolean, attribute: 'keep-open-on-post' },
@@ -44,6 +46,9 @@ export class FormDialog extends Dialog {
 
   /** Optional URL of the collection this resource belongs to (passed to form). */
   parent = '';
+
+  /** Properties to set on the form element using the `spread()` helper. */
+  props: Record<string, unknown> = {};
 
   group = '';
 
@@ -116,6 +121,7 @@ export class FormDialog extends Dialog {
             ?hidden=\${options.dialog.hidden}
             .templates=\${options.dialog.templates}
             .related=\${options.dialog.related}
+            ...=$\{options.spread(options.dialog.props)}
             @fetch=\${options.handleFetch}
             @update=\${options.handleUpdate}
           >
@@ -148,6 +154,7 @@ export class FormDialog extends Dialog {
         return html`${this.__renderForm?.({
           handleUpdate: this.__handleUpdate,
           handleFetch: this.__handleFetch,
+          spread: spread,
           dialog: this,
           html,
         })}`;

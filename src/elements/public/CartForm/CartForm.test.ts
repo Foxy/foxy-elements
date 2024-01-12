@@ -585,6 +585,7 @@ describe('CartForm', () => {
         handleUpdate: formHandleUpdate,
         handleFetch: formHandleFetch,
         dialog: formDialog,
+        spread,
         html,
       })
     );
