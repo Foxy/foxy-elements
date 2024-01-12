@@ -70,6 +70,15 @@
     "title": "Enable Single Sign-On (SSO)",
     "subtitle": "Sync your sessions across your website and our checkout"
   },
+  "sign_up": {
+    "title": "Enable customer registration",
+    "subtitle": "Add a sign up form to your portal and enable the API",
+    "hcaptcha_explainer": "By default, Customer Portal uses Foxy's hCaptcha account to protect the sign up form. If you'd like to use your own hCaptcha account, please enter your site key and secret key above.",
+    "site_key_label": "hCaptcha site key",
+    "site_key_placeholder": "Use Foxy default",
+    "secret_key_label": "hCaptcha secret key",
+    "secret_key_placeholder": "Use Foxy default"
+  },
   "jwt": {
     "title": "JWT shared secret",
     "subtitle": "Reset this key to drop all active sessions",

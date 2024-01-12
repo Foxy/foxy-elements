@@ -14,6 +14,16 @@ export function createRouter(): Router {
     return new Response(
       JSON.stringify({
         ...dataset.customer_portal_settings[0],
+        tos_checkbox_settings: {
+          usage: 'optional' as const,
+          url: 'https://foxy.io/terms-of-service/',
+          initial_state: 'unchecked' as const,
+          is_hidden: false,
+        },
+        sign_up: {
+          verification: { type: 'hcaptcha' as const, site_key: '123' },
+          enabled: true,
+        },
         _links: { self: { href: ctx.url.toString() } },
       })
     );

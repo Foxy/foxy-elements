@@ -56,6 +56,11 @@ export interface CustomerPortalSettingsSetNextDateModificationEvent {
   value: FxCustomerPortalSettings['subscriptions']['allowNextDateModification'];
 }
 
+export interface CustomerPortalSettingsSetSignUpEvent {
+  type: 'SET_SIGN_UP';
+  value: FxCustomerPortalSettings['signUp'];
+}
+
 export interface CustomerPortalSettingsSetSecretEvent {
   type: 'SET_SECRET';
   value: string;

@@ -482,7 +482,7 @@ export const createDataset: () => Dataset = () => ({
       password_hash: '4443fe50df6b177ba84b78dd91f0958a',
       password_hash_type: 'md5',
       password_hash_config: null,
-      forgot_password: 'blah',
+      forgot_password: '1234567890',
       forgot_password_timestamp: '2013-08-16T14:13:54-0700',
       is_anonymous: false,
       date_created: '2013-08-16T14:13:54-0700',

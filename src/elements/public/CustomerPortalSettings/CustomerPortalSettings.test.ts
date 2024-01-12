@@ -30,6 +30,7 @@ import {
 } from './private/SessionDuration/SessionDuration';
 
 import { SessionSecret, SessionSecretChangeEvent } from './private/SessionSecret/SessionSecret';
+import { SignUp } from './private/SignUp/SignUp';
 
 class TestCustomerPortalSettings extends CustomerPortalSettings {
   get whenReady() {
@@ -64,6 +65,7 @@ interface Refs {
   loading: LoadingScreen;
   secret: SessionSecret;
   switch: Switch;
+  signup: SignUp;
   error: ErrorScreen;
   ndmod: NextDateModification;
   reset: ButtonElement;
@@ -102,6 +104,7 @@ function testContent(value: FxCustomerPortalSettings) {
     expect(refs.fmod.value).to.deep.equal(value.subscriptions.allowFrequencyModification);
     expect(refs.ndmod.value).to.deep.equal(value.subscriptions.allowNextDateModification);
     expect(refs.secret.value).to.equal(value.jwtSharedSecret);
+    expect(refs.signup.value).to.equal(value.signUp);
     expect(refs.origins.value).to.deep.equal(value.allowedOrigins);
     expect(refs.session.value).to.equal(value.sessionLifespanInMinutes);
   };
@@ -121,6 +124,7 @@ function testDisabled(disabled: boolean) {
     expect(refs.fmod).to.have.property('disabled', disabled);
     expect(refs.ndmod).to.have.property('disabled', disabled);
     expect(refs.secret).to.have.property('disabled', disabled);
+    expect(refs.signup).to.have.property('disabled', disabled);
     expect(refs.origins).to.have.property('disabled', disabled);
     expect(refs.session).to.have.property('disabled', disabled);
   };
@@ -435,6 +439,12 @@ const model = createModel<CustomerPortalSettings>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

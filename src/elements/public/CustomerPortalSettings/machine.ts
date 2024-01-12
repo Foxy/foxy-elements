@@ -9,6 +9,7 @@ import {
   CustomerPortalSettingsSetSSOEvent,
   CustomerPortalSettingsSetSecretEvent,
   CustomerPortalSettingsSetSessionEvent,
+  CustomerPortalSettingsSetSignUpEvent,
 } from './types';
 import { Machine, actions } from 'xstate';
 
@@ -76,6 +77,7 @@ const create = actions.assign<CustomerPortalSettingsContext>({
     subscriptions: { allowFrequencyModification: [], allowNextDateModification: false },
     jwtSharedSecret: times(72, () => random(35).toString(36)).join(''),
     sessionLifespanInMinutes: 40320,
+    signUp: { enabled: false, verification: { type: 'hcaptcha', siteKey: '', secretKey: '' } },
     sso: false,
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
@@ -121,6 +123,14 @@ const setNextDateModification = actions.assign<CustomerPortalSettingsContext>({
       ...newResource!,
       subscriptions: { ...newResource!.subscriptions, allowNextDateModification },
     };
+  },
+});
+
+const setSignUp = actions.assign<CustomerPortalSettingsContext>({
+  newResource: ({ newResource }, evt) => {
+    const typedEvt = evt as CustomerPortalSettingsSetSignUpEvent;
+    const signUp = typedEvt.value;
+    return { ...newResource!, signUp };
   },
 });
 
@@ -170,6 +180,7 @@ const setters = {
   SET_SECRET: { target: '#cps.idle', actions: 'setSecret' },
   SET_ORIGINS: { target: '#cps.idle', actions: 'setOrigins' },
   SET_SESSION: { target: '#cps.idle', actions: 'setSession' },
+  SET_SIGN_UP: { target: '#cps.idle', actions: 'setSignUp' },
   SET_FREQUENCY_MODIFICATION: {
     target: '#cps.idle',
     actions: 'setFrequencyModification',
@@ -295,6 +306,7 @@ export const machine = Machine<CustomerPortalSettingsContext>(
       setOrigins,
       setSession,
       setSecret,
+      setSignUp,
       setHref,
       setSSO,
       handleLoadingSuccess,

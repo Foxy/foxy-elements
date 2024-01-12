@@ -28,6 +28,8 @@ import { Translatable } from '../../../mixins/translatable';
 import cloneDeep from 'lodash-es/cloneDeep';
 import { interpret } from 'xstate';
 import { machine } from './machine';
+import { SignUp } from './private/SignUp/SignUp';
+import { SignUpChangeEvent } from './private/SignUp/SignUpChangeEvent';
 
 function throwIfNotOk(response: Response) {
   if (response.ok) return;
@@ -61,6 +63,7 @@ export class CustomerPortalSettings extends Translatable {
       'x-sso-switch': SSOSwitch,
       'x-skeleton': Skeleton,
       'x-section': Section,
+      'x-sign-up': SignUp,
       'x-switch': Switch,
       'x-i18n': I18N,
       'x-page': Page,
@@ -203,6 +206,18 @@ export class CustomerPortalSettings extends Translatable {
           }}
         >
         </x-sso-switch>
+
+        <x-sign-up
+          data-testid="signup"
+          .disabled=${!newResource}
+          .value=${newResource?.signUp}
+          .lang=${this.lang}
+          .ns=${this.ns}
+          @change=${(evt: SignUpChangeEvent) => {
+            this.__service.send({ type: 'SET_SIGN_UP', value: evt.detail });
+          }}
+        >
+        </x-sign-up>
 
         <x-section>
           <x-i18n slot="title" key="advanced.title" .ns=${this.ns} .lang=${this.lang}></x-i18n>
