@@ -29,8 +29,17 @@ describe('InternalForm', () => {
     expect(customElements.get('foxy-internal-form')).to.equal(InternalForm);
   });
 
+  it('has a static property "generalErrorPrefix" set to "error:"', () => {
+    expect(InternalForm.generalErrorPrefix).to.equal('error:');
+  });
+
   it('extends NucleonElement', () => {
     expect(new InternalForm()).to.be.instanceOf(NucleonElement);
+  });
+
+  it('has a reactive property "status" that defaults to null', async () => {
+    expect(InternalForm).to.have.deep.nested.property('properties.status', { type: Object });
+    expect(new InternalForm()).to.have.property('status', null);
   });
 
   it('has a .renderBody() method rendering timestamps and an appropriate action control', async () => {
@@ -127,5 +136,41 @@ describe('InternalForm', () => {
     const spinnerWrapper = await getByTestId(element, 'spinner');
 
     expect(spinnerWrapper).to.have.class('opacity-0');
+  });
+
+  it('renders closable status message is "status" property is set', async () => {
+    const options = { foo: 'bar' };
+    const element = await fixture<InternalForm<any>>(
+      html`<foxy-internal-form .status=${{ key: 'test', options }}></foxy-internal-form>`
+    );
+
+    const wrapper = element.renderRoot.querySelector('[data-testid="status"]')!;
+    const button = wrapper.querySelector('vaadin-button')!;
+    const buttonText = button.querySelector('foxy-i18n')!;
+    const text = wrapper.querySelector('foxy-i18n')!;
+
+    expect(text).to.have.deep.property('options', options);
+    expect(text).to.have.attribute('infer', 'status');
+    expect(text).to.have.attribute('key', 'test');
+
+    expect(buttonText).to.have.attribute('infer', 'status');
+    expect(buttonText).to.have.attribute('key', 'close');
+
+    button.dispatchEvent(new CustomEvent('click'));
+    expect(element).to.have.property('status', null);
+  });
+
+  it('renders general errors if present', async () => {
+    const layout = html`<foxy-internal-form></foxy-internal-form>`;
+    const element = await fixture<InternalForm<any>>(layout);
+    const errorsBefore = element.renderRoot.querySelectorAll('foxy-i18n[infer="error"]');
+    expect(errorsBefore).to.have.lengthOf(0);
+
+    Object.defineProperty(element, 'errors', { get: () => ['error:foo', 'error:bar'] });
+    await element.requestUpdate();
+    const errorsAfter = element.renderRoot.querySelectorAll('foxy-i18n[infer="error"]');
+    expect(errorsAfter).to.have.lengthOf(2);
+    expect(errorsAfter[0]).to.have.attribute('key', 'foo');
+    expect(errorsAfter[1]).to.have.attribute('key', 'bar');
   });
 });

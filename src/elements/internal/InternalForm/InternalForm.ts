@@ -1,5 +1,7 @@
+import type { PropertyDeclarations } from 'lit-element';
 import type { HALJSONResource } from '../../public/NucleonElement/types';
 import type { TemplateResult } from 'lit-html';
+import type { Status } from './types';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { ThemeableMixin } from '../../../mixins/themeable';
@@ -17,6 +19,19 @@ const Base = ConfigurableMixin(ThemeableMixin(NucleonElement));
  * @since 1.17.0
  */
 export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
+  /** Validation errors with this prefix will show up at the top of the form. */
+  static generalErrorPrefix = 'error:';
+
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      status: { type: Object },
+    };
+  }
+
+  /** Status message to render at the top of the form. If `null`, the message is hidden. */
+  status: null | Status = null;
+
   /**
    * Renders form body. This is the method you should implement in your forms
    * instead of `.render()`. If you'd like to keep the submit button and the timestamps,
@@ -47,7 +62,8 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
             'opacity-0 pointer-events-none': isSpinnerVisible,
           })}
         >
-          ${this.renderBody()}
+          ${this.__generalErrors.map(err => this.__renderGeneralError(err))}
+          ${this.status ? this.__renderStatus(this.status) : ''} ${this.renderBody()}
         </div>
 
         <div
@@ -66,6 +82,42 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
           </foxy-spinner>
         </div>
       </div>
+    `;
+  }
+
+  private get __generalErrors() {
+    const prefix = (this.constructor as typeof InternalForm).generalErrorPrefix;
+    return this.errors.filter(v => v.startsWith(prefix));
+  }
+
+  private __renderGeneralError(err: string) {
+    return html`
+      <foxy-i18n
+        class="leading-xs text-body rounded bg-error-10 block"
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        infer="error"
+        key=${err.replace('error:', '')}
+      >
+      </foxy-i18n>
+    `;
+  }
+
+  private __renderStatus({ key, options }: Status) {
+    return html`
+      <p
+        data-testid="status"
+        class="leading-xs text-body rounded bg-success-10 flex items-start gap-m"
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+      >
+        <foxy-i18n class="flex-1" infer="status" key=${key} .options=${options}></foxy-i18n>
+        <vaadin-button
+          class="flex-shrink-0"
+          theme="success tertiary-inline"
+          @click=${() => (this.status = null)}
+        >
+          <foxy-i18n class="flex-1" infer="status" key="close"></foxy-i18n>
+        </vaadin-button>
+      </p>
     `;
   }
 }
