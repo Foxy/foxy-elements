@@ -16,8 +16,9 @@ const samples = {
   },
 };
 
-function getRefs(element: OffsetInput) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
+async function getRefs(element: OffsetInput) {
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector);
 
   return {
     input: $('[data-testid=input]') as FrequencyInput | null,
@@ -25,26 +26,26 @@ function getRefs(element: OffsetInput) {
   };
 }
 
-function testEnabled(element: OffsetInput) {
-  const refs = getRefs(element);
+async function testEnabled(element: OffsetInput) {
+  const refs = await getRefs(element);
   expect(refs.choice.disabled).to.be.false;
   expect(refs.input?.disabled).to.be.oneOf([false, undefined]);
 }
 
-function testDisabled(element: OffsetInput) {
-  const refs = getRefs(element);
+async function testDisabled(element: OffsetInput) {
+  const refs = await getRefs(element);
   expect(refs.choice.disabled).to.be.true;
   expect(refs.input?.disabled).to.be.oneOf([true, undefined]);
 }
 
-function testNone(element: OffsetInput) {
-  const { choice, input } = getRefs(element);
+async function testNone(element: OffsetInput) {
+  const { choice, input } = await getRefs(element);
   expect(choice.value).to.equal('none');
   expect(input).to.be.null;
 }
 
 async function testCustom(element: OffsetInput) {
-  const { choice, input } = getRefs(element);
+  const { choice, input } = await getRefs(element);
 
   expect(element.value).to.equal(samples.value.custom[0]);
   expect(choice.value).to.equal('custom');
@@ -102,7 +103,7 @@ const model = createModel<OffsetInput>(machine).withEvents({
   SET_NONE: { exec: element => void (element.value = samples.value.none) },
   CHOOSE_NONE: {
     exec: async element => {
-      const { choice } = getRefs(element);
+      const { choice } = await getRefs(element);
       const whenChanged = new Promise(resolve =>
         element.addEventListener('change', resolve, { once: true })
       );
@@ -114,7 +115,7 @@ const model = createModel<OffsetInput>(machine).withEvents({
   },
   CHOOSE_CUSTOM: {
     exec: async element => {
-      const { choice } = getRefs(element);
+      const { choice } = await getRefs(element);
       const whenChanged = new Promise(resolve =>
         element.addEventListener('change', resolve, { once: true })
       );
@@ -127,6 +128,12 @@ const model = createModel<OffsetInput>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> OffsetInput', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

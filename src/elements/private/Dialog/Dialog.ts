@@ -70,6 +70,10 @@ export abstract class Dialog extends Base {
           --tw-scale-x: 0.85;
           --tw-scale-y: 0.85;
         }
+
+        .max-h-alert {
+          max-height: calc(100vh - var(--lumo-size-l) - var(--lumo-space-m) * 2);
+        }
       `,
     ];
   }
@@ -242,7 +246,12 @@ export abstract class Dialog extends Base {
                 : html`<div></div>`}
             </div>
 
-            <div class="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain">
+            <div
+              class=${classMap({
+                'flex-1 overflow-y-auto overflow-x-hidden overscroll-contain': true,
+                'max-h-alert': this.alert,
+              })}
+            >
               <div class="p-m relative">${content?.()}</div>
             </div>
           </div>

@@ -262,7 +262,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
     dialog.href = 'https://example.com/href';
 
     const form = await fixture(
-      (control.form as FormRenderer)({ html, dialog, handleFetch, handleUpdate })
+      (control.form as FormRenderer)({ html, spread, dialog, handleFetch, handleUpdate })
     );
 
     expect(form).to.be.instanceOf(PaymentsApiPaymentMethodForm);
@@ -351,7 +351,7 @@ describe('PaymentsApiPaymentPresetForm', () => {
     dialog.href = 'https://example.com/href';
 
     const form = await fixture(
-      (control.form as FormRenderer)({ html, dialog, handleFetch, handleUpdate })
+      (control.form as FormRenderer)({ html, spread, dialog, handleFetch, handleUpdate })
     );
 
     expect(form).to.be.instanceOf(PaymentsApiFraudProtectionForm);

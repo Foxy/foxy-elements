@@ -4,6 +4,6 @@ export async function getByName<T extends HTMLElement>(
   element: LitElement,
   name: string
 ): Promise<T | null> {
-  await element.updateComplete;
+  await element.requestUpdate();
   return element.renderRoot.querySelector(`[name="${name}"]`) as T | null;
 }

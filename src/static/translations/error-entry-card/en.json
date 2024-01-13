@@ -1,5 +1,9 @@
 {
   "client": "Client",
+  "customer": "Customer",
+  "cart": "Cart",
+  "subscription": "Subscription",
+  "transaction": "Transaction",
   "date": "{{value, date}}",
   "error": "Error",
   "request": "Request",

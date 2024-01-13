@@ -3,6 +3,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
@@ -63,6 +64,12 @@ export class WebhookForm extends TranslatableMixin(InternalForm, 'webhook-form')
     { value: 'transaction', label: 'event_resource_transaction' },
     { value: 'customer', label: 'event_resource_customer' },
   ];
+
+  get readonlySelector(): BooleanSelector {
+    const alwaysMatch: string[] = [];
+    if (this.data) alwaysMatch.push('event-resource');
+    return new BooleanSelector(`${super.readonlySelector} ${alwaysMatch.join(' ')}`.trim());
+  }
 
   renderBody(): TemplateResult {
     return html`

@@ -23,9 +23,10 @@ const samples = {
   modifiedRule: { jsonataQuery: '$contains(frequency, "w")', max: '1y' },
 };
 
-function getRefs(element: TestNextDateModification) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector) as unknown;
-  const $$ = (selector: string) => element.shadowRoot!.querySelectorAll(selector) as unknown;
+async function getRefs(element: TestNextDateModification) {
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector) as unknown;
+  const $$ = (selector: string) => element.renderRoot.querySelectorAll(selector) as unknown;
 
   return {
     toggle: $('[data-testid=toggle]') as Switch,
@@ -36,10 +37,8 @@ function getRefs(element: TestNextDateModification) {
 
 function testInteractivity(disabled: boolean) {
   return async (element: TestNextDateModification) => {
-    await element.updateComplete;
-
     expect(element.disabled).to.equal(disabled);
-    const { rules, add } = getRefs(element);
+    const { rules, add } = await getRefs(element);
     rules.every(rule => expect(rule.disabled).to.equal(disabled));
 
     if (element.value) expect(add.disabled).to.equal(disabled);
@@ -48,8 +47,7 @@ function testInteractivity(disabled: boolean) {
 
 function testContent(value: Rule[] | boolean) {
   return async (element: TestNextDateModification) => {
-    await element.updateComplete;
-    const rules = getRefs(element).rules;
+    const { rules } = await getRefs(element);
 
     if (typeof value === 'boolean') {
       expect(rules).to.be.empty;
@@ -155,7 +153,7 @@ const model = createModel<TestNextDateModification>(machine).withEvents({
           element.addEventListener('change', resolve, { once: true });
         });
 
-        getRefs(element).add.click();
+        (await getRefs(element)).add.click();
         await whenChanged;
       }
     },
@@ -163,7 +161,7 @@ const model = createModel<TestNextDateModification>(machine).withEvents({
   UNCHECK: {
     exec: async element => {
       await element.updateComplete;
-      const toggle = getRefs(element).toggle;
+      const toggle = (await getRefs(element)).toggle;
       toggle.checked = false;
       toggle.dispatchEvent(new SwitchChangeEvent(false));
     },
@@ -171,7 +169,7 @@ const model = createModel<TestNextDateModification>(machine).withEvents({
   CHECK: {
     exec: async element => {
       await element.updateComplete;
-      const toggle = getRefs(element).toggle;
+      const toggle = (await getRefs(element)).toggle;
       toggle.checked = true;
       toggle.dispatchEvent(new SwitchChangeEvent(true));
     },
@@ -179,6 +177,12 @@ const model = createModel<TestNextDateModification>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> NextDateModification', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getShortestPathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

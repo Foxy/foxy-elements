@@ -228,6 +228,66 @@ describe('CustomerApi', () => {
     expect(resolveCallback).to.have.been.called;
   });
 
+  it('handles a POST request to the virtual foxy://customer-api/signup endpoint (email only)', async () => {
+    const element = await fixture<CustomerApi>(html`
+      <foxy-customer-api><div></div></foxy-customer-api>
+    `);
+
+    const apiSignUpMethod = stub(element.api, 'signUp');
+    const resolveCallback = spy();
+    const params = { email: 'justice.witts@example.com' };
+    const child = element.firstElementChild as HTMLDivElement;
+    const event = new FetchEvent('fetch', {
+      cancelable: true,
+      bubbles: true,
+      reject: spy(),
+      resolve: resolveCallback,
+      request: new Request('foxy://customer-api/signup', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
+    });
+
+    child.dispatchEvent(event);
+
+    await oneEvent(element, 'signup');
+    await nextFrame();
+
+    expect(apiSignUpMethod).to.have.been.calledWith(params);
+    expect(resolveCallback).to.have.been.called;
+  });
+
+  it('handles a POST request to the virtual foxy://customer-api/signup endpoint (email + password)', async () => {
+    const element = await fixture<CustomerApi>(html`
+      <foxy-customer-api><div></div></foxy-customer-api>
+    `);
+
+    const apiSignUpMethod = stub(element.api, 'signUp');
+    const apiSignInMethod = stub(element.api, 'signIn');
+    const resolveCallback = spy();
+    const params = { email: 'justice.witts@example.com', password: 'jhdkfh7&^*kjs!HFD' };
+    const child = element.firstElementChild as HTMLDivElement;
+    const event = new FetchEvent('fetch', {
+      cancelable: true,
+      bubbles: true,
+      reject: spy(),
+      resolve: resolveCallback,
+      request: new Request('foxy://customer-api/signup', {
+        method: 'POST',
+        body: JSON.stringify(params),
+      }),
+    });
+
+    child.dispatchEvent(event);
+
+    await oneEvent(element, 'signup');
+    await nextFrame();
+
+    expect(apiSignUpMethod).to.have.been.calledWith(params);
+    expect(apiSignInMethod).to.have.been.calledWith(params);
+    expect(resolveCallback).to.have.been.called;
+  });
+
   it('makes an API request for any non-virtual endpoint', async () => {
     const element = await fixture<CustomerApi>(html`
       <foxy-customer-api><div></div></foxy-customer-api>

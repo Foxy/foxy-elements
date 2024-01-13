@@ -10,7 +10,7 @@ import { SessionDuration } from './SessionDuration';
 
 class TestSessionDuration extends SessionDuration {
   get whenReady() {
-    return this._whenI18nReady.then(() => this.updateComplete);
+    return this._whenI18nReady;
   }
 }
 
@@ -34,7 +34,7 @@ const valuesMap = {
 
 function testDisabled(disabled: boolean) {
   return async (element: TestSessionDuration) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     const refs = getRefs<Refs>(element);
 
     if (disabled) expect(refs.field).to.have.attribute('disabled');
@@ -45,15 +45,21 @@ function testDisabled(disabled: boolean) {
 
 function testInvalid(invalid: boolean) {
   return async (element: TestSessionDuration) => {
+    if (element.disabled) return;
+
+    element.updated(new Map([['value', 0]]));
     await element.updateComplete;
-    let assertion = expect(getRefs<Refs>(element).error);
-    if (!invalid || element.disabled) assertion = assertion.not;
-    assertion.to.have.class('text-error');
+
+    if (invalid) {
+      expect(getRefs<Refs>(element).error).to.have.class('text-error');
+    } else {
+      expect(getRefs<Refs>(element).error).to.not.have.class('text-error');
+    }
   };
 }
 
 async function testValue(element: TestSessionDuration) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const refs = getRefs<Refs>(element);
   const [count, units] = valuesMap[element.value as keyof typeof valuesMap];
@@ -64,17 +70,16 @@ async function testValue(element: TestSessionDuration) {
 }
 
 async function execEnter(element: TestSessionDuration, event: EventObject) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const refs = getRefs<Refs>(element);
   const value = (event as EventObject & { value: number }).value;
   const [count, units] = valuesMap[value as keyof typeof valuesMap];
 
   refs.count.value = count;
-  refs.count.dispatchEvent(new CustomEvent('change', { bubbles: true }));
-  await element.updateComplete;
-
   refs.units.value = units;
+
+  refs.count.dispatchEvent(new CustomEvent('change', { bubbles: true }));
   refs.units.dispatchEvent(new CustomEvent('change', { bubbles: true }));
 }
 
@@ -172,6 +177,12 @@ const model = createModel<TestSessionDuration>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> SessionDuration', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

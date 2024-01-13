@@ -1,4 +1,5 @@
 import { expect, fixture, waitUntil } from '@open-wc/testing';
+import { spread } from '@open-wc/lit-helpers';
 import { html } from 'lit-html';
 import { stub } from 'sinon';
 import { createRouter } from '../../../server/index';
@@ -145,6 +146,7 @@ describe('ShipmentCard', () => {
     const renderedForm = await fixture(
       form({
         html,
+        spread,
         dialog: { href: 'test-href', parent: 'test-parent' } as FormDialog,
         handleFetch,
         handleUpdate,

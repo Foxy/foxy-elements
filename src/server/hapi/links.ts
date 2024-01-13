@@ -1,6 +1,15 @@
 import { Links } from '../router/types';
 
 export const links: Links = {
+  clients: ({ id }) => ({
+    'fx:attributes': { href: `./client_attributes?client_id=${id}` },
+  }),
+
+  passkeys: ({ user_id }) => ({
+    'fx:user': { href: `./users/${user_id}` },
+    'fx:passkeys': { href: `./users/${user_id}/passkeys` },
+  }),
+
   downloadables: ({ id, store_id, item_category_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:item_category': { href: `./item_categories/${item_category_id}` },
@@ -34,6 +43,10 @@ export const links: Links = {
   custom_fields: ({ store_id, transaction_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:transaction': { href: `./transactions/${transaction_id}` },
+  }),
+
+  store_attributes: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
   }),
 
   customer_attributes: ({ store_id }) => ({

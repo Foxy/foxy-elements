@@ -5,10 +5,6 @@ import { WebhookCard } from './index';
 import { Data } from './types';
 
 describe('WebhookCard', () => {
-  it('imports and defines iron-icon element', () => {
-    expect(customElements.get('iron-icon')).to.exist;
-  });
-
   it('imports and defines foxy-internal-card element', () => {
     expect(customElements.get('foxy-internal-card')).to.exist;
   });

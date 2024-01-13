@@ -14,24 +14,12 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 export class WebhookCard extends TranslatableMixin(InternalCard, 'webhook-card')<Data> {
   renderBody(): TemplateResult {
     return html`
-      <div class="grid grid-cols-1 gap-s leading-none">
-        <p class="flex justify-between items-center font-medium">
-          <span class="truncate">${this.data?.name}&ZeroWidthSpace;</span>
-          <span class="uppercase inline-block text-xs bg-contrast-5 rounded p-xs flex-shrink-0">
-            ${this.data?.format}&ZeroWidthSpace;
-          </span>
+      <div class="grid grid-cols-1 leading-s -my-xs">
+        <p class="text-m truncate text-body font-medium">${this.data?.name}&ZeroWidthSpace;</p>
+        <p class="text-s truncate text-secondary">${this.data?.url}&ZeroWidthSpace;</p>
+        <p class="text-s truncate text-tertiary">
+          ${this.data?.format} &bull; ${this.data?.event_resource}&ZeroWidthSpace;
         </p>
-
-        <div class="flex items-center gap-s text-secondary">
-          <iron-icon class="icon-inline flex-shrink-0" icon="icons:language"></iron-icon>
-          <p class="truncate">${this.data?.url}&ZeroWidthSpace;</p>
-        </div>
-
-        <div class="flex items-center gap-s text-secondary">
-          <iron-icon class="icon-inline flex-shrink-0" icon="icons:settings-input-antenna">
-          </iron-icon>
-          <p class="truncate">${this.data?.event_resource}&ZeroWidthSpace;</p>
-        </div>
       </div>
     `;
   }

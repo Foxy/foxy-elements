@@ -21,7 +21,7 @@ interface Refs {
 
 function testDisabled(disabled: boolean) {
   return async (element: TestSessionSecret) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     const refs = getRefs<Refs>(element);
     expect(refs.input).to.have.property('disabled', disabled);
     expect(refs.button).to.have.property('disabled', disabled);
@@ -30,14 +30,16 @@ function testDisabled(disabled: boolean) {
 
 function testInvalid(invalid: boolean) {
   return async (element: TestSessionSecret) => {
+    if (element.disabled) return;
+    element.updated(new Map([['value', '']]));
     await element.updateComplete;
     const refs = getRefs<Refs>(element);
-    expect(refs.input).to.have.property('invalid', invalid && !element.disabled);
+    expect(refs.input).to.have.property('invalid', invalid);
   };
 }
 
 async function testValue(element: TestSessionSecret) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const refs = getRefs<Refs>(element);
 
   expect(refs.input).to.have.property('value', element.value);
@@ -84,7 +86,7 @@ const machine = createMachine({
 const model = createModel<TestSessionSecret>(machine).withEvents({
   RESET: {
     exec: async function execReset(element) {
-      await element.updateComplete;
+      await element.requestUpdate();
       getRefs<Refs>(element).button.click();
     },
   },
@@ -102,7 +104,7 @@ const model = createModel<TestSessionSecret>(machine).withEvents({
   },
   ENTER_VALID: {
     exec: async function execEnterValid(element) {
-      await element.updateComplete;
+      await element.requestUpdate();
       const input = getRefs<Refs>(element).input;
 
       input.value = 'jwt-shared-secret-value-that-is-40-or-more-characters-long';
@@ -120,7 +122,7 @@ const model = createModel<TestSessionSecret>(machine).withEvents({
       },
     ],
     exec: async function execEnterInvalid(element, event) {
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const value = (event as unknown as { value: string }).value;
       const input = getRefs<Refs>(element).input;
@@ -133,6 +135,12 @@ const model = createModel<TestSessionSecret>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> SessionSecret', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

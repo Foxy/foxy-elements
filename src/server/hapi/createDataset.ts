@@ -1,6 +1,63 @@
 import { Dataset } from '../router/types';
 
 export const createDataset: () => Dataset = () => ({
+  clients: [
+    {
+      id: 0,
+      client_id: 'client_JnVvPWxBz4Ep7YcpJFeU',
+      client_secret: '7dn2cmvUS5btm1S6Mfygd7vaVBuv7Cf8Fx1HKqsx',
+      redirect_uri: 'https://admin.acme.test',
+      javascript_origin_uri: '',
+      project_name: 'Foxy Widgets for Acme Admin',
+      project_description: 'View your recent transactions from Foxy right in the Acme Admin.',
+      company_name: 'Acme Inc.',
+      company_url: 'https://acme.test',
+      company_logo: 'https://picsum.photos/64',
+      contact_name: 'Sally Sims',
+      contact_email: 'sally.sims@example.com',
+      contact_phone: '555-555-5555',
+    },
+    {
+      id: 1,
+      client_id: 'client_ApVvPWxBz4ap7YcpJoe1',
+      client_secret: 'lln2cmvasdbtm1S6Mfygd7vaVBuv23f8Fx1HKqs2',
+      redirect_uri: 'https://admin.acme.test',
+      javascript_origin_uri: '',
+      project_name: '',
+      project_description: '',
+      company_name: '',
+      company_url: '',
+      company_logo: '',
+      contact_name: '',
+      contact_email: '',
+      contact_phone: '',
+    },
+  ],
+
+  passkeys: [
+    {
+      id: 0,
+      user_id: 0,
+      credential_id: 'EVAfAKj33924v0A3V4RQ-RVew4r4WEFDL',
+      user_name: 'sally.sims@example.com',
+      last_login_date: '2023-02-21T12:20:10-0700',
+      last_login_ua:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+      date_created: '2023-02-21T12:20:10-0700',
+      date_modified: null,
+    },
+    {
+      id: 1,
+      user_id: 0,
+      credential_id: 'EVAfAKj33924v0A3V4RQ-RVew4r4WEFDL',
+      user_name: 'sally.sims@example.com',
+      last_login_date: null,
+      last_login_ua: null,
+      date_created: null,
+      date_modified: null,
+    },
+  ],
+
   downloadables: [
     {
       id: 0,
@@ -107,6 +164,19 @@ export const createDataset: () => Dataset = () => ({
       name: 'Terms & Conditions',
       value: 'Checked',
       is_hidden: true,
+      date_created: '2013-08-05T14:15:59-0700',
+      date_modified: '2013-08-05T14:15:59-0700',
+    },
+  ],
+
+  store_attributes: [
+    {
+      id: 0,
+      name: 'foxy-admin-bookmark',
+      value:
+        '/stores/0/transactions?filter_name=Red%20%26%20Heavy&amp;filter_query=color%3Dred%26weight%3Agreaterthan%3D4',
+      store_id: 0,
+      visibility: 'private',
       date_created: '2013-08-05T14:15:59-0700',
       date_modified: '2013-08-05T14:15:59-0700',
     },
@@ -365,6 +435,8 @@ export const createDataset: () => Dataset = () => ({
       currency_code: 'USD',
       currency_symbol: '$',
       status: 'completed',
+      source: 'cit_ecommerce',
+      type: 'subscription_renewal',
     },
     {
       id: 1,
@@ -410,7 +482,7 @@ export const createDataset: () => Dataset = () => ({
       password_hash: '4443fe50df6b177ba84b78dd91f0958a',
       password_hash_type: 'md5',
       password_hash_config: null,
-      forgot_password: 'blah',
+      forgot_password: '1234567890',
       forgot_password_timestamp: '2013-08-16T14:13:54-0700',
       is_anonymous: false,
       date_created: '2013-08-16T14:13:54-0700',

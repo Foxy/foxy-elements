@@ -33,20 +33,20 @@ function all<TElement extends HTMLElement>(...tests: ((element: TElement) => Pro
 
 function off(ref: keyof Refs) {
   return async (element: TestDisallowedDates) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(getRefs<Refs>(element)[ref]).to.have.property('disabled', true);
   };
 }
 
 function on(ref: keyof Refs) {
   return async (element: TestDisallowedDates) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(getRefs<Refs>(element)[ref]).to.have.property('disabled', false);
   };
 }
 
 async function setsValue(element: TestDisallowedDates) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(getRefs<Refs>(element).list).to.have.deep.property('value', element.value);
 }
 
@@ -127,7 +127,7 @@ const machine = createMachine({
 const model = createModel<TestDisallowedDates>(machine).withEvents({
   AUTO_RESET_END: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const { start, end } = getRefs<Refs>(element);
       const newStartDate = parseDate(end.value) ?? new Date();
 
@@ -148,7 +148,7 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
   },
   SELECT_START: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const { start } = getRefs<Refs>(element);
 
       const newStartDate = new Date();
@@ -166,7 +166,7 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
   },
   SELECT_END: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const { start, end } = getRefs<Refs>(element);
 
       const newEndDate = parseDate(start.value)!;
@@ -185,19 +185,19 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
   },
   DISABLE: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       element.disabled = true;
     },
   },
   ENABLE: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       element.disabled = false;
     },
   },
   SUBMIT: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const whenCapturedEvent = oneEvent(element, 'change');
       getRefs<Refs>(element).submit.click();
@@ -209,7 +209,7 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
   },
   CLEAR: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const list = getRefs<Refs>(element).list;
       const newValue = [] as DisallowedDates['value'];
 
@@ -217,7 +217,7 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
       list.dispatchEvent(new ListChangeEvent(newValue));
 
       await list.updateComplete;
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(list).to.have.deep.property('value', newValue);
       expect(element).to.have.deep.property('value', newValue);

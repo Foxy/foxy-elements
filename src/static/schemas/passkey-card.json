@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "subtitle_no_data": {
+      "type": "string",
+      "default": "Usage data is not available for this passkey"
+    },
+    "subtitle": {
+      "type": "string",
+      "default": "Last used on {{ last_login_date, date }} in {{ last_login_ua }}"
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"]
+    }
+  },
+  "required": ["subtitle_no_data", "subtitle", "spinner"]
+}

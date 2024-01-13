@@ -1,19 +1,19 @@
-import { ConfigurableMixin, Renderer } from '../../../mixins/configurable';
-import { TemplateResult, html } from 'lit-html';
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
+import type { TransactionsTable } from '../TransactionsTable/TransactionsTable';
+import type { Templates as CustomerTemplates } from '../Customer/types';
+import type { Templates } from './types';
+import type { Renderer } from '../../../mixins/configurable';
+import type { Customer } from '../Customer/Customer';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/customer';
 
-import { API } from '../NucleonElement/API';
-import { Customer } from '../Customer/Customer';
-import { Templates as CustomerTemplates } from '../Customer/types';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { PropertyDeclarations } from 'lit-element';
-import { Rels } from '@foxy.io/sdk/customer';
-import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
-import { Templates } from './types';
-import { ThemeableMixin } from '../../../mixins/themeable';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { html } from 'lit-html';
+import { API } from '../NucleonElement/API';
 
-const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement)));
+const Base = TranslatableMixin(InternalForm);
 type Data = Resource<Rels.CustomerPortalSettings>;
 
 export class InternalCustomerPortalLoggedInView extends Base<Data> {
@@ -149,7 +149,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
     `;
   };
 
-  render(): TemplateResult {
+  renderBody(): TemplateResult {
     const hiddenSelector = this.hiddenSelector.zoom('customer');
     const customerHiddenControls = new BooleanSelector(
       [
@@ -157,6 +157,9 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         'transactions',
         'subscriptions',
         'addresses:actions:create',
+        'header:actions:edit:form:is-anonymous',
+        'header:actions:edit:form:forgot-password',
+        'header:actions:edit:form:create',
         'header:actions:edit:form:delete',
         hiddenSelector.toString(),
       ].join(' ')
@@ -164,7 +167,6 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
 
     const templates: CustomerTemplates = this.getNestedTemplates('customer');
     const originalHeaderActionsAfterTemplate = templates['header:actions:after'];
-    const originalTimestampsAfterTemplate = templates['header:actions:edit:form:timestamps:after'];
     const originalDefaultTemplate = templates['default'];
 
     templates['header:actions:after'] = (html, host) => {
@@ -199,32 +201,6 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
       `;
     };
 
-    templates['header:actions:edit:form:timestamps:after'] = (html, host) => {
-      const scope = 'change-password';
-
-      return html`
-        ${originalTimestampsAfterTemplate?.(html, host)}
-        ${host.hiddenSelector.matches(scope, true)
-          ? ''
-          : html`
-              ${host.renderTemplateOrSlot(`${scope}:before`)}
-
-              <foxy-internal-customer-portal-change-password
-                customer=${host.href}
-                session="foxy://customer-api/session"
-                style="margin-top: var(--lumo-space-l)"
-                email=${host.data?.email ?? ''}
-                lang=${host.lang}
-                ns=${host.ns}
-                ?disabled=${host.in('busy') || host.disabledSelector.matches(scope, true)}
-              >
-              </foxy-internal-customer-portal-change-password>
-
-              ${host.renderTemplateOrSlot(`${scope}:after`)}
-            `}
-      `;
-    };
-
     return html`
       <foxy-customer
         readonlycontrols=${this.readonlySelector.zoom('customer').toString()}
@@ -237,6 +213,7 @@ export class InternalCustomerPortalLoggedInView extends Base<Data> {
         ns="${this.ns} ${customElements.get('foxy-customer')?.defaultNS ?? ''}"
         id="customer"
         .templates=${templates}
+        .settings=${this.data}
         @update=${() => this.requestUpdate()}
       >
       </foxy-customer>

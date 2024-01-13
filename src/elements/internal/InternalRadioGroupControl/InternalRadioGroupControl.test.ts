@@ -184,18 +184,18 @@ describe('InternalRadioGroupControl', () => {
     expect(group).to.have.property('disabled', false);
   });
 
-  it('sets "disabled" on vaadin-radio-group from "readonly" on itself', async () => {
+  it('sets "readonly" on vaadin-radio-group from "readonly" on itself', async () => {
     const layout = html`<test-internal-radio-group-control></test-internal-radio-group-control>`;
     const control = await fixture<TestControl>(layout);
     const group = control.renderRoot.querySelector('vaadin-radio-group')!;
 
-    control.disabled = true;
+    control.readonly = true;
     await control.updateComplete;
-    expect(group).to.have.property('disabled', true);
+    expect(group).to.have.property('readonly', true);
 
-    control.disabled = false;
+    control.readonly = false;
     await control.updateComplete;
-    expect(group).to.have.property('disabled', false);
+    expect(group).to.have.property('readonly', false);
   });
 
   it('sets "checkValidity" on vaadin-radio-group from "_checkValidity" on itself', async () => {

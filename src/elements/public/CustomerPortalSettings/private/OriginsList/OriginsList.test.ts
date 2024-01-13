@@ -10,7 +10,7 @@ import { OriginsList } from './OriginsList';
 
 class TestOriginsList extends OriginsList {
   get whenReady() {
-    return this._whenI18nReady.then(() => this.updateComplete);
+    return this._whenI18nReady;
   }
 }
 
@@ -24,7 +24,7 @@ interface Refs {
 
 function testDisabled(disabled: boolean) {
   return async (element: TestOriginsList) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     const refs = getRefs<Refs>(element);
 
     expect(refs.list).to.have.property('disabled', disabled);
@@ -34,7 +34,7 @@ function testDisabled(disabled: boolean) {
 
 function testInvalid(invalid: boolean) {
   return async (element: TestOriginsList) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     const refs = getRefs<Refs>(element);
 
     expect(refs.input).to.have.property('invalid', invalid);
@@ -43,7 +43,7 @@ function testInvalid(invalid: boolean) {
 }
 
 async function testValue(element: TestOriginsList) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const refs = getRefs<Refs>(element);
 
   expect(refs.list).to.have.deep.property('value', element.value);

@@ -1,3 +1,5 @@
+import '@vaadin/vaadin-button';
+
 import '../InternalTimestampsControl/index';
 import '../InternalCreateControl/index';
 import '../InternalDeleteControl/index';

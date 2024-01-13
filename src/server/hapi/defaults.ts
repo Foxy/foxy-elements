@@ -4,6 +4,33 @@ import { increment } from '../router/utils';
 import uniqueId from 'lodash-es/uniqueId';
 
 export const defaults: Defaults = {
+  clients: (query, dataset) => ({
+    id: increment('clients', dataset),
+    client_id: '',
+    client_secret: '',
+    redirect_uri: '',
+    javascript_origin_uri: '',
+    project_name: '',
+    project_description: '',
+    company_name: '',
+    company_url: '',
+    company_logo: '',
+    contact_name: '',
+    contact_email: '',
+    contact_phone: '',
+  }),
+
+  passkeys: (query, dataset) => ({
+    id: increment('passkeys', dataset),
+    user_id: parseInt(query.get('user_id') ?? '0'),
+    credential_id: '',
+    user_name: null,
+    last_login_date: null,
+    last_login_ua: null,
+    date_created: null,
+    date_modified: null,
+  }),
+
   downloadables: (query, dataset) => {
     const itemCategoryId = parseInt(query.get('item_category_id') ?? '0');
 
@@ -103,6 +130,16 @@ export const defaults: Defaults = {
     name: '',
     value: '',
     is_hidden: false,
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
+  store_attributes: (query, dataset) => ({
+    id: increment('store_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
@@ -250,6 +287,8 @@ export const defaults: Defaults = {
     status: '',
     currency_code: '',
     currency_symbol: '',
+    source: '',
+    type: '',
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),

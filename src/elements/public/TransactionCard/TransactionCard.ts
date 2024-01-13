@@ -46,7 +46,7 @@ class TransactionCard extends Base<Data> {
         <div class=${classMap({ 'transition-opacity': true, 'opacity-0': !this.data })}>
           ${hasTotal || hasStatus
             ? html`
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-s">
                   ${hasTotal ? this.__renderTotal() : ''} ${hasStatus ? this.__renderStatus() : ''}
                 </div>
               `
@@ -95,8 +95,25 @@ class TransactionCard extends Base<Data> {
     if (data) {
       const amount = `${data.total_order} ${data.currency_code}`;
       const currencyDisplay = this.__currencyDisplay;
+      const apiTypes = [
+        'subscription_cancellation',
+        'subscription_modification',
+        'subscription_renewal',
+        'updateinfo',
+      ];
+
+      const type = apiTypes.includes(data.type)
+        ? data.type
+        : 'fx:subscription' in data._links
+        ? 'new_subscription'
+        : 'new_order';
+
+      const source = this.data?.source?.substring(0, 3).toUpperCase();
 
       content = html`
+        ${source ? html`<span title=${this.t(`source_${source}`)}>${source}</span>` : ''}
+        <foxy-i18n class="truncate" lang=${this.lang} key="type_${type}" ns=${this.ns}></foxy-i18n>
+        <span>&bull;</span>
         <foxy-i18n
           options=${JSON.stringify({ amount, currencyDisplay })}
           lang=${this.lang}
@@ -110,9 +127,9 @@ class TransactionCard extends Base<Data> {
     }
 
     return html`
-      <div data-testid="total">
+      <div class="min-w-0" data-testid="total">
         ${this.renderTemplateOrSlot('total:before')}
-        <div class="font-medium truncate">${content}</div>
+        <div class="font-medium flex items-center gap-xs">${content}</div>
         ${this.renderTemplateOrSlot('total:after')}
       </div>
     `;
@@ -136,7 +153,7 @@ class TransactionCard extends Base<Data> {
     const status = this.data?.status || 'completed';
 
     return html`
-      <div data-testid="status">
+      <div class="flex-shrink-0" data-testid="status">
         ${this.renderTemplateOrSlot('status:before')}
 
         <div class="text-tertiary text-s flex items-center space-x-s">

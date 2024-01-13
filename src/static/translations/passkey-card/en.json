@@ -1,0 +1,9 @@
+{
+  "subtitle_no_data": "Usage data is not available for this passkey",
+  "subtitle": "Last used on {{ last_login_date, date }} in {{ last_login_ua }}",
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_empty": "No data",
+    "loading_error": "Failed to load"
+  }
+}

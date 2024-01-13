@@ -15,9 +15,11 @@ class TestFrequencyModification extends FrequencyModification {
 
 customElements.define('x-ruleset', TestFrequencyModification);
 
-function getRefs(element: TestFrequencyModification) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector) as unknown;
-  const $$ = (selector: string) => element.shadowRoot!.querySelectorAll(selector) as unknown;
+async function getRefs(element: TestFrequencyModification) {
+  await element.whenReady;
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector) as unknown;
+  const $$ = (selector: string) => element.renderRoot.querySelectorAll(selector) as unknown;
 
   return {
     rules: Array.from($$('[data-testid=rule]') as FrequencyModificationRule[]),
@@ -27,10 +29,8 @@ function getRefs(element: TestFrequencyModification) {
 
 function testDisabled(disabled: boolean) {
   return async (element: TestFrequencyModification) => {
-    await element.updateComplete;
-
     expect(element).to.have.property('disabled', disabled);
-    const { rules, add } = getRefs(element);
+    const { rules, add } = await getRefs(element);
     rules.every(rule => expect(rule).to.have.property('disabled', disabled));
 
     if (element.value) expect(add).to.have.property('disabled', disabled);
@@ -38,8 +38,8 @@ function testDisabled(disabled: boolean) {
 }
 
 async function testValue(element: TestFrequencyModification) {
-  await element.updateComplete;
-  getRefs(element).rules.every((rule, index) => {
+  const { rules } = await getRefs(element);
+  rules.every((rule, index) => {
     const item = element.value[index];
     expect(rule.value).to.deep.equal(item);
   });
@@ -120,9 +120,7 @@ const machine = createMachine({
 const model = createModel<TestFrequencyModification>(machine).withEvents({
   CLEAR: {
     exec: async element => {
-      await element.updateComplete;
-
-      const rules = getRefs(element).rules.reverse();
+      const rules = await getRefs(element).then(refs => refs.rules.reverse());
       const events: FrequencyModificationRuleChangeEvent[] = [];
       const listener = (event: Event) => events.push(event as FrequencyModificationRuleChangeEvent);
 
@@ -130,7 +128,7 @@ const model = createModel<TestFrequencyModification>(machine).withEvents({
 
       for (const rule of rules) {
         rule.dispatchEvent(new FrequencyModificationRuleRemoveEvent());
-        await element.updateComplete;
+        await element.requestUpdate();
       }
 
       element.removeEventListener('change', listener);
@@ -144,22 +142,21 @@ const model = createModel<TestFrequencyModification>(machine).withEvents({
   },
   ENABLE: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       element.disabled = false;
     },
   },
   DISABLE: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       element.disabled = true;
     },
   },
   ADD_RULE: {
     exec: async element => {
-      await element.updateComplete;
-
       const whenGotEvent = oneEvent(element, 'change');
-      getRefs(element).add.dispatchEvent(new Event('click'));
+      const { add } = await getRefs(element);
+      add.dispatchEvent(new Event('click'));
       const event = (await whenGotEvent) as FrequencyModificationChangeEvent;
 
       expect(event).to.be.instanceOf(FrequencyModificationChangeEvent);
@@ -178,16 +175,16 @@ const model = createModel<TestFrequencyModification>(machine).withEvents({
       ];
 
       element.value = newValue;
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.deep.property('value', newValue);
     },
   },
   UPDATE_RULE: {
     exec: async element => {
-      await element.updateComplete;
-
-      const [rule] = getRefs(element).rules;
+      const {
+        rules: [rule],
+      } = await getRefs(element);
       const newRuleValue = { jsonataQuery: '$contains(frequency, "d")', values: ['1d', '2d'] };
       const whenGotEvent = oneEvent(element, 'change');
 
@@ -204,6 +201,12 @@ const model = createModel<TestFrequencyModification>(machine).withEvents({
 });
 
 describe('CustomerPortalSettings >>> FrequencyModification', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   model.getSimplePathPlans().forEach(plan => {
     describe(plan.description, () => {
       plan.paths.forEach(path => {

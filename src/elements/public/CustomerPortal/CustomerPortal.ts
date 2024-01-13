@@ -5,6 +5,7 @@ import { CustomerApi } from '../CustomerApi/CustomerApi';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { TransactionsTable } from '../TransactionsTable/TransactionsTable';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 export class CustomerPortal extends TranslatableMixin(
   ThemeableMixin(CustomerApi),
@@ -32,33 +33,30 @@ export class CustomerPortal extends TranslatableMixin(
   group = '';
 
   render(): TemplateResult {
+    let href: string | undefined;
+
+    try {
+      href = new URL('./customer_portal_settings', this.base).toString();
+    } catch {
+      href = undefined;
+    }
+
     return this.api.storage.getItem(API.SESSION)
       ? html`
           <foxy-internal-customer-portal-logged-in-view
-            disabledcontrols=${this.disabledSelector.toString()}
-            readonlycontrols=${this.readonlySelector.toString()}
-            hiddencontrols=${this.hiddenSelector.toString()}
             customer=${this.base}
-            group=${this.group}
             class="h-full"
-            lang=${this.lang}
-            href=${new URL('./customer_portal_settings', this.base).toString()}
-            ns=${this.ns}
+            infer=""
+            href=${ifDefined(href)}
             .transactionsTableColumns=${this.transactionsTableColumns}
-            .templates=${this.templates}
           >
           </foxy-internal-customer-portal-logged-in-view>
         `
       : html`
           <foxy-internal-customer-portal-logged-out-view
-            disabledcontrols=${this.disabledSelector.toString()}
-            readonlycontrols=${this.readonlySelector.toString()}
-            hiddencontrols=${this.hiddenSelector.toString()}
-            group=${this.group}
             class="h-full"
-            lang=${this.lang}
-            ns=${this.ns}
-            .templates=${this.templates}
+            infer=""
+            href=${ifDefined(href)}
           >
           </foxy-internal-customer-portal-logged-out-view>
         `;

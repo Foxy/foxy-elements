@@ -1,10 +1,9 @@
-import { ComboBoxParams, Data, Templates, TextFieldParams } from './types';
+import { Data, Templates, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
 
 import { ConfigurableMixin } from '../../../mixins/configurable';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { I18n } from '../I18n/I18n';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
@@ -15,7 +14,6 @@ import { classMap } from '../../../utils/class-map';
 import { countries } from './countries';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import memoize from 'lodash-es/memoize';
-import { regions } from './regions';
 
 const NS = 'address-form';
 const Base = ScopedElementsMixin(
@@ -109,41 +107,78 @@ export class AddressForm extends Base<Data> {
 
   private readonly __bindField = memoize((key: keyof Data) => {
     return (evt: CustomEvent) => {
-      const target = evt.target as HTMLInputElement;
+      const target = evt.currentTarget as HTMLInputElement;
       this.edit({ [key]: target.value });
     };
   });
 
-  private readonly __maybeRenderComboBox = (params: ComboBoxParams) => {
-    const { source, field, custom = false } = params;
-    const bsid = field.replace(/_/, '-');
-    if (this.hiddenSelector.matches(bsid)) return '';
-
-    const I18nElement = customElements.get('foxy-i18n') as typeof I18n;
-    const t = I18nElement.i18next.getFixedT(this.lang, field);
+  private readonly __maybeRenderCountry = () => {
+    const field = 'country';
+    if (this.hiddenSelector.matches(field)) return '';
+    const source = Object.keys(countries);
 
     return html`
       <div>
-        ${this.renderTemplateOrSlot(`${bsid}:before`)}
+        ${this.renderTemplateOrSlot(`${field}:before`)}
 
         <vaadin-combo-box
           class="w-full"
           label=${this.t(field).toString()}
           value=${ifDefined(this.form?.[field]?.toString())}
           error-message=${this.__getErrorMessage(field)}
-          data-testid=${bsid}
+          data-testid=${field}
           item-value-path="code"
           item-label-path="text"
           .checkValidity=${this.__getValidator(field)}
-          .items=${source.map(code => ({ text: t(code).toString(), code }))}
-          ?allow-custom-value=${custom}
-          ?readonly=${this.readonlySelector.matches(bsid, true)}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid, true)}
+          .items=${source.map(code => ({
+            text: this.t(`country_${code.toLowerCase()}`),
+            code,
+          }))}
+          ?readonly=${this.readonlySelector.matches(field, true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(field, true)}
+          @change=${(evt: CustomEvent) => {
+            const target = evt.currentTarget as HTMLInputElement;
+            this.edit({ country: target.value, region: '' });
+          }}
+        >
+        </vaadin-combo-box>
+
+        ${this.renderTemplateOrSlot(`${field}:after`)}
+      </div>
+    `;
+  };
+
+  private readonly __maybeRenderRegion = () => {
+    const field = 'region';
+    if (this.hiddenSelector.matches(field)) return '';
+    const source = countries[this.form.country ?? ''] ?? [];
+    const country = this.form.country ?? '';
+
+    return html`
+      <div>
+        ${this.renderTemplateOrSlot(`${field}:before`)}
+
+        <vaadin-combo-box
+          class="w-full"
+          label=${this.t(field).toString()}
+          value=${ifDefined(this.form?.[field]?.toString())}
+          error-message=${this.__getErrorMessage(field)}
+          data-testid=${field}
+          item-value-path="code"
+          item-label-path="text"
+          .checkValidity=${this.__getValidator(field)}
+          .items=${source.map(code => ({
+            text: this.t(`country_${country.toLowerCase()}_region_${code.toLowerCase()}`),
+            code,
+          }))}
+          ?allow-custom-value=${source.length === 0}
+          ?readonly=${this.readonlySelector.matches(field, true)}
+          ?disabled=${!this.in('idle') || this.disabledSelector.matches(field, true)}
           @change=${this.__bindField(field)}
         >
         </vaadin-combo-box>
 
-        ${this.renderTemplateOrSlot(`${bsid}:after`)}
+        ${this.renderTemplateOrSlot(`${field}:after`)}
       </div>
     `;
   };
@@ -271,8 +306,7 @@ export class AddressForm extends Base<Data> {
           ${this.__maybeRenderTextField({ field: 'phone' })}
           ${this.__maybeRenderTextField({ field: 'address1', wide: true, required: true })}
           ${this.__maybeRenderTextField({ field: 'address2', wide: true })}
-          ${this.__maybeRenderComboBox({ field: 'country', source: countries })}
-          ${this.__maybeRenderComboBox({ field: 'region', source: regions, custom: true })}
+          ${this.__maybeRenderCountry()} ${this.__maybeRenderRegion()}
           ${this.__maybeRenderTextField({ field: 'city' })}
           ${this.__maybeRenderTextField({ field: 'postal_code' })}
         </div>

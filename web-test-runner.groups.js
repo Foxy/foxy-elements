@@ -236,6 +236,14 @@ export const groups = [
     files: './src/elements/public/CartForm/**/*.test.ts',
   },
   {
+    name: 'foxy-client-card',
+    files: './src/elements/public/ClientCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-client-form',
+    files: './src/elements/public/ClientForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-collection-page',
     files: './src/elements/public/CollectionPage/**/*.test.ts',
   },
@@ -340,6 +348,14 @@ export const groups = [
     files: './src/elements/public/ErrorEntryCard/**/*.test.ts',
   },
   {
+    name: 'foxy-filter-attribute-card',
+    files: './src/elements/public/FilterAttributeCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-filter-attribute-form',
+    files: './src/elements/public/FilterAttributeForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-form-dialog',
     files: './src/elements/public/FormDialog/**/*.test.ts',
   },
@@ -418,6 +434,14 @@ export const groups = [
   {
     name: 'foxy-pagination',
     files: './src/elements/public/Pagination/**/*.test.ts',
+  },
+  {
+    name: 'foxy-passkey-card',
+    files: './src/elements/public/PasskeyCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-passkey-form',
+    files: './src/elements/public/PasskeyForm/**/*.test.ts',
   },
   {
     name: 'foxy-payment-card',

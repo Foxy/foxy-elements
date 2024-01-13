@@ -22,7 +22,10 @@ export type HALJSONResource = {
   };
 };
 
-export type NucleonV8N<TData extends HALJSONResource> = ((r: Partial<TData>) => true | string)[];
+export type NucleonV8N<TData extends HALJSONResource, THost extends HTMLElement = any> = ((
+  form: Partial<TData>,
+  host: THost
+) => true | string)[];
 
 type ComputedNucleonState<
   TContext,

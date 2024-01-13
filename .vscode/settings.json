@@ -53,6 +53,14 @@
       "url": "./src/static/schemas/cart-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/client-card/*.json"],
+      "url": "./src/static/schemas/client-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/client-form/*.json"],
+      "url": "./src/static/schemas/client-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/copy-to-clipboard/*.json"],
       "url": "./src/static/schemas/copy-to-clipboard.json"
     },
@@ -141,6 +149,14 @@
       "url": "./src/static/schemas/error-entry-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/filter-attribute-card/*.json"],
+      "url": "./src/static/schemas/filter-attribute-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/filter-attribute-form/*.json"],
+      "url": "./src/static/schemas/filter-attribute-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/generate-codes-form/*.json"],
       "url": "./src/static/schemas/generate-codes-form.json"
     },
@@ -207,6 +223,14 @@
     {
       "fileMatch": ["/src/static/translations/pagination/*.json"],
       "url": "./src/static/schemas/pagination.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/passkey-card/*.json"],
+      "url": "./src/static/schemas/passkey-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/passkey-form/*.json"],
+      "url": "./src/static/schemas/passkey-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/payment-card/*.json"],

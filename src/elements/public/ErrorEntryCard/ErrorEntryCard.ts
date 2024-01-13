@@ -10,6 +10,7 @@ import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { html } from 'lit-html';
+import { decode } from 'html-entities';
 
 const NS = 'error-entry-card';
 const Base = TranslatableMixin(ThemeableMixin(ScopedElementsMixin(NucleonElement)), NS);
@@ -103,7 +104,7 @@ export class ErrorEntryCard extends Base<Data> {
 
   private __renderGetOrPostValues(getValues: string, postValues: string) {
     const values = getValues || postValues;
-    const params = new URLSearchParams(this.__decodeHtml(values));
+    const params = new URLSearchParams(decode(values));
     const method = getValues ? 'GET' : 'POST';
 
     return html`
@@ -161,36 +162,44 @@ export class ErrorEntryCard extends Base<Data> {
   private __renderDetails(data: Data) {
     return html`
       <div class="space-y-m pt-m">
-        <x-group frame>
-          <foxy-i18n slot="header" lang=${this.lang} key="request" ns=${this.ns}></foxy-i18n>
+        ${data.referrer || data.get_values || data.post_values
+          ? html`
+              <x-group frame>
+                <foxy-i18n slot="header" lang=${this.lang} key="request" ns=${this.ns}></foxy-i18n>
 
-          <div class="mx-xs p-s text-s divide-y divide-contrast-10 space-y-s">
-            <p>
-              <span class="block font-medium">${data.url}</span>
-              ${data.referrer ? this.__renderReferrer(data.referrer) : ''}
-            </p>
+                <div class="mx-xs p-s text-s divide-y divide-contrast-10 space-y-s">
+                  <p>
+                    <span class="block font-medium">${data.url}</span>
+                    ${data.referrer ? this.__renderReferrer(data.referrer) : ''}
+                  </p>
 
-            ${data.get_values || data.post_values
-              ? this.__renderGetOrPostValues(data.get_values, data.post_values)
-              : ''}
-          </div>
-        </x-group>
+                  ${data.get_values || data.post_values
+                    ? this.__renderGetOrPostValues(data.get_values, data.post_values)
+                    : ''}
+                </div>
+              </x-group>
+            `
+          : ''}
+        ${data.ip_address || data.ip_country || data.user_agent
+          ? html`
+              <x-group frame>
+                <foxy-i18n slot="header" lang=${this.lang} key="client" ns=${this.ns}></foxy-i18n>
 
-        <x-group frame>
-          <foxy-i18n slot="header" lang=${this.lang} key="client" ns=${this.ns}></foxy-i18n>
+                <div class="text-s flex flex-col mx-xs p-s">
+                  <span class="font-medium">
+                    ${data.ip_address}
+                    ${data.ip_country
+                      ? html`<span class="text-tertiary"> • </span>${data.ip_country}`
+                      : ''}
+                  </span>
 
-          <div class="text-s flex flex-col mx-xs p-s">
-            <span class="font-medium">
-              ${data.ip_address}
-              ${data.ip_country
-                ? html`<span class="text-tertiary"> • </span>${data.ip_country}`
-                : ''}
-            </span>
-
-            ${data.user_agent ? html`<span class="text-secondary">${data.user_agent}</span>` : ''}
-          </div>
-        </x-group>
-
+                  ${data.user_agent
+                    ? html`<span class="text-secondary">${data.user_agent}</span>`
+                    : ''}
+                </div>
+              </x-group>
+            `
+          : ''}
         ${Object.entries(data._links).map(([curie, link]) => {
           if (['self', 'fx:store', 'curies'].includes(curie)) return '';
 
@@ -222,11 +231,5 @@ export class ErrorEntryCard extends Base<Data> {
     }
 
     this.open = details.open;
-  }
-
-  private __decodeHtml(html: string) {
-    const areaElement = document.createElement('textarea');
-    areaElement.innerHTML = html;
-    return areaElement.value;
   }
 }

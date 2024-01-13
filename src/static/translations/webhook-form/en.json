@@ -37,7 +37,7 @@
   },
   "event-resource": {
     "label": "Resource",
-    "helper_text": "Changes in selected resource type will trigger this webhook.",
+    "helper_text": "Changes in selected resource type will trigger this webhook. Resource type cannot be changed after the webhook has been created.",
     "event_resource_subscription": "Subscription",
     "event_resource_transaction": "Transaction",
     "event_resource_customer": "Customer"

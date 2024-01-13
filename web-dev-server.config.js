@@ -41,13 +41,16 @@ export default {
 
     commonjsPlugin({
       include: [
+        '**/check-password-strength/**/*',
         '**/email-validator/**/*',
         '**/cookie-storage/**/*',
+        '**/html-entities/**/*',
         '**/highlight.js/**/*',
         '**/url-pattern/**/*',
         '**/traverse/**/*',
         '**/consola/**/*',
         '**/jsonata/**/*',
+        '**/uainfer/**/*',
         '**/dedent/**/*',
         '**/@babel/**/*',
         '**/chalk/**/*',

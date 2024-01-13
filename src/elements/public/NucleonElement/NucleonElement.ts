@@ -64,7 +64,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
    * either an error code string if form data fails the check or `true` otherwise.
    * Error codes are collected in `element.errors`. Empty by default.
    */
-  static get v8n(): NucleonV8N<any> {
+  static get v8n(): NucleonV8N<any, any> {
     return [];
   }
 
@@ -112,7 +112,7 @@ export class NucleonElement<TData extends HALJSONResource> extends InferrableMix
             const form = { ...context.data, ...context.edits };
 
             return rules
-              .map(validate => validate(form))
+              .map(validate => validate(form, this))
               .filter(v8nResult => typeof v8nResult === 'string')
               .filter((err, errIndex, errs) => errs.indexOf(err) === errIndex) as string[];
           },

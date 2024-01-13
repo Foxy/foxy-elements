@@ -64,7 +64,8 @@ export class InternalRadioGroupControl extends InternalEditableControl {
           'group divide-y divide-contrast-10': isList,
         })}
         theme=${ifDefined(this.theme ?? undefined)}
-        ?disabled=${this.disabled || this.readonly}
+        ?disabled=${this.disabled}
+        ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
         .value=${this._value as string | null}
         @change=${(evt: CustomEvent) => {

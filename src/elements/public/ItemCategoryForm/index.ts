@@ -6,6 +6,7 @@ import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
 
 import '../DiscountBuilder/index';
+import '../NucleonElement/index';
 
 import './internal/InternalItemCategoryFormTaxesControl/index';
 

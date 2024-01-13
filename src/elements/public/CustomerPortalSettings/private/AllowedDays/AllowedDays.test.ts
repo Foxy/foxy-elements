@@ -22,8 +22,9 @@ const samples = {
   },
 };
 
-function getRefs(element: TestAllowedDays) {
-  const $ = (selector: string) => element.shadowRoot!.querySelector(selector);
+async function getRefs(element: TestAllowedDays) {
+  await element.requestUpdate();
+  const $ = (selector: string) => element.renderRoot.querySelector(selector);
 
   return {
     choice: $('[data-testid=choice]') as Choice,
@@ -32,24 +33,24 @@ function getRefs(element: TestAllowedDays) {
   };
 }
 
-function testEnabled(element: TestAllowedDays) {
-  const refs = getRefs(element);
+async function testEnabled(element: TestAllowedDays) {
+  const refs = await getRefs(element);
 
   expect(refs.choice.disabled).to.be.false;
   expect(refs.weekdayPicker?.disabled).to.be.oneOf([false, undefined]);
   expect(refs.monthdayPicker?.disabled).to.be.oneOf([false, undefined]);
 }
 
-function testDisabled(element: TestAllowedDays) {
-  const refs = getRefs(element);
+async function testDisabled(element: TestAllowedDays) {
+  const refs = await getRefs(element);
 
   expect(refs.choice.disabled).to.be.true;
   expect(refs.weekdayPicker?.disabled).to.be.oneOf([true, undefined]);
   expect(refs.monthdayPicker?.disabled).to.be.oneOf([true, undefined]);
 }
 
-function testAll(element: TestAllowedDays) {
-  const refs = getRefs(element);
+async function testAll(element: TestAllowedDays) {
+  const refs = await getRefs(element);
 
   expect(element.value).to.be.undefined;
   expect(refs.weekdayPicker).to.be.null;
@@ -57,7 +58,7 @@ function testAll(element: TestAllowedDays) {
 }
 
 async function testDay(element: TestAllowedDays) {
-  const refs = getRefs(element);
+  const refs = await getRefs(element);
 
   expect(element.value).to.deep.equal(samples.value.day);
   expect(refs.choice.value).to.equal(samples.value.day.type);
@@ -76,7 +77,7 @@ async function testDay(element: TestAllowedDays) {
 }
 
 async function testMonth(element: TestAllowedDays) {
-  const refs = getRefs(element);
+  const refs = await getRefs(element);
 
   expect(element.value).to.deep.equal(samples.value.month);
   expect(refs.choice.value).to.equal(samples.value.month.type);
