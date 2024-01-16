@@ -21,7 +21,7 @@ import { IntegerFieldElement } from '@vaadin/vaadin-text-field/vaadin-integer-fi
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private/PropertyTable/PropertyTable';
+import { Metadata } from '../../private/Metadata/Metadata';
 import { QueryBuilder } from '../QueryBuilder/QueryBuilder';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
@@ -101,7 +101,7 @@ export class CouponForm extends Base<Data> {
       'foxy-i18n': customElements.get('foxy-i18n'),
 
       'x-category-restrictions-page': CategoryRestrictionsPage,
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'x-editable-list': EditableList,
       'x-checkbox': Checkbox,
       'x-group': Group,
@@ -1115,7 +1115,7 @@ export class CouponForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('timestamps:before')}
 
-        <x-property-table
+        <x-metadata
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
@@ -1124,7 +1124,7 @@ export class CouponForm extends Base<Data> {
               : '',
           }))}
         >
-        </x-property-table>
+        </x-metadata>
 
         ${this.renderTemplateOrSlot('timestamps:after')}
       </div>

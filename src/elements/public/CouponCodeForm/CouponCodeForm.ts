@@ -8,7 +8,7 @@ import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private/index';
+import { Metadata } from '../../private/index';
 import { TextFieldElement } from '@vaadin/vaadin-text-field';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -49,7 +49,7 @@ export class CouponCodeForm extends Base<Data> {
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
 
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
     };
   }
 
@@ -152,7 +152,7 @@ export class CouponCodeForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('timestamps:before')}
 
-        <x-property-table
+        <x-metadata
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
@@ -161,7 +161,7 @@ export class CouponCodeForm extends Base<Data> {
               : '',
           }))}
         >
-        </x-property-table>
+        </x-metadata>
 
         ${this.renderTemplateOrSlot('timestamps:after')}
       </div>

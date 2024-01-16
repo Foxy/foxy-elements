@@ -1,4 +1,4 @@
-import { Checkbox, Dropdown, PropertyTable } from '../../private/index';
+import { Checkbox, Dropdown, Metadata } from '../../private/index';
 import { CheckboxChangeEvent, DropdownChangeEvent } from '../../private/events';
 import { Data, Templates } from './types';
 import { Nucleon, Resource } from '@foxy.io/sdk/core';
@@ -87,7 +87,7 @@ export class TaxForm extends Base<Data> {
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'x-checkbox': Checkbox,
       'x-dropdown': Dropdown,
     };
@@ -699,7 +699,7 @@ export class TaxForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('timestamps:before')}
 
-        <x-property-table
+        <x-metadata
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
@@ -708,7 +708,7 @@ export class TaxForm extends Base<Data> {
               : '',
           }))}
         >
-        </x-property-table>
+        </x-metadata>
 
         ${this.renderTemplateOrSlot('timestamps:after')}
       </div>

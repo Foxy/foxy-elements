@@ -1,4 +1,4 @@
-import { Choice, Group, PropertyTable } from '../../private/index';
+import { Choice, Group, Metadata } from '../../private/index';
 import { Data, Templates } from './types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
@@ -75,7 +75,7 @@ export class ReportForm extends Base<Data> {
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
 
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'x-choice': Choice,
       'x-group': Group,
     };
@@ -358,7 +358,7 @@ export class ReportForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('timestamps:before')}
 
-        <x-property-table
+        <x-metadata
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
@@ -367,7 +367,7 @@ export class ReportForm extends Base<Data> {
               : '',
           }))}
         >
-        </x-property-table>
+        </x-metadata>
 
         ${this.renderTemplateOrSlot('timestamps:after')}
       </div>

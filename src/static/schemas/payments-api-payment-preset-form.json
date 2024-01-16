@@ -162,7 +162,7 @@
       "additionalProperties": false,
       "properties": {
         "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
+        "date_modified": { "type": "string", "default": "Last updated on" },
         "date": { "type": "string", "default": "{{value, date}}" }
       },
       "required": ["date_created", "date_modified", "date"]

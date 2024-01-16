@@ -148,16 +148,16 @@ export const groups = [
     files: './src/elements/private/LoadingScreen/**/*.test.ts',
   },
   {
+    name: 'x-metadata',
+    files: './src/elements/private/Metadata/**/*.test.ts',
+  },
+  {
     name: 'x-monthday-picker',
     files: './src/elements/private/MonthdayPicker/**/*.test.ts',
   },
   {
     name: 'x-page',
     files: './src/elements/private/Page/**/*.test.ts',
-  },
-  {
-    name: 'x-property-table',
-    files: './src/elements/private/PropertyTable/**/*.test.ts',
   },
   {
     name: 'x-section',

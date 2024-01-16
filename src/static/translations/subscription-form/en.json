@@ -86,7 +86,7 @@
       "create": "Create",
       "date": "{{value, date}}",
       "date_created": "Created on",
-      "date_modified": "Last updated",
+      "date_modified": "Last updated on",
       "delete": "Delete",
       "delete_prompt": "This attribute will be permanently removed. Are you sure?",
       "name": "Name",
@@ -172,7 +172,7 @@
   },
   "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
     "date": "{{value, date}}"
   }
 }

@@ -298,7 +298,7 @@
   },
   "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
     "date": "{{value, date}}"
   },
   "spinner": {

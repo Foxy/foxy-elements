@@ -83,7 +83,7 @@
                     "create": { "type": "string", "default": "Create" },
                     "date": { "type": "string", "default": "{{value, date}}" },
                     "date_created": { "type": "string", "default": "Created on" },
-                    "date_modified": { "type": "string", "default": "Last updated" },
+                    "date_modified": { "type": "string", "default": "Last updated on" },
                     "delete": { "type": "string", "default": "Delete" },
                     "delete_prompt": {
                       "type": "string",
@@ -153,7 +153,7 @@
                     "create": { "type": "string", "default": "Create" },
                     "date": { "type": "string", "default": "{{value, date}}" },
                     "date_created": { "type": "string", "default": "Created on" },
-                    "date_modified": { "type": "string", "default": "Last updated" },
+                    "date_modified": { "type": "string", "default": "Last updated on" },
                     "delete": { "type": "string", "default": "Delete" },
                     "delete_prompt": {
                       "type": "string",
@@ -418,7 +418,7 @@
                       "additionalProperties": false,
                       "properties": {
                         "date_created": { "type": "string", "default": "Created on" },
-                        "date_modified": { "type": "string", "default": "Last updated" },
+                        "date_modified": { "type": "string", "default": "Last updated on" },
                         "date": { "type": "string", "default": "{{value, date}}" }
                       },
                       "required": ["date_created", "date_modified", "date"]
@@ -1946,7 +1946,7 @@
                                     "date_created": { "type": "string", "default": "Created on" },
                                     "date_modified": {
                                       "type": "string",
-                                      "default": "Last updated"
+                                      "default": "Last updated on"
                                     },
                                     "delete": { "type": "string", "default": "Delete" },
                                     "delete_prompt": {
@@ -2132,7 +2132,7 @@
                                     "date_created": { "type": "string", "default": "Created on" },
                                     "date_modified": {
                                       "type": "string",
-                                      "default": "Last updated"
+                                      "default": "Last updated on"
                                     },
                                     "date": { "type": "string", "default": "{{value, date}}" }
                                   },
@@ -2211,7 +2211,7 @@
                           "additionalProperties": false,
                           "properties": {
                             "date_created": { "type": "string", "default": "Created on" },
-                            "date_modified": { "type": "string", "default": "Last updated" },
+                            "date_modified": { "type": "string", "default": "Last updated on" },
                             "date": { "type": "string", "default": "{{value, date}}" }
                           },
                           "required": ["date_created", "date_modified", "date"]
@@ -2444,7 +2444,7 @@
                 "create": { "type": "string", "default": "Create" },
                 "date": { "type": "string", "default": "{{value, date}}" },
                 "date_created": { "type": "string", "default": "Created on" },
-                "date_modified": { "type": "string", "default": "Last updated" },
+                "date_modified": { "type": "string", "default": "Last updated on" },
                 "delete": { "type": "string", "default": "Delete" },
                 "delete_prompt": {
                   "type": "string",
@@ -2552,7 +2552,7 @@
                 "create": { "type": "string", "default": "Create" },
                 "date": { "type": "string", "default": "{{value, date}}" },
                 "date_created": { "type": "string", "default": "Created on" },
-                "date_modified": { "type": "string", "default": "Last updated" },
+                "date_modified": { "type": "string", "default": "Last updated on" },
                 "delete": { "type": "string", "default": "Delete" },
                 "delete_prompt": {
                   "type": "string",

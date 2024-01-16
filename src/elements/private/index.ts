@@ -10,7 +10,7 @@ export * from './List/List';
 export * from './LoadingScreen/LoadingScreen';
 export * from './MonthdayPicker/MonthdayPicker';
 export * from './Page/Page';
-export * from './PropertyTable/PropertyTable';
+export * from './Metadata/Metadata';
 export * from './Section/Section';
 export * from './Skeleton/Skeleton';
 export * from './Switch/Switch';

@@ -6,7 +6,7 @@
     "create": { "type": "string", "default": "Create" },
     "date": { "type": "string", "default": "{{value, date}}" },
     "date_created": { "type": "string", "default": "Created on" },
-    "date_modified": { "type": "string", "default": "Last updated" },
+    "date_modified": { "type": "string", "default": "Last updated on" },
     "datetime_end_required": { "type": "string", "default": "End date is required" },
     "datetime_start_required": { "type": "string", "default": "Start date is required" },
     "delete": { "type": "string", "default": "Delete" },

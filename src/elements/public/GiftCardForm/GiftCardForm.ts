@@ -17,7 +17,7 @@ import { Group } from '../../private/Group/Group';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private/PropertyTable/PropertyTable';
+import { Metadata } from '../../private/Metadata/Metadata';
 import { QueryBuilder } from '../QueryBuilder/QueryBuilder';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
@@ -91,7 +91,7 @@ export class GiftCardForm extends Base<Data> {
 
       'x-category-restrictions-page': CategoryRestrictionsPage,
       'x-frequency-input': FrequencyInput,
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'x-editable-list': EditableList,
       'x-group': Group,
     };
@@ -685,7 +685,7 @@ export class GiftCardForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot('timestamps:before')}
 
-        <x-property-table
+        <x-metadata
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
@@ -694,7 +694,7 @@ export class GiftCardForm extends Base<Data> {
               : '',
           }))}
         >
-        </x-property-table>
+        </x-metadata>
 
         ${this.renderTemplateOrSlot('timestamps:after')}
       </div>
