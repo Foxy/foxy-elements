@@ -32,7 +32,7 @@
     "helper_text": "Unique Foxy subdomain or a custom domain for your cart, checkout, and receipt.",
     "custom_domain_note": "IMPORTANT: to use a custom domain, you must purchase an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
     "v8n_required": "Please enter the domain of your store",
-    "v8n_too_long": "Please use a domain that is 50 characters or less"
+    "v8n_too_long": "Please use a domain that is 100 characters or less"
   },
   "logo-url": {
     "label": "Logo",

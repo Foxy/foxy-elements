@@ -89,7 +89,7 @@
         "v8n_required": { "type": "string", "default": "Please enter the domain of your store" },
         "v8n_too_long": {
           "type": "string",
-          "default": "Please use a domain that is 50 characters or less"
+          "default": "Please use a domain that is 100 characters or less"
         }
       },
       "required": [
