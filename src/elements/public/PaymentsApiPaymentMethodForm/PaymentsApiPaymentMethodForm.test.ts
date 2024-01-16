@@ -328,7 +328,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     });
 
     group0Item0Button.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.nested.property('form.type', 'bar_one');
     expect(await getByKey(element, 'select_method_title')).to.not.exist;
@@ -409,13 +409,13 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     tabs.setAttribute('selected', '0');
     tabs.dispatchEvent(new CustomEvent('selected-changed'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(tabContent.style.getPropertyValue('--tw-translate-x').trim()).to.equal('0');
 
     tabs.setAttribute('selected', '1');
     tabs.dispatchEvent(new CustomEvent('selected-changed'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(tabContent.style.getPropertyValue('--tw-translate-x').trim()).to.equal(
       'calc(-50% - (var(--lumo-space-m) / 2))'
@@ -452,7 +452,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
-      const prefix = index === 0 ? '' : `-${type}`;
+      const prefix = index === 0 ? '' : `${type}-`;
       const tabPanel = tabContent.children[index] as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-id"]`);
 
@@ -464,11 +464,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     }
 
     element.edit({ helper: { ...element.data!.helper, id_description: '' } });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
-      const prefix = index === 0 ? '' : `-${type}`;
+      const prefix = index === 0 ? '' : `${type}-`;
       const tabPanel = tabContent.children[index] as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-id"]`);
 
@@ -512,7 +512,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
-      const prefix = index === 0 ? '' : `-${type}`;
+      const prefix = index === 0 ? '' : `${type}-`;
       const tabPanel = tabContent.children[index] as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}third-party-key"]`);
 
@@ -524,11 +524,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     }
 
     element.edit({ helper: { ...element.data!.helper, third_party_key_description: '' } });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
-      const prefix = index === 0 ? '' : `-${type}`;
+      const prefix = index === 0 ? '' : `${type}-`;
       const tabPanel = tabContent.children[index] as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}third-party-key"]`);
 
@@ -566,7 +566,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
-      const prefix = index === 0 ? '' : `-${type}`;
+      const prefix = index === 0 ? '' : `${type}-`;
       const tabPanel = tabContent.children[index] as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-key"]`);
 
@@ -578,11 +578,11 @@ describe('PaymentsApiPaymentMethodForm', () => {
     }
 
     element.edit({ helper: { ...element.data!.helper, key_description: '' } });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     for (let index = 0; index < 2; ++index) {
       const type = index === 0 ? 'live' : 'test';
-      const prefix = index === 0 ? '' : `-${type}`;
+      const prefix = index === 0 ? '' : `${type}-`;
       const tabPanel = tabContent.children[index] as HTMLElement;
       const field = tabPanel.querySelector(`[infer="${prefix}account-key"]`);
 
@@ -1069,13 +1069,13 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     element.data!.helper.supports_3d_secure = 0;
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('[infer="three-d-secure-toggle"]')).to.not.exist;
 
     element.data!.helper.supports_3d_secure = 1;
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector(
       '[infer="three-d-secure-toggle"]'
     ) as InternalRadioGroupControl;
@@ -1157,14 +1157,14 @@ describe('PaymentsApiPaymentMethodForm', () => {
     element.data!.helper.supports_3d_secure = 0;
     element.data!.config_3d_secure = '';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('[infer="three-d-secure-response"]')).to.not.exist;
 
     element.data!.helper.supports_3d_secure = 1;
     element.data!.config_3d_secure = 'all_cards';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector(
       '[infer="three-d-secure-response"]'
     ) as InternalCheckboxGroupControl;
@@ -1265,7 +1265,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
 
     element.data = null;
     element.edit({ type: 'foo' });
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = (await getByTestId(
       element,
       'select-another-button'
@@ -1279,7 +1279,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
     expect(label).to.have.attribute('key', 'select_another_button_label');
 
     control.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.not.have.nested.property('form.type');
     expect(element.renderRoot.querySelector('[infer="select-another-button"]')).to.not.exist;

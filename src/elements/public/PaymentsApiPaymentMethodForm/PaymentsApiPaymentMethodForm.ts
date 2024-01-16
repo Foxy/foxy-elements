@@ -315,7 +315,7 @@ export class PaymentsApiPaymentMethodForm extends Base<Data> {
             })}
           >
             ${['live', 'test'].map((type, index) => {
-              const prefix = index === 0 ? '' : `-${type}`;
+              const prefix = index === 0 ? '' : `${type}-`;
               const blocks = index === 0 ? this.__liveBlocks : this.__testBlocks;
 
               return html`
