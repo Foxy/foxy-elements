@@ -9,12 +9,18 @@ import { ItemForm } from './ItemForm';
 import { html } from 'lit-html';
 
 describe('ItemForm', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines foxy-internal-integer-control', () => {
     expect(customElements.get('foxy-internal-integer-control')).to.exist;
   });
 
-  it('imports and defines foxy-internal-async-details-control', () => {
-    expect(customElements.get('foxy-internal-async-details-control')).to.exist;
+  it('imports and defines foxy-internal-async-list-control', () => {
+    expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -194,7 +200,7 @@ describe('ItemForm', () => {
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
     const control = element.renderRoot.querySelector(
-      'foxy-internal-async-details-control[infer="discount-details"]'
+      'foxy-internal-async-list-control[infer="discount-details"]'
     );
 
     expect(control).to.exist;
@@ -217,7 +223,7 @@ describe('ItemForm', () => {
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
     const control = element.renderRoot.querySelector(
-      'foxy-internal-async-details-control[infer="coupon-details"]'
+      'foxy-internal-async-list-control[infer="coupon-details"]'
     );
 
     expect(control).to.exist;
@@ -240,7 +246,7 @@ describe('ItemForm', () => {
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
     const control = element.renderRoot.querySelector(
-      'foxy-internal-async-details-control[infer="attributes"]'
+      'foxy-internal-async-list-control[infer="attributes"]'
     );
 
     expect(control).to.exist;
@@ -265,7 +271,7 @@ describe('ItemForm', () => {
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
     const control = element.renderRoot.querySelector(
-      'foxy-internal-async-details-control[infer="item-options"]'
+      'foxy-internal-async-list-control[infer="item-options"]'
     );
 
     expect(control).to.exist;

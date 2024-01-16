@@ -12,16 +12,18 @@ import { DiscountBuilder } from '../../../DiscountBuilder/DiscountBuilder';
 
 describe('ItemForm', () => {
   describe('InternalItemFormLineItemDiscountControl', () => {
+    const OriginalResizeObserver = window.ResizeObserver;
+
+    // @ts-expect-error disabling ResizeObserver because it errors in test env
+    before(() => (window.ResizeObserver = undefined));
+    after(() => (window.ResizeObserver = OriginalResizeObserver));
+
     it('imports and defines foxy-internal-async-combo-box-control', () => {
       expect(customElements.get('foxy-internal-async-combo-box-control')).to.exist;
     });
 
     it('imports and defines foxy-internal-text-control', () => {
       expect(customElements.get('foxy-internal-text-control')).to.exist;
-    });
-
-    it('imports and defines foxy-internal-details', () => {
-      expect(customElements.get('foxy-internal-details')).to.exist;
     });
 
     it('imports and defines foxy-internal-control', () => {
@@ -47,33 +49,17 @@ describe('ItemForm', () => {
       expect(new InternalItemFormLineItemDiscountControl()).to.have.property('ns', '');
     });
 
-    it('has a default inference target named "line-item-discount"', () => {
-      expect(new InternalItemFormLineItemDiscountControl()).to.have.property(
-        'infer',
-        'line-item-discount'
-      );
-    });
-
-    it('renders details with summary', async () => {
-      const element = await fixture<InternalItemFormLineItemDiscountControl>(html`
-        <foxy-internal-item-form-line-item-discount-control></foxy-internal-item-form-line-item-discount-control>
-      `);
-
-      const details = element.renderRoot.querySelector('foxy-internal-details');
-
-      expect(details).to.exist;
-      expect(details).to.have.property('infer', '');
-      expect(details).to.have.property('summary', 'title');
-    });
-
     it('renders coupon selector as a control', async () => {
       const wrapper = await fixture(html`
         <foxy-item-form coupons="https://demo.api/hapi/coupons">
-          <foxy-internal-item-form-line-item-discount-control></foxy-internal-item-form-line-item-discount-control>
+          <foxy-internal-item-form-line-item-discount-control infer="line-item-discount">
+          </foxy-internal-item-form-line-item-discount-control>
         </foxy-item-form>
       `);
 
       const element = wrapper.firstElementChild as InternalItemFormLineItemDiscountControl;
+      await element.requestUpdate();
+
       const control = element.renderRoot.querySelector(
         'foxy-internal-async-combo-box-control[infer="coupon"]'
       );
@@ -125,8 +111,8 @@ describe('ItemForm', () => {
       const element = wrapper.firstElementChild as InternalItemFormLineItemDiscountControl;
       const builder = element.renderRoot.querySelector<DiscountBuilder>('foxy-discount-builder')!;
 
-      await wrapper.updateComplete;
-      await element.updateComplete;
+      await wrapper.requestUpdate();
+      await element.requestUpdate();
 
       expect(builder).to.exist;
       expect(builder).to.have.property('infer', 'discount-builder');

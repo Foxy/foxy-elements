@@ -7,12 +7,14 @@ import { InternalItemFormShippingControl } from './index';
 
 describe('ItemForm', () => {
   describe('InternalItemFormShippingControl', () => {
+    const OriginalResizeObserver = window.ResizeObserver;
+
+    // @ts-expect-error disabling ResizeObserver because it errors in test env
+    before(() => (window.ResizeObserver = undefined));
+    after(() => (window.ResizeObserver = OriginalResizeObserver));
+
     it('imports and defines foxy-internal-async-combo-box-control', () => {
       expect(customElements.get('foxy-internal-async-combo-box-control')).to.exist;
-    });
-
-    it('imports and defines foxy-internal-details', () => {
-      expect(customElements.get('foxy-internal-details')).to.exist;
     });
 
     it('imports and defines foxy-internal-text-control', () => {
@@ -38,30 +40,17 @@ describe('ItemForm', () => {
       expect(new InternalItemFormShippingControl()).to.have.property('ns', '');
     });
 
-    it('has a default inference target named "shipping"', () => {
-      expect(new InternalItemFormShippingControl()).to.have.property('infer', 'shipping');
-    });
-
-    it('renders details with summary', async () => {
-      const element = await fixture<InternalItemFormShippingControl>(html`
-        <foxy-internal-item-form-shipping-control></foxy-internal-item-form-shipping-control>
-      `);
-
-      const details = element.renderRoot.querySelector('foxy-internal-details');
-
-      expect(details).to.exist;
-      expect(details).to.have.property('infer', '');
-      expect(details).to.have.property('summary', 'title');
-    });
-
     it('renders customer address as a control', async () => {
       const wrapper = await fixture(html`
         <foxy-item-form customer-addresses="https://demo.api/hapi/customer_addresses">
-          <foxy-internal-item-form-shipping-control></foxy-internal-item-form-shipping-control>
+          <foxy-internal-item-form-shipping-control infer="shipping">
+          </foxy-internal-item-form-shipping-control>
         </foxy-item-form>
       `);
 
       const element = wrapper.firstElementChild as InternalItemFormShippingControl;
+      await element.requestUpdate();
+
       const control = element.renderRoot.querySelector(
         'foxy-internal-async-combo-box-control[infer="shipto"]'
       );

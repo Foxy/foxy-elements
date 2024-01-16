@@ -1,5 +1,5 @@
 import '../../internal/InternalIntegerControl/index';
-import '../../internal/InternalAsyncDetailsControl/index';
+import '../../internal/InternalAsyncListControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';

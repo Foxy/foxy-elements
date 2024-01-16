@@ -1,7 +1,6 @@
 import '../../../../internal/InternalAsyncComboBoxControl/index';
 import '../../../../internal/InternalEditableControl/index';
 import '../../../../internal/InternalIntegerControl/index';
-import '../../../../internal/InternalDetails/index';
 
 import { InternalItemFormShippingControl } from './InternalItemFormShippingControl';
 

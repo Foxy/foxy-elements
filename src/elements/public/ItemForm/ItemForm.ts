@@ -92,54 +92,67 @@ export class ItemForm extends TranslatableMixin(InternalForm, 'item-form')<Data>
         <foxy-internal-integer-control infer="quantity"></foxy-internal-integer-control>
       </div>
 
-      <foxy-internal-item-form-subscription-control></foxy-internal-item-form-subscription-control>
+      <foxy-internal-item-form-subscription-control infer="subscription">
+      </foxy-internal-item-form-subscription-control>
 
       ${this.data
         ? html`
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
+              label=${this.t('item-options.title')}
               infer="item-options"
               first=${this.data._links['fx:item_options'].href}
               limit="5"
               form="foxy-item-option-form"
               item="foxy-item-option-card"
+              alert
               .related=${this.__itemOptionRelatedUrls}
               .props=${{ 'locale-codes': this.localeCodes ?? '' }}
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
           `
         : ''}
 
-      <foxy-internal-item-form-line-item-discount-control></foxy-internal-item-form-line-item-discount-control>
-      <foxy-internal-item-form-cart-control></foxy-internal-item-form-cart-control>
-      <foxy-internal-item-form-shipping-control></foxy-internal-item-form-shipping-control>
-      <foxy-internal-item-form-inventory-control></foxy-internal-item-form-inventory-control>
+      <foxy-internal-item-form-line-item-discount-control infer="line-item-discount">
+      </foxy-internal-item-form-line-item-discount-control>
+
+      <foxy-internal-item-form-cart-control infer="cart"></foxy-internal-item-form-cart-control>
+
+      <foxy-internal-item-form-shipping-control infer="shipping">
+      </foxy-internal-item-form-shipping-control>
+
+      <foxy-internal-item-form-inventory-control infer="inventory">
+      </foxy-internal-item-form-inventory-control>
 
       ${this.data
         ? html`
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
+              label=${this.t('discount-details.title')}
               infer="discount-details"
               first=${this.data._links['fx:discount_details'].href}
               limit="5"
               item="foxy-discount-detail-card"
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
 
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
+              label=${this.t('coupon-details.title')}
               infer="coupon-details"
               first=${this.data._links['fx:coupon_details'].href}
               limit="5"
               item="foxy-coupon-detail-card"
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
 
-            <foxy-internal-async-details-control
+            <foxy-internal-async-list-control
+              label=${this.t('attributes.title')}
               infer="attributes"
               first=${this.data._links['fx:attributes'].href}
               limit="5"
               item="foxy-attribute-card"
               form="foxy-attribute-form"
+              alert
             >
-            </foxy-internal-async-details-control>
+            </foxy-internal-async-list-control>
           `
         : ''}
       ${super.renderBody()}

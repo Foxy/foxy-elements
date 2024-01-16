@@ -1155,7 +1155,8 @@
                             "frequency": {
                               "additionalProperties": false,
                               "properties": {
-                                "label": { "type": "string", "default": "Frequency" },
+                                "label": { "type": "string", "default": "Subscription frequency" },
+                                "helper_text": { "type": "string", "default": "" },
                                 "day": { "type": "string", "default": "Day" },
                                 "day_plural": { "type": "string", "default": "Days" },
                                 "week": { "type": "string", "default": "Week" },
@@ -1167,6 +1168,7 @@
                               },
                               "required": [
                                 "label",
+                                "helper_text",
                                 "day",
                                 "day_plural",
                                 "week",
@@ -1180,7 +1182,7 @@
                             "start": {
                               "additionalProperties": false,
                               "properties": {
-                                "label": { "type": "string", "default": "Start date" },
+                                "label": { "type": "string", "default": "Subscription start" },
                                 "helper_text": { "type": "string", "default": "" },
                                 "placeholder": { "type": "string", "default": "01/01/2022" }
                               },
@@ -1189,7 +1191,7 @@
                             "end": {
                               "additionalProperties": false,
                               "properties": {
-                                "label": { "type": "string", "default": "End date" },
+                                "label": { "type": "string", "default": "Subscription end" },
                                 "helper_text": { "type": "string", "default": "" },
                                 "placeholder": { "type": "string", "default": "01/01/2022" }
                               },
@@ -1198,13 +1200,16 @@
                             "next": {
                               "additionalProperties": false,
                               "properties": {
-                                "label": { "type": "string", "default": "Next transaction date" },
+                                "label": {
+                                  "type": "string",
+                                  "default": "Next payment (subscriptions only)"
+                                },
                                 "helper_text": { "type": "string", "default": "" },
                                 "placeholder": { "type": "string", "default": "01/01/2022" }
                               },
                               "required": ["label", "helper_text", "placeholder"]
                             },
-                            "dialog": {
+                            "form": {
                               "additionalProperties": false,
                               "properties": {
                                 "save": { "type": "string", "default": "Save" },
@@ -1570,20 +1575,11 @@
                               ]
                             }
                           },
-                          "required": [
-                            "title",
-                            "frequency",
-                            "start",
-                            "end",
-                            "next",
-                            "dialog",
-                            "card"
-                          ]
+                          "required": ["title", "frequency", "start", "end", "next", "form", "card"]
                         },
                         "line-item-discount": {
                           "additionalProperties": false,
                           "properties": {
-                            "title": { "type": "string", "default": "Line item discount" },
                             "coupon": {
                               "additionalProperties": false,
                               "properties": {
@@ -1649,12 +1645,11 @@
                               ]
                             }
                           },
-                          "required": ["title", "coupon", "discount-name", "discount-builder"]
+                          "required": ["coupon", "discount-name", "discount-builder"]
                         },
                         "cart": {
                           "additionalProperties": false,
                           "properties": {
-                            "title": { "type": "string", "default": "Cart" },
                             "expires": {
                               "additionalProperties": false,
                               "properties": {
@@ -1707,19 +1702,11 @@
                               "required": ["label", "helper_text", "placeholder"]
                             }
                           },
-                          "required": [
-                            "title",
-                            "expires",
-                            "image",
-                            "url",
-                            "quantity-min",
-                            "quantity-max"
-                          ]
+                          "required": ["expires", "image", "url", "quantity-min", "quantity-max"]
                         },
                         "shipping": {
                           "additionalProperties": false,
                           "properties": {
-                            "title": { "type": "string", "default": "Shipping" },
                             "shipto": {
                               "additionalProperties": false,
                               "properties": {
@@ -1769,12 +1756,11 @@
                               "required": ["label", "helper_text", "placeholder"]
                             }
                           },
-                          "required": ["title", "shipto", "width", "height", "length", "weight"]
+                          "required": ["shipto", "width", "height", "length", "weight"]
                         },
                         "inventory": {
                           "additionalProperties": false,
                           "properties": {
-                            "title": { "type": "string", "default": "Inventory" },
                             "category": {
                               "additionalProperties": false,
                               "properties": {
@@ -1806,7 +1792,7 @@
                               "required": ["label", "helper_text", "placeholder"]
                             }
                           },
-                          "required": ["title", "category", "code", "parent-code"]
+                          "required": ["category", "code", "parent-code"]
                         },
                         "discount-details": {
                           "additionalProperties": false,
@@ -1890,27 +1876,66 @@
                           "additionalProperties": false,
                           "properties": {
                             "title": { "type": "string", "default": "Attributes" },
-                            "card": {
+                            "dialog": {
                               "additionalProperties": false,
                               "properties": {
-                                "spinner": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "loading_busy": { "type": "string", "default": "Loading" },
-                                    "loading_empty": { "type": "string", "default": "No data" },
-                                    "loading_error": {
-                                      "type": "string",
-                                      "default": "Failed to load"
-                                    }
-                                  },
-                                  "required": ["loading_busy", "loading_empty", "loading_error"]
-                                }
+                                "header_create": {
+                                  "type": "string",
+                                  "default": "Create attribute"
+                                },
+                                "header_update": {
+                                  "type": "string",
+                                  "default": "Update attribute"
+                                },
+                                "close": { "type": "string", "default": "Close" },
+                                "save": { "type": "string", "default": "Save" },
+                                "cancel": { "type": "string", "default": "Cancel" },
+                                "undo_header": { "type": "string", "default": "Unsaved changes" },
+                                "undo_message": {
+                                  "type": "string",
+                                  "default": "Looks like you didn't save your changes! What would you like to do with them?"
+                                },
+                                "undo_cancel": { "type": "string", "default": "Review" },
+                                "undo_confirm": { "type": "string", "default": "Discard" }
                               },
-                              "required": ["spinner"]
+                              "required": [
+                                "header_create",
+                                "header_update",
+                                "close",
+                                "save",
+                                "cancel",
+                                "undo_header",
+                                "undo_message",
+                                "undo_cancel",
+                                "undo_confirm"
+                              ]
                             },
                             "pagination": {
                               "additionalProperties": false,
                               "properties": {
+                                "create_button_text": {
+                                  "type": "string",
+                                  "default": "Add attribute"
+                                },
+                                "card": {
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "delete_button_text": { "type": "string", "default": "Delete" },
+                                    "spinner": {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "loading_busy": { "type": "string", "default": "Loading" },
+                                        "loading_empty": { "type": "string", "default": "No data" },
+                                        "loading_error": {
+                                          "type": "string",
+                                          "default": "Failed to load"
+                                        }
+                                      },
+                                      "required": ["loading_busy", "loading_empty", "loading_error"]
+                                    }
+                                  },
+                                  "required": ["delete_button_text", "spinner"]
+                                },
                                 "first": { "type": "string", "default": "First" },
                                 "last": { "type": "string", "default": "Last" },
                                 "next": { "type": "string", "default": "Next" },
@@ -1920,142 +1945,26 @@
                                 },
                                 "previous": { "type": "string", "default": "Previous" }
                               },
-                              "required": ["first", "last", "next", "pagination", "previous"]
-                            },
-                            "dialog": {
-                              "additionalProperties": false,
-                              "properties": {
-                                "close": { "type": "string", "default": "Close" },
-                                "cancel": { "type": "string", "default": "Cancel" },
-                                "header_update": { "type": "string", "default": "Attribute" },
-                                "header_create": { "type": "string", "default": "New attribute" },
-                                "save": { "type": "string", "default": "Save" },
-                                "undo_header": { "type": "string", "default": "Unsaved changes" },
-                                "undo_message": {
-                                  "type": "string",
-                                  "default": "Looks like you didn't save your changes! What would you like to do with them?"
-                                },
-                                "undo_cancel": { "type": "string", "default": "Review" },
-                                "undo_confirm": { "type": "string", "default": "Discard" },
-                                "confirm": { "type": "string", "default": "Confirm" },
-                                "attribute-form": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "create": { "type": "string", "default": "Create" },
-                                    "date": { "type": "string", "default": "{{value, date}}" },
-                                    "date_created": { "type": "string", "default": "Created on" },
-                                    "date_modified": {
-                                      "type": "string",
-                                      "default": "Last updated on"
-                                    },
-                                    "delete": { "type": "string", "default": "Delete" },
-                                    "delete_prompt": {
-                                      "type": "string",
-                                      "default": "This resource will be permanently removed. Are you sure?"
-                                    },
-                                    "name": { "type": "string", "default": "Name" },
-                                    "v8n_required": { "type": "string", "default": "Required" },
-                                    "v8n_too_long": { "type": "string", "default": "Too long" },
-                                    "value": { "type": "string", "default": "Value" },
-                                    "visibility": { "type": "string", "default": "Visibility" },
-                                    "visibility_private": {
-                                      "type": "string",
-                                      "default": "Only me"
-                                    },
-                                    "visibility_public": {
-                                      "type": "string",
-                                      "default": "Everyone"
-                                    },
-                                    "visibility_restricted": {
-                                      "type": "string",
-                                      "default": "Store admins"
-                                    },
-                                    "spinner": {
-                                      "additionalProperties": false,
-                                      "properties": {
-                                        "loading_busy": { "type": "string", "default": "Loading" },
-                                        "loading_error": {
-                                          "type": "string",
-                                          "default": "Failed to load"
-                                        }
-                                      },
-                                      "required": ["loading_busy", "loading_error"]
-                                    }
-                                  },
-                                  "required": [
-                                    "create",
-                                    "date",
-                                    "date_created",
-                                    "date_modified",
-                                    "delete",
-                                    "delete_prompt",
-                                    "name",
-                                    "v8n_required",
-                                    "v8n_too_long",
-                                    "value",
-                                    "visibility",
-                                    "visibility_private",
-                                    "visibility_public",
-                                    "visibility_restricted",
-                                    "spinner"
-                                  ]
-                                }
-                              },
                               "required": [
-                                "close",
-                                "cancel",
-                                "header_update",
-                                "header_create",
-                                "save",
-                                "undo_header",
-                                "undo_message",
-                                "undo_cancel",
-                                "undo_confirm",
-                                "confirm",
-                                "attribute-form"
+                                "create_button_text",
+                                "card",
+                                "first",
+                                "last",
+                                "next",
+                                "pagination",
+                                "previous"
                               ]
                             }
                           },
-                          "required": ["title", "card", "pagination", "dialog"]
+                          "required": ["title", "dialog", "pagination"]
                         },
                         "item-options": {
                           "additionalProperties": false,
                           "properties": {
                             "title": { "type": "string", "default": "Item options" },
-                            "card": {
+                            "form": {
                               "additionalProperties": false,
                               "properties": {
-                                "spinner": {
-                                  "additionalProperties": false,
-                                  "properties": {
-                                    "loading_busy": { "type": "string", "default": "Loading" },
-                                    "loading_empty": { "type": "string", "default": "No data" },
-                                    "loading_error": {
-                                      "type": "string",
-                                      "default": "Failed to load"
-                                    }
-                                  },
-                                  "required": ["loading_busy", "loading_empty", "loading_error"]
-                                }
-                              },
-                              "required": ["spinner"]
-                            },
-                            "dialog": {
-                              "additionalProperties": false,
-                              "properties": {
-                                "close": { "type": "string", "default": "Close" },
-                                "cancel": { "type": "string", "default": "Cancel" },
-                                "header_update": { "type": "string", "default": "Item option" },
-                                "header_create": { "type": "string", "default": "New item option" },
-                                "save": { "type": "string", "default": "Save" },
-                                "undo_header": { "type": "string", "default": "Unsaved changes" },
-                                "undo_message": {
-                                  "type": "string",
-                                  "default": "Looks like you didn't save your changes! What would you like to do with them?"
-                                },
-                                "undo_cancel": { "type": "string", "default": "Review" },
-                                "undo_confirm": { "type": "string", "default": "Discard" },
-                                "confirm": { "type": "string", "default": "Confirm" },
                                 "name": {
                                   "additionalProperties": false,
                                   "properties": {
@@ -2170,16 +2079,6 @@
                                 }
                               },
                               "required": [
-                                "close",
-                                "cancel",
-                                "header_update",
-                                "header_create",
-                                "save",
-                                "undo_header",
-                                "undo_message",
-                                "undo_cancel",
-                                "undo_confirm",
-                                "confirm",
                                 "name",
                                 "value",
                                 "price-mod",
@@ -2190,9 +2089,57 @@
                                 "create"
                               ]
                             },
+                            "dialog": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "header_create": { "type": "string", "default": "Create option" },
+                                "header_update": { "type": "string", "default": "Update option" },
+                                "close": { "type": "string", "default": "Close" },
+                                "save": { "type": "string", "default": "Save" },
+                                "cancel": { "type": "string", "default": "Cancel" },
+                                "undo_header": { "type": "string", "default": "Unsaved changes" },
+                                "undo_message": {
+                                  "type": "string",
+                                  "default": "Looks like you didn't save your changes! What would you like to do with them?"
+                                },
+                                "undo_cancel": { "type": "string", "default": "Review" },
+                                "undo_confirm": { "type": "string", "default": "Discard" }
+                              },
+                              "required": [
+                                "header_create",
+                                "header_update",
+                                "close",
+                                "save",
+                                "cancel",
+                                "undo_header",
+                                "undo_message",
+                                "undo_cancel",
+                                "undo_confirm"
+                              ]
+                            },
                             "pagination": {
                               "additionalProperties": false,
                               "properties": {
+                                "card": {
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "delete_button_text": { "type": "string", "default": "Delete" },
+                                    "spinner": {
+                                      "additionalProperties": false,
+                                      "properties": {
+                                        "loading_busy": { "type": "string", "default": "Loading" },
+                                        "loading_empty": { "type": "string", "default": "No data" },
+                                        "loading_error": {
+                                          "type": "string",
+                                          "default": "Failed to load"
+                                        }
+                                      },
+                                      "required": ["loading_busy", "loading_empty", "loading_error"]
+                                    }
+                                  },
+                                  "required": ["delete_button_text", "spinner"]
+                                },
+                                "create_button_text": { "type": "string", "default": "Add option" },
                                 "first": { "type": "string", "default": "First" },
                                 "last": { "type": "string", "default": "Last" },
                                 "next": { "type": "string", "default": "Next" },
@@ -2202,10 +2149,18 @@
                                 },
                                 "previous": { "type": "string", "default": "Previous" }
                               },
-                              "required": ["first", "last", "next", "pagination", "previous"]
+                              "required": [
+                                "card",
+                                "create_button_text",
+                                "first",
+                                "last",
+                                "next",
+                                "pagination",
+                                "previous"
+                              ]
                             }
                           },
-                          "required": ["title", "card", "dialog", "pagination"]
+                          "required": ["title", "form", "dialog", "pagination"]
                         },
                         "timestamps": {
                           "additionalProperties": false,

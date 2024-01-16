@@ -50,7 +50,8 @@
       "subscription": {
         "title": "Subscription",
         "frequency": {
-          "label": "Frequency",
+          "label": "Subscription frequency",
+          "helper_text": "",
           "day": "Day",
           "day_plural": "Days",
           "week": "Week",
@@ -61,21 +62,21 @@
           "year_plural": "Years"
         },
         "start": {
-          "label": "Start date",
+          "label": "Subscription start",
           "helper_text": "",
           "placeholder": "01/01/2022"
         },
         "end": {
-          "label": "End date",
+          "label": "Subscription end",
           "helper_text": "",
           "placeholder": "01/01/2022"
         },
         "next": {
-          "label": "Next transaction date",
+          "label": "Next payment (subscriptions only)",
           "helper_text": "",
           "placeholder": "01/01/2022"
         },
-        "dialog": {
+        "form": {
           "save": "Save",
           "update": "Update",
           "day": "Day",
@@ -181,7 +182,6 @@
         }
       },
       "line-item-discount": {
-        "title": "Line item discount",
         "coupon": {
           "label": "Coupon",
           "helper_text": "",
@@ -208,7 +208,6 @@
         }
       },
       "cart": {
-        "title": "Cart",
         "expires": {
           "label": "Expires",
           "helper_text": "",
@@ -236,7 +235,6 @@
         }
       },
       "shipping": {
-        "title": "Shipping",
         "shipto": {
           "label": "Shipping address",
           "helper_text": "",
@@ -264,7 +262,6 @@
         }
       },
       "inventory": {
-        "title": "Inventory",
         "category": {
           "label": "Item category",
           "helper_text": "",
@@ -317,73 +314,37 @@
       },
       "attributes": {
         "title": "Attributes",
-        "card": {
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Failed to load"
-          }
+        "dialog": {
+          "header_create": "Create attribute",
+          "header_update": "Update attribute",
+          "close": "Close",
+          "save": "Save",
+          "cancel": "Cancel",
+          "undo_header": "Unsaved changes",
+          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard"
         },
         "pagination": {
+          "create_button_text": "Add attribute",
+          "card": {
+            "delete_button_text": "Delete",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Failed to load"
+            }
+          },
           "first": "First",
           "last": "Last",
           "next": "Next",
           "pagination": "{{from}}-{{to}} out of {{total}}",
           "previous": "Previous"
-        },
-        "dialog": {
-          "close": "Close",
-          "cancel": "Cancel",
-          "header_update": "Attribute",
-          "header_create": "New attribute",
-          "save": "Save",
-          "undo_header": "Unsaved changes",
-          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-          "undo_cancel": "Review",
-          "undo_confirm": "Discard",
-          "confirm": "Confirm",
-          "attribute-form": {
-            "create": "Create",
-            "date": "{{value, date}}",
-            "date_created": "Created on",
-            "date_modified": "Last updated on",
-            "delete": "Delete",
-            "delete_prompt": "This resource will be permanently removed. Are you sure?",
-            "name": "Name",
-            "v8n_required": "Required",
-            "v8n_too_long": "Too long",
-            "value": "Value",
-            "visibility": "Visibility",
-            "visibility_private": "Only me",
-            "visibility_public": "Everyone",
-            "visibility_restricted": "Store admins",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_error": "Failed to load"
-            }
-          }
         }
       },
       "item-options": {
         "title": "Item options",
-        "card": {
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Failed to load"
-          }
-        },
-        "dialog": {
-          "close": "Close",
-          "cancel": "Cancel",
-          "header_update": "Item option",
-          "header_create": "New item option",
-          "save": "Save",
-          "undo_header": "Unsaved changes",
-          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-          "undo_cancel": "Review",
-          "undo_confirm": "Discard",
-          "confirm": "Confirm",
+        "form": {
           "name": {
             "label": "Name",
             "helper_text": "",
@@ -426,7 +387,27 @@
             "create": "Create"
           }
         },
+        "dialog": {
+          "header_create": "Create option",
+          "header_update": "Update option",
+          "close": "Close",
+          "save": "Save",
+          "cancel": "Cancel",
+          "undo_header": "Unsaved changes",
+          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+          "undo_cancel": "Review",
+          "undo_confirm": "Discard"
+        },
         "pagination": {
+          "card": {
+            "delete_button_text": "Delete",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No data",
+              "loading_error": "Failed to load"
+            }
+          },
+          "create_button_text": "Add option",
           "first": "First",
           "last": "Last",
           "next": "Next",

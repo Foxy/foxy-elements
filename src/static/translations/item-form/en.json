@@ -22,7 +22,8 @@
   "subscription": {
     "title": "Subscription",
     "frequency": {
-      "label": "Frequency",
+      "label": "Subscription frequency",
+      "helper_text": "",
       "day": "Day",
       "day_plural": "Days",
       "week": "Week",
@@ -33,17 +34,17 @@
       "year_plural": "Years"
     },
     "start": {
-      "label": "Start date",
+      "label": "Subscription start",
       "helper_text": "",
       "placeholder": "01/01/2022"
     },
     "end": {
-      "label": "End date",
+      "label": "Subscription end",
       "helper_text": "",
       "placeholder": "01/01/2022"
     },
     "next": {
-      "label": "Next transaction date",
+      "label": "Next payment (subscriptions only)",
       "helper_text": "",
       "placeholder": "01/01/2022"
     },
@@ -153,7 +154,6 @@
     }
   },
   "line-item-discount": {
-    "title": "Line item discount",
     "coupon": {
       "label": "Coupon",
       "helper_text": "",
@@ -180,7 +180,6 @@
     }
   },
   "cart": {
-    "title": "Cart",
     "expires": {
       "label": "Expires",
       "helper_text": "",
@@ -208,7 +207,6 @@
     }
   },
   "shipping": {
-    "title": "Shipping",
     "shipto": {
       "label": "Shipping address",
       "helper_text": "",
@@ -236,7 +234,6 @@
     }
   },
   "inventory": {
-    "title": "Inventory",
     "category": {
       "label": "Item category",
       "helper_text": "",
@@ -289,17 +286,9 @@
   },
   "attributes": {
     "title": "Attributes",
-
-    "card": {
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No data",
-        "loading_error": "Failed to load"
-      }
-    },
-
     "dialog": {
       "header_create": "Create attribute",
+      "header_update": "Update attribute",
       "close": "Close",
       "save": "Save",
       "cancel": "Cancel",
@@ -308,8 +297,16 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard"
     },
-
     "pagination": {
+      "create_button_text": "Add attribute",
+      "card": {
+        "delete_button_text": "Delete",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Failed to load"
+        }
+      },
       "first": "First",
       "last": "Last",
       "next": "Next",
@@ -319,15 +316,6 @@
   },
   "item-options": {
     "title": "Item options",
-
-    "card": {
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No data",
-        "loading_error": "Failed to load"
-      }
-    },
-
     "form": {
       "name": {
         "label": "Name",
@@ -371,9 +359,9 @@
         "create": "Create"
       }
     },
-
     "dialog": {
-      "header_create": "Create item option",
+      "header_create": "Create option",
+      "header_update": "Update option",
       "close": "Close",
       "save": "Save",
       "cancel": "Cancel",
@@ -382,8 +370,16 @@
       "undo_cancel": "Review",
       "undo_confirm": "Discard"
     },
-
     "pagination": {
+      "card": {
+        "delete_button_text": "Delete",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No data",
+          "loading_error": "Failed to load"
+        }
+      },
+      "create_button_text": "Add option",
       "first": "First",
       "last": "Last",
       "next": "Next",

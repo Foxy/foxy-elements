@@ -12,16 +12,18 @@ import { FormDialog } from '../../../FormDialog/FormDialog';
 
 describe('ItemForm', () => {
   describe('InternalItemFormSubscriptionControl', () => {
+    const OriginalResizeObserver = window.ResizeObserver;
+
+    // @ts-expect-error disabling ResizeObserver because it errors in test env
+    before(() => (window.ResizeObserver = undefined));
+    after(() => (window.ResizeObserver = OriginalResizeObserver));
+
     it('imports and defines foxy-internal-frequency-control', () => {
       expect(customElements.get('foxy-internal-frequency-control')).to.exist;
     });
 
     it('imports and defines foxy-internal-date-control', () => {
       expect(customElements.get('foxy-internal-date-control')).to.exist;
-    });
-
-    it('imports and defines foxy-internal-details', () => {
-      expect(customElements.get('foxy-internal-details')).to.exist;
     });
 
     it('imports and defines foxy-internal-control', () => {
@@ -55,20 +57,29 @@ describe('ItemForm', () => {
       expect(new InternalItemFormSubscriptionControl()).to.have.property('ns', '');
     });
 
-    it('has a default inference target named "subscription"', () => {
-      expect(new InternalItemFormSubscriptionControl()).to.have.property('infer', 'subscription');
-    });
-
-    it('renders details with summary', async () => {
-      const element = await fixture<InternalItemFormSubscriptionControl>(html`
-        <foxy-internal-item-form-subscription-control></foxy-internal-item-form-subscription-control>
+    it('renders title', async () => {
+      const router = createRouter();
+      const form = await fixture<ItemForm>(html`
+        <foxy-item-form
+          href="https://demo.api/hapi/items/0"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-item-form>
       `);
 
-      const details = element.renderRoot.querySelector('foxy-internal-details');
+      await waitUntil(() => form.in({ idle: 'snapshot' }));
 
-      expect(details).to.exist;
-      expect(details).to.have.property('infer', '');
-      expect(details).to.have.property('summary', 'title');
+      const control = form.renderRoot.querySelector(
+        '[infer="subscription"]'
+      ) as InternalItemFormSubscriptionControl;
+
+      await control.requestUpdate();
+
+      const title = control.renderRoot.querySelector('foxy-i18n');
+
+      expect(title).to.exist;
+      expect(title).to.have.property('infer', '');
+      expect(title).to.have.property('key', 'title');
     });
 
     it('renders frequency as a control if no subscription is associated with the item', async () => {
@@ -124,13 +135,16 @@ describe('ItemForm', () => {
           href="https://demo.api/hapi/items/0"
           @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
         >
-          <foxy-internal-item-form-subscription-control></foxy-internal-item-form-subscription-control>
+          <foxy-internal-item-form-subscription-control infer="subscription">
+          </foxy-internal-item-form-subscription-control>
         </foxy-item-form>
       `);
 
       await waitUntil(() => element.in({ idle: 'snapshot' }));
 
       const control = element.firstElementChild as InternalItemFormSubscriptionControl;
+      await control.requestUpdate();
+
       const dialog = control.renderRoot.querySelector('foxy-form-dialog') as FormDialog;
       const card = control.renderRoot.querySelector('foxy-subscription-card')!;
       const button = card.closest('button')!;
@@ -156,12 +170,12 @@ describe('ItemForm', () => {
       );
 
       control.disabled = true;
-      await control.updateComplete;
+      await control.requestUpdate();
 
       expect(button).to.have.property('disabled', true);
 
       control.disabled = false;
-      await control.updateComplete;
+      await control.requestUpdate();
 
       const showMethod = stub(dialog, 'show');
       button.click();

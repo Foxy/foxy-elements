@@ -41,7 +41,8 @@
         "frequency": {
           "additionalProperties": false,
           "properties": {
-            "label": { "type": "string", "default": "Frequency" },
+            "label": { "type": "string", "default": "Subscription frequency" },
+            "helper_text": { "type": "string", "default": "" },
             "day": { "type": "string", "default": "Day" },
             "day_plural": { "type": "string", "default": "Days" },
             "week": { "type": "string", "default": "Week" },
@@ -53,6 +54,7 @@
           },
           "required": [
             "label",
+            "helper_text",
             "day",
             "day_plural",
             "week",
@@ -66,7 +68,7 @@
         "start": {
           "additionalProperties": false,
           "properties": {
-            "label": { "type": "string", "default": "Start date" },
+            "label": { "type": "string", "default": "Subscription start" },
             "helper_text": { "type": "string", "default": "" },
             "placeholder": { "type": "string", "default": "01/01/2022" }
           },
@@ -75,7 +77,7 @@
         "end": {
           "additionalProperties": false,
           "properties": {
-            "label": { "type": "string", "default": "End date" },
+            "label": { "type": "string", "default": "Subscription end" },
             "helper_text": { "type": "string", "default": "" },
             "placeholder": { "type": "string", "default": "01/01/2022" }
           },
@@ -84,7 +86,7 @@
         "next": {
           "additionalProperties": false,
           "properties": {
-            "label": { "type": "string", "default": "Next transaction date" },
+            "label": { "type": "string", "default": "Next payment (subscriptions only)" },
             "helper_text": { "type": "string", "default": "" },
             "placeholder": { "type": "string", "default": "01/01/2022" }
           },
@@ -368,7 +370,6 @@
     "line-item-discount": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Line item discount" },
         "coupon": {
           "additionalProperties": false,
           "properties": {
@@ -419,12 +420,11 @@
           ]
         }
       },
-      "required": ["title", "coupon", "discount-name", "discount-builder"]
+      "required": ["coupon", "discount-name", "discount-builder"]
     },
     "cart": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Cart" },
         "expires": {
           "additionalProperties": false,
           "properties": {
@@ -471,12 +471,11 @@
           "required": ["label", "helper_text", "placeholder"]
         }
       },
-      "required": ["title", "expires", "image", "url", "quantity-min", "quantity-max"]
+      "required": ["expires", "image", "url", "quantity-min", "quantity-max"]
     },
     "shipping": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Shipping" },
         "shipto": {
           "additionalProperties": false,
           "properties": {
@@ -523,12 +522,11 @@
           "required": ["label", "helper_text", "placeholder"]
         }
       },
-      "required": ["title", "shipto", "width", "height", "length", "weight"]
+      "required": ["shipto", "width", "height", "length", "weight"]
     },
     "inventory": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Inventory" },
         "category": {
           "additionalProperties": false,
           "properties": {
@@ -557,7 +555,7 @@
           "required": ["label", "helper_text", "placeholder"]
         }
       },
-      "required": ["title", "category", "code", "parent-code"]
+      "required": ["category", "code", "parent-code"]
     },
     "discount-details": {
       "additionalProperties": false,
@@ -629,25 +627,11 @@
       "additionalProperties": false,
       "properties": {
         "title": { "type": "string", "default": "Attributes" },
-        "card": {
-          "additionalProperties": false,
-          "properties": {
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No data" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_empty", "loading_error"]
-            }
-          },
-          "required": ["spinner"]
-        },
         "dialog": {
           "additionalProperties": false,
           "properties": {
             "header_create": { "type": "string", "default": "Create attribute" },
+            "header_update": { "type": "string", "default": "Update attribute" },
             "close": { "type": "string", "default": "Close" },
             "save": { "type": "string", "default": "Save" },
             "cancel": { "type": "string", "default": "Cancel" },
@@ -661,6 +645,7 @@
           },
           "required": [
             "header_create",
+            "header_update",
             "close",
             "save",
             "cancel",
@@ -673,36 +658,46 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
+            "create_button_text": { "type": "string", "default": "Add attribute" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "delete_button_text": { "type": "string", "default": "Delete" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No data" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": ["delete_button_text", "spinner"]
+            },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
             "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
             "previous": { "type": "string", "default": "Previous" }
           },
-          "required": ["first", "last", "next", "pagination", "previous"]
+          "required": [
+            "create_button_text",
+            "card",
+            "first",
+            "last",
+            "next",
+            "pagination",
+            "previous"
+          ]
         }
       },
-      "required": ["title", "card", "dialog", "pagination"]
+      "required": ["title", "dialog", "pagination"]
     },
     "item-options": {
       "additionalProperties": false,
       "properties": {
         "title": { "type": "string", "default": "Item options" },
-        "card": {
-          "additionalProperties": false,
-          "properties": {
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No data" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_empty", "loading_error"]
-            }
-          },
-          "required": ["spinner"]
-        },
         "form": {
           "additionalProperties": false,
           "properties": {
@@ -801,7 +796,8 @@
         "dialog": {
           "additionalProperties": false,
           "properties": {
-            "header_create": { "type": "string", "default": "Create item option" },
+            "header_create": { "type": "string", "default": "Create option" },
+            "header_update": { "type": "string", "default": "Update option" },
             "close": { "type": "string", "default": "Close" },
             "save": { "type": "string", "default": "Save" },
             "cancel": { "type": "string", "default": "Cancel" },
@@ -815,6 +811,7 @@
           },
           "required": [
             "header_create",
+            "header_update",
             "close",
             "save",
             "cancel",
@@ -827,16 +824,41 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "delete_button_text": { "type": "string", "default": "Delete" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No data" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": ["delete_button_text", "spinner"]
+            },
+            "create_button_text": { "type": "string", "default": "Add option" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
             "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
             "previous": { "type": "string", "default": "Previous" }
           },
-          "required": ["first", "last", "next", "pagination", "previous"]
+          "required": [
+            "card",
+            "create_button_text",
+            "first",
+            "last",
+            "next",
+            "pagination",
+            "previous"
+          ]
         }
       },
-      "required": ["title", "card", "form", "dialog", "pagination"]
+      "required": ["title", "form", "dialog", "pagination"]
     },
     "timestamps": {
       "additionalProperties": false,

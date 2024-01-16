@@ -5,9 +5,11 @@ import { InternalItemFormCartControl } from './index';
 
 describe('ItemForm', () => {
   describe('InternalItemFormCartControl', () => {
-    it('imports and defines foxy-internal-details', () => {
-      expect(customElements.get('foxy-internal-details')).to.exist;
-    });
+    const OriginalResizeObserver = window.ResizeObserver;
+
+    // @ts-expect-error disabling ResizeObserver because it errors in test env
+    before(() => (window.ResizeObserver = undefined));
+    after(() => (window.ResizeObserver = OriginalResizeObserver));
 
     it('imports and defines foxy-internal-integer-control', () => {
       expect(customElements.get('foxy-internal-integer-control')).to.exist;
@@ -38,22 +40,6 @@ describe('ItemForm', () => {
     it('has an empty i18n namespace by default', () => {
       expect(InternalItemFormCartControl).to.have.property('defaultNS', '');
       expect(new InternalItemFormCartControl()).to.have.property('ns', '');
-    });
-
-    it('has a default inference target named "cart"', () => {
-      expect(new InternalItemFormCartControl()).to.have.property('infer', 'cart');
-    });
-
-    it('renders details with summary', async () => {
-      const element = await fixture<InternalItemFormCartControl>(html`
-        <foxy-internal-item-form-cart-control></foxy-internal-item-form-cart-control>
-      `);
-
-      const details = element.renderRoot.querySelector('foxy-internal-details');
-
-      expect(details).to.exist;
-      expect(details).to.have.property('infer', '');
-      expect(details).to.have.property('summary', 'title');
     });
 
     it('renders expiration timeout as a control', async () => {

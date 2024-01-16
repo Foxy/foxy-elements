@@ -2,7 +2,6 @@ import '../../../../internal/InternalEditableControl/index';
 import '../../../../internal/InternalIntegerControl/index';
 import '../../../../internal/InternalTextControl/index';
 import '../../../../internal/InternalDateControl/index';
-import '../../../../internal/InternalDetails/index';
 
 import { InternalItemFormCartControl } from './InternalItemFormCartControl';
 
