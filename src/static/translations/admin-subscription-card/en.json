@@ -11,6 +11,7 @@
   "subscription_failed": "Payment failed on {{date, date}}",
   "subscription_inactive": "Inactive",
   "subscription_will_be_cancelled": "Ends on {{date, date}}",
+  "subscription_will_be_active": "Starts on {{date, date}}",
   "summary": "{{ firstItem.name }}",
   "summary_plural": "{{ firstItem.name }} + {{ countMinus1 }} more",
   "summary_approximate": "{{ firstItem.name }} + more",

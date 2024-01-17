@@ -621,6 +621,32 @@ describe('AdminSubscriptionCard', () => {
     expect(price).to.have.attribute('infer', '');
   });
 
+  it('renders a special status in line 2 for subscriptions that start soon', async () => {
+    const router = createRouter();
+    const href = 'https://demo.api/hapi/subscriptions/0';
+    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
+
+    const element = await fixture<Card>(html`
+      <foxy-admin-subscription-card
+        locale-codes="https://demo.api/hapi/property_helpers/7"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-card>
+    `);
+
+    data.first_failed_transaction_date = null;
+    data.start_date = new Date(Date.now() + 3600000).toISOString();
+    data.is_active = true;
+    data.end_date = null;
+    element.data = data;
+
+    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
+    const price = await getByKey(element, 'subscription_will_be_active');
+
+    expect(price).to.exist;
+    expect(price).to.have.attribute('infer', '');
+  });
+
   it('renders customer email in line 3 from embedded fx:transaction_template', async () => {
     type Subscription = Resource<Rels.Subscription, { zoom: 'transaction_template' }>;
 

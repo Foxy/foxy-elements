@@ -147,11 +147,17 @@ export class SubscriptionForm extends Base<Data> {
         key = 'subscription_failed';
       } else if (data.end_date) {
         date = data.end_date;
-        const hasEnded = new Date(date).getTime() > Date.now();
+        const hasEnded = new Date(data.end_date).getTime() > Date.now();
         key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
+      } else if (!data.is_active) {
+        date = '';
+        key = 'subscription_inactive';
+      } else if (new Date(data.start_date) > new Date()) {
+        date = data.start_date;
+        key = 'subscription_will_be_active';
       } else {
-        date = data.next_transaction_date ?? new Date().toISOString();
-        key = `subscription_${data.is_active ? 'active' : 'inactive'}`;
+        date = data.next_transaction_date;
+        key = 'subscription_active';
       }
 
       const text = html`

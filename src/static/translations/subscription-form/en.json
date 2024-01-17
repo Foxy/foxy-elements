@@ -28,6 +28,7 @@
   "subscription_failed": "Payment failed on {{date, date}}",
   "subscription_inactive": "Inactive",
   "subscription_will_be_cancelled": "Ends on {{date, date}}",
+  "subscription_will_be_active": "Starts on {{date, date}}",
   "transaction_plural": "Transactions",
   "twice_a_month": "Twice a month",
   "undo_cancel": "Review",

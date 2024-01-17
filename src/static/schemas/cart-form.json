@@ -259,6 +259,10 @@
                       "type": "string",
                       "default": "Ends on {{date, date}}"
                     },
+                    "subscription_will_be_active": {
+                      "type": "string",
+                      "default": "Starts on {{date, date}}"
+                    },
                     "transaction_plural": { "type": "string", "default": "Transactions" },
                     "twice_a_month": { "type": "string", "default": "Twice a month" },
                     "undo_cancel": { "type": "string", "default": "Review" },
@@ -392,6 +396,7 @@
                     "subscription_failed",
                     "subscription_inactive",
                     "subscription_will_be_cancelled",
+                    "subscription_will_be_active",
                     "transaction_plural",
                     "twice_a_month",
                     "undo_cancel",
@@ -444,6 +449,10 @@
                       "type": "string",
                       "default": "Ends on {{date, date}}"
                     },
+                    "subscription_will_be_active": {
+                      "type": "string",
+                      "default": "Starts on {{date, date}}"
+                    },
                     "transaction_summary": {
                       "type": "string",
                       "default": "{{most_expensive_item.name}}"
@@ -477,6 +486,7 @@
                     "subscription_inactive",
                     "subscription_plural",
                     "subscription_will_be_cancelled",
+                    "subscription_will_be_active",
                     "transaction_summary",
                     "twice_a_month",
                     "weekly",
