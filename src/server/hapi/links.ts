@@ -512,4 +512,8 @@ export const links: Links = {
     'fx:coupon': { href: `./coupons/${coupon_id}` },
     'fx:coupon_code': { href: `./coupon_codes/${coupon_code_id}` },
   }),
+
+  native_integrations: ({ store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+  }),
 };

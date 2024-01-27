@@ -61,6 +61,7 @@ export { ItemForm } from './ItemForm/ItemForm';
 export { ItemOptionCard } from './ItemOptionCard/ItemOptionCard';
 export { ItemOptionForm } from './ItemOptionForm/ItemOptionForm';
 export { ItemsForm, Item } from './ItemsForm/ItemsForm';
+export { NativeIntegrationCard } from './NativeIntegrationCard/NativeIntegrationCard';
 export { NucleonElement } from './NucleonElement/NucleonElement';
 export { Pagination } from './Pagination/Pagination';
 export { PasskeyCard } from './PasskeyCard/PasskeyCard';

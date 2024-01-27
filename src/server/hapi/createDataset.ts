@@ -1799,4 +1799,25 @@ export const createDataset: () => Dataset = () => ({
       date_modified: '2015-04-27T13:42:55-0700',
     },
   ],
+
+  native_integrations: [
+    {
+      id: 0,
+      store_id: 0,
+      provider: 'avalara',
+      config:
+        '{"service_url":"https://development.avalara.net/","id":"12345678","key":"ASDFJASDFKJASDFKJ","company_code":"CompanyCode","use_ava_tax":true,"create_invoice":true,"use_address_validation":false,"address_validation_countries":[],"category_to_product_tax_code_mappings":{"1005":"PS081258","955":"qweasz2","956":"","2425":""}}',
+      date_created: '2016-03-24T11:02:40-0700',
+      date_modified: '2016-03-31T12:15:41-0700',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      provider: 'webhook',
+      config:
+        '{"service":"json","encryption_key":"1T6478TKJ9S5BHB73K0NTGDZ824X3HZ2","title":"My JSON Webhook","version":1,"url":"https:\\/\\/www.example.com\\/webhook.php","events":["transaction\\/created"]}',
+      date_created: '2018-01-01T04:30:53-0700',
+      date_modified: '2018-01-01T04:30:53-0700',
+    },
+  ],
 });

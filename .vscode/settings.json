@@ -221,6 +221,10 @@
       "url": "./src/static/schemas/items-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/native-integration-card/*.json"],
+      "url": "./src/static/schemas/native-integration-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/pagination/*.json"],
       "url": "./src/static/schemas/pagination.json"
     },

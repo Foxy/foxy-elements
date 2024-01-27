@@ -1020,4 +1020,13 @@ export const defaults: Defaults = {
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),
   }),
+
+  native_integrations: (query, dataset) => ({
+    id: increment('native_integrations', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    provider: '',
+    config: '',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
 };
