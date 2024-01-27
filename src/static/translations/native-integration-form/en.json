@@ -1,0 +1,262 @@
+{
+  "error": {
+    "already_configured": "This integration is already configured. Please edit the existing integration instead."
+  },
+  "provider": {
+    "label": "Provider",
+    "option_avalara": "Avalara",
+    "option_taxjar": "TaxJar",
+    "option_onesource": "ONESOURCE",
+    "option_webflow": "Webflow",
+    "option_zapier": "Zapier",
+    "helper_text": "Changing service provider is not possible after creation.",
+    "v8n_required": "Please select a provider."
+  },
+  "avalara-service-url": {
+    "label": "Service URL",
+    "placeholder": "Required",
+    "helper_text": "If in test mode, it should be https://development.avalara.net. If in production, it should be https://avatax.avalara.net unless a different Service URL has been provided to you by Avalara.",
+    "v8n_required": "Please enter a service URL.",
+    "v8n_invalid": "Please enter a valid URL."
+  },
+  "avalara-id": {
+    "label": "Account number",
+    "placeholder": "Required",
+    "helper_text": "Be sure to use either a development or production value based on your Service URL.",
+    "v8n_required": "Please enter an account number."
+  },
+  "avalara-key": {
+    "label": "License key",
+    "placeholder": "Required",
+    "helper_text": "Be sure to use either a development or production value based on your Service URL.",
+    "v8n_required": "Please enter a license key."
+  },
+  "avalara-company-code": {
+    "label": "Company code",
+    "placeholder": "Required",
+    "helper_text": "Be sure to use either a development or production value based on your Service URL.",
+    "v8n_required": "Please enter a company code."
+  },
+  "avalara-options": {
+    "label": "Options",
+    "option_use_ava_tax": "Use for live taxes",
+    "option_enable_colorado_delivery_fee": "Enable Colorado Delivery Fee",
+    "option_create_invoice": "Enable Committed Sales Invoice",
+    "option_use_address_validation": "Validate customer addresses",
+    "helper_text": ""
+  },
+  "avalara-address-validation-countries": {
+    "label": "Address validation countries",
+    "option_US": "United States",
+    "option_CA": "Canada",
+    "helper_text": ""
+  },
+  "avalara-category-to-product-tax-code-mappings": {
+    "label": "Category to product tax code mappings",
+    "helper_text": "Replace Foxy category codes with AvaTax tax codes when sending data to Avalara. If left empty, the category code will be sent to AvaTax instead.",
+    "placeholder": "foxy_category_code:avatax_tax_code"
+  },
+  "taxjar-api-token": {
+    "label": "API token",
+    "placeholder": "Required",
+    "helper_text": "Your SmartCalcs API token obtained from TaxJar.",
+    "v8n_required": "Please enter an API token."
+  },
+  "taxjar-category-to-product-tax-code-mappings": {
+    "label": "Category to product tax code mappings",
+    "helper_text": "Replace Foxy category codes with TaxJar tax codes when sending data to TaxJar. If left empty, the category code will be sent to TaxJar instead.",
+    "placeholder": "foxy_category_code:taxjar_tax_code"
+  },
+  "taxjar-options": {
+    "label": "Options",
+    "option_create_invoice": "Enable Committed Sales Invoice",
+    "helper_text": ""
+  },
+  "onesource-service-url": {
+    "label": "Service URL",
+    "placeholder": "Required",
+    "helper_text": "The ONESOURCE service URL you want to connect to.",
+    "v8n_required": "Please enter a service URL.",
+    "v8n_invalid": "Please enter a valid URL."
+  },
+  "onesource-external-company-id": {
+    "label": "External company ID",
+    "placeholder": "Required",
+    "helper_text": "External company ID mapping to the Determination company owning the audit data.",
+    "v8n_required": "Please enter an external company ID."
+  },
+  "onesource-calling-system-number": {
+    "label": "Calling system number",
+    "placeholder": "Required",
+    "helper_text": "A unique identifier for your ERP system. The combination of Calling System Number, Host System, and Unique Invoice Number form a unique key for an invoice in the Audit Database.",
+    "v8n_required": "Please enter a calling system number."
+  },
+  "onesource-from-city": {
+    "label": "From city",
+    "placeholder": "Required",
+    "helper_text": "This city should match the postal code and country you have configured in your settings.",
+    "v8n_required": "Please enter a city."
+  },
+  "onesource-host-system": {
+    "label": "Host system",
+    "placeholder": "Required",
+    "helper_text": "A unique name for your ERP system. The combination of Calling System Number, Host System, and Unique Invoice Number form a unique key for an invoice in the Audit Database.",
+    "v8n_required": "Please enter a host system."
+  },
+  "onesource-company-role": {
+    "label": "Company role",
+    "option_buyer": "Buyer",
+    "option_seller": "Seller",
+    "option_middleman": "Middleman",
+    "helper_text": "The role the company plays in a given transaction. Each role results in different transaction tax and reporting requirements."
+  },
+  "onesource-part-number-product-option": {
+    "label": "Custom product option name",
+    "placeholder": "Optional",
+    "helper_text": "If you use a custom product option name to specify your part number such as SKU or ISBN, enter that name here here. You can also set it to \"code\" to use the standard product code attribute."
+  },
+  "onesource-product-order-priority": {
+    "label": "Custom product order",
+    "placeholder": "Optional",
+    "helper_text": "The PRODUCT_CODE field in ONESOURCE is populated via the Foxy category code. The first shippable product will have the RELATED_LINE_NUMBER associated with it. To control which product is listed first, add a list of Foxy category codes here based on the order priority you'd like."
+  },
+  "onesource-audit-settings": {
+    "label": "Audit",
+    "option_capture_only": "On capture",
+    "option_auth_and_capture": "On auth and capture",
+    "option_never": "Never",
+    "helper_text": "When completing a transaction, use this setting to determine if the information sent to Onesource will be audited and reported."
+  },
+  "webhook-service": {
+    "label": "Payload format",
+    "option_json": "JSON",
+    "option_legacy_xml": "XML",
+    "helper_text": "Use JSON for new services. XML webhooks are deprecated and may be removed in the future."
+  },
+  "webhook-json-title": {
+    "label": "Provider",
+    "placeholder": "Required",
+    "helper_text": "A descriptive title that identies your custom service.",
+    "v8n_required": "Please enter a title."
+  },
+  "webhook-json-encryption-key": {
+    "label": "Encryption key",
+    "placeholder": "Required",
+    "helper_text": "This value is used as they key to encrypt the and verify the payload sent for the webhook.",
+    "v8n_required": "Please enter an encryption key."
+  },
+  "webhook-json-url": {
+    "label": "Webhook URL",
+    "placeholder": "Required",
+    "helper_text": "The absolute URL (beginning with https:// or http://) to which Foxy will send the webhook on selected events.",
+    "v8n_required": "Please enter a webhook URL.",
+    "v8n_invalid": "Please enter a valid URL."
+  },
+  "webhook-json-events": {
+    "label": "Events",
+    "option_transaction_created": "Transaction created",
+    "option_subscription_cancelled": "Subscription cancelled",
+    "helper_text": "Select at least one event that will trigger this webhook."
+  },
+  "webhook-warning": {
+    "warning_text": "We are winding down support for custom services that rely on legacy webhooks and XML datafeed. Please consider using the new JSON webhooks instead.",
+    "link_text": "Read the announcement"
+  },
+  "webhook-legacy-xml-title": {
+    "label": "Provider",
+    "placeholder": "Required",
+    "helper_text": "A descriptive title that identies your custom service.",
+    "v8n_required": "Please enter a title."
+  },
+  "webhook-legacy-xml-url": {
+    "label": "Webhook URL",
+    "placeholder": "Required",
+    "helper_text": "The absolute URL (beginning with https:// or http://) to which Foxy will send the webhook on selected events.",
+    "v8n_required": "Please enter a webhook URL.",
+    "v8n_invalid": "Please enter a valid URL."
+  },
+  "webhook-webflow-site-id": {
+    "label": "Site ID",
+    "placeholder": "Required",
+    "helper_text": "The Site ID of your Webflow site.",
+    "v8n_required": "Please enter a site ID."
+  },
+  "webhook-webflow-site-name": {
+    "label": "Site name",
+    "placeholder": "Required",
+    "helper_text": "The name of your Webflow site.",
+    "v8n_required": "Please enter a site name."
+  },
+  "webhook-webflow-collection-id": {
+    "label": "Collection ID",
+    "placeholder": "Required",
+    "helper_text": "The ID of the collection that products are stored in.",
+    "v8n_required": "Please enter a collection ID."
+  },
+  "webhook-webflow-collection-name": {
+    "label": "Collection name",
+    "placeholder": "Required",
+    "helper_text": "The name of your products collection.",
+    "v8n_required": "Please enter a collection name."
+  },
+  "webhook-webflow-sku-field-id": {
+    "label": "SKU field ID",
+    "placeholder": "Required",
+    "helper_text": "The ID of the code field in your products collection.",
+    "v8n_required": "Please enter a SKU field ID."
+  },
+  "webhook-webflow-sku-field-name": {
+    "label": "SKU field name",
+    "placeholder": "Required",
+    "helper_text": "The name of the code field in your products collection.",
+    "v8n_required": "Please enter a SKU field name."
+  },
+  "webhook-webflow-inventory-field-id": {
+    "label": "Inventory field ID",
+    "placeholder": "Required",
+    "helper_text": "The ID of the inventory field in your products collection.",
+    "v8n_required": "Please enter an inventory field ID."
+  },
+  "webhook-webflow-inventory-field-name": {
+    "label": "Inventory field name",
+    "placeholder": "Required",
+    "helper_text": "The name of the inventory field in your products collection.",
+    "v8n_required": "Please enter an inventory field name."
+  },
+  "webhook-webflow-auth": {
+    "label": "Token",
+    "placeholder": "Required",
+    "helper_text": "The OAuth2 authorization token for your Webflow site.",
+    "v8n_required": "Please enter an authorization token."
+  },
+  "webhook-zapier-event": {
+    "label": "Event",
+    "placeholder": "Defined by Zapier",
+    "helper_text": "The event this zap is subscribed to."
+  },
+  "webhook-zapier-url": {
+    "label": "URL",
+    "placeholder": "Defined by Zapier",
+    "helper_text": "The Zapier webhook subscription URL."
+  },
+  "webhook-zapier-warning": {
+    "warning_text": "Note: Zapier service types are read only and can not be created or modified in the Foxy Admin. Zapier webhooks need to be created from zapier.com"
+  },
+  "timestamps": {
+    "date_created": "Created on",
+    "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Please confirm that you want to delete this integration. This action cannot be undone."
+  },
+  "create": {
+    "create": "Create"
+  },
+  "spinner": {
+    "loading_busy": "Loading",
+    "loading_error": "Failed to load"
+  }
+}

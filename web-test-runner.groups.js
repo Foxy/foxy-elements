@@ -428,6 +428,14 @@ export const groups = [
     files: './src/elements/public/ItemsForm/**/*.test.ts',
   },
   {
+    name: 'foxy-native-integration-card',
+    files: './src/elements/public/NativeIntegrationCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-native-integration-form',
+    files: './src/elements/public/NativeIntegrationForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-nucleon-element',
     files: './src/elements/public/NucleonElement/**/*.test.ts',
   },

@@ -1,0 +1,626 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "error": {
+      "additionalProperties": false,
+      "properties": {
+        "already_configured": {
+          "type": "string",
+          "default": "This integration is already configured. Please edit the existing integration instead."
+        }
+      },
+      "required": ["already_configured"]
+    },
+    "provider": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Provider" },
+        "option_avalara": { "type": "string", "default": "Avalara" },
+        "option_taxjar": { "type": "string", "default": "TaxJar" },
+        "option_onesource": { "type": "string", "default": "ONESOURCE" },
+        "option_webflow": { "type": "string", "default": "Webflow" },
+        "option_zapier": { "type": "string", "default": "Zapier" },
+        "helper_text": {
+          "type": "string",
+          "default": "Changing service provider is not possible after creation."
+        },
+        "v8n_required": { "type": "string", "default": "Please select a provider." }
+      },
+      "required": [
+        "label",
+        "option_avalara",
+        "option_taxjar",
+        "option_onesource",
+        "option_webflow",
+        "option_zapier",
+        "helper_text",
+        "v8n_required"
+      ]
+    },
+    "avalara-service-url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Service URL" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "If in test mode, it should be https://development.avalara.net. If in production, it should be https://avatax.avalara.net unless a different Service URL has been provided to you by Avalara."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a service URL." },
+        "v8n_invalid": { "type": "string", "default": "Please enter a valid URL." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_invalid"]
+    },
+    "avalara-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Account number" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "Be sure to use either a development or production value based on your Service URL."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter an account number." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "avalara-key": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "License key" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "Be sure to use either a development or production value based on your Service URL."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a license key." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "avalara-company-code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Company code" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "Be sure to use either a development or production value based on your Service URL."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a company code." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "avalara-options": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Options" },
+        "option_use_ava_tax": { "type": "string", "default": "Use for live taxes" },
+        "option_enable_colorado_delivery_fee": {
+          "type": "string",
+          "default": "Enable Colorado Delivery Fee"
+        },
+        "option_create_invoice": { "type": "string", "default": "Enable Committed Sales Invoice" },
+        "option_use_address_validation": {
+          "type": "string",
+          "default": "Validate customer addresses"
+        },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": [
+        "label",
+        "option_use_ava_tax",
+        "option_enable_colorado_delivery_fee",
+        "option_create_invoice",
+        "option_use_address_validation",
+        "helper_text"
+      ]
+    },
+    "avalara-address-validation-countries": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Address validation countries" },
+        "option_US": { "type": "string", "default": "United States" },
+        "option_CA": { "type": "string", "default": "Canada" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "option_US", "option_CA", "helper_text"]
+    },
+    "avalara-category-to-product-tax-code-mappings": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Category to product tax code mappings" },
+        "helper_text": {
+          "type": "string",
+          "default": "Replace Foxy category codes with AvaTax tax codes when sending data to Avalara. If left empty, the category code will be sent to AvaTax instead."
+        },
+        "placeholder": { "type": "string", "default": "foxy_category_code:avatax_tax_code" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "taxjar-api-token": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "API token" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "Your SmartCalcs API token obtained from TaxJar."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter an API token." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "taxjar-category-to-product-tax-code-mappings": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Category to product tax code mappings" },
+        "helper_text": {
+          "type": "string",
+          "default": "Replace Foxy category codes with TaxJar tax codes when sending data to TaxJar. If left empty, the category code will be sent to TaxJar instead."
+        },
+        "placeholder": { "type": "string", "default": "foxy_category_code:taxjar_tax_code" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "taxjar-options": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Options" },
+        "option_create_invoice": { "type": "string", "default": "Enable Committed Sales Invoice" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": ["label", "option_create_invoice", "helper_text"]
+    },
+    "onesource-service-url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Service URL" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The ONESOURCE service URL you want to connect to."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a service URL." },
+        "v8n_invalid": { "type": "string", "default": "Please enter a valid URL." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_invalid"]
+    },
+    "onesource-external-company-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "External company ID" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "External company ID mapping to the Determination company owning the audit data."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter an external company ID." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "onesource-calling-system-number": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Calling system number" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "A unique identifier for your ERP system. The combination of Calling System Number, Host System, and Unique Invoice Number form a unique key for an invoice in the Audit Database."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a calling system number." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "onesource-from-city": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "From city" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "This city should match the postal code and country you have configured in your settings."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a city." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "onesource-host-system": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Host system" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "A unique name for your ERP system. The combination of Calling System Number, Host System, and Unique Invoice Number form a unique key for an invoice in the Audit Database."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a host system." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "onesource-company-role": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Company role" },
+        "option_buyer": { "type": "string", "default": "Buyer" },
+        "option_seller": { "type": "string", "default": "Seller" },
+        "option_middleman": { "type": "string", "default": "Middleman" },
+        "helper_text": {
+          "type": "string",
+          "default": "The role the company plays in a given transaction. Each role results in different transaction tax and reporting requirements."
+        }
+      },
+      "required": ["label", "option_buyer", "option_seller", "option_middleman", "helper_text"]
+    },
+    "onesource-part-number-product-option": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Custom product option name" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "If you use a custom product option name to specify your part number such as SKU or ISBN, enter that name here here. You can also set it to \"code\" to use the standard product code attribute."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "onesource-product-order-priority": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Custom product order" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "The PRODUCT_CODE field in ONESOURCE is populated via the Foxy category code. The first shippable product will have the RELATED_LINE_NUMBER associated with it. To control which product is listed first, add a list of Foxy category codes here based on the order priority you'd like."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "onesource-audit-settings": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Audit" },
+        "option_capture_only": { "type": "string", "default": "On capture" },
+        "option_auth_and_capture": { "type": "string", "default": "On auth and capture" },
+        "option_never": { "type": "string", "default": "Never" },
+        "helper_text": {
+          "type": "string",
+          "default": "When completing a transaction, use this setting to determine if the information sent to Onesource will be audited and reported."
+        }
+      },
+      "required": [
+        "label",
+        "option_capture_only",
+        "option_auth_and_capture",
+        "option_never",
+        "helper_text"
+      ]
+    },
+    "webhook-service": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Payload format" },
+        "option_json": { "type": "string", "default": "JSON" },
+        "option_legacy_xml": { "type": "string", "default": "XML" },
+        "helper_text": {
+          "type": "string",
+          "default": "Use JSON for new services. XML webhooks are deprecated and may be removed in the future."
+        }
+      },
+      "required": ["label", "option_json", "option_legacy_xml", "helper_text"]
+    },
+    "webhook-json-title": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Provider" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "A descriptive title that identies your custom service."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a title." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-json-encryption-key": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Encryption key" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "This value is used as they key to encrypt the and verify the payload sent for the webhook."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter an encryption key." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-json-url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Webhook URL" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The absolute URL (beginning with https:// or http://) to which Foxy will send the webhook on selected events."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a webhook URL." },
+        "v8n_invalid": { "type": "string", "default": "Please enter a valid URL." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_invalid"]
+    },
+    "webhook-json-events": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Events" },
+        "option_transaction_created": { "type": "string", "default": "Transaction created" },
+        "option_subscription_cancelled": { "type": "string", "default": "Subscription cancelled" },
+        "helper_text": {
+          "type": "string",
+          "default": "Select at least one event that will trigger this webhook."
+        }
+      },
+      "required": [
+        "label",
+        "option_transaction_created",
+        "option_subscription_cancelled",
+        "helper_text"
+      ]
+    },
+    "webhook-warning": {
+      "additionalProperties": false,
+      "properties": {
+        "warning_text": {
+          "type": "string",
+          "default": "We are winding down support for custom services that rely on legacy webhooks and XML datafeed. Please consider using the new JSON webhooks instead."
+        },
+        "link_text": { "type": "string", "default": "Read the announcement" }
+      },
+      "required": ["warning_text", "link_text"]
+    },
+    "webhook-legacy-xml-title": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Provider" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "A descriptive title that identies your custom service."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a title." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-legacy-xml-url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Webhook URL" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The absolute URL (beginning with https:// or http://) to which Foxy will send the webhook on selected events."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a webhook URL." },
+        "v8n_invalid": { "type": "string", "default": "Please enter a valid URL." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_invalid"]
+    },
+    "webhook-webflow-site-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Site ID" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "The Site ID of your Webflow site." },
+        "v8n_required": { "type": "string", "default": "Please enter a site ID." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-site-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Site name" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "The name of your Webflow site." },
+        "v8n_required": { "type": "string", "default": "Please enter a site name." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-collection-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Collection ID" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The ID of the collection that products are stored in."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a collection ID." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-collection-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Collection name" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "The name of your products collection." },
+        "v8n_required": { "type": "string", "default": "Please enter a collection name." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-sku-field-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "SKU field ID" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The ID of the code field in your products collection."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a SKU field ID." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-sku-field-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "SKU field name" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The name of the code field in your products collection."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a SKU field name." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-inventory-field-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Inventory field ID" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The ID of the inventory field in your products collection."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter an inventory field ID." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-inventory-field-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Inventory field name" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The name of the inventory field in your products collection."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter an inventory field name." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-webflow-auth": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Token" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The OAuth2 authorization token for your Webflow site."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter an authorization token." }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "webhook-zapier-event": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Event" },
+        "placeholder": { "type": "string", "default": "Defined by Zapier" },
+        "helper_text": { "type": "string", "default": "The event this zap is subscribed to." }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "webhook-zapier-url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "URL" },
+        "placeholder": { "type": "string", "default": "Defined by Zapier" },
+        "helper_text": { "type": "string", "default": "The Zapier webhook subscription URL." }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "webhook-zapier-warning": {
+      "additionalProperties": false,
+      "properties": {
+        "warning_text": {
+          "type": "string",
+          "default": "Note: Zapier service types are read only and can not be created or modified in the Foxy Admin. Zapier webhooks need to be created from zapier.com"
+        }
+      },
+      "required": ["warning_text"]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated on" },
+        "date": { "type": "string", "default": "{{value, date}}" }
+      },
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Please confirm that you want to delete this integration. This action cannot be undone."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
+    },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_error"]
+    }
+  },
+  "required": [
+    "error",
+    "provider",
+    "avalara-service-url",
+    "avalara-id",
+    "avalara-key",
+    "avalara-company-code",
+    "avalara-options",
+    "avalara-address-validation-countries",
+    "avalara-category-to-product-tax-code-mappings",
+    "taxjar-api-token",
+    "taxjar-category-to-product-tax-code-mappings",
+    "taxjar-options",
+    "onesource-service-url",
+    "onesource-external-company-id",
+    "onesource-calling-system-number",
+    "onesource-from-city",
+    "onesource-host-system",
+    "onesource-company-role",
+    "onesource-part-number-product-option",
+    "onesource-product-order-priority",
+    "onesource-audit-settings",
+    "webhook-service",
+    "webhook-json-title",
+    "webhook-json-encryption-key",
+    "webhook-json-url",
+    "webhook-json-events",
+    "webhook-warning",
+    "webhook-legacy-xml-title",
+    "webhook-legacy-xml-url",
+    "webhook-webflow-site-id",
+    "webhook-webflow-site-name",
+    "webhook-webflow-collection-id",
+    "webhook-webflow-collection-name",
+    "webhook-webflow-sku-field-id",
+    "webhook-webflow-sku-field-name",
+    "webhook-webflow-inventory-field-id",
+    "webhook-webflow-inventory-field-name",
+    "webhook-webflow-auth",
+    "webhook-zapier-event",
+    "webhook-zapier-url",
+    "webhook-zapier-warning",
+    "timestamps",
+    "delete",
+    "create",
+    "spinner"
+  ]
+}

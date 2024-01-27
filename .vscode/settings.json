@@ -225,6 +225,10 @@
       "url": "./src/static/schemas/native-integration-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/native-integration-form/*.json"],
+      "url": "./src/static/schemas/native-integration-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/pagination/*.json"],
       "url": "./src/static/schemas/pagination.json"
     },
