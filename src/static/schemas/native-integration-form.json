@@ -134,9 +134,10 @@
           "type": "string",
           "default": "Replace Foxy category codes with AvaTax tax codes when sending data to Avalara. If left empty, the category code will be sent to AvaTax instead."
         },
-        "placeholder": { "type": "string", "default": "foxy_category_code:avatax_tax_code" }
+        "placeholder": { "type": "string", "default": "foxy_category_code:avatax_tax_code" },
+        "v8n_required": { "type": "string", "default": "Please add at least one tax code mapping." }
       },
-      "required": ["label", "helper_text", "placeholder"]
+      "required": ["label", "helper_text", "placeholder", "v8n_required"]
     },
     "taxjar-api-token": {
       "additionalProperties": false,
@@ -405,7 +406,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_invalid"]
     },
-    "webhook-webflow-site-id": {
+    "webflow-site-id": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Site ID" },
@@ -415,7 +416,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-site-name": {
+    "webflow-site-name": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Site name" },
@@ -425,7 +426,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-collection-id": {
+    "webflow-collection-id": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Collection ID" },
@@ -438,7 +439,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-collection-name": {
+    "webflow-collection-name": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Collection name" },
@@ -448,7 +449,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-sku-field-id": {
+    "webflow-sku-field-id": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "SKU field ID" },
@@ -461,7 +462,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-sku-field-name": {
+    "webflow-sku-field-name": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "SKU field name" },
@@ -474,7 +475,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-inventory-field-id": {
+    "webflow-inventory-field-id": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Inventory field ID" },
@@ -487,7 +488,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-inventory-field-name": {
+    "webflow-inventory-field-name": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Inventory field name" },
@@ -500,7 +501,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-webflow-auth": {
+    "webflow-auth": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Token" },
@@ -513,7 +514,7 @@
       },
       "required": ["label", "placeholder", "helper_text", "v8n_required"]
     },
-    "webhook-zapier-event": {
+    "zapier-event": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Event" },
@@ -522,7 +523,7 @@
       },
       "required": ["label", "placeholder", "helper_text"]
     },
-    "webhook-zapier-url": {
+    "zapier-url": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "URL" },
@@ -531,7 +532,7 @@
       },
       "required": ["label", "placeholder", "helper_text"]
     },
-    "webhook-zapier-warning": {
+    "zapier-warning": {
       "additionalProperties": false,
       "properties": {
         "warning_text": {
@@ -606,18 +607,18 @@
     "webhook-warning",
     "webhook-legacy-xml-title",
     "webhook-legacy-xml-url",
-    "webhook-webflow-site-id",
-    "webhook-webflow-site-name",
-    "webhook-webflow-collection-id",
-    "webhook-webflow-collection-name",
-    "webhook-webflow-sku-field-id",
-    "webhook-webflow-sku-field-name",
-    "webhook-webflow-inventory-field-id",
-    "webhook-webflow-inventory-field-name",
-    "webhook-webflow-auth",
-    "webhook-zapier-event",
-    "webhook-zapier-url",
-    "webhook-zapier-warning",
+    "webflow-site-id",
+    "webflow-site-name",
+    "webflow-collection-id",
+    "webflow-collection-name",
+    "webflow-sku-field-id",
+    "webflow-sku-field-name",
+    "webflow-inventory-field-id",
+    "webflow-inventory-field-name",
+    "webflow-auth",
+    "zapier-event",
+    "zapier-url",
+    "zapier-warning",
     "timestamps",
     "delete",
     "create",

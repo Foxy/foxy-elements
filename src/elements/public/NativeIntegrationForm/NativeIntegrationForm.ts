@@ -78,28 +78,28 @@ const Base = TranslatableMixin(InternalForm, NS);
  * @slot webhook-legacy-xml-title:after
  * @slot webhook-legacy-xml-url:before
  * @slot webhook-legacy-xml-url:after
- * @slot webhook-webflow-site-id:before
- * @slot webhook-webflow-site-id:after
- * @slot webhook-webflow-site-name:before
- * @slot webhook-webflow-site-name:after
- * @slot webhook-webflow-collection-id:before
- * @slot webhook-webflow-collection-id:after
- * @slot webhook-webflow-collection-name:before
- * @slot webhook-webflow-collection-name:after
- * @slot webhook-webflow-sku-field-id:before
- * @slot webhook-webflow-sku-field-id:after
- * @slot webhook-webflow-sku-field-name:before
- * @slot webhook-webflow-sku-field-name:after
- * @slot webhook-webflow-inventory-field-id:before
- * @slot webhook-webflow-inventory-field-id:after
- * @slot webhook-webflow-inventory-field-name:before
- * @slot webhook-webflow-inventory-field-name:after
- * @slot webhook-webflow-auth:before
- * @slot webhook-webflow-auth:after
- * @slot webhook-zapier-event:before
- * @slot webhook-zapier-event:after
- * @slot webhook-zapier-url:before
- * @slot webhook-zapier-url:after
+ * @slot webflow-site-id:before
+ * @slot webflow-site-id:after
+ * @slot webflow-site-name:before
+ * @slot webflow-site-name:after
+ * @slot webflow-collection-id:before
+ * @slot webflow-collection-id:after
+ * @slot webflow-collection-name:before
+ * @slot webflow-collection-name:after
+ * @slot webflow-sku-field-id:before
+ * @slot webflow-sku-field-id:after
+ * @slot webflow-sku-field-name:before
+ * @slot webflow-sku-field-name:after
+ * @slot webflow-inventory-field-id:before
+ * @slot webflow-inventory-field-id:after
+ * @slot webflow-inventory-field-name:before
+ * @slot webflow-inventory-field-name:after
+ * @slot webflow-auth:before
+ * @slot webflow-auth:after
+ * @slot zapier-event:before
+ * @slot zapier-event:after
+ * @slot zapier-url:before
+ * @slot zapier-url:after
  *
  * @element foxy-native-integration-form
  * @since 1.25.0
@@ -129,6 +129,12 @@ export class NativeIntegrationForm extends Base<Data> {
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         return p !== 'avalara' || !!parse(c).company_code || 'avalara-company-code:v8n_required';
+      },
+      ({ provider: p = 'avalara', config: c = '{}' }) => {
+        if (p !== 'avalara') return true;
+        const mappings = parse(c).category_to_product_tax_code_mappings;
+        const err = 'avalara-category-to-product-tax-code-mappings:v8n_required';
+        return (mappings && Object.entries(mappings).length > 0) || err;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
         return p !== 'taxjar' || !!parse(c).api_token || 'taxjar-api-token:v8n_required';
@@ -179,49 +185,35 @@ export class NativeIntegrationForm extends Base<Data> {
         return p === 'webhook' && s === 'legacy_xml' && err ? `${prefix}:${err}` : true;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, site_id: v } = parse(c);
-        const err = 'webhook-webflow-site-id:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        return p !== 'webflow' || !!parse(c).site_id || 'webflow-site-id:v8n_required';
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, site_name: v } = parse(c);
-        const err = 'webhook-webflow-site-name:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        return p !== 'webflow' || !!parse(c).site_name || 'webflow-site-name:v8n_required';
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, collection_id: v } = parse(c);
-        const err = 'webhook-webflow-collection-id:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        return p !== 'webflow' || !!parse(c).collection_id || 'webflow-collection-id:v8n_required';
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, collection_name: v } = parse(c);
-        const err = 'webhook-webflow-collection-name:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        const err = 'webflow-collection-name:v8n_required';
+        return p !== 'webflow' || !!parse(c).collection_name || err;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, sku_field_id: v } = parse(c);
-        const err = 'webhook-webflow-sku-field-id:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        return p !== 'webflow' || !!parse(c).sku_field_id || 'webflow-sku-field-id:v8n_required';
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, sku_field_name: v } = parse(c);
-        const err = 'webhook-webflow-sku-field-name:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        const err = 'webflow-sku-field-name:v8n_required';
+        return p !== 'webflow' || !!parse(c).sku_field_name || err;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, inventory_field_id: v } = parse(c);
-        const err = 'webhook-webflow-inventory-field-id:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        const err = 'webflow-inventory-field-id:v8n_required';
+        return p !== 'webflow' || !!parse(c).inventory_field_id || err;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, inventory_field_name: v } = parse(c);
-        const err = 'webhook-webflow-inventory-field-name:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        const err = 'webflow-inventory-field-name:v8n_required';
+        return p !== 'webflow' || !!parse(c).inventory_field_name || err;
       },
       ({ provider: p = 'avalara', config: c = '{}' }) => {
-        const { service: s, auth: v } = parse(c);
-        const err = 'webhook-webflow-auth:v8n_required';
-        return p !== 'webhook' || s !== 'webflow' || !!v || err;
+        return p !== 'webflow' || !!parse(c).auth || 'webflow-auth:v8n_required';
       },
     ];
   }
@@ -330,7 +322,7 @@ export class NativeIntegrationForm extends Base<Data> {
 
   private readonly __onesourceProductOrderPriorityGetValue = () => {
     const value = this.__config?.product_order_priority.split(',') ?? [];
-    return value.map((code: string) => ({ value: code }));
+    return value.filter((v: string) => !!v).map((v: string) => ({ value: v }));
   };
 
   private readonly __onesourceProductOrderPrioritySetValue = (value: Item[]) => {
@@ -355,12 +347,12 @@ export class NativeIntegrationForm extends Base<Data> {
 
   get readonlySelector() {
     const match = [super.readonlySelector.toString()];
-    if (this.href) match.push('provider', 'webhook-zapier-event', 'webhook-zapier-url');
+    if (this.href) match.push('provider', 'zapier-event', 'zapier-url');
     return new BooleanSelector(match.join(' ').trim());
   }
 
   renderBody(): TemplateResult {
-    const provider = this.__providerGetValue();
+    const provider = this.form.provider ?? 'avalara';
 
     return html`
       ${this.href
@@ -383,6 +375,10 @@ export class NativeIntegrationForm extends Base<Data> {
         ? this.__renderTaxJarConfig()
         : provider === 'onesource'
         ? this.__renderOneSourceConfig()
+        : provider === 'webflow'
+        ? this.__renderWebflowConfig()
+        : provider === 'zapier'
+        ? this.__renderZapierConfig()
         : provider === 'webhook'
         ? this.__renderWebhookConfig()
         : ''}
@@ -420,22 +416,21 @@ export class NativeIntegrationForm extends Base<Data> {
 
   private set __config(value: any) {
     const config = this.__config;
-    const provider = this.form.provider;
+    const provider = this.form.provider ?? 'avalara';
     const defaultConfig = (() => {
+      if (provider === 'avalara') return defaults.avalara;
       if (provider === 'taxjar') return defaults.taxjar;
       if (provider === 'onesource') return defaults.onesource;
+      if (provider === 'webflow') return defaults.webflow;
+      if (provider === 'zapier') return defaults.zapier;
       if (provider === 'webhook') {
         if (config?.service === 'legacy_xml') return defaults.webhookLegacyXml;
-        if (config?.service === 'webflow') return defaults.webhookWebflow;
-        if (config?.service === 'zapier') return defaults.webhookZapier;
-
         return defaults.webhookJson;
       }
-
-      return defaults.avalara;
     })();
 
-    this.edit({ config: JSON.stringify({ ...defaultConfig, ...config, ...value }) });
+    const newConfig = JSON.stringify({ ...defaultConfig, ...config, ...value });
+    this.edit({ provider, config: newConfig });
   }
 
   private __renderAvalaraConfig() {
@@ -594,35 +589,28 @@ export class NativeIntegrationForm extends Base<Data> {
 
   private __renderWebhookConfig() {
     return html`
-      ${this.__config?.service === 'json' || this.__config?.service === 'legacy_xml'
-        ? html`
-            <p
-              style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
-              class="rounded bg-error-10 text-error font-medium"
-            >
-              <foxy-i18n infer="webhook-warning" key="warning_text"></foxy-i18n>
-              <br />
-              <br />
-              <a
-                target="_blank"
-                class="text-body rounded hover-underline hover-cursor-pointer focus-outline-none focus-ring-2 focus-ring-error-50"
-                lang="en"
-                rel="noopener"
-                href="https://www.foxy.io/blog/new-feature-json-webhook/"
-              >
-                <foxy-i18n infer="webhook-warning" key="link_text"></foxy-i18n>
-              </a>
-            </p>
-          `
-        : ''}
+      <p
+        style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+        class="rounded bg-error-10 text-error font-medium"
+      >
+        <foxy-i18n infer="webhook-warning" key="warning_text"></foxy-i18n>
+        <br />
+        <br />
+        <a
+          target="_blank"
+          class="text-body rounded hover-underline hover-cursor-pointer focus-outline-none focus-ring-2 focus-ring-error-50"
+          lang="en"
+          rel="noopener"
+          href="https://www.foxy.io/blog/new-feature-json-webhook/"
+        >
+          <foxy-i18n infer="webhook-warning" key="link_text"></foxy-i18n>
+        </a>
+      </p>
+
       ${this.__config?.service === 'json'
         ? this.__renderWebhookJsonConfig()
         : this.__config?.service === 'legacy_xml'
         ? this.__renderWebhookLegacyXmlConfig()
-        : this.__config?.service === 'webflow'
-        ? this.__renderWebhookWebflowConfig()
-        : this.__config?.service === 'zapier'
-        ? this.__renderWebhookZapierConfig()
         : ''}
     `;
   }
@@ -694,60 +682,60 @@ export class NativeIntegrationForm extends Base<Data> {
     `;
   }
 
-  private __renderWebhookWebflowConfig() {
+  private __renderWebflowConfig() {
     return html`
       <div class="grid grid-cols-2 gap-m">
         <foxy-internal-text-control
-          infer="webhook-webflow-site-id"
+          infer="webflow-site-id"
           .getValue=${this.__createConfigGetterFor('site_id')}
           .setValue=${this.__createConfigSetterFor('site_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
-          infer="webhook-webflow-site-name"
+          infer="webflow-site-name"
           .getValue=${this.__createConfigGetterFor('site_name')}
           .setValue=${this.__createConfigSetterFor('site_name')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
-          infer="webhook-webflow-collection-id"
+          infer="webflow-collection-id"
           .getValue=${this.__createConfigGetterFor('collection_id')}
           .setValue=${this.__createConfigSetterFor('collection_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
-          infer="webhook-webflow-collection-name"
+          infer="webflow-collection-name"
           .getValue=${this.__createConfigGetterFor('collection_name')}
           .setValue=${this.__createConfigSetterFor('collection_name')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
-          infer="webhook-webflow-sku-field-id"
+          infer="webflow-sku-field-id"
           .getValue=${this.__createConfigGetterFor('sku_field_id')}
           .setValue=${this.__createConfigSetterFor('sku_field_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
-          infer="webhook-webflow-sku-field-name"
+          infer="webflow-sku-field-name"
           .getValue=${this.__createConfigGetterFor('sku_field_name')}
           .setValue=${this.__createConfigSetterFor('sku_field_name')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
-          infer="webhook-webflow-inventory-field-id"
+          infer="webflow-inventory-field-id"
           .getValue=${this.__createConfigGetterFor('inventory_field_id')}
           .setValue=${this.__createConfigSetterFor('inventory_field_id')}
         >
         </foxy-internal-text-control>
 
         <foxy-internal-text-control
-          infer="webhook-webflow-inventory-field-name"
+          infer="webflow-inventory-field-name"
           .getValue=${this.__createConfigGetterFor('inventory_field_name')}
           .setValue=${this.__createConfigSetterFor('inventory_field_name')}
         >
@@ -755,7 +743,7 @@ export class NativeIntegrationForm extends Base<Data> {
       </div>
 
       <foxy-internal-password-control
-        infer="webhook-webflow-auth"
+        infer="webflow-auth"
         .getValue=${this.__createConfigGetterFor('auth')}
         .setValue=${this.__createConfigSetterFor('auth')}
       >
@@ -763,24 +751,24 @@ export class NativeIntegrationForm extends Base<Data> {
     `;
   }
 
-  private __renderWebhookZapierConfig() {
+  private __renderZapierConfig() {
     return html`
       <foxy-internal-text-control
-        infer="webhook-zapier-event"
+        infer="zapier-event"
         .getValue=${this.__createConfigGetterFor('event')}
         .setValue=${this.__createConfigSetterFor('event')}
       >
       </foxy-internal-text-control>
 
       <foxy-internal-text-area-control
-        infer="webhook-zapier-url"
+        infer="zapier-url"
         .getValue=${this.__createConfigGetterFor('url')}
         .setValue=${this.__createConfigSetterFor('url')}
       >
       </foxy-internal-text-area-control>
 
       <p class="text-xs text-secondary leading-xs">
-        <foxy-i18n infer="webhook-zapier-warning" key="warning_text"></foxy-i18n>
+        <foxy-i18n infer="zapier-warning" key="warning_text"></foxy-i18n>
       </p>
     `;
   }

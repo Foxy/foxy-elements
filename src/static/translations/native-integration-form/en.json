@@ -54,7 +54,8 @@
   "avalara-category-to-product-tax-code-mappings": {
     "label": "Category to product tax code mappings",
     "helper_text": "Replace Foxy category codes with AvaTax tax codes when sending data to Avalara. If left empty, the category code will be sent to AvaTax instead.",
-    "placeholder": "foxy_category_code:avatax_tax_code"
+    "placeholder": "foxy_category_code:avatax_tax_code",
+    "v8n_required": "Please add at least one tax code mapping."
   },
   "taxjar-api-token": {
     "label": "API token",
@@ -175,71 +176,71 @@
     "v8n_required": "Please enter a webhook URL.",
     "v8n_invalid": "Please enter a valid URL."
   },
-  "webhook-webflow-site-id": {
+  "webflow-site-id": {
     "label": "Site ID",
     "placeholder": "Required",
     "helper_text": "The Site ID of your Webflow site.",
     "v8n_required": "Please enter a site ID."
   },
-  "webhook-webflow-site-name": {
+  "webflow-site-name": {
     "label": "Site name",
     "placeholder": "Required",
     "helper_text": "The name of your Webflow site.",
     "v8n_required": "Please enter a site name."
   },
-  "webhook-webflow-collection-id": {
+  "webflow-collection-id": {
     "label": "Collection ID",
     "placeholder": "Required",
     "helper_text": "The ID of the collection that products are stored in.",
     "v8n_required": "Please enter a collection ID."
   },
-  "webhook-webflow-collection-name": {
+  "webflow-collection-name": {
     "label": "Collection name",
     "placeholder": "Required",
     "helper_text": "The name of your products collection.",
     "v8n_required": "Please enter a collection name."
   },
-  "webhook-webflow-sku-field-id": {
+  "webflow-sku-field-id": {
     "label": "SKU field ID",
     "placeholder": "Required",
     "helper_text": "The ID of the code field in your products collection.",
     "v8n_required": "Please enter a SKU field ID."
   },
-  "webhook-webflow-sku-field-name": {
+  "webflow-sku-field-name": {
     "label": "SKU field name",
     "placeholder": "Required",
     "helper_text": "The name of the code field in your products collection.",
     "v8n_required": "Please enter a SKU field name."
   },
-  "webhook-webflow-inventory-field-id": {
+  "webflow-inventory-field-id": {
     "label": "Inventory field ID",
     "placeholder": "Required",
     "helper_text": "The ID of the inventory field in your products collection.",
     "v8n_required": "Please enter an inventory field ID."
   },
-  "webhook-webflow-inventory-field-name": {
+  "webflow-inventory-field-name": {
     "label": "Inventory field name",
     "placeholder": "Required",
     "helper_text": "The name of the inventory field in your products collection.",
     "v8n_required": "Please enter an inventory field name."
   },
-  "webhook-webflow-auth": {
+  "webflow-auth": {
     "label": "Token",
     "placeholder": "Required",
     "helper_text": "The OAuth2 authorization token for your Webflow site.",
     "v8n_required": "Please enter an authorization token."
   },
-  "webhook-zapier-event": {
+  "zapier-event": {
     "label": "Event",
     "placeholder": "Defined by Zapier",
     "helper_text": "The event this zap is subscribed to."
   },
-  "webhook-zapier-url": {
+  "zapier-url": {
     "label": "URL",
     "placeholder": "Defined by Zapier",
     "helper_text": "The Zapier webhook subscription URL."
   },
-  "webhook-zapier-warning": {
+  "zapier-warning": {
     "warning_text": "Note: Zapier service types are read only and can not be created or modified in the Foxy Admin. Zapier webhooks need to be created from zapier.com"
   },
   "timestamps": {

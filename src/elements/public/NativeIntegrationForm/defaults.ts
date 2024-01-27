@@ -6,27 +6,6 @@ export const webhookLegacyXml = {
   url: '',
 };
 
-export const webhookWebflow = {
-  inventory_field_name: '',
-  inventory_field_id: '',
-  collection_name: '',
-  sku_field_name: '',
-  collection_id: '',
-  sku_field_id: '',
-  site_name: '',
-  service: 'webflow',
-  version: 1,
-  site_id: '',
-  events: ['transaction/created'],
-  auth: '',
-};
-
-export const webhookZapier = {
-  service: 'zapier',
-  event: '',
-  url: '',
-};
-
 export const webhookJson = {
   encryption_key: '',
   service: 'json',
@@ -59,6 +38,27 @@ export const avalara = {
   use_ava_tax: false,
   key: '',
   id: '',
+};
+
+export const webflow = {
+  inventory_field_name: '',
+  inventory_field_id: '',
+  collection_name: '',
+  sku_field_name: '',
+  collection_id: '',
+  sku_field_id: '',
+  site_name: '',
+  service: 'webflow',
+  version: 1,
+  site_id: '',
+  events: ['transaction/created'],
+  auth: '',
+};
+
+export const zapier = {
+  service: 'zapier',
+  event: '',
+  url: '',
 };
 
 export const taxjar = {

@@ -101,6 +101,15 @@ describe('NativeIntegrationForm', () => {
     expect(element.errors).to.not.include('avalara-company-code:v8n_required');
   });
 
+  it('produces avalara-category-to-product-tax-code-mappings:v8n_required error if there are no mappings for avalara', () => {
+    const element = new Form();
+    const error = 'avalara-category-to-product-tax-code-mappings:v8n_required';
+    element.edit({ provider: 'avalara' });
+    expect(element.errors).to.include(error);
+    element.edit({ config: JSON.stringify({ category_to_product_tax_code_mappings: { a: 'b' } }) });
+    expect(element.errors).to.not.include(error);
+  });
+
   it('produces taxjar-api-token:v8n_required error if api token for taxjar is missing', () => {
     const element = new Form();
     element.edit({ provider: 'taxjar' });
@@ -211,79 +220,79 @@ describe('NativeIntegrationForm', () => {
     expect(element.errors).to.not.include('webhook-legacy-xml-url:v8n_invalid');
   });
 
-  it('produces webhook-webflow-site-id:v8n_required error if site id for webflow webhook is missing', () => {
+  it('produces webflow-site-id:v8n_required error if site id for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-site-id:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-site-id:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', site_id: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-site-id:v8n_required');
+    expect(element.errors).to.not.include('webflow-site-id:v8n_required');
   });
 
-  it('produces webhook-webflow-site-name:v8n_required error if site name for webflow webhook is missing', () => {
+  it('produces webflow-site-name:v8n_required error if site name for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-site-name:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-site-name:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', site_name: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-site-name:v8n_required');
+    expect(element.errors).to.not.include('webflow-site-name:v8n_required');
   });
 
-  it('produces webhook-webflow-collection-id:v8n_required error if collection id for webflow webhook is missing', () => {
+  it('produces webflow-collection-id:v8n_required error if collection id for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-collection-id:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-collection-id:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', collection_id: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-collection-id:v8n_required');
+    expect(element.errors).to.not.include('webflow-collection-id:v8n_required');
   });
 
-  it('produces webhook-webflow-collection-name:v8n_required error if collection name for webflow webhook is missing', () => {
+  it('produces webflow-collection-name:v8n_required error if collection name for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-collection-name:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-collection-name:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', collection_name: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-collection-name:v8n_required');
+    expect(element.errors).to.not.include('webflow-collection-name:v8n_required');
   });
 
-  it('produces webhook-webflow-sku-field-id:v8n_required error if sku field id for webflow webhook is missing', () => {
+  it('produces webflow-sku-field-id:v8n_required error if sku field id for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-sku-field-id:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-sku-field-id:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', sku_field_id: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-sku-field-id:v8n_required');
+    expect(element.errors).to.not.include('webflow-sku-field-id:v8n_required');
   });
 
-  it('produces webhook-webflow-sku-field-name:v8n_required error if sku field name for webflow webhook is missing', () => {
+  it('produces webflow-sku-field-name:v8n_required error if sku field name for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-sku-field-name:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-sku-field-name:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', sku_field_name: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-sku-field-name:v8n_required');
+    expect(element.errors).to.not.include('webflow-sku-field-name:v8n_required');
   });
 
-  it('produces webhook-webflow-inventory-field-id:v8n_required error if inventory field id for webflow webhook is missing', () => {
+  it('produces webflow-inventory-field-id:v8n_required error if inventory field id for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-inventory-field-id:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-inventory-field-id:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', inventory_field_id: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-inventory-field-id:v8n_required');
+    expect(element.errors).to.not.include('webflow-inventory-field-id:v8n_required');
   });
 
-  it('produces webhook-webflow-inventory-field-name:v8n_required error if inventory field name for webflow webhook is missing', () => {
+  it('produces webflow-inventory-field-name:v8n_required error if inventory field name for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-inventory-field-name:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-inventory-field-name:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', inventory_field_name: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-inventory-field-name:v8n_required');
+    expect(element.errors).to.not.include('webflow-inventory-field-name:v8n_required');
   });
 
-  it('produces webhook-webflow-auth:v8n_required error if auth token for webflow webhook is missing', () => {
+  it('produces webflow-auth:v8n_required error if auth token for webflow is missing', () => {
     const element = new Form();
-    element.edit({ provider: 'webhook', config: JSON.stringify({ service: 'webflow' }) });
-    expect(element.errors).to.include('webhook-webflow-auth:v8n_required');
+    element.edit({ provider: 'webflow', config: JSON.stringify({ service: 'webflow' }) });
+    expect(element.errors).to.include('webflow-auth:v8n_required');
     element.edit({ config: JSON.stringify({ service: 'webflow', auth: 'abc' }) });
-    expect(element.errors).to.not.include('webhook-webflow-auth:v8n_required');
+    expect(element.errors).to.not.include('webflow-auth:v8n_required');
   });
 
-  it('makes provider, webhook-zapier-event and webhook-zapier-url controls readonly when href is defined', () => {
+  it('makes provider, zapier-event and zapier-url controls readonly when href is defined', () => {
     const element = new Form();
 
     element.addEventListener('fetch', (evt: Event) => {
@@ -293,14 +302,14 @@ describe('NativeIntegrationForm', () => {
     });
 
     expect(element.readonlySelector.matches('provider', true)).to.be.false;
-    expect(element.readonlySelector.matches('webhook-zapier-event', true)).to.be.false;
-    expect(element.readonlySelector.matches('webhook-zapier-url', true)).to.be.false;
+    expect(element.readonlySelector.matches('zapier-event', true)).to.be.false;
+    expect(element.readonlySelector.matches('zapier-url', true)).to.be.false;
 
     element.href = 'https://demo.api/hapi/native_integrations/0';
 
     expect(element.readonlySelector.matches('provider', true)).to.be.true;
-    expect(element.readonlySelector.matches('webhook-zapier-event', true)).to.be.true;
-    expect(element.readonlySelector.matches('webhook-zapier-url', true)).to.be.true;
+    expect(element.readonlySelector.matches('zapier-event', true)).to.be.true;
+    expect(element.readonlySelector.matches('zapier-url', true)).to.be.true;
   });
 
   it('produces error:already_configured when trying to add another config for an already configured integration', async () => {
@@ -1051,17 +1060,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('service', 'json');
   });
 
-  it('renders a text control for webflow webhook site id', async () => {
+  it('renders a text control for webflow site id', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, site_id: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, site_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-site-id"]'
+      '[infer="webflow-site-id"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1072,17 +1081,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('site_id', 'def');
   });
 
-  it('renders a text control for webflow webhook site name', async () => {
+  it('renders a text control for webflow site name', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, site_name: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, site_name: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-site-name"]'
+      '[infer="webflow-site-name"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1093,17 +1102,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('site_name', 'def');
   });
 
-  it('renders a text control for webflow webhook collection id', async () => {
+  it('renders a text control for webflow collection id', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, collection_id: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, collection_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-collection-id"]'
+      '[infer="webflow-collection-id"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1114,17 +1123,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('collection_id', 'def');
   });
 
-  it('renders a text control for webflow webhook collection name', async () => {
+  it('renders a text control for webflow collection name', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, collection_name: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, collection_name: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-collection-name"]'
+      '[infer="webflow-collection-name"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1135,17 +1144,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('collection_name', 'def');
   });
 
-  it('renders a text control for webflow webhook sku field id', async () => {
+  it('renders a text control for webflow sku field id', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, sku_field_id: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, sku_field_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-sku-field-id"]'
+      '[infer="webflow-sku-field-id"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1156,17 +1165,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('sku_field_id', 'def');
   });
 
-  it('renders a text control for webflow webhook sku field name', async () => {
+  it('renders a text control for webflow sku field name', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, sku_field_name: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, sku_field_name: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-sku-field-name"]'
+      '[infer="webflow-sku-field-name"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1177,16 +1186,16 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('sku_field_name', 'def');
   });
 
-  it('renders a text control for webflow webhook inventory field id', async () => {
+  it('renders a text control for webflow inventory field id', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, inventory_field_id: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, inventory_field_id: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-inventory-field-id"]'
+      '[infer="webflow-inventory-field-id"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1198,17 +1207,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('inventory_field_id', 'def');
   });
 
-  it('renders a text control for webflow webhook inventory field name', async () => {
+  it('renders a text control for webflow inventory field name', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, inventory_field_name: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, inventory_field_name: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-inventory-field-name"]'
+      '[infer="webflow-inventory-field-name"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
@@ -1220,17 +1229,17 @@ describe('NativeIntegrationForm', () => {
     expect(config).to.have.property('inventory_field_name', 'def');
   });
 
-  it('renders a password control for webflow webhook auth', async () => {
+  it('renders a password control for webflow auth', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookWebflow, auth: 'abc' });
+    data.provider = 'webflow';
+    data.config = JSON.stringify({ ...defaults.webflow, auth: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-webflow-auth"]'
+      '[infer="webflow-auth"]'
     ) as InternalPasswordControl;
 
     expect(control).to.be.instanceOf(InternalPasswordControl);
@@ -1242,47 +1251,44 @@ describe('NativeIntegrationForm', () => {
     expect(newConfig).to.have.property('auth', 'def');
   });
 
-  it('renders a readonly text control for zapier webhook event', async () => {
+  it('renders a readonly text control for zapier event', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookZapier, event: 'abc' });
+    data.provider = 'zapier';
+    data.config = JSON.stringify({ ...defaults.zapier, event: 'abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-zapier-event"]'
+      '[infer="zapier-event"]'
     ) as InternalTextControl;
 
     expect(control).to.be.instanceOf(InternalTextControl);
     expect(control.getValue()).to.equal('abc');
   });
 
-  it('renders a readonly text area control for zapier webhook url', async () => {
+  it('renders a readonly text area control for zapier url', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify({
-      ...defaults.webhookZapier,
-      url: 'https://hooks.zapier.com/abc',
-    });
+    data.provider = 'zapier';
+    data.config = JSON.stringify({ ...defaults.zapier, url: 'https://hooks.zapier.com/abc' });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="webhook-zapier-url"]'
+      '[infer="zapier-url"]'
     ) as InternalTextAreaControl;
 
     expect(control).to.be.instanceOf(InternalTextAreaControl);
     expect(control.getValue()).to.equal('https://hooks.zapier.com/abc');
   });
 
-  it('renders a readonly content warning for zapier webhook', async () => {
+  it('renders a readonly content warning for zapier', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
-    data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookZapier);
+    data.provider = 'zapier';
+    data.config = JSON.stringify(defaults.zapier);
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
@@ -1290,6 +1296,6 @@ describe('NativeIntegrationForm', () => {
 
     const warning = element.renderRoot.querySelector('[key="warning_text"]');
     expect(warning).to.be.instanceOf(I18n);
-    expect(warning).to.have.attribute('infer', 'webhook-zapier-warning');
+    expect(warning).to.have.attribute('infer', 'zapier-warning');
   });
 });

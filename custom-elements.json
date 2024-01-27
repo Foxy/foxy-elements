@@ -17640,70 +17640,70 @@
           "name": "webhook-legacy-xml-url:after"
         },
         {
-          "name": "webhook-webflow-site-id:before"
+          "name": "webflow-site-id:before"
         },
         {
-          "name": "webhook-webflow-site-id:after"
+          "name": "webflow-site-id:after"
         },
         {
-          "name": "webhook-webflow-site-name:before"
+          "name": "webflow-site-name:before"
         },
         {
-          "name": "webhook-webflow-site-name:after"
+          "name": "webflow-site-name:after"
         },
         {
-          "name": "webhook-webflow-collection-id:before"
+          "name": "webflow-collection-id:before"
         },
         {
-          "name": "webhook-webflow-collection-id:after"
+          "name": "webflow-collection-id:after"
         },
         {
-          "name": "webhook-webflow-collection-name:before"
+          "name": "webflow-collection-name:before"
         },
         {
-          "name": "webhook-webflow-collection-name:after"
+          "name": "webflow-collection-name:after"
         },
         {
-          "name": "webhook-webflow-sku-field-id:before"
+          "name": "webflow-sku-field-id:before"
         },
         {
-          "name": "webhook-webflow-sku-field-id:after"
+          "name": "webflow-sku-field-id:after"
         },
         {
-          "name": "webhook-webflow-sku-field-name:before"
+          "name": "webflow-sku-field-name:before"
         },
         {
-          "name": "webhook-webflow-sku-field-name:after"
+          "name": "webflow-sku-field-name:after"
         },
         {
-          "name": "webhook-webflow-inventory-field-id:before"
+          "name": "webflow-inventory-field-id:before"
         },
         {
-          "name": "webhook-webflow-inventory-field-id:after"
+          "name": "webflow-inventory-field-id:after"
         },
         {
-          "name": "webhook-webflow-inventory-field-name:before"
+          "name": "webflow-inventory-field-name:before"
         },
         {
-          "name": "webhook-webflow-inventory-field-name:after"
+          "name": "webflow-inventory-field-name:after"
         },
         {
-          "name": "webhook-webflow-auth:before"
+          "name": "webflow-auth:before"
         },
         {
-          "name": "webhook-webflow-auth:after"
+          "name": "webflow-auth:after"
         },
         {
-          "name": "webhook-zapier-event:before"
+          "name": "zapier-event:before"
         },
         {
-          "name": "webhook-zapier-event:after"
+          "name": "zapier-event:after"
         },
         {
-          "name": "webhook-zapier-url:before"
+          "name": "zapier-url:before"
         },
         {
-          "name": "webhook-zapier-url:after"
+          "name": "zapier-url:after"
         }
       ]
     },

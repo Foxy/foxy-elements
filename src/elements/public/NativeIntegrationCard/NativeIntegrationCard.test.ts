@@ -86,8 +86,8 @@ describe('NativeIntegrationCard', () => {
   it('renders line 1 text for zapier when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
-    data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookZapier);
+    data.provider = 'zapier';
+    data.config = JSON.stringify(defaults.zapier);
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -103,8 +103,8 @@ describe('NativeIntegrationCard', () => {
   it('renders line 1 text for webflow when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
-    data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookWebflow);
+    data.provider = 'webflow';
+    data.config = JSON.stringify(defaults.webflow);
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -205,8 +205,8 @@ describe('NativeIntegrationCard', () => {
   it('renders line 2 text for zapier when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
-    data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookZapier);
+    data.provider = 'zapier';
+    data.config = JSON.stringify(defaults.zapier);
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -215,14 +215,14 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.webhookZapier);
+    expect(text).to.have.deep.property('options', defaults.zapier);
   });
 
   it('renders line 2 text for webflow when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
-    data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookWebflow);
+    data.provider = 'webflow';
+    data.config = JSON.stringify(defaults.webflow);
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
@@ -231,7 +231,7 @@ describe('NativeIntegrationCard', () => {
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.webhookWebflow);
+    expect(text).to.have.deep.property('options', defaults.webflow);
   });
 
   it('renders line 2 text for legacy json webhook when loaded', async () => {
