@@ -344,13 +344,13 @@ describe('StoreForm', () => {
     expect(form.errors).to.not.include('country:v8n_required');
   });
 
-  it('produces the logo-url:v8n_too_long error if logo url is longer than 100 characters', () => {
+  it('produces the logo-url:v8n_too_long error if logo url is longer than 200 characters', () => {
     const form = new Form();
 
-    form.edit({ logo_url: 'A'.repeat(101) });
+    form.edit({ logo_url: 'A'.repeat(201) });
     expect(form.errors).to.include('logo-url:v8n_too_long');
 
-    form.edit({ logo_url: 'A'.repeat(100) });
+    form.edit({ logo_url: 'A'.repeat(200) });
     expect(form.errors).to.not.include('logo-url:v8n_too_long');
   });
 

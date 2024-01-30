@@ -38,7 +38,7 @@
     "label": "Logo",
     "placeholder": "https://example.com/logo.png",
     "helper_text": "URL to your store's logo that may be used in your store's templates.",
-    "v8n_too_long": "Please shorten this link to 100 characters of less"
+    "v8n_too_long": "Please shorten this link to 200 characters of less"
   },
   "timezone": {
     "label": "Timezone",
