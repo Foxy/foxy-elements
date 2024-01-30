@@ -537,7 +537,48 @@
       "properties": {
         "warning_text": {
           "type": "string",
-          "default": "Note: Zapier service types are read only and can not be created or modified in the Foxy Admin. Zapier webhooks need to be created from zapier.com"
+          "default": "Zapier webhooks are read-only and can not be created or modified in the Foxy Admin. Please connect your Zapier webhooks at zapier.com."
+        }
+      },
+      "required": ["warning_text"]
+    },
+    "apple-pay-merchant-id": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Merchant ID" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": {
+          "type": "string",
+          "default": "This identifier is configured automatically when you enable Apple Pay in your store settings."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "apple-pay-warning": {
+      "additionalProperties": false,
+      "properties": {
+        "warning_text": {
+          "type": "string",
+          "default": "Apple Pay native integration entry on this page is informational. To configure Apple Pay, please go to your gateway settings."
+        }
+      },
+      "required": ["warning_text"]
+    },
+    "custom-tax-url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "URL" },
+        "placeholder": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "The URL of your custom tax service." }
+      },
+      "required": ["label", "placeholder", "helper_text"]
+    },
+    "custom-tax-warning": {
+      "additionalProperties": false,
+      "properties": {
+        "warning_text": {
+          "type": "string",
+          "default": "It is currently not possible to configure this integration in this new admin app. Please use the legacy app at admin.foxycart.com to make changes."
         }
       },
       "required": ["warning_text"]
@@ -619,6 +660,10 @@
     "zapier-event",
     "zapier-url",
     "zapier-warning",
+    "apple-pay-merchant-id",
+    "apple-pay-warning",
+    "custom-tax-url",
+    "custom-tax-warning",
     "timestamps",
     "delete",
     "create",

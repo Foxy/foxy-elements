@@ -27,6 +27,14 @@ export const onesource = {
   from_city: '',
 };
 
+export const customTax = {
+  url: '',
+};
+
+export const applePay = {
+  merchantID: '',
+};
+
 export const avalara = {
   category_to_product_tax_code_mappings: {},
   enable_colorado_delivery_fee: false,
@@ -57,7 +65,7 @@ export const webflow = {
 
 export const zapier = {
   service: 'zapier',
-  event: '',
+  events: [],
   url: '',
 };
 

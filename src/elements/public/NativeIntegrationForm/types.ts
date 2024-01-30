@@ -84,8 +84,12 @@ export type Templates = {
   'webflow-inventory-field-name:after'?: Renderer<NativeIntegrationForm>;
   'webflow-auth:before'?: Renderer<NativeIntegrationForm>;
   'webflow-auth:after'?: Renderer<NativeIntegrationForm>;
-  'zapier-event:before'?: Renderer<NativeIntegrationForm>;
-  'zapier-event:after'?: Renderer<NativeIntegrationForm>;
+  'zapier-events:before'?: Renderer<NativeIntegrationForm>;
+  'zapier-events:after'?: Renderer<NativeIntegrationForm>;
   'zapier-url:before'?: Renderer<NativeIntegrationForm>;
   'zapier-url:after'?: Renderer<NativeIntegrationForm>;
+  'apple-pay-merchant-id:before'?: Renderer<NativeIntegrationForm>;
+  'apple-pay-merchant-id:after'?: Renderer<NativeIntegrationForm>;
+  'custom-tax-url:before'?: Renderer<NativeIntegrationForm>;
+  'custom-tax-url:after'?: Renderer<NativeIntegrationForm>;
 };

@@ -241,7 +241,23 @@
     "helper_text": "The Zapier webhook subscription URL."
   },
   "zapier-warning": {
-    "warning_text": "Note: Zapier service types are read only and can not be created or modified in the Foxy Admin. Zapier webhooks need to be created from zapier.com"
+    "warning_text": "Zapier webhooks are read-only and can not be created or modified in the Foxy Admin. Please connect your Zapier webhooks at zapier.com."
+  },
+  "apple-pay-merchant-id": {
+    "label": "Merchant ID",
+    "placeholder": "",
+    "helper_text": "This identifier is configured automatically when you enable Apple Pay in your store settings."
+  },
+  "apple-pay-warning": {
+    "warning_text": "Apple Pay native integration entry on this page is informational. To configure Apple Pay, please go to your gateway settings."
+  },
+  "custom-tax-url": {
+    "label": "URL",
+    "placeholder": "",
+    "helper_text": "The URL of your custom tax service."
+  },
+  "custom-tax-warning": {
+    "warning_text": "It is currently not possible to configure this integration in this new admin app. Please use the legacy app at admin.foxycart.com to make changes."
   },
   "timestamps": {
     "date_created": "Created on",

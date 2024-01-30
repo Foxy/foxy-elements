@@ -117,7 +117,7 @@ describe('NativeIntegrationCard', () => {
     expect(text).to.have.deep.property('options', {});
   });
 
-  it('renders line 1 text for legacy json webhook when loaded', async () => {
+  it('renders line 1 text for webhook when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'webhook';
@@ -127,28 +127,43 @@ describe('NativeIntegrationCard', () => {
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
     `);
 
-    const text = await getByKey(card, 'title_legacy_webhook');
+    const text = await getByKey(card, 'title_webhook');
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
     expect(text).to.have.deep.property('options', { title: 'ABC' });
   });
 
-  it('renders line 1 text for legacy xml webhook when loaded', async () => {
+  it('renders line 1 text for apple pay when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
-    data.provider = 'webhook';
-    data.config = JSON.stringify({ ...defaults.webhookLegacyXml, title: 'DEF' });
+    data.provider = 'apple_pay';
+    data.config = JSON.stringify(defaults.applePay);
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
     `);
-
-    const text = await getByKey(card, 'title_legacy_webhook');
+    const text = await getByKey(card, 'title_apple_pay');
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', { title: 'DEF' });
+    expect(text).to.have.deep.property('options', {});
+  });
+
+  it('renders line 1 text for custom tax when loaded', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+
+    data.provider = 'custom_tax';
+    data.config = JSON.stringify(defaults.customTax);
+
+    const card = await fixture<Card>(html`
+      <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
+    `);
+    const text = await getByKey(card, 'title_custom_tax');
+
+    expect(text).to.exist;
+    expect(text).to.have.attribute('infer', '');
+    expect(text).to.have.deep.property('options', {});
   });
 
   it('renders line 2 text for avalara when loaded', async () => {
@@ -234,7 +249,7 @@ describe('NativeIntegrationCard', () => {
     expect(text).to.have.deep.property('options', defaults.webflow);
   });
 
-  it('renders line 2 text for legacy json webhook when loaded', async () => {
+  it('renders line 2 text for webhook when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
     data.provider = 'webhook';
@@ -243,26 +258,42 @@ describe('NativeIntegrationCard', () => {
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
     `);
-    const text = await getByKey(card, 'subtitle_legacy_webhook');
+    const text = await getByKey(card, 'subtitle_webhook');
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
     expect(text).to.have.deep.property('options', defaults.webhookJson);
   });
 
-  it('renders line 2 text for legacy xml webhook when loaded', async () => {
+  it('renders line 2 text for apple pay when loaded', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
 
-    data.provider = 'webhook';
-    data.config = JSON.stringify(defaults.webhookLegacyXml);
+    data.provider = 'apple_pay';
+    data.config = JSON.stringify(defaults.applePay);
 
     const card = await fixture<Card>(html`
       <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
     `);
-    const text = await getByKey(card, 'subtitle_legacy_webhook');
+    const text = await getByKey(card, 'subtitle_apple_pay');
 
     expect(text).to.exist;
     expect(text).to.have.attribute('infer', '');
-    expect(text).to.have.deep.property('options', defaults.webhookLegacyXml);
+    expect(text).to.have.deep.property('options', defaults.applePay);
+  });
+
+  it('renders line 2 text for custom tax when loaded', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+
+    data.provider = 'custom_tax';
+    data.config = JSON.stringify(defaults.customTax);
+
+    const card = await fixture<Card>(html`
+      <foxy-native-integration-card .data=${data}></foxy-native-integration-card>
+    `);
+    const text = await getByKey(card, 'subtitle_custom_tax');
+
+    expect(text).to.exist;
+    expect(text).to.have.attribute('infer', '');
+    expect(text).to.have.deep.property('options', defaults.customTax);
   });
 });

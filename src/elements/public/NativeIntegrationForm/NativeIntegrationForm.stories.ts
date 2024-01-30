@@ -50,8 +50,10 @@ const summary: Summary = {
       'webflow-inventory-field-id',
       'webflow-inventory-field-name',
       'webflow-auth',
-      'zapier-event',
+      'zapier-events',
       'zapier-url',
+      'apple-pay-merchant-id',
+      'custom-tax-url',
     ],
   },
 };

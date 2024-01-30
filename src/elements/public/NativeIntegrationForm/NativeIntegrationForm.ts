@@ -347,7 +347,17 @@ export class NativeIntegrationForm extends Base<Data> {
 
   get readonlySelector() {
     const match = [super.readonlySelector.toString()];
-    if (this.href) match.push('provider', 'zapier-event', 'zapier-url');
+
+    if (this.href) {
+      match.push(
+        'apple-pay-merchant-id',
+        'custom-tax-url',
+        'zapier-events',
+        'zapier-url',
+        'provider'
+      );
+    }
+
     return new BooleanSelector(match.join(' ').trim());
   }
 
@@ -381,6 +391,10 @@ export class NativeIntegrationForm extends Base<Data> {
         ? this.__renderZapierConfig()
         : provider === 'webhook'
         ? this.__renderWebhookConfig()
+        : provider === 'apple_pay'
+        ? this.__renderApplePayConfig()
+        : provider === 'custom_tax'
+        ? this.__renderCustomTaxConfig()
         : ''}
       ${super.renderBody()}
     `;
@@ -753,12 +767,12 @@ export class NativeIntegrationForm extends Base<Data> {
 
   private __renderZapierConfig() {
     return html`
-      <foxy-internal-text-control
-        infer="zapier-event"
-        .getValue=${this.__createConfigGetterFor('event')}
-        .setValue=${this.__createConfigSetterFor('event')}
+      <foxy-internal-editable-list-control
+        infer="zapier-events"
+        .getValue=${this.__createConfigGetterFor('events')}
+        .setValue=${this.__createConfigSetterFor('events')}
       >
-      </foxy-internal-text-control>
+      </foxy-internal-editable-list-control>
 
       <foxy-internal-text-area-control
         infer="zapier-url"
@@ -769,6 +783,36 @@ export class NativeIntegrationForm extends Base<Data> {
 
       <p class="text-xs text-secondary leading-xs">
         <foxy-i18n infer="zapier-warning" key="warning_text"></foxy-i18n>
+      </p>
+    `;
+  }
+
+  private __renderApplePayConfig() {
+    return html`
+      <foxy-internal-text-control
+        infer="apple-pay-merchant-id"
+        .getValue=${this.__createConfigGetterFor('merchantID')}
+        .setValue=${this.__createConfigSetterFor('merchantID')}
+      >
+      </foxy-internal-text-control>
+
+      <p class="text-xs text-secondary leading-xs">
+        <foxy-i18n infer="apple-pay-warning" key="warning_text"></foxy-i18n>
+      </p>
+    `;
+  }
+
+  private __renderCustomTaxConfig() {
+    return html`
+      <foxy-internal-text-control
+        infer="custom-tax-url"
+        .getValue=${this.__createConfigGetterFor('url')}
+        .setValue=${this.__createConfigSetterFor('url')}
+      >
+      </foxy-internal-text-control>
+
+      <p class="text-xs text-secondary leading-xs">
+        <foxy-i18n infer="custom-tax-warning" key="warning_text"></foxy-i18n>
       </p>
     `;
   }

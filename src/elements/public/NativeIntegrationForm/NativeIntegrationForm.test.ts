@@ -292,7 +292,7 @@ describe('NativeIntegrationForm', () => {
     expect(element.errors).to.not.include('webflow-auth:v8n_required');
   });
 
-  it('makes provider, zapier-event and zapier-url controls readonly when href is defined', () => {
+  it('makes certain controls readonly when href is defined', () => {
     const element = new Form();
 
     element.addEventListener('fetch', (evt: Event) => {
@@ -302,14 +302,18 @@ describe('NativeIntegrationForm', () => {
     });
 
     expect(element.readonlySelector.matches('provider', true)).to.be.false;
-    expect(element.readonlySelector.matches('zapier-event', true)).to.be.false;
+    expect(element.readonlySelector.matches('zapier-events', true)).to.be.false;
     expect(element.readonlySelector.matches('zapier-url', true)).to.be.false;
+    expect(element.readonlySelector.matches('apple-pay-merchant-id', true)).to.be.false;
+    expect(element.readonlySelector.matches('custom-tax-url', true)).to.be.false;
 
     element.href = 'https://demo.api/hapi/native_integrations/0';
 
     expect(element.readonlySelector.matches('provider', true)).to.be.true;
-    expect(element.readonlySelector.matches('zapier-event', true)).to.be.true;
+    expect(element.readonlySelector.matches('zapier-events', true)).to.be.true;
     expect(element.readonlySelector.matches('zapier-url', true)).to.be.true;
+    expect(element.readonlySelector.matches('apple-pay-merchant-id', true)).to.be.true;
+    expect(element.readonlySelector.matches('custom-tax-url', true)).to.be.true;
   });
 
   it('produces error:already_configured when trying to add another config for an already configured integration', async () => {
@@ -1251,21 +1255,21 @@ describe('NativeIntegrationForm', () => {
     expect(newConfig).to.have.property('auth', 'def');
   });
 
-  it('renders a readonly text control for zapier event', async () => {
+  it('renders a readonly list control for zapier events', async () => {
     const data = await getTestData<Data>('./hapi/native_integrations/0');
     data.provider = 'zapier';
-    data.config = JSON.stringify({ ...defaults.zapier, event: 'abc' });
+    data.config = JSON.stringify({ ...defaults.zapier, events: ['abc'] });
 
     const element = await fixture<Form>(html`
       <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
     `);
 
     const control = element.renderRoot.querySelector(
-      '[infer="zapier-event"]'
-    ) as InternalTextControl;
+      '[infer="zapier-events"]'
+    ) as InternalEditableListControl;
 
-    expect(control).to.be.instanceOf(InternalTextControl);
-    expect(control.getValue()).to.equal('abc');
+    expect(control).to.be.instanceOf(InternalEditableListControl);
+    expect(control.getValue()).to.deep.equal(['abc']);
   });
 
   it('renders a readonly text area control for zapier url', async () => {
@@ -1297,5 +1301,69 @@ describe('NativeIntegrationForm', () => {
     const warning = element.renderRoot.querySelector('[key="warning_text"]');
     expect(warning).to.be.instanceOf(I18n);
     expect(warning).to.have.attribute('infer', 'zapier-warning');
+  });
+
+  it('renders a readonly text control for apple pay merchant ID', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'apple_pay';
+    data.config = JSON.stringify({ ...defaults.applePay, merchantID: 'abc' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="apple-pay-merchant-id"]'
+    ) as InternalTextControl;
+
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control.getValue()).to.equal('abc');
+  });
+
+  it('renders a readonly content warning for apple pay', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'apple_pay';
+    data.config = JSON.stringify(defaults.applePay);
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}></foxy-native-integration-form>
+    `);
+
+    const warning = element.renderRoot.querySelector('[key="warning_text"]');
+
+    expect(warning).to.be.instanceOf(I18n);
+    expect(warning).to.have.attribute('infer', 'apple-pay-warning');
+  });
+
+  it('renders a readonly text control for custom tax url', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'custom_tax';
+    data.config = JSON.stringify({ ...defaults.customTax, url: 'https://example.com' });
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      '[infer="custom-tax-url"]'
+    ) as InternalTextControl;
+
+    expect(control).to.be.instanceOf(InternalTextControl);
+    expect(control.getValue()).to.equal('https://example.com');
+  });
+
+  it('renders a readonly content warning for custom tax', async () => {
+    const data = await getTestData<Data>('./hapi/native_integrations/0');
+    data.provider = 'custom_tax';
+    data.config = JSON.stringify(defaults.customTax);
+
+    const element = await fixture<Form>(html`
+      <foxy-native-integration-form .data=${data}> </foxy-native-integration-form>
+    `);
+
+    const warning = element.renderRoot.querySelector('[key="warning_text"]');
+
+    expect(warning).to.be.instanceOf(I18n);
+    expect(warning).to.have.attribute('infer', 'custom-tax-warning');
   });
 });
