@@ -116,7 +116,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       `;
     }
 
-    if (this.hideDeleteButton) return clickableItem;
+    if (this.hideDeleteButton || this.readonly) return clickableItem;
 
     return html`
       <foxy-swipe-actions class="block">
@@ -175,7 +175,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             </foxy-form-dialog>
           `
         : ''}
-      ${this.hideDeleteButton
+      ${this.hideDeleteButton || this.readonly
         ? ''
         : html`
             <foxy-internal-confirm-dialog
@@ -198,7 +198,11 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
       <foxy-pagination first=${ifDefined(first)} infer="pagination">
         <foxy-collection-page
-          class="mb-s block divide-y divide-contrast-5 rounded overflow-hidden bg-contrast-5"
+          class=${classMap({
+            'block divide-y divide-contrast-5 rounded overflow-hidden': true,
+            'ring-1 ring-inset ring-contrast-10': !this.form && !this.getPageHref,
+            'bg-contrast-5': !!this.form || !!this.getPageHref,
+          })}
           infer="card"
           .related=${this.related}
           .item=${this.__itemRenderer as any}
@@ -210,7 +214,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
           : this.createPageHref && !this.disabled
           ? html`
               <a
-                class="mb-s w-full flex items-center justify-center h-m px-m rounded text-m font-medium transition-colors bg-contrast-5 text-success hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                class="mt-s w-full flex items-center justify-center h-m px-m rounded text-m font-medium transition-colors bg-contrast-5 text-success hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
                 href=${this.createPageHref}
               >
                 <foxy-i18n infer="" key="create_button_text"></foxy-i18n>
@@ -218,7 +222,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             `
           : html`
               <vaadin-button
-                class="mb-s w-full"
+                class="mt-s w-full"
                 theme="success"
                 ?disabled=${this.disabled}
                 @click=${(evt: Event) => {
