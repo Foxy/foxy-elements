@@ -224,6 +224,10 @@ export const groups = [
     files: './src/elements/public/AttributeForm/**/*.test.ts',
   },
   {
+    name: 'foxy-billing-address-card',
+    files: './src/elements/public/BillingAddressCard/**/*.test.ts',
+  },
+  {
     name: 'foxy-cancellation-form',
     files: './src/elements/public/CancellationForm/**/*.test.ts',
   },

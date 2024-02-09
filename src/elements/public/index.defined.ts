@@ -8,6 +8,7 @@ export { AppliedCouponCodeForm } from './AppliedCouponCodeForm/index';
 export { AppliedTaxCard } from './AppliedTaxCard/index';
 export { AttributeCard } from './AttributeCard/index';
 export { AttributeForm } from './AttributeForm/index';
+export { BillingAddressCard } from './BillingAddressCard/index';
 export { CancellationForm } from './CancellationForm/index';
 export { CartCard } from './CartCard/index';
 export { CartForm } from './CartForm/index';

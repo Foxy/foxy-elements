@@ -41,6 +41,10 @@
       "url": "./src/static/schemas/attribute-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/billing-address-card/*.json"],
+      "url": "./src/static/schemas/billing-address-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/cancellation-form/*.json"],
       "url": "./src/static/schemas/cancellation-form.json"
     },
