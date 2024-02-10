@@ -15769,8 +15769,8 @@
         },
         {
           "name": "coupons",
-          "description": "Link to the collection of coupons that can be used with this item.",
-          "type": "string"
+          "type": "string",
+          "deprecatedMessage": "Link to the collection of coupons that can be used with this item."
         },
         {
           "name": "ns",
@@ -15869,8 +15869,8 @@
         {
           "name": "coupons",
           "attribute": "coupons",
-          "description": "Link to the collection of coupons that can be used with this item.",
-          "type": "string"
+          "type": "string",
+          "deprecatedMessage": "Link to the collection of coupons that can be used with this item."
         },
         {
           "name": "ns",
@@ -15897,6 +15897,7 @@
         },
         {
           "name": "templates",
+          "type": "Templates",
           "default": "{}"
         },
         {
@@ -16058,34 +16059,44 @@
           "name": "quantity:after"
         },
         {
-          "name": "subscription:before"
+          "name": "subscription",
+          "description": "frequency:before – new in 1.25.0"
         },
         {
-          "name": "subscription:after"
+          "name": "subscription-start",
+          "description": "date:before – new in 1.25.0"
         },
         {
-          "name": "line-item-discount:before"
+          "name": "subscription-end",
+          "description": "date:before – new in 1.25.0"
         },
         {
-          "name": "line-item-discount:after"
+          "name": "discount",
+          "description": "name:before – new in 1.25.0"
         },
         {
-          "name": "cart:before"
+          "name": "",
+          "description": "expires:before – new in 1.25.0"
         },
         {
-          "name": "cart:after"
+          "name": "quantity",
+          "description": "min:before – new in 1.25.0"
         },
         {
-          "name": "shipping:before"
+          "name": "item-category",
+          "description": "uri:before – new in 1.25.0"
         },
         {
-          "name": "shipping:after"
+          "name": "parent",
+          "description": "code:before – new in 1.25.0"
         },
         {
-          "name": "inventory:before"
+          "name": "coupon",
+          "description": "details:before – new in 1.25.0"
         },
         {
-          "name": "inventory:after"
+          "name": "item",
+          "description": "options:before – new in 1.25.0"
         },
         {
           "name": "timestamps:before"
@@ -26996,6 +27007,12 @@
         }
       ],
       "properties": [
+        {
+          "name": "getSubscriptionPageHref"
+        },
+        {
+          "name": "getCustomerPageHref"
+        },
         {
           "name": "ns",
           "attribute": "ns",
