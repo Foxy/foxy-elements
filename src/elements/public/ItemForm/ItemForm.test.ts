@@ -7,6 +7,8 @@ import { createRouter } from '../../../server/index';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ItemForm } from './ItemForm';
 import { html } from 'lit-html';
+import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl';
+import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 
 describe('ItemForm', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -15,12 +17,28 @@ describe('ItemForm', () => {
   before(() => (window.ResizeObserver = undefined));
   after(() => (window.ResizeObserver = OriginalResizeObserver));
 
-  it('imports and defines foxy-internal-integer-control', () => {
-    expect(customElements.get('foxy-internal-integer-control')).to.exist;
+  it('imports and defines vaadin-details', () => {
+    expect(customElements.get('vaadin-details')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-async-combo-box-control', () => {
+    expect(customElements.get('foxy-internal-async-combo-box-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-async-list-control', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-frequency-control', () => {
+    expect(customElements.get('foxy-internal-frequency-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-text-area-control', () => {
+    expect(customElements.get('foxy-internal-text-area-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-integer-control', () => {
+    expect(customElements.get('foxy-internal-integer-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-number-control', () => {
@@ -29,6 +47,10 @@ describe('ItemForm', () => {
 
   it('imports and defines foxy-internal-text-control', () => {
     expect(customElements.get('foxy-internal-text-control')).to.exist;
+  });
+
+  it('imports and defines foxy-internal-date-control', () => {
+    expect(customElements.get('foxy-internal-date-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-form', () => {
@@ -41,6 +63,10 @@ describe('ItemForm', () => {
 
   it('imports and defines foxy-coupon-detail-card', () => {
     expect(customElements.get('foxy-coupon-detail-card')).to.exist;
+  });
+
+  it('imports and defines foxy-discount-builder', () => {
+    expect(customElements.get('foxy-discount-builder')).to.exist;
   });
 
   it('imports and defines foxy-item-option-card', () => {
@@ -57,30 +83,6 @@ describe('ItemForm', () => {
 
   it('imports and defines foxy-attribute-form', () => {
     expect(customElements.get('foxy-attribute-form')).to.exist;
-  });
-
-  it('imports and defines foxy-coupon-card', () => {
-    expect(customElements.get('foxy-coupon-card')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-item-form-line-item-discount-control', () => {
-    expect(customElements.get('foxy-internal-item-form-line-item-discount-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-item-form-subscription-control', () => {
-    expect(customElements.get('foxy-internal-item-form-subscription-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-item-form-inventory-control', () => {
-    expect(customElements.get('foxy-internal-item-form-inventory-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-item-form-shipping-control', () => {
-    expect(customElements.get('foxy-internal-item-form-shipping-control')).to.exist;
-  });
-
-  it('imports and defines foxy-internal-item-form-cart-control', () => {
-    expect(customElements.get('foxy-internal-item-form-cart-control')).to.exist;
   });
 
   it('imports and defines itself as foxy-item-form', () => {
@@ -147,43 +149,191 @@ describe('ItemForm', () => {
     expect(control).to.exist;
   });
 
-  it('renders subscription info as a control', async () => {
+  it('renders item category as a control', async () => {
+    const element = await fixture<ItemForm>(html`
+      <foxy-item-form item-categories="https://demo.api/hapi/item_categories"></foxy-item-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-async-combo-box-control[infer="item-category-uri"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.property('itemValuePath', '_links.self.href');
+    expect(control).to.have.property('itemLabelPath', 'name');
+    expect(control).to.have.property('property', 'item_category_uri');
+    expect(control).to.have.property('first', 'https://demo.api/hapi/item_categories');
+  });
+
+  it('renders item code as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-text-control[infer="code"]');
+    expect(control).to.exist;
+  });
+
+  it('renders item parent code as a control', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-item-form-subscription-control'
+      'foxy-internal-text-control[infer="parent-code"]'
     );
 
     expect(control).to.exist;
   });
 
-  it('renders line item discount info as a control', async () => {
+  it('renders min quantity as a control', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
     const control = element.renderRoot.querySelector(
-      'foxy-internal-item-form-line-item-discount-control'
+      'foxy-internal-integer-control[infer="quantity-min"]'
     );
 
     expect(control).to.exist;
   });
 
-  it('renders cart info as a control', async () => {
+  it('renders max quantity as a control', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
-    const control = element.renderRoot.querySelector('foxy-internal-item-form-cart-control');
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-integer-control[infer="quantity-max"]'
+    );
 
     expect(control).to.exist;
   });
 
-  it('renders item shipping info as a control', async () => {
+  it('renders weight as a control', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
-    const control = element.renderRoot.querySelector('foxy-internal-item-form-shipping-control');
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-number-control[infer="weight"]'
+    );
+    expect(control).to.exist;
+  });
+
+  it('renders width as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-number-control[infer="width"]');
+    expect(control).to.exist;
+  });
+
+  it('renders height as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-number-control[infer="height"]'
+    );
+    expect(control).to.exist;
+  });
+
+  it('renders length as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-number-control[infer="length"]'
+    );
+    expect(control).to.exist;
+  });
+
+  it('renders subscription frequency as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-frequency-control[infer="subscription-frequency"]'
+    );
+    expect(control).to.exist;
+  });
+
+  it('renders subscription start date as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-date-control[infer="subscription-start-date"]'
+    );
+    expect(control).to.exist;
+  });
+
+  it('renders subscription end date as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-date-control[infer="subscription-end-date"]'
+    );
+    expect(control).to.exist;
+  });
+
+  it('renders item url as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-area-control[infer="url"]'
+    );
 
     expect(control).to.exist;
   });
 
-  it('renders item inventory info as a control', async () => {
+  it('renders item image url as a control', async () => {
     const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
-    const control = element.renderRoot.querySelector('foxy-internal-item-form-inventory-control');
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-area-control[infer="image"]'
+    );
 
     expect(control).to.exist;
+  });
+
+  it('renders discount name as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-text-control[infer="discount-name"]'
+    );
+
+    expect(control).to.exist;
+  });
+
+  it('renders discount builder', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+
+    element.edit({
+      discount_type: 'price_amount',
+      discount_details: '1-2|3-4',
+      discount_name: 'Test',
+    });
+
+    const builder = element.renderRoot.querySelector<DiscountBuilder>('foxy-discount-builder')!;
+    await element.requestUpdate();
+
+    expect(builder).to.exist;
+    expect(builder).to.have.property('infer', 'discount-builder');
+    expect(builder).to.have.deep.property('parsedValue', {
+      type: 'price_amount',
+      details: '1-2|3-4',
+      name: 'Test',
+    });
+
+    builder.parsedValue = {
+      type: 'quantity_amount',
+      details: '5-6|7-8|9-10',
+      name: 'Foo Bar',
+    };
+
+    builder.dispatchEvent(new CustomEvent('change'));
+
+    expect(element).to.have.nested.property('form.discount_type', 'quantity_amount');
+    expect(element).to.have.nested.property('form.discount_details', '5-6|7-8|9-10');
+    expect(element).to.have.nested.property('form.discount_name', 'Foo Bar');
+  });
+
+  it('renders customer address as a control', async () => {
+    const element = await fixture<ItemForm>(html`
+      <foxy-item-form customer-addresses="https://demo.api/hapi/customer_addresses">
+      </foxy-item-form>
+    `);
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-async-combo-box-control[infer="shipto"]'
+    );
+
+    expect(control).to.exist;
+    expect(control).to.have.property('itemValuePath', 'address_name');
+    expect(control).to.have.property('itemLabelPath', 'address_name');
+    expect(control).to.have.property('first', 'https://demo.api/hapi/customer_addresses');
+  });
+
+  it('renders expiry date as a control', async () => {
+    const element = await fixture<ItemForm>(html`<foxy-item-form></foxy-item-form>`);
+    const control = element.renderRoot.querySelector('foxy-internal-date-control[infer="expires"]');
+
+    expect(control).to.exist;
+    expect(control).to.have.property('format', 'unix');
   });
 
   it('for existing items, renders discount details as a control', async () => {

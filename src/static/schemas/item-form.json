@@ -2,11 +2,14 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
+    "dimensions": { "type": "string", "default": "Dimensions" },
+    "subscriptions": { "type": "string", "default": "Subscriptions" },
+    "discount": { "type": "string", "default": "Discount" },
     "name": {
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Name" },
-        "helper_text": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "Public name of this item." },
         "placeholder": { "type": "string", "default": "13' Laptop Case" },
         "v8n_required": { "type": "string", "default": "Name is required" },
         "v8n_too_long": { "type": "string", "default": "Name mustn't exceed 255 characters" }
@@ -17,7 +20,7 @@
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Price" },
-        "helper_text": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "Base price before option modifiers." },
         "placeholder": { "type": "string", "default": "25" },
         "v8n_required": { "type": "string", "default": "Price is required" },
         "v8n_negative": { "type": "string", "default": "Price can't be negative" }
@@ -28,197 +31,268 @@
       "additionalProperties": false,
       "properties": {
         "label": { "type": "string", "default": "Quantity" },
-        "helper_text": { "type": "string", "default": "" },
+        "helper_text": { "type": "string", "default": "Number of items in the cart." },
         "placeholder": { "type": "string", "default": "1 by default" },
         "v8n_less_than_one": { "type": "string", "default": "Quantity must be 1 or more" }
       },
       "required": ["label", "helper_text", "placeholder", "v8n_less_than_one"]
     },
-    "subscription": {
+    "subscription-frequency": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Subscription" },
-        "frequency": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Subscription frequency" },
-            "helper_text": { "type": "string", "default": "" },
-            "day": { "type": "string", "default": "Day" },
-            "day_plural": { "type": "string", "default": "Days" },
-            "week": { "type": "string", "default": "Week" },
-            "week_plural": { "type": "string", "default": "Weeks" },
-            "month": { "type": "string", "default": "Month" },
-            "month_plural": { "type": "string", "default": "Months" },
-            "year": { "type": "string", "default": "Year" },
-            "year_plural": { "type": "string", "default": "Years" }
-          },
-          "required": [
-            "label",
-            "helper_text",
-            "day",
-            "day_plural",
-            "week",
-            "week_plural",
-            "month",
-            "month_plural",
-            "year",
-            "year_plural"
-          ]
+        "label": { "type": "string", "default": "Subscription frequency" },
+        "helper_text": {
+          "type": "string",
+          "default": "This determines how often this subscription will be processed. To modify this value for an existing subscription, you must modify the subscription directly."
         },
-        "start": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Subscription start" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "01/01/2022" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
+        "day": { "type": "string", "default": "Day" },
+        "day_plural": { "type": "string", "default": "Days" },
+        "week": { "type": "string", "default": "Week" },
+        "week_plural": { "type": "string", "default": "Weeks" },
+        "month": { "type": "string", "default": "Month" },
+        "month_plural": { "type": "string", "default": "Months" },
+        "year": { "type": "string", "default": "Year" },
+        "year_plural": { "type": "string", "default": "Years" }
+      },
+      "required": [
+        "label",
+        "helper_text",
+        "day",
+        "day_plural",
+        "week",
+        "week_plural",
+        "month",
+        "month_plural",
+        "year",
+        "year_plural"
+      ]
+    },
+    "subscription-start-date": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Subscription start" },
+        "helper_text": {
+          "type": "string",
+          "default": "The original date this subscription began or will begin if set in the future. To modify this value for an existing subscription, you must modify the subscription directly."
         },
-        "end": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Subscription end" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "01/01/2022" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
+        "placeholder": { "type": "string", "default": "01/01/2022" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "subscription-end-date": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Subscription end" },
+        "helper_text": {
+          "type": "string",
+          "default": "If set, the date this subscription will end. The subscription will not run on this day."
         },
-        "next": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Next payment (subscriptions only)" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "01/01/2022" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
+        "placeholder": { "type": "string", "default": "01/01/2022" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "discount-name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Discount name" },
+        "helper_text": {
+          "type": "string",
+          "default": "The name of the line item discount if it is included on this item."
         },
-        "form": {
+        "placeholder": { "type": "string", "default": "One-off 10% discount" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "discount-builder": {
+      "additionalProperties": false,
+      "properties": {
+        "tier": { "type": "string", "default": "Tier" },
+        "tier_by": { "type": "string", "default": "by" },
+        "tier_if": { "type": "string", "default": "if" },
+        "tier_allunits": { "type": "string", "default": "price of each item" },
+        "tier_incremental": { "type": "string", "default": "price of additional items" },
+        "tier_repeat": { "type": "string", "default": "price of next item" },
+        "tier_single": { "type": "string", "default": "order total" },
+        "tier_then": { "type": "string", "default": "then" },
+        "quantity": { "type": "string", "default": "quantity" },
+        "total": { "type": "string", "default": "total" },
+        "reduce": { "type": "string", "default": "reduce" },
+        "increase": { "type": "string", "default": "increase" }
+      },
+      "required": [
+        "tier",
+        "tier_by",
+        "tier_if",
+        "tier_allunits",
+        "tier_incremental",
+        "tier_repeat",
+        "tier_single",
+        "tier_then",
+        "quantity",
+        "total",
+        "reduce",
+        "increase"
+      ]
+    },
+    "expires": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Expires" },
+        "helper_text": {
+          "type": "string",
+          "default": "Date when this item will be removed from the cart (optional)."
+        },
+        "placeholder": { "type": "string", "default": "01/01/2022" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "image": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Image" },
+        "helper_text": {
+          "type": "string",
+          "default": "URL of the image to display for this item in the cart and checkout."
+        },
+        "placeholder": { "type": "string", "default": "https://picsum.photos/256" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "url": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "URL" },
+        "helper_text": {
+          "type": "string",
+          "default": "Full URL for the customer to view this item on the store website."
+        },
+        "placeholder": { "type": "string", "default": "https://example.com/products/123" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "quantity-min": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Min quantity" },
+        "helper_text": { "type": "string", "default": "Minimum quantity per cart." },
+        "placeholder": { "type": "string", "default": "1" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "quantity-max": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Max quantity" },
+        "helper_text": { "type": "string", "default": "Maximum quantity per cart." },
+        "placeholder": { "type": "string", "default": "25" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "shipto": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Shipping address" },
+        "helper_text": {
+          "type": "string",
+          "default": "Used for multiship to assign this item to a specific shipment."
+        },
+        "placeholder": { "type": "string", "default": "Select address to ship this item to..." }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "width": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Width" },
+        "helper_text": {
+          "type": "string",
+          "default": "This is currently a placeholder for future use."
+        },
+        "placeholder": { "type": "string", "default": "16" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "height": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Height" },
+        "helper_text": {
+          "type": "string",
+          "default": "This is currently a placeholder for future use."
+        },
+        "placeholder": { "type": "string", "default": "8" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "length": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Width" },
+        "helper_text": {
+          "type": "string",
+          "default": "This is currently a placeholder for future use."
+        },
+        "placeholder": { "type": "string", "default": "32" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "weight": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Weight" },
+        "helper_text": {
+          "type": "string",
+          "default": "Per-item weight, used for shipping rate requests."
+        },
+        "placeholder": { "type": "string", "default": "24" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "item-category-uri": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Item category" },
+        "helper_text": { "type": "string", "default": "Item category associated with this item." },
+        "placeholder": { "type": "string", "default": "Select item category..." }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Code" },
+        "helper_text": { "type": "string", "default": "Unique item code such as SKU or barcode." },
+        "placeholder": { "type": "string", "default": "MY-PRODUCT-001" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "parent-code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Parent code" },
+        "helper_text": {
+          "type": "string",
+          "default": "Used if this should be a child product in a bundle."
+        },
+        "placeholder": { "type": "string", "default": "MY-BUNDLE-001" }
+      },
+      "required": ["label", "helper_text", "placeholder"]
+    },
+    "discount-details": {
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "default": "Discount details" },
+        "pagination": {
           "additionalProperties": false,
           "properties": {
-            "save": { "type": "string", "default": "Save" },
-            "update": { "type": "string", "default": "Update" },
-            "day": { "type": "string", "default": "Day" },
-            "day_plural": { "type": "string", "default": "Days" },
-            "week": { "type": "string", "default": "Week" },
-            "week_plural": { "type": "string", "default": "Weeks" },
-            "month": { "type": "string", "default": "Month" },
-            "month_plural": { "type": "string", "default": "Months" },
-            "year": { "type": "string", "default": "Year" },
-            "year_plural": { "type": "string", "default": "Years" },
-            "cancel": { "type": "string", "default": "Cancel" },
-            "close": { "type": "string", "default": "Close" },
-            "confirm": { "type": "string", "default": "Confirm" },
-            "currency": { "type": "string", "default": "Currency" },
-            "daily": { "type": "string", "default": "Daily" },
-            "daily_plural": { "type": "string", "default": "Every {{count}} days" },
-            "end_subscription": { "type": "string", "default": "End subscription" },
-            "frequency": {
-              "type": "string",
-              "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })"
-            },
-            "frequency_label": { "type": "string", "default": "Frequency" },
-            "item_plural": { "type": "string", "default": "Items" },
-            "monthly": { "type": "string", "default": "Monthly" },
-            "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
-            "next_transaction_date": { "type": "string", "default": "Next transaction date" },
-            "price_recurring": {
-              "type": "string",
-              "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })"
-            },
-            "price_twice_a_month": {
-              "type": "string",
-              "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })"
-            },
-            "subscription_active": {
-              "type": "string",
-              "default": "Next payment on {{date, date}}"
-            },
-            "subscription_cancelled": { "type": "string", "default": "Ended on {{date, date}}" },
-            "subscription_failed": {
-              "type": "string",
-              "default": "Payment failed on {{date, date}}"
-            },
-            "subscription_inactive": { "type": "string", "default": "Inactive" },
-            "subscription_will_be_cancelled": {
-              "type": "string",
-              "default": "Ends on {{date, date}}"
-            },
-            "subscription_will_be_active": {
-              "type": "string",
-              "default": "Starts on {{date, date}}"
-            },
-            "transaction_plural": { "type": "string", "default": "Transactions" },
-            "twice_a_month": { "type": "string", "default": "Twice a month" },
-            "undo_cancel": { "type": "string", "default": "Review" },
-            "undo_confirm": { "type": "string", "default": "Discard" },
-            "undo_header": { "type": "string", "default": "Unsaved changes" },
-            "undo_message": {
-              "type": "string",
-              "default": "Looks like you didn't save your changes! What would you like to do with them?"
-            },
-            "weekly": { "type": "string", "default": "Weekly" },
-            "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
-            "yearly": { "type": "string", "default": "Yearly" },
-            "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
-            "cancellation-form": {
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
+            "card": {
               "additionalProperties": false,
               "properties": {
-                "end_date": { "type": "string", "default": "End date" },
-                "end_subscription": { "type": "string", "default": "End subscription" },
-                "end_subscription_explainer": {
-                  "type": "string",
-                  "default": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later."
-                },
-                "v8n_required": { "type": "string", "default": "Required" },
-                "spinner": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
-                  },
-                  "required": ["loading_busy", "loading_error"]
-                }
-              },
-              "required": [
-                "end_date",
-                "end_subscription",
-                "end_subscription_explainer",
-                "v8n_required",
-                "spinner"
-              ]
-            },
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_error"]
-            },
-            "transactions-table": {
-              "additionalProperties": false,
-              "properties": {
-                "date": { "type": "string", "default": "{{value, date}}" },
-                "price": { "type": "string", "default": "{{amount, price}}" },
-                "receipt": { "type": "string", "default": "Receipt" },
-                "transaction_approved": { "type": "string", "default": "Approved" },
-                "transaction_authorized": { "type": "string", "default": "Authorized" },
-                "transaction_captured": { "type": "string", "default": "Captured" },
-                "transaction_completed": { "type": "string", "default": "Completed" },
-                "transaction_declined": { "type": "string", "default": "Declined" },
-                "transaction_pending": { "type": "string", "default": "Pending" },
-                "transaction_refunded": { "type": "string", "default": "Refunded" },
-                "transaction_rejected": { "type": "string", "default": "Rejected" },
-                "transaction_summary": {
-                  "type": "string",
-                  "default": "{{most_expensive_item.name}}"
-                },
-                "transaction_summary_plural": {
-                  "type": "string",
-                  "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
-                },
-                "transaction_verified": { "type": "string", "default": "Verified" },
-                "transaction_voided": { "type": "string", "default": "Voided" },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
@@ -229,396 +303,18 @@
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
               },
-              "required": [
-                "date",
-                "price",
-                "receipt",
-                "transaction_approved",
-                "transaction_authorized",
-                "transaction_captured",
-                "transaction_completed",
-                "transaction_declined",
-                "transaction_pending",
-                "transaction_refunded",
-                "transaction_rejected",
-                "transaction_summary",
-                "transaction_summary_plural",
-                "transaction_verified",
-                "transaction_voided",
-                "spinner"
-              ]
+              "required": ["spinner"]
             }
           },
-          "required": [
-            "save",
-            "update",
-            "day",
-            "day_plural",
-            "week",
-            "week_plural",
-            "month",
-            "month_plural",
-            "year",
-            "year_plural",
-            "cancel",
-            "close",
-            "confirm",
-            "currency",
-            "daily",
-            "daily_plural",
-            "end_subscription",
-            "frequency",
-            "frequency_label",
-            "item_plural",
-            "monthly",
-            "monthly_plural",
-            "next_transaction_date",
-            "price_recurring",
-            "price_twice_a_month",
-            "subscription_active",
-            "subscription_cancelled",
-            "subscription_failed",
-            "subscription_inactive",
-            "subscription_will_be_cancelled",
-            "subscription_will_be_active",
-            "transaction_plural",
-            "twice_a_month",
-            "undo_cancel",
-            "undo_confirm",
-            "undo_header",
-            "undo_message",
-            "weekly",
-            "weekly_plural",
-            "yearly",
-            "yearly_plural",
-            "cancellation-form",
-            "spinner",
-            "transactions-table"
-          ]
-        },
-        "card": {
-          "additionalProperties": false,
-          "properties": {
-            "daily": { "type": "string", "default": "Daily" },
-            "daily_plural": { "type": "string", "default": "Every {{count}} days" },
-            "frequency": {
-              "type": "string",
-              "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-card\" })"
-            },
-            "monthly": { "type": "string", "default": "Monthly" },
-            "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
-            "price_recurring": {
-              "type": "string",
-              "default": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-card\" })"
-            },
-            "price_twice_a_month": {
-              "type": "string",
-              "default": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-card\" })"
-            },
-            "subscription_active": {
-              "type": "string",
-              "default": "Next payment on {{date, date}}"
-            },
-            "subscription_cancelled": { "type": "string", "default": "Ended on {{date, date}}" },
-            "subscription_failed": {
-              "type": "string",
-              "default": "Payment failed on {{date, date}}"
-            },
-            "subscription_inactive": { "type": "string", "default": "Inactive" },
-            "subscription_plural": { "type": "string", "default": "Subscriptions" },
-            "subscription_will_be_cancelled": {
-              "type": "string",
-              "default": "Ends on {{date, date}}"
-            },
-            "subscription_will_be_active": {
-              "type": "string",
-              "default": "Starts on {{date, date}}"
-            },
-            "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
-            "twice_a_month": { "type": "string", "default": "Twice a month" },
-            "weekly": { "type": "string", "default": "Weekly" },
-            "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
-            "yearly": { "type": "string", "default": "Yearly" },
-            "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No data" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_empty", "loading_error"]
-            }
-          },
-          "required": [
-            "daily",
-            "daily_plural",
-            "frequency",
-            "monthly",
-            "monthly_plural",
-            "price_recurring",
-            "price_twice_a_month",
-            "subscription_active",
-            "subscription_cancelled",
-            "subscription_failed",
-            "subscription_inactive",
-            "subscription_plural",
-            "subscription_will_be_cancelled",
-            "subscription_will_be_active",
-            "transaction_summary",
-            "twice_a_month",
-            "weekly",
-            "weekly_plural",
-            "yearly",
-            "yearly_plural",
-            "spinner"
-          ]
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
         }
       },
-      "required": ["title", "frequency", "start", "end", "next", "form", "card"]
-    },
-    "line-item-discount": {
-      "additionalProperties": false,
-      "properties": {
-        "coupon": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Coupon" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "Select coupon to apply..." }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "discount-name": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Discount name" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "One-off 10% discount" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "discount-builder": {
-          "additionalProperties": false,
-          "properties": {
-            "tier": { "type": "string", "default": "Tier" },
-            "tier_by": { "type": "string", "default": "by" },
-            "tier_if": { "type": "string", "default": "if" },
-            "tier_allunits": { "type": "string", "default": "price of each item" },
-            "tier_incremental": { "type": "string", "default": "price of additional items" },
-            "tier_repeat": { "type": "string", "default": "price of next item" },
-            "tier_single": { "type": "string", "default": "order total" },
-            "tier_then": { "type": "string", "default": "then" },
-            "quantity": { "type": "string", "default": "quantity" },
-            "total": { "type": "string", "default": "total" },
-            "reduce": { "type": "string", "default": "reduce" },
-            "increase": { "type": "string", "default": "increase" }
-          },
-          "required": [
-            "tier",
-            "tier_by",
-            "tier_if",
-            "tier_allunits",
-            "tier_incremental",
-            "tier_repeat",
-            "tier_single",
-            "tier_then",
-            "quantity",
-            "total",
-            "reduce",
-            "increase"
-          ]
-        }
-      },
-      "required": ["coupon", "discount-name", "discount-builder"]
-    },
-    "cart": {
-      "additionalProperties": false,
-      "properties": {
-        "expires": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Expires" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "01/01/2022" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "image": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Image" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "https://picsum.photos/256" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "url": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "URL" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "https://example.com/products/123" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "quantity-min": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Min quantity" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "1" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "quantity-max": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Max quantity" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "25" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        }
-      },
-      "required": ["expires", "image", "url", "quantity-min", "quantity-max"]
-    },
-    "shipping": {
-      "additionalProperties": false,
-      "properties": {
-        "shipto": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Shipping address" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "Select address to ship this item to..." }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "width": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Width" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "16" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "height": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Height" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "8" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "length": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Width" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "32" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "weight": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Weight" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "24" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        }
-      },
-      "required": ["shipto", "width", "height", "length", "weight"]
-    },
-    "inventory": {
-      "additionalProperties": false,
-      "properties": {
-        "category": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Item category" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "Select item category..." }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "code": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Code" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "MY-PRODUCT-001" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        },
-        "parent-code": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Parent code" },
-            "helper_text": { "type": "string", "default": "" },
-            "placeholder": { "type": "string", "default": "MY-BUNDLE-001" }
-          },
-          "required": ["label", "helper_text", "placeholder"]
-        }
-      },
-      "required": ["category", "code", "parent-code"]
-    },
-    "discount-details": {
-      "additionalProperties": false,
-      "properties": {
-        "title": { "type": "string", "default": "Discount details" },
-        "card": {
-          "additionalProperties": false,
-          "properties": {
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No data" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_empty", "loading_error"]
-            }
-          },
-          "required": ["spinner"]
-        },
-        "pagination": {
-          "additionalProperties": false,
-          "properties": {
-            "first": { "type": "string", "default": "First" },
-            "last": { "type": "string", "default": "Last" },
-            "next": { "type": "string", "default": "Next" },
-            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
-            "previous": { "type": "string", "default": "Previous" }
-          },
-          "required": ["first", "last", "next", "pagination", "previous"]
-        }
-      },
-      "required": ["title", "card", "pagination"]
+      "required": ["title", "pagination"]
     },
     "coupon-details": {
       "additionalProperties": false,
       "properties": {
         "title": { "type": "string", "default": "Coupon details" },
-        "card": {
-          "additionalProperties": false,
-          "properties": {
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No data" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_empty", "loading_error"]
-            }
-          },
-          "required": ["spinner"]
-        },
         "pagination": {
           "additionalProperties": false,
           "properties": {
@@ -626,17 +322,39 @@
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
             "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
-            "previous": { "type": "string", "default": "Previous" }
+            "previous": { "type": "string", "default": "Previous" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No data" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": ["spinner"]
+            }
           },
-          "required": ["first", "last", "next", "pagination", "previous"]
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
         }
       },
-      "required": ["title", "card", "pagination"]
+      "required": ["title", "pagination"]
     },
     "attributes": {
       "additionalProperties": false,
       "properties": {
         "title": { "type": "string", "default": "Attributes" },
+        "delete_header": { "type": "string", "default": "Remove attribute?" },
+        "delete_message": {
+          "type": "string",
+          "default": "Please confirm that you'd like to remove this attribute from the item."
+        },
+        "delete_confirm": { "type": "string", "default": "Remove" },
+        "delete_cancel": { "type": "string", "default": "Cancel" },
         "dialog": {
           "additionalProperties": false,
           "properties": {
@@ -651,7 +369,58 @@
               "default": "Looks like you didn't save your changes! What would you like to do with them?"
             },
             "undo_cancel": { "type": "string", "default": "Review" },
-            "undo_confirm": { "type": "string", "default": "Discard" }
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "attribute-form": {
+              "additionalProperties": false,
+              "properties": {
+                "cancel": { "type": "string", "default": "Cancel" },
+                "confirm": { "type": "string", "default": "Confirm" },
+                "create": { "type": "string", "default": "Create" },
+                "date": { "type": "string", "default": "{{value, date}}" },
+                "date_created": { "type": "string", "default": "Created on" },
+                "date_modified": { "type": "string", "default": "Last updated on" },
+                "delete": { "type": "string", "default": "Delete" },
+                "delete_prompt": {
+                  "type": "string",
+                  "default": "This resource will be permanently removed. Are you sure?"
+                },
+                "name": { "type": "string", "default": "Name" },
+                "v8n_required": { "type": "string", "default": "Required" },
+                "v8n_too_long": { "type": "string", "default": "Too long" },
+                "value": { "type": "string", "default": "Value" },
+                "visibility": { "type": "string", "default": "Visibility" },
+                "visibility_private": { "type": "string", "default": "Only me" },
+                "visibility_public": { "type": "string", "default": "Everyone" },
+                "visibility_restricted": { "type": "string", "default": "Store admins" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_error"]
+                }
+              },
+              "required": [
+                "cancel",
+                "confirm",
+                "create",
+                "date",
+                "date_created",
+                "date_modified",
+                "delete",
+                "delete_prompt",
+                "name",
+                "v8n_required",
+                "v8n_too_long",
+                "value",
+                "visibility",
+                "visibility_private",
+                "visibility_public",
+                "visibility_restricted",
+                "spinner"
+              ]
+            }
           },
           "required": [
             "header_create",
@@ -662,7 +431,8 @@
             "undo_header",
             "undo_message",
             "undo_cancel",
-            "undo_confirm"
+            "undo_confirm",
+            "attribute-form"
           ]
         },
         "pagination": {
@@ -702,107 +472,27 @@
           ]
         }
       },
-      "required": ["title", "dialog", "pagination"]
+      "required": [
+        "title",
+        "delete_header",
+        "delete_message",
+        "delete_confirm",
+        "delete_cancel",
+        "dialog",
+        "pagination"
+      ]
     },
     "item-options": {
       "additionalProperties": false,
       "properties": {
         "title": { "type": "string", "default": "Item options" },
-        "form": {
-          "additionalProperties": false,
-          "properties": {
-            "name": {
-              "additionalProperties": false,
-              "properties": {
-                "label": { "type": "string", "default": "Name" },
-                "helper_text": { "type": "string", "default": "" },
-                "placeholder": { "type": "string", "default": "Color" },
-                "v8n_required": { "type": "string", "default": "Name is required" },
-                "v8n_too_long": {
-                  "type": "string",
-                  "default": "Name mustn't exceed 100 characters"
-                }
-              },
-              "required": ["label", "helper_text", "placeholder", "v8n_required", "v8n_too_long"]
-            },
-            "value": {
-              "additionalProperties": false,
-              "properties": {
-                "label": { "type": "string", "default": "Value" },
-                "helper_text": { "type": "string", "default": "" },
-                "placeholder": { "type": "string", "default": "Red" },
-                "v8n_required": { "type": "string", "default": "Value is required" },
-                "v8n_too_long": {
-                  "type": "string",
-                  "default": "Value mustn't exceed 1024 characters"
-                }
-              },
-              "required": ["label", "helper_text", "placeholder", "v8n_required", "v8n_too_long"]
-            },
-            "price-mod": {
-              "additionalProperties": false,
-              "properties": {
-                "label": { "type": "string", "default": "Price" },
-                "helper_text": { "type": "string", "default": "Same currency as item" },
-                "placeholder": { "type": "string", "default": "10" }
-              },
-              "required": ["label", "helper_text", "placeholder"]
-            },
-            "weight-mod": {
-              "additionalProperties": false,
-              "properties": {
-                "label": { "type": "string", "default": "Weight" },
-                "helper_text": { "type": "string", "default": "Arbitrary units" },
-                "placeholder": { "type": "string", "default": "5" }
-              },
-              "required": ["label", "helper_text", "placeholder"]
-            },
-            "timestamps": {
-              "additionalProperties": false,
-              "properties": {
-                "date_created": { "type": "string", "default": "Created on" },
-                "date_modified": { "type": "string", "default": "Last updated on" },
-                "date": { "type": "string", "default": "{{value, date}}" }
-              },
-              "required": ["date_created", "date_modified", "date"]
-            },
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_error": { "type": "string", "default": "Failed to load" }
-              },
-              "required": ["loading_busy", "loading_error"]
-            },
-            "delete": {
-              "additionalProperties": false,
-              "properties": {
-                "delete": { "type": "string", "default": "Delete" },
-                "cancel": { "type": "string", "default": "Cancel" },
-                "delete_prompt": {
-                  "type": "string",
-                  "default": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
-                }
-              },
-              "required": ["delete", "cancel", "delete_prompt"]
-            },
-            "create": {
-              "additionalProperties": false,
-              "properties": { "create": { "type": "string", "default": "Create" } },
-              "required": ["create"]
-            }
-          },
-          "required": [
-            "name",
-            "value",
-            "price-mod",
-            "weight-mod",
-            "timestamps",
-            "spinner",
-            "delete",
-            "create"
-          ]
+        "delete_header": { "type": "string", "default": "Remove item option?" },
+        "delete_message": {
+          "type": "string",
+          "default": "Please confirm that you'd like to remove this item option from the item."
         },
+        "delete_confirm": { "type": "string", "default": "Remove" },
+        "delete_cancel": { "type": "string", "default": "Cancel" },
         "dialog": {
           "additionalProperties": false,
           "properties": {
@@ -817,7 +507,114 @@
               "default": "Looks like you didn't save your changes! What would you like to do with them?"
             },
             "undo_cancel": { "type": "string", "default": "Review" },
-            "undo_confirm": { "type": "string", "default": "Discard" }
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "item-option-form": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Name" },
+                    "helper_text": { "type": "string", "default": "" },
+                    "placeholder": { "type": "string", "default": "Color" },
+                    "v8n_required": { "type": "string", "default": "Name is required" },
+                    "v8n_too_long": {
+                      "type": "string",
+                      "default": "Name mustn't exceed 100 characters"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "helper_text",
+                    "placeholder",
+                    "v8n_required",
+                    "v8n_too_long"
+                  ]
+                },
+                "value": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Value" },
+                    "helper_text": { "type": "string", "default": "" },
+                    "placeholder": { "type": "string", "default": "Red" },
+                    "v8n_required": { "type": "string", "default": "Value is required" },
+                    "v8n_too_long": {
+                      "type": "string",
+                      "default": "Value mustn't exceed 1024 characters"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "helper_text",
+                    "placeholder",
+                    "v8n_required",
+                    "v8n_too_long"
+                  ]
+                },
+                "price-mod": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Price" },
+                    "helper_text": { "type": "string", "default": "Same currency as item" },
+                    "placeholder": { "type": "string", "default": "10" }
+                  },
+                  "required": ["label", "helper_text", "placeholder"]
+                },
+                "weight-mod": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Weight" },
+                    "helper_text": { "type": "string", "default": "Arbitrary units" },
+                    "placeholder": { "type": "string", "default": "5" }
+                  },
+                  "required": ["label", "helper_text", "placeholder"]
+                },
+                "timestamps": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "date_created": { "type": "string", "default": "Created on" },
+                    "date_modified": { "type": "string", "default": "Last updated on" },
+                    "date": { "type": "string", "default": "{{value, date}}" }
+                  },
+                  "required": ["date_created", "date_modified", "date"]
+                },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Failed to load" }
+                  },
+                  "required": ["loading_busy", "loading_error"]
+                },
+                "delete": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "delete": { "type": "string", "default": "Delete" },
+                    "cancel": { "type": "string", "default": "Cancel" },
+                    "delete_prompt": {
+                      "type": "string",
+                      "default": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
+                    }
+                  },
+                  "required": ["delete", "cancel", "delete_prompt"]
+                },
+                "create": {
+                  "additionalProperties": false,
+                  "properties": { "create": { "type": "string", "default": "Create" } },
+                  "required": ["create"]
+                }
+              },
+              "required": [
+                "name",
+                "value",
+                "price-mod",
+                "weight-mod",
+                "timestamps",
+                "spinner",
+                "delete",
+                "create"
+              ]
+            }
           },
           "required": [
             "header_create",
@@ -828,7 +625,8 @@
             "undo_header",
             "undo_message",
             "undo_cancel",
-            "undo_confirm"
+            "undo_confirm",
+            "item-option-form"
           ]
         },
         "pagination": {
@@ -868,7 +666,15 @@
           ]
         }
       },
-      "required": ["title", "form", "dialog", "pagination"]
+      "required": [
+        "title",
+        "delete_header",
+        "delete_message",
+        "delete_confirm",
+        "delete_cancel",
+        "dialog",
+        "pagination"
+      ]
     },
     "timestamps": {
       "additionalProperties": false,
@@ -906,14 +712,30 @@
     }
   },
   "required": [
+    "dimensions",
+    "subscriptions",
+    "discount",
     "name",
     "price",
     "quantity",
-    "subscription",
-    "line-item-discount",
-    "cart",
-    "shipping",
-    "inventory",
+    "subscription-frequency",
+    "subscription-start-date",
+    "subscription-end-date",
+    "discount-name",
+    "discount-builder",
+    "expires",
+    "image",
+    "url",
+    "quantity-min",
+    "quantity-max",
+    "shipto",
+    "width",
+    "height",
+    "length",
+    "weight",
+    "item-category-uri",
+    "code",
+    "parent-code",
     "discount-details",
     "coupon-details",
     "attributes",
