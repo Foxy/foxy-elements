@@ -796,8 +796,19 @@
           "pagination": "{{from}}-{{to}} out of {{total}}",
           "previous": "Previous",
           "card": {
+            "daily": "Daily",
+            "daily_plural": "Every {{count}} days",
+            "frequency": "$t(customer.subscription-form.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"customer-portal\" })",
+            "monthly": "Monthly",
+            "monthly_plural": "Every {{count}} months",
+            "subinfo_recurring": "$t(customer.subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" }) from {{startDate, date}}",
+            "subinfo_twice_a_month": "$t(customer.subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) from {{startDate, date}}",
+            "twice_a_month": "Twice a month",
+            "weekly": "Weekly",
+            "weekly_plural": "Every {{count}} weeks",
+            "yearly": "Yearly",
+            "yearly_plural": "Every {{count}} years",
             "price": "{{amount, price}}",
-            "wgt": "WGT",
             "spinner": {
               "loading_busy": "Loading",
               "loading_empty": "No items",
@@ -833,17 +844,9 @@
             "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
             "transaction_verified": "Verified",
             "transaction_voided": "Voided",
-            "type_subscription_cancellation": "Cancellation",
-            "type_subscription_modification": "Modification",
-            "type_subscription_renewal": "Renewal",
-            "type_updateinfo": "Update",
-            "type_new_order": "Order",
-            "type_new_subscription": "Subscription",
-            "source_MIT": "This transaction was initiated by merchant",
-            "source_CIT": "This transaction was initiated by customer",
             "spinner": {
               "loading_busy": "Loading",
-              "loading_empty": "No data",
+              "loading_empty": "No transactions",
               "loading_error": "Failed to load"
             }
           }
@@ -851,29 +854,6 @@
       },
       "spinner": {
         "loading_busy": "Loading",
-        "loading_error": "Failed to load"
-      }
-    },
-    "transactions-table": {
-      "date": "{{value, date}}",
-      "price": "{{amount, price}}",
-      "receipt": "Receipt",
-      "transaction_approved": "Approved",
-      "transaction_authorized": "Authorized",
-      "transaction_captured": "Captured",
-      "transaction_completed": "Completed",
-      "transaction_declined": "Declined",
-      "transaction_pending": "Pending",
-      "transaction_refunded": "Refunded",
-      "transaction_rejected": "Rejected",
-      "transaction_summary": "{{most_expensive_item.name}}",
-      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
-      "transaction_verified": "Verified",
-      "transaction_voided": "Voided",
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No transactions",
-        "loading_end": "No more data",
         "loading_error": "Failed to load"
       }
     }

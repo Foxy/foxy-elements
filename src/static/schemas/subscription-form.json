@@ -223,8 +223,28 @@
             "card": {
               "additionalProperties": false,
               "properties": {
+                "daily": { "type": "string", "default": "Daily" },
+                "daily_plural": { "type": "string", "default": "Every {{count}} days" },
+                "frequency": {
+                  "type": "string",
+                  "default": "$t(items.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })"
+                },
+                "monthly": { "type": "string", "default": "Monthly" },
+                "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
+                "subinfo_recurring": {
+                  "type": "string",
+                  "default": "$t(items.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" }) from {{startDate, date}}"
+                },
+                "subinfo_twice_a_month": {
+                  "type": "string",
+                  "default": "$t(items.pagination.card.twice_a_month, { \"ns\": \"subscription-form\" }) from {{startDate, date}}"
+                },
+                "twice_a_month": { "type": "string", "default": "Twice a month" },
+                "weekly": { "type": "string", "default": "Weekly" },
+                "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
+                "yearly": { "type": "string", "default": "Yearly" },
+                "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
                 "price": { "type": "string", "default": "{{amount, price}}" },
-                "wgt": { "type": "string", "default": "WGT" },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
@@ -235,7 +255,22 @@
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
               },
-              "required": ["price", "wgt", "spinner"]
+              "required": [
+                "daily",
+                "daily_plural",
+                "frequency",
+                "monthly",
+                "monthly_plural",
+                "subinfo_recurring",
+                "subinfo_twice_a_month",
+                "twice_a_month",
+                "weekly",
+                "weekly_plural",
+                "yearly",
+                "yearly_plural",
+                "price",
+                "spinner"
+              ]
             }
           },
           "required": ["first", "last", "next", "pagination", "previous", "card"]
