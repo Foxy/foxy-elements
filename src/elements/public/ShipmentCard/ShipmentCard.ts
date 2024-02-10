@@ -1,140 +1,129 @@
+import type { NucleonElement } from '../NucleonElement/NucleonElement';
 import type { TemplateResult } from 'lit-html';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
-import { html } from 'lit-html';
-import { ifDefined } from 'lit-html/directives/if-defined';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { BooleanSelector, Resource } from '@foxy.io/sdk/core';
-import { Rels } from '@foxy.io/sdk/backend';
-import { PropertyDeclarations } from 'lit-element';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
-import { FormRenderer } from '../FormDialog/types';
-import { ConfigurableMixin } from '../../../mixins/configurable';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
 
 const NS = 'shipment-card';
-const Base = ConfigurableMixin(TranslatableMixin(InternalCard, NS));
+const Base = TranslatableMixin(InternalCard, NS);
 
 /**
- * Basic card displaying a shipment.
+ * Basic card displaying a shipment (`fx:shipment`).
  *
  * @element foxy-shipment-card
  * @since 1.17.0
  */
 export class ShipmentCard extends Base<Data> {
-  static get properties(): PropertyDeclarations {
-    return {
-      ...super.properties,
-      __customerAddresses: { attribute: false },
-      __currencyDisplay: { attribute: false },
-      __itemCategories: { attribute: false },
-      __editable: { attribute: false },
-      __currency: { attribute: false },
-      __coupons: { attribute: false },
-    };
-  }
+  private readonly __transactionLoaderId = 'transactionLoader';
 
-  __customerAddresses = '';
-
-  __currencyDisplay = '';
-
-  __itemCategories = '';
-
-  __editable = false;
-
-  __currency = '';
-
-  __coupons = '';
-
-  get readonlySelector(): BooleanSelector {
-    return this.__editable ? super.readonlySelector : BooleanSelector.True;
-  }
+  private readonly __storeLoaderId = 'storeLoader';
 
   renderBody(): TemplateResult {
-    let itemsLink: string | undefined = undefined;
-
-    if (this.data) {
-      try {
-        const url = new URL(this.data._links['fx:items'].href);
-        url.searchParams.set('zoom', 'item_options');
-        itemsLink = url.toString();
-      } catch {
-        //
-      }
-    }
-
-    const itemFormRenderer: FormRenderer = ({ html, dialog, handleFetch, handleUpdate }) => html`
-      <foxy-item-form
-        customer-addresses=${this.__customerAddresses}
-        item-categories=${this.__itemCategories}
-        coupons=${this.__coupons}
-        parent=${dialog.parent}
-        href=${dialog.href}
-        infer=""
-        id="form"
-        @fetch=${handleFetch}
-        @update=${handleUpdate}
-      >
-      </foxy-item-form>
-    `;
-
     const { address_name, address1, address2, city, region, postal_code } = this.data ?? {};
     const addressOptions = { address_name, address1, address2, city, region, postal_code };
 
-    const amount = `${this.data?.total_shipping} ${this.__currency}`;
+    const amount = `${this.data?.total_shipping} ${this.__currencyCode}`;
     const currencyDisplay = this.__currencyDisplay;
     const priceOptions = { amount, currencyDisplay };
+    const description = this.data?.shipping_service_description;
+    const items = this.data?._embedded?.['fx:items'] ?? [];
 
     return html`
-      <div class="space-y-m">
-        <div>
-          <div class="flex items-center text-m space-x-s text-secondary">
-            <iron-icon icon="maps:place" class="icon-inline flex-shrink-0"></iron-icon>
-            <span class="truncate">
-              <foxy-i18n infer="address" key="full_address" .options=${addressOptions}></foxy-i18n>
-            </span>
-          </div>
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this.data?._links['fx:transaction'].href)}
+        id=${this.__transactionLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
 
-          <div class="flex items-center text-m space-x-s text-secondary">
-            <iron-icon icon="maps:local-shipping" class="icon-inline flex-shrink-0"></iron-icon>
-            <span class="truncate">
-              ${this.data?.shipping_service_description} &bull;
-              <foxy-i18n key="price" infer="address" .options=${priceOptions}></foxy-i18n>
-            </span>
-          </div>
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this.data?._links['fx:store'].href)}
+        id=${this.__storeLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <div class="space-y-s">
+        <div class="grid leading-s text-body">
+          <foxy-i18n
+            class="truncate text-m font-medium"
+            infer=""
+            key="full_address"
+            .options=${addressOptions}
+          >
+          </foxy-i18n>
+
+          <span class="truncate text-s text-secondary">
+            ${description ? html`${description} &bull; ` : ''}
+            <foxy-i18n key="price" infer="" .options=${priceOptions}></foxy-i18n>
+            &bull;
+            <foxy-i18n infer="" key="item" .options=${{ count: items.length }}></foxy-i18n>
+          </span>
         </div>
 
-        <foxy-internal-async-details-control
-          infer="items"
-          first=${ifDefined(itemsLink)}
-          limit="5"
-          item="foxy-item-card"
-          open
-          .form=${itemFormRenderer as any}
-        >
-        </foxy-internal-async-details-control>
+        ${items.length > 0
+          ? html`
+              <div class="border-t border-dashed border-contrast-20"></div>
+              <div class="overflow-auto">
+                <table class="text-s leading-s whitespace-nowrap">
+                  <thead></thead>
+                  <tbody>
+                    ${items.map(item => {
+                      const category = item._embedded?.['fx:item_category'];
+                      const lengthUnit = category?.default_length_unit;
+                      const weightUnit = category?.default_weight_unit;
+
+                      return html`
+                        <tr>
+                          <td class="pr-s font-medium">${item.code}</td>
+                          <td class="px-s text-secondary">${item.name}</td>
+                          <td class="px-s text-tertiary">
+                            ${item.width}&times;${item.height}&times;${item.length} ${lengthUnit}
+                          </td>
+                          <td class="px-s text-tertiary">${item.weight} ${weightUnit}</td>
+                          <td class="pl-s font-medium">
+                            <foxy-i18n infer="" key="quantity" .options=${{ count: item.quantity }}>
+                            </foxy-i18n>
+                          </td>
+                        </tr>
+                      `;
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            `
+          : ''}
       </div>
     `;
   }
 
-  protected async _sendGet(): Promise<Data> {
-    type Transaction = Resource<Rels.Transaction>;
-    type Customer = Resource<Rels.Customer>;
-    type Store = Resource<Rels.Store>;
+  get isBodyReady() {
+    return super.isBodyReady && !!this.__currencyDisplay && !!this.__currencyCode;
+  }
 
-    const shipment = await super._sendGet();
-    const [transaction, customer, store] = await Promise.all([
-      super._fetch<Transaction>(shipment._links['fx:transaction'].href),
-      super._fetch<Customer>(shipment._links['fx:customer'].href),
-      super._fetch<Store>(shipment._links['fx:store'].href),
-    ]);
+  private get __transactionLoader() {
+    type Loader = NucleonElement<Resource<Rels.Transaction>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__transactionLoaderId}`);
+  }
 
-    this.__customerAddresses = customer._links['fx:customer_addresses'].href;
-    this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
-    this.__itemCategories = store._links['fx:item_categories'].href;
-    this.__currency = transaction.currency_code;
-    this.__editable = !!transaction._links['fx:void'] || !!transaction._links['fx:refund'];
-    this.__coupons = store._links['fx:coupons'].href;
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__storeLoaderId}`);
+  }
 
-    return shipment;
+  private get __currencyDisplay() {
+    const store = this.__storeLoader?.data;
+    return store ? (store.use_international_currency_symbol ? 'code' : 'symbol') : void 0;
+  }
+
+  private get __currencyCode() {
+    return this.__transactionLoader?.data?.currency_code;
   }
 }
