@@ -142,6 +142,14 @@ describe('InternalAsyncListControl', () => {
     expect(Control).to.have.deep.nested.property('properties.item', {});
   });
 
+  it('has a reactive property "itemProps"', () => {
+    expect(new Control()).to.have.deep.property('itemProps', {});
+    expect(Control).to.have.deep.nested.property('properties.itemProps', {
+      type: Object,
+      attribute: 'item-props',
+    });
+  });
+
   it('has a reactive property "wide"', () => {
     expect(new Control()).to.have.property('wide', false);
     expect(Control).to.have.deep.nested.property('properties.wide', { type: Boolean });
@@ -256,11 +264,15 @@ describe('InternalAsyncListControl', () => {
     expect(page).to.exist;
     expect(page).to.have.attribute('infer', 'card');
     expect(page).to.have.deep.property('related', []);
+    expect(page).to.have.deep.property('props', {});
 
     control.related = ['https://demo.api/virtual/stall'];
     await control.requestUpdate();
-
     expect(page).to.have.deep.property('related', ['https://demo.api/virtual/stall']);
+
+    control.itemProps = { foo: 'bar' };
+    await control.requestUpdate();
+    expect(page).to.have.deep.property('props', { foo: 'bar' });
   });
 
   it('can render collection page items as simple list items using local name', async () => {

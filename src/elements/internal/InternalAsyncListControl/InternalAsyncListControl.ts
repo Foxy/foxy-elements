@@ -25,6 +25,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       limit: { type: Number },
       form: {},
       item: {},
+      itemProps: { type: Object, attribute: 'item-props' },
       wide: { type: Boolean },
       alert: { type: Boolean },
     };
@@ -53,6 +54,9 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
   /** Same as the `item` property of `CollectionPage`. */
   item: CollectionPage<any>['item'] = null;
+
+  /** Props to pass through to the `CollectionPage` rendering items. */
+  itemProps: Record<string, unknown> = {};
 
   /** Same as the `wide` property of `FormDialog`. */
   wide = false;
@@ -205,6 +209,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
           })}
           infer="card"
           .related=${this.related}
+          .props=${this.itemProps}
           .item=${this.__itemRenderer as any}
         >
         </foxy-collection-page>
@@ -258,7 +263,16 @@ export class InternalAsyncListControl extends InternalEditableControl {
           typeof item === 'string'
             ? (new Function(
                 'ctx',
-                `return ctx.html\`<${item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)" infer href=\${ctx.href}></${item}>\``
+                `return ctx.html\`
+                  <${item}
+                    related=\${JSON.stringify(ctx.related)}
+                    parent=\${ctx.parent}
+                    style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                    infer=""
+                    href=\${ctx.href}
+                    ...=\${ctx.spread(ctx.props)}
+                  >
+                  </${item}>\``
               ) as ItemRenderer)
             : ctx => html`
                 <div style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">
