@@ -7,6 +7,7 @@ import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { ConfigurableMixin } from '../../../mixins/configurable';
+import { parseFrequency } from '../../../utils/parse-frequency';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
@@ -54,7 +55,6 @@ export class ItemCard extends Base<Data> {
 
     const currencyDisplay = this.__currencyDisplay;
     const currencyCode = this.__currencyCode;
-    const totalPrice = quantity * price;
 
     return html`
       <foxy-nucleon
@@ -125,7 +125,7 @@ export class ItemCard extends Base<Data> {
         style="gap: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
       >
         <img
-          class="relative h-s w-s object-cover rounded-full bg-contrast-20 flex-shrink-0 shadow-xs"
+          class="relative h-s w-s object-cover rounded-s bg-contrast-20 flex-shrink-0 shadow-xs"
           src=${ifDefined(this.data?.image)}
           alt=""
           @error=${(evt: Event) => {
@@ -135,88 +135,64 @@ export class ItemCard extends Base<Data> {
         />
 
         <div class="flex-1 min-w-0">
-          <div class="flex-1 h-s flex items-center">
-            <div class="flex-1 min-w-0">
-              <div class="font-medium text-m truncate">${this.data?.name}</div>
-              <div class="text-tertiary text-s truncate">
-                ${quantity} &times;
+          <div class="h-s flex items-center">
+            <div class="min-w-0 flex-1 leading-s">
+              <div class="flex items-center justify-between">
+                <div class="truncate text-m font-medium">${this.data?.name}</div>
+                <span class="text-s text-tertiary whitespace-nowrap">
+                  ${quantity} &times;
+                  <foxy-i18n
+                    .options=${{ amount: `${price} ${currencyCode}`, currencyDisplay }}
+                    key="price"
+                    infer=""
+                  >
+                  </foxy-i18n>
+                </span>
+              </div>
 
-                <foxy-i18n
-                  options=${JSON.stringify({
-                    amount: `${price} ${currencyCode}`,
-                    currencyDisplay,
-                  })}
-                  key="price"
-                  infer=""
-                >
-                </foxy-i18n>
-
-                &equals;
-
-                <foxy-i18n
-                  options=${JSON.stringify({
-                    amount: `${totalPrice} ${currencyCode}`,
-                    currencyDisplay,
-                  })}
-                  key="price"
-                  infer=""
-                >
-                </foxy-i18n>
+              <div class="truncate text-secondary text-s">
+                ${this.data?.code}
+                ${this.data?.subscription_frequency &&
+                !this.hiddenSelector.matches('autorenew-icon', true)
+                  ? html`
+                      <span> &bull; </span>
+                      <foxy-i18n
+                        infer=""
+                        key=${this.__subinfoKey}
+                        .options=${this.__subinfoOptions}
+                      >
+                      </foxy-i18n>
+                    `
+                  : ''}
+                &ZeroWidthSpace;
               </div>
             </div>
-
-            ${this.data?.subscription_frequency &&
-            !this.hiddenSelector.matches('autorenew-icon', true)
-              ? html`
-                  <div
-                    class="w-xs h-xs flex items-center justify-center rounded-full bg-contrast-5"
-                  >
-                    <iron-icon icon="icons:autorenew" class="icon-inline text-s"></iron-icon>
-                  </div>
-                `
-              : ''}
           </div>
 
           ${options && options.length > 0
             ? html`
-                <div class="mt-s">
+                <div class="mt-m">
                   ${options.map(
                     option => html`
-                      <div
-                        data-testclass="option"
-                        class="flex items-center text-s space-x-xs leading-m"
-                      >
-                        <div class="flex-1 text-tertiary truncate">
-                          ${option.name}: ${option.value}
+                      <div data-testclass="option" class="flex items-center gap-s text-s leading-s">
+                        <div class="truncate text-secondary">
+                          ${option.name}: <span class="font-medium text-body">${option.value}</span>
                         </div>
+
                         ${option.price_mod
                           ? html`
-                              <div
-                                class="${option.price_mod > 0
-                                  ? 'text-success'
-                                  : 'text-error'} rounded px-xs truncate"
-                              >
+                              <div class="border-t border-dashed border-contrast-10 flex-1"></div>
+                              <div class="whitespace-nowrap text-tertiary">
                                 <foxy-i18n
                                   options=${JSON.stringify({
                                     amount: `${option.price_mod} ${currencyCode}`,
+                                    signDisplay: 'exceptZero',
                                     currencyDisplay: currencyDisplay,
                                   })}
                                   key="price"
                                   infer=""
                                 >
                                 </foxy-i18n>
-                              </div>
-                            `
-                          : ''}
-                        ${option.weight_mod
-                          ? html`
-                              <div
-                                class="${option.price_mod > 0
-                                  ? 'text-success'
-                                  : 'text-error'} rounded px-xs truncate"
-                              >
-                                ${option.weight_mod}
-                                <foxy-i18n key="wgt" infer=""></foxy-i18n>
                               </div>
                             `
                           : ''}
@@ -355,5 +331,34 @@ export class ItemCard extends Base<Data> {
         if (localeInfo) return /Currency: ([A-Z]{3})/g.exec(localeInfo)?.[1];
       }
     }
+  }
+
+  private get __subinfoOptions() {
+    const currencyDisplay = this.__currencyDisplay;
+    if (currencyDisplay === undefined) return;
+
+    const currencyCode = this.__currencyCode;
+    if (currencyCode === undefined) return;
+
+    const totalOrder = this.__transactionTemplate?.total_order;
+    if (totalOrder === undefined) return;
+
+    const frequency = this.data?.subscription_frequency;
+    if (frequency === undefined) return;
+
+    const startDate = this.data?.subscription_start_date;
+    if (startDate === undefined) return;
+
+    return {
+      ...parseFrequency(frequency),
+      amount: `${totalOrder} ${currencyCode}`,
+      currencyDisplay,
+      startDate,
+    };
+  }
+
+  private get __subinfoKey() {
+    const frequency = this.data?.subscription_frequency;
+    if (frequency) return `subinfo_${frequency === '.5m' ? 'twice_a_month' : 'recurring'}`;
   }
 }

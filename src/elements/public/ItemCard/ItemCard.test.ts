@@ -26,7 +26,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -45,7 +45,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -64,7 +64,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -83,7 +83,7 @@ describe('ItemCard', () => {
     const router = createRouter();
     const element = await fixture<ItemCard>(html`
       <foxy-item-card
-        href="https://demo.api/hapi/items/0"
+        href="https://demo.api/hapi/items/0?zoom=item_options"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-item-card>
@@ -108,8 +108,9 @@ describe('ItemCard', () => {
 
     expect(amounts[1]).to.have.property('infer', '');
     expect(amounts[1]).to.have.deep.property('options', {
-      amount: '128 USD',
+      amount: '11.98 USD',
       currencyDisplay: 'code',
+      signDisplay: 'exceptZero',
     });
   });
 
@@ -144,14 +145,8 @@ describe('ItemCard', () => {
         expect(domPriceMod).to.have.deep.property('options', {
           amount: `${apiOption.price_mod} USD`,
           currencyDisplay: 'code',
+          signDisplay: 'exceptZero',
         });
-      }
-
-      if (apiOption.weight_mod) {
-        const domWeightMod = domOption.querySelector('foxy-i18n[key="wgt"]');
-
-        expect(domOption).to.include.text(String(apiOption.weight_mod));
-        expect(domWeightMod).to.have.property('infer', '');
       }
     }
   });
