@@ -98,7 +98,7 @@ export const links: Links = {
     'fx:transaction_template': { href: `./carts/${transaction_template_id}` },
   }),
 
-  transactions: ({ id, status, is_editable, store_id, customer_id }) => ({
+  transactions: ({ id, status, is_editable, store_id, customer_id, subscription_id }) => ({
     ...(is_editable
       ? status === 'completed'
         ? {
@@ -119,12 +119,14 @@ export const links: Links = {
     'fx:shipments': { href: `./shipments?transaction_id=${id}` },
     'fx:attributes': { href: `./transaction_attributes?transaction_id=${id}` },
     'fx:send_emails': { href: 'https://demo.api/virtual/empty?status=200' },
+    'fx:subscription': { href: `./subscriptions/${subscription_id}` },
     'fx:applied_taxes': { href: `./applied_taxes?transaction_id=${id}` },
     'fx:custom_fields': { href: `./custom_fields?transaction_id=${id}` },
     'fx:process_webhook': { href: 'https://demo.api/virtual/empty?status=200' },
     'fx:transaction_logs': { href: `./transaction_logs?transaction_id=${id}` },
-    'fx:billing_addresses': { href: `./customer_addresses?customer_id=${customer_id}` },
+    'fx:billing_addresses': { href: `./customer_addresses?id=0` },
     'fx:native_integrations': { href: `./native_integrations?transaction_id=${id}` },
+    'fx:applied_gift_card_codes': { href: `./applied_gift_card_codes?transaction_id=${id}` },
   }),
 
   customers: document => ({
@@ -271,6 +273,15 @@ export const links: Links = {
   }),
 
   gift_card_code_logs: ({ transaction_id, gift_card_id, gift_card_code_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
+    'fx:gift_card_code': { href: `./gift_card_codes/${gift_card_code_id}` },
+    ...(typeof transaction_id === 'number'
+      ? { 'fx:transaction': { href: `./transactions/${transaction_id}` } }
+      : null),
+  }),
+
+  applied_gift_card_codes: ({ transaction_id, gift_card_id, gift_card_code_id, store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
     'fx:gift_card_code': { href: `./gift_card_codes/${gift_card_code_id}` },

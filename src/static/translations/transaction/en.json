@@ -1,347 +1,1209 @@
 {
+  "header": {
+    "title": "ID {{ display_id }}",
+    "subtitle": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }}",
+    "subtitle_customer_changed_payment_method": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer changed payment method",
+    "subtitle_admin_changed_payment_method_with_uoe": "{{ transaction_date, date }} • Store admin used UOE password to change payment method",
+    "subtitle_integration_changed_payment_method": "{{ transaction_date, date }} • Integration changed payment method",
+    "subtitle_admin_changed_payment_method": "{{ transaction_date, date }} • Store admin changed payment method",
+    "subtitle_customer_changed_subscription": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer made changes to subscription",
+    "subtitle_admin_changed_subscription_with_uoe": "{{ transaction_date, date }} • Store admin used UOE password to make changes to subscription",
+    "subtitle_integration_changed_subscription": "{{ transaction_date, date }} • Integration made changes to subscription",
+    "subtitle_admin_changed_subscription": "{{ transaction_date, date }} • Store admin made changes to subscription",
+    "subtitle_subscription_renewal_attempt": "{{ transaction_date, date }} • Subscription renewal attempt",
+    "subtitle_subscription_renewal_automated_reattempt": "{{ transaction_date, date }} • Automated subscription renewal reattempt",
+    "subtitle_subscription_renewal_manual_reattempt": "{{ transaction_date, date }} • Store admin attempted to renew subscription",
+    "subtitle_customer_canceled_subscription": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer cancelled subscription",
+    "subtitle_admin_canceled_subscription": "{{ transaction_date, date }} • Store admin cancelled subscription",
+    "subtitle_customer_subscribed": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer bought a subscription",
+    "subtitle_admin_subscribed_with_uoe": "{{ transaction_date, date }} • Store admin used UOE password to buy a subscription",
+    "subtitle_integration_subscribed": "{{ transaction_date, date }} • Integration placed an order for customer",
+    "subtitle_customer_placed_order": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer placed an order",
+    "subtitle_admin_placed_order_with_uoe": "{{ transaction_date, date }} • Store admin used UOE password to place an order",
+    "subtitle_integration_placed_order": "{{ transaction_date, date }} • Integration bought a subscription",
+    "alert_status_problem": "We were unable to complete this transaction because the amount that was sent to the payment gateway did not match the final total amount.",
+    "alert_status_pending_fraud_review": "The payment gateway flagged this transaction as potentially fraudulent. Please log in to your gateway’s dashboard and look for this transaction to review.",
+    "alert_status_rejected": "The payment gateway refused to process this transaction based on its internal policy. You may be able to get more information about this error by logging in to your gateway’s dashboard and looking for this transaction.",
+    "alert_status_declined": "The payment method used for this transaction was declined. This could be due to insufficient funds, an expired card, or a different reason. You may be able to get more information about this error in your gateway’s dashboard."
+  },
   "customer": {
-    "customer": "Customer",
+    "label": "Customer",
+    "copy_email_caption": "Copy email",
+    "copy_id_caption": "Copy ID",
+    "spinner": {
+      "loading_busy": "Loading",
+      "loading_empty": "No customer",
+      "loading_error": "Failed to load"
+    }
+  },
+  "items": {
+    "label": "Items",
+    "delete_header": "Remove item?",
+    "delete_message": "Please confirm that you'd like to remove this item from the transaction.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "pagination": {
+      "create_button_text": "Add item",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "delete_button_text": "Remove",
+        "daily": "Daily",
+        "daily_plural": "Every {{count}} days",
+        "frequency": "$t(items.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"transaction\" })",
+        "monthly": "Monthly",
+        "monthly_plural": "Every {{count}} months",
+        "subinfo_recurring": "$t(items.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"transaction\" }) from {{startDate, date}}",
+        "subinfo_twice_a_month": "$t(items.pagination.card.twice_a_month, { \"ns\": \"transaction\" }) from {{startDate, date}}",
+        "twice_a_month": "Twice a month",
+        "weekly": "Weekly",
+        "weekly_plural": "Every {{count}} weeks",
+        "yearly": "Yearly",
+        "yearly_plural": "Every {{count}} years",
+        "price": "{{amount, price}}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No items",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
     "dialog": {
       "close": "Close",
       "cancel": "Cancel",
-      "header": "Customer",
-      "customer": {
-        "address_plural": "Addresses",
-        "attribute_plural": "Attributes",
-        "create": "Create",
-        "customer": "Customer",
-        "delete_prompt": "This resource will be permanently removed. Are you sure?",
-        "payment_method_plural": "Payment methods",
-        "save": "Save",
-        "subscription_plural": "Subscriptions",
-        "transaction_plural": "Transactions",
-        "undo_cancel": "Review",
-        "undo_confirm": "Discard",
-        "undo_header": "Unsaved changes",
-        "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-        "update": "Update",
-        "address-card": {
-          "default_billing_address": "Default billing address",
-          "default_shipping_address": "Default shipping address",
-          "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
-          "full_name": "{{first_name}} {{last_name}}",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Failed to load"
+      "header_update": "Item",
+      "header_create": "New item",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "item-form": {
+        "dimensions": "Dimensions",
+        "subscriptions": "Subscriptions",
+        "discount": "Discount",
+        "name": {
+          "label": "Name",
+          "helper_text": "Public name of this item.",
+          "placeholder": "13' Laptop Case",
+          "v8n_required": "Name is required",
+          "v8n_too_long": "Name mustn't exceed 255 characters"
+        },
+        "price": {
+          "label": "Price",
+          "helper_text": "Base price before option modifiers.",
+          "placeholder": "25",
+          "v8n_required": "Price is required",
+          "v8n_negative": "Price can't be negative"
+        },
+        "quantity": {
+          "label": "Quantity",
+          "helper_text": "Number of items in the cart.",
+          "placeholder": "1 by default",
+          "v8n_less_than_one": "Quantity must be 1 or more"
+        },
+        "subscription-frequency": {
+          "label": "Subscription frequency",
+          "helper_text": "",
+          "day": "Day",
+          "day_plural": "Days",
+          "week": "Week",
+          "week_plural": "Weeks",
+          "month": "Month",
+          "month_plural": "Months",
+          "year": "Year",
+          "year_plural": "Years",
+          "helper_text": "This determines how often this subscription will be processed. To modify this value for an existing subscription, you must modify the subscription directly."
+        },
+        "subscription-start-date": {
+          "label": "Subscription start",
+          "helper_text": "The original date this subscription began or will begin if set in the future. To modify this value for an existing subscription, you must modify the subscription directly.",
+          "placeholder": "01/01/2022"
+        },
+        "subscription-end-date": {
+          "label": "Subscription end",
+          "helper_text": "If set, the date this subscription will end. The subscription will not run on this day.",
+          "placeholder": "01/01/2022"
+        },
+        "discount-name": {
+          "label": "Discount name",
+          "helper_text": "The name of the line item discount if it is included on this item.",
+          "placeholder": "One-off 10% discount"
+        },
+        "discount-builder": {
+          "tier": "Tier",
+          "tier_by": "by",
+          "tier_if": "if",
+          "tier_allunits": "price of each item",
+          "tier_incremental": "price of additional items",
+          "tier_repeat": "price of next item",
+          "tier_single": "order total",
+          "tier_then": "then",
+          "quantity": "quantity",
+          "total": "total",
+          "reduce": "reduce",
+          "increase": "increase"
+        },
+        "expires": {
+          "label": "Expires",
+          "helper_text": "Date when this item will be removed from the cart (optional).",
+          "placeholder": "01/01/2022"
+        },
+        "image": {
+          "label": "Image",
+          "helper_text": "URL of the image to display for this item in the cart and checkout.",
+          "placeholder": "https://picsum.photos/256"
+        },
+        "url": {
+          "label": "URL",
+          "helper_text": "Full URL for the customer to view this item on the store website.",
+          "placeholder": "https://example.com/products/123"
+        },
+        "quantity-min": {
+          "label": "Min quantity",
+          "helper_text": "Minimum quantity per cart.",
+          "placeholder": "1"
+        },
+        "quantity-max": {
+          "label": "Max quantity",
+          "helper_text": "Maximum quantity per cart.",
+          "placeholder": "25"
+        },
+        "shipto": {
+          "label": "Shipping address",
+          "helper_text": "Used for multiship to assign this item to a specific shipment.",
+          "placeholder": "Select address to ship this item to..."
+        },
+        "width": {
+          "label": "Width",
+          "helper_text": "This is currently a placeholder for future use.",
+          "placeholder": "16"
+        },
+        "height": {
+          "label": "Height",
+          "helper_text": "This is currently a placeholder for future use.",
+          "placeholder": "8"
+        },
+        "length": {
+          "label": "Width",
+          "helper_text": "This is currently a placeholder for future use.",
+          "placeholder": "32"
+        },
+        "weight": {
+          "label": "Weight",
+          "helper_text": "Per-item weight, used for shipping rate requests.",
+          "placeholder": "24"
+        },
+        "item-category-uri": {
+          "label": "Item category",
+          "helper_text": "Item category associated with this item.",
+          "placeholder": "Select item category..."
+        },
+        "code": {
+          "label": "Code",
+          "helper_text": "Unique item code such as SKU or barcode.",
+          "placeholder": "MY-PRODUCT-001"
+        },
+        "parent-code": {
+          "label": "Parent code",
+          "helper_text": "Used if this should be a child product in a bundle.",
+          "placeholder": "MY-BUNDLE-001"
+        },
+        "discount-details": {
+          "title": "Discounts",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No discounts",
+                "loading_error": "Failed to load"
+              }
+            }
           }
         },
-        "address-form": {
-          "address_name": "Address name",
-          "address1": "Address Line 1",
-          "address2": "Address Line 2",
-          "cancel": "Cancel",
-          "city": "City",
-          "company": "Company",
-          "confirm": "Confirm",
-          "country": "Country",
-          "create": "Create",
-          "date": "{{value, date}}",
-          "date_created": "Created on",
-          "date_modified": "Last updated on",
-          "delete": "Delete",
-          "delete_prompt": "This resource will be permanently removed. Are you sure?",
-          "first_name": "First name",
-          "last_name": "Last name",
-          "phone": "Phone",
-          "postal_code": "Postal code",
-          "region": "Region",
-          "v8n_required": "Required",
-          "v8n_too_long": "Too long",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_error": "Failed to load"
+        "coupon-details": {
+          "title": "Coupons",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No coupons",
+                "loading_error": "Failed to load"
+              }
+            }
           }
         },
-        "attribute-card": {
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Failed to load"
-          }
-        },
-        "attribute-form": {
-          "cancel": "Cancel",
-          "confirm": "Confirm",
-          "create": "Create",
-          "date": "{{value, date}}",
-          "date_created": "Created on",
-          "date_modified": "Last updated on",
-          "delete": "Delete",
-          "delete_prompt": "This resource will be permanently removed. Are you sure?",
-          "name": "Name",
-          "v8n_required": "Required",
-          "v8n_too_long": "Too long",
-          "value": "Value",
-          "visibility": "Visibility",
-          "visibility_private": "Only me",
-          "visibility_public": "Everyone",
-          "visibility_restricted": "Store admins",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_error": "Failed to load"
-          }
-        },
-        "customer-form": {
-          "message": {
-            "password_change_success": "You have successfully set a new password for {{ email }}.",
-            "close": "Close"
-          },
-          "error": {
-            "registration_disabled": "Customer registration is disabled for this store. If you're seeing this message as a customer, please contact the store owner.",
-            "verification_failed": "Client verification failed. If you are seeing this message as a customer, please contact the store owner.",
-            "email_already_used": "This email is already in use. Please use a different email."
-          },
-          "first-name": {
-            "label": "First name",
-            "placeholder": "Not set",
-            "helper_text": "Customer's given name, optional.",
-            "v8n_too_long": "We can't store first names longer than 50 characters."
-          },
-          "last-name": {
-            "label": "Last name",
-            "placeholder": "Not set",
-            "helper_text": "Customer's surname, optional.",
-            "v8n_too_long": "We can't store last names longer than 50 characters."
-          },
-          "tax-id": {
-            "label": "Tax ID",
-            "placeholder": "Not set",
-            "helper_text": "Tax identification number for this customer, optional.",
-            "v8n_too_long": "We can't store tax IDs longer than 50 characters."
-          },
-          "email": {
-            "label": "Email",
-            "placeholder": "Required",
-            "helper_text": "This email will be used as the login to the Checkout and Customer Portal.",
-            "helper_text_last_login_date": "This customer's login to the Checkout and Customer Portal. Last used on {{ date, date }} at {{ date, time }}.",
-            "v8n_too_long": "We can't store emails longer than 100 characters.",
-            "v8n_invalid_email": "This email is invalid.",
-            "v8n_required": "Please fill out this field."
-          },
-          "is-anonymous": {
-            "label": "Account type",
-            "helper_text": "Guest customers dont't have access to Customer Portal. Once the account type is set, it can not be changed.",
-            "option_true": "Guest",
-            "option_false": "Registered"
-          },
-          "password": {
-            "label": "Password",
-            "placeholder": "Required",
-            "placeholder_new": "Keep current password",
-            "helper_text": "Set a password for this customer. To generate a secure random password for this account, use the ✨ button.",
-            "helper_text_new": "To change this customer's password, enter a new password here. If you leave it blank, their password will remain the same.",
-            "v8n_too_long": "Please use a password that is no longer than 50 characters.",
-            "v8n_too_weak": "Please use a stronger password. To make this password stronger, make it at least 8 characters long and include a few upper and lower case letters, numbers, and special characters.",
-            "v8n_required": "Please fill out this field."
-          },
-          "password-old": {
-            "label": "Old password",
-            "placeholder": "",
-            "helper_text": "Enter the old password to set a new password. If you're a store admin, you can leave this field blank.",
-            "v8n_required": "Please fill out this field."
-          },
-          "forgot-password": {
-            "label": "One-time code",
-            "placeholder": "Not set",
-            "helper_text": "Set a one-time code that this customer can use instead of a password to sign in. Keep in mind that this code will expire after 30 minutes.",
-            "helper_text_expired_on": "A one-time code that this customer can use instead of a password to sign in. This code expired on {{ expiresOn, date }} at {{ expiresOn, time }}.",
-            "helper_text_expires_in": "A one-time code that this customer can use instead of a password to sign in. This code will expire in {{ expiresInMin, relative }}.",
-            "v8n_too_long": "Please use a code that is no longer than 50 characters."
-          },
-          "timestamps": {
-            "date_created": "Created on",
-            "date_modified": "Last updated on",
-            "date": "{{value, date}}"
-          },
-          "delete": {
-            "delete": "Delete",
+        "attributes": {
+          "title": "Attributes",
+          "delete_header": "Remove attribute?",
+          "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
+          "delete_confirm": "Remove",
+          "delete_cancel": "Cancel",
+          "dialog": {
+            "header_create": "Create attribute",
+            "header_update": "Update attribute",
+            "close": "Close",
+            "save": "Save",
             "cancel": "Cancel",
-            "delete_prompt": "This action is irreversible. Are you sure you want to delete this customer?"
+            "undo_header": "Unsaved changes",
+            "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+            "undo_cancel": "Review",
+            "undo_confirm": "Discard",
+            "attribute-form": {
+              "cancel": "Cancel",
+              "confirm": "Confirm",
+              "create": "Create",
+              "date": "{{value, date}}",
+              "date_created": "Created on",
+              "date_modified": "Last updated on",
+              "delete": "Delete",
+              "delete_prompt": "This resource will be permanently removed. Are you sure?",
+              "name": "Name",
+              "v8n_required": "Required",
+              "v8n_too_long": "Too long",
+              "value": "Value",
+              "visibility": "Visibility",
+              "visibility_private": "Only me",
+              "visibility_public": "Everyone",
+              "visibility_restricted": "Store admins",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_error": "Failed to load"
+              }
+            }
           },
-          "create": {
-            "create": "Create"
-          },
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_error": "Failed to load"
+          "pagination": {
+            "create_button_text": "Add attribute",
+            "card": {
+              "delete_button_text": "Delete",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No attributes",
+                "loading_error": "Failed to load"
+              }
+            },
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous"
           }
         },
-        "payment-method-card": {
-          "cancel": "Cancel",
-          "delete": "Delete",
-          "delete_prompt": "This resource will be permanently removed. Are you sure?",
-          "expires": "Expires",
-          "last_4_digits": "Last 4 digits",
-          "unknown": "Unknown",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Failed to load"
+        "item-options": {
+          "title": "Item options",
+          "delete_header": "Remove item option?",
+          "delete_message": "Please confirm that you'd like to remove this item option from the item.",
+          "delete_confirm": "Remove",
+          "delete_cancel": "Cancel",
+          "dialog": {
+            "header_create": "Create option",
+            "header_update": "Update option",
+            "close": "Close",
+            "save": "Save",
+            "cancel": "Cancel",
+            "undo_header": "Unsaved changes",
+            "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+            "undo_cancel": "Review",
+            "undo_confirm": "Discard",
+            "item-option-form": {
+              "name": {
+                "label": "Name",
+                "helper_text": "",
+                "placeholder": "Color",
+                "v8n_required": "Name is required",
+                "v8n_too_long": "Name mustn't exceed 100 characters"
+              },
+              "value": {
+                "label": "Value",
+                "helper_text": "",
+                "placeholder": "Red",
+                "v8n_required": "Value is required",
+                "v8n_too_long": "Value mustn't exceed 1024 characters"
+              },
+              "price-mod": {
+                "label": "Price",
+                "helper_text": "Same currency as item",
+                "placeholder": "10"
+              },
+              "weight-mod": {
+                "label": "Weight",
+                "helper_text": "Arbitrary units",
+                "placeholder": "5"
+              },
+              "timestamps": {
+                "date_created": "Created on",
+                "date_modified": "Last updated on",
+                "date": "{{value, date}}"
+              },
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_error": "Failed to load"
+              },
+              "delete": {
+                "delete": "Delete",
+                "cancel": "Cancel",
+                "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
+              },
+              "create": {
+                "create": "Create"
+              }
+            }
+          },
+          "pagination": {
+            "card": {
+              "delete_button_text": "Delete",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No item options",
+                "loading_error": "Failed to load"
+              }
+            },
+            "create_button_text": "Add option",
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous"
           }
+        },
+        "timestamps": {
+          "date_created": "Created on",
+          "date_modified": "Last updated on",
+          "date": "{{value, date}}"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this item? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
         },
         "spinner": {
           "loading_busy": "Loading",
           "loading_error": "Failed to load"
-        },
-        "subscription-form": {
-          "cancel": "Cancel",
-          "close": "Close",
-          "confirm": "Confirm",
-          "currency": "Currency",
-          "daily": "Daily",
-          "daily_plural": "Every {{count}} days",
-          "day": "Day",
-          "day_plural": "Days",
-          "end_subscription": "End subscription",
-          "frequency": "$t(subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })",
-          "frequency_label": "Frequency",
-          "item_plural": "Items",
-          "month": "Month",
-          "month_plural": "Months",
-          "monthly": "Monthly",
-          "monthly_plural": "Every {{count}} months",
-          "next_transaction_date": "Next transaction date",
-          "price_recurring": "{{amount, price}} $t(subscription-form.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" })",
-          "price_twice_a_month": "{{amount, price}} $t(subscription-form.twice_a_month, { \"ns\": \"customer\" })",
-          "subscription_active": "Next payment on {{date, date}}",
-          "subscription_cancelled": "Ended on {{date, date}}",
-          "subscription_failed": "Payment failed on {{date, date}}",
-          "subscription_inactive": "Inactive",
-          "subscription_will_be_cancelled": "Ends on {{date, date}}",
-          "subscription_will_be_active": "Starts on {{date, date}}",
-          "transaction_plural": "Transactions",
-          "twice_a_month": "Twice a month",
-          "undo_cancel": "Review",
-          "undo_confirm": "Discard",
-          "undo_header": "Unsaved changes",
-          "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-          "week": "Week",
-          "week_plural": "Weeks",
-          "weekly": "Weekly",
-          "weekly_plural": "Every {{count}} weeks",
-          "year": "Year",
-          "year_plural": "Years",
-          "yearly": "Yearly",
-          "yearly_plural": "Every {{count}} years",
-          "cancellation-form": {
-            "end_date": "End date",
-            "end_subscription": "End subscription",
-            "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
-            "v8n_required": "Required",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_error": "Failed to load"
-            }
-          },
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_error": "Failed to load"
-          },
-          "transactions-table": {
-            "date": "{{value, date}}",
-            "price": "{{amount, price}}",
-            "receipt": "Receipt",
-            "transaction_approved": "Approved",
-            "transaction_authorized": "Authorized",
-            "transaction_captured": "Captured",
-            "transaction_completed": "Completed",
-            "transaction_declined": "Declined",
-            "transaction_pending": "Pending",
-            "transaction_refunded": "Refunded",
-            "transaction_rejected": "Rejected",
-            "transaction_summary": "{{most_expensive_item.name}}",
-            "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
-            "transaction_verified": "Verified",
-            "transaction_voided": "Voided",
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_empty": "No data",
-              "loading_error": "Failed to load"
-            }
-          }
-        },
-        "subscriptions-table": {
-          "daily": "Daily",
-          "daily_plural": "Every {{count}} days",
-          "frequency": "$t(subscriptions-table.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })",
-          "monthly": "Monthly",
-          "monthly_plural": "Every {{count}} months",
-          "price_recurring": "{{amount, price}} $t(subscriptions-table.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer\" })",
-          "price_twice_a_month": "{{amount, price}} $t(subscriptions-table.twice_a_month, { \"ns\": \"customer\" })",
-          "subscription_active": "Next payment on {{date, date}}",
-          "subscription_cancelled": "Ended on {{date, date}}",
-          "subscription_failed": "Payment failed on {{date, date}}",
-          "subscription_inactive": "Inactive",
-          "subscription_will_be_cancelled": "Ends on {{date, date}}",
-          "subscription_will_be_active": "Starts on {{date, date}}",
-          "transaction_summary": "{{most_expensive_item.name}}",
-          "twice_a_month": "Twice a month",
-          "update": "Update",
-          "weekly": "Weekly",
-          "weekly_plural": "Every {{count}} weeks",
-          "yearly": "Yearly",
-          "yearly_plural": "Every {{count}} years",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Failed to load"
-          }
-        },
-        "transactions-table": {
-          "date": "{{value, date}}",
-          "price": "{{amount, price}}",
-          "receipt": "Receipt",
-          "transaction_approved": "Approved",
-          "transaction_authorized": "Authorized",
-          "transaction_captured": "Captured",
-          "transaction_completed": "Completed",
-          "transaction_declined": "Declined",
-          "transaction_pending": "Pending",
-          "transaction_refunded": "Refunded",
-          "transaction_rejected": "Rejected",
-          "transaction_summary": "{{most_expensive_item.name}}",
-          "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
-          "transaction_verified": "Verified",
-          "transaction_voided": "Voided",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No data",
-            "loading_error": "Failed to load"
-          }
+        }
+      }
+    }
+  },
+  "custom-fields": {
+    "label": "Custom fields",
+    "delete_header": "Remove custom field?",
+    "delete_message": "Please confirm that you'd like to remove this custom field from the item.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Custom field",
+      "header_create": "New custom field",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "custom-field-form": {
+        "cancel": "Cancel",
+        "create": "Create",
+        "date": "{{value, date}}",
+        "date_created": "Created on",
+        "date_modified": "Last updated on",
+        "delete": "Remove",
+        "delete_prompt": "Please confirm that you'd like to remove this custom field from the item.",
+        "name": "Name",
+        "show_on_receipt": "Show on receipt",
+        "v8n_required": "Required",
+        "v8n_too_long": "Too long",
+        "value": "Value",
+        "visibility": "Visibility",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_error": "Failed to load"
         }
       }
     },
-    "card": {
-      "spinner": {
-        "loading_busy": "Loading",
-        "loading_empty": "No data",
-        "loading_error": "Failed to load"
+    "pagination": {
+      "create_button_text": "Add custom field",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "delete_button_text": "Remove",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No custom fields",
+          "loading_error": "Failed to load"
+        }
+      }
+    }
+  },
+  "attributes": {
+    "label": "Attributes",
+    "delete_header": "Remove attribute?",
+    "delete_message": "Please confirm that you'd like to remove this attribute from the item.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Attribute",
+      "header_create": "New attribute",
+      "save": "Save",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "attribute-form": {
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "create": "Create",
+        "date": "{{value, date}}",
+        "date_created": "Created on",
+        "date_modified": "Last updated on",
+        "delete": "Remove",
+        "delete_prompt": "Please confirm that you'd like to remove this attribute from the item.",
+        "name": "Name",
+        "v8n_required": "Required",
+        "v8n_too_long": "Too long",
+        "value": "Value",
+        "visibility": "Visibility",
+        "visibility_private": "Only me",
+        "visibility_public": "Everyone",
+        "visibility_restricted": "Store admins",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
+    "pagination": {
+      "create_button_text": "Add attribute",
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "delete_button_text": "Remove",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No attributes",
+          "loading_error": "Failed to load"
+        }
       }
     }
   },
   "summary": {
+    "total_shipping": "Shipping",
+    "total_tax": "Tax",
+    "subtotal": "Subtotal",
+    "total": "Total",
     "price": "{{amount, price}}",
-    "total_item_price": "Total item price",
-    "total_shipping": "Total shipping",
-    "total_tax": "Total tax",
-    "total_discount": "Total discount",
-    "total_discount_see_below": "See below",
-    "transaction_approved": "Approved",
-    "transaction_authorized": "Authorized",
-    "transaction_captured": "Captured",
-    "transaction_completed": "Completed",
-    "transaction_declined": "Declined",
-    "transaction_pending": "Pending",
-    "transaction_refunded": "Refunded",
-    "transaction_rejected": "Rejected",
-    "transaction_verified": "Verified",
-    "transaction_voided": "Voided"
+    "status_capturing": "Capturing",
+    "status_captured": "Captured",
+    "status_approved": "Approved",
+    "status_authorized": "Authorized",
+    "status_pending": "Pending",
+    "status_completed": "Completed",
+    "status_problem": "Problem",
+    "status_pending_fraud_review": "Pending_fraud_review",
+    "status_rejected": "Rejected",
+    "status_declined": "Declined",
+    "status_refunding": "Refunding",
+    "status_refunded": "Refunded",
+    "status_voided": "Voided",
+    "status_verified": "Verified"
+  },
+  "payments": {
+    "label": "Payments",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "code": "Code",
+        "date": "{{value, date}}",
+        "fraud_risk": "Fraud risk: {{ score }}",
+        "processor_response": "{{ processor_response }}",
+        "purchase_order": "PO {{ purchase_order }}",
+        "paypal_payer_id": "PayPal Payer ID {{ paypal_payer_id }}",
+        "third_party_id": "External ID {{ third_party_id }}",
+        "price": "{{amount, price}}",
+        "unknown": "Unknown",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No payments",
+          "loading_error": "Failed to load"
+        }
+      }
+    }
+  },
+  "billing-addresses": {
+    "label": "Billing addresses",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header_update": "Billing address",
+      "address-form": {
+        "address_name": "Address name",
+        "address1": "Address Line 1",
+        "address2": "Address Line 2",
+        "cancel": "Cancel",
+        "city": "City",
+        "company": "Company",
+        "confirm": "Confirm",
+        "country": "Country",
+        "create": "Create",
+        "date": "{{value, date}}",
+        "date_created": "Created on",
+        "date_modified": "Last updated on",
+        "delete": "Delete",
+        "delete_prompt": "This resource will be permanently removed. Are you sure?",
+        "first_name": "First name",
+        "last_name": "Last name",
+        "phone": "Phone",
+        "postal_code": "Postal code",
+        "region": "Region",
+        "v8n_required": "Required",
+        "v8n_too_long": "Too long",
+        "country_af": "Afghanistan",
+        "country_ax": "Åland Islands",
+        "country_al": "Albania",
+        "country_dz": "Algeria",
+        "country_as": "American Samoa",
+        "country_ad": "Andorra",
+        "country_ao": "Angola",
+        "country_ai": "Anguilla",
+        "country_aq": "Antarctica",
+        "country_ag": "Antigua and Barbuda",
+        "country_ar": "Argentina",
+        "country_am": "Armenia",
+        "country_aw": "Aruba",
+        "country_au": "Australia",
+        "country_au_region_act": "Australian Capital Territory",
+        "country_au_region_nsw": "New South Wales",
+        "country_au_region_nt": "Northern Territory",
+        "country_au_region_qld": "Queensland",
+        "country_au_region_sa": "South Australia",
+        "country_au_region_tas": "Tasmania",
+        "country_au_region_vic": "Victoria",
+        "country_au_region_wa": "Western Australia",
+        "country_at": "Austria",
+        "country_at_region_bl": "Burgenland",
+        "country_at_region_kn": "Kaernten",
+        "country_at_region_no": "Niederoesterreich",
+        "country_at_region_oo": "Oberoesterreich",
+        "country_at_region_sb": "Salzburg",
+        "country_at_region_st": "Steiermark",
+        "country_at_region_ti": "Tirol",
+        "country_at_region_vb": "Voralberg",
+        "country_at_region_wi": "Wien",
+        "country_az": "Azerbaijan",
+        "country_bs": "Bahamas",
+        "country_bh": "Bahrain",
+        "country_bd": "Bangladesh",
+        "country_bb": "Barbados",
+        "country_by": "Belarus",
+        "country_be": "Belgium",
+        "country_bz": "Belize",
+        "country_bj": "Benin",
+        "country_bm": "Bermuda",
+        "country_bt": "Bhutan",
+        "country_bo": "Bolivia",
+        "country_bq": "Bonaire, Sint Eustatius and Saba",
+        "country_bq_region_bo": "Bonaire",
+        "country_bq_region_sa": "Saba",
+        "country_bq_region_se": "Sint Eustatius",
+        "country_ba": "Bosnia and Herzegovina",
+        "country_bw": "Botswana",
+        "country_bv": "Bouvet Island",
+        "country_br": "Brazil",
+        "country_io": "British Indian Ocean Territory",
+        "country_bn": "Brunei Darussalam",
+        "country_bg": "Bulgaria",
+        "country_bf": "Burkina Faso",
+        "country_bi": "Burundi",
+        "country_kh": "Cambodia",
+        "country_cm": "Cameroon",
+        "country_ca": "Canada",
+        "country_ca_region_ab": "Alberta",
+        "country_ca_region_bc": "British Columbia",
+        "country_ca_region_mb": "Manitoba",
+        "country_ca_region_nb": "New Brunswick",
+        "country_ca_region_nl": "Newfoundland and Labrador",
+        "country_ca_region_nt": "Northwest Territories",
+        "country_ca_region_ns": "Nova Scotia",
+        "country_ca_region_nu": "Nunavut",
+        "country_ca_region_on": "Ontario",
+        "country_ca_region_pe": "Prince Edward Island",
+        "country_ca_region_qc": "Quebec",
+        "country_ca_region_sk": "Saskatchewan",
+        "country_ca_region_yt": "Yukon",
+        "country_cv": "Cape Verde",
+        "country_cw": "Curaçao",
+        "country_ky": "Cayman Islands",
+        "country_cf": "Central African Republic",
+        "country_td": "Chad",
+        "country_cl": "Chile",
+        "country_cn": "China",
+        "country_cx": "Christmas Island",
+        "country_cc": "Cocos (Keeling) Islands",
+        "country_co": "Colombia",
+        "country_km": "Comoros",
+        "country_cg": "Congo",
+        "country_cd": "Congo, the Democratic Republic of the",
+        "country_ck": "Cook Islands",
+        "country_cr": "Costa Rica",
+        "country_ci": "Cote DIvoire",
+        "country_hr": "Croatia",
+        "country_cu": "Cuba",
+        "country_cy": "Cyprus",
+        "country_cz": "Czech Republic",
+        "country_dk": "Denmark",
+        "country_dj": "Djibouti",
+        "country_dm": "Dominica",
+        "country_do": "Dominican Republic",
+        "country_ec": "Ecuador",
+        "country_eg": "Egypt",
+        "country_sv": "El Salvador",
+        "country_sx": "Sint Maarten",
+        "country_gq": "Equatorial Guinea",
+        "country_er": "Eritrea",
+        "country_ee": "Estonia",
+        "country_et": "Ethiopia",
+        "country_fk": "Falkland Islands (Malvinas)",
+        "country_fo": "Faroe Islands",
+        "country_fj": "Fiji",
+        "country_fi": "Finland",
+        "country_fr": "France",
+        "country_gf": "French Guiana",
+        "country_pf": "French Polynesia",
+        "country_tf": "French Southern Territories",
+        "country_ga": "Gabon",
+        "country_gm": "Gambia",
+        "country_ge": "Georgia",
+        "country_de": "Germany",
+        "country_de_region_bw": "Baden-Wuerttemberg",
+        "country_de_region_by": "Bayern",
+        "country_de_region_be": "Berlin",
+        "country_de_region_bb": "Brandenburg",
+        "country_de_region_hb": "Bremen",
+        "country_de_region_hh": "Hamburg",
+        "country_de_region_he": "Hessen",
+        "country_de_region_mv": "Mecklenburg-Vorpommern",
+        "country_de_region_ni": "Niedersachsen",
+        "country_de_region_nw": "Nordrhein-Westfalen",
+        "country_de_region_rp": "Rheinland-Pfalz",
+        "country_de_region_sl": "Saarland",
+        "country_de_region_sn": "Sachsen",
+        "country_de_region_st": "Sachsen-Anhalt",
+        "country_de_region_sh": "Schleswig-Holstein",
+        "country_de_region_th": "Thueringen",
+        "country_gh": "Ghana",
+        "country_gi": "Gibraltar",
+        "country_gr": "Greece",
+        "country_gl": "Greenland",
+        "country_gd": "Grenada",
+        "country_gp": "Guadeloupe",
+        "country_gu": "Guam",
+        "country_gt": "Guatemala",
+        "country_gg": "Guernsey",
+        "country_gn": "Guinea",
+        "country_gw": "Guinea-bissau",
+        "country_gy": "Guyana",
+        "country_ht": "Haiti",
+        "country_hm": "Heard Island and McDonald Island",
+        "country_va": "Holy See (Vatican City State)",
+        "country_hn": "Honduras",
+        "country_hk": "Hong Kong",
+        "country_hu": "Hungary",
+        "country_is": "Iceland",
+        "country_in": "India",
+        "country_in_region_an": "Andaman and Nicobar Islands",
+        "country_in_region_ap": "Andhra Pradesh",
+        "country_in_region_ar": "Arunachal Pradesh",
+        "country_in_region_as": "Assam",
+        "country_in_region_br": "Bihar",
+        "country_in_region_ch": "Chandigarh",
+        "country_in_region_ct": "Chhattisgarh",
+        "country_in_region_dn": "Dadra and Nagar Haveli",
+        "country_in_region_dd": "Daman and Diu",
+        "country_in_region_dl": "Delhi",
+        "country_in_region_ga": "Goa",
+        "country_in_region_gj": "Gujarat",
+        "country_in_region_hr": "Haryana",
+        "country_in_region_hp": "Himachal Pradesh",
+        "country_in_region_jk": "Jammu and Kashmir",
+        "country_in_region_jh": "Jharkhand",
+        "country_in_region_ka": "Karnataka",
+        "country_in_region_kl": "Kerala",
+        "country_in_region_ld": "Lakshadweep",
+        "country_in_region_mp": "Madhya Pradesh",
+        "country_in_region_mh": "Maharashtra",
+        "country_in_region_mn": "Manipur",
+        "country_in_region_ml": "Meghalaya",
+        "country_in_region_mz": "Mizoram",
+        "country_in_region_nl": "Nagaland",
+        "country_in_region_or": "Odisha",
+        "country_in_region_py": "Puducherry",
+        "country_in_region_pb": "Punjab",
+        "country_in_region_rj": "Rajasthan",
+        "country_in_region_sk": "Sikkim",
+        "country_in_region_tn": "Tamil Nadu",
+        "country_in_region_tg": "Telangana",
+        "country_in_region_tr": "Tripura",
+        "country_in_region_ut": "Uttarakhand",
+        "country_in_region_up": "Uttar Pradesh",
+        "country_in_region_wb": "West Bengal",
+        "country_id": "Indonesia",
+        "country_ir": "Iran, Islamic Republic of",
+        "country_iq": "Iraq",
+        "country_ie": "Ireland",
+        "country_ie_region_cw": "Carlow",
+        "country_ie_region_cn": "Cavan",
+        "country_ie_region_ce": "Clare",
+        "country_ie_region_co": "Cork",
+        "country_ie_region_dl": "Donegal",
+        "country_ie_region_d": "Dublin",
+        "country_ie_region_g": "Galway",
+        "country_ie_region_ky": "Kerry",
+        "country_ie_region_ke": "Kildare",
+        "country_ie_region_kk": "Kilkenny",
+        "country_ie_region_ls": "Laois",
+        "country_ie_region_lm": "Leitrim",
+        "country_ie_region_lk": "Limerick",
+        "country_ie_region_ld": "Longford",
+        "country_ie_region_lh": "Louth",
+        "country_ie_region_mo": "Mayo",
+        "country_ie_region_mh": "Meath",
+        "country_ie_region_mn": "Monaghan",
+        "country_ie_region_oy": "Offaly",
+        "country_ie_region_rn": "Roscommon",
+        "country_ie_region_so": "Sligo",
+        "country_ie_region_ta": "Tipperary",
+        "country_ie_region_wd": "Waterford",
+        "country_ie_region_wh": "Westmeath",
+        "country_ie_region_wx": "Wexford",
+        "country_ie_region_ww": "Wicklow",
+        "country_im": "Isle of Man",
+        "country_il": "Israel",
+        "country_it": "Italy",
+        "country_jm": "Jamaica",
+        "country_jp": "Japan",
+        "country_jp_region_10": "Gunma",
+        "country_jp_region_11": "Saitama",
+        "country_jp_region_12": "Chiba",
+        "country_jp_region_13": "Tokyo",
+        "country_jp_region_14": "Kanagawa",
+        "country_jp_region_15": "Niigata",
+        "country_jp_region_16": "Toyama",
+        "country_jp_region_17": "Ishikawa",
+        "country_jp_region_18": "Fukui",
+        "country_jp_region_19": "Yamanashi",
+        "country_jp_region_20": "Nagano",
+        "country_jp_region_21": "Gifu",
+        "country_jp_region_22": "Shizuoka",
+        "country_jp_region_23": "Aichi",
+        "country_jp_region_24": "Mie",
+        "country_jp_region_25": "Shiga",
+        "country_jp_region_26": "Kyoto",
+        "country_jp_region_27": "Osaka",
+        "country_jp_region_28": "Hyogo",
+        "country_jp_region_29": "Nara",
+        "country_jp_region_30": "Wakayama",
+        "country_jp_region_31": "Tottori",
+        "country_jp_region_32": "Shimane",
+        "country_jp_region_33": "Okayama",
+        "country_jp_region_34": "Hiroshima",
+        "country_jp_region_35": "Yamaguchi",
+        "country_jp_region_36": "Tokushima",
+        "country_jp_region_37": "Kagawa",
+        "country_jp_region_38": "Ehime",
+        "country_jp_region_39": "Kochi",
+        "country_jp_region_40": "Fukuoka",
+        "country_jp_region_41": "Saga",
+        "country_jp_region_42": "Nagasaki",
+        "country_jp_region_43": "Kumamoto",
+        "country_jp_region_44": "Oita",
+        "country_jp_region_45": "Miyazaki",
+        "country_jp_region_46": "Kagoshima",
+        "country_jp_region_47": "Okinawa",
+        "country_jp_region_05": "Akita",
+        "country_jp_region_02": "Aomori",
+        "country_jp_region_07": "Fukushima",
+        "country_jp_region_01": "Hokkaido",
+        "country_jp_region_08": "Ibaraki",
+        "country_jp_region_03": "Iwate",
+        "country_jp_region_04": "Miyagi",
+        "country_jp_region_09": "Tochigi",
+        "country_jp_region_06": "Yamagata",
+        "country_je": "Jersey",
+        "country_jo": "Jordan",
+        "country_kz": "Kazakhstan",
+        "country_ke": "Kenya",
+        "country_ki": "Kiribati",
+        "country_kp": "Korea, Democratic People's Republic of",
+        "country_kr": "Korea, Republic of",
+        "country_kw": "Kuwait",
+        "country_kg": "Kyrgyzstan",
+        "country_la": "Lao People's Democratic Republic",
+        "country_lv": "Latvia",
+        "country_lb": "Lebanon",
+        "country_ls": "Lesotho",
+        "country_lr": "Liberia",
+        "country_ly": "Libya",
+        "country_li": "Liechtenstein",
+        "country_lt": "Lithuania",
+        "country_lu": "Luxembourg",
+        "country_mo": "Macau Special Administrative Region of China",
+        "country_mk": "North Macedonia",
+        "country_mg": "Madagascar",
+        "country_mw": "Malawi",
+        "country_my": "Malaysia",
+        "country_mv": "Maldives",
+        "country_ml": "Mali",
+        "country_mt": "Malta",
+        "country_mh": "Marshall Islands",
+        "country_mq": "Martinique",
+        "country_mr": "Mauritania",
+        "country_mu": "Mauritius",
+        "country_yt": "Mayotte",
+        "country_mx": "Mexico",
+        "country_fm": "Micronesia, Federated States of",
+        "country_md": "Moldova, Republic of",
+        "country_mc": "Monaco",
+        "country_mn": "Mongolia",
+        "country_me": "Montenegro",
+        "country_ms": "Montserrat",
+        "country_ma": "Morocco",
+        "country_mz": "Mozambique",
+        "country_mm": "Myanmar",
+        "country_na": "Namibia",
+        "country_nr": "Nauru",
+        "country_np": "Nepal",
+        "country_nl": "Netherlands",
+        "country_nc": "New Caledonia",
+        "country_nz": "New Zealand",
+        "country_ni": "Nicaragua",
+        "country_ne": "Niger",
+        "country_ng": "Nigeria",
+        "country_nu": "Niue",
+        "country_nf": "Norfolk Island",
+        "country_mp": "Northern Mariana Islands",
+        "country_no": "Norway",
+        "country_no_region_10": "Vest-Agder",
+        "country_no_region_11": "Rogaland",
+        "country_no_region_12": "Hordaland",
+        "country_no_region_14": "Sogn og Fjordane",
+        "country_no_region_15": "Møre og Romsdal",
+        "country_no_region_16": "Sør-Trøndelag",
+        "country_no_region_17": "Nord-Trøndelag",
+        "country_no_region_18": "Nordland",
+        "country_no_region_19": "Troms",
+        "country_no_region_20": "Finnmark",
+        "country_no_region_30": "Viken",
+        "country_no_region_34": "Innlandet",
+        "country_no_region_38": "Vestfold og Telemark",
+        "country_no_region_42": "Agder",
+        "country_no_region_46": "Vestland",
+        "country_no_region_50": "Trøndelag",
+        "country_no_region_54": "Troms og Finnmark",
+        "country_no_region_01": "Østfold",
+        "country_no_region_02": "Akershus",
+        "country_no_region_03": "Oslo",
+        "country_no_region_04": "Hedmark",
+        "country_no_region_05": "Oppland",
+        "country_no_region_06": "Buskerud",
+        "country_no_region_07": "Vestfold",
+        "country_no_region_08": "Telemark",
+        "country_no_region_09": "Aust-Agder",
+        "country_om": "Oman",
+        "country_pk": "Pakistan",
+        "country_pw": "Palau",
+        "country_ps": "Palestine, State of",
+        "country_pa": "Panama",
+        "country_pg": "Papua New Guinea",
+        "country_py": "Paraguay",
+        "country_pe": "Peru",
+        "country_ph": "Philippines",
+        "country_pn": "Pitcairn",
+        "country_pl": "Poland",
+        "country_pt": "Portugal",
+        "country_pr": "Puerto Rico",
+        "country_qa": "Qatar",
+        "country_re": "Réunion",
+        "country_ro": "Romania",
+        "country_ru": "Russian Federation",
+        "country_rw": "Rwanda",
+        "country_bl": "Saint Barthélemy",
+        "country_sh": "Saint Helena, Ascension and Tristan da Cunha",
+        "country_kn": "Saint Kitts and Nevis",
+        "country_lc": "Saint Lucia",
+        "country_mf": "Saint Martin",
+        "country_pm": "Saint Pierre and Miquelon",
+        "country_vc": "Saint Vincent and the Grenadines",
+        "country_ws": "Samoa",
+        "country_sm": "San Marino",
+        "country_ss": "South Sudan",
+        "country_st": "Sao Tome and Principe",
+        "country_sa": "Saudi Arabia",
+        "country_sn": "Senegal",
+        "country_rs": "Serbia",
+        "country_sc": "Seychelles",
+        "country_sl": "Sierra Leone",
+        "country_sg": "Singapore",
+        "country_sk": "Slovakia",
+        "country_si": "Slovenia",
+        "country_sb": "Solomon Islands",
+        "country_so": "Somalia",
+        "country_za": "South Africa",
+        "country_gs": "South Georgia and the South Sandwich Islands",
+        "country_es": "Spain",
+        "country_es_region_a coruna": "A Coruna",
+        "country_es_region_alava": "Alava",
+        "country_es_region_albacete": "Albacete",
+        "country_es_region_alicante": "Alicante",
+        "country_es_region_almeria": "Almeria",
+        "country_es_region_asturias": "Asturias",
+        "country_es_region_avila": "Avila",
+        "country_es_region_badajoz": "Badajoz",
+        "country_es_region_baleares": "Baleares",
+        "country_es_region_barcelona": "Barcelona",
+        "country_es_region_burgos": "Burgos",
+        "country_es_region_caceres": "Caceres",
+        "country_es_region_cadiz": "Cadiz",
+        "country_es_region_cn": "Canarias",
+        "country_es_region_cantabria": "Cantabria",
+        "country_es_region_castellon": "Castellon",
+        "country_es_region_ceuta": "Ceuta",
+        "country_es_region_ciudad real": "Ciudad Real",
+        "country_es_region_cordoba": "Cordoba",
+        "country_es_region_cuenca": "Cuenca",
+        "country_es_region_gipuzkoa": "Gipuzkoa",
+        "country_es_region_girona": "Girona",
+        "country_es_region_granada": "Granada",
+        "country_es_region_guadalajara": "Guadalajara",
+        "country_es_region_guipuzcoa": "Guipuzcoa",
+        "country_es_region_huelva": "Huelva",
+        "country_es_region_huesca": "Huesca",
+        "country_es_region_jaen": "Jaen",
+        "country_es_region_la rioja": "La Rioja",
+        "country_es_region_las palmas": "Las Palmas",
+        "country_es_region_leon": "Leon",
+        "country_es_region_lleida": "Lleida",
+        "country_es_region_lugo": "Lugo",
+        "country_es_region_madrid": "Madrid",
+        "country_es_region_malaga": "Malaga",
+        "country_es_region_melilla": "Melilla",
+        "country_es_region_murcia": "Murcia",
+        "country_es_region_navarra": "Navarra",
+        "country_es_region_ourense": "Ourense",
+        "country_es_region_palencia": "Palencia",
+        "country_es_region_pontevedra": "Pontevedra",
+        "country_es_region_salamanca": "Salamanca",
+        "country_es_region_santa cruz de tenerife": "Santa Cruz de Tenerife",
+        "country_es_region_segovia": "Segovia",
+        "country_es_region_sevilla": "Sevilla",
+        "country_es_region_soria": "Soria",
+        "country_es_region_tarragona": "Tarragona",
+        "country_es_region_teruel": "Teruel",
+        "country_es_region_toledo": "Toledo",
+        "country_es_region_valencia": "Valencia",
+        "country_es_region_valladolid": "Valladolid",
+        "country_es_region_vizcaya": "Biscay",
+        "country_es_region_zamora": "Zamora",
+        "country_es_region_zaragoza": "Zaragoza",
+        "country_lk": "Sri Lanka",
+        "country_sd": "Sudan",
+        "country_sr": "Suriname",
+        "country_sj": "Svalbard and Jan Mayen",
+        "country_sz": "Eswatini",
+        "country_se": "Sweden",
+        "country_ch": "Switzerland",
+        "country_ch_region_ag": "Aargau",
+        "country_ch_region_ar": "Appenzell Ausserrhoden",
+        "country_ch_region_ai": "Appenzell Innerrhoden",
+        "country_ch_region_bl": "Basel-Landschaft",
+        "country_ch_region_bs": "Basel-Stadt",
+        "country_ch_region_be": "Bern",
+        "country_ch_region_fr": "Freiburg",
+        "country_ch_region_ge": "Genf",
+        "country_ch_region_gl": "Glarus",
+        "country_ch_region_gr": "Graubuenden",
+        "country_ch_region_ju": "Jura",
+        "country_ch_region_lu": "Luzern",
+        "country_ch_region_ne": "Neuenburg",
+        "country_ch_region_nw": "Nidwalden",
+        "country_ch_region_ow": "Obwalden",
+        "country_ch_region_sh": "Schaffhausen",
+        "country_ch_region_sz": "Schwyz",
+        "country_ch_region_so": "Solothurn",
+        "country_ch_region_sg": "St. Gallen",
+        "country_ch_region_ti": "Tessin",
+        "country_ch_region_tg": "Thurgau",
+        "country_ch_region_ur": "Uri",
+        "country_ch_region_vs": "Valais",
+        "country_ch_region_vd": "Vaud",
+        "country_ch_region_zh": "Zurich",
+        "country_ch_region_zg": "Zug",
+        "country_sy": "Syrian Arab Republic",
+        "country_tw": "Taiwan",
+        "country_tj": "Tajikistan",
+        "country_tz": "Tanzania, United Republic of",
+        "country_th": "Thailand",
+        "country_tl": "Timor-Leste",
+        "country_tg": "Togo",
+        "country_tk": "Tokelau",
+        "country_to": "Tonga",
+        "country_tt": "Trinidad and Tobago",
+        "country_tn": "Tunisia",
+        "country_tr": "Turkey",
+        "country_tm": "Turkmenistan",
+        "country_tc": "Turks and Caicos Islands",
+        "country_tv": "Tuvalu",
+        "country_ug": "Uganda",
+        "country_ua": "Ukraine",
+        "country_ae": "United Arab Emirates",
+        "country_gb": "United Kingdom",
+        "country_us": "United States",
+        "country_us_region_al": "Alabama",
+        "country_us_region_ak": "Alaska",
+        "country_us_region_as": "American Samoa",
+        "country_us_region_az": "Arizona",
+        "country_us_region_ar": "Arkansas",
+        "country_us_region_af": "Armed Forces Africa",
+        "country_us_region_aa": "Armed Forces Americas",
+        "country_us_region_ac": "Armed Forces Canada",
+        "country_us_region_ae": "Armed Forces Europe",
+        "country_us_region_am": "Armed Forces Middle East",
+        "country_us_region_ap": "Armed Forces Pacific",
+        "country_us_region_ca": "California",
+        "country_us_region_co": "Colorado",
+        "country_us_region_ct": "Connecticut",
+        "country_us_region_de": "Delaware",
+        "country_us_region_dc": "Washington DC",
+        "country_us_region_fm": "Federated States Of Micronesia",
+        "country_us_region_fl": "Florida",
+        "country_us_region_ga": "Georgia",
+        "country_us_region_gu": "Guam",
+        "country_us_region_hi": "Hawaii",
+        "country_us_region_id": "Idaho",
+        "country_us_region_il": "Illinois",
+        "country_us_region_in": "Indiana",
+        "country_us_region_ia": "Iowa",
+        "country_us_region_ks": "Kansas",
+        "country_us_region_ky": "Kentucky",
+        "country_us_region_la": "Louisiana",
+        "country_us_region_me": "Maine",
+        "country_us_region_mh": "Marshall Islands",
+        "country_us_region_md": "Maryland",
+        "country_us_region_ma": "Massachusetts",
+        "country_us_region_mi": "Michigan",
+        "country_us_region_mn": "Minnesota",
+        "country_us_region_ms": "Mississippi",
+        "country_us_region_mo": "Missouri",
+        "country_us_region_mt": "Montana",
+        "country_us_region_ne": "Nebraska",
+        "country_us_region_nv": "Nevada",
+        "country_us_region_nh": "New Hampshire",
+        "country_us_region_nj": "New Jersey",
+        "country_us_region_nm": "New Mexico",
+        "country_us_region_ny": "New York",
+        "country_us_region_nc": "North Carolina",
+        "country_us_region_nd": "North Dakota",
+        "country_us_region_mp": "Northern Mariana Islands",
+        "country_us_region_oh": "Ohio",
+        "country_us_region_ok": "Oklahoma",
+        "country_us_region_or": "Oregon",
+        "country_us_region_pa": "Pennsylvania",
+        "country_us_region_pr": "Puerto Rico",
+        "country_us_region_ri": "Rhode Island",
+        "country_us_region_sc": "South Carolina",
+        "country_us_region_sd": "South Dakota",
+        "country_us_region_tn": "Tennessee",
+        "country_us_region_tx": "Texas",
+        "country_us_region_ut": "Utah",
+        "country_us_region_vt": "Vermont",
+        "country_us_region_vi": "Virgin Islands",
+        "country_us_region_va": "Virginia",
+        "country_us_region_wa": "Washington",
+        "country_us_region_wv": "West Virginia",
+        "country_us_region_wi": "Wisconsin",
+        "country_us_region_wy": "Wyoming",
+        "country_um": "United States Minor Outlying Islands",
+        "country_uy": "Uruguay",
+        "country_uz": "Uzbekistan",
+        "country_vu": "Vanuatu",
+        "country_ve": "Venezuela",
+        "country_vn": "Vietnam",
+        "country_vg": "Virgin Islands, British",
+        "country_vi": "Virgin Islands, U.S.",
+        "country_wf": "Wallis and Futuna Islands",
+        "country_eh": "Western Sahara",
+        "country_ye": "Yemen",
+        "country_zm": "Zambia",
+        "country_zw": "Zimbabwe",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_error": "Failed to load"
+        }
+      }
+    },
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{country}} {{postal_code}}",
+        "full_name": "{{first_name}} {{last_name}}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No addresses",
+          "loading_error": "Failed to load"
+        }
+      }
+    }
+  },
+  "shipments": {
+    "label": "Shipments",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "full_address": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}",
+        "quantity": "Qty: {{ count }}",
+        "price": "{{ amount, price }}",
+        "item": "{{ count }} item",
+        "item_plural": "{{ count }} items",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No shipments",
+          "loading_error": "Failed to load"
+        }
+      }
+    }
   },
   "actions": {
     "capture": {
@@ -378,639 +1240,23 @@
       }
     },
     "send-emails": {
-      "idle": "Send emails",
-      "busy": "Sending emails...",
-      "fail": "Failed to send emails",
+      "idle": "Resend emails",
+      "busy": "Resending emails...",
+      "fail": "Failed to resend emails",
       "confirm": {
         "header": "Send emails",
         "message": "Are you sure you'd like to send emails for this transaction?",
         "confirm": "Yes",
         "cancel": "No"
       }
+    },
+    "subscription": {
+      "caption": "Go to subscription"
     }
   },
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No data",
     "loading_error": "Failed to load"
-  },
-  "shipments": {
-    "title": "Shipments",
-    "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
-      "card": {
-        "items": {
-          "title": "Items",
-          "pagination": {
-            "first": "First",
-            "last": "Last",
-            "next": "Next",
-            "pagination": "{{from}}-{{to}} out of {{total}}",
-            "previous": "Previous",
-            "card": {
-              "price": "{{amount, price}}",
-              "wgt": "WGT",
-              "spinner": {
-                "loading_busy": "Loading",
-                "loading_empty": "No items",
-                "loading_error": "Failed to load"
-              }
-            }
-          },
-          "dialog": {
-            "close": "Close",
-            "cancel": "Cancel",
-            "header_update": "Item",
-            "header_create": "New item",
-            "save": "Save",
-            "undo_header": "Unsaved changes",
-            "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-            "undo_cancel": "Review",
-            "undo_confirm": "Discard",
-            "name": {
-              "label": "Name",
-              "helper_text": "",
-              "placeholder": "13' Laptop Case",
-              "v8n_required": "Name is required",
-              "v8n_too_long": "Name mustn't exceed 255 characters"
-            },
-            "price": {
-              "label": "Price",
-              "helper_text": "",
-              "placeholder": "25",
-              "v8n_required": "Price is required",
-              "v8n_negative": "Price can't be negative"
-            },
-            "quantity": {
-              "label": "Quantity",
-              "helper_text": "",
-              "placeholder": "1 by default",
-              "v8n_less_than_one": "Quantity must be 1 or more"
-            },
-            "subscription": {
-              "title": "Subscription",
-              "frequency": {
-                "label": "Subscription frequency",
-                "helper_text": "",
-                "day": "Day",
-                "day_plural": "Days",
-                "week": "Week",
-                "week_plural": "Weeks",
-                "month": "Month",
-                "month_plural": "Months",
-                "year": "Year",
-                "year_plural": "Years"
-              },
-              "start": {
-                "label": "Subscription start",
-                "helper_text": "",
-                "placeholder": "01/01/2022"
-              },
-              "end": {
-                "label": "Subscription end",
-                "helper_text": "",
-                "placeholder": "01/01/2022"
-              },
-              "next": {
-                "label": "Next payment (subscriptions only)",
-                "helper_text": "",
-                "placeholder": "01/01/2022"
-              },
-              "form": {
-                "save": "Save",
-                "update": "Update",
-                "day": "Day",
-                "day_plural": "Days",
-                "week": "Week",
-                "week_plural": "Weeks",
-                "month": "Month",
-                "month_plural": "Months",
-                "year": "Year",
-                "year_plural": "Years",
-                "cancel": "Cancel",
-                "close": "Close",
-                "confirm": "Confirm",
-                "currency": "Currency",
-                "daily": "Daily",
-                "daily_plural": "Every {{count}} days",
-                "end_subscription": "End subscription",
-                "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })",
-                "frequency_label": "Frequency",
-                "item_plural": "Items",
-                "monthly": "Monthly",
-                "monthly_plural": "Every {{count}} months",
-                "next_transaction_date": "Next transaction date",
-                "price_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" })",
-                "price_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-form\" })",
-                "subscription_active": "Next payment on {{date, date}}",
-                "subscription_cancelled": "Ended on {{date, date}}",
-                "subscription_failed": "Payment failed on {{date, date}}",
-                "subscription_inactive": "Inactive",
-                "subscription_will_be_cancelled": "Ends on {{date, date}}",
-                "subscription_will_be_active": "Starts on {{date, date}}",
-                "transaction_plural": "Transactions",
-                "twice_a_month": "Twice a month",
-                "undo_cancel": "Review",
-                "undo_confirm": "Discard",
-                "undo_header": "Unsaved changes",
-                "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-                "weekly": "Weekly",
-                "weekly_plural": "Every {{count}} weeks",
-                "yearly": "Yearly",
-                "yearly_plural": "Every {{count}} years",
-                "cancellation-form": {
-                  "end_date": "End date",
-                  "end_subscription": "End subscription",
-                  "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
-                  "v8n_required": "Required",
-                  "spinner": {
-                    "loading_busy": "Loading",
-                    "loading_error": "Failed to load"
-                  }
-                },
-                "spinner": {
-                  "loading_busy": "Loading",
-                  "loading_error": "Failed to load"
-                },
-                "transactions-table": {
-                  "date": "{{value, date}}",
-                  "price": "{{amount, price}}",
-                  "receipt": "Receipt",
-                  "transaction_approved": "Approved",
-                  "transaction_authorized": "Authorized",
-                  "transaction_captured": "Captured",
-                  "transaction_completed": "Completed",
-                  "transaction_declined": "Declined",
-                  "transaction_pending": "Pending",
-                  "transaction_refunded": "Refunded",
-                  "transaction_rejected": "Rejected",
-                  "transaction_summary": "{{most_expensive_item.name}}",
-                  "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
-                  "transaction_verified": "Verified",
-                  "transaction_voided": "Voided",
-                  "spinner": {
-                    "loading_busy": "Loading",
-                    "loading_empty": "No data",
-                    "loading_error": "Failed to load"
-                  }
-                }
-              },
-              "card": {
-                "daily": "Daily",
-                "daily_plural": "Every {{count}} days",
-                "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-card\" })",
-                "monthly": "Monthly",
-                "monthly_plural": "Every {{count}} months",
-                "price_recurring": "{{amount, price}} $t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-card\" })",
-                "price_twice_a_month": "{{amount, price}} $t(twice_a_month, { \"ns\": \"subscription-card\" })",
-                "subscription_active": "Next payment on {{date, date}}",
-                "subscription_cancelled": "Ended on {{date, date}}",
-                "subscription_failed": "Payment failed on {{date, date}}",
-                "subscription_inactive": "Inactive",
-                "subscription_plural": "Subscriptions",
-                "subscription_will_be_cancelled": "Ends on {{date, date}}",
-                "subscription_will_be_active": "Starts on {{date, date}}",
-                "transaction_summary": "{{most_expensive_item.name}}",
-                "twice_a_month": "Twice a month",
-                "weekly": "Weekly",
-                "weekly_plural": "Every {{count}} weeks",
-                "yearly": "Yearly",
-                "yearly_plural": "Every {{count}} years",
-                "spinner": {
-                  "loading_busy": "Loading",
-                  "loading_empty": "No data",
-                  "loading_error": "Failed to load"
-                }
-              }
-            },
-            "line-item-discount": {
-              "coupon": {
-                "label": "Coupon",
-                "helper_text": "",
-                "placeholder": "Select coupon to apply..."
-              },
-              "discount-name": {
-                "label": "Discount name",
-                "helper_text": "",
-                "placeholder": "One-off 10% discount"
-              },
-              "discount-builder": {
-                "tier": "Tier",
-                "tier_by": "by",
-                "tier_if": "if",
-                "tier_allunits": "price of each item",
-                "tier_incremental": "price of additional items",
-                "tier_repeat": "price of next item",
-                "tier_single": "order total",
-                "tier_then": "then",
-                "quantity": "quantity",
-                "total": "total",
-                "reduce": "reduce",
-                "increase": "increase"
-              }
-            },
-            "cart": {
-              "expires": {
-                "label": "Expires",
-                "helper_text": "",
-                "placeholder": "01/01/2022"
-              },
-              "image": {
-                "label": "Image",
-                "helper_text": "",
-                "placeholder": "https://picsum.photos/256"
-              },
-              "url": {
-                "label": "URL",
-                "helper_text": "",
-                "placeholder": "https://example.com/products/123"
-              },
-              "quantity-min": {
-                "label": "Min quantity",
-                "helper_text": "",
-                "placeholder": "1"
-              },
-              "quantity-max": {
-                "label": "Max quantity",
-                "helper_text": "",
-                "placeholder": "25"
-              }
-            },
-            "shipping": {
-              "shipto": {
-                "label": "Shipping address",
-                "helper_text": "",
-                "placeholder": "Select address to ship this item to..."
-              },
-              "width": {
-                "label": "Width",
-                "helper_text": "",
-                "placeholder": "16"
-              },
-              "height": {
-                "label": "Height",
-                "helper_text": "",
-                "placeholder": "8"
-              },
-              "length": {
-                "label": "Width",
-                "helper_text": "",
-                "placeholder": "32"
-              },
-              "weight": {
-                "label": "Weight",
-                "helper_text": "",
-                "placeholder": "24"
-              }
-            },
-            "inventory": {
-              "category": {
-                "label": "Item category",
-                "helper_text": "",
-                "placeholder": "Select item category..."
-              },
-              "code": {
-                "label": "Code",
-                "helper_text": "",
-                "placeholder": "MY-PRODUCT-001"
-              },
-              "parent-code": {
-                "label": "Parent code",
-                "helper_text": "",
-                "placeholder": "MY-BUNDLE-001"
-              }
-            },
-            "discount-details": {
-              "title": "Discount details",
-              "card": {
-                "spinner": {
-                  "loading_busy": "Loading",
-                  "loading_empty": "No data",
-                  "loading_error": "Failed to load"
-                }
-              },
-              "pagination": {
-                "first": "First",
-                "last": "Last",
-                "next": "Next",
-                "pagination": "{{from}}-{{to}} out of {{total}}",
-                "previous": "Previous"
-              }
-            },
-            "coupon-details": {
-              "title": "Coupon details",
-              "card": {
-                "spinner": {
-                  "loading_busy": "Loading",
-                  "loading_empty": "No data",
-                  "loading_error": "Failed to load"
-                }
-              },
-              "pagination": {
-                "first": "First",
-                "last": "Last",
-                "next": "Next",
-                "pagination": "{{from}}-{{to}} out of {{total}}",
-                "previous": "Previous"
-              }
-            },
-            "attributes": {
-              "title": "Attributes",
-              "dialog": {
-                "header_create": "Create attribute",
-                "header_update": "Update attribute",
-                "close": "Close",
-                "save": "Save",
-                "cancel": "Cancel",
-                "undo_header": "Unsaved changes",
-                "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-                "undo_cancel": "Review",
-                "undo_confirm": "Discard"
-              },
-              "pagination": {
-                "create_button_text": "Add attribute",
-                "card": {
-                  "delete_button_text": "Delete",
-                  "spinner": {
-                    "loading_busy": "Loading",
-                    "loading_empty": "No data",
-                    "loading_error": "Failed to load"
-                  }
-                },
-                "first": "First",
-                "last": "Last",
-                "next": "Next",
-                "pagination": "{{from}}-{{to}} out of {{total}}",
-                "previous": "Previous"
-              }
-            },
-            "item-options": {
-              "title": "Item options",
-              "form": {
-                "name": {
-                  "label": "Name",
-                  "helper_text": "",
-                  "placeholder": "Color",
-                  "v8n_required": "Name is required",
-                  "v8n_too_long": "Name mustn't exceed 100 characters"
-                },
-                "value": {
-                  "label": "Value",
-                  "helper_text": "",
-                  "placeholder": "Red",
-                  "v8n_required": "Value is required",
-                  "v8n_too_long": "Value mustn't exceed 1024 characters"
-                },
-                "price-mod": {
-                  "label": "Price",
-                  "helper_text": "Same currency as item",
-                  "placeholder": "10"
-                },
-                "weight-mod": {
-                  "label": "Weight",
-                  "helper_text": "Arbitrary units",
-                  "placeholder": "5"
-                },
-                "timestamps": {
-                  "date_created": "Created on",
-                  "date_modified": "Last updated on",
-                  "date": "{{value, date}}"
-                },
-                "spinner": {
-                  "loading_busy": "Loading",
-                  "loading_error": "Failed to load"
-                },
-                "delete": {
-                  "delete": "Delete",
-                  "cancel": "Cancel",
-                  "delete_prompt": "Are you sure you'd like to remove this item option? You won't be able to bring it back."
-                },
-                "create": {
-                  "create": "Create"
-                }
-              },
-              "dialog": {
-                "header_create": "Create option",
-                "header_update": "Update option",
-                "close": "Close",
-                "save": "Save",
-                "cancel": "Cancel",
-                "undo_header": "Unsaved changes",
-                "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-                "undo_cancel": "Review",
-                "undo_confirm": "Discard"
-              },
-              "pagination": {
-                "card": {
-                  "delete_button_text": "Delete",
-                  "spinner": {
-                    "loading_busy": "Loading",
-                    "loading_empty": "No data",
-                    "loading_error": "Failed to load"
-                  }
-                },
-                "create_button_text": "Add option",
-                "first": "First",
-                "last": "Last",
-                "next": "Next",
-                "pagination": "{{from}}-{{to}} out of {{total}}",
-                "previous": "Previous"
-              }
-            },
-            "timestamps": {
-              "date_created": "Created on",
-              "date_modified": "Last updated on",
-              "date": "{{value, date}}"
-            },
-            "delete": {
-              "delete": "Delete",
-              "cancel": "Cancel",
-              "delete_prompt": "Are you sure you'd like to remove this item? You won't be able to bring it back."
-            },
-            "create": {
-              "create": "Create"
-            },
-            "spinner": {
-              "loading_busy": "Loading",
-              "loading_error": "Failed to load"
-            }
-          }
-        },
-        "address": {
-          "full_address": "{{address1}} {{address2}} {{city}} {{region}} {{postal_code}}",
-          "price": "{{amount, price}}",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No address",
-            "loading_error": "Failed to load"
-          }
-        },
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No shipments",
-          "loading_error": "Failed to load"
-        }
-      }
-    }
-  },
-  "discounts": {
-    "title": "Discounts",
-    "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
-      "card": {
-        "price": "{{amount, price}}",
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No discounts",
-          "loading_error": "Failed to load"
-        }
-      }
-    }
-  },
-  "applied-taxes": {
-    "title": "Applied taxes",
-    "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
-      "card": {
-        "percent": "{{fraction, percent}}",
-        "price": "{{amount, price}}",
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No applied taxes",
-          "loading_error": "Failed to load"
-        }
-      }
-    }
-  },
-  "payments": {
-    "title": "Payments",
-    "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
-      "card": {
-        "code": "Code",
-        "date": "{{value, date}}",
-        "fraud_risk": "Fraud risk: {{ score }}",
-        "price": "{{amount, price}}",
-        "unknown": "Unknown",
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No payments",
-          "loading_error": "Failed to load"
-        }
-      }
-    }
-  },
-  "custom-fields": {
-    "title": "Custom fields",
-    "dialog": {
-      "close": "Close",
-      "cancel": "Cancel",
-      "header_update": "Custom field",
-      "header_create": "New custom field",
-      "save": "Save",
-      "undo_header": "Unsaved changes",
-      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-      "undo_cancel": "Review",
-      "undo_confirm": "Discard",
-      "custom-field-form": {
-        "cancel": "Cancel",
-        "create": "Create",
-        "date": "{{value, date}}",
-        "date_created": "Created on",
-        "date_modified": "Last updated on",
-        "delete": "Delete",
-        "delete_prompt": "This resource will be permanently removed. Are you sure?",
-        "name": "Name",
-        "show_on_receipt": "Show on receipt",
-        "v8n_required": "Required",
-        "v8n_too_long": "Too long",
-        "value": "Value",
-        "visibility": "Visibility",
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_error": "Failed to load"
-        }
-      }
-    },
-    "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
-      "card": {
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No custom fields",
-          "loading_error": "Failed to load"
-        }
-      }
-    }
-  },
-  "attributes": {
-    "title": "Attributes",
-    "dialog": {
-      "close": "Close",
-      "cancel": "Cancel",
-      "header_update": "Attribute",
-      "header_create": "New attribute",
-      "save": "Save",
-      "undo_header": "Unsaved changes",
-      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-      "undo_cancel": "Review",
-      "undo_confirm": "Discard",
-      "attribute-form": {
-        "cancel": "Cancel",
-        "confirm": "Confirm",
-        "create": "Create",
-        "date": "{{value, date}}",
-        "date_created": "Created on",
-        "date_modified": "Last updated on",
-        "delete": "Delete",
-        "delete_prompt": "This resource will be permanently removed. Are you sure?",
-        "name": "Name",
-        "v8n_required": "Required",
-        "v8n_too_long": "Too long",
-        "value": "Value",
-        "visibility": "Visibility",
-        "visibility_private": "Only me",
-        "visibility_public": "Everyone",
-        "visibility_restricted": "Store admins",
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_error": "Failed to load"
-        }
-      }
-    },
-    "pagination": {
-      "first": "First",
-      "last": "Last",
-      "next": "Next",
-      "pagination": "{{from}}-{{to}} out of {{total}}",
-      "previous": "Previous",
-      "card": {
-        "spinner": {
-          "loading_busy": "Loading",
-          "loading_empty": "No attributes",
-          "loading_error": "Failed to load"
-        }
-      }
-    }
   }
 }

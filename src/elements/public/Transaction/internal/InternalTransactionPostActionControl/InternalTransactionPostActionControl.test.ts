@@ -94,7 +94,7 @@ describe('Transaction', () => {
 
       expect(button).to.exist;
       expect(button).to.not.have.attribute('disabled');
-      expect(button).to.have.property('theme', 'error tertiary');
+      expect(button).to.have.property('theme', 'error tertiary-inline');
 
       expect(label).to.exist;
       expect(label).to.have.property('infer', '');
@@ -114,7 +114,7 @@ describe('Transaction', () => {
 
       const dialog = control.renderRoot.querySelector('foxy-internal-confirm-dialog')!;
       dialog.dispatchEvent(new DialogHideEvent(false));
-      await control.updateComplete;
+      await control.requestUpdate();
 
       const button = control.renderRoot.querySelector('vaadin-button')!;
       const label = button.querySelector('foxy-i18n')!;
@@ -181,7 +181,9 @@ describe('Transaction', () => {
       const label = button.querySelector('foxy-i18n')!;
 
       dialog.dispatchEvent(new DialogHideEvent(false));
-      await waitUntil(() => label.getAttribute('key') === 'fail');
+      // @ts-expect-error accessing private property for testing purposes
+      await waitUntil(() => control.__state === 'fail', undefined, { timeout: 5000 });
+      await control.requestUpdate();
 
       expect(button).to.not.have.attribute('disabled');
       expect(label).to.have.property('key', 'fail');

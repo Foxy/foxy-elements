@@ -6,6 +6,12 @@ import { createRouter } from '../../../server/index';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 
 describe('Transaction', () => {
+  const OriginalResizeObserver = window.ResizeObserver;
+
+  // @ts-expect-error disabling ResizeObserver because it errors in test env
+  before(() => (window.ResizeObserver = undefined));
+  after(() => (window.ResizeObserver = OriginalResizeObserver));
+
   it('imports and defines foxy-attribute-card', () => {
     expect(customElements.get('foxy-attribute-card')).to.exist;
   });
@@ -20,14 +26,6 @@ describe('Transaction', () => {
 
   it('imports and defines foxy-custom-field-card', () => {
     expect(customElements.get('foxy-custom-field-card')).to.exist;
-  });
-
-  it('imports and defines foxy-applied-tax-card', () => {
-    expect(customElements.get('foxy-applied-tax-card')).to.exist;
-  });
-
-  it('imports and defines foxy-discount-card', () => {
-    expect(customElements.get('foxy-discount-card')).to.exist;
   });
 
   it('imports and defines foxy-shipment-card', () => {
@@ -46,8 +44,8 @@ describe('Transaction', () => {
     expect(customElements.get('foxy-i18n')).to.exist;
   });
 
-  it('imports and defines foxy-internal-async-details-control', () => {
-    expect(customElements.get('foxy-internal-async-details-control')).to.exist;
+  it('imports and defines foxy-internal-async-list-control', () => {
+    expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-form', () => {
@@ -83,7 +81,7 @@ describe('Transaction', () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-transaction>
@@ -94,18 +92,20 @@ describe('Transaction', () => {
     const control = element.renderRoot.querySelector('[infer="shipments"]');
 
     expect(control).to.exist;
-    expect(control).to.have.property('localName', 'foxy-internal-async-details-control');
-    expect(control).to.have.property('first', 'https://demo.api/hapi/shipments?transaction_id=0');
-    expect(control).to.have.property('form', '');
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
+    expect(control).to.have.property(
+      'first',
+      'https://demo.api/hapi/shipments?transaction_id=0&zoom=items%3Aitem_category'
+    );
+    expect(control).to.have.property('form', null);
     expect(control).to.have.property('item', 'foxy-shipment-card');
-    expect(control).to.have.property('open', true);
   });
 
   it('renders transaction summary as control', async () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-transaction>
@@ -123,7 +123,7 @@ describe('Transaction', () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-transaction>
@@ -141,7 +141,7 @@ describe('Transaction', () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-transaction>
@@ -152,68 +152,18 @@ describe('Transaction', () => {
     const control = element.renderRoot.querySelector('[infer="payments"]');
 
     expect(control).to.exist;
-    expect(control).to.have.property('localName', 'foxy-internal-async-details-control');
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
     expect(control).to.have.property('first', 'https://demo.api/hapi/payments?transaction_id=0');
-    expect(control).to.have.property('limit', 1);
-    expect(control).to.have.property('form', '');
+    expect(control).to.have.property('limit', 20);
+    expect(control).to.have.property('form', null);
     expect(control).to.have.property('item', 'foxy-payment-card');
-    expect(control).to.have.property('open', true);
-  });
-
-  it('renders discounts as control', async () => {
-    const router = createRouter();
-    const element = await fixture<Transaction>(html`
-      <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-transaction>
-    `);
-
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-    const control = element.renderRoot.querySelector('[infer="discounts"]');
-
-    expect(control).to.exist;
-    expect(control).to.have.property('localName', 'foxy-internal-async-details-control');
-    expect(control).to.have.property('first', 'https://demo.api/hapi/discounts?transaction_id=0');
-    expect(control).to.have.property('limit', 5);
-    expect(control).to.have.property('form', '');
-    expect(control).to.have.property('item', 'foxy-discount-card');
-    expect(control).to.have.property('open', false);
-  });
-
-  it('renders applied taxes as control', async () => {
-    const router = createRouter();
-    const element = await fixture<Transaction>(html`
-      <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-transaction>
-    `);
-
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
-
-    const control = element.renderRoot.querySelector('[infer="applied-taxes"]');
-
-    expect(control).to.exist;
-    expect(control).to.have.property('localName', 'foxy-internal-async-details-control');
-    expect(control).to.have.property('limit', 5);
-    expect(control).to.have.property('form', '');
-    expect(control).to.have.property('item', 'foxy-applied-tax-card');
-    expect(control).to.have.property('open', false);
-    expect(control).to.have.property(
-      'first',
-      'https://demo.api/hapi/applied_taxes?transaction_id=0'
-    );
   });
 
   it('renders custom fields as control', async () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-transaction>
@@ -224,11 +174,10 @@ describe('Transaction', () => {
     const control = element.renderRoot.querySelector('[infer="custom-fields"]');
 
     expect(control).to.exist;
-    expect(control).to.have.property('localName', 'foxy-internal-async-details-control');
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
     expect(control).to.have.property('limit', 5);
     expect(control).to.have.property('form', 'foxy-custom-field-form');
     expect(control).to.have.property('item', 'foxy-custom-field-card');
-    expect(control).to.have.property('open', false);
     expect(control).to.have.property(
       'first',
       'https://demo.api/hapi/custom_fields?transaction_id=0'
@@ -239,7 +188,7 @@ describe('Transaction', () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-transaction>
@@ -250,11 +199,10 @@ describe('Transaction', () => {
     const control = element.renderRoot.querySelector('[infer="attributes"]');
 
     expect(control).to.exist;
-    expect(control).to.have.property('localName', 'foxy-internal-async-details-control');
+    expect(control).to.have.property('localName', 'foxy-internal-async-list-control');
     expect(control).to.have.property('limit', 5);
     expect(control).to.have.property('form', 'foxy-attribute-form');
     expect(control).to.have.property('item', 'foxy-attribute-card');
-    expect(control).to.have.property('open', false);
     expect(control).to.have.property(
       'first',
       'https://demo.api/hapi/transaction_attributes?transaction_id=0'
@@ -265,7 +213,7 @@ describe('Transaction', () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
       <foxy-transaction
-        href="https://demo.api/hapi/transactions/0"
+        href="https://demo.api/hapi/transactions/0?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
         @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
       >
       </foxy-transaction>
