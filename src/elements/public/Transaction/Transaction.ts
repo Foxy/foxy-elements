@@ -8,8 +8,6 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-element';
 
-import uainfer from 'uainfer/src/uainfer.js';
-
 /**
  * Transaction summary page (`fx:transaction`).
  *
@@ -117,7 +115,6 @@ export class Transaction extends ResponsiveMixin(
           key=${subtitleKey}
           .options=${{
             transaction_date: this.data?.transaction_date,
-            user_agent: uainfer.analyze(this.data?.user_agent ?? '').toString(),
             ip_country: this.data?.ip_country,
           }}
         >
