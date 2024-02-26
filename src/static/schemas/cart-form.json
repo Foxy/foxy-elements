@@ -59,7 +59,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add item" },
+            "create_button_text": { "type": "string", "default": "Add item +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
@@ -602,7 +602,7 @@
                 "pagination": {
                   "additionalProperties": false,
                   "properties": {
-                    "create_button_text": { "type": "string", "default": "Add attribute" },
+                    "create_button_text": { "type": "string", "default": "Add attribute +" },
                     "card": {
                       "additionalProperties": false,
                       "properties": {
@@ -815,7 +815,7 @@
                       },
                       "required": ["delete_button_text", "spinner"]
                     },
-                    "create_button_text": { "type": "string", "default": "Add option" },
+                    "create_button_text": { "type": "string", "default": "Add option +" },
                     "first": { "type": "string", "default": "First" },
                     "last": { "type": "string", "default": "Last" },
                     "next": { "type": "string", "default": "Next" },
@@ -950,7 +950,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Apply code" },
+            "create_button_text": { "type": "string", "default": "Apply code +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
@@ -1352,7 +1352,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add custom field" },
+            "create_button_text": { "type": "string", "default": "Add custom field +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
@@ -1440,7 +1440,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add attribute" },
+            "create_button_text": { "type": "string", "default": "Add attribute +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },

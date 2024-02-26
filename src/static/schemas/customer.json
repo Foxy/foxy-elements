@@ -1716,7 +1716,7 @@
             "pagination": {
               "additionalProperties": false,
               "properties": {
-                "create_button_text": { "type": "string", "default": "Add attribute" },
+                "create_button_text": { "type": "string", "default": "Add attribute +" },
                 "first": { "type": "string", "default": "First" },
                 "last": { "type": "string", "default": "Last" },
                 "next": { "type": "string", "default": "Next" },

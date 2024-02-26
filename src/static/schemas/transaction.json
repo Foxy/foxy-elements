@@ -8,11 +8,11 @@
         "title": { "type": "string", "default": "ID {{ display_id }}" },
         "subtitle": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }}"
+          "default": "{{ transaction_date, date }} • {{ ip_country }}"
         },
         "subtitle_customer_changed_payment_method": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer changed payment method"
+          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer changed payment method"
         },
         "subtitle_admin_changed_payment_method_with_uoe": {
           "type": "string",
@@ -28,7 +28,7 @@
         },
         "subtitle_customer_changed_subscription": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer made changes to subscription"
+          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer made changes to subscription"
         },
         "subtitle_admin_changed_subscription_with_uoe": {
           "type": "string",
@@ -56,7 +56,7 @@
         },
         "subtitle_customer_canceled_subscription": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer cancelled subscription"
+          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer cancelled subscription"
         },
         "subtitle_admin_canceled_subscription": {
           "type": "string",
@@ -64,7 +64,7 @@
         },
         "subtitle_customer_subscribed": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer bought a subscription"
+          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer bought a subscription"
         },
         "subtitle_admin_subscribed_with_uoe": {
           "type": "string",
@@ -76,7 +76,7 @@
         },
         "subtitle_customer_placed_order": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ user_agent }}, {{ ip_country }} • Customer placed an order"
+          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer placed an order"
         },
         "subtitle_admin_placed_order_with_uoe": {
           "type": "string",
@@ -163,7 +163,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add item" },
+            "create_button_text": { "type": "string", "default": "Add item +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
@@ -733,7 +733,7 @@
                     "pagination": {
                       "additionalProperties": false,
                       "properties": {
-                        "create_button_text": { "type": "string", "default": "Add attribute" },
+                        "create_button_text": { "type": "string", "default": "Add attribute +" },
                         "card": {
                           "additionalProperties": false,
                           "properties": {
@@ -952,7 +952,7 @@
                           },
                           "required": ["delete_button_text", "spinner"]
                         },
-                        "create_button_text": { "type": "string", "default": "Add option" },
+                        "create_button_text": { "type": "string", "default": "Add option +" },
                         "first": { "type": "string", "default": "First" },
                         "last": { "type": "string", "default": "Last" },
                         "next": { "type": "string", "default": "Next" },
@@ -1166,7 +1166,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add custom field" },
+            "create_button_text": { "type": "string", "default": "Add custom field +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
@@ -1304,7 +1304,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add attribute" },
+            "create_button_text": { "type": "string", "default": "Add attribute +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },

@@ -438,7 +438,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add attribute" },
+            "create_button_text": { "type": "string", "default": "Add attribute +" },
             "card": {
               "additionalProperties": false,
               "properties": {
@@ -648,7 +648,7 @@
               },
               "required": ["delete_button_text", "spinner"]
             },
-            "create_button_text": { "type": "string", "default": "Add option" },
+            "create_button_text": { "type": "string", "default": "Add option +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },

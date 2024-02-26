@@ -76,7 +76,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add payment method" },
+            "create_button_text": { "type": "string", "default": "Add payment method +" },
             "card": {
               "additionalProperties": false,
               "properties": { "delete_button_text": { "type": "string", "default": "Remove" } },
@@ -138,7 +138,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add fraud protection" },
+            "create_button_text": { "type": "string", "default": "Add fraud protection +" },
             "card": {
               "additionalProperties": false,
               "properties": { "delete_button_text": { "type": "string", "default": "Remove" } },
