@@ -1,6 +1,7 @@
 {
   "full_address": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}",
   "quantity": "Qty: {{ count }}",
+  "no_code": "No SKU",
   "price": "{{ amount, price }}",
   "item": "{{ count }} item",
   "item_plural": "{{ count }} items",

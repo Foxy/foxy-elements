@@ -1709,6 +1709,7 @@
                           "default": "$t(customer.subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) from {{startDate, date}}"
                         },
                         "twice_a_month": { "type": "string", "default": "Twice a month" },
+                        "no_code": { "type": "string", "default": "No SKU" },
                         "weekly": { "type": "string", "default": "Weekly" },
                         "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
                         "yearly": { "type": "string", "default": "Yearly" },
@@ -1733,6 +1734,7 @@
                         "subinfo_recurring",
                         "subinfo_twice_a_month",
                         "twice_a_month",
+                        "no_code",
                         "weekly",
                         "weekly_plural",
                         "yearly",

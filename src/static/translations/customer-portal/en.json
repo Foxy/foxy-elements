@@ -804,6 +804,7 @@
             "subinfo_recurring": "$t(customer.subscription-form.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"customer-portal\" }) from {{startDate, date}}",
             "subinfo_twice_a_month": "$t(customer.subscription-form.pagination.card.twice_a_month, { \"ns\": \"customer-portal\" }) from {{startDate, date}}",
             "twice_a_month": "Twice a month",
+            "no_code": "No SKU",
             "weekly": "Weekly",
             "weekly_plural": "Every {{count}} weeks",
             "yearly": "Yearly",

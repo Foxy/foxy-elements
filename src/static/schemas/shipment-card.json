@@ -7,6 +7,7 @@
       "default": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}"
     },
     "quantity": { "type": "string", "default": "Qty: {{ count }}" },
+    "no_code": { "type": "string", "default": "No SKU" },
     "price": { "type": "string", "default": "{{ amount, price }}" },
     "item": { "type": "string", "default": "{{ count }} item" },
     "item_plural": { "type": "string", "default": "{{ count }} items" },
@@ -20,5 +21,5 @@
       "required": ["loading_busy", "loading_empty", "loading_error"]
     }
   },
-  "required": ["full_address", "quantity", "price", "item", "item_plural", "spinner"]
+  "required": ["full_address", "quantity", "no_code", "price", "item", "item_plural", "spinner"]
 }

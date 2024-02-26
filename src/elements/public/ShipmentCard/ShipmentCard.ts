@@ -82,7 +82,9 @@ export class ShipmentCard extends Base<Data> {
 
                       return html`
                         <tr>
-                          <td class="pr-s font-medium">${item.code}</td>
+                          <td class="pr-s font-medium">
+                            ${item.code || html`<foxy-i18n infer="" key="no_code"></foxy-i18n>`}
+                          </td>
                           <td class="px-s text-secondary">${item.name}</td>
                           <td class="px-s text-tertiary">
                             ${item.width}&times;${item.height}&times;${item.length} ${lengthUnit}

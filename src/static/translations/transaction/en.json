@@ -59,6 +59,7 @@
         "subinfo_recurring": "$t(items.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"transaction\" }) from {{startDate, date}}",
         "subinfo_twice_a_month": "$t(items.pagination.card.twice_a_month, { \"ns\": \"transaction\" }) from {{startDate, date}}",
         "twice_a_month": "Twice a month",
+        "no_code": "No SKU",
         "weekly": "Weekly",
         "weekly_plural": "Every {{count}} weeks",
         "yearly": "Yearly",
@@ -107,7 +108,6 @@
         },
         "subscription-frequency": {
           "label": "Subscription frequency",
-          "helper_text": "",
           "day": "Day",
           "day_plural": "Days",
           "week": "Week",
@@ -1194,6 +1194,7 @@
       "card": {
         "full_address": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}",
         "quantity": "Qty: {{ count }}",
+        "no_code": "No SKU",
         "price": "{{ amount, price }}",
         "item": "{{ count }} item",
         "item_plural": "{{ count }} items",

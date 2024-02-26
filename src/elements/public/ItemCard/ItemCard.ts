@@ -138,7 +138,9 @@ export class ItemCard extends Base<Data> {
           <div class="h-s flex items-center">
             <div class="min-w-0 flex-1 leading-s">
               <div class="flex items-center justify-between">
-                <div class="truncate text-m font-medium">${this.data?.name}</div>
+                <div class="truncate text-m font-medium">
+                  ${this.data?.name || html`<foxy-i18n infer="" key="no_code"></foxy-i18n>`}
+                </div>
                 <span class="text-s text-tertiary whitespace-nowrap">
                   ${quantity} &times;
                   <foxy-i18n
@@ -151,7 +153,7 @@ export class ItemCard extends Base<Data> {
               </div>
 
               <div class="truncate text-secondary text-s">
-                ${this.data?.code}
+                ${this.data?.code || undefined}
                 ${this.data?.subscription_frequency &&
                 !this.hiddenSelector.matches('autorenew-icon', true)
                   ? html`

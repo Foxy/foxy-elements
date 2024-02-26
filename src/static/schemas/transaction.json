@@ -190,6 +190,7 @@
                   "default": "$t(items.pagination.card.twice_a_month, { \"ns\": \"transaction\" }) from {{startDate, date}}"
                 },
                 "twice_a_month": { "type": "string", "default": "Twice a month" },
+                "no_code": { "type": "string", "default": "No SKU" },
                 "weekly": { "type": "string", "default": "Weekly" },
                 "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
                 "yearly": { "type": "string", "default": "Yearly" },
@@ -215,6 +216,7 @@
                 "subinfo_recurring",
                 "subinfo_twice_a_month",
                 "twice_a_month",
+                "no_code",
                 "weekly",
                 "weekly_plural",
                 "yearly",
@@ -312,10 +314,6 @@
                   "additionalProperties": false,
                   "properties": {
                     "label": { "type": "string", "default": "Subscription frequency" },
-                    "helper_text": {
-                      "type": "string",
-                      "default": "This determines how often this subscription will be processed. To modify this value for an existing subscription, you must modify the subscription directly."
-                    },
                     "day": { "type": "string", "default": "Day" },
                     "day_plural": { "type": "string", "default": "Days" },
                     "week": { "type": "string", "default": "Week" },
@@ -323,11 +321,14 @@
                     "month": { "type": "string", "default": "Month" },
                     "month_plural": { "type": "string", "default": "Months" },
                     "year": { "type": "string", "default": "Year" },
-                    "year_plural": { "type": "string", "default": "Years" }
+                    "year_plural": { "type": "string", "default": "Years" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "This determines how often this subscription will be processed. To modify this value for an existing subscription, you must modify the subscription directly."
+                    }
                   },
                   "required": [
                     "label",
-                    "helper_text",
                     "day",
                     "day_plural",
                     "week",
@@ -335,7 +336,8 @@
                     "month",
                     "month_plural",
                     "year",
-                    "year_plural"
+                    "year_plural",
+                    "helper_text"
                   ]
                 },
                 "subscription-start-date": {
@@ -2767,6 +2769,7 @@
                   "default": "{{ address1 }} {{ address2 }} {{ city }} {{ region }} {{ postal_code }}"
                 },
                 "quantity": { "type": "string", "default": "Qty: {{ count }}" },
+                "no_code": { "type": "string", "default": "No SKU" },
                 "price": { "type": "string", "default": "{{ amount, price }}" },
                 "item": { "type": "string", "default": "{{ count }} item" },
                 "item_plural": { "type": "string", "default": "{{ count }} items" },
@@ -2780,7 +2783,15 @@
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
               },
-              "required": ["full_address", "quantity", "price", "item", "item_plural", "spinner"]
+              "required": [
+                "full_address",
+                "quantity",
+                "no_code",
+                "price",
+                "item",
+                "item_plural",
+                "spinner"
+              ]
             }
           },
           "required": ["first", "last", "next", "pagination", "previous", "card"]
