@@ -7,6 +7,7 @@ import type { Data } from './types';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { InternalCard } from '../../internal/InternalCard/InternalCard';
 import { ifDefined } from 'lit-html/directives/if-defined';
+import { decode } from 'html-entities';
 import { html } from 'lit-html';
 
 const NS = 'shipment-card';
@@ -61,7 +62,7 @@ export class ShipmentCard extends Base<Data> {
           </foxy-i18n>
 
           <span class="truncate text-s text-secondary">
-            ${description ? html`${description} &bull; ` : ''}
+            ${description ? html`${decode(description)} &bull; ` : ''}
             <foxy-i18n key="price" infer="" .options=${priceOptions}></foxy-i18n>
             &bull;
             <foxy-i18n infer="" key="item" .options=${{ count: items.length }}></foxy-i18n>
