@@ -43,7 +43,7 @@
     "delete_confirm": "Remove",
     "delete_cancel": "Cancel",
     "pagination": {
-      "create_button_text": "Add item",
+      "create_button_text": "Add item +",
       "first": "First",
       "last": "Last",
       "next": "Next",
@@ -286,7 +286,7 @@
             }
           },
           "pagination": {
-            "create_button_text": "Add attribute",
+            "create_button_text": "Add attribute +",
             "card": {
               "delete_button_text": "Delete",
               "spinner": {
@@ -371,7 +371,7 @@
                 "loading_error": "Failed to load"
               }
             },
-            "create_button_text": "Add option",
+            "create_button_text": "Add option +",
             "first": "First",
             "last": "Last",
             "next": "Next",
@@ -436,7 +436,7 @@
       }
     },
     "pagination": {
-      "create_button_text": "Add custom field",
+      "create_button_text": "Add custom field +",
       "first": "First",
       "last": "Last",
       "next": "Next",
@@ -492,7 +492,7 @@
       }
     },
     "pagination": {
-      "create_button_text": "Add attribute",
+      "create_button_text": "Add attribute +",
       "first": "First",
       "last": "Last",
       "next": "Next",

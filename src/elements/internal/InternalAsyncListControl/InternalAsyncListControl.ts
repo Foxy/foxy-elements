@@ -196,9 +196,46 @@ export class InternalAsyncListControl extends InternalEditableControl {
             >
             </foxy-internal-confirm-dialog>
           `}
-      ${this.label && this.label !== 'label'
-        ? html`<div class="font-medium text-secondary text-s mb-xs">${this.label}</div>`
-        : ''}
+      <div class="flex items-center justify-between mb-xs text-s font-medium">
+        <span class="text-secondary">
+          ${this.label && this.label !== 'label' ? this.label : ''}
+        </span>
+        ${(!this.form && !this.createPageHref) || this.readonly || this.hideCreateButton
+          ? ''
+          : this.createPageHref && !this.disabled
+          ? html`
+              <a
+                class="rounded-s text-primary group focus-outline-none focus-ring-2 focus-ring-primary-50"
+                href=${this.createPageHref}
+              >
+                <foxy-i18n
+                  class="transition-opacity group-hover-opacity-80"
+                  infer=""
+                  key="create_button_text"
+                >
+                </foxy-i18n>
+              </a>
+            `
+          : html`
+              <vaadin-button
+                theme="tertiary-inline"
+                ?disabled=${this.disabled}
+                @click=${(evt: Event) => {
+                  evt.preventDefault();
+                  evt.stopPropagation();
+
+                  const dialog = this.__dialog;
+                  const button = evt.currentTarget as HTMLButtonElement;
+
+                  dialog.header = 'header_create';
+                  dialog.href = '';
+                  dialog.show(button);
+                }}
+              >
+                <foxy-i18n infer="pagination" key="create_button_text"></foxy-i18n>
+              </vaadin-button>
+            `}
+      </div>
 
       <foxy-pagination first=${ifDefined(first)} infer="pagination">
         <foxy-collection-page
@@ -213,38 +250,6 @@ export class InternalAsyncListControl extends InternalEditableControl {
           .item=${this.__itemRenderer as any}
         >
         </foxy-collection-page>
-
-        ${(!this.form && !this.createPageHref) || this.readonly || this.hideCreateButton
-          ? ''
-          : this.createPageHref && !this.disabled
-          ? html`
-              <a
-                class="mt-s w-full flex items-center justify-center h-m px-m rounded text-m font-medium transition-colors bg-contrast-5 text-success hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
-                href=${this.createPageHref}
-              >
-                <foxy-i18n infer="" key="create_button_text"></foxy-i18n>
-              </a>
-            `
-          : html`
-              <vaadin-button
-                class="mt-s w-full"
-                theme="success"
-                ?disabled=${this.disabled}
-                @click=${(evt: Event) => {
-                  evt.preventDefault();
-                  evt.stopPropagation();
-
-                  const dialog = this.__dialog;
-                  const button = evt.currentTarget as HTMLButtonElement;
-
-                  dialog.header = 'header_create';
-                  dialog.href = '';
-                  dialog.show(button);
-                }}
-              >
-                <foxy-i18n infer="" key="create_button_text"></foxy-i18n>
-              </vaadin-button>
-            `}
       </foxy-pagination>
     `;
   }

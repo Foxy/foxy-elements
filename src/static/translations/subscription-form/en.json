@@ -58,7 +58,7 @@
     "delete_message": "Are you sure you'd like to remove this attribute? You won't be able to bring it back.",
     "delete_header": "Delete attribute?",
     "pagination": {
-      "create_button_text": "Add attribute",
+      "create_button_text": "Add attribute +",
       "first": "First",
       "last": "Last",
       "next": "Next",

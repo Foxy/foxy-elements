@@ -25,7 +25,7 @@
     "delete_message": "Are you sure you'd like to remove this item? You won't be able to bring it back.",
     "delete_header": "Delete item?",
     "pagination": {
-      "create_button_text": "Add item",
+      "create_button_text": "Add item +",
       "first": "First",
       "last": "Last",
       "next": "Next",
@@ -267,7 +267,7 @@
           }
         },
         "pagination": {
-          "create_button_text": "Add attribute",
+          "create_button_text": "Add attribute +",
           "card": {
             "delete_button_text": "Delete",
             "spinner": {
@@ -352,7 +352,7 @@
               "loading_error": "Failed to load"
             }
           },
-          "create_button_text": "Add option",
+          "create_button_text": "Add option +",
           "first": "First",
           "last": "Last",
           "next": "Next",
@@ -386,7 +386,7 @@
     "delete_message": "Are you sure you'd like to remove this coupon code? This might affect the cart total.",
     "delete_header": "Delete code?",
     "pagination": {
-      "create_button_text": "Apply code",
+      "create_button_text": "Apply code +",
       "first": "First",
       "last": "Last",
       "next": "Next",
@@ -572,7 +572,7 @@
     "delete_message": "Are you sure you'd like to remove this custom field? This action can't be undone.",
     "delete_header": "Delete custom field?",
     "pagination": {
-      "create_button_text": "Add custom field",
+      "create_button_text": "Add custom field +",
       "first": "First",
       "last": "Last",
       "next": "Next",
@@ -608,7 +608,7 @@
     "delete_message": "Are you sure you'd like to remove this attribute? This action can't be undone.",
     "delete_header": "Delete attribute?",
     "pagination": {
-      "create_button_text": "Add attribute",
+      "create_button_text": "Add attribute +",
       "first": "First",
       "last": "Last",
       "next": "Next",

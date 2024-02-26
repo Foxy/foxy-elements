@@ -34,7 +34,7 @@
       "undo_confirm": "Discard"
     },
     "pagination": {
-      "create_button_text": "Add payment method",
+      "create_button_text": "Add payment method +",
       "card": {
         "delete_button_text": "Remove"
       }
@@ -58,7 +58,7 @@
       "undo_confirm": "Discard"
     },
     "pagination": {
-      "create_button_text": "Add fraud protection",
+      "create_button_text": "Add fraud protection +",
       "card": {
         "delete_button_text": "Remove"
       }
