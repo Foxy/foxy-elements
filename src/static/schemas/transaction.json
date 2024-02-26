@@ -8,83 +8,83 @@
         "title": { "type": "string", "default": "ID {{ display_id }}" },
         "subtitle": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ ip_country }}"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }}"
         },
         "subtitle_customer_changed_payment_method": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer changed payment method"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer changed payment method"
         },
         "subtitle_admin_changed_payment_method_with_uoe": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin used UOE password to change payment method"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to change payment method"
         },
         "subtitle_integration_changed_payment_method": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Integration changed payment method"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration changed payment method"
         },
         "subtitle_admin_changed_payment_method": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin changed payment method"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin changed payment method"
         },
         "subtitle_customer_changed_subscription": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer made changes to subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer made changes to subscription"
         },
         "subtitle_admin_changed_subscription_with_uoe": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin used UOE password to make changes to subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to make changes to subscription"
         },
         "subtitle_integration_changed_subscription": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Integration made changes to subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration made changes to subscription"
         },
         "subtitle_admin_changed_subscription": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin made changes to subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin made changes to subscription"
         },
         "subtitle_subscription_renewal_attempt": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Subscription renewal attempt"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Subscription renewal attempt"
         },
         "subtitle_subscription_renewal_automated_reattempt": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Automated subscription renewal reattempt"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Automated subscription renewal reattempt"
         },
         "subtitle_subscription_renewal_manual_reattempt": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin attempted to renew subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin attempted to renew subscription"
         },
         "subtitle_customer_canceled_subscription": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer cancelled subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer cancelled subscription"
         },
         "subtitle_admin_canceled_subscription": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin cancelled subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin cancelled subscription"
         },
         "subtitle_customer_subscribed": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer bought a subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer bought a subscription"
         },
         "subtitle_admin_subscribed_with_uoe": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin used UOE password to buy a subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to buy a subscription"
         },
         "subtitle_integration_subscribed": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Integration placed an order for customer"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration placed an order for customer"
         },
         "subtitle_customer_placed_order": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • {{ ip_country }} • Customer placed an order"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • {{ ip_country }} • Customer placed an order"
         },
         "subtitle_admin_placed_order_with_uoe": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Store admin used UOE password to place an order"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Store admin used UOE password to place an order"
         },
         "subtitle_integration_placed_order": {
           "type": "string",
-          "default": "{{ transaction_date, date }} • Integration bought a subscription"
+          "default": "{{ transaction_date, date }} at {{ transaction_date, time }} • Integration bought a subscription"
         },
         "alert_status_problem": {
           "type": "string",
