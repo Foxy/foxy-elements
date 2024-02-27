@@ -3,7 +3,12 @@ import { Renderer } from '../../../mixins/configurable';
 import { Resource } from '@foxy.io/sdk/core';
 import { TransactionCard } from './TransactionCard';
 
-export type Data = Resource<Rels.Transaction, { zoom: 'items' }> & { source: string; type: string };
+export type Data = Resource<Rels.Transaction, { zoom: ['items'] }> & {
+  _links?: { 'fx:subscription'?: { href: string } };
+  display_id: string | number;
+  user_agent: string;
+  source: string;
+};
 
 export type Templates = Partial<{
   'total:before': Renderer<TransactionCard>;

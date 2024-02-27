@@ -1,5 +1,5 @@
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
+import '@vaadin-component-factory/vcf-tooltip';
+import '../../internal/InternalCard/index';
 import '../I18n/index';
 
 import { TransactionCard } from './TransactionCard';
