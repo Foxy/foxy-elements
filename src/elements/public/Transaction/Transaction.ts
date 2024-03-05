@@ -8,15 +8,16 @@ import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-element';
 
+const NS = 'transaction';
+const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
+
 /**
  * Transaction summary page (`fx:transaction`).
  *
  * @element foxy-transaction
  * @since 1.17.0
  */
-export class Transaction extends ResponsiveMixin(
-  TranslatableMixin(InternalForm, 'transaction')
-)<Data> {
+export class Transaction extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
@@ -37,11 +38,42 @@ export class Transaction extends ResponsiveMixin(
 
   getCustomerPageHref: ((href: string) => string) | null = null;
 
-  private readonly __renderHeader = () => {
-    const source = this.data?.source;
+  get readonlySelector(): BooleanSelector {
+    const isEditable = Boolean(this.data?._links['fx:void'] ?? this.data?._links['fx:refund']);
+    return isEditable
+      ? new BooleanSelector(`${super.readonlySelector} billing-addresses`)
+      : new BooleanSelector(
+          `${super.readonlySelector} billing-addresses items attributes custom-fields`
+        );
+  }
+
+  get hiddenSelector(): BooleanSelector {
+    const hidden = ['billing-addresses:dialog:delete billing-addresses:dialog:timestamps'];
     const type = this.data?.type;
 
+    if (!this.data?._links['fx:subscription']) hidden.push('subscription');
+    if (type === 'subscription_modification') hidden.push('actions');
+
+    if (type === 'updateinfo') {
+      hidden.push('not=customer,subscription,payments,custom-fields,attributes');
+    }
+
+    if (type === 'subscription_cancellation') {
+      hidden.push('not=customer,subscription,custom-fields,attributes');
+    }
+
+    return new BooleanSelector(`${super.hiddenSelector} ${hidden.join(' ')}`.trim());
+  }
+
+  renderBody(): TemplateResult {
+    let shipmentsLink: string | undefined = undefined;
     let subtitleKey = 'subtitle';
+    let itemsLink: string | undefined = undefined;
+
+    const alertStatuses = ['problem', 'pending_fraud_review', 'rejected', 'declined'];
+    const hidden = this.hiddenSelector;
+    const source = this.data?.source;
+    const type = this.data?.type;
 
     if (type === 'updateinfo') {
       if (source === '' || source?.startsWith('cit_')) {
@@ -97,8 +129,21 @@ export class Transaction extends ResponsiveMixin(
       }
     }
 
+    if (this.data) {
+      try {
+        const shipmentsUrl = new URL(this.data._links['fx:shipments'].href);
+        const itemsUrl = new URL(this.data._links['fx:items'].href);
+        shipmentsUrl.searchParams.set('zoom', 'items:item_category');
+        itemsUrl.searchParams.set('zoom', 'item_options');
+        shipmentsLink = shipmentsUrl.toString();
+        itemsLink = itemsUrl.toString();
+      } catch {
+        //
+      }
+    }
+
     return html`
-      <h1>
+      <h2>
         <div class="flex items-center gap-s leading-xs text-xxl font-medium break-all">
           <foxy-i18n infer="header" key="title" .options=${this.data}></foxy-i18n>
           <foxy-copy-to-clipboard
@@ -122,11 +167,9 @@ export class Transaction extends ResponsiveMixin(
 
         <foxy-internal-transaction-actions-control class="mt-xs" infer="actions">
         </foxy-internal-transaction-actions-control>
-      </h1>
+      </h2>
 
-      ${['problem', 'pending_fraud_review', 'rejected', 'declined'].includes(
-        this.data?.status ?? ''
-      )
+      ${alertStatuses.includes(this.data?.status ?? '')
         ? html`
             <p
               class="leading-xs text-body rounded bg-error-10 block"
@@ -136,60 +179,14 @@ export class Transaction extends ResponsiveMixin(
             </p>
           `
         : ''}
-    `;
-  };
-
-  get readonlySelector(): BooleanSelector {
-    const isEditable = Boolean(this.data?._links['fx:void'] ?? this.data?._links['fx:refund']);
-    return isEditable
-      ? new BooleanSelector(`${super.readonlySelector} billing-addresses`)
-      : new BooleanSelector(
-          `${super.readonlySelector} billing-addresses items attributes custom-fields`
-        );
-  }
-
-  get hiddenSelector(): BooleanSelector {
-    const hidden = ['billing-addresses:dialog:delete billing-addresses:dialog:timestamps'];
-    const type = this.data?.type;
-
-    if (!this.data?._links['fx:subscription']) hidden.push('subscription');
-    if (type === 'subscription_modification') hidden.push('actions');
-
-    if (type === 'updateinfo') {
-      hidden.push('not=customer,subscription,payments,custom-fields,attributes');
-    }
-
-    if (type === 'subscription_cancellation') {
-      hidden.push('not=customer,subscription,custom-fields,attributes');
-    }
-
-    return new BooleanSelector(`${super.hiddenSelector} ${hidden.join(' ')}`.trim());
-  }
-
-  renderBody(): TemplateResult {
-    let shipmentsLink: string | undefined = undefined;
-    let itemsLink: string | undefined = undefined;
-
-    if (this.data) {
-      try {
-        const shipmentsUrl = new URL(this.data._links['fx:shipments'].href);
-        const itemsUrl = new URL(this.data._links['fx:items'].href);
-        shipmentsUrl.searchParams.set('zoom', 'items:item_category');
-        itemsUrl.searchParams.set('zoom', 'item_options');
-        shipmentsLink = shipmentsUrl.toString();
-        itemsLink = itemsUrl.toString();
-      } catch {
-        //
-      }
-    }
-
-    return html`
-      ${this.__renderHeader()}
 
       <foxy-internal-transaction-customer-control infer="customer">
       </foxy-internal-transaction-customer-control>
 
-      <div class="grid gap-s">
+      <div
+        class="grid gap-s"
+        ?hidden=${hidden.matches('items', true) && hidden.matches('summary', true)}
+      >
         <foxy-internal-async-list-control
           infer="items"
           class="min-w-0"
@@ -228,7 +225,10 @@ export class Transaction extends ResponsiveMixin(
       >
       </foxy-internal-async-list-control>
 
-      <div class="grid gap-m sm-grid-cols-2">
+      <div
+        class="grid gap-m sm-grid-cols-2"
+        ?hidden=${hidden.matches('custom-fields', true) && hidden.matches('attributes', true)}
+      >
         <foxy-internal-async-list-control
           infer="custom-fields"
           class="min-w-0"
