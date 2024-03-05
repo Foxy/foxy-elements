@@ -174,11 +174,11 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(control).to.have.deep.property('options', [{ label: 'option_live', value: 'live' }]);
 
     element.edit({ is_live: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['test']);
 
     element.edit({ is_live: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['live']);
   });
 
@@ -213,11 +213,11 @@ describe('PaymentsApiPaymentPresetForm', () => {
     expect(control).to.have.deep.property('options', [{ label: 'option_true', value: 'true' }]);
 
     element.edit({ is_purchase_order_enabled: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ is_purchase_order_enabled: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['true']);
   });
 

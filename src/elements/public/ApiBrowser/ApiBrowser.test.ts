@@ -100,7 +100,7 @@ describe('ApiBrowser', () => {
       })
     );
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const button = element.renderRoot.querySelector('vaadin-button[title="go_back"]');
     expect(button).to.have.property('disabled', false);
@@ -141,7 +141,7 @@ describe('ApiBrowser', () => {
       })
     );
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const button = element.renderRoot.querySelector(
       'vaadin-button[title="go_back"]'
@@ -291,7 +291,7 @@ describe('ApiBrowser', () => {
     expect(form).to.have.property('parent', '');
 
     element.parent = 'https://demo.api/hapi/customers';
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(form).to.have.property('parent', 'https://demo.api/hapi/customers');
   });
@@ -318,7 +318,7 @@ describe('ApiBrowser', () => {
     form.submit();
 
     await waitUntil(() => form.in({ idle: 'snapshot' }));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.property('href', form.data._links.self.href);
     expect(element).to.have.property('parent', '');

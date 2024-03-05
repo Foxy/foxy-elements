@@ -28,7 +28,7 @@ describe('WebhookStatusCard', () => {
     const card = await fixture<WebhookStatusCard>(layout);
 
     card.data = whStatus;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     const date = card.renderRoot.querySelector('foxy-i18n[key="date"]');
 
@@ -45,7 +45,7 @@ describe('WebhookStatusCard', () => {
 
       whStatus.status = status;
       card.data = whStatus;
-      await card.updateComplete;
+      await card.requestUpdate();
 
       const label = card.renderRoot.querySelector(`foxy-i18n[key="status_${status}"]`);
 

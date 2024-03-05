@@ -378,7 +378,7 @@ describe('CustomFieldForm', () => {
       expect(checkbox).to.have.attribute('checked');
 
       element.edit({ is_hidden: true });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(checkbox).not.to.have.attribute('checked');
     });

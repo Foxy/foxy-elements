@@ -429,7 +429,7 @@ describe('ReportForm', () => {
 
       toggle.checked = true;
       toggle.dispatchEvent(new CustomEvent('change'));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const picker = (await getByTestId(control, 'range:start')) as SelectElement;
 
@@ -451,7 +451,7 @@ describe('ReportForm', () => {
 
       toggle.checked = true;
       toggle.dispatchEvent(new CustomEvent('change'));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const picker = (await getByTestId(control, 'range:end')) as SelectElement;
 
@@ -474,7 +474,7 @@ describe('ReportForm', () => {
 
         toggle.checked = isChecked;
         toggle.dispatchEvent(new CustomEvent('change'));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         const preset = (await getByTestId(control, 'range:preset')) as HTMLElement;
         const start = (await getByTestId(control, 'range:start')) as HTMLElement;
@@ -493,10 +493,10 @@ describe('ReportForm', () => {
 
         toggle.checked = isChecked;
         toggle.dispatchEvent(new CustomEvent('change'));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         element.setAttribute('disabled', 'disabled');
-        await element.updateComplete;
+        await element.requestUpdate();
 
         const preset = (await getByTestId(control, 'range:preset')) as HTMLElement;
         const start = (await getByTestId(control, 'range:start')) as HTMLElement;
@@ -515,10 +515,10 @@ describe('ReportForm', () => {
 
         toggle.checked = isChecked;
         toggle.dispatchEvent(new CustomEvent('change'));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         element.setAttribute('disabledcontrols', 'range');
-        await element.updateComplete;
+        await element.requestUpdate();
 
         const preset = (await getByTestId(control, 'range:preset')) as HTMLElement;
         const start = (await getByTestId(control, 'range:start')) as HTMLElement;
@@ -538,7 +538,7 @@ describe('ReportForm', () => {
 
         toggle.checked = isChecked;
         toggle.dispatchEvent(new CustomEvent('change'));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         element.addEventListener('fetch', (evt: any) => router.handleEvent(evt));
         element.href = 'https://demo.api/virtual/stall';
@@ -561,7 +561,7 @@ describe('ReportForm', () => {
 
         toggle.checked = isChecked;
         toggle.dispatchEvent(new CustomEvent('change'));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         const preset = (await getByTestId(control, 'range:preset')) as HTMLElement;
         const start = (await getByTestId(control, 'range:start')) as HTMLElement;
@@ -579,10 +579,10 @@ describe('ReportForm', () => {
 
         toggle.checked = isChecked;
         toggle.dispatchEvent(new CustomEvent('change'));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         element.setAttribute('readonly', 'readonly');
-        await element.updateComplete;
+        await element.requestUpdate();
 
         const preset = (await getByTestId(control, 'range:preset')) as HTMLElement;
         const start = (await getByTestId(control, 'range:start')) as HTMLElement;
@@ -600,10 +600,10 @@ describe('ReportForm', () => {
 
         toggle.checked = isChecked;
         toggle.dispatchEvent(new CustomEvent('change'));
-        await element.updateComplete;
+        await element.requestUpdate();
 
         element.setAttribute('readonlycontrols', 'range');
-        await element.updateComplete;
+        await element.requestUpdate();
 
         const preset = (await getByTestId(control, 'range:preset')) as HTMLElement;
         const start = (await getByTestId(control, 'range:start')) as HTMLElement;

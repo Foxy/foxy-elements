@@ -12,26 +12,26 @@ const samples = {
 };
 
 async function expectNoErrorScreen(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
 async function expectNoDesignationPicker(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const designation = getRefs<Refs>(element).designation;
   expect(designation, 'designations must not be rendered').to.be.undefined;
 }
 
 async function expectNullDesignation(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const field = getRefs<Refs>(element).form?.elements.namedItem('Designation');
   expect(field, 'designation must not be included in the form').to.be.null;
   expect(element.designation, 'designation must be null').to.be.null;
 }
 
 async function expectStringDesignation(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const form = getRefs<Refs>(element).form;
   const field = form?.elements.namedItem('Designation') as HTMLInputElement;
@@ -42,7 +42,7 @@ async function expectStringDesignation(element: Donation) {
 }
 
 async function expectDesignationPicker(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { designation: choice } = getRefs<Refs>(element);
   const { designation: value, designations: items } = element;

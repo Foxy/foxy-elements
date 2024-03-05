@@ -12,23 +12,23 @@ const samples = {
 };
 
 async function expectNoErrorScreen(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
 async function expectFrequency(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.frequency, 'sample frequency must be set').to.equal(samples.frequency);
 }
 
 async function expectNoFrequency(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.frequency, 'frequency must be null').to.be.null;
 }
 
 async function expectFrequencyPicker(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { frequency } = getRefs<Refs>(element);
   const { frequencies } = samples;
@@ -38,7 +38,7 @@ async function expectFrequencyPicker(element: Donation) {
 }
 
 async function expectNoFrequencyPicker(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { frequency } = getRefs<Refs>(element);
   expect(frequency, 'frequency dropdown must not be rendered').to.be.undefined;
 }

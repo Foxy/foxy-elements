@@ -86,7 +86,7 @@ describe('InternalDateControl', () => {
     expect(field).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('errorMessage', 'test error message');
   });
@@ -99,7 +99,7 @@ describe('InternalDateControl', () => {
     expect(field).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('helperText', 'test helper text');
   });
@@ -112,7 +112,7 @@ describe('InternalDateControl', () => {
     expect(field).to.have.property('placeholder', 'placeholder');
 
     control.placeholder = 'test placeholder';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('placeholder', 'test placeholder');
   });
@@ -125,7 +125,7 @@ describe('InternalDateControl', () => {
     expect(field).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('label', 'test label');
   });
@@ -136,11 +136,11 @@ describe('InternalDateControl', () => {
     const field = control.renderRoot.querySelector('vaadin-date-picker')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', false);
   });
 
@@ -150,11 +150,11 @@ describe('InternalDateControl', () => {
     const field = control.renderRoot.querySelector('vaadin-date-picker')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', true);
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', false);
   });
 
@@ -174,7 +174,7 @@ describe('InternalDateControl', () => {
     expect(field).to.have.property('value', '');
 
     control.testValue = '2020-01-01';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('value', '2020-01-01');
   });
@@ -188,7 +188,7 @@ describe('InternalDateControl', () => {
 
     control.format = 'unix';
     control.testValue = 1577826000;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('value', serializeDate(new Date(1577826000000)));
   });

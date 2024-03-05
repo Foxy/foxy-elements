@@ -144,7 +144,7 @@ const model = createModel<TestNextDateModification>(machine).withEvents({
   SET_RULES: { exec: element => void (element.value = samples.value) },
   ADD_RULES: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
 
       if (element.disabled) {
         element.value = samples.basicValue;
@@ -160,7 +160,7 @@ const model = createModel<TestNextDateModification>(machine).withEvents({
   },
   UNCHECK: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const toggle = (await getRefs(element)).toggle;
       toggle.checked = false;
       toggle.dispatchEvent(new SwitchChangeEvent(false));
@@ -168,7 +168,7 @@ const model = createModel<TestNextDateModification>(machine).withEvents({
   },
   CHECK: {
     exec: async element => {
-      await element.updateComplete;
+      await element.requestUpdate();
       const toggle = (await getRefs(element)).toggle;
       toggle.checked = true;
       toggle.dispatchEvent(new SwitchChangeEvent(true));

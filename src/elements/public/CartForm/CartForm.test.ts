@@ -422,7 +422,7 @@ describe('CartForm', () => {
       body: JSON.stringify({ is_anonymous: false }),
     });
     element.edit({ customer_uri: '' });
-    await element.updateComplete;
+    await element.requestUpdate();
     element.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });
     await waitUntil(() => control.getValue() === 'regular', '', { timeout: 5000 });
 
@@ -451,7 +451,7 @@ describe('CartForm', () => {
 
     const customerTypeControl = $.querySelector(`[infer="customer-type"]`) as InternalSelectControl;
     customerTypeControl.setValue('guest');
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.attribute('first', 'https://demo.api/hapi/customers?is_anonymous=1');
 
     element.edit({ customer_email: 'test@example.com', customer_uri: '' });
@@ -472,7 +472,7 @@ describe('CartForm', () => {
     );
 
     element.undo();
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.property('selectedItem', null);
 
     element.edit({ customer_uri: 'https://demo.api/hapi/customers/0' });

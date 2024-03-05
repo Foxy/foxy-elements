@@ -248,7 +248,7 @@ describe('CustomerForm', () => {
     const data = await getTestData<Data>('./hapi/customers/0');
     data.last_login_date = new Date().toISOString();
     form.data = data;
-    await form.updateComplete;
+    await form.requestUpdate();
 
     expect(control).to.have.attribute('helper-text', 'email.helper_text_last_login_date');
   });
@@ -297,7 +297,7 @@ describe('CustomerForm', () => {
     expect(control).to.have.attribute('helper-text', 'password.helper_text');
 
     form.data = await getTestData<Data>('./hapi/customers/0');
-    await form.updateComplete;
+    await form.requestUpdate();
     expect(control).to.have.attribute('placeholder', 'password.placeholder_new');
     expect(control).to.have.attribute('helper-text', 'password.helper_text_new');
   });
@@ -323,12 +323,12 @@ describe('CustomerForm', () => {
     data.forgot_password = '123';
     data.forgot_password_timestamp = new Date().toISOString();
     form.data = data;
-    await form.updateComplete;
+    await form.requestUpdate();
     expect(control).to.have.attribute('helper-text', 'forgot-password.helper_text_expires_in');
 
     data.forgot_password_timestamp = new Date(Date.now() - 30 * 60 * 1000).toISOString();
     form.data = data;
-    await form.updateComplete;
+    await form.requestUpdate();
     expect(control).to.have.attribute('helper-text', 'forgot-password.helper_text_expired_on');
   });
 
@@ -366,9 +366,10 @@ describe('CustomerForm', () => {
     const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
     form.settings = portalSettings;
     form.edit({ password: 'jfkdfdhKJHGjh834))33!', email: 'foo@bar.com' });
-    await form.updateComplete;
+    await form.requestUpdate();
 
     const captcha = form.renderRoot.querySelector('h-captcha') as VanillaHCaptchaWebComponent;
+    stub(captcha, 'reset').resolves();
     stub(captcha, 'execute').callsFake(() => {
       captcha.dispatchEvent(new VerifiedEvent('verified'));
     });
@@ -396,7 +397,16 @@ describe('CustomerForm', () => {
       email: 'foo@bar.com',
     });
 
-    form.submit();
+    const VerifiedEvent = class extends CustomEvent<unknown> {
+      token = '456';
+
+      eKey = '789';
+    };
+
+    await form.requestUpdate();
+    const captcha = form.renderRoot.querySelector('h-captcha') as VanillaHCaptchaWebComponent;
+    captcha.dispatchEvent(new VerifiedEvent('verified'));
+
     const evt = (await whenFetchIsFired) as unknown as FetchEvent;
     evt.preventDefault();
 

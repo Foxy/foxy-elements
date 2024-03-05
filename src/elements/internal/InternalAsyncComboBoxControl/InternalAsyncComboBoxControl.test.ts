@@ -103,7 +103,7 @@ describe('InternalAsyncComboBoxControl', () => {
     expect(comboBox).to.have.empty.property('itemValuePath');
 
     control.itemValuePath = 'test';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(comboBox).to.have.property('itemValuePath', 'test');
   });
@@ -116,7 +116,7 @@ describe('InternalAsyncComboBoxControl', () => {
     expect(comboBox).to.have.empty.property('itemLabelPath');
 
     control.itemLabelPath = 'test';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(comboBox).to.have.property('itemLabelPath', 'test');
   });
@@ -137,7 +137,7 @@ describe('InternalAsyncComboBoxControl', () => {
     expect(comboBox).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(comboBox).to.have.property('errorMessage', 'test error message');
   });
@@ -150,7 +150,7 @@ describe('InternalAsyncComboBoxControl', () => {
     expect(comboBox).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(comboBox).to.have.property('helperText', 'test helper text');
   });
@@ -163,7 +163,7 @@ describe('InternalAsyncComboBoxControl', () => {
     expect(comboBox).to.have.property('placeholder', 'placeholder');
 
     control.placeholder = 'test placeholder';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(comboBox).to.have.property('placeholder', 'test placeholder');
   });
@@ -176,7 +176,7 @@ describe('InternalAsyncComboBoxControl', () => {
     expect(comboBox).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(comboBox).to.have.property('label', 'test label');
   });
@@ -187,11 +187,11 @@ describe('InternalAsyncComboBoxControl', () => {
     const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(comboBox).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(comboBox).to.have.property('disabled', false);
   });
 
@@ -201,11 +201,11 @@ describe('InternalAsyncComboBoxControl', () => {
     const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(comboBox).to.have.property('readonly', true);
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(comboBox).to.have.property('readonly', false);
   });
 
@@ -225,7 +225,7 @@ describe('InternalAsyncComboBoxControl', () => {
 
     control.itemLabelPath = 'foo';
     control.first = 'https://demo.api/test/';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     const testItems = [{ foo: 'bar1' }, { foo: 'bar2' }];
     const testSize = 10;
@@ -267,7 +267,7 @@ describe('InternalAsyncComboBoxControl', () => {
     expect(comboBox).to.have.property('value', '');
 
     control.testValue = 'test_value';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(comboBox).to.have.property('value', 'test_value');
   });

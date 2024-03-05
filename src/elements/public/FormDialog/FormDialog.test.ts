@@ -176,7 +176,7 @@ describe('FormDialog', () => {
     stub(formElement, 'in').callsFake(stateValue => stateValue === 'busy');
     formElement.dispatchEvent(new UpdateEvent());
 
-    await dialog.updateComplete;
+    await dialog.requestUpdate();
     expect(dialog).to.have.property('closable', false);
   });
 
@@ -198,7 +198,7 @@ describe('FormDialog', () => {
       stub(formElement, 'in').callsFake(v => isEqual(v, stateValue));
       formElement.dispatchEvent(new UpdateEvent());
 
-      await dialog.updateComplete;
+      await dialog.requestUpdate();
       expect(dialog).to.have.property('editable', true);
     });
   });

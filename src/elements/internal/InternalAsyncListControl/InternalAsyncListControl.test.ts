@@ -697,7 +697,7 @@ describe('InternalAsyncListControl', () => {
     const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
 
     expect(label).to.have.property('localName', 'foxy-i18n');
-    expect(label).to.have.attribute('infer', '');
+    expect(label).to.have.attribute('infer', 'pagination');
 
     const dialogShowMethod = stub(dialog, 'show');
     button.click();

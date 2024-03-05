@@ -36,7 +36,7 @@ describe('ItemCard', () => {
 
     element.data!.image = 'https://picsum.photos/128';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('img[src="https://picsum.photos/128"]')).to.exist;
   });
@@ -55,7 +55,7 @@ describe('ItemCard', () => {
 
     element.data!.name = 'Test Item Name';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test Item Name');
   });
@@ -74,7 +74,7 @@ describe('ItemCard', () => {
 
     element.data!.name = 'Test Item Name';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test Item Name');
   });
@@ -94,7 +94,7 @@ describe('ItemCard', () => {
     element.data!.quantity = 8;
     element.data!.price = 16;
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const amounts = element.renderRoot.querySelectorAll('foxy-i18n[key="price"]');
 

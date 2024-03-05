@@ -890,7 +890,7 @@ describe('InternalCustomerPortalLoggedOutView', () => {
 
         const form = (await getByTestId(element, 'sign-up:form')) as CustomerForm;
         form.href = 'https://demo.api/virtual/stall';
-        await form.updateComplete;
+        await form.requestUpdate();
         expect(button).to.have.attribute('disabled');
       });
 

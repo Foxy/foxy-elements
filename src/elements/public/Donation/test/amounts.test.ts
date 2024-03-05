@@ -15,13 +15,13 @@ const samples = {
 };
 
 async function expectNoErrorScreen(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { error } = getRefs<Refs>(element);
   expect(error, 'error screen must not be rendered').to.be.undefined;
 }
 
 async function expectAmountChoice(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { amount } = getRefs<Refs>(element);
   const choiceItems = samples.amounts.map(String);
@@ -32,13 +32,13 @@ async function expectAmountChoice(element: Donation) {
 }
 
 async function expectNoAmountChoice(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { amount } = getRefs<Refs>(element);
   expect(amount, 'amount choice must not be rendered').to.be.undefined;
 }
 
 async function expectCustomAmount(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
 
   const { amount } = getRefs<Refs>(element);
   const value = samples.amount.custom;
@@ -48,7 +48,7 @@ async function expectCustomAmount(element: Donation) {
 }
 
 async function expectCustomAmountToBeAvailable(element: Donation) {
-  await element.updateComplete;
+  await element.requestUpdate();
   const { amount } = getRefs<Refs>(element);
   expect(amount?.custom, 'custom amount must be available').to.be.true;
 }

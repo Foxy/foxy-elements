@@ -360,7 +360,7 @@ describe('CouponCodesForm', () => {
       `);
 
       element.edit({ coupon_codes: ['foo', 'bar'] });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(await getByTestId(element, 'import')).to.have.attribute('disabled');
     });

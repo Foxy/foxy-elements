@@ -17,7 +17,8 @@ const samples = {
   value: [1, 4, 6],
 };
 
-function testItems(element: TestWeekdayPicker) {
+async function testItems(element: TestWeekdayPicker) {
+  await element.requestUpdate();
   const items = new Array(7).fill(0).map((_, i) => i);
   const labels = element.shadowRoot!.querySelectorAll('label');
 
@@ -32,19 +33,22 @@ function testItems(element: TestWeekdayPicker) {
   });
 }
 
-function testEnabled(element: TestWeekdayPicker) {
+async function testEnabled(element: TestWeekdayPicker) {
+  await element.requestUpdate();
   expect(element).to.have.property('disabled', false);
   const inputs = element.shadowRoot!.querySelectorAll('input');
   Array.from(inputs).every(input => expect(input).to.have.property('disabled', false));
 }
 
-function testDisabled(element: TestWeekdayPicker) {
+async function testDisabled(element: TestWeekdayPicker) {
+  await element.requestUpdate();
   expect(element).to.have.property('disabled', true);
   const inputs = element.shadowRoot!.querySelectorAll('input');
   Array.from(inputs).every(input => expect(input).to.have.property('disabled', true));
 }
 
 async function testToggling(element: TestWeekdayPicker) {
+  await element.requestUpdate();
   const input = element.shadowRoot!.querySelector('input');
 
   if (element.disabled) {

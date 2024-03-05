@@ -73,14 +73,14 @@ describe('FilterAttributeForm', () => {
       expect(label).to.not.exist;
 
       nucleon.data = (await getTestData('./hapi/store_attributes/0')) as any;
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       label = await getByKey(control, 'update');
       expect(label).to.not.exist;
 
       nucleon.edit({ value: 'test' });
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       label = await getByKey(control, 'update');
       expect(label).to.exist;
 
@@ -106,14 +106,14 @@ describe('FilterAttributeForm', () => {
       expect(label).to.not.exist;
 
       nucleon.data = (await getTestData('./hapi/store_attributes/0')) as any;
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       label = await getByKey(control, 'reset');
       expect(label).to.not.exist;
 
       nucleon.edit({ value: 'test' });
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       label = await getByKey(control, 'reset');
       expect(label).to.exist;
 
@@ -139,8 +139,8 @@ describe('FilterAttributeForm', () => {
       expect(label).to.not.exist;
 
       nucleon.data = (await getTestData('./hapi/store_attributes/0')) as any;
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       label = await getByKey(control, 'delete');
       expect(label).to.exist;
 
@@ -166,14 +166,14 @@ describe('FilterAttributeForm', () => {
       expect(buttons).to.be.empty;
 
       nucleon.data = (await getTestData('./hapi/store_attributes/0')) as any;
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       buttons = control.renderRoot.querySelectorAll('[disabled]');
       expect(buttons).to.be.empty;
 
       nucleon.edit({ value: 'test' });
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       buttons = control.renderRoot.querySelectorAll('[disabled]');
       expect(buttons).to.be.empty;
     });
@@ -187,19 +187,19 @@ describe('FilterAttributeForm', () => {
         </foxy-filter-attribute-form>
       `);
 
-      const control = nucleon.firstElementChild as Control;
+      const control = nucleon.querySelector('[infer="action"]') as Control;
       let buttons = control.renderRoot.querySelectorAll('[disabled]');
       expect(buttons).to.be.empty;
 
       nucleon.data = (await getTestData('./hapi/store_attributes/0')) as any;
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       buttons = control.renderRoot.querySelectorAll('[disabled]');
       expect(buttons).to.not.be.empty;
 
       nucleon.edit({ value: 'test' });
-      await nucleon.updateComplete;
-      await control.updateComplete;
+      await nucleon.requestUpdate();
+      await control.requestUpdate();
       buttons = control.renderRoot.querySelectorAll('[disabled]');
       expect(buttons).to.not.be.empty;
     });

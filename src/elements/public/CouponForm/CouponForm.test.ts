@@ -460,7 +460,7 @@ describe('CouponForm', () => {
 
       select.selectedIndex = 0;
       select.dispatchEvent(new CustomEvent('change'));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.nested.property(
         'form.coupon_discount_details',
@@ -920,13 +920,13 @@ describe('CouponForm', () => {
       const button = (await getByTestId(control, 'codes:filter-button')) as HTMLElement;
 
       button.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(button.querySelector('foxy-i18n')).to.have.attribute('key', 'clear_filters');
       expect(control.querySelector('foxy-query-builder')).not.to.have.attribute('hidden');
 
       button.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(button.querySelector('foxy-i18n')).to.have.attribute('key', 'filter');
       expect(control.querySelector('foxy-query-builder')).to.have.attribute('hidden');
@@ -946,7 +946,7 @@ describe('CouponForm', () => {
 
       builder.value = 'foo=bar&baz:in=1,2';
       builder.dispatchEvent(new CustomEvent('change'));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const pagination = control.querySelector('foxy-pagination') as Pagination;
       const paginationParams = new URL(pagination.first).searchParams;
@@ -1622,12 +1622,12 @@ describe('CouponForm', () => {
       allow.items = [{ value: 'foo' }, { value: 'b*z' }];
       allow.dispatchEvent(new CustomEvent('change'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
 
       block.items = [{ value: 'bar-*' }, { value: 'qux' }];
       block.dispatchEvent(new CustomEvent('change'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.nested.property(
         'form.product_code_restrictions',
@@ -2096,7 +2096,7 @@ describe('CouponForm', () => {
       expect(control.getValue()).to.deep.equal([]);
 
       form.edit({ customer_subscription_restrictions: 'foo,bar' });
-      await form.updateComplete;
+      await form.requestUpdate();
       expect(control.getValue()).to.deep.equal([{ value: 'foo' }, { value: 'bar' }]);
 
       control.setValue([{ value: 'one' }, { value: 'two' }]);
@@ -2140,7 +2140,7 @@ describe('CouponForm', () => {
       expect(control.value).to.equal(null);
 
       form.edit({ customer_attribute_restrictions: 'foo=bar&baz=0' });
-      await form.updateComplete;
+      await form.requestUpdate();
       expect(control.value).to.equal('foo=bar&baz=0');
 
       control.value = 'one=two&three=3';
@@ -3023,8 +3023,16 @@ describe('CouponForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = './hapi/sleep';
-      const layout = html`<foxy-coupon-form href=${href} lang="es"></foxy-coupon-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-coupon-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-coupon-form>
+      `;
+
       const element = await fixture<CouponForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

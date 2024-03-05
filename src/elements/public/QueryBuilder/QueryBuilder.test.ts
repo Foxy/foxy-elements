@@ -87,7 +87,7 @@ describe('QueryBuilder', () => {
     const path = root.querySelector('[aria-label="query_builder_rule"] input') as HTMLInputElement;
     path.value = 'a';
     path.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(root.querySelectorAll(`[aria-label="query_builder_rule"]`)).to.have.length(2);
     expect(element).to.have.value('a=');
@@ -100,7 +100,7 @@ describe('QueryBuilder', () => {
 
     path.value = 'a';
     path.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(
       root.querySelector('[aria-label="query_builder_rule"]:last-of-type input')
@@ -115,7 +115,7 @@ describe('QueryBuilder', () => {
 
     value.value = 'bar';
     value.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('bar=');
     expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -129,7 +129,7 @@ describe('QueryBuilder', () => {
     const whenGotEvent = oneEvent(element, 'change');
 
     toggle.click();
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Alessthanorequal=');
     expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -143,7 +143,7 @@ describe('QueryBuilder', () => {
 
     value.value = 'baz';
     value.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo=baz');
     expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -168,7 +168,7 @@ describe('QueryBuilder', () => {
     for (const value of values) {
       const whenGotEvent = oneEvent(element, 'change');
       toggle.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.value(value);
       expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -195,7 +195,7 @@ describe('QueryBuilder', () => {
     for (const value of values) {
       const whenGotEvent = oneEvent(element, 'change');
       toggle.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.value(value);
       expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -225,7 +225,7 @@ describe('QueryBuilder', () => {
     for (const value of values) {
       const whenGotEvent = oneEvent(element, 'change');
       toggle.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.value(value);
       expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -250,7 +250,7 @@ describe('QueryBuilder', () => {
     for (const value of values) {
       const whenGotEvent = oneEvent(element, 'change');
       toggle.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.value(value);
       expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -283,7 +283,7 @@ describe('QueryBuilder', () => {
     for (const value of values) {
       const whenGotEvent = oneEvent(element, 'change');
       toggle.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.value(value);
       expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -308,7 +308,7 @@ describe('QueryBuilder', () => {
     for (const value of values) {
       const whenGotEvent = oneEvent(element, 'change');
       toggle.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.value(value);
       expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
@@ -381,14 +381,14 @@ describe('QueryBuilder', () => {
     fromDate.setFullYear(2022);
     from.value = serializeDateTime(fromDate);
     from.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value(`foo=${encodeURIComponent(getRange())}`);
 
     toDate.setFullYear(2024);
     to.value = serializeDateTime(toDate);
     to.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value(`foo=${encodeURIComponent(getRange())}`);
   });
@@ -411,13 +411,13 @@ describe('QueryBuilder', () => {
 
     from.value = '30';
     from.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo=30..20');
 
     to.value = '40';
     to.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo=30..40');
   });
@@ -447,27 +447,27 @@ describe('QueryBuilder', () => {
     date1.setFullYear(2022);
     first.value = serializeDateTime(date1);
     first.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
 
     date2.setFullYear(2024);
     second.value = serializeDateTime(date2);
     second.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
 
     const date3 = new Date(2026, 0, 1);
     addNew.value = serializeDateTime(date3);
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2, date3))}`);
 
     addNew.value = '';
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value(`foo%3Ain=${encodeURIComponent(getList(date1, date2))}`);
   });
@@ -492,25 +492,25 @@ describe('QueryBuilder', () => {
 
     first.value = '2022';
     first.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=2022%2C2021');
 
     second.value = '2024';
     second.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=2022%2C2024');
 
     addNew.value = '2026';
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=2022%2C2024%2C2026');
 
     addNew.value = '';
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=2022%2C2024');
   });
@@ -534,25 +534,25 @@ describe('QueryBuilder', () => {
 
     first.value = 'qux';
     first.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cbaz');
 
     second.value = 'abc';
     second.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cabc');
 
     addNew.value = 'def';
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cabc%2Cdef');
 
     addNew.value = '';
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cabc');
   });
@@ -570,25 +570,25 @@ describe('QueryBuilder', () => {
 
     first.value = 'qux';
     first.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cbaz');
 
     second.value = 'abc';
     second.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cabc');
 
     addNew.value = 'def';
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cabc%2Cdef');
 
     addNew.value = '';
     addNew.dispatchEvent(new InputEvent('input'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).to.have.value('foo%3Ain=qux%2Cabc');
   });
@@ -909,7 +909,7 @@ describe('QueryBuilder', () => {
     controls.forEach(control => expect(control).to.not.have.attribute('disabled'));
 
     element.disabled = true;
-    await element.updateComplete;
+    await element.requestUpdate();
     controls.forEach(control => expect(control).to.have.attribute('disabled'));
   });
 
@@ -952,7 +952,7 @@ describe('QueryBuilder', () => {
       .forEach(control => expect(control).to.not.have.attribute('disabled'));
 
     element.readonly = true;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     element.renderRoot
       .querySelectorAll('input, button, select')

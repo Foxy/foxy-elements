@@ -158,7 +158,7 @@ describe('WebhookForm', () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
 
     element.data = webhook;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector('[infer="statuses"]');
 
@@ -173,7 +173,7 @@ describe('WebhookForm', () => {
     const element = await fixture<WebhookForm>(html`<foxy-webhook-form></foxy-webhook-form>`);
 
     element.data = webhook;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector('[infer="logs"]');
 

@@ -65,7 +65,7 @@ describe('ShipmentCard', () => {
 
     element.data!.shipping_service_description = 'Test service';
     element.data = { ...element.data! };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test service');
   });
@@ -85,7 +85,7 @@ describe('ShipmentCard', () => {
     element.data!.total_shipping = 123;
     element.data = { ...element.data! };
 
-    await element.updateComplete;
+    await element.requestUpdate();
     const price = element.renderRoot.querySelector('foxy-i18n[key="price"]');
 
     expect(price).to.exist;

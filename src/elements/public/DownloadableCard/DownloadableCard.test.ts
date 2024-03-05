@@ -41,7 +41,7 @@ describe('DownloadableCard', () => {
 
     downloadable.code = 'Test Downloadable';
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('Test Downloadable');
   });
@@ -53,7 +53,7 @@ describe('DownloadableCard', () => {
 
     downloadable.code = 'TEST123';
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('TEST123');
   });
@@ -65,7 +65,7 @@ describe('DownloadableCard', () => {
 
     downloadable.price = 256.1234;
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('256.12');
   });
@@ -77,7 +77,7 @@ describe('DownloadableCard', () => {
 
     downloadable.file_name = 'test_file.gif';
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('test_file.gif');
   });
@@ -89,25 +89,25 @@ describe('DownloadableCard', () => {
 
     downloadable.file_size = 980;
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('980 B');
 
     downloadable.file_size = 3987;
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('3.89 KB');
 
     downloadable.file_size = 24536678;
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('23.4 MB');
 
     downloadable.file_size = 1001801121711;
     card.data = downloadable;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text('933 GB');
   });

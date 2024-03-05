@@ -103,7 +103,7 @@ describe('InternalCheckboxGroupControl', () => {
     ];
 
     control.options = testOptions;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     const boxes = group.querySelectorAll('vaadin-checkbox');
 
@@ -127,7 +127,7 @@ describe('InternalCheckboxGroupControl', () => {
     expect(group).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('errorMessage', 'test error message');
   });
@@ -140,7 +140,7 @@ describe('InternalCheckboxGroupControl', () => {
     expect(group).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('helperText', 'test helper text');
   });
@@ -153,7 +153,7 @@ describe('InternalCheckboxGroupControl', () => {
     expect(group).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('label', 'test label');
   });
@@ -166,7 +166,7 @@ describe('InternalCheckboxGroupControl', () => {
     expect(group).to.have.property('theme', undefined);
 
     control.theme = 'vertical';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.property('theme', 'vertical');
   });
@@ -177,11 +177,11 @@ describe('InternalCheckboxGroupControl', () => {
     const group = control.renderRoot.querySelector('vaadin-checkbox-group')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('disabled', false);
   });
 
@@ -191,11 +191,11 @@ describe('InternalCheckboxGroupControl', () => {
     const group = control.renderRoot.querySelector('vaadin-checkbox-group')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(group).to.have.property('disabled', false);
   });
 
@@ -215,7 +215,7 @@ describe('InternalCheckboxGroupControl', () => {
     expect(group).to.have.deep.property('value', []);
 
     control.testValue = ['test_value'];
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(group).to.have.deep.property('value', ['test_value']);
   });
@@ -225,7 +225,7 @@ describe('InternalCheckboxGroupControl', () => {
     const control = await fixture<TestControl>(layout);
 
     control.options = [{ label: 'Test Value', value: 'test_value' }];
-    await control.updateComplete;
+    await control.requestUpdate();
 
     const group = control.renderRoot.querySelector('vaadin-checkbox-group')!;
     const box = group.querySelector<CheckboxElement>('[value="test_value"]')!;

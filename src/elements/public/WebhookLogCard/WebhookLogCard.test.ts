@@ -28,7 +28,7 @@ describe('WebhookLogCard', () => {
     const card = await fixture<WebhookLogCard>(layout);
 
     card.data = webhookLog;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     const date = card.renderRoot.querySelector('foxy-i18n[key="date"]');
 
@@ -43,7 +43,7 @@ describe('WebhookLogCard', () => {
     const card = await fixture<WebhookLogCard>(layout);
 
     card.data = webhookLog;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text(webhookLog.response_code);
   });
@@ -54,7 +54,7 @@ describe('WebhookLogCard', () => {
     const card = await fixture<WebhookLogCard>(layout);
 
     card.data = webhookLog;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text(webhookLog.response_body as string);
   });

@@ -209,7 +209,7 @@ describe('I18nEditor', () => {
     const tabsContainer = (await getByTag(element, 'vaadin-tabs')) as TabsElement;
     tabsContainer.selected = 1;
     tabsContainer.dispatchEvent(new CustomEvent('selected-changed'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const entries = element.renderRoot.querySelectorAll('foxy-internal-i18n-editor-entry');
     expect(entries).to.have.length(1);

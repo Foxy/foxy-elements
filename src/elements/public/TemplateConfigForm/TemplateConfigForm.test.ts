@@ -1400,7 +1400,7 @@ describe('TemplateConfigForm', () => {
       input.value = 'foo_test_field';
       input.dispatchEvent(new InputEvent('input'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
       list.querySelector('button')!.click();
 
       const json = JSON.parse(element.form.json as string) as TemplateConfigJSON;
@@ -1440,7 +1440,7 @@ describe('TemplateConfigForm', () => {
         input.dispatchEvent(new InputEvent('input'));
       });
 
-      await element.updateComplete;
+      await element.requestUpdate();
 
       control.querySelectorAll('button, input').forEach(node => {
         expect(node).to.not.have.attribute('disabled');
@@ -1471,7 +1471,7 @@ describe('TemplateConfigForm', () => {
         input.dispatchEvent(new InputEvent('input'));
       });
 
-      await element.updateComplete;
+      await element.requestUpdate();
 
       control.querySelectorAll('button, input').forEach(node => {
         expect(node).to.have.attribute('disabled');
@@ -1492,7 +1492,7 @@ describe('TemplateConfigForm', () => {
         input.dispatchEvent(new InputEvent('input'));
       });
 
-      await element.updateComplete;
+      await element.requestUpdate();
 
       control.querySelectorAll('button, input').forEach(node => {
         expect(node).to.have.attribute('disabled');

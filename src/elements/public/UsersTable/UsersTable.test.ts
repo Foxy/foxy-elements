@@ -70,7 +70,7 @@ describe('UsersTable', () => {
 
     const showMethod = stub(dialog!, 'show');
     button!.dispatchEvent(new CustomEvent('click'));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(showMethod).to.have.been.called;
     expect(dialog).to.have.property('form', 'foxy-user-form');

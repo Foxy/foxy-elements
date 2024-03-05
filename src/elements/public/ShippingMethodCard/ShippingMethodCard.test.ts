@@ -49,7 +49,7 @@ describe('ShippingMethodCard', () => {
 
     data.name = 'Test shipping method';
     element.data = { ...data };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test shipping method');
   });
@@ -94,7 +94,7 @@ describe('ShippingMethodCard', () => {
     data.code = 'test_method';
     element.data = { ...data };
 
-    await element.updateComplete;
+    await element.requestUpdate();
     const img = await getByTag(element, 'img');
 
     expect(img).to.exist;
