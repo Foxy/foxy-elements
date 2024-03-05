@@ -1,4 +1,5 @@
 import '@vaadin-component-factory/vcf-tooltip';
+import '../../internal/InternalSandbox/index';
 import '../../internal/InternalCard/index';
 import '../I18n/index';
 
