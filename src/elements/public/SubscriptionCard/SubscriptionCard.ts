@@ -145,8 +145,8 @@ export class SubscriptionCard extends Base<Data> {
   private __getPriceOptions() {
     if (this.data === null) return {};
 
-    const transaction = this.data._embedded['fx:last_transaction'];
-    const amount = `${transaction.total_order} ${transaction.currency_code}`;
+    const cart = this.data._embedded['fx:transaction_template'];
+    const amount = `${cart.total_order} ${cart.currency_code}`;
     return { ...parseFrequency(this.data.frequency), amount };
   }
 
