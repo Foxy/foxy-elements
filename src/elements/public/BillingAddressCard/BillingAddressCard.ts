@@ -1,3 +1,4 @@
+import type { TemplateResult } from 'lit-html';
 import type { Data } from './types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
@@ -14,7 +15,7 @@ const Base = TranslatableMixin(InternalCard, NS);
  * @since 1.25.0
  */
 export class BillingAddressCard extends Base<Data> {
-  renderBody() {
+  renderBody(): TemplateResult {
     return html`
       <section class="leading-none space-y-xs font-lumo">
         <p class="text-m text-body font-medium truncate">

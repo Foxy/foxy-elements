@@ -140,7 +140,7 @@ export class PaymentCard extends Base<Data> {
     `;
   }
 
-  get isBodyReady() {
+  get isBodyReady(): boolean {
     if (!super.isBodyReady) return false;
     if (!this.__currencyCode) return false;
     if (!this.__currencyDisplay) return false;

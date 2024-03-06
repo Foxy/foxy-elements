@@ -345,7 +345,7 @@ export class NativeIntegrationForm extends Base<Data> {
     { value: 'subscription/cancelled', label: 'option_subscription_cancelled' },
   ];
 
-  get readonlySelector() {
+  get readonlySelector(): BooleanSelector {
     const match = [super.readonlySelector.toString()];
 
     if (this.href) {

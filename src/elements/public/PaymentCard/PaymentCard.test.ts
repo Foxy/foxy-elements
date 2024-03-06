@@ -4,17 +4,13 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 
 import { Data } from './types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
-import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { PaymentCard } from './PaymentCard';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { getByKey } from '../../../testgen/getByKey';
-import { getByName } from '../../../testgen/getByName';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { createRouter } from '../../../server/index';
-import { unsafeHTML } from 'lit-html/directives/unsafe-html';
 
 describe('PaymentCard', () => {
   it('imports and defines foxy-internal-card', () => {

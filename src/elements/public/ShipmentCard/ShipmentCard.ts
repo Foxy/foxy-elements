@@ -107,7 +107,7 @@ export class ShipmentCard extends Base<Data> {
     `;
   }
 
-  get isBodyReady() {
+  get isBodyReady(): boolean {
     return super.isBodyReady && !!this.__currencyDisplay && !!this.__currencyCode;
   }
 

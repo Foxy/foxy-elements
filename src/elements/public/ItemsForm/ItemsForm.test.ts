@@ -1,4 +1,4 @@
-import { fixture, expect, html, elementUpdated, oneEvent, aTimeout } from '@open-wc/testing';
+import { fixture, expect, html, oneEvent, aTimeout } from '@open-wc/testing';
 import * as sinon from 'sinon';
 import { ItemsForm } from './ItemsForm';
 import { MockItem } from '../../../mocks/FxItem';

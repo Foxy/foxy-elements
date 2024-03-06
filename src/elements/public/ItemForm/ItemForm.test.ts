@@ -7,7 +7,6 @@ import { createRouter } from '../../../server/index';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { ItemForm } from './ItemForm';
 import { html } from 'lit-html';
-import { InternalAsyncComboBoxControl } from '../../internal/InternalAsyncComboBoxControl';
 import { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 
 describe('ItemForm', () => {
