@@ -130,6 +130,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
           key_description: '',
           supports_3d_secure: 0,
           supports_auth_only: 0,
+          is_deprecated: false,
           additional_fields: {
             blocks: [
               {
@@ -208,6 +209,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
           key_description: '',
           supports_3d_secure: 0,
           supports_auth_only: 0,
+          is_deprecated: false,
           additional_fields: null,
         },
         foo_two: {
@@ -221,6 +223,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
           supports_3d_secure: 0,
           supports_auth_only: 0,
           additional_fields: null,
+          is_deprecated: false,
           conflict: { type: 'foo_one', name: 'Foo One' },
         },
         bar_one: {
@@ -233,6 +236,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
           key_description: '',
           supports_3d_secure: 0,
           supports_auth_only: 0,
+          is_deprecated: false,
           additional_fields: null,
         },
       },
@@ -1226,6 +1230,7 @@ describe('PaymentsApiPaymentMethodForm', () => {
           key_description: '',
           supports_3d_secure: 0,
           supports_auth_only: 0,
+          is_deprecated: false,
           additional_fields: null,
         },
       },

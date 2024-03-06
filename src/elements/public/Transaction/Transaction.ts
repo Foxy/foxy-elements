@@ -76,7 +76,7 @@ export class Transaction extends Base<Data> {
     const type = this.data?.type;
 
     if (type === 'updateinfo') {
-      if (source === '' || source?.startsWith('cit_')) {
+      if (!source || source?.startsWith('cit_')) {
         subtitleKey = 'subtitle_customer_changed_payment_method';
       } else if (source === 'mit_uoe') {
         subtitleKey = 'subtitle_admin_changed_payment_method_with_uoe';
@@ -86,7 +86,7 @@ export class Transaction extends Base<Data> {
         subtitleKey = 'subtitle_admin_changed_payment_method';
       }
     } else if (type === 'subscription_modification') {
-      if (source === '' || source?.startsWith('cit_')) {
+      if (!source || source?.startsWith('cit_')) {
         subtitleKey = 'subtitle_customer_changed_subscription';
       } else if (source === 'mit_uoe') {
         subtitleKey = 'subtitle_admin_changed_subscription_with_uoe';

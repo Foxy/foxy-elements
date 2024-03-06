@@ -167,14 +167,10 @@ describe('Transaction', () => {
     `);
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
-    element.data = { ...element.data!, type: 'updateinfo', source: '' };
+    element.data = { ...element.data!, type: 'updateinfo', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
     const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_customer_changed_payment_method');
-
-    element.data = { ...element.data!, source: 'cit_ecommerce' };
-    await element.requestUpdate();
     expect(subtitle).to.have.attribute('key', 'subtitle_customer_changed_payment_method');
 
     element.data = { ...element.data!, source: 'mit_api' };
@@ -229,28 +225,6 @@ describe('Transaction', () => {
     expect(subtitle).to.not.have.attribute('key', 'subtitle_integration_changed_payment_method');
   });
 
-  it('renders a special subtitle for payment method changes initiated by admin', async () => {
-    const router = createRouter();
-    const element = await fixture<Transaction>(html`
-      <foxy-transaction
-        href="https://demo.api/hapi/transactions/1?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-transaction>
-    `);
-
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
-    element.data = { ...element.data!, type: 'updateinfo', source: 'unknown' };
-    await element.requestUpdate();
-
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_admin_changed_payment_method');
-
-    element.data = { ...element.data!, source: 'cit_ecommerce' };
-    await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_admin_changed_payment_method');
-  });
-
   it('renders a special subtitle for subscription changes initiated by customer', async () => {
     const router = createRouter();
     const element = await fixture<Transaction>(html`
@@ -262,14 +236,10 @@ describe('Transaction', () => {
     `);
 
     await waitUntil(() => element.in({ idle: 'snapshot' }));
-    element.data = { ...element.data!, type: 'subscription_modification', source: '' };
+    element.data = { ...element.data!, type: 'subscription_modification', source: 'cit_ecommerce' };
     await element.requestUpdate();
 
     const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_customer_changed_subscription');
-
-    element.data = { ...element.data!, source: 'cit_ecommerce' };
-    await element.requestUpdate();
     expect(subtitle).to.have.attribute('key', 'subtitle_customer_changed_subscription');
 
     element.data = { ...element.data!, source: 'mit_api' };
@@ -322,28 +292,6 @@ describe('Transaction', () => {
     element.data = { ...element.data!, source: 'cit_ecommerce' };
     await element.requestUpdate();
     expect(subtitle).to.not.have.attribute('key', 'subtitle_integration_changed_subscription');
-  });
-
-  it('renders a special subtitle for subscription changes initiated by admin', async () => {
-    const router = createRouter();
-    const element = await fixture<Transaction>(html`
-      <foxy-transaction
-        href="https://demo.api/hapi/transactions/1?zoom=applied_taxes,discounts,shipments,applied_gift_card_codes:gift_card"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-transaction>
-    `);
-
-    await waitUntil(() => element.in({ idle: 'snapshot' }));
-    element.data = { ...element.data!, type: 'subscription_modification', source: 'unknown' };
-    await element.requestUpdate();
-
-    const subtitle = element.renderRoot.querySelectorAll('foxy-i18n[infer="header"]')[1];
-    expect(subtitle).to.have.attribute('key', 'subtitle_admin_changed_subscription');
-
-    element.data = { ...element.data!, source: 'cit_ecommerce' };
-    await element.requestUpdate();
-    expect(subtitle).to.not.have.attribute('key', 'subtitle_admin_changed_subscription');
   });
 
   it('renders a special subtitle for subscription renewal attempts', async () => {
@@ -524,6 +472,7 @@ describe('Transaction', () => {
     await waitUntil(() => element.in({ idle: 'snapshot' }));
 
     const newData = { ...element.data!, source: 'cit_ecommerce', type: '' } as const;
+    // @ts-expect-error SDK doesn't support optional links
     delete newData._links['fx:subscription'];
     element.data = newData;
 

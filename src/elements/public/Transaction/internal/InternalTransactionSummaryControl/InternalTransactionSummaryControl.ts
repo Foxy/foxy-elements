@@ -56,12 +56,15 @@ export class InternalTransactionSummaryControl extends InternalControl {
                 <span>${this.__renderPrice(tax.amount, true)}</span>
               `;
             })}
-        ${data?._embedded?.['fx:applied_gift_card_codes']?.map(code => {
-          return html`
-            <span>${code._embedded['fx:gift_card'].name}&colon;</span>
-            <span>${this.__renderPrice(code.balance_adjustment ?? 0, true)}</span>
-          `;
-        })}
+        ${
+          // @ts-expect-error SDK doesn't support name mismatch between `fx:applied_gift_card_codes` and `fx:gift_card_logs`
+          data?._embedded?.['fx:applied_gift_card_codes']?.map(code => {
+            return html`
+              <span>${code._embedded['fx:gift_card'].name}&colon;</span>
+              <span>${this.__renderPrice(code.balance_adjustment ?? 0, true)}</span>
+            `;
+          })
+        }
         ${data?._embedded?.['fx:discounts']?.map(discount => {
           return html`
             <span data-testclass="discount">${discount.name}&colon;</span>

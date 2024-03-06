@@ -90,6 +90,8 @@ interface AvailablePaymentMethodsRel extends Graph {
         test_third_party_key: string;
         /** The description of the third party key field for this gateway. */
         third_party_key_description: string;
+        /** Whether or not this payment method is deprecated. */
+        is_deprecated: boolean;
         /** If this gateway requires additional information, this will contain details about the data which needs to be collected to configure this gateway. */
         additional_fields: null | {
           blocks: {
