@@ -58,15 +58,17 @@ describe('I18n', () => {
 
     expect(element).shadowDom.to.equal('<span>foo</span>');
 
-    element.ns = 'foo';
-    const event = (await oneEvent(window, 'fetch')) as unknown as FetchEvent;
+    const whenGotEvent = oneEvent(window, 'fetch');
+    element.ns = 'baz';
+    element.requestUpdate('ns');
+    const event = (await whenGotEvent) as unknown as FetchEvent;
 
-    expect(event.request).to.have.property('url', 'foxy://i18n/foo/en');
+    expect(event.request).to.have.property('url', 'foxy://i18n/baz/en');
 
     event.preventDefault();
     event.respondWith(Promise.resolve(new Response(JSON.stringify(resource))));
     await new Promise(resolve => setTimeout(resolve));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).shadowDom.to.equal('<span>bar</span>');
   });
@@ -78,15 +80,17 @@ describe('I18n', () => {
 
     expect(element).shadowDom.to.equal('<span>foo</span>');
 
+    const whenGotEvent = oneEvent(window, 'fetch');
     element.lang = 'es';
-    const event = (await oneEvent(window, 'fetch')) as unknown as FetchEvent;
+    element.requestUpdate('lang');
+    const event = (await whenGotEvent) as unknown as FetchEvent;
 
     expect(event.request).to.have.property('url', 'foxy://i18n/shared/es');
 
     event.preventDefault();
     event.respondWith(Promise.resolve(new Response(JSON.stringify(resource))));
     await new Promise(resolve => setTimeout(resolve));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element).shadowDom.to.equal('<span>bar</span>');
   });

@@ -28,7 +28,7 @@ describe('WebhookCard', () => {
     const card = await fixture<WebhookCard>(layout);
 
     card.data = webhook;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text(webhook.name);
   });
@@ -39,7 +39,7 @@ describe('WebhookCard', () => {
     const card = await fixture<WebhookCard>(layout);
 
     card.data = webhook;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text(webhook.format);
   });
@@ -50,7 +50,7 @@ describe('WebhookCard', () => {
     const card = await fixture<WebhookCard>(layout);
 
     card.data = webhook;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text(webhook.url as string);
   });
@@ -61,7 +61,7 @@ describe('WebhookCard', () => {
     const card = await fixture<WebhookCard>(layout);
 
     card.data = webhook;
-    await card.updateComplete;
+    await card.requestUpdate();
 
     expect(card.renderRoot).to.include.text(webhook.event_resource);
   });

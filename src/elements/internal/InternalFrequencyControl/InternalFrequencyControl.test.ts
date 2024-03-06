@@ -99,7 +99,7 @@ describe('InternalFrequencyControl', () => {
     expect(field).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('errorMessage', 'test error message');
   });
@@ -112,7 +112,7 @@ describe('InternalFrequencyControl', () => {
     expect(field).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('helperText', 'test helper text');
   });
@@ -125,7 +125,7 @@ describe('InternalFrequencyControl', () => {
     expect(field).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('label', 'test label');
   });
@@ -138,14 +138,14 @@ describe('InternalFrequencyControl', () => {
     const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(customField).to.have.attribute('disabled');
     expect(integerField).to.have.attribute('disabled');
     expect(comboBox).to.have.attribute('disabled');
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(customField).to.not.have.attribute('disabled');
     expect(integerField).to.not.have.attribute('disabled');
@@ -160,14 +160,14 @@ describe('InternalFrequencyControl', () => {
     const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(customField).to.have.attribute('readonly');
     expect(integerField).to.have.attribute('readonly');
     expect(comboBox).to.have.attribute('readonly');
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(customField).to.not.have.attribute('readonly');
     expect(integerField).to.not.have.attribute('readonly');
@@ -190,13 +190,13 @@ describe('InternalFrequencyControl', () => {
     const comboBox = control.renderRoot.querySelector('vaadin-combo-box')!;
 
     control.testCheckValidity = () => false;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(integerField).to.have.attribute('invalid');
     expect(comboBox).to.have.attribute('invalid');
 
     control.testCheckValidity = () => true;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(integerField).to.not.have.attribute('invalid');
     expect(comboBox).to.not.have.attribute('invalid');
@@ -210,7 +210,7 @@ describe('InternalFrequencyControl', () => {
     expect(field).to.have.property('value', '');
 
     control.testValue = '2w';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('value', '2w');
   });

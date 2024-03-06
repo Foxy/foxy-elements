@@ -148,16 +148,16 @@ export const groups = [
     files: './src/elements/private/LoadingScreen/**/*.test.ts',
   },
   {
+    name: 'x-metadata',
+    files: './src/elements/private/Metadata/**/*.test.ts',
+  },
+  {
     name: 'x-monthday-picker',
     files: './src/elements/private/MonthdayPicker/**/*.test.ts',
   },
   {
     name: 'x-page',
     files: './src/elements/private/Page/**/*.test.ts',
-  },
-  {
-    name: 'x-property-table',
-    files: './src/elements/private/PropertyTable/**/*.test.ts',
   },
   {
     name: 'x-section',
@@ -222,6 +222,10 @@ export const groups = [
   {
     name: 'foxy-attribute-form',
     files: './src/elements/public/AttributeForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-billing-address-card',
+    files: './src/elements/public/BillingAddressCard/**/*.test.ts',
   },
   {
     name: 'foxy-cancellation-form',
@@ -426,6 +430,14 @@ export const groups = [
   {
     name: 'foxy-items-form',
     files: './src/elements/public/ItemsForm/**/*.test.ts',
+  },
+  {
+    name: 'foxy-native-integration-card',
+    files: './src/elements/public/NativeIntegrationCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-native-integration-form',
+    files: './src/elements/public/NativeIntegrationForm/**/*.test.ts',
   },
   {
     name: 'foxy-nucleon-element',

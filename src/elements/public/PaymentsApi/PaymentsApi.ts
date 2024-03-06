@@ -124,18 +124,24 @@ export class PaymentsApi extends LitElement {
 
     const {
       paymentMethodSetHostedPaymentGatewaysUrl,
-      paymentMethodSetHostedPaymentGatewayBaseUrl = paymentMethodSetHostedPaymentGatewaysUrl,
       hostedPaymentGatewaysHelperUrl,
       paymentGatewaysHelperUrl,
       hostedPaymentGatewaysUrl,
-      hostedPaymentGatewayBaseUrl = hostedPaymentGatewaysUrl,
       paymentMethodSetsUrl,
-      paymentMethodSetBaseUrl = paymentMethodSetsUrl,
       fraudProtectionsUrl,
-      fraudProtectionBaseUrl = fraudProtectionsUrl,
       paymentGatewaysUrl,
-      paymentGatewayBaseUrl = paymentGatewaysUrl,
     } = this;
+
+    const paymentMethodSetHostedPaymentGatewayBaseUrl =
+      this.paymentMethodSetHostedPaymentGatewayBaseUrl ??
+      this.paymentMethodSetHostedPaymentGatewaysUrl;
+
+    const hostedPaymentGatewayBaseUrl =
+      this.hostedPaymentGatewayBaseUrl ?? this.hostedPaymentGatewaysUrl;
+
+    const paymentMethodSetBaseUrl = this.paymentMethodSetBaseUrl ?? this.paymentMethodSetsUrl;
+    const fraudProtectionBaseUrl = this.fraudProtectionBaseUrl ?? this.fraudProtectionsUrl;
+    const paymentGatewayBaseUrl = this.paymentGatewayBaseUrl ?? this.paymentGatewaysUrl;
 
     if (paymentMethodSetHostedPaymentGatewaysUrl === null) return;
     if (paymentMethodSetHostedPaymentGatewayBaseUrl === null) return;

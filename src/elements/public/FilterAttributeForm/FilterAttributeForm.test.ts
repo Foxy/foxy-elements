@@ -75,7 +75,7 @@ describe('FilterAttributeForm', () => {
 
     element.edit({ value: '/?filter_name=foo' });
     element.pathname = '/abc/d';
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element).to.have.nested.property('form.value', '/abc/d?filter_name=foo');
   });
 
@@ -94,11 +94,11 @@ describe('FilterAttributeForm', () => {
 
     const options: Form['options'] = [];
     element.options = options;
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.property('options', options);
 
     element.edit({ value: '/foo?filter_query=color%3Dred' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.property('value', 'color=red');
 
     control.value = 'color=green';

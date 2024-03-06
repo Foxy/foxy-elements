@@ -32,13 +32,13 @@
     "helper_text": "Unique Foxy subdomain or a custom domain for your cart, checkout, and receipt.",
     "custom_domain_note": "IMPORTANT: to use a custom domain, you must purchase an SSL certificate through Foxy. This option is only for developers who have full control of their domain settings and may take a few days to fully process.",
     "v8n_required": "Please enter the domain of your store",
-    "v8n_too_long": "Please use a domain that is 50 characters or less"
+    "v8n_too_long": "Please use a domain that is 100 characters or less"
   },
   "logo-url": {
     "label": "Logo",
     "placeholder": "https://example.com/logo.png",
     "helper_text": "URL to your store's logo that may be used in your store's templates.",
-    "v8n_too_long": "Please shorten this link to 100 characters of less"
+    "v8n_too_long": "Please shorten this link to 200 characters of less"
   },
   "timezone": {
     "label": "Timezone",
@@ -298,7 +298,7 @@
   },
   "timestamps": {
     "date_created": "Created on",
-    "date_modified": "Last updated",
+    "date_modified": "Last updated on",
     "date": "{{value, date}}"
   },
   "spinner": {

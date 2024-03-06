@@ -280,9 +280,15 @@ export class AdminSubscriptionCard extends Base<Data> {
   }
 
   private get __statusOptions() {
-    const d = this.data;
-    const date = d?.first_failed_transaction_date ?? d?.end_date ?? d?.next_transaction_date;
-    if (date) return { date };
+    const data = this.data;
+
+    if (data === null) return;
+    if (data.first_failed_transaction_date) return { date: data.first_failed_transaction_date };
+    if (data.end_date) return { date: data.end_date };
+    if (data.is_active === false) return {};
+    if (new Date(data.start_date) > new Date()) return { date: data.start_date };
+
+    return { date: data.next_transaction_date };
   }
 
   private get __currencyCode() {
@@ -329,7 +335,10 @@ export class AdminSubscriptionCard extends Base<Data> {
       return hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
     }
 
-    return `subscription_${data.is_active ? 'active' : 'inactive'}`;
+    if (data.is_active === false) return 'subscription_inactive';
+    if (new Date(data.start_date) > new Date()) return 'subscription_will_be_active';
+
+    return 'subscription_active';
   }
 
   private get __priceKey() {

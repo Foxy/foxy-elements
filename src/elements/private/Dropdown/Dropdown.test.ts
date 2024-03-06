@@ -1,6 +1,6 @@
 import { Machine } from 'xstate';
 import { Dropdown } from './Dropdown';
-import { elementUpdated, expect, fixture } from '@open-wc/testing';
+import { expect, fixture } from '@open-wc/testing';
 import { createModel } from '@xstate/test';
 import { DropdownChangeEvent } from './DropdownChangeEvent';
 
@@ -18,15 +18,17 @@ function getItems(elm: Dropdown) {
 }
 
 async function testDisabled(elm: Dropdown) {
+  await elm.requestUpdate();
   expect(getSelect(elm).disabled).to.be.true;
 }
 
 async function testEnabled(elm: Dropdown) {
-  await elementUpdated(elm);
+  await elm.requestUpdate();
   expect(getSelect(elm).disabled).to.be.false;
 }
 
 async function testContentLength(elm: Dropdown) {
+  await elm.requestUpdate();
   let total = 0;
   if (elm.items) {
     elm.items!.forEach(i => {
@@ -119,6 +121,7 @@ const machine = Machine({
       initial: 'any',
       meta: {
         test: async (el: Dropdown) => {
+          await el.requestUpdate();
           await testContentLength(el);
           await testContent(el);
         },
@@ -128,6 +131,7 @@ const machine = Machine({
           on: { INIT: 'initialized', RERENDER: 'rerendered', TRANSLATE: 'translated' },
           meta: {
             test: async (el: Dropdown) => {
+              await el.requestUpdate();
               await testContentLength(el);
               await testContent(el);
             },
@@ -136,6 +140,7 @@ const machine = Machine({
         rerendered: {
           meta: {
             test: async (el: Dropdown) => {
+              await el.requestUpdate();
               await testContentLength(el);
               await testContent(el);
             },
@@ -144,6 +149,7 @@ const machine = Machine({
         initialized: {
           meta: {
             test: async (el: Dropdown) => {
+              await el.requestUpdate();
               await testContentLength(el);
               await testContent(el);
             },
@@ -152,6 +158,7 @@ const machine = Machine({
         translated: {
           meta: {
             test: async (el: Dropdown) => {
+              await el.requestUpdate();
               await testContentLength(el);
               await testContent(el);
             },
@@ -186,14 +193,14 @@ const model = createModel<Dropdown>(machine).withEvents({
 
       element.value = 'foo';
       element.items = ['foo'];
-      await element.updateComplete;
+      await element.requestUpdate();
 
       element.items = ['foo', 'bar'];
-      await element.updateComplete;
+      await element.requestUpdate();
       select.render();
 
       element.items = ['foo'];
-      await element.updateComplete;
+      await element.requestUpdate();
       select.render();
     },
   },

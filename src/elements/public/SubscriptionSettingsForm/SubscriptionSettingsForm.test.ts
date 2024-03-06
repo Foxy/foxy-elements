@@ -160,11 +160,11 @@ describe('SubscriptionSettingsForm', () => {
     ]);
 
     element.edit({ automatically_charge_past_due_amount: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ automatically_charge_past_due_amount: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -185,7 +185,7 @@ describe('SubscriptionSettingsForm', () => {
       clear_past_due_amounts_on_success: false,
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
       '[infer="clear-past-due-amounts-on-success"]'
@@ -199,7 +199,7 @@ describe('SubscriptionSettingsForm', () => {
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ clear_past_due_amounts_on_success: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -220,7 +220,7 @@ describe('SubscriptionSettingsForm', () => {
       reset_nextdate_on_makeup_payment: false,
     });
 
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector<InternalCheckboxGroupControl>(
       '[infer="reset-nextdate-on-makeup-payment"]'
@@ -234,7 +234,7 @@ describe('SubscriptionSettingsForm', () => {
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ reset_nextdate_on_makeup_payment: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -277,7 +277,7 @@ describe('SubscriptionSettingsForm', () => {
     });
 
     element.edit({ reattempt_schedule: '1, 3, 5' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(control?.getValue()).to.deep.equal([
       { value: '1', label: 'day' },
@@ -312,7 +312,7 @@ describe('SubscriptionSettingsForm', () => {
     });
 
     element.edit({ reminder_email_schedule: '1, 3, 5' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(control?.getValue()).to.deep.equal([
       { value: '1', label: 'day' },
@@ -347,7 +347,7 @@ describe('SubscriptionSettingsForm', () => {
     });
 
     element.edit({ expiring_soon_payment_reminder_schedule: '1, 3, 5' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(control?.getValue()).to.deep.equal([
       { value: '5', label: 'day' },
@@ -380,11 +380,11 @@ describe('SubscriptionSettingsForm', () => {
     ]);
 
     element.edit({ send_email_receipts_for_automated_billing: false });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal([]);
 
     element.edit({ send_email_receipts_for_automated_billing: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control?.getValue()).to.deep.equal(['checked']);
   });
 
@@ -407,11 +407,11 @@ describe('SubscriptionSettingsForm', () => {
     expect(control).to.have.property('min', 1);
 
     element.edit({ cancellation_schedule: 0 });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.property('suffix', '');
 
     element.edit({ cancellation_schedule: 7 });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(control).to.have.property('suffix', 'day_suffix');
   });
 

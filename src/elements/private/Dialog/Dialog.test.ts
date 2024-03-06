@@ -61,6 +61,7 @@ describe('Dialog', () => {
 
     await dialog.show();
     await dialog.hide();
+    await dialog.requestUpdate();
 
     expect(dialog).to.have.property('open', false);
     expect(dialog.renderRoot.querySelector('[data-testid="content"]')).not.to.exist;
@@ -75,6 +76,7 @@ describe('Dialog', () => {
 
     dialog.open = false;
     await oneEvent(dialog, 'hide');
+    await dialog.requestUpdate();
 
     expect(dialog).to.have.property('open', false);
     expect(dialog.renderRoot.querySelector('[data-testid="content"]')).not.to.exist;
@@ -87,6 +89,7 @@ describe('Dialog', () => {
     await dialog.show();
     dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     await oneEvent(dialog, 'hide');
+    await dialog.requestUpdate();
 
     expect(dialog).to.have.property('open', false);
     expect(dialog.renderRoot.querySelector('[data-testid="content"]')).not.to.exist;

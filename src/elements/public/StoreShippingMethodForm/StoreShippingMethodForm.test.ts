@@ -438,7 +438,7 @@ describe('StoreShippingMethodForm', () => {
     expect(element).to.have.deep.nested.property('form._embedded.fx:shipping_method', method);
 
     element.undo();
-    await element.updateComplete;
+    await element.requestUpdate();
     control.selectedItem = method;
     control.dispatchEvent(new CustomEvent('selected-item-changed'));
 
@@ -492,7 +492,7 @@ describe('StoreShippingMethodForm', () => {
     );
 
     element.undo();
-    await element.updateComplete;
+    await element.requestUpdate();
     control.selectedItem = firstContainer;
     control.dispatchEvent(new CustomEvent('selected-item-changed'));
 
@@ -547,7 +547,7 @@ describe('StoreShippingMethodForm', () => {
     );
 
     element.undo();
-    await element.updateComplete;
+    await element.requestUpdate();
     control.selectedItem = firstDropType;
     control.dispatchEvent(new CustomEvent('selected-item-changed'));
 

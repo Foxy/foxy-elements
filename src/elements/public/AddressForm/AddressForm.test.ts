@@ -1312,7 +1312,7 @@ describe('AddressForm', () => {
       );
 
       element.edit({ country: 'AU' });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(control).to.have.deep.property(
         'items',
@@ -1330,7 +1330,7 @@ describe('AddressForm', () => {
       expect(control).to.not.have.attribute('allow-custom-value');
 
       element.edit({ country: 'CD' });
-      await element.updateComplete;
+      await element.requestUpdate();
       expect(control).to.have.attribute('allow-custom-value');
     });
 

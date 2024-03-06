@@ -69,11 +69,11 @@ describe('InternalCreateControl', () => {
     const button = control.renderRoot.querySelector('vaadin-button')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(button).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(button).to.have.property('disabled', false);
   });
 

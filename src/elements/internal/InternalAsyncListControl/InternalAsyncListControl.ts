@@ -25,6 +25,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       limit: { type: Number },
       form: {},
       item: {},
+      itemProps: { type: Object, attribute: 'item-props' },
       wide: { type: Boolean },
       alert: { type: Boolean },
     };
@@ -53,6 +54,9 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
   /** Same as the `item` property of `CollectionPage`. */
   item: CollectionPage<any>['item'] = null;
+
+  /** Props to pass through to the `CollectionPage` rendering items. */
+  itemProps: Record<string, unknown> = {};
 
   /** Same as the `wide` property of `FormDialog`. */
   wide = false;
@@ -116,7 +120,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
       `;
     }
 
-    if (this.hideDeleteButton) return clickableItem;
+    if (this.hideDeleteButton || this.readonly) return clickableItem;
 
     return html`
       <foxy-swipe-actions class="block">
@@ -175,7 +179,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             </foxy-form-dialog>
           `
         : ''}
-      ${this.hideDeleteButton
+      ${this.hideDeleteButton || this.readonly
         ? ''
         : html`
             <foxy-internal-confirm-dialog
@@ -192,34 +196,29 @@ export class InternalAsyncListControl extends InternalEditableControl {
             >
             </foxy-internal-confirm-dialog>
           `}
-      ${this.label && this.label !== 'label'
-        ? html`<div class="font-medium text-secondary text-s mb-xs">${this.label}</div>`
-        : ''}
-
-      <foxy-pagination first=${ifDefined(first)} infer="pagination">
-        <foxy-collection-page
-          class="mb-s block divide-y divide-contrast-5 rounded overflow-hidden bg-contrast-5"
-          infer="card"
-          .related=${this.related}
-          .item=${this.__itemRenderer as any}
-        >
-        </foxy-collection-page>
-
+      <div class="flex items-center justify-between mb-xs text-s font-medium">
+        <span class="text-secondary">
+          ${this.label && this.label !== 'label' ? this.label : ''}
+        </span>
         ${(!this.form && !this.createPageHref) || this.readonly || this.hideCreateButton
           ? ''
           : this.createPageHref && !this.disabled
           ? html`
               <a
-                class="mb-s w-full flex items-center justify-center h-m px-m rounded text-m font-medium transition-colors bg-contrast-5 text-success hover-bg-contrast-10 focus-outline-none focus-ring-2 focus-ring-primary-50"
+                class="rounded-s text-primary group focus-outline-none focus-ring-2 focus-ring-primary-50"
                 href=${this.createPageHref}
               >
-                <foxy-i18n infer="" key="create_button_text"></foxy-i18n>
+                <foxy-i18n
+                  class="transition-opacity group-hover-opacity-80"
+                  infer=""
+                  key="create_button_text"
+                >
+                </foxy-i18n>
               </a>
             `
           : html`
               <vaadin-button
-                class="mb-s w-full"
-                theme="success"
+                theme="tertiary-inline"
                 ?disabled=${this.disabled}
                 @click=${(evt: Event) => {
                   evt.preventDefault();
@@ -233,9 +232,24 @@ export class InternalAsyncListControl extends InternalEditableControl {
                   dialog.show(button);
                 }}
               >
-                <foxy-i18n infer="" key="create_button_text"></foxy-i18n>
+                <foxy-i18n infer="pagination" key="create_button_text"></foxy-i18n>
               </vaadin-button>
             `}
+      </div>
+
+      <foxy-pagination first=${ifDefined(first)} infer="pagination">
+        <foxy-collection-page
+          class=${classMap({
+            'block divide-y divide-contrast-5 rounded overflow-hidden': true,
+            'ring-1 ring-inset ring-contrast-10': !this.form && !this.getPageHref,
+            'bg-contrast-5': !!this.form || !!this.getPageHref,
+          })}
+          infer="card"
+          .related=${this.related}
+          .props=${this.itemProps}
+          .item=${this.__itemRenderer as any}
+        >
+        </foxy-collection-page>
       </foxy-pagination>
     `;
   }
@@ -254,7 +268,16 @@ export class InternalAsyncListControl extends InternalEditableControl {
           typeof item === 'string'
             ? (new Function(
                 'ctx',
-                `return ctx.html\`<${item} related=\${JSON.stringify(ctx.related)} parent=\${ctx.parent} style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)" infer href=\${ctx.href}></${item}>\``
+                `return ctx.html\`
+                  <${item}
+                    related=\${JSON.stringify(ctx.related)}
+                    parent=\${ctx.parent}
+                    style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
+                    infer=""
+                    href=\${ctx.href}
+                    ...=\${ctx.spread(ctx.props)}
+                  >
+                  </${item}>\``
               ) as ItemRenderer)
             : ctx => html`
                 <div style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)">

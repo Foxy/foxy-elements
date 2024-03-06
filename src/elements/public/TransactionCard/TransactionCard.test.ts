@@ -3,7 +3,6 @@ import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { Data } from './types';
 import { FetchEvent } from '../NucleonElement/FetchEvent';
 import { InternalSandbox } from '../../internal/InternalSandbox';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { Rels } from '@foxy.io/sdk/backend';
 import { Resource } from '@foxy.io/sdk/core';
 import { TransactionCard } from './index';
@@ -13,12 +12,13 @@ import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { createRouter } from '../../../server/index';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { InternalCard } from '../../internal/InternalCard/InternalCard';
 
 const router = createRouter();
 
 describe('TransactionCard', () => {
-  it('extends NucleonElement', () => {
-    expect(new TransactionCard()).to.be.instanceOf(NucleonElement);
+  it('extends InternalCard', () => {
+    expect(new TransactionCard()).to.be.instanceOf(InternalCard);
   });
 
   it('registers as foxy-transaction-card', () => {
@@ -54,7 +54,7 @@ describe('TransactionCard', () => {
       const amount = `${transaction.total_order} ${transaction.currency_code}`;
       const currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
 
-      expect(total).to.have.attribute('options', JSON.stringify({ amount, currencyDisplay }));
+      expect(total).to.have.deep.property('options', { amount, currencyDisplay });
     });
 
     it('renders "total:before" slot by default', async () => {
@@ -134,11 +134,11 @@ describe('TransactionCard', () => {
 
       const transaction = await getTestData<Data>('./hapi/transactions/0');
       const time = await getByKey(element, 'time');
-      const icon = await getByTestId(element, 'status-icon');
+      const tooltip = await getByKey(element, `status_${transaction.status}`);
       const timeOptions = JSON.stringify({ value: transaction.transaction_date });
 
       expect(time).to.have.attribute('options', timeOptions);
-      expect(icon).to.have.attribute('title', `transaction_${transaction.status}`);
+      expect(tooltip).to.exist;
     });
 
     it('renders "status:before" slot by default', async () => {
@@ -218,14 +218,14 @@ describe('TransactionCard', () => {
 
       const transaction = await getTestData<Data>('./hapi/transactions/0?zoom=items', router);
       const items = transaction._embedded['fx:items'];
-      const summary = await getByKey(element, 'transaction_summary');
-      const options = JSON.stringify({
+      const summary = await getByKey(element, 'summary');
+      const options = {
         most_expensive_item: [...items].sort((a, b) => a.price - b.price)[0],
         count_minus_one: items.length - 1,
         count: items.length,
-      });
+      };
 
-      expect(summary).to.have.attribute('options', options);
+      expect(summary).to.have.deep.property('options', options);
     });
 
     it('renders "description:before" slot by default', async () => {
@@ -374,63 +374,6 @@ describe('TransactionCard', () => {
       ></foxy-transaction-card>`;
       const element = await fixture<TransactionCard>(layout);
       expect(await getByTestId(element, 'customer')).to.not.exist;
-    });
-  });
-
-  describe('spinner', () => {
-    it('renders "empty" foxy-spinner by default', async () => {
-      const layout = html`<foxy-transaction-card lang="es" ns="foo"></foxy-transaction-card>`;
-      const element = await fixture<TransactionCard>(layout);
-      const spinner = await getByTestId(element, 'spinner');
-      const wrapper = spinner!.parentElement;
-
-      expect(wrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'empty');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'foo spinner');
-    });
-
-    it('renders "busy" foxy-spinner while loading', async () => {
-      const layout = html`<foxy-transaction-card
-        href="/"
-        lang="es"
-        ns="foo"
-      ></foxy-transaction-card>`;
-      const element = await fixture<TransactionCard>(layout);
-      const spinner = await getByTestId(element, 'spinner');
-      const wrapper = spinner!.parentElement;
-
-      expect(wrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'busy');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'foo spinner');
-    });
-
-    it('renders "error" foxy-spinner if loading fails', async () => {
-      const layout = html`<foxy-transaction-card
-        href="/"
-        lang="es"
-        ns="foo"
-      ></foxy-transaction-card>`;
-      const element = await fixture<TransactionCard>(layout);
-      const spinner = await getByTestId(element, 'spinner');
-      const wrapper = spinner!.parentElement;
-
-      await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
-
-      expect(wrapper).not.to.have.class('opacity-0');
-      expect(spinner).to.have.attribute('state', 'error');
-      expect(spinner).to.have.attribute('lang', 'es');
-      expect(spinner).to.have.attribute('ns', 'foo spinner');
-    });
-
-    it('hides the spinner once loaded', async () => {
-      const data = await getTestData<any>('./hapi/customers/0');
-      const layout = html`<foxy-transaction-card .data=${data}></foxy-transaction-card>`;
-      const element = await fixture<TransactionCard>(layout);
-      const spinner = await getByTestId(element, 'spinner');
-
-      expect(spinner!.parentElement).to.have.class('opacity-0');
     });
   });
 });

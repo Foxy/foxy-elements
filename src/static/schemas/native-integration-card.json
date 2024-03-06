@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "additionalProperties": false,
+  "properties": {
+    "image_alt": { "type": "string", "default": "Native integration logo" },
+    "title_avalara": { "type": "string", "default": "Avalara" },
+    "title_taxjar": { "type": "string", "default": "TaxJar" },
+    "title_onesource": { "type": "string", "default": "ONESOURCE" },
+    "title_webflow": { "type": "string", "default": "Webflow" },
+    "title_zapier": { "type": "string", "default": "Zapier" },
+    "title_webhook": { "type": "string", "default": "{{ title }}" },
+    "title_apple_pay": { "type": "string", "default": "Apple Pay" },
+    "title_custom_tax": { "type": "string", "default": "Custom Tax Endpoint" },
+    "subtitle_avalara": { "type": "string", "default": "Account #{{ id }} • {{ service_url }}" },
+    "subtitle_taxjar": {
+      "type": "string",
+      "default": "SmartCalcs API token ends in ****{{ api_token }}"
+    },
+    "subtitle_onesource": { "type": "string", "default": "{{ service_url }}" },
+    "subtitle_webflow": { "type": "string", "default": "{{ site_name }} • ID {{ site_id }}" },
+    "subtitle_zapier": { "type": "string", "default": "{{ url }}" },
+    "subtitle_webhook": { "type": "string", "default": "{{ url }}" },
+    "subtitle_apple_pay": { "type": "string", "default": "Merchant #{{ merchantID }}" },
+    "subtitle_custom_tax": { "type": "string", "default": "{{ url }}" },
+    "spinner": {
+      "additionalProperties": false,
+      "properties": {
+        "loading_busy": { "type": "string", "default": "Loading" },
+        "loading_empty": { "type": "string", "default": "No data" },
+        "loading_error": { "type": "string", "default": "Failed to load" }
+      },
+      "required": ["loading_busy", "loading_empty", "loading_error"]
+    }
+  },
+  "required": [
+    "image_alt",
+    "title_avalara",
+    "title_taxjar",
+    "title_onesource",
+    "title_webflow",
+    "title_zapier",
+    "title_webhook",
+    "title_apple_pay",
+    "title_custom_tax",
+    "subtitle_avalara",
+    "subtitle_taxjar",
+    "subtitle_onesource",
+    "subtitle_webflow",
+    "subtitle_zapier",
+    "subtitle_webhook",
+    "subtitle_apple_pay",
+    "subtitle_custom_tax",
+    "spinner"
+  ]
+}

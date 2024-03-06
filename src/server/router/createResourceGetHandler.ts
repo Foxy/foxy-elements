@@ -10,11 +10,12 @@ async function addEmbeds(router: Router, result: Document, zoom: string[][]) {
       const curieForTopRel = `fx:${topRel}`;
       const links = result._links as Record<string, { href: string }>;
       if (!links[curieForTopRel]?.href) return;
+      if (!result._embedded) result._embedded = {};
 
       const request = new Request(links[curieForTopRel].href);
       const handleResult = router.handleRequest(request) as HandleResult;
       const response = await handleResult.handlerPromise.then(response => response.json());
-      const embeds = (result._embedded ?? {}) as Record<string, unknown>;
+      const embeds = result._embedded as Record<string, unknown>;
       const isCollection = response._links.first;
 
       if (isCollection) {

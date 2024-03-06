@@ -848,7 +848,7 @@ describe('UserForm', () => {
       expect(designer).to.not.have.attribute('checked');
 
       element.edit({ is_merchant: true });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(merchant).to.have.attribute('checked');
       expect(backendDev).to.not.have.attribute('checked');
@@ -871,7 +871,7 @@ describe('UserForm', () => {
       expect(designer).to.not.have.attribute('checked');
 
       element.edit({ is_programmer: true });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(merchant).to.not.have.attribute('checked');
       expect(backendDev).to.have.attribute('checked');
@@ -894,7 +894,7 @@ describe('UserForm', () => {
       expect(designer).to.not.have.attribute('checked');
 
       element.edit({ is_front_end_developer: true });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(merchant).to.not.have.attribute('checked');
       expect(backendDev).to.not.have.attribute('checked');
@@ -917,7 +917,7 @@ describe('UserForm', () => {
       expect(designer).to.not.have.attribute('checked');
 
       element.edit({ is_designer: true });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(merchant).to.not.have.attribute('checked');
       expect(backendDev).to.not.have.attribute('checked');

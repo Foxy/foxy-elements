@@ -216,7 +216,7 @@ const model = createModel<TestDisallowedDates>(machine).withEvents({
       list.value = newValue;
       list.dispatchEvent(new ListChangeEvent(newValue));
 
-      await list.updateComplete;
+      await list.requestUpdate();
       await element.requestUpdate();
 
       expect(list).to.have.deep.property('value', newValue);

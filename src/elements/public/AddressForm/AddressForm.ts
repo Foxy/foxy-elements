@@ -7,7 +7,7 @@ import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
 import { NucleonElement } from '../NucleonElement/NucleonElement';
 import { NucleonV8N } from '../NucleonElement/types';
-import { PropertyTable } from '../../private/PropertyTable/PropertyTable';
+import { Metadata } from '../../private/Metadata/Metadata';
 import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
@@ -75,7 +75,7 @@ export class AddressForm extends Base<Data> {
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-combo-box': customElements.get('vaadin-combo-box'),
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'vaadin-button': customElements.get('vaadin-button'),
       'foxy-spinner': customElements.get('foxy-spinner'),
       'foxy-i18n': customElements.get('foxy-i18n'),
@@ -223,7 +223,7 @@ export class AddressForm extends Base<Data> {
     return html`
       <div>
         ${this.renderTemplateOrSlot('timestamps:before')}
-        <x-property-table .items=${items} data-testid="timestamps"></x-property-table>
+        <x-metadata .items=${items} data-testid="timestamps"></x-metadata>
         ${this.renderTemplateOrSlot('timestamps:after')}
       </div>
     `;

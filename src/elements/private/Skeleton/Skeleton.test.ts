@@ -10,12 +10,12 @@ const samples = {
 };
 
 async function testEmpty(element: Skeleton) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.innerHTML).to.equal('');
 }
 
 async function testWithContent(element: Skeleton) {
-  await element.updateComplete;
+  await element.requestUpdate();
   expect(element.innerHTML).to.equal(samples.innerHTML);
 }
 

@@ -187,7 +187,7 @@ describe('TemplateConfigForm', () => {
       input.value = '';
       input.dispatchEvent(new InputEvent('input'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
       expect(button).to.have.attribute('disabled');
     });
 
@@ -201,7 +201,7 @@ describe('TemplateConfigForm', () => {
       input.value = 'WA';
       input.dispatchEvent(new InputEvent('input'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
       expect(button).to.not.have.attribute('disabled');
     });
 

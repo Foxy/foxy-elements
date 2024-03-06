@@ -406,11 +406,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ handling_fee_type: 'none' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee"]')).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_per_item' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee"]')).to.be.instanceOf(
       InternalNumberControl
     );
@@ -424,11 +424,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ handling_fee_type: 'none' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_percent' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.be.instanceOf(
       InternalNumberControl
     );
@@ -442,11 +442,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ handling_fee_type: 'none' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_percent_with_minimum' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee-percentage"]')).to.be.instanceOf(
       InternalNumberControl
     );
@@ -460,11 +460,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ handling_fee_type: 'none' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee-minimum"]')).to.not.exist;
 
     element.edit({ handling_fee_type: 'flat_percent_with_minimum' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="handling-fee-minimum"]')).to.be.instanceOf(
       InternalNumberControl
     );
@@ -498,11 +498,11 @@ describe('ItemCategoryForm', () => {
 
     const $ = element.renderRoot;
     element.edit({ item_delivery_type: 'notshipped' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect($.querySelector('[infer="max-downloads-per-customer"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'downloaded' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect($.querySelector('[infer="max-downloads-per-customer"]')).to.be.instanceOf(
       InternalIntegerControl
     );
@@ -517,11 +517,11 @@ describe('ItemCategoryForm', () => {
 
     const $ = element.renderRoot;
     element.edit({ item_delivery_type: 'notshipped' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect($.querySelector('[infer="max-downloads-time-period"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'downloaded' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect($.querySelector('[infer="max-downloads-time-period"]')).to.be.instanceOf(
       InternalIntegerControl
     );
@@ -535,11 +535,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ item_delivery_type: 'pickup' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="shipping-flat-rate"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'flat_rate' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="shipping-flat-rate"]')).to.be.instanceOf(
       InternalNumberControl
     );
@@ -553,11 +553,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ item_delivery_type: 'pickup' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'flat_rate' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.be.instanceOf(
       InternalNumberControl
     );
@@ -571,12 +571,12 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ item_delivery_type: 'pickup' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('[infer="shipping-flat-rate-type"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'flat_rate' });
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector('[infer="shipping-flat-rate-type"]');
 
     expect(control).to.be.instanceOf(InternalSelectControl);
@@ -594,11 +594,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ item_delivery_type: 'pickup' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="default-weight"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'shipped' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="default-weight"]')).to.be.instanceOf(
       InternalIntegerControl
     );
@@ -612,12 +612,12 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ item_delivery_type: 'pickup' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('[infer="default-weight-unit"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'shipped' });
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector('[infer="default-weight-unit"]');
 
     expect(control).to.be.instanceOf(InternalSelectControl);
@@ -635,12 +635,12 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ item_delivery_type: 'pickup' });
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot.querySelector('[infer="default-length-unit"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'shipped' });
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector('[infer="default-length-unit"]');
 
     expect(control).to.be.instanceOf(InternalSelectControl);
@@ -658,11 +658,11 @@ describe('ItemCategoryForm', () => {
     `);
 
     element.edit({ item_delivery_type: 'pickup' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.not.exist;
 
     element.edit({ item_delivery_type: 'shipped' });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="customs-value"]')).to.be.instanceOf(
       InternalNumberControl
     );
@@ -689,7 +689,7 @@ describe('ItemCategoryForm', () => {
     expect(element.renderRoot.querySelector('[infer="discount-builder"]')).to.not.exist;
 
     element.edit({ discount_name: 'Foo' });
-    await element.updateComplete;
+    await element.requestUpdate();
     const control = element.renderRoot.querySelector(
       '[infer="discount-builder"]'
     ) as DiscountBuilder;
@@ -748,7 +748,7 @@ describe('ItemCategoryForm', () => {
     expect(element.renderRoot.querySelector('[infer="admin-email"]')).to.not.exist;
 
     element.edit({ send_admin_email: true });
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.renderRoot.querySelector('[infer="admin-email"]')).to.be.instanceOf(
       InternalTextControl
     );

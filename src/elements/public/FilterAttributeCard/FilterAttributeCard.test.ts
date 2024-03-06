@@ -68,7 +68,7 @@ describe('FilterAttributeCard', () => {
     const attribute = await getTestData<Data>('./hapi/store_attributes/0');
     attribute.value = '/foo/bar?filter_name=Test&filter_query=123';
     element.data = attribute;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(element.renderRoot).to.include.text('Test');
   });
@@ -82,13 +82,13 @@ describe('FilterAttributeCard', () => {
     const attribute = await getTestData<Data>('./hapi/store_attributes/0');
     attribute.value = '/foo/bar?filter_name=&filter_query=123';
     element.data = attribute;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(await getByKey(element, 'no_name')).to.exist;
 
     attribute.value = '/foo/bar?filter_name=Test&filter_query=123';
     element.data = attribute;
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(await getByKey(element, 'no_name')).to.not.exist;
   });
@@ -123,6 +123,7 @@ describe('FilterAttributeCard', () => {
     expect(element.renderRoot).to.not.include.text('3');
 
     element.getCountLoaderHref = () => 'https://demo.api/hapi/store_attributes';
+    await element.requestUpdate();
     await waitUntil(
       () => !!element.renderRoot.querySelector<NucleonElement<any>>('foxy-nucleon')?.data
     );

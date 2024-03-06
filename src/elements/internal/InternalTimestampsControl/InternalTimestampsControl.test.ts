@@ -26,7 +26,7 @@ describe('InternalTimestampsControl', () => {
     expect(new InternalTimestampsControl()).to.be.instanceOf(InternalControl);
   });
 
-  it('renders creation date in the first row', async () => {
+  it('renders creation date', async () => {
     const testData = await getTestData<any>('./hapi/customers/0');
     const testForm = await fixture<CustomerForm>(html`
       <foxy-customer-form .data=${testData}>
@@ -35,9 +35,11 @@ describe('InternalTimestampsControl', () => {
     `);
 
     const control = testForm.firstElementChild as InternalTimestampsControl;
-    const table = control.renderRoot.querySelector('table') as HTMLTableElement;
-    const label = table.rows[0].cells[0].querySelector('foxy-i18n[key="date_created"]');
-    const value = table.rows[0].cells[1].querySelector('foxy-i18n[key="date"]');
+    await control.requestUpdate();
+
+    const p = control.renderRoot.querySelector('p') as HTMLParagraphElement;
+    const label = p.querySelector('foxy-i18n[key="date_created"]');
+    const value = p.querySelectorAll('foxy-i18n[key="date"]')[0];
 
     expect(label).to.exist;
     expect(label).to.have.property('infer', '');
@@ -47,7 +49,7 @@ describe('InternalTimestampsControl', () => {
     expect(value).to.have.deep.property('options', { value: testForm.form.date_created });
   });
 
-  it('renders last modification date in the second row', async () => {
+  it('renders last modification date', async () => {
     const testData = await getTestData<any>('./hapi/customers/0');
     const testForm = await fixture<CustomerForm>(html`
       <foxy-customer-form .data=${testData}>
@@ -56,9 +58,11 @@ describe('InternalTimestampsControl', () => {
     `);
 
     const control = testForm.firstElementChild as InternalTimestampsControl;
-    const table = control.renderRoot.querySelector('table') as HTMLTableElement;
-    const label = table.rows[1].cells[0].querySelector('foxy-i18n[key="date_modified"]');
-    const value = table.rows[1].cells[1].querySelector('foxy-i18n[key="date"]');
+    await control.requestUpdate();
+
+    const p = control.renderRoot.querySelector('p') as HTMLParagraphElement;
+    const label = p.querySelector('foxy-i18n[key="date_modified"]');
+    const value = p.querySelectorAll('foxy-i18n[key="date"]')[1];
 
     expect(label).to.exist;
     expect(label).to.have.property('infer', '');

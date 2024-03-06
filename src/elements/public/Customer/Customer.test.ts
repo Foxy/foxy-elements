@@ -1730,7 +1730,7 @@ describe('Customer', () => {
 
       const [edit] = await getByTestClass(table, 'edit');
       edit.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const link = new URL(table.data._embedded['fx:subscriptions'][0]._links.self.href);
       link.searchParams.set('zoom', 'transaction_template:items');

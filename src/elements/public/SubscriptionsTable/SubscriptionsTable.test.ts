@@ -77,13 +77,18 @@ describe('SubscriptionsTable', () => {
               date = subscription.first_failed_transaction_date;
               key = 'subscription_failed';
             } else if (subscription.end_date) {
-              const dateAsObject = new Date(subscription.end_date);
-              const hasEnded = dateAsObject.getTime() > Date.now();
-              key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
               date = subscription.end_date;
+              const hasEnded = new Date(subscription.end_date).getTime() > Date.now();
+              key = hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
+            } else if (!subscription.is_active) {
+              date = '';
+              key = 'subscription_inactive';
+            } else if (new Date(subscription.start_date) > new Date()) {
+              date = subscription.start_date;
+              key = 'subscription_will_be_active';
             } else {
               date = subscription.next_transaction_date;
-              key = `subscription_${subscription.is_active ? 'active' : 'inactive'}`;
+              key = 'subscription_active';
             }
 
             expect(statusRef).to.have.deep.property('options', { date });

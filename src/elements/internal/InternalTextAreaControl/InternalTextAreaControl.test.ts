@@ -79,7 +79,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('errorMessage', '');
 
     control.testErrorMessage = 'test error message';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('errorMessage', 'test error message');
   });
@@ -92,7 +92,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('helperText', 'helper_text');
 
     control.helperText = 'test helper text';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('helperText', 'test helper text');
   });
@@ -105,7 +105,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('placeholder', 'placeholder');
 
     control.placeholder = 'test placeholder';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('placeholder', 'test placeholder');
   });
@@ -118,7 +118,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('label', 'label');
 
     control.label = 'test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('label', 'test label');
   });
@@ -129,11 +129,11 @@ describe('InternalTextControl', () => {
     const field = control.renderRoot.querySelector('vaadin-text-area')!;
 
     control.disabled = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', true);
 
     control.disabled = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('disabled', false);
   });
 
@@ -143,11 +143,11 @@ describe('InternalTextControl', () => {
     const field = control.renderRoot.querySelector('vaadin-text-area')!;
 
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', true);
 
     control.readonly = false;
-    await control.updateComplete;
+    await control.requestUpdate();
     expect(field).to.have.property('readonly', false);
   });
 
@@ -167,7 +167,7 @@ describe('InternalTextControl', () => {
     expect(field).to.have.property('value', '');
 
     control.testValue = 'test_value';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(field).to.have.property('value', 'test_value');
   });

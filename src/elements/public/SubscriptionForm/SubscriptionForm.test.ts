@@ -493,6 +493,28 @@ describe('SubscriptionForm', () => {
       expect(control).to.have.attribute('ns', 'subscription-form');
     });
 
+    it('once loaded, renders a special status for active subscriptions in subtitle', async () => {
+      const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
+      const data = await getTestData<Data>(href);
+
+      data.first_failed_transaction_date = null;
+      data.start_date = new Date(Date.now() + 3600000).toISOString();
+      data.end_date = null;
+
+      const element = await fixture<Form>(html`
+        <foxy-subscription-form lang="es" .data=${data}></foxy-subscription-form>
+      `);
+
+      const control = await getByTestId(element, 'header-subtitle');
+      const options = { date: data.start_date };
+
+      expect(control).to.have.property('localName', 'foxy-i18n');
+      expect(control).to.have.attribute('options', JSON.stringify(options));
+      expect(control).to.have.attribute('lang', 'es');
+      expect(control).to.have.attribute('key', 'subscription_will_be_active');
+      expect(control).to.have.attribute('ns', 'subscription-form');
+    });
+
     it('once loaded, renders a special status for inactive subscriptions in subtitle', async () => {
       const href = './hapi/subscriptions/0?zoom=last_transaction,transaction_template:items';
       const data = await getTestData<Data>(href);
@@ -1995,13 +2017,13 @@ describe('SubscriptionForm', () => {
       expect(control).to.have.attribute('disabledcontrols', '');
 
       element.setAttribute('disabled', '');
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(control).to.have.attribute('disabledcontrols', 'not=*');
 
       element.removeAttribute('disabled');
       element.setAttribute('disabledcontrols', 'end-date:form:submit');
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(control).to.have.attribute('disabledcontrols', 'submit');
     });
@@ -2014,13 +2036,13 @@ describe('SubscriptionForm', () => {
       expect(control).to.have.attribute('readonlycontrols', '');
 
       element.setAttribute('readonly', '');
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(control).to.have.attribute('readonlycontrols', 'not=*');
 
       element.removeAttribute('readonly');
       element.setAttribute('readonlycontrols', 'end-date:form:end-date');
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(control).to.have.attribute('readonlycontrols', 'end-date');
     });

@@ -1,6 +1,6 @@
-import '../../internal/InternalSandbox/index';
+import '../../internal/InternalCard/index';
+import '../NucleonElement/index';
 import '../I18n/index';
-import '../Spinner/index';
 
 import { PaymentCard } from './PaymentCard';
 

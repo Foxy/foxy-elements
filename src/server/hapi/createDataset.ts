@@ -414,6 +414,7 @@ export const createDataset: () => Dataset = () => ({
       customer_id: 0,
       subscription_id: 0,
       is_test: true,
+      display_id: 2134962574,
       is_editable: true,
       hide_transaction: false,
       data_is_fed: true,
@@ -423,8 +424,10 @@ export const createDataset: () => Dataset = () => ({
       customer_last_name: 'User',
       customer_tax_id: '',
       customer_email: 'testing@example.com',
-      customer_ip: '10.1.248.210',
-      ip_country: '',
+      customer_ip: '93.31.81.25',
+      ip_country: 'France',
+      user_agent:
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15',
       total_item_price: 10,
       total_tax: 1.9,
       total_shipping: 0,
@@ -436,7 +439,7 @@ export const createDataset: () => Dataset = () => ({
       currency_symbol: '$',
       status: 'completed',
       source: 'cit_ecommerce',
-      type: 'subscription_renewal',
+      type: '',
     },
     {
       id: 1,
@@ -617,9 +620,10 @@ export const createDataset: () => Dataset = () => ({
     id,
     cart_id: 0,
     store_id: 0,
-    shipment_id: id > 9 ? 1 : 0,
-    transaction_id: id > 9 ? 1 : 0,
+    shipment_id: id > 4 ? 1 : 0,
+    transaction_id: id > 4 ? 1 : 0,
     subscription_id: 0,
+    item_category_id: 0,
     item_category_uri: '',
     name: `Basic Product #${id}`,
     price: 10,
@@ -627,7 +631,7 @@ export const createDataset: () => Dataset = () => ({
     quantity_min: 0,
     quantity_max: 0,
     weight: 5,
-    code: '',
+    code: `PDCT0${id}`,
     parent_code: '',
     discount_name: '',
     discount_type: '',
@@ -901,6 +905,35 @@ export const createDataset: () => Dataset = () => ({
   })),
 
   gift_card_code_logs: [
+    {
+      id: 0,
+      store_id: 0,
+      gift_card_id: 0,
+      gift_card_code_id: 0,
+      transaction_id: 0,
+      external_id: null,
+      balance_adjustment: -40.3,
+      user_id: null,
+      source: null,
+      date_created: '2021-11-15T19:30:33-0800',
+      date_modified: '2021-11-15T19:30:35-0800',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      gift_card_id: 0,
+      gift_card_code_id: 0,
+      transaction_id: null,
+      external_id: null,
+      balance_adjustment: 20,
+      user_id: 0,
+      source: null,
+      date_created: '2021-10-08T12:30:33-0800',
+      date_modified: '2021-10-08T12:30:35-0800',
+    },
+  ],
+
+  applied_gift_card_codes: [
     {
       id: 0,
       store_id: 0,
@@ -1797,6 +1830,27 @@ export const createDataset: () => Dataset = () => ({
       code: 'OCTBRSL220',
       date_created: '2015-04-27T13:42:55-0700',
       date_modified: '2015-04-27T13:42:55-0700',
+    },
+  ],
+
+  native_integrations: [
+    {
+      id: 0,
+      store_id: 0,
+      provider: 'avalara',
+      config:
+        '{"service_url":"https://development.avalara.net/","id":"12345678","key":"ASDFJASDFKJASDFKJ","company_code":"CompanyCode","use_ava_tax":true,"create_invoice":true,"use_address_validation":false,"address_validation_countries":[],"category_to_product_tax_code_mappings":{"1005":"PS081258","955":"qweasz2","956":"","2425":""}}',
+      date_created: '2016-03-24T11:02:40-0700',
+      date_modified: '2016-03-31T12:15:41-0700',
+    },
+    {
+      id: 1,
+      store_id: 0,
+      provider: 'webhook',
+      config:
+        '{"service":"json","encryption_key":"1T6478TKJ9S5BHB73K0NTGDZ824X3HZ2","title":"My JSON Webhook","version":1,"url":"https:\\/\\/www.example.com\\/webhook.php","events":["transaction\\/created"]}',
+      date_created: '2018-01-01T04:30:53-0700',
+      date_modified: '2018-01-01T04:30:53-0700',
     },
   ],
 });

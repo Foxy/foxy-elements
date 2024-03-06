@@ -48,7 +48,7 @@ function testInvalid(invalid: boolean) {
     if (element.disabled) return;
 
     element.updated(new Map([['value', 0]]));
-    await element.updateComplete;
+    await element.requestUpdate();
 
     if (invalid) {
       expect(getRefs<Refs>(element).error).to.have.class('text-error');

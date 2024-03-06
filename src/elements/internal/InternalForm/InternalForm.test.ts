@@ -79,7 +79,7 @@ describe('InternalForm', () => {
 
     renderBodyMethod.resetHistory();
     element.data = await getTestData<any>('./hapi/customers/0');
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(renderBodyMethod).to.have.been.called;
     expect(root.querySelector('foxy-internal-create-control[infer="create"]')).to.not.exist;

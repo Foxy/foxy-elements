@@ -87,7 +87,7 @@ describe('Tabs', () => {
     const tab1 = element.querySelector('[slot="tab-1"]') as HTMLSlotElement;
     tab1.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-    await element.updateComplete;
+    await element.requestUpdate();
     await testLayout(element, 3, 1);
   });
 
@@ -105,24 +105,24 @@ describe('Tabs', () => {
     const tab0 = element.querySelector('[slot="tab-0"]') as HTMLSlotElement;
     tab0.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
 
-    await element.updateComplete;
+    await element.requestUpdate();
     await testLayout(element, 3, 1);
 
     const tab1 = element.querySelector('[slot="tab-1"]') as HTMLSlotElement;
     tab1.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
 
-    await element.updateComplete;
+    await element.requestUpdate();
     await testLayout(element, 3, 2);
 
     const tab2 = element.querySelector('[slot="tab-2"]') as HTMLSlotElement;
     tab2.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
 
-    await element.updateComplete;
+    await element.requestUpdate();
     await testLayout(element, 3, 1);
 
     tab1.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
 
-    await element.updateComplete;
+    await element.requestUpdate();
     await testLayout(element, 3, 0);
   });
 });

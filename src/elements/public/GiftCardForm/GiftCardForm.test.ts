@@ -880,13 +880,13 @@ describe('GiftCardForm', () => {
       const button = (await getByTestId(control, 'codes:filter-button')) as HTMLElement;
 
       button.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(button.querySelector('foxy-i18n')).to.have.attribute('key', 'clear_filters');
       expect(control.querySelector('foxy-query-builder')).not.to.have.attribute('hidden');
 
       button.click();
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(button.querySelector('foxy-i18n')).to.have.attribute('key', 'filter');
       expect(control.querySelector('foxy-query-builder')).to.have.attribute('hidden');
@@ -906,7 +906,7 @@ describe('GiftCardForm', () => {
 
       builder.value = 'foo=bar&baz:in=1,2';
       builder.dispatchEvent(new CustomEvent('change'));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const pagination = control.querySelector('foxy-pagination') as Pagination;
       const paginationParams = new URL(pagination.first).searchParams;
@@ -1286,12 +1286,12 @@ describe('GiftCardForm', () => {
       allow.items = [{ value: 'foo' }, { value: 'b*z' }];
       allow.dispatchEvent(new CustomEvent('change'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
 
       block.items = [{ value: 'bar-*' }, { value: 'qux' }];
       block.dispatchEvent(new CustomEvent('change'));
 
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element).to.have.nested.property(
         'form.product_code_restrictions',
@@ -2103,8 +2103,16 @@ describe('GiftCardForm', () => {
 
   describe('spinner', () => {
     it('renders foxy-spinner in "busy" state while loading data', async () => {
-      const href = './hapi/sleep';
-      const layout = html`<foxy-gift-card-form href=${href} lang="es"></foxy-gift-card-form>`;
+      const router = createRouter();
+      const layout = html`
+        <foxy-gift-card-form
+          href="https://demo.api/virtual/stall"
+          lang="es"
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-form>
+      `;
+
       const element = await fixture<GiftCardForm>(layout);
       const spinnerWrapper = await getByTestId(element, 'spinner');
       const spinner = spinnerWrapper!.firstElementChild;

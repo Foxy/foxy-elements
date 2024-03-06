@@ -142,6 +142,14 @@ describe('InternalAsyncListControl', () => {
     expect(Control).to.have.deep.nested.property('properties.item', {});
   });
 
+  it('has a reactive property "itemProps"', () => {
+    expect(new Control()).to.have.deep.property('itemProps', {});
+    expect(Control).to.have.deep.nested.property('properties.itemProps', {
+      type: Object,
+      attribute: 'item-props',
+    });
+  });
+
   it('has a reactive property "wide"', () => {
     expect(new Control()).to.have.property('wide', false);
     expect(Control).to.have.deep.nested.property('properties.wide', { type: Boolean });
@@ -179,7 +187,7 @@ describe('InternalAsyncListControl', () => {
     control.alert = true;
     control.wide = true;
 
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(form).to.have.deep.property('related', ['https://demo.api/virtual/error']);
     expect(form).to.have.attribute('keep-open-on-delete');
@@ -195,9 +203,15 @@ describe('InternalAsyncListControl', () => {
     `);
 
     control.hideDeleteButton = true;
+    control.readonly = false;
     expect(await getByTag(control, 'foxy-internal-confirm-dialog')).to.not.exist;
 
     control.hideDeleteButton = false;
+    control.readonly = true;
+    expect(await getByTag(control, 'foxy-internal-confirm-dialog')).to.not.exist;
+
+    control.hideDeleteButton = false;
+    control.readonly = false;
     const dialog = await getByTag(control, 'foxy-internal-confirm-dialog');
 
     expect(dialog).to.exist;
@@ -216,7 +230,7 @@ describe('InternalAsyncListControl', () => {
     expect(control.renderRoot).to.not.include.text('label');
 
     control.label = 'Test label';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(control.renderRoot).to.include.text('Test label');
   });
@@ -234,7 +248,7 @@ describe('InternalAsyncListControl', () => {
 
     control.first = 'https://demo.api/virtual/stall';
     control.limit = 5;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(pagination).to.have.attribute('first', 'https://demo.api/virtual/stall?limit=5');
   });
@@ -250,11 +264,15 @@ describe('InternalAsyncListControl', () => {
     expect(page).to.exist;
     expect(page).to.have.attribute('infer', 'card');
     expect(page).to.have.deep.property('related', []);
+    expect(page).to.have.deep.property('props', {});
 
     control.related = ['https://demo.api/virtual/stall'];
-    await control.updateComplete;
-
+    await control.requestUpdate();
     expect(page).to.have.deep.property('related', ['https://demo.api/virtual/stall']);
+
+    control.itemProps = { foo: 'bar' };
+    await control.requestUpdate();
+    expect(page).to.have.deep.property('props', { foo: 'bar' });
   });
 
   it('can render collection page items as simple list items using local name', async () => {
@@ -626,6 +644,46 @@ describe('InternalAsyncListControl', () => {
     expect(swipeActions.querySelector(selector)).to.not.exist;
   });
 
+  it('hides delete button for collection page items when readonly', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control></foxy-internal-async-list-control>
+    `);
+
+    control.item = 'foxy-attribute-card';
+    control.form = 'foxy-attribute-form';
+    control.readonly = true;
+
+    const pagination = await getByTag(control, 'foxy-pagination');
+    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
+
+    const swipeActions = await fixture(
+      (page.item as ItemRenderer<any>)({
+        readonlyControls: BooleanSelector.False,
+        disabledControls: BooleanSelector.False,
+        hiddenControls: BooleanSelector.False,
+        templates: {},
+        readonly: false,
+        disabled: false,
+        previous: null,
+        related: ['https://demo.api/virtual/stall?related'],
+        hidden: false,
+        parent: 'https://demo.api/virtual/stall?parent',
+        spread: spread,
+        props: {},
+        group: '',
+        html: html,
+        lang: '',
+        href: 'https://demo.api/virtual/stall?href',
+        data: await getTestData('./hapi/customer_attributes/0'),
+        next: null,
+        ns: '',
+      })
+    );
+
+    const selector = 'vaadin-button foxy-i18n[key="delete_button_text"]';
+    expect(swipeActions.querySelector(selector)).to.not.exist;
+  });
+
   it('renders Create button when .form is defined', async () => {
     const control = await fixture<Control>(html`
       <foxy-internal-async-list-control></foxy-internal-async-list-control>
@@ -639,7 +697,7 @@ describe('InternalAsyncListControl', () => {
     const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
 
     expect(label).to.have.property('localName', 'foxy-i18n');
-    expect(label).to.have.attribute('infer', '');
+    expect(label).to.have.attribute('infer', 'pagination');
 
     const dialogShowMethod = stub(dialog, 'show');
     button.click();
@@ -671,7 +729,7 @@ describe('InternalAsyncListControl', () => {
     `);
 
     control.item = 'foxy-attribute-card';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
     const aSelector = 'a foxy-i18n[key="create_button_text"]';
@@ -688,7 +746,7 @@ describe('InternalAsyncListControl', () => {
     control.item = 'foxy-attribute-card';
     control.form = 'foxy-attribute-form';
     control.readonly = true;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
     const aSelector = 'a foxy-i18n[key="create_button_text"]';
@@ -705,7 +763,7 @@ describe('InternalAsyncListControl', () => {
     control.item = 'foxy-attribute-card';
     control.form = 'foxy-attribute-form';
     control.hideCreateButton = true;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     const buttonSelector = 'vaadin-button foxy-i18n[key="create_button_text"]';
     const aSelector = 'a foxy-i18n[key="create_button_text"]';

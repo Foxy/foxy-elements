@@ -10,11 +10,13 @@ function getInput(element: Switch) {
   return element.shadowRoot!.querySelector('input')!;
 }
 
-function testChecked(element: Switch, value: boolean) {
+async function testChecked(element: Switch, value: boolean) {
+  await element.requestUpdate();
   expect(getInput(element).checked).to.equal(value);
 }
 
-function testDisabled(element: Switch, value: boolean) {
+async function testDisabled(element: Switch, value: boolean) {
+  await element.requestUpdate();
   expect(getInput(element).disabled).to.equal(value);
 }
 

@@ -41,6 +41,10 @@
       "url": "./src/static/schemas/attribute-form.json"
     },
     {
+      "fileMatch": ["/src/static/translations/billing-address-card/*.json"],
+      "url": "./src/static/schemas/billing-address-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/cancellation-form/*.json"],
       "url": "./src/static/schemas/cancellation-form.json"
     },
@@ -219,6 +223,14 @@
     {
       "fileMatch": ["/src/static/translations/items-form/*.json"],
       "url": "./src/static/schemas/items-form.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/native-integration-card/*.json"],
+      "url": "./src/static/schemas/native-integration-card.json"
+    },
+    {
+      "fileMatch": ["/src/static/translations/native-integration-form/*.json"],
+      "url": "./src/static/schemas/native-integration-form.json"
     },
     {
       "fileMatch": ["/src/static/translations/pagination/*.json"],

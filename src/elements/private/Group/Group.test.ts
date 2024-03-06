@@ -5,21 +5,25 @@ import { Group } from './Group';
 
 customElements.define('x-group', Group);
 
-function testContent(element: Group) {
+async function testContent(element: Group) {
+  await element.requestUpdate();
   Array.from(element.children).every(child => expect(child).to.be.visible);
 }
 
-function testHeader(element: Group) {
+async function testHeader(element: Group) {
+  await element.requestUpdate();
   expect(element.shadowRoot!.querySelector('slot[name=header]')).to.exist;
 }
 
-function testFrame(element: Group) {
+async function testFrame(element: Group) {
+  await element.requestUpdate();
   const selector = '.rounded.border.border-contrast-10';
   const frame = element.shadowRoot!.querySelector(selector);
   expect(frame).to.be.visible;
 }
 
-function testDefault(element: Group) {
+async function testDefault(element: Group) {
+  await element.requestUpdate();
   expect(() => testHeader(element)).to.throw;
   expect(() => testFrame(element)).to.throw;
 }

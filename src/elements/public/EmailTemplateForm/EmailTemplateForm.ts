@@ -4,7 +4,7 @@ import type { ScopedElementsMap } from '@open-wc/scoped-elements';
 import type { TextFieldElement } from '@vaadin/vaadin-text-field';
 import type { Data, Templates } from './types';
 
-import { Choice, Group, PropertyTable } from '../../private/index';
+import { Choice, Group, Metadata } from '../../private/index';
 import { ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { ChoiceChangeEvent } from '../../private/events';
 import { ConfigurableMixin } from '../../../mixins/configurable';
@@ -65,7 +65,7 @@ export class EmailTemplateForm extends Base<Data> {
       'foxy-i18n': customElements.get('foxy-i18n'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-button': customElements.get('vaadin-button'),
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'x-choice': Choice,
       'x-group': Group,
     };
@@ -334,7 +334,7 @@ export class EmailTemplateForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot(`${scope}:before`)}
 
-        <x-property-table
+        <x-metadata
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
@@ -343,7 +343,7 @@ export class EmailTemplateForm extends Base<Data> {
               : '',
           }))}
         >
-        </x-property-table>
+        </x-metadata>
 
         ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>

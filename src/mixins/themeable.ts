@@ -111,6 +111,10 @@ export const ThemeableMixin = <TBase extends Base>(
             text-align: inherit !important;
           }
 
+          [hidden] {
+            display: none !important;
+          }
+
           @tailwind components;
 
           @tailwind utilities;

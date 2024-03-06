@@ -136,7 +136,7 @@ describe('I18nEditor', () => {
       expect(textarea).to.have.property('value', 'Aaa Bbb');
 
       entry.edit({ custom_value: 'Ccc Ddd' });
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(textarea).to.have.property('value', 'Ccc Ddd');
     });
@@ -150,7 +150,7 @@ describe('I18nEditor', () => {
       expect(textarea).to.not.have.attribute('disabled');
 
       entry.disabled = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
       expect(textarea).to.have.attribute('disabled');
     });
 
@@ -165,7 +165,7 @@ describe('I18nEditor', () => {
       expect(textarea).to.not.have.attribute('disabled');
 
       entry.href = 'https://demo.api/virtual/stall';
-      await entry.updateComplete;
+      await entry.requestUpdate();
       expect(textarea).to.have.attribute('disabled');
     });
 
@@ -178,7 +178,7 @@ describe('I18nEditor', () => {
       expect(textarea).to.not.have.attribute('readonly');
 
       entry.readonly = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
       expect(textarea).to.have.attribute('readonly');
     });
 
@@ -238,7 +238,7 @@ describe('I18nEditor', () => {
       expect(button).to.not.have.attribute('disabled');
 
       entry.disabled = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });
@@ -261,7 +261,7 @@ describe('I18nEditor', () => {
       expect(button).to.not.have.attribute('disabled');
 
       entry.readonly = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });
@@ -299,7 +299,7 @@ describe('I18nEditor', () => {
       expect(button).to.not.have.attribute('disabled');
 
       entry.disabled = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });
@@ -317,7 +317,7 @@ describe('I18nEditor', () => {
       expect(button).to.not.have.attribute('disabled');
 
       entry.readonly = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });
@@ -343,7 +343,7 @@ describe('I18nEditor', () => {
       entry.removeEventListener('fetch', handleFetch as (evt: Event) => unknown);
       entry.addEventListener('fetch', stallFetch as (evt: Event) => unknown);
       entry.delete();
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });
@@ -381,7 +381,7 @@ describe('I18nEditor', () => {
       expect(button).to.not.have.attribute('disabled');
 
       entry.disabled = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });
@@ -399,7 +399,7 @@ describe('I18nEditor', () => {
       expect(button).to.not.have.attribute('disabled');
 
       entry.readonly = true;
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });
@@ -425,7 +425,7 @@ describe('I18nEditor', () => {
       entry.removeEventListener('fetch', handleFetch as (evt: Event) => unknown);
       entry.addEventListener('fetch', stallFetch as (evt: Event) => unknown);
       entry.delete();
-      await entry.updateComplete;
+      await entry.requestUpdate();
 
       expect(button).to.have.attribute('disabled');
     });

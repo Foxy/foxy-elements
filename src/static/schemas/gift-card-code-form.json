@@ -9,7 +9,7 @@
     "current_balance": { "type": "string", "default": "Current balance" },
     "date": { "type": "string", "default": "{{value, date}}" },
     "date_created": { "type": "string", "default": "Created on" },
-    "date_modified": { "type": "string", "default": "Last updated" },
+    "date_modified": { "type": "string", "default": "Last updated on" },
     "delete": { "type": "string", "default": "Delete" },
     "delete_prompt": {
       "type": "string",

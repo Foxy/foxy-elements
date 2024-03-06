@@ -85,7 +85,7 @@ async function testItemProperty(refs: Refs, element: CollectionPage<Data>) {
     </foxy-foo>
   `;
 
-  await element.updateComplete;
+  await element.requestUpdate();
 
   itemElements = Array.from(
     element.renderRoot.querySelectorAll('[data-testclass="items"]')
@@ -101,7 +101,7 @@ async function testItemProperty(refs: Refs, element: CollectionPage<Data>) {
   });
 
   element.item = 'foxy-bar';
-  await element.updateComplete;
+  await element.requestUpdate();
 
   itemElements = Array.from(
     element.renderRoot.querySelectorAll('[data-testclass="items"]')

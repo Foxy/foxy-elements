@@ -37,7 +37,7 @@ describe('passkeyForm', () => {
   it('renders a foxy-internal-text-control for credential id', async () => {
     const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
     element.data = await getTestData('./hapi/passkeys/0');
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector('[infer="credential-id"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
@@ -46,7 +46,7 @@ describe('passkeyForm', () => {
   it('renders a foxy-internal-text-control for last login date', async () => {
     const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
     element.data = await getTestData('./hapi/passkeys/0');
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector('[infer="last-login-date"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-control'));
@@ -55,7 +55,7 @@ describe('passkeyForm', () => {
   it('renders a foxy-internal-text-area-control for last login user agent', async () => {
     const element = await fixture<Form>(html`<foxy-passkey-form></foxy-passkey-form>`);
     element.data = await getTestData('./hapi/passkeys/0');
-    await element.updateComplete;
+    await element.requestUpdate();
 
     const control = element.renderRoot.querySelector('[infer="last-login-ua"]');
     expect(control).to.be.instanceOf(customElements.get('foxy-internal-text-area-control'));

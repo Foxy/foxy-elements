@@ -1,5 +1,5 @@
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
-import { Choice, Group, PropertyTable } from '../../private/index';
+import { Choice, Group, Metadata } from '../../private/index';
 import { Data, Templates } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 
@@ -57,7 +57,7 @@ export class TemplateForm extends Base<Data> {
       'foxy-i18n': customElements.get('foxy-i18n'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-button': customElements.get('vaadin-button'),
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'x-choice': Choice,
       'x-group': Group,
     };
@@ -288,7 +288,7 @@ export class TemplateForm extends Base<Data> {
       <div>
         ${this.renderTemplateOrSlot(`${scope}:before`)}
 
-        <x-property-table
+        <x-metadata
           data-testid="timestamps"
           .items=${(['date_modified', 'date_created'] as const).map(field => ({
             name: this.t(field),
@@ -297,7 +297,7 @@ export class TemplateForm extends Base<Data> {
               : '',
           }))}
         >
-        </x-property-table>
+        </x-metadata>
 
         ${this.renderTemplateOrSlot(`${scope}:after`)}
       </div>

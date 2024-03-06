@@ -90,22 +90,22 @@ const machine = createMachine({
 const model = createModel<TestOriginsList>(machine).withEvents({
   CLEAR: {
     exec: async function execClear(element) {
-      await element.updateComplete;
+      await element.requestUpdate();
       const refs = getRefs<Refs>(element);
 
       refs.input.value = '';
       refs.input.dispatchEvent(new InputEvent('input'));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.list.value = [];
       refs.list.dispatchEvent(new ListChangeEvent([]));
-      await element.updateComplete;
+      await element.requestUpdate();
     },
   },
   SUBMIT: {
     cases: [{ trigger: 'keyboard' }, { trigger: 'mouse' }],
     exec: async function execSubmit(element, event) {
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const refs = getRefs<Refs>(element);
       const trigger = (event as EventObject & { trigger: string }).trigger;
@@ -132,7 +132,7 @@ const model = createModel<TestOriginsList>(machine).withEvents({
   ENTER_VALID: {
     cases: [{ value: 'http://localhost:8080' }, { value: 'https://foxy.io' }],
     exec: async function execEnterValid(element, event) {
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const value = (event as unknown as { value: string }).value;
       const input = getRefs<Refs>(element).input;
@@ -145,7 +145,7 @@ const model = createModel<TestOriginsList>(machine).withEvents({
   ENTER_INVALID: {
     cases: [{ value: 'not a url' }, { value: 'http://insecure.foxy.io' }],
     exec: async function execEnterInvalid(element, event) {
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const value = (event as unknown as { value: string }).value;
       const input = getRefs<Refs>(element).input;

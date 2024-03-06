@@ -40,7 +40,7 @@ async function getRefs(element: TestNextDateModificationRule) {
 
 function testInteractivity(disabled: boolean) {
   return async (element: TestNextDateModificationRule) => {
-    await element.updateComplete;
+    await element.requestUpdate();
     expect(element.disabled).to.equal(disabled);
     Object.values(getRefs(element)).forEach(ref => {
       if (ref && 'disabled' in ref) expect(ref.disabled).to.equal(disabled);
@@ -162,26 +162,26 @@ const model = createModel<TestNextDateModificationRule>(machine).withEvents({
 
       refs.allowed!.value = rule.allowedDays;
       refs.allowed!.dispatchEvent(new AllowedDaysChangeEvent(rule.allowedDays));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.disallowed!.value = rule.disallowedDates;
       refs.disallowed!.dispatchEvent(new DisallowedDatesChangeEvent(rule.disallowedDates));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.jsonata!.value = rule.jsonataQuery;
       refs.jsonata!.dispatchEvent(new JSONataInputChangeEvent(rule.jsonataQuery));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       refs.max!.value = rule.max;
       refs.max!.dispatchEvent(new OffsetInputChangeEvent(rule.max));
-      await element.updateComplete;
+      await element.requestUpdate();
 
       const whenChanged = oneEvent(element, 'change');
 
       refs.min!.value = rule.min;
       refs.min!.dispatchEvent(new OffsetInputChangeEvent(rule.min));
 
-      await element.updateComplete;
+      await element.requestUpdate();
       await whenChanged;
     },
   },

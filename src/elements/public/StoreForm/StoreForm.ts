@@ -184,7 +184,7 @@ export class StoreForm extends Base<Data> {
 
       ({ store_domain: v }) => !!v || 'store-domain:v8n_required',
 
-      ({ store_domain: v }) => (v && v.length <= 50) || 'store-domain:v8n_too_long',
+      ({ store_domain: v }) => (v && v.length <= 100) || 'store-domain:v8n_too_long',
 
       ({ store_url: v }) => !!v || 'store-url:v8n_required',
 
@@ -210,7 +210,7 @@ export class StoreForm extends Base<Data> {
 
       ({ country: v }) => !!v || 'country:v8n_required',
 
-      ({ logo_url: v }) => !v || v.length <= 100 || 'logo-url:v8n_too_long',
+      ({ logo_url: v }) => !v || v.length <= 200 || 'logo-url:v8n_too_long',
 
       ({ webhook_url: v, use_webhook }) => !use_webhook || !!v || 'webhook-url:v8n_required',
 

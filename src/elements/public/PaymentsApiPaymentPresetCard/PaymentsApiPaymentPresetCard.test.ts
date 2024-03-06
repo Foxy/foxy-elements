@@ -92,7 +92,7 @@ describe('PaymentsApiPaymentPresetCard', () => {
     await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
 
     element.data = { ...element.data!, is_live: true };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(await getByKey(element, 'status_live')).to.exist;
     expect(await getByKey(element, 'status_live')).to.have.attribute('infer', '');
@@ -123,7 +123,7 @@ describe('PaymentsApiPaymentPresetCard', () => {
     await waitUntil(() => !!element.data, undefined, { timeout: 5000 });
 
     element.data = { ...element.data!, is_live: false };
-    await element.updateComplete;
+    await element.requestUpdate();
 
     expect(await getByKey(element, 'status_test')).to.exist;
     expect(await getByKey(element, 'status_test')).to.have.attribute('infer', '');

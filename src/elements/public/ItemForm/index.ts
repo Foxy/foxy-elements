@@ -1,22 +1,22 @@
+import '@vaadin/vaadin-details';
+
+import '../../internal/InternalAsyncComboBoxControl/index';
+import '../../internal/InternalAsyncListControl/index';
+import '../../internal/InternalFrequencyControl/index';
+import '../../internal/InternalTextAreaControl/index';
 import '../../internal/InternalIntegerControl/index';
-import '../../internal/InternalAsyncDetailsControl/index';
 import '../../internal/InternalNumberControl/index';
 import '../../internal/InternalTextControl/index';
+import '../../internal/InternalDateControl/index';
 import '../../internal/InternalForm/index';
 
 import '../DiscountDetailCard/index';
 import '../CouponDetailCard/index';
+import '../DiscountBuilder/index';
 import '../ItemOptionCard/index';
 import '../ItemOptionForm/index';
 import '../AttributeCard/index';
 import '../AttributeForm/index';
-import '../CouponCard/index';
-
-import './internal/InternalItemFormLineItemDiscountControl/index';
-import './internal/InternalItemFormSubscriptionControl/index';
-import './internal/InternalItemFormInventoryControl/index';
-import './internal/InternalItemFormShippingControl/index';
-import './internal/InternalItemFormCartControl/index';
 
 import { ItemForm } from './ItemForm';
 

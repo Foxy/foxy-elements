@@ -82,12 +82,12 @@ describe('ApiBrowser', () => {
       expect(details).to.exist;
 
       form.open = true;
-      await form.updateComplete;
+      await form.requestUpdate();
 
       expect(details).to.have.property('open', true);
 
       form.open = false;
-      await form.updateComplete;
+      await form.requestUpdate();
 
       expect(details).to.have.property('open', false);
 
@@ -165,13 +165,13 @@ describe('ApiBrowser', () => {
       expect(control).to.have.property('infer', 'create');
 
       form.href = 'https://demo.api/hapi/customers/0';
-      await form.updateComplete;
+      await form.requestUpdate();
 
       control = form.renderRoot.querySelector('foxy-internal-create-control');
       expect(control).to.not.exist;
 
       form.data = null;
-      await form.updateComplete;
+      await form.requestUpdate();
 
       control = form.renderRoot.querySelector('foxy-internal-create-control');
       expect(control).to.exist;
@@ -193,7 +193,7 @@ describe('ApiBrowser', () => {
       expect(caption).to.not.exist;
 
       form.edit({ first_name: 'Test' } as any);
-      await form.updateComplete;
+      await form.requestUpdate();
 
       button = form.renderRoot.querySelector('[data-testid="undo"]');
       caption = button?.querySelector('foxy-i18n[key="undo"][infer=""]');
@@ -214,7 +214,7 @@ describe('ApiBrowser', () => {
       expect(caption).to.not.exist;
 
       form.edit({ first_name: 'Test' } as any);
-      await form.updateComplete;
+      await form.requestUpdate();
 
       button = form.renderRoot.querySelector('[data-testid="undo"]');
       caption = button?.querySelector('foxy-i18n[key="undo"][infer=""]');
@@ -244,7 +244,7 @@ describe('ApiBrowser', () => {
       expect(control).to.have.property('infer', 'delete');
 
       form.data = null;
-      await form.updateComplete;
+      await form.requestUpdate();
 
       control = form.renderRoot.querySelector('foxy-internal-delete-control');
       expect(control).to.not.exist;
@@ -276,10 +276,12 @@ describe('ApiBrowser', () => {
       );
 
       form.data = null;
-      await form.updateComplete;
-      control.setValue('{ "first_name": "Test" }');
+      await form.requestUpdate();
 
-      expect(form).to.have.deep.property('form', { first_name: 'Test' });
+      const newData = JSON.stringify({ first_name: 'Test' });
+      control.setValue(newData);
+
+      expect(JSON.stringify(form.form)).to.equal(newData);
     });
 
     it('renders resource links', async () => {

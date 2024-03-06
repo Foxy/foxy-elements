@@ -786,7 +786,7 @@ describe('GenerateCodesForm', () => {
       `);
 
       element.edit({ length: 10, number_of_codes: 100 });
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(await getByTestId(element, 'generate')).to.have.attribute('disabled');
     });

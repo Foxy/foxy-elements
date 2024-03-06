@@ -120,7 +120,7 @@ export class SubscriptionCard extends Base<Data> {
   }
 
   private __getSummaryOptions() {
-    if (!this.in({ idle: 'snapshot' })) return {};
+    if (this.data === null) return {};
     const items = this.data._embedded['fx:transaction_template']._embedded['fx:items'];
 
     return {
@@ -131,31 +131,38 @@ export class SubscriptionCard extends Base<Data> {
   }
 
   private __getStatusOptions() {
-    if (!this.in({ idle: 'snapshot' })) return {};
-    return {
-      date:
-        this.data.first_failed_transaction_date ??
-        this.data.end_date ??
-        this.data.next_transaction_date,
-    };
+    const data = this.data;
+
+    if (data === null) return {};
+    if (data.first_failed_transaction_date) return { date: data.first_failed_transaction_date };
+    if (data.end_date) return { date: data.end_date };
+    if (data.is_active === false) return {};
+    if (new Date(data.start_date) > new Date()) return { date: data.start_date };
+
+    return { date: data.next_transaction_date };
   }
 
   private __getPriceOptions() {
-    if (!this.in({ idle: 'snapshot' })) return {};
+    if (this.data === null) return {};
 
-    const transaction = this.data._embedded['fx:last_transaction'];
-    const amount = `${transaction.total_order} ${transaction.currency_code}`;
+    const cart = this.data._embedded['fx:transaction_template'];
+    const amount = `${cart.total_order} ${cart.currency_code}`;
     return { ...parseFrequency(this.data.frequency), amount };
   }
 
   private __getStatusKey() {
-    if (this.data?.first_failed_transaction_date) return 'subscription_failed';
+    const data = this.data;
 
-    if (this.data?.end_date) {
-      const hasEnded = new Date(this.data.end_date).getTime() > Date.now();
+    if (data === null) return;
+    if (data.first_failed_transaction_date) return 'subscription_failed';
+    if (data.end_date) {
+      const hasEnded = new Date(data.end_date).getTime() > Date.now();
       return hasEnded ? 'subscription_will_be_cancelled' : 'subscription_cancelled';
     }
 
-    return `subscription_${this.data?.is_active ? 'active' : 'inactive'}`;
+    if (data.is_active === false) return 'subscription_inactive';
+    if (new Date(data.start_date) > new Date()) return 'subscription_will_be_active';
+
+    return 'subscription_active';
   }
 }

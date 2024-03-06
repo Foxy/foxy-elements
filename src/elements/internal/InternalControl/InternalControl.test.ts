@@ -83,6 +83,8 @@ describe('InternalControl', () => {
     `);
 
     const control = addressCard.firstElementChild as InternalControl;
+    await control.requestUpdate();
+
     const expected = document.createElement('div');
     render(html``, expected);
 
@@ -106,8 +108,8 @@ describe('InternalControl', () => {
       </foxy-address-card>
     `);
 
-    await new Promise(r => setTimeout(r, 2000));
     const control = element.lastElementChild as InternalControl;
+    await control.requestUpdate();
 
     const slot = control.renderRoot.querySelector('slot[name="before"]');
     const sandbox = control.renderRoot.querySelector('[data-testid="before"]') as InternalSandbox;
@@ -133,8 +135,8 @@ describe('InternalControl', () => {
       </foxy-address-card>
     `);
 
-    await new Promise(r => setTimeout(r, 2000));
     const control = element.lastElementChild as InternalControl;
+    await control.requestUpdate();
 
     const slot = control.renderRoot.querySelector('slot[name="after"]');
     const sandbox = control.renderRoot.querySelector('[data-testid="after"]') as InternalSandbox;

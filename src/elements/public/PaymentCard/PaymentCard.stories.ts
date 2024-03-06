@@ -10,7 +10,6 @@ const summary: Summary = {
   nucleon: true,
   localName: 'foxy-payment-card',
   translatable: true,
-  configurable: { sections: ['title', 'subtitle', 'card-info', 'processor-response'] },
 };
 
 export default getMeta(summary);

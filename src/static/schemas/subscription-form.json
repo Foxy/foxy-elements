@@ -40,6 +40,7 @@
     "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
     "subscription_inactive": { "type": "string", "default": "Inactive" },
     "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
+    "subscription_will_be_active": { "type": "string", "default": "Starts on {{date, date}}" },
     "transaction_plural": { "type": "string", "default": "Transactions" },
     "twice_a_month": { "type": "string", "default": "Twice a month" },
     "undo_cancel": { "type": "string", "default": "Review" },
@@ -94,7 +95,7 @@
         "pagination": {
           "additionalProperties": false,
           "properties": {
-            "create_button_text": { "type": "string", "default": "Add attribute" },
+            "create_button_text": { "type": "string", "default": "Add attribute +" },
             "first": { "type": "string", "default": "First" },
             "last": { "type": "string", "default": "Last" },
             "next": { "type": "string", "default": "Next" },
@@ -146,7 +147,7 @@
             "create": { "type": "string", "default": "Create" },
             "date": { "type": "string", "default": "{{value, date}}" },
             "date_created": { "type": "string", "default": "Created on" },
-            "date_modified": { "type": "string", "default": "Last updated" },
+            "date_modified": { "type": "string", "default": "Last updated on" },
             "delete": { "type": "string", "default": "Delete" },
             "delete_prompt": {
               "type": "string",
@@ -222,8 +223,29 @@
             "card": {
               "additionalProperties": false,
               "properties": {
+                "daily": { "type": "string", "default": "Daily" },
+                "daily_plural": { "type": "string", "default": "Every {{count}} days" },
+                "frequency": {
+                  "type": "string",
+                  "default": "$t(items.pagination.card.{{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })"
+                },
+                "monthly": { "type": "string", "default": "Monthly" },
+                "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
+                "subinfo_recurring": {
+                  "type": "string",
+                  "default": "$t(items.pagination.card.frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"subscription-form\" }) from {{startDate, date}}"
+                },
+                "subinfo_twice_a_month": {
+                  "type": "string",
+                  "default": "$t(items.pagination.card.twice_a_month, { \"ns\": \"subscription-form\" }) from {{startDate, date}}"
+                },
+                "twice_a_month": { "type": "string", "default": "Twice a month" },
+                "no_code": { "type": "string", "default": "No SKU" },
+                "weekly": { "type": "string", "default": "Weekly" },
+                "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
+                "yearly": { "type": "string", "default": "Yearly" },
+                "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
                 "price": { "type": "string", "default": "{{amount, price}}" },
-                "wgt": { "type": "string", "default": "WGT" },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
@@ -234,7 +256,23 @@
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
               },
-              "required": ["price", "wgt", "spinner"]
+              "required": [
+                "daily",
+                "daily_plural",
+                "frequency",
+                "monthly",
+                "monthly_plural",
+                "subinfo_recurring",
+                "subinfo_twice_a_month",
+                "twice_a_month",
+                "no_code",
+                "weekly",
+                "weekly_plural",
+                "yearly",
+                "yearly_plural",
+                "price",
+                "spinner"
+              ]
             }
           },
           "required": ["first", "last", "next", "pagination", "previous", "card"]
@@ -262,25 +300,48 @@
                 "description": { "type": "string", "default": "Description" },
                 "price": { "type": "string", "default": "{{amount, price}}" },
                 "time": { "type": "string", "default": "{{value, date}}" },
-                "transaction_approved": { "type": "string", "default": "Approved" },
-                "transaction_authorized": { "type": "string", "default": "Authorized" },
-                "transaction_captured": { "type": "string", "default": "Captured" },
-                "transaction_completed": { "type": "string", "default": "Completed" },
-                "transaction_declined": { "type": "string", "default": "Declined" },
-                "transaction_pending": { "type": "string", "default": "Pending" },
-                "transaction_plural": { "type": "string", "default": "Transactions" },
-                "transaction_refunded": { "type": "string", "default": "Refunded" },
-                "transaction_rejected": { "type": "string", "default": "Rejected" },
-                "transaction_summary": {
+                "status_capturing": { "type": "string", "default": "Capturing" },
+                "status_captured": { "type": "string", "default": "Captured" },
+                "status_approved": { "type": "string", "default": "Approved" },
+                "status_authorized": { "type": "string", "default": "Authorized" },
+                "status_pending": { "type": "string", "default": "Pending" },
+                "status_completed": { "type": "string", "default": "Completed" },
+                "status_problem": { "type": "string", "default": "Problem" },
+                "status_pending_fraud_review": {
                   "type": "string",
-                  "default": "{{most_expensive_item.name}}"
+                  "default": "Pending_fraud_review"
                 },
-                "transaction_summary_plural": {
+                "status_rejected": { "type": "string", "default": "Rejected" },
+                "status_declined": { "type": "string", "default": "Declined" },
+                "status_refunding": { "type": "string", "default": "Refunding" },
+                "status_refunded": { "type": "string", "default": "Refunded" },
+                "status_voided": { "type": "string", "default": "Voided" },
+                "status_verified": { "type": "string", "default": "Verified" },
+                "summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
+                "summary_plural": {
                   "type": "string",
                   "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
                 },
-                "transaction_verified": { "type": "string", "default": "Verified" },
-                "transaction_voided": { "type": "string", "default": "Voided" },
+                "summary_payment_method_change": {
+                  "type": "string",
+                  "default": "Payment method change"
+                },
+                "summary_subscription_modification": {
+                  "type": "string",
+                  "default": "Subscription modification"
+                },
+                "summary_subscription_cancellation": {
+                  "type": "string",
+                  "default": "Subscription cancellation"
+                },
+                "source_MIT": {
+                  "type": "string",
+                  "default": "This transaction was initiated by the merchant"
+                },
+                "source_CIT": {
+                  "type": "string",
+                  "default": "This transaction was initiated by the customer"
+                },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
@@ -297,19 +358,27 @@
                 "description",
                 "price",
                 "time",
-                "transaction_approved",
-                "transaction_authorized",
-                "transaction_captured",
-                "transaction_completed",
-                "transaction_declined",
-                "transaction_pending",
-                "transaction_plural",
-                "transaction_refunded",
-                "transaction_rejected",
-                "transaction_summary",
-                "transaction_summary_plural",
-                "transaction_verified",
-                "transaction_voided",
+                "status_capturing",
+                "status_captured",
+                "status_approved",
+                "status_authorized",
+                "status_pending",
+                "status_completed",
+                "status_problem",
+                "status_pending_fraud_review",
+                "status_rejected",
+                "status_declined",
+                "status_refunding",
+                "status_refunded",
+                "status_voided",
+                "status_verified",
+                "summary",
+                "summary_plural",
+                "summary_payment_method_change",
+                "summary_subscription_modification",
+                "summary_subscription_cancellation",
+                "source_MIT",
+                "source_CIT",
                 "spinner"
               ]
             }
@@ -358,7 +427,7 @@
       "additionalProperties": false,
       "properties": {
         "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
+        "date_modified": { "type": "string", "default": "Last updated on" },
         "date": { "type": "string", "default": "{{value, date}}" }
       },
       "required": ["date_created", "date_modified", "date"]
@@ -394,6 +463,7 @@
     "subscription_failed",
     "subscription_inactive",
     "subscription_will_be_cancelled",
+    "subscription_will_be_active",
     "transaction_plural",
     "twice_a_month",
     "undo_cancel",

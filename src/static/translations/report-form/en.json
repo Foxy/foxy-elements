@@ -3,7 +3,7 @@
   "create": "Create",
   "date": "{{value, date}}",
   "date_created": "Created on",
-  "date_modified": "Last updated",
+  "date_modified": "Last updated on",
   "datetime_end_required": "End date is required",
   "datetime_start_required": "Start date is required",
   "delete": "Delete",

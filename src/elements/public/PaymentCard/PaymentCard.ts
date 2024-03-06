@@ -1,204 +1,187 @@
+import type { PropertyDeclarations } from 'lit-element';
+import type { TemplateResult } from 'lit-html';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
+import type { Data } from './types';
+
 import * as logos from '../PaymentMethodCard/logos';
 
-import { Data, Templates } from './types';
-import { TemplateResult, html } from 'lit-html';
-
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Resource } from '@foxy.io/sdk/core';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { NucleonElement } from '../NucleonElement/NucleonElement';
+import { InternalCard } from '../../internal/InternalCard/InternalCard';
+import { ifDefined } from 'lit-html/directives/if-defined';
+import { html } from 'lit-html';
 
-const Base = ThemeableMixin(ConfigurableMixin(TranslatableMixin(NucleonElement, 'payment-card')));
+const NS = 'payment-card';
+const Base = TranslatableMixin(InternalCard, NS);
 
 /**
- * Basic card displaying a payment.
- *
- * Note: payment gateway names need to be loaded separately. You can obtain
- * them from `fx:property_helpers` using your own Backend API proxy or just hardcode the values
- * you need. Once you have the gateway names, call `I18n.setGateways(names)`.
- *
- * @slot title:before
- * @slot title:after
- *
- * @slot subtitle:before
- * @slot subtitle:after
- *
- * @slot card-info:before
- * @slot card-info:after
- *
- * @slot fraud-risk:before
- * @slot fraud-risk:after
- *
- * @slot processor-response:before
- * @slot processor-response:after
+ * Basic card displaying a payment resource (`fx:payment`).
  *
  * @element foxy-payment-card
  * @since 1.11.0
  */
 export class PaymentCard extends Base<Data> {
-  templates: Templates = {};
-
-  private __currencyDisplay = '';
-
-  private __currency = '';
-
-  render(): TemplateResult {
-    const hidden = this.hiddenSelector;
-    const isCardInfoHidden = hidden.matches('card-info', true);
-    const isFraudRiskHidden = hidden.matches('fraud-risk', true);
-
-    return html`
-      <div
-        aria-busy=${!this.data && this.in('busy')}
-        aria-live="polite"
-        class="relative text-body text-m font-lumo leading-m focus-outline-none"
-      >
-        <div
-          class=${classMap({
-            'relative transition duration-250 ease-in-out': true,
-            'opacity-0 pointer-events-none': !this.data,
-          })}
-        >
-          ${hidden.matches('title', true) ? '' : this.__renderTitle()}
-          ${hidden.matches('subtitle', true) ? '' : this.__renderSubtitle()}
-          ${isCardInfoHidden && isFraudRiskHidden
-            ? ''
-            : html`
-                <div class="my-s flex space-x-s overflow-auto">
-                  ${isCardInfoHidden ? '' : this.__renderCardInfo()}
-                  ${isFraudRiskHidden ? '' : this.__renderFraudRisk()}
-                </div>
-              `}
-          ${hidden.matches('processor-response', true) ? '' : this.__renderProcessorResponse()}
-        </div>
-
-        <div
-          class=${classMap({
-            'transition duration-250 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !!this.data,
-          })}
-        >
-          <foxy-spinner
-            data-testid="spinner"
-            class="m-auto"
-            state=${this.in('fail') ? 'error' : this.in({ idle: 'template' }) ? 'empty' : 'busy'}
-            lang=${this.lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
-      </div>
-    `;
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      hostedPaymentGatewaysHelper: { attribute: 'hosted-payment-gateways-helper' },
+      paymentGatewaysHelper: { attribute: 'payment-gateways-helper' },
+    };
   }
 
-  protected async _sendGet(): Promise<Data> {
-    type Transaction = Resource<Rels.Transaction>;
-    type Store = Resource<Rels.Store>;
+  /** URL of the `fx:hosted_payment_gateways` property helper resource. */
+  hostedPaymentGatewaysHelper: string | null = null;
 
-    const payment = await super._sendGet();
-    const [transaction, store] = await Promise.all([
-      super._fetch<Transaction>(payment._links['fx:transaction'].href),
-      super._fetch<Store>(payment._links['fx:store'].href),
-    ]);
+  /** URL of the `fx:payment_gateways` property helper resource. */
+  paymentGatewaysHelper: string | null = null;
 
-    this.__currency = transaction.currency_code;
-    this.__currencyDisplay = store.use_international_currency_symbol ? 'code' : 'symbol';
+  private readonly __hostedPaymentGatewaysLoaderId = 'hostedPaymentGatewaysLoader';
 
-    return payment;
-  }
+  private readonly __paymentGatewaysLoaderId = 'paymentGatewaysLoader';
 
-  private __renderTitle() {
-    const key = this.data ? `gateways.${this.data.gateway_type}` : '';
-    const ns = `${this.ns} gateways`;
+  private readonly __transactionLoaderId = 'transactionLoader';
 
-    return html`
-      <div class="text-m flex text-secondary" data-testid="title">
-        ${this.renderTemplateOrSlot('title:before')}
-        <foxy-i18n lang=${this.lang} key=${key} ns=${ns}></foxy-i18n>&ZeroWidthSpace;
-        ${this.renderTemplateOrSlot('title:after')}
-      </div>
-    `;
-  }
+  private readonly __storeLoaderId = 'storeLoader';
 
-  private __renderSubtitle() {
-    const amount = `${this.data?.amount ?? ''} ${this.__currency}`;
-    const amountOptions = JSON.stringify({ amount, currencyDisplay: this.__currencyDisplay });
-
-    const date = this.data?.date_created ?? '';
-    const dateOptions = JSON.stringify({ value: date });
-
-    const lang = this.lang;
-    const ns = this.ns;
-
-    return html`
-      <div class="flex font-medium text-m" data-testid="subtitle">
-        ${this.renderTemplateOrSlot('subtitle:before')}
-
-        <foxy-i18n options=${amountOptions} lang=${lang} key="price" ns=${ns}></foxy-i18n>
-        <span>&nbsp;&bull;&nbsp;</span>
-        <foxy-i18n options=${dateOptions} lang=${lang} key="date" ns=${ns}></foxy-i18n>
-
-        ${this.renderTemplateOrSlot('subtitle:after')}
-      </div>
-    `;
-  }
-
-  private __renderCardInfo() {
+  renderBody(): TemplateResult {
     const data = this.data;
+    const amount = `${data?.amount ?? ''} ${this.__currencyCode}`;
+    const amountOptions = { currencyDisplay: this.__currencyDisplay, amount };
+
+    const infoKeys = [
+      'processor_response',
+      'paypal_payer_id',
+      'third_party_id',
+      'purchase_order',
+    ] as const;
+
+    const score = this.data?.fraud_protection_score ?? 0;
+    const scoreColor = score > 0 ? 'text-error' : 'text-success';
+    const scoreBackground = score > 0 ? 'bg-error-10' : 'bg-success-10';
+
     const type = (data?.cc_type ?? 'unknown').toLowerCase() as keyof typeof logos;
     const year = data?.cc_exp_year?.substring(2);
     const month = data?.cc_exp_month;
     const last4Digits = data?.cc_number_masked?.replace(/x/gi, '');
 
-    if (!month || !year || !last4Digits) return;
-
     return html`
-      <div class="flex" data-testid="card-info">
-        ${this.renderTemplateOrSlot('card-info:before')}
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this.hostedPaymentGatewaysHelper ?? undefined)}
+        id=${this.__hostedPaymentGatewaysLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
 
-        <div class="truncate flex items-center h-s rounded overflow-hidden bg-contrast-5">
-          <div class="h-s">${logos[type] ?? logos.unknown}</div>
-          <div class="text-m font-medium px-s">•••• ${last4Digits} ${month}/${year}</div>
-        </div>
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(this.paymentGatewaysHelper ?? undefined)}
+        id=${this.__paymentGatewaysLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
 
-        ${this.renderTemplateOrSlot('card-info:after')}
-      </div>
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(data?._links['fx:transaction'].href)}
+        id=${this.__transactionLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        infer=""
+        href=${ifDefined(data?._links['fx:store'].href)}
+        id=${this.__storeLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <p class="leading-s">
+        <span class="block font-medium text-m" data-testid="line-1">
+          <foxy-i18n .options=${amountOptions} infer="" key="price"></foxy-i18n>
+          <span>&nbsp;&bull;&nbsp;</span>
+          <foxy-i18n .options=${{ value: data?.date_created }} infer="" key="date"></foxy-i18n>
+        </span>
+
+        <span class="block text-s text-secondary">
+          ${this.__gatewayName || html`<foxy-i18n infer="" key="unknown"></foxy-i18n>`}
+        </span>
+
+        ${infoKeys.map(key => {
+          if (!data?.[key]) return;
+          const css = 'block text-s text-tertiary';
+          return html`<foxy-i18n class=${css} infer="" key=${key} .options=${data}></foxy-i18n>`;
+        })}
+
+        <span class="mt-s flex space-x-s overflow-auto">
+          ${month && year && last4Digits
+            ? html`
+                <span
+                  class="truncate flex items-center h-xs rounded-s overflow-hidden bg-contrast-5"
+                  data-testid="card-info"
+                >
+                  <span class="h-xs">${logos[type] ?? logos.unknown}</span>
+                  <span class="font-medium px-s">•••• ${last4Digits} ${month}/${year}</span>
+                </span>
+              `
+            : ''}
+
+          <foxy-i18n
+            class="truncate flex font-medium h-xs items-center px-s rounded-s text-s ${scoreColor} ${scoreBackground}"
+            infer=""
+            key="fraud_risk"
+            .options=${{ score }}
+          >
+          </foxy-i18n>
+        </span>
+      </p>
     `;
   }
 
-  private __renderFraudRisk() {
-    const score = this.data?.fraud_protection_score ?? 0;
-    const color = score > 0 ? 'text-error' : 'text-success';
-    const background = score > 0 ? 'bg-error-10' : 'bg-success-10';
-
-    return html`
-      <div class="flex" data-testid="fraud-risk">
-        ${this.renderTemplateOrSlot('fraud-risk:before')}
-
-        <foxy-i18n
-          options=${JSON.stringify({ score })}
-          class="truncate flex font-medium h-s items-center px-s rounded text-m ${color} ${background}"
-          lang=${this.lang}
-          key="fraud_risk"
-          ns=${this.ns}
-        >
-        </foxy-i18n>
-
-        ${this.renderTemplateOrSlot('fraud-risk:after')}
-      </div>
-    `;
+  get isBodyReady(): boolean {
+    if (!super.isBodyReady) return false;
+    if (!this.__currencyCode) return false;
+    if (!this.__currencyDisplay) return false;
+    return !this.hostedPaymentGatewaysHelper || !this.paymentGatewaysHelper || !!this.__gatewayName;
   }
 
-  private __renderProcessorResponse() {
-    return html`
-      <div class="text-m text-tertiary" data-testid="processor-response">
-        ${this.renderTemplateOrSlot('processor-response:before')}
-        ${this.data?.processor_response}&ZeroWidthSpace;
-        ${this.renderTemplateOrSlot('processor-response:after')}
-      </div>
-    `;
+  private get __hostedPaymentGatewaysLoader() {
+    type Loader = NucleonElement<Resource<Rels.HostedPaymentGatewaysHelper>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__hostedPaymentGatewaysLoaderId}`);
+  }
+
+  private get __paymentGatewaysLoader() {
+    type Loader = NucleonElement<Resource<Rels.PaymentGatewaysHelper>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__paymentGatewaysLoaderId}`);
+  }
+
+  private get __transactionLoader() {
+    type Loader = NucleonElement<Resource<Rels.Transaction>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__transactionLoaderId}`);
+  }
+
+  private get __storeLoader() {
+    type Loader = NucleonElement<Resource<Rels.Store>>;
+    return this.renderRoot.querySelector<Loader>(`#${this.__storeLoaderId}`);
+  }
+
+  private get __currencyDisplay() {
+    const store = this.__storeLoader?.data;
+    return store ? (store.use_international_currency_symbol ? 'code' : 'symbol') : void 0;
+  }
+
+  private get __currencyCode() {
+    return this.__transactionLoader?.data?.currency_code;
+  }
+
+  private get __gatewayName() {
+    const type = this.data?.gateway_type;
+    if (type) {
+      const gateway = this.__paymentGatewaysLoader?.data?.values[type];
+      const hostedGateway = this.__hostedPaymentGatewaysLoader?.data?.values[type];
+      return gateway?.name ?? hostedGateway?.name;
+    }
   }
 }

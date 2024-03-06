@@ -32,7 +32,7 @@ function testInvalid(invalid: boolean) {
   return async (element: TestSessionSecret) => {
     if (element.disabled) return;
     element.updated(new Map([['value', '']]));
-    await element.updateComplete;
+    await element.requestUpdate();
     const refs = getRefs<Refs>(element);
     expect(refs.input).to.have.property('invalid', invalid);
   };

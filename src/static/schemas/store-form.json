@@ -89,7 +89,7 @@
         "v8n_required": { "type": "string", "default": "Please enter the domain of your store" },
         "v8n_too_long": {
           "type": "string",
-          "default": "Please use a domain that is 50 characters or less"
+          "default": "Please use a domain that is 100 characters or less"
         }
       },
       "required": [
@@ -112,7 +112,7 @@
         },
         "v8n_too_long": {
           "type": "string",
-          "default": "Please shorten this link to 100 characters of less"
+          "default": "Please shorten this link to 200 characters of less"
         }
       },
       "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
@@ -687,7 +687,7 @@
       "additionalProperties": false,
       "properties": {
         "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated" },
+        "date_modified": { "type": "string", "default": "Last updated on" },
         "date": { "type": "string", "default": "{{value, date}}" }
       },
       "required": ["date_created", "date_modified", "date"]

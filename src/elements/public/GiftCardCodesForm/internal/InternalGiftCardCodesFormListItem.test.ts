@@ -35,7 +35,7 @@ describe('GiftCardCodesForm', () => {
 
       element.addEventListener('fetch', evt => router.handleEvent(evt));
       element.href = 'https://demo.api/hapi/gift_card_codes?code=FOO123';
-      await element.updateComplete;
+      await element.requestUpdate();
 
       expect(element.shadowRoot).to.include.text('FOO123');
     });

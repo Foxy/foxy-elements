@@ -1,4 +1,4 @@
-import { Choice, Group, PropertyTable } from '../../private/index';
+import { Choice, Group, Metadata } from '../../private/index';
 import { Data, Templates, TextFieldParams } from './types';
 import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
 import { TemplateResult, html } from 'lit-html';
@@ -47,7 +47,7 @@ export class AttributeForm extends Base<Data> {
       'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
       'vaadin-text-field': customElements.get('vaadin-text-field'),
       'vaadin-text-area': customElements.get('vaadin-text-area'),
-      'x-property-table': PropertyTable,
+      'x-metadata': Metadata,
       'vaadin-button': customElements.get('vaadin-button'),
       'x-choice': Choice,
       'x-group': Group,
@@ -164,7 +164,7 @@ export class AttributeForm extends Base<Data> {
     return html`
       <div>
         ${this.renderTemplateOrSlot('timestamps:before')}
-        <x-property-table .items=${items} data-testid="timestamps"></x-property-table>
+        <x-metadata .items=${items} data-testid="timestamps"></x-metadata>
         ${this.renderTemplateOrSlot('timestamps:after')}
       </div>
     `;

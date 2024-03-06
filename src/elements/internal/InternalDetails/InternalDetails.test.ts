@@ -49,7 +49,7 @@ describe('InternalDetailsControl', () => {
     expect(details).to.have.property('open', false);
 
     control.open = true;
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(control).to.have.property('open', true);
     expect(details).to.have.property('open', true);
@@ -70,7 +70,7 @@ describe('InternalDetailsControl', () => {
     expect(label).to.have.property('key', '');
 
     control.summary = 'foo';
-    await control.updateComplete;
+    await control.requestUpdate();
 
     expect(label).to.have.property('infer', '');
     expect(label).to.have.property('key', 'foo');
