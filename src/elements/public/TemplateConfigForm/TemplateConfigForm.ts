@@ -55,6 +55,9 @@ const Base = ScopedElementsMixin(
  * @slot google-analytics:before
  * @slot google-analytics:after
  *
+ * @slot google-tag:before
+ * @slot google-tag:after
+ *
  * @slot troubleshooting:before
  * @slot troubleshooting:after
  *
