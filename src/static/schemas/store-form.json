@@ -347,7 +347,7 @@
         "placeholder": { "type": "string", "default": "https://example.com/thank-you" },
         "helper_text": {
           "type": "string",
-          "default": "By default, we send customers back to the page referrer after completing a purchase. Instead, you can set a specific URL here."
+          "default": "By default, the continue button on the receipt sends the customer to the store domain after completing a purchase. Instead, you can set a specific URL here."
         },
         "v8n_too_long": {
           "type": "string",

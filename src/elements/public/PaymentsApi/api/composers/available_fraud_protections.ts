@@ -85,7 +85,8 @@ export function compose(params: Params): AvailableFraudProtections {
                   id: 'failure_handling',
                   name: 'Failure handling',
                   type: 'select',
-                  description: 'Determines what happens to the checkout if your webhook fails.',
+                  description:
+                    'Determines what happens to the checkout submission if your webhook fails to respond correctly.',
                   default_value: '',
                   options: [
                     { name: 'Reject', value: 'reject' },

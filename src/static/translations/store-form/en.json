@@ -146,7 +146,7 @@
   "receipt-continue-url": {
     "label": "Return URL",
     "placeholder": "https://example.com/thank-you",
-    "helper_text": "By default, we send customers back to the page referrer after completing a purchase. Instead, you can set a specific URL here.",
+    "helper_text": "By default, the continue button on the receipt sends the customer to the store domain after completing a purchase. Instead, you can set a specific URL here.",
     "v8n_too_long": "Please use a URL that is 300 characters or less"
   },
   "app-session-time": {
