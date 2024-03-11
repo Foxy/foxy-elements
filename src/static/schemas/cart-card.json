@@ -2,12 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "line_1": { "type": "string", "default": "{{ count }} item • {{ amount, price }}" },
-    "line_1_plural": { "type": "string", "default": "{{ count }} items • {{ amount, price }}" },
-    "line_1_approximate": {
-      "type": "string",
-      "default": "At least 20 items • {{ amount, price }}"
-    },
+    "line_1": { "type": "string", "default": "ID {{ id }} • {{ amount, price }}" },
     "line_2_one": { "type": "string", "default": "{{ name }}" },
     "line_2_many": { "type": "string", "default": "{{ name }} + more" },
     "line_2_empty": { "type": "string", "default": "Empty cart" },
@@ -25,8 +20,6 @@
   },
   "required": [
     "line_1",
-    "line_1_plural",
-    "line_1_approximate",
     "line_2_one",
     "line_2_many",
     "line_2_empty",

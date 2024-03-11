@@ -1,7 +1,7 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
-import type { Resource } from '@foxy.io/sdk/core';
+import { getResourceId, Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 import type { Data } from './types';
 
@@ -48,7 +48,6 @@ export class CartCard extends Base<Data> {
   renderBody(): TemplateResult {
     const statusOptions = this.__statusOptions;
     const line1Options = this.__line1Options;
-    const line1Key = this.__line1Key;
     const line2Options = this.__line2Options;
     const line2Key = this.__line2Key;
     const data = this.data;
@@ -102,8 +101,8 @@ export class CartCard extends Base<Data> {
       <div class="text-left leading-s">
         <div class="flex items-center space-x-s">
           <span class="flex-1 font-medium text-body truncate">
-            ${line1Options && line1Key
-              ? html`<foxy-i18n infer="" key=${line1Key} .options=${line1Options}></foxy-i18n>`
+            ${line1Options
+              ? html`<foxy-i18n infer="" key="line_1" .options=${line1Options}></foxy-i18n>`
               : html`&ZeroWidthSpace;`}
           </span>
           <span class="text-s text-tertiary">
@@ -261,12 +260,15 @@ export class CartCard extends Base<Data> {
     const count = this.__items?.count;
     if (count === undefined) return;
 
-    return { amount: `${totalOrder} ${currencyCode}`, currencyDisplay, count };
-  }
+    const href = this.data?._links['self'].href;
+    if (href === undefined) return;
 
-  private get __line1Key() {
-    const items = this.__items;
-    if (items) return items.isApproximateCount ? 'line_1_approximate' : 'line_1';
+    return {
+      currencyDisplay,
+      amount: `${totalOrder} ${currencyCode}`,
+      count,
+      id: getResourceId(href),
+    };
   }
 
   private get __line2Options() {

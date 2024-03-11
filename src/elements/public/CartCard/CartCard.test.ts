@@ -46,64 +46,6 @@ describe('CartCard', () => {
     expect(new CartCard()).to.be.instanceOf(InternalCard);
   });
 
-  it('renders exact item count in line 1 when items are embedded', async () => {
-    type Items = Resource<Rels.Items>;
-    type Cart = Resource<Rels.Cart, { zoom: 'items' }>;
-
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/carts/0?zoom=items';
-    const data = await getTestData<Cart>(href);
-    const items = await getTestData<Items>(data._links['fx:items'].href);
-
-    const element = await fixture<CartCard>(html`
-      <foxy-cart-card
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-card>
-    `);
-
-    data._embedded['fx:items'] = [items._embedded['fx:items'][0]];
-    element.data = data;
-
-    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-
-    const line1 = await getByKey(element, 'line_1');
-
-    expect(line1).to.exist;
-    expect(line1).to.have.attribute('infer', '');
-    expect(line1).to.have.nested.property('options.count', 1);
-  });
-
-  it('renders approximate item count in line 1 when exactly 20 items are embedded', async () => {
-    type Items = Resource<Rels.Items>;
-    type Cart = Resource<Rels.Cart, { zoom: 'items' }>;
-
-    const router = createRouter();
-    const href = 'https://demo.api/hapi/carts/0?zoom=items';
-    const data = await getTestData<Cart>(href);
-    const items = await getTestData<Items>(data._links['fx:items'].href);
-
-    const element = await fixture<CartCard>(html`
-      <foxy-cart-card
-        locale-codes="https://demo.api/hapi/property_helpers/7"
-        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
-      >
-      </foxy-cart-card>
-    `);
-
-    data._embedded['fx:items'] = new Array(20).fill(items._embedded['fx:items'][0]);
-    element.data = data;
-
-    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
-
-    const line1 = await getByKey(element, 'line_1_approximate');
-
-    expect(line1).to.exist;
-    expect(line1).to.have.attribute('infer', '');
-    expect(line1).to.have.nested.property('options.count', 20);
-  });
-
   it('uses store-wide currency display settings for line 1 (intl symbol: true)', async () => {
     const router = createRouter();
     const href = 'https://demo.api/hapi/carts/0';
@@ -162,7 +104,7 @@ describe('CartCard', () => {
     expect(line1).to.have.nested.property('options.currencyDisplay', 'symbol');
   });
 
-  it('renders cart total in line 1', async () => {
+  it('renders cart ID and total in line 1', async () => {
     const router = createRouter();
     const href = 'https://demo.api/hapi/carts/0';
     const data = await getTestData<Data & { currency_code?: string }>(href);
@@ -183,6 +125,7 @@ describe('CartCard', () => {
     expect(line1).to.exist;
     expect(line1).to.have.attribute('infer', '');
     expect(line1).to.have.nested.property('options.amount');
+    expect(line1).to.have.nested.property('options.id', 0);
 
     expect(line1.options.amount.split(' ')[0]).to.equal(String(data.total_order));
   });
