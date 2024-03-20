@@ -10,6 +10,7 @@ import { getByTag } from '../../../testgen/getByTag';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { unsafeHTML } from 'lit-html/directives/unsafe-html';
+import { getByKey } from '../../../testgen/getByKey';
 
 describe('SubscriptionCard', () => {
   const OriginalResizeObserver = window.ResizeObserver;
@@ -192,6 +193,21 @@ describe('SubscriptionCard', () => {
     expect(control).to.have.attribute('lang', 'es');
     expect(control).to.have.attribute('key', 'price_twice_a_month');
     expect(control).to.have.attribute('ns', 'subscription-card');
+  });
+
+  it('once loaded, renders a hint about fees and taxes included in the price', async () => {
+    const href = './hapi/subscriptions/0?zoom=transaction_template:items';
+    const data = await getTestData<Data>(href);
+    const layout = html`<foxy-subscription-card lang="es" .data=${data}></foxy-subscription-card>`;
+    const element = await fixture<SubscriptionCard>(layout);
+    const hint = await getByKey(element, 'fees_hint');
+    const explainer = await getByKey(element, 'fees_explainer');
+
+    expect(hint).to.exist;
+    expect(hint).to.have.attribute('infer', '');
+
+    expect(explainer).to.exist;
+    expect(explainer).to.have.attribute('infer', '');
   });
 
   it('renders empty foxy-spinner by default', async () => {
