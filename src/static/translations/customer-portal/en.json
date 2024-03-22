@@ -26,6 +26,28 @@
     "undo_header": "Unsaved changes",
     "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
     "update": "Update",
+    "transactions-table": {
+      "date": "{{value, date}}",
+      "price": "{{amount, price}}",
+      "receipt": "Receipt",
+      "transaction_approved": "Approved",
+      "transaction_authorized": "Authorized",
+      "transaction_captured": "Captured",
+      "transaction_completed": "Completed",
+      "transaction_declined": "Declined",
+      "transaction_pending": "Pending",
+      "transaction_refunded": "Refunded",
+      "transaction_rejected": "Rejected",
+      "transaction_summary": "{{most_expensive_item.name}}",
+      "transaction_summary_plural": "{{most_expensive_item.name}} and {{count_minus_one}} more",
+      "transaction_verified": "Verified",
+      "transaction_voided": "Voided",
+      "spinner": {
+        "loading_busy": "Loading",
+        "loading_empty": "No data",
+        "loading_error": "Failed to load"
+      }
+    },
     "address-card": {
       "default_billing_address": "Default billing address",
       "default_shipping_address": "Default shipping address",

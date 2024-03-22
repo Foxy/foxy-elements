@@ -61,6 +61,56 @@
           "default": "Looks like you didn't save your changes! What would you like to do with them?"
         },
         "update": { "type": "string", "default": "Update" },
+        "transactions-table": {
+          "additionalProperties": false,
+          "properties": {
+            "date": { "type": "string", "default": "{{value, date}}" },
+            "price": { "type": "string", "default": "{{amount, price}}" },
+            "receipt": { "type": "string", "default": "Receipt" },
+            "transaction_approved": { "type": "string", "default": "Approved" },
+            "transaction_authorized": { "type": "string", "default": "Authorized" },
+            "transaction_captured": { "type": "string", "default": "Captured" },
+            "transaction_completed": { "type": "string", "default": "Completed" },
+            "transaction_declined": { "type": "string", "default": "Declined" },
+            "transaction_pending": { "type": "string", "default": "Pending" },
+            "transaction_refunded": { "type": "string", "default": "Refunded" },
+            "transaction_rejected": { "type": "string", "default": "Rejected" },
+            "transaction_summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
+            "transaction_summary_plural": {
+              "type": "string",
+              "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
+            },
+            "transaction_verified": { "type": "string", "default": "Verified" },
+            "transaction_voided": { "type": "string", "default": "Voided" },
+            "spinner": {
+              "additionalProperties": false,
+              "properties": {
+                "loading_busy": { "type": "string", "default": "Loading" },
+                "loading_empty": { "type": "string", "default": "No data" },
+                "loading_error": { "type": "string", "default": "Failed to load" }
+              },
+              "required": ["loading_busy", "loading_empty", "loading_error"]
+            }
+          },
+          "required": [
+            "date",
+            "price",
+            "receipt",
+            "transaction_approved",
+            "transaction_authorized",
+            "transaction_captured",
+            "transaction_completed",
+            "transaction_declined",
+            "transaction_pending",
+            "transaction_refunded",
+            "transaction_rejected",
+            "transaction_summary",
+            "transaction_summary_plural",
+            "transaction_verified",
+            "transaction_voided",
+            "spinner"
+          ]
+        },
         "address-card": {
           "additionalProperties": false,
           "properties": {
@@ -1943,6 +1993,7 @@
         "undo_header",
         "undo_message",
         "update",
+        "transactions-table",
         "address-card",
         "address-form",
         "customer-form",
