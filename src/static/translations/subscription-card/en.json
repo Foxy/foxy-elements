@@ -14,6 +14,8 @@
   "subscription_will_be_cancelled": "Ends on {{date, date}}",
   "subscription_will_be_active": "Starts on {{date, date}}",
   "transaction_summary": "{{most_expensive_item.name}}",
+  "fees_hint": "inc. shipping, taxes, etc.",
+  "fees_explainer": "Taxes, shipping, and discounts may change the amount charged.",
   "twice_a_month": "Twice a month",
   "weekly": "Weekly",
   "weekly_plural": "Every {{count}} weeks",

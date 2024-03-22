@@ -1656,12 +1656,30 @@
           "type": "string",
           "default": "{{amount, price}} $t(subscription-form.twice_a_month, { \"ns\": \"customer\" })"
         },
-        "subscription_active": { "type": "string", "default": "Next payment on {{date, date}}" },
-        "subscription_cancelled": { "type": "string", "default": "Ended on {{date, date}}" },
-        "subscription_failed": { "type": "string", "default": "Payment failed on {{date, date}}" },
-        "subscription_inactive": { "type": "string", "default": "Inactive" },
-        "subscription_will_be_cancelled": { "type": "string", "default": "Ends on {{date, date}}" },
-        "subscription_will_be_active": { "type": "string", "default": "Starts on {{date, date}}" },
+        "subscription_active": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Next payment on {{date, date}}."
+        },
+        "subscription_cancelled": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Ended on {{date, date}}."
+        },
+        "subscription_failed": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Payment failed on {{date, date}}."
+        },
+        "subscription_inactive": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Inactive."
+        },
+        "subscription_will_be_cancelled": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Ends on {{date, date}}."
+        },
+        "subscription_will_be_active": {
+          "type": "string",
+          "default": "Including shipping, taxes, etc. Starts on {{date, date}}."
+        },
         "transaction_plural": { "type": "string", "default": "Transactions" },
         "twice_a_month": { "type": "string", "default": "Twice a month" },
         "undo_cancel": { "type": "string", "default": "Review" },

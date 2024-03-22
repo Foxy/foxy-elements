@@ -19,6 +19,7 @@ import { TranslatableMixin } from '../../../mixins/translatable';
 import { classMap } from '../../../utils/class-map';
 import { getDefaultJSON } from './defaults';
 import { live } from 'lit-html/directives/live';
+import { BooleanSelector } from '@foxy.io/sdk/core';
 
 const NS = 'template-config-form';
 const Base = ScopedElementsMixin(
@@ -54,6 +55,9 @@ const Base = ScopedElementsMixin(
  *
  * @slot google-analytics:before
  * @slot google-analytics:after
+ *
+ * @slot google-tag:before
+ * @slot google-tag:after
  *
  * @slot troubleshooting:before
  * @slot troubleshooting:after
@@ -209,6 +213,17 @@ export class TemplateConfigForm extends Base<Data> {
         </div>
       </div>
     `;
+  }
+
+  get hiddenSelector(): BooleanSelector {
+    const alwaysHidden = [super.hiddenSelector.toString()];
+    const json: TemplateConfigJSON = this.data?.json ? JSON.parse(this.data.json) : null;
+
+    if (!json || json.analytics_config.google_analytics.usage === 'none') {
+      alwaysHidden.push('google-analytics');
+    }
+
+    return new BooleanSelector(alwaysHidden.join(' ').trim());
   }
 
   private __renderCartType(json: TemplateConfigJSON) {

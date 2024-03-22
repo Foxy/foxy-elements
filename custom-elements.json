@@ -18682,39 +18682,15 @@
     {
       "name": "foxy-payment-card",
       "path": "./src/elements/public/PaymentCard/index.ts",
-      "description": "Basic card displaying a payment.\n\nNote: payment gateway names need to be loaded separately. You can obtain\nthem from `fx:property_helpers` using your own Backend API proxy or just hardcode the values\nyou need. Once you have the gateway names, call `I18n.setGateways(names)`.",
+      "description": "Basic card displaying a payment resource (`fx:payment`).",
       "attributes": [
         {
-          "name": "mode",
-          "type": "string",
-          "default": "\"production\""
+          "name": "hosted-payment-gateways-helper",
+          "description": "URL of the `fx:hosted_payment_gateways` property helper resource."
         },
         {
-          "name": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddencontrols",
-          "default": "\"False\""
+          "name": "payment-gateways-helper",
+          "description": "URL of the `fx:payment_gateways` property helper resource."
         },
         {
           "name": "ns",
@@ -18757,60 +18733,14 @@
       ],
       "properties": [
         {
-          "name": "templates",
-          "type": "Templates",
-          "default": "{}"
+          "name": "hostedPaymentGatewaysHelper",
+          "attribute": "hosted-payment-gateways-helper",
+          "description": "URL of the `fx:hosted_payment_gateways` property helper resource."
         },
         {
-          "name": "mode",
-          "attribute": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "attribute": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlyControls",
-          "attribute": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "attribute": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledControls",
-          "attribute": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "attribute": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddenControls",
-          "attribute": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "readonlySelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "disabledSelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "hiddenSelector",
-          "type": "BooleanSelector"
+          "name": "paymentGatewaysHelper",
+          "attribute": "payment-gateways-helper",
+          "description": "URL of the `fx:payment_gateways` property helper resource."
         },
         {
           "name": "ns",
@@ -18822,6 +18752,10 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",
@@ -18909,38 +18843,6 @@
         {
           "name": "fetch",
           "description": "Instance of `NucleonElement.API.FetchEvent`. Emitted before each API request."
-        }
-      ],
-      "slots": [
-        {
-          "name": "title:before"
-        },
-        {
-          "name": "title:after"
-        },
-        {
-          "name": "subtitle:before"
-        },
-        {
-          "name": "subtitle:after"
-        },
-        {
-          "name": "card-info:before"
-        },
-        {
-          "name": "card-info:after"
-        },
-        {
-          "name": "fraud-risk:before"
-        },
-        {
-          "name": "fraud-risk:after"
-        },
-        {
-          "name": "processor-response:before"
-        },
-        {
-          "name": "processor-response:after"
         }
       ]
     },
@@ -21716,40 +21618,8 @@
     {
       "name": "foxy-shipment-card",
       "path": "./src/elements/public/ShipmentCard/index.ts",
-      "description": "Basic card displaying a shipment.",
+      "description": "Basic card displaying a shipment (`fx:shipment`).",
       "attributes": [
-        {
-          "name": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddencontrols",
-          "default": "\"False\""
-        },
         {
           "name": "ns",
           "type": "string",
@@ -21790,61 +21660,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "templates",
-          "default": "{}"
-        },
-        {
-          "name": "mode",
-          "attribute": "mode",
-          "type": "string",
-          "default": "\"production\""
-        },
-        {
-          "name": "readonly",
-          "attribute": "readonly",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "readonlyControls",
-          "attribute": "readonlycontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "disabled",
-          "attribute": "disabled",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "disabledControls",
-          "attribute": "disabledcontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "hidden",
-          "attribute": "hidden",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "hiddenControls",
-          "attribute": "hiddencontrols",
-          "default": "\"False\""
-        },
-        {
-          "name": "readonlySelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "disabledSelector",
-          "type": "BooleanSelector"
-        },
-        {
-          "name": "hiddenSelector",
-          "type": "BooleanSelector"
-        },
         {
           "name": "ns",
           "attribute": "ns",
@@ -26035,6 +25850,12 @@
           "name": "google-analytics:after"
         },
         {
+          "name": "google-tag:before"
+        },
+        {
+          "name": "google-tag:after"
+        },
+        {
           "name": "troubleshooting:before"
         },
         {
@@ -26931,6 +26752,14 @@
       "description": "Transaction summary page (`fx:transaction`).",
       "attributes": [
         {
+          "name": "hosted-payment-gateways-helper",
+          "description": "URL of the `fx:hosted_payment_gateways` property helper resource."
+        },
+        {
+          "name": "payment-gateways-helper",
+          "description": "URL of the `fx:payment_gateways` property helper resource."
+        },
+        {
           "name": "ns",
           "type": "string",
           "default": "\"defaultNS\""
@@ -27007,6 +26836,16 @@
         }
       ],
       "properties": [
+        {
+          "name": "hostedPaymentGatewaysHelper",
+          "attribute": "hosted-payment-gateways-helper",
+          "description": "URL of the `fx:hosted_payment_gateways` property helper resource."
+        },
+        {
+          "name": "paymentGatewaysHelper",
+          "attribute": "payment-gateways-helper",
+          "description": "URL of the `fx:payment_gateways` property helper resource."
+        },
         {
           "name": "getSubscriptionPageHref"
         },
@@ -27323,6 +27162,10 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      const keys = [\\n        ...this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`),\\n        `shared:${key}`,\\n      ];\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "isBodyReady",
+          "type": "boolean"
         },
         {
           "name": "UpdateEvent",

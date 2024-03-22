@@ -692,4 +692,50 @@ describe('AdminSubscriptionCard', () => {
 
     expect(element.renderRoot).to.include.text('test@test-remote.com');
   });
+
+  it('renders customer name in line 3 from embedded fx:customer', async () => {
+    type Subscription = Resource<Rels.Subscription, { zoom: ['customer'] }>;
+
+    const router = createRouter();
+    const href = 'https://demo.api/hapi/subscriptions/0?zoom=customer';
+    const data = await getTestData<Subscription>(href, router);
+
+    const element = await fixture<Card>(html`
+      <foxy-admin-subscription-card
+        locale-codes="https://demo.api/hapi/property_helpers/7"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-card>
+    `);
+
+    data._embedded['fx:customer'].first_name = 'Test';
+    data._embedded['fx:customer'].last_name = 'User';
+    element.data = data;
+
+    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
+    expect(element.renderRoot).to.include.text('Test User');
+  });
+
+  it('renders customer name in line 3 from remote fx:customer', async () => {
+    const router = createRouter();
+    const href = 'https://demo.api/hapi/subscriptions/0';
+    const data = await getTestData<Resource<Rels.Subscription>>(href, router);
+
+    const element = await fixture<Card>(html`
+      <foxy-admin-subscription-card
+        locale-codes="https://demo.api/hapi/property_helpers/7"
+        href=${href}
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-admin-subscription-card>
+    `);
+
+    await new Card.API(element).fetch(data._links['fx:customer'].href, {
+      method: 'PATCH',
+      body: JSON.stringify({ first_name: 'Test', last_name: 'User' }),
+    });
+
+    await waitUntil(() => element.isBodyReady, '', { timeout: 5000 });
+    expect(element.renderRoot).to.include.text('Test User');
+  });
 });

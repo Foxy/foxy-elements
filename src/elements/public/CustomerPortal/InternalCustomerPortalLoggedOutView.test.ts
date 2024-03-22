@@ -731,8 +731,6 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         expect(form).to.have.attribute('group', 'test');
         expect(form).to.have.attribute('lang', 'es');
         expect(form).to.have.attribute('ns', 'qwerty sign-up-form');
-        expect(form).to.have.deep.property('tosCheckboxSettings', undefined);
-        expect(form).to.have.deep.property('verification', null);
         expect(form).to.have.deep.property('templates', {});
         expect(form).to.have.deep.property('settings', null);
 
@@ -747,16 +745,6 @@ describe('InternalCustomerPortalLoggedOutView', () => {
         await element.requestUpdate();
 
         expect(form).to.have.deep.property('settings', element.data);
-
-        expect(form).to.have.deep.property(
-          'tosCheckboxSettings',
-          element.data?.tos_checkbox_settings
-        );
-
-        expect(form).to.have.deep.property('verification', {
-          type: 'hcaptcha',
-          siteKey: element.data?.sign_up?.verification.site_key,
-        });
 
         element.templates = {
           'sign-up:form:email:before': html => html`foo`,

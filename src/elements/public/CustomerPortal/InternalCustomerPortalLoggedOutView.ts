@@ -339,7 +339,6 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
   };
 
   private readonly __renderSignUpForm = () => {
-    const siteKey = this.data?.sign_up?.verification.site_key;
     const scope = 'sign-up:form';
     const hidden = [
       'tax-id',
@@ -365,8 +364,6 @@ export class InternalCustomerPortalLoggedOutView extends Base<Data> {
           lang=${this.lang}
           id="sign-up-form"
           ns="${this.ns} sign-up-form"
-          .tosCheckboxSettings=${this.data?.tos_checkbox_settings}
-          .verification=${siteKey ? { type: 'hcaptcha', siteKey } : null}
           .templates=${this.getNestedTemplates('sign-up:form')}
           .settings=${this.data}
           @update=${() => this.requestUpdate()}
