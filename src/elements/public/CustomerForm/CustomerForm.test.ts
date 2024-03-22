@@ -417,12 +417,13 @@ describe('CustomerForm', () => {
     });
   });
 
-  it('makes customer type switch readonly when editing existing customer', async () => {
+  it('hides customer type switch when editing existing customer', async () => {
     const form = await fixture<CustomerForm>(html`<foxy-customer-form></foxy-customer-form>`);
-    expect(form.readonlySelector.matches('is-anonymous', true)).to.be.false;
+    expect(form.hiddenSelector.matches('is-anonymous', true)).to.be.false;
 
     form.data = await getTestData<Data>('./hapi/customers/0');
-    expect(form.readonlySelector.matches('is-anonymous', true)).to.be.true;
+    await form.requestUpdate();
+    expect(form.hiddenSelector.matches('is-anonymous', true)).to.be.true;
   });
 
   it('hides one-time password field in customer mode or for guest customers in admin mode', async () => {
