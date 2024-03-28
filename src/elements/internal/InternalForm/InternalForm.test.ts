@@ -1,7 +1,9 @@
+import { ButtonElement } from '@vaadin/vaadin-button';
 import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { html, render } from 'lit-html';
-import { spy } from 'sinon';
+import { spy, stub } from 'sinon';
 import { createRouter } from '../../../server/index';
+import { getByKey } from '../../../testgen/getByKey';
 import { getByTestId } from '../../../testgen/getByTestId';
 import { getTestData } from '../../../testgen/getTestData';
 import { FetchEvent } from '../../public/NucleonElement/FetchEvent';
@@ -127,6 +129,29 @@ describe('InternalForm', () => {
     expect(spinnerWrapper).not.to.have.class('opacity-0');
     expect(spinner).to.have.attribute('state', 'error');
     expect(spinner).to.have.attribute('infer', 'spinner');
+  });
+
+  it('renders Refresh button if loading data fails', async () => {
+    const router = createRouter();
+    const layout = html`
+      <foxy-internal-form
+        href="https://demo.api/virtual/empty?status=404"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-internal-form>
+    `;
+
+    const element = await fixture<InternalForm<any>>(layout);
+    await waitUntil(() => element.in('fail'), undefined, { timeout: 5000 });
+
+    const caption = await getByKey(element, 'refresh');
+    expect(caption).to.exist;
+    expect(caption).to.have.attribute('infer', 'spinner');
+
+    const button = caption!.closest('vaadin-button') as ButtonElement;
+    const refreshStub = stub(element, 'refresh');
+    button.click();
+    expect(refreshStub).to.have.been.called;
   });
 
   it('hides spinner once loaded', async () => {

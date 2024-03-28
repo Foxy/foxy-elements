@@ -1,12 +1,20 @@
 {
-  "email": "Email",
-  "recover_access": "Get temporary password",
-  "recover_access_success": "Done! Please check your email for further instructions.",
-  "unknown_error": "An unknown error has occured. Please try again later.",
-  "v8n_invalid_email": "Invalid email",
-  "v8n_required": "Required",
+  "email": {
+    "label": "Email",
+    "placeholder": "",
+    "helper_text": "",
+    "v8n_required": "Required",
+    "v8n_invalid": "Invalid email"
+  },
+  "status": {
+    "success": "Done! Please check your email for further instructions.",
+    "close": "Close"
+  },
+  "submit": {
+    "create": "Get temporary password"
+  },
   "spinner": {
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

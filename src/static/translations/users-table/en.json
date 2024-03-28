@@ -11,9 +11,10 @@
   "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
   "update": "Update",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   },
   "user-form": {
     "backend_developer": "Backend developer",
@@ -37,8 +38,9 @@
     "v8n_required": "Required",
     "v8n_too_long": "Too long",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   }
 }

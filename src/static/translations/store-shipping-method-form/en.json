@@ -67,7 +67,7 @@
     "pagination": "{{from}}-{{to}} out of {{total}}",
     "previous": "Previous",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load",
+    "loading_error": "Unknown error",
     "international_only": "– international only"
   },
   "timestamps": {
@@ -84,7 +84,8 @@
     "create": "Create"
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

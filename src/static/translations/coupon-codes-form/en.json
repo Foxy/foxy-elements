@@ -9,12 +9,13 @@
   "import": "Import",
   "import_codes_done": "All done! We've imported your codes into the system.",
   "loading_busy": "Loading",
-  "loading_error": "Failed to load",
+  "loading_error": "Unknown error",
   "type_here": "Type here...",
   "unique": "Unique",
   "v8n_required": "Required",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

@@ -3,8 +3,9 @@
   "undo_button": "Undo",
   "save_button": "Save",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
     "loading_empty": "No data",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

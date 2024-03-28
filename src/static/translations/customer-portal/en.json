@@ -9,8 +9,9 @@
     "v8n_invalid_email": "Invalid email",
     "v8n_required": "Required",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "customer": {
@@ -43,9 +44,10 @@
       "transaction_verified": "Verified",
       "transaction_voided": "Voided",
       "spinner": {
+        "refresh": "Refresh",
         "loading_busy": "Loading",
         "loading_empty": "No data",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "address-card": {
@@ -57,7 +59,7 @@
         "loading_busy": "Loading",
         "loading_empty": "No addresses",
         "loading_end": "No more data",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "address-form": {
@@ -660,8 +662,9 @@
       "country_zm": "Zambia",
       "country_zw": "Zimbabwe",
       "spinner": {
+        "refresh": "Refresh",
         "loading_busy": "Loading",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "customer-form": {
@@ -723,8 +726,9 @@
         "date": "{{value, date}}"
       },
       "spinner": {
+        "refresh": "Refresh",
         "loading_busy": "Loading",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "payment-method-card": {
@@ -734,12 +738,13 @@
       "spinner": {
         "loading_busy": "Loading",
         "loading_empty": "No payment methods",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     },
     "subscription-card": {
       "daily": "/ day",
@@ -767,7 +772,7 @@
         "loading_busy": "Loading",
         "loading_empty": "No subscriptions",
         "loading_end": "No more data",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     },
     "subscription-form": {
@@ -835,9 +840,10 @@
             "yearly_plural": "Every {{count}} years",
             "price": "{{amount, price}}",
             "spinner": {
+              "refresh": "Refresh",
               "loading_busy": "Loading",
               "loading_empty": "No items",
-              "loading_error": "Failed to load"
+              "loading_error": "Unknown error"
             }
           }
         }
@@ -880,14 +886,15 @@
             "spinner": {
               "loading_busy": "Loading",
               "loading_empty": "No transactions",
-              "loading_error": "Failed to load"
+              "loading_error": "Unknown error"
             }
           }
         }
       },
       "spinner": {
+        "refresh": "Refresh",
         "loading_busy": "Loading",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     }
   },
@@ -903,8 +910,9 @@
     "v8n_invalid_email": "Invalid email",
     "v8n_required": "Required",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "sign-up-form": {
@@ -952,8 +960,9 @@
       "create": "Create account"
     },
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   }
 }

@@ -57,7 +57,7 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
       <div aria-busy=${this.in('busy')} aria-live="polite" class="relative">
         <div
           class=${classMap({
-            'grid grid-cols-1 gap-m': true,
+            'space-y-m': true,
             'transition-opacity': true,
             'opacity-0 pointer-events-none': isSpinnerVisible,
           })}
@@ -69,17 +69,24 @@ export class InternalForm<TData extends HALJSONResource> extends Base<TData> {
         <div
           data-testid="spinner"
           class=${classMap({
-            'transition-opacity absolute inset-0 flex': true,
+            'flex flex-col items-center justify-center gap-m': true,
+            'transition-opacity absolute inset-0': true,
             'opacity-0 pointer-events-none': !isSpinnerVisible,
           })}
         >
           <foxy-spinner
             layout=${this.in('fail') ? 'vertical' : 'no-label'}
-            class="m-auto"
             state=${this.in('fail') ? 'error' : 'busy'}
             infer="spinner"
           >
           </foxy-spinner>
+          ${this.href && this.in('fail')
+            ? html`
+                <vaadin-button theme="small contrast" @click=${() => this.refresh()}>
+                  <foxy-i18n infer="spinner" key="refresh"></foxy-i18n>
+                </vaadin-button>
+              `
+            : ''}
         </div>
       </div>
     `;

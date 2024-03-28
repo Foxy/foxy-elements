@@ -25,7 +25,7 @@
       "default": "All done! We've imported your codes into the system."
     },
     "loading_busy": { "type": "string", "default": "Loading" },
-    "loading_error": { "type": "string", "default": "Failed to load" },
+    "loading_error": { "type": "string", "default": "Unknown error" },
     "type_here": { "type": "string", "default": "Type here..." },
     "unique": { "type": "string", "default": "Unique" },
     "v8n_negative": { "type": "string", "default": "Negative values are not allowed" },
@@ -33,10 +33,11 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_error"]
     }
   },
   "required": [

@@ -8,6 +8,6 @@
   "spinner": {
     "loading_busy": "Loading",
     "loading_empty": "No shipments",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

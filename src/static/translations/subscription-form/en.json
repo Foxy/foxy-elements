@@ -43,7 +43,7 @@
     "label": "Customer",
     "spinner": {
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "past-due-amount": {
@@ -69,7 +69,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No attributes",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     },
@@ -99,8 +99,9 @@
       "visibility_public": "Everyone",
       "visibility_restricted": "Store admins",
       "spinner": {
+        "refresh": "Refresh",
         "loading_busy": "Loading",
-        "loading_error": "Failed to load"
+        "loading_error": "Unknown error"
       }
     }
   },
@@ -129,7 +130,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No items",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -172,7 +173,7 @@
         "spinner": {
           "loading_busy": "Loading",
           "loading_empty": "No transactions",
-          "loading_error": "Failed to load"
+          "loading_error": "Unknown error"
         }
       }
     }
@@ -183,13 +184,15 @@
     "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
     "v8n_required": "Required",
     "spinner": {
+      "refresh": "Refresh",
       "loading_busy": "Loading",
-      "loading_error": "Failed to load"
+      "loading_error": "Unknown error"
     }
   },
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   },
   "timestamps": {
     "date_created": "Created on",

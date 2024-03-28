@@ -19,7 +19,8 @@
   "clipboard_source_label": "Source",
   "clipboard_source_placeholder": "Enter your template markup here",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

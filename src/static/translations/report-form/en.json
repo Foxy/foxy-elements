@@ -32,7 +32,8 @@
   "start": "Start",
   "use_precise_time": "Use precise time",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }

@@ -41,7 +41,7 @@
       "properties": {
         "loading_busy": { "type": "string", "default": "Loading" },
         "loading_empty": { "type": "string", "default": "No data" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
       "required": ["loading_busy", "loading_empty", "loading_error"]
     }

@@ -32,7 +32,8 @@
   "v8n_required": "Required",
   "v8n_too_long": "Too long",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
-    "loading_error": "Failed to load"
+    "loading_error": "Unknown error"
   }
 }
