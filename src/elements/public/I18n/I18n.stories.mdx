@@ -57,14 +57,14 @@ addEventListener('fetch', (event: Event) => {
 
 Whenever I18n element needs to load translations for a language or a namespace, it dispatches the `fetch` event on `window`, requesting a resource at a special URL formatted as `foxy://i18n/NAMESPACE/LANGUAGE` (e.g. `foxy://i18n/shared/en`). We can then rewrite that URL, use mock data or get translations from a local cache if we like. Once loaded, i18next will make those translations avaialable to every `<foxy-i18n>` element on the page. Let's render something from the shared i18n file that comes with Foxy Elements:
 
-<Canvas mdxSource='<foxy-i18n key="first_name"></foxy-i18n>' isExpanded>
-  <Story name="With key">{() => html`<foxy-i18n key="first_name"></foxy-i18n>`}</Story>
+<Canvas mdxSource='<foxy-i18n key="demo_key"></foxy-i18n>' isExpanded>
+  <Story name="With key">{() => html`<foxy-i18n key="demo_key"></foxy-i18n>`}</Story>
 </Canvas>
 
 Cool! Let's see what it looks like in Spanish by setting the [lang attribute](https://developer.mozilla.org/en/docs/Web/HTML/Global_attributes/lang):
 
-<Canvas mdxSource='<foxy-i18n key="first_name" lang="es"></foxy-i18n>' isExpanded>
-  <Story name="With lang">{() => html`<foxy-i18n key="first_name" lang="es"></foxy-i18n>`}</Story>
+<Canvas mdxSource='<foxy-i18n key="demo_key" lang="es"></foxy-i18n>' isExpanded>
+  <Story name="With lang">{() => html`<foxy-i18n key="demo_key" lang="es"></foxy-i18n>`}</Story>
 </Canvas>
 
 How about some country names? We don't always need them, so placing them in the main translation file is a bit uneffective. A separate namespace works much better for such use cases:
@@ -73,14 +73,52 @@ How about some country names? We don't always need them, so placing them in the 
   <Story name="With ns">{() => html`<foxy-i18n key="GB" ns="country"></foxy-i18n>`}</Story>
 </Canvas>
 
+You can specify paths to get nested values. In the example below, `foxy-i18n` will load a corresponding file for the `demo` namespace and will look for a nested value at this path: `one.two.three`.
+
+```html
+<foxy-i18n key="one.two.three" ns="demo"></foxy-i18n>
+```
+
+You can also specify multiple namespaces to look for a key in each one of them. In the example below, `foxy-i18n` will load files for namespaces `one`, `two`, `three` and `shared`. Then, it will look for the value of `two.three.demo` in namespace called `one`, value of `three.demo` in namespace `two` and value of `demo` in namespaces `three` and `shared`. The first value found will be displayed.
+
+```html
+<foxy-i18n key="demo" ns="one two three"></foxy-i18n>
+```
+
+This is useful when building customizable forms with nested controls because developers can override the translations at any level. For situations when you're overriding the translations only at the top level, you can skip loading extra namespaces by setting the `simplify-ns-loading` attribute:
+
+```html
+<foxy-i18n key="demo" ns="one two three" simplify-ns-loading></foxy-i18n>
+```
+
+The example above will load only `one` and `shared` namespaces. Then it will look for the value of `two.three.demo` in namespace called `one` and the value of `demo` in `shared`.
+
+To make things even easier when building complex forms, use the `infer` attribute on nested `foxy-i18n` elements and elements with `TranslatableMixin`. This will automatically infer the language, namespace and loading settings from the closest parent element:
+
+```html
+<my-translatable-form lang="en" ns="foo bar" simplify-ns-loading>
+  <foxy-i18n infer="" key="demo"></foxy-i18n>
+</my-translatable-form>
+```
+
+In the example above `foxy-i18n` will load namespaces `foo` and `shared`. Then it will look for the value of `bar.demo` in `foo` and the value of `demo` in `shared`, displaying the one it encounters first. You can add namespaces to the `infer` attribute for more nesting:
+
+```html
+<my-translatable-form lang="en" ns="foo bar" simplify-ns-loading>
+  <foxy-i18n infer="baz" key="demo"></foxy-i18n>
+</my-translatable-form>
+```
+
+In this example `foxy-i18n` will look for the value of `baz.bar.demo` in `foo`. If we omit `simplify-ns-loading` attribute on the form, `foxy-i18n` will download the translation file for `baz` as well.
+
 Finally, let's pass some [options](https://www.i18next.com/translation-function/essentials#overview-options) to our I18n element. For example, to display a date:
 
 <Canvas
-  mdxSource={`<foxy-i18n key="date" options='{"value":"2021-03-14"}'></foxy-i18n>`}
+  mdxSource={`<foxy-i18n key="demo_date" options='{"value":"2021-03-14"}'></foxy-i18n>`}
   isExpanded
 >
   <Story name="With options">
-    {() => html`<foxy-i18n key="date" options='{"value":"2021-03-14"}'></foxy-i18n>`}
+    {() => html`<foxy-i18n key="demo_date" options='{"value":"2021-03-14"}'></foxy-i18n>`}
   </Story>
 </Canvas>
 

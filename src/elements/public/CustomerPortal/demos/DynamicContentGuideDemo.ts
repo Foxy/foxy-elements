@@ -68,7 +68,7 @@ class PromoElement extends LitElement {
 customElements.define('demo-promo', PromoElement);
 
 export const DynamicContentGuideDemo = (): TemplateResult => html`
-  <foxy-customer-portal base="https://demo.api/portal/">
+  <foxy-customer-portal base="https://demo.api/portal/" simplify-ns-loading>
     <template slot="customer:header:after">
       <demo-promo email="\${host.data.email}" style="margin: var(--lumo-space-m) 0"></demo-promo>
     </template>

@@ -50,6 +50,7 @@ export function getStory(params: Params): Story {
           ?readonly=\${args.readonly}
           ?hidden=\${args.hidden}
           class="foxy-story__preview"
+          simplify-ns-loading
         >
           ${allControls
             .reduce<string[]>((slots, name) => {

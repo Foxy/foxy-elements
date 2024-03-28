@@ -26,7 +26,10 @@ Parent elements pass templates to their children and keep them updated, allowing
 To get started, make sure you've got your basic setup ready. We'll need to write a bit of JS in this guide, so feel free to also create a dedicated file for your code – but we'll be using an inline script for simplicity.
 
 ```html
-<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/"></foxy-customer-portal>
+<foxy-customer-portal
+  base="https://foxy-demo.foxycart.com/s/customer/"
+  simplify-ns-loading
+></foxy-customer-portal>
 
 <script type="module">
   import 'https://unpkg.com/@foxy.io/elements@1/dist/cdn/foxy-customer-portal.js';
@@ -44,7 +47,7 @@ There are two ways to define templates: in HTML (for simple embeds) and using JS
 HTML templates are defined with the `<template>` tag and identified by the `slot` attribute. Template content is parsed as a regular lit-html template, which means it supports dynamic data binding with the familiar JS literal syntax. **Warning: templates can be vulnerable to XSS if used with unsafe data sources. If you're in doubt, consider using JS templates instead.**
 
 ```html
-<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/" simplify-ns-loading>
   <template slot="customer:header:after">
     Welcome back, ${host.data.first_name}! This content is rendered with an HTML template.
   </template>
@@ -76,7 +79,7 @@ For this guide we'll use [Lit](https://lit.dev) to create a web component loadin
 Let's extend our default setup with an HTML template rendering `<demo-promo>` element, and a corresponding custom element definition registering `PromoElement`:
 
 ```html
-<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/" simplify-ns-loading>
   <template slot="customer:header:after">
     <demo-promo></demo-promo>
   </template>
@@ -169,7 +172,7 @@ Now that we've got the UI sorted out, it's time to make it dynamic. For the purp
 Attributes are a standard way of passing data to the elements and they work perfectly with HTML templates. Let's add an attribute named `email`, link it to a property with the same name in `<demo-promo>` and bind it to host data:
 
 ```html
-<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/">
+<foxy-customer-portal base="https://foxy-demo.foxycart.com/s/customer/" simplify-ns-loading>
   <template slot="customer:header:after">
     <demo-promo email="${host.data.email}"></demo-promo>
   </template>
