@@ -14,6 +14,7 @@ export class InternalSourceControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      __isErrorVisible: { attribute: false },
       __hovered: { attribute: false },
       __focused: { attribute: false },
     };
@@ -41,6 +42,8 @@ export class InternalSourceControl extends InternalEditableControl {
       `,
     ];
   }
+
+  private __isErrorVisible = false;
 
   private __hovered = false;
 
@@ -133,7 +136,10 @@ export class InternalSourceControl extends InternalEditableControl {
             ?disabled=${this.disabled}
             ?readonly=${this.readonly}
             @focus=${() => (this.__focused = true)}
-            @blur=${() => (this.__focused = false)}
+            @blur=${() => {
+              this.__focused = false;
+              this.__isErrorVisible = true;
+            }}
             @input=${(evt: InputEvent) => {
               const textarea = evt.currentTarget as HTMLTextAreaElement;
               this._value = textarea.value;
@@ -145,8 +151,16 @@ export class InternalSourceControl extends InternalEditableControl {
         <div
           class="mt-xs transition-colors leading-xs text-xs ${helperTextClass}"
           part="helper-text"
+          ?hidden=${!this.helperText}
         >
           ${this.helperText}
+        </div>
+
+        <div
+          class="mt-xs text-xs leading-xs text-error"
+          ?hidden=${!this.__isErrorVisible || !this._errorMessage || this.disabled || this.readonly}
+        >
+          ${this._errorMessage}
         </div>
       </label>
     `;
