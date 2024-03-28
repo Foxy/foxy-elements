@@ -111,18 +111,23 @@ export class InternalSourceControl extends InternalEditableControl {
           part="editor"
         >
           <div
-            class="h-full transition-colors monospace leading-s text-s p-m text-right border-r ${lineNumbersClass}"
+            class="h-full transition-colors monospace leading-s text-s text-right border-r ${lineNumbersClass}"
+            style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
           >
             ${repeat(
               this._value.split('\n') ?? [],
               (_, i) => String(i),
-              (_, i) => html`<div>${i + 1}</div>`
+              (_, i) =>
+                html`<div>${i < 9 ? html`<span class="opacity-0">0</span>` : ''}${
+                  i < 99 ? html`<span class="opacity-0">0</span>` : ''
+                }<span>${i + 1}<span></div>`
             )}
           </div>
 
           <textarea
             placeholder=${this.placeholder}
-            class="bg-base whitespace-pre leading-s text-s focus-outline-none monospace resize-none p-m block w-full select-text transition-colors ${textAreaClass}"
+            class="bg-base whitespace-pre leading-s text-s focus-outline-none monospace resize-none block w-full select-text transition-colors ${textAreaClass}"
+            style="padding: calc(0.625em + (var(--lumo-border-radius) / 4) - 1px)"
             rows="1"
             .value=${this._value}
             ?disabled=${this.disabled}
