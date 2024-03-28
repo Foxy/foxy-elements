@@ -145,30 +145,188 @@
         "address-form": {
           "additionalProperties": false,
           "properties": {
-            "address_name": { "type": "string", "default": "Address name" },
-            "address1": { "type": "string", "default": "Address Line 1" },
-            "address2": { "type": "string", "default": "Address Line 2" },
-            "cancel": { "type": "string", "default": "Cancel" },
-            "city": { "type": "string", "default": "City" },
-            "company": { "type": "string", "default": "Company" },
-            "confirm": { "type": "string", "default": "Confirm" },
-            "country": { "type": "string", "default": "Country" },
-            "create": { "type": "string", "default": "Create" },
-            "date": { "type": "string", "default": "{{value, date}}" },
-            "date_created": { "type": "string", "default": "Created on" },
-            "date_modified": { "type": "string", "default": "Last updated on" },
-            "delete": { "type": "string", "default": "Delete" },
-            "delete_prompt": {
-              "type": "string",
-              "default": "This resource will be permanently removed. Are you sure?"
+            "address-name": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Address name" },
+                "placeholder": { "type": "string", "default": "Required" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_required": { "type": "string", "default": "Please enter address name" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Please shorten address name to 100 characters or less"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
             },
-            "first_name": { "type": "string", "default": "First name" },
-            "last_name": { "type": "string", "default": "Last name" },
-            "phone": { "type": "string", "default": "Phone" },
-            "postal_code": { "type": "string", "default": "Postal code" },
-            "region": { "type": "string", "default": "Region" },
-            "v8n_required": { "type": "string", "default": "Required" },
-            "v8n_too_long": { "type": "string", "default": "Too long" },
+            "first-name": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "First name" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Unfortunately we can't store first names longer than 50 characters"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "last-name": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Last name" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Unfortunately we can't store last names longer than 50 characters"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "company": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Company" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Unfortunately we can't store company names longer than 50 characters"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "phone": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Phone" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "This phone number appears to be too long"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "address-one": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Address Line 1" },
+                "placeholder": { "type": "string", "default": "Required" },
+                "helper_text": {
+                  "type": "string",
+                  "default": "Street address, P.O. box, company name, c/o"
+                },
+                "v8n_required": { "type": "string", "default": "Please enter address line 1" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Please shorten address line 1 to 100 characters or less"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
+            },
+            "address-two": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Address Line 2" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": {
+                  "type": "string",
+                  "default": "Apartment, suite, unit, building, floor, etc."
+                },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Please shorten address line 2 to 100 characters or less"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "city": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "City" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Unfortunately we can't store city names longer than 50 characters"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "postal-code": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Postal code" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "This postal code appears to be too long"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "country": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Country" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" }
+              },
+              "required": ["label", "placeholder", "helper_text"]
+            },
+            "region": {
+              "additionalProperties": false,
+              "properties": {
+                "label": { "type": "string", "default": "Region" },
+                "placeholder": { "type": "string", "default": "Optional" },
+                "helper_text": { "type": "string", "default": "" },
+                "v8n_too_long": {
+                  "type": "string",
+                  "default": "Unfortunately we can't store region names longer than 50 characters"
+                }
+              },
+              "required": ["label", "placeholder", "helper_text", "v8n_too_long"]
+            },
+            "timestamps": {
+              "additionalProperties": false,
+              "properties": {
+                "date": { "type": "string", "default": "{{value, date}}" },
+                "date_created": { "type": "string", "default": "Created on" },
+                "date_modified": { "type": "string", "default": "Last updated on" }
+              },
+              "required": ["date", "date_created", "date_modified"]
+            },
+            "delete": {
+              "additionalProperties": false,
+              "properties": {
+                "delete": { "type": "string", "default": "Delete" },
+                "cancel": { "type": "string", "default": "Cancel" },
+                "delete_prompt": {
+                  "type": "string",
+                  "default": "Are you sure you'd like to remove this address? You won't be able to bring it back."
+                }
+              },
+              "required": ["delete", "cancel", "delete_prompt"]
+            },
+            "create": {
+              "additionalProperties": false,
+              "properties": { "create": { "type": "string", "default": "Create" } },
+              "required": ["create"]
+            },
+            "spinner": {
+              "additionalProperties": false,
+              "properties": {
+                "refresh": { "type": "string", "default": "Refresh" },
+                "loading_busy": { "type": "string", "default": "Loading" },
+                "loading_error": { "type": "string", "default": "Unknown error" }
+              },
+              "required": ["refresh", "loading_busy", "loading_error"]
+            },
             "country_af": { "type": "string", "default": "Afghanistan" },
             "country_ax": { "type": "string", "default": "Åland Islands" },
             "country_al": { "type": "string", "default": "Albania" },
@@ -763,39 +921,24 @@
             "country_eh": { "type": "string", "default": "Western Sahara" },
             "country_ye": { "type": "string", "default": "Yemen" },
             "country_zm": { "type": "string", "default": "Zambia" },
-            "country_zw": { "type": "string", "default": "Zimbabwe" },
-            "spinner": {
-              "additionalProperties": false,
-              "properties": {
-                "refresh": { "type": "string", "default": "Refresh" },
-                "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_error": { "type": "string", "default": "Unknown error" }
-              },
-              "required": ["refresh", "loading_busy", "loading_error"]
-            }
+            "country_zw": { "type": "string", "default": "Zimbabwe" }
           },
           "required": [
-            "address_name",
-            "address1",
-            "address2",
-            "cancel",
-            "city",
+            "address-name",
+            "first-name",
+            "last-name",
             "company",
-            "confirm",
-            "country",
-            "create",
-            "date",
-            "date_created",
-            "date_modified",
-            "delete",
-            "delete_prompt",
-            "first_name",
-            "last_name",
             "phone",
-            "postal_code",
+            "address-one",
+            "address-two",
+            "city",
+            "postal-code",
+            "country",
             "region",
-            "v8n_required",
-            "v8n_too_long",
+            "timestamps",
+            "delete",
+            "create",
+            "spinner",
             "country_af",
             "country_ax",
             "country_al",
@@ -1372,8 +1515,7 @@
             "country_eh",
             "country_ye",
             "country_zm",
-            "country_zw",
-            "spinner"
+            "country_zw"
           ]
         },
         "customer-form": {

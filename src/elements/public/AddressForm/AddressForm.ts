@@ -1,24 +1,15 @@
-import { Data, Templates, TextFieldParams } from './types';
-import { ScopedElementsMap, ScopedElementsMixin } from '@open-wc/scoped-elements';
-import { TemplateResult, html } from 'lit-html';
+import type { Data, Templates } from './types';
+import type { TemplateResult } from 'lit-html';
+import type { NucleonV8N } from '../NucleonElement/types';
 
-import { ConfigurableMixin } from '../../../mixins/configurable';
-import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
-import { InternalConfirmDialog } from '../../internal/InternalConfirmDialog/InternalConfirmDialog';
-import { NucleonElement } from '../NucleonElement/NucleonElement';
-import { NucleonV8N } from '../NucleonElement/types';
-import { Metadata } from '../../private/Metadata/Metadata';
-import { ThemeableMixin } from '../../../mixins/themeable';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { classMap } from '../../../utils/class-map';
+import { BooleanSelector } from '@foxy.io/sdk/core';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { countries } from './countries';
-import { ifDefined } from 'lit-html/directives/if-defined';
-import memoize from 'lodash-es/memoize';
+import { html } from 'lit-html';
 
 const NS = 'address-form';
-const Base = ScopedElementsMixin(
-  ConfigurableMixin(ThemeableMixin(TranslatableMixin(NucleonElement, NS)))
-);
+const Base = TranslatableMixin(InternalForm, NS);
 
 /**
  * Basic form displaying customer address.
@@ -69,295 +60,97 @@ const Base = ScopedElementsMixin(
  * @since 1.2.0
  */
 export class AddressForm extends Base<Data> {
-  static get scopedElements(): ScopedElementsMap {
-    return {
-      'foxy-internal-confirm-dialog': customElements.get('foxy-internal-confirm-dialog'),
-      'foxy-internal-sandbox': customElements.get('foxy-internal-sandbox'),
-      'vaadin-text-field': customElements.get('vaadin-text-field'),
-      'vaadin-combo-box': customElements.get('vaadin-combo-box'),
-      'x-metadata': Metadata,
-      'vaadin-button': customElements.get('vaadin-button'),
-      'foxy-spinner': customElements.get('foxy-spinner'),
-      'foxy-i18n': customElements.get('foxy-i18n'),
-    };
-  }
-
   static get v8n(): NucleonV8N<Data> {
     return [
-      ({ address_name: v }) => (v && v.length > 0) || 'address_name_required',
-      ({ address_name: v }) => !v || v.length <= 100 || 'address_name_too_long',
-      ({ first_name: v }) => !v || v.length <= 50 || 'first_name_too_long',
-      ({ last_name: v }) => !v || v.length <= 50 || 'last_name_too_long',
-      ({ region: v }) => !v || v.length <= 50 || 'region_too_long',
-      ({ city: v }) => !v || v.length <= 50 || 'city_too_long',
-      ({ phone: v }) => !v || v.length <= 50 || 'phone_too_long',
-      ({ company: v }) => !v || v.length <= 50 || 'company_too_long',
-      ({ address2: v }) => !v || v.length <= 100 || 'address2_too_long',
-      ({ address1: v }) => (v && v.length > 0) || 'address1_required',
-      ({ address1: v }) => (v && v.length <= 100) || 'address1_too_long',
-      ({ postal_code: v }) => !v || v.length <= 50 || 'postal_code_too_long',
+      ({ address_name: v }) => (v && v.length > 0) || 'address-name:v8n_required',
+      ({ address_name: v }) => !v || v.length <= 100 || 'address-name:v8n_too_long',
+      ({ first_name: v }) => !v || v.length <= 50 || 'first-name:v8n_too_long',
+      ({ last_name: v }) => !v || v.length <= 50 || 'last-name:v8n_too_long',
+      ({ region: v }) => !v || v.length <= 50 || 'region:v8n_too_long',
+      ({ city: v }) => !v || v.length <= 50 || 'city:v8n_too_long',
+      ({ phone: v }) => !v || v.length <= 50 || 'phone:v8n_too_long',
+      ({ company: v }) => !v || v.length <= 50 || 'company:v8n_too_long',
+      ({ address2: v }) => !v || v.length <= 100 || 'address-two:v8n_too_long',
+      ({ address1: v }) => (v && v.length > 0) || 'address-one:v8n_required',
+      ({ address1: v }) => !v || v.length <= 100 || 'address-one:v8n_too_long',
+      ({ postal_code: v }) => !v || v.length <= 50 || 'postal-code:v8n_too_long',
     ];
   }
 
   templates: Templates = {};
 
-  private readonly __getValidator = memoize((prefix: string) => () => {
-    return !this.errors.some(err => err.startsWith(prefix));
-  });
-
-  private readonly __bindField = memoize((key: keyof Data) => {
-    return (evt: CustomEvent) => {
-      const target = evt.currentTarget as HTMLInputElement;
-      this.edit({ [key]: target.value });
-    };
-  });
-
-  private readonly __maybeRenderCountry = () => {
-    const field = 'country';
-    if (this.hiddenSelector.matches(field)) return '';
-    const source = Object.keys(countries);
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot(`${field}:before`)}
-
-        <vaadin-combo-box
-          class="w-full"
-          label=${this.t(field).toString()}
-          value=${ifDefined(this.form?.[field]?.toString())}
-          error-message=${this.__getErrorMessage(field)}
-          data-testid=${field}
-          item-value-path="code"
-          item-label-path="text"
-          .checkValidity=${this.__getValidator(field)}
-          .items=${source.map(code => ({
-            text: this.t(`country_${code.toLowerCase()}`),
-            code,
-          }))}
-          ?readonly=${this.readonlySelector.matches(field, true)}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches(field, true)}
-          @change=${(evt: CustomEvent) => {
-            const target = evt.currentTarget as HTMLInputElement;
-            this.edit({ country: target.value, region: '' });
-          }}
-        >
-        </vaadin-combo-box>
-
-        ${this.renderTemplateOrSlot(`${field}:after`)}
-      </div>
-    `;
+  private __countrySetValue = (newValue: string) => {
+    this.edit({ country: newValue, region: '' });
   };
 
-  private readonly __maybeRenderRegion = () => {
-    const field = 'region';
-    if (this.hiddenSelector.matches(field)) return '';
-    const source = countries[this.form.country ?? ''] ?? [];
-    const country = this.form.country ?? '';
+  get readonlySelector(): BooleanSelector {
+    const alwaysReadonly = [super.readonlySelector.toString()];
+    const isDefault = !!this.data?.is_default_shipping || !!this.data?.is_default_billing;
+    if (isDefault) alwaysReadonly.unshift('address-name');
+    return new BooleanSelector(alwaysReadonly.join(' ').trim());
+  }
+
+  get disabledSelector(): BooleanSelector {
+    const alwaysDisabled = [super.disabledSelector.toString()];
+    const isDefault = !!this.data?.is_default_shipping || !!this.data?.is_default_billing;
+    if (isDefault) alwaysDisabled.unshift('delete');
+    return new BooleanSelector(alwaysDisabled.join(' ').trim());
+  }
+
+  renderBody(): TemplateResult {
+    const regionOptions = this.__regionOptions;
 
     return html`
-      <div>
-        ${this.renderTemplateOrSlot(`${field}:before`)}
+      <div class="grid grid-cols-2 gap-m">
+        <foxy-internal-text-control class="col-span-2" infer="address-name">
+        </foxy-internal-text-control>
 
-        <vaadin-combo-box
-          class="w-full"
-          label=${this.t(field).toString()}
-          value=${ifDefined(this.form?.[field]?.toString())}
-          error-message=${this.__getErrorMessage(field)}
-          data-testid=${field}
-          item-value-path="code"
-          item-label-path="text"
-          .checkValidity=${this.__getValidator(field)}
-          .items=${source.map(code => ({
-            text: this.t(`country_${country.toLowerCase()}_region_${code.toLowerCase()}`),
-            code,
-          }))}
-          ?allow-custom-value=${source.length === 0}
-          ?readonly=${this.readonlySelector.matches(field, true)}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches(field, true)}
-          @change=${this.__bindField(field)}
+        <foxy-internal-text-control infer="first-name"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="last-name"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="company"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="phone"></foxy-internal-text-control>
+
+        <foxy-internal-text-control class="col-span-2" infer="address-one" property="address1">
+        </foxy-internal-text-control>
+
+        <foxy-internal-text-control class="col-span-2" infer="address-two" property="address2">
+        </foxy-internal-text-control>
+
+        <foxy-internal-select-control
+          infer="country"
+          .options=${this.__countryOptions}
+          .setValue=${this.__countrySetValue}
         >
-        </vaadin-combo-box>
+        </foxy-internal-select-control>
 
-        ${this.renderTemplateOrSlot(`${field}:after`)}
+        ${regionOptions.length > 0
+          ? html`
+              <foxy-internal-select-control infer="region" .options=${regionOptions}>
+              </foxy-internal-select-control>
+            `
+          : html`<foxy-internal-text-control infer="region"></foxy-internal-text-control>`}
+
+        <foxy-internal-text-control infer="city"></foxy-internal-text-control>
+        <foxy-internal-text-control infer="postal-code"></foxy-internal-text-control>
       </div>
+      ${super.renderBody()}
     `;
-  };
+  }
 
-  private readonly __maybeRenderTextField = (params: TextFieldParams) => {
-    const { field, wide = false, readonly = false, required = false } = params;
-    const bsid = field.replace(/_/, '-').replace('1', '-one').replace('2', '-two');
-    if (this.hiddenSelector.matches(bsid)) return '';
-
-    return html`
-      <div class=${classMap({ 'col-span-2': wide })}>
-        ${this.renderTemplateOrSlot(`${bsid}:before`)}
-
-        <vaadin-text-field
-          class="w-full"
-          label=${this.t(field).toString()}
-          value=${ifDefined(this.form?.[field]?.toString())}
-          error-message=${this.__getErrorMessage(field)}
-          data-testid=${bsid}
-          .checkValidity=${this.__getValidator(field)}
-          ?disabled=${!this.in('idle') || this.disabledSelector.matches(bsid)}
-          ?required=${required}
-          ?readonly=${readonly || this.readonlySelector.matches(bsid)}
-          @input=${this.__bindField(field)}
-          @keydown=${this.__handleKeyDown}
-        >
-        </vaadin-text-field>
-
-        ${this.renderTemplateOrSlot(`${bsid}:after`)}
-      </div>
-    `;
-  };
-
-  private readonly __renderTimestamps = () => {
-    const items = (['date_modified', 'date_created'] as const).map(field => ({
-      name: this.t(field),
-      value: this.data?.[field]
-        ? this.t('date', { value: new Date(this.data[field] as string) })
-        : '',
+  private get __countryOptions() {
+    return Object.keys(countries).map(code => ({
+      label: this.t(`country_${code.toLowerCase()}`),
+      value: code,
     }));
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot('timestamps:before')}
-        <x-metadata .items=${items} data-testid="timestamps"></x-metadata>
-        ${this.renderTemplateOrSlot('timestamps:after')}
-      </div>
-    `;
-  };
-
-  private readonly __renderAction = (action: string) => {
-    const isTemplateValid = this.in({ idle: { template: { dirty: 'valid' } } });
-    const isSnapshotValid = this.in({ idle: { snapshot: { dirty: 'valid' } } });
-    const isDisabled = !this.in('idle') || this.disabledSelector.matches(action, true);
-    const isDefaultShipping = !!this.form?.is_default_shipping;
-    const isDefaultBilling = !!this.form?.is_default_billing;
-    const isDefault = isDefaultShipping || isDefaultBilling;
-    const isValid = isTemplateValid || isSnapshotValid;
-
-    return html`
-      <div>
-        ${this.renderTemplateOrSlot(`${action}:before`)}
-
-        <vaadin-button
-          class="w-full"
-          theme=${this.in('idle') ? `${this.href ? 'error' : 'primary success'}` : ''}
-          data-testid=${action}
-          ?disabled=${(this.in({ idle: 'template' }) && !isValid) || isDisabled || isDefault}
-          @click=${this.__handleActionClick}
-        >
-          <foxy-i18n ns=${this.ns} key=${action} lang=${this.lang}></foxy-i18n>
-        </vaadin-button>
-
-        ${this.renderTemplateOrSlot(`${action}:after`)}
-      </div>
-    `;
-  };
-
-  connectedCallback(): void {
-    super.connectedCallback();
-    customElements.get('foxy-i18n').i18next.loadNamespaces(['country', 'region']);
   }
 
-  render(): TemplateResult {
-    const { hiddenSelector, lang, ns } = this;
-    const action = this.href ? 'delete' : 'create';
+  private get __regionOptions() {
+    const country = this.form.country ?? '';
+    const source = countries[country] ?? [];
 
-    const isDefaultShipping = !!this.form?.is_default_shipping;
-    const isDefaultBilling = !!this.form?.is_default_billing;
-    const isDefault = isDefaultShipping || isDefaultBilling;
-    const isBusy = this.in('busy');
-    const isFail = this.in('fail');
-
-    return html`
-      <foxy-internal-confirm-dialog
-        message="delete_prompt"
-        confirm="delete"
-        cancel="cancel"
-        header="delete"
-        theme="primary error"
-        lang=${lang}
-        ns=${ns}
-        id="confirm"
-        data-testid="confirm"
-        @hide=${this.__handleConfirmHide}
-      >
-      </foxy-internal-confirm-dialog>
-
-      <div
-        class="space-y-l font-lumo text-m leading-m text-body relative"
-        aria-busy=${this.in('busy')}
-        aria-live="polite"
-        data-testid="wrapper"
-      >
-        <div class="grid grid-cols-2 gap-m">
-          ${this.__maybeRenderTextField({
-            field: 'address_name',
-            wide: true,
-            readonly: isDefault,
-            required: true,
-          })}
-          ${this.__maybeRenderTextField({ field: 'first_name' })}
-          ${this.__maybeRenderTextField({ field: 'last_name' })}
-          ${this.__maybeRenderTextField({ field: 'company' })}
-          ${this.__maybeRenderTextField({ field: 'phone' })}
-          ${this.__maybeRenderTextField({ field: 'address1', wide: true, required: true })}
-          ${this.__maybeRenderTextField({ field: 'address2', wide: true })}
-          ${this.__maybeRenderCountry()} ${this.__maybeRenderRegion()}
-          ${this.__maybeRenderTextField({ field: 'city' })}
-          ${this.__maybeRenderTextField({ field: 'postal_code' })}
-        </div>
-
-        ${!this.data || hiddenSelector.matches('timestamps', true) ? '' : this.__renderTimestamps()}
-        ${hiddenSelector.matches(action, true) ? '' : this.__renderAction(action)}
-
-        <div
-          data-testid="spinner"
-          class=${classMap({
-            'transition duration-500 ease-in-out absolute inset-0 flex': true,
-            'opacity-0 pointer-events-none': !isBusy && !isFail,
-          })}
-        >
-          <foxy-spinner
-            layout="vertical"
-            class="m-auto p-m bg-base shadow-xs rounded-t-l rounded-b-l"
-            state=${isFail ? 'error' : isBusy ? 'busy' : 'empty'}
-            lang=${lang}
-            ns="${this.ns} ${customElements.get('foxy-spinner')?.defaultNS ?? ''}"
-          >
-          </foxy-spinner>
-        </div>
-      </div>
-    `;
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.__getValidator.cache.clear?.();
-  }
-
-  private __handleKeyDown(evt: KeyboardEvent) {
-    if (evt.key === 'Enter') this.submit();
-  }
-
-  private __getErrorMessage(prefix: string) {
-    const error = this.errors.find(err => err.startsWith(prefix));
-    return error ? this.t(error.replace(prefix, 'v8n')).toString() : '';
-  }
-
-  private __handleActionClick(evt: Event) {
-    if (this.in({ idle: 'snapshot' })) {
-      const confirm = this.renderRoot.querySelector('#confirm');
-      (confirm as InternalConfirmDialog).show(evt.currentTarget as HTMLElement);
-    } else {
-      this.submit();
-    }
-  }
-
-  private __handleConfirmHide(evt: DialogHideEvent) {
-    if (!evt.detail.cancelled) this.delete();
+    return source.map(code => ({
+      label: this.t(`country_${country.toLowerCase()}_region_${code.toLowerCase()}`),
+      value: code,
+    }));
   }
 }
