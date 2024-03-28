@@ -1,19 +1,14 @@
 {
-  "email": {
-    "label": "Email",
-    "placeholder": "",
-    "helper_text": "",
-    "v8n_required": "Required",
-    "v8n_invalid": "Invalid email"
-  },
-  "status": {
-    "success": "Done! Please check your email for further instructions.",
-    "close": "Close"
-  },
-  "submit": {
-    "create": "Get temporary password"
-  },
+  "back": "Go back",
+  "email": "Email",
+  "recover_access": "Get temporary password",
+  "recover_access_hint": "Enter your email to get a temporary password",
+  "recover_access_success": "Done! Please check your email for further instructions.",
+  "unknown_error": "We can't issue a one-time code for this account at the moment. If you've already requested the code, please wait a few minutes before trying again.",
+  "v8n_invalid_email": "Invalid email",
+  "v8n_required": "Required",
   "spinner": {
+    "refresh": "Refresh",
     "loading_busy": "Loading",
     "loading_error": "Unknown error"
   }
