@@ -142,7 +142,7 @@
           "properties": {
             "loading_busy": { "type": "string", "default": "Loading" },
             "loading_empty": { "type": "string", "default": "No customer" },
-            "loading_error": { "type": "string", "default": "Failed to load" }
+            "loading_error": { "type": "string", "default": "Unknown error" }
           },
           "required": ["loading_busy", "loading_empty", "loading_error"]
         }
@@ -201,7 +201,7 @@
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
                     "loading_empty": { "type": "string", "default": "No items" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
@@ -589,7 +589,7 @@
                               "properties": {
                                 "loading_busy": { "type": "string", "default": "Loading" },
                                 "loading_empty": { "type": "string", "default": "No discounts" },
-                                "loading_error": { "type": "string", "default": "Failed to load" }
+                                "loading_error": { "type": "string", "default": "Unknown error" }
                               },
                               "required": ["loading_busy", "loading_empty", "loading_error"]
                             }
@@ -625,7 +625,7 @@
                               "properties": {
                                 "loading_busy": { "type": "string", "default": "Loading" },
                                 "loading_empty": { "type": "string", "default": "No coupons" },
-                                "loading_error": { "type": "string", "default": "Failed to load" }
+                                "loading_error": { "type": "string", "default": "Unknown error" }
                               },
                               "required": ["loading_busy", "loading_empty", "loading_error"]
                             }
@@ -667,54 +667,124 @@
                         "attribute-form": {
                           "additionalProperties": false,
                           "properties": {
-                            "cancel": { "type": "string", "default": "Cancel" },
-                            "confirm": { "type": "string", "default": "Confirm" },
-                            "create": { "type": "string", "default": "Create" },
-                            "date": { "type": "string", "default": "{{value, date}}" },
-                            "date_created": { "type": "string", "default": "Created on" },
-                            "date_modified": { "type": "string", "default": "Last updated on" },
-                            "delete": { "type": "string", "default": "Delete" },
-                            "delete_prompt": {
-                              "type": "string",
-                              "default": "This resource will be permanently removed. Are you sure?"
+                            "name": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "label": { "type": "string", "default": "Name" },
+                                "placeholder": { "type": "string", "default": "Required" },
+                                "helper_text": {
+                                  "type": "string",
+                                  "default": "Name of this attribute. It does not have to be unique."
+                                },
+                                "v8n_required": {
+                                  "type": "string",
+                                  "default": "Please name this attribute."
+                                },
+                                "v8n_too_long": {
+                                  "type": "string",
+                                  "default": "Please choose a name that is 500 characters long or less."
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "placeholder",
+                                "helper_text",
+                                "v8n_required",
+                                "v8n_too_long"
+                              ]
                             },
-                            "name": { "type": "string", "default": "Name" },
-                            "v8n_required": { "type": "string", "default": "Required" },
-                            "v8n_too_long": { "type": "string", "default": "Too long" },
-                            "value": { "type": "string", "default": "Value" },
-                            "visibility": { "type": "string", "default": "Visibility" },
-                            "visibility_private": { "type": "string", "default": "Only me" },
-                            "visibility_public": { "type": "string", "default": "Everyone" },
-                            "visibility_restricted": {
-                              "type": "string",
-                              "default": "Store admins"
+                            "value": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "label": { "type": "string", "default": "Value" },
+                                "placeholder": { "type": "string", "default": "Required" },
+                                "helper_text": {
+                                  "type": "string",
+                                  "default": "Value of this attribute. Attribute values are automatically HTML-escaped."
+                                },
+                                "v8n_required": {
+                                  "type": "string",
+                                  "default": "Please provide a value for this attribute."
+                                },
+                                "v8n_too_long": {
+                                  "type": "string",
+                                  "default": "Unfortunately we can't store values that are more than 1000 characters long."
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "placeholder",
+                                "helper_text",
+                                "v8n_required",
+                                "v8n_too_long"
+                              ]
+                            },
+                            "visibility": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "label": { "type": "string", "default": "Visibility" },
+                                "option_public": { "type": "string", "default": "Everyone" },
+                                "option_restricted": {
+                                  "type": "string",
+                                  "default": "Store admins"
+                                },
+                                "option_private": { "type": "string", "default": "Only me" },
+                                "helper_text": {
+                                  "type": "string",
+                                  "default": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+                                }
+                              },
+                              "required": [
+                                "label",
+                                "option_public",
+                                "option_restricted",
+                                "option_private",
+                                "helper_text"
+                              ]
+                            },
+                            "timestamps": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "date": { "type": "string", "default": "{{value, date}}" },
+                                "date_created": { "type": "string", "default": "Created on" },
+                                "date_modified": { "type": "string", "default": "Last updated on" }
+                              },
+                              "required": ["date", "date_created", "date_modified"]
+                            },
+                            "delete": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "delete": { "type": "string", "default": "Delete" },
+                                "cancel": { "type": "string", "default": "Cancel" },
+                                "delete_prompt": {
+                                  "type": "string",
+                                  "default": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+                                }
+                              },
+                              "required": ["delete", "cancel", "delete_prompt"]
+                            },
+                            "create": {
+                              "additionalProperties": false,
+                              "properties": { "create": { "type": "string", "default": "Create" } },
+                              "required": ["create"]
                             },
                             "spinner": {
                               "additionalProperties": false,
                               "properties": {
+                                "refresh": { "type": "string", "default": "Refresh" },
                                 "loading_busy": { "type": "string", "default": "Loading" },
-                                "loading_error": { "type": "string", "default": "Failed to load" }
+                                "loading_error": { "type": "string", "default": "Unknown error" }
                               },
-                              "required": ["loading_busy", "loading_error"]
+                              "required": ["refresh", "loading_busy", "loading_error"]
                             }
                           },
                           "required": [
-                            "cancel",
-                            "confirm",
-                            "create",
-                            "date",
-                            "date_created",
-                            "date_modified",
-                            "delete",
-                            "delete_prompt",
                             "name",
-                            "v8n_required",
-                            "v8n_too_long",
                             "value",
                             "visibility",
-                            "visibility_private",
-                            "visibility_public",
-                            "visibility_restricted",
+                            "timestamps",
+                            "delete",
+                            "create",
                             "spinner"
                           ]
                         }
@@ -745,7 +815,7 @@
                               "properties": {
                                 "loading_busy": { "type": "string", "default": "Loading" },
                                 "loading_empty": { "type": "string", "default": "No attributes" },
-                                "loading_error": { "type": "string", "default": "Failed to load" }
+                                "loading_error": { "type": "string", "default": "Unknown error" }
                               },
                               "required": ["loading_busy", "loading_empty", "loading_error"]
                             }
@@ -887,10 +957,11 @@
                             "spinner": {
                               "additionalProperties": false,
                               "properties": {
+                                "refresh": { "type": "string", "default": "Refresh" },
                                 "loading_busy": { "type": "string", "default": "Loading" },
-                                "loading_error": { "type": "string", "default": "Failed to load" }
+                                "loading_error": { "type": "string", "default": "Unknown error" }
                               },
-                              "required": ["loading_busy", "loading_error"]
+                              "required": ["refresh", "loading_busy", "loading_error"]
                             },
                             "delete": {
                               "additionalProperties": false,
@@ -947,7 +1018,7 @@
                               "properties": {
                                 "loading_busy": { "type": "string", "default": "Loading" },
                                 "loading_empty": { "type": "string", "default": "No item options" },
-                                "loading_error": { "type": "string", "default": "Failed to load" }
+                                "loading_error": { "type": "string", "default": "Unknown error" }
                               },
                               "required": ["loading_busy", "loading_empty", "loading_error"]
                             }
@@ -1014,10 +1085,11 @@
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
                     "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
-                  "required": ["loading_busy", "loading_error"]
+                  "required": ["refresh", "loading_busy", "loading_error"]
                 }
               },
               "required": [
@@ -1128,10 +1200,11 @@
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
                     "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
-                  "required": ["loading_busy", "loading_error"]
+                  "required": ["refresh", "loading_busy", "loading_error"]
                 }
               },
               "required": [
@@ -1183,7 +1256,7 @@
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
                     "loading_empty": { "type": "string", "default": "No custom fields" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
@@ -1241,51 +1314,118 @@
             "attribute-form": {
               "additionalProperties": false,
               "properties": {
-                "cancel": { "type": "string", "default": "Cancel" },
-                "confirm": { "type": "string", "default": "Confirm" },
-                "create": { "type": "string", "default": "Create" },
-                "date": { "type": "string", "default": "{{value, date}}" },
-                "date_created": { "type": "string", "default": "Created on" },
-                "date_modified": { "type": "string", "default": "Last updated on" },
-                "delete": { "type": "string", "default": "Remove" },
-                "delete_prompt": {
-                  "type": "string",
-                  "default": "Please confirm that you'd like to remove this attribute from the item."
+                "name": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Name" },
+                    "placeholder": { "type": "string", "default": "Required" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Name of this attribute. It does not have to be unique."
+                    },
+                    "v8n_required": { "type": "string", "default": "Please name this attribute." },
+                    "v8n_too_long": {
+                      "type": "string",
+                      "default": "Please choose a name that is 500 characters long or less."
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "placeholder",
+                    "helper_text",
+                    "v8n_required",
+                    "v8n_too_long"
+                  ]
                 },
-                "name": { "type": "string", "default": "Name" },
-                "v8n_required": { "type": "string", "default": "Required" },
-                "v8n_too_long": { "type": "string", "default": "Too long" },
-                "value": { "type": "string", "default": "Value" },
-                "visibility": { "type": "string", "default": "Visibility" },
-                "visibility_private": { "type": "string", "default": "Only me" },
-                "visibility_public": { "type": "string", "default": "Everyone" },
-                "visibility_restricted": { "type": "string", "default": "Store admins" },
+                "value": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Value" },
+                    "placeholder": { "type": "string", "default": "Required" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Value of this attribute. Attribute values are automatically HTML-escaped."
+                    },
+                    "v8n_required": {
+                      "type": "string",
+                      "default": "Please provide a value for this attribute."
+                    },
+                    "v8n_too_long": {
+                      "type": "string",
+                      "default": "Unfortunately we can't store values that are more than 1000 characters long."
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "placeholder",
+                    "helper_text",
+                    "v8n_required",
+                    "v8n_too_long"
+                  ]
+                },
+                "visibility": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Visibility" },
+                    "option_public": { "type": "string", "default": "Everyone" },
+                    "option_restricted": { "type": "string", "default": "Store admins" },
+                    "option_private": { "type": "string", "default": "Only me" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "option_public",
+                    "option_restricted",
+                    "option_private",
+                    "helper_text"
+                  ]
+                },
+                "timestamps": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "date": { "type": "string", "default": "{{value, date}}" },
+                    "date_created": { "type": "string", "default": "Created on" },
+                    "date_modified": { "type": "string", "default": "Last updated on" }
+                  },
+                  "required": ["date", "date_created", "date_modified"]
+                },
+                "delete": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "delete": { "type": "string", "default": "Delete" },
+                    "cancel": { "type": "string", "default": "Cancel" },
+                    "delete_prompt": {
+                      "type": "string",
+                      "default": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+                    }
+                  },
+                  "required": ["delete", "cancel", "delete_prompt"]
+                },
+                "create": {
+                  "additionalProperties": false,
+                  "properties": { "create": { "type": "string", "default": "Create" } },
+                  "required": ["create"]
+                },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
                     "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
-                  "required": ["loading_busy", "loading_error"]
+                  "required": ["refresh", "loading_busy", "loading_error"]
                 }
               },
               "required": [
-                "cancel",
-                "confirm",
-                "create",
-                "date",
-                "date_created",
-                "date_modified",
-                "delete",
-                "delete_prompt",
                 "name",
-                "v8n_required",
-                "v8n_too_long",
                 "value",
                 "visibility",
-                "visibility_private",
-                "visibility_public",
-                "visibility_restricted",
+                "timestamps",
+                "delete",
+                "create",
                 "spinner"
               ]
             }
@@ -1321,7 +1461,7 @@
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
                     "loading_empty": { "type": "string", "default": "No attributes" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
@@ -1430,7 +1570,7 @@
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
                     "loading_empty": { "type": "string", "default": "No payments" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
@@ -2104,10 +2244,11 @@
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
                     "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
-                  "required": ["loading_busy", "loading_error"]
+                  "required": ["refresh", "loading_busy", "loading_error"]
                 }
               },
               "required": [
@@ -2736,7 +2877,7 @@
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
                     "loading_empty": { "type": "string", "default": "No addresses" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
@@ -2778,7 +2919,7 @@
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
                     "loading_empty": { "type": "string", "default": "No shipments" },
-                    "loading_error": { "type": "string", "default": "Failed to load" }
+                    "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
                 }
@@ -2901,11 +3042,12 @@
     "spinner": {
       "additionalProperties": false,
       "properties": {
+        "refresh": { "type": "string", "default": "Refresh" },
         "loading_busy": { "type": "string", "default": "Loading" },
         "loading_empty": { "type": "string", "default": "No data" },
-        "loading_error": { "type": "string", "default": "Failed to load" }
+        "loading_error": { "type": "string", "default": "Unknown error" }
       },
-      "required": ["loading_busy", "loading_empty", "loading_error"]
+      "required": ["refresh", "loading_busy", "loading_empty", "loading_error"]
     }
   },
   "required": [

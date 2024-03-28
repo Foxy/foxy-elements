@@ -1,10 +1,9 @@
-import { AttributeForm } from './AttributeForm';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Renderer } from '../../../mixins/configurable';
-import { Resource } from '@foxy.io/sdk/core';
+import type { AttributeForm } from './AttributeForm';
+import type { Renderer } from '../../../mixins/configurable';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.Attribute>;
-export type TextFieldParams = { field: keyof Data };
 export type Templates = {
   'name:before'?: Renderer<AttributeForm>;
   'name:after'?: Renderer<AttributeForm>;
