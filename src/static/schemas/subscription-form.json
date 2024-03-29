@@ -16,7 +16,7 @@
     "currency": { "type": "string", "default": "Currency" },
     "daily": { "type": "string", "default": "Daily" },
     "daily_plural": { "type": "string", "default": "Every {{count}} days" },
-    "end_subscription": { "type": "string", "default": "End subscription" },
+    "end_date": { "type": "string", "default": "End date" },
     "frequency": {
       "type": "string",
       "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"subscription-form\" })"
@@ -407,34 +407,6 @@
       },
       "required": ["label", "pagination"]
     },
-    "cancellation-form": {
-      "additionalProperties": false,
-      "properties": {
-        "end_date": { "type": "string", "default": "End date" },
-        "end_subscription": { "type": "string", "default": "End subscription" },
-        "end_subscription_explainer": {
-          "type": "string",
-          "default": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later."
-        },
-        "v8n_required": { "type": "string", "default": "Required" },
-        "spinner": {
-          "additionalProperties": false,
-          "properties": {
-            "refresh": { "type": "string", "default": "Refresh" },
-            "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Unknown error" }
-          },
-          "required": ["refresh", "loading_busy", "loading_error"]
-        }
-      },
-      "required": [
-        "end_date",
-        "end_subscription",
-        "end_subscription_explainer",
-        "v8n_required",
-        "spinner"
-      ]
-    },
     "spinner": {
       "additionalProperties": false,
       "properties": {
@@ -469,7 +441,7 @@
     "currency",
     "daily",
     "daily_plural",
-    "end_subscription",
+    "end_date",
     "frequency",
     "frequency_label",
     "item_plural",
@@ -500,7 +472,6 @@
     "attributes",
     "items",
     "transactions",
-    "cancellation-form",
     "spinner",
     "timestamps"
   ]

@@ -854,7 +854,7 @@
     "currency": "Currency",
     "daily": "Daily",
     "daily_plural": "Every {{count}} days",
-    "end_subscription": "End subscription",
+    "end_date": "End date",
     "frequency": "$t(subscription-form.{{units}}, { \"count\": {{count}}, \"ns\": \"customer\" })",
     "frequency_label": "Frequency",
     "item_plural": "Items",
@@ -1017,17 +1017,6 @@
             "loading_error": "Unknown error"
           }
         }
-      }
-    },
-    "cancellation-form": {
-      "end_date": "End date",
-      "end_subscription": "End subscription",
-      "end_subscription_explainer": "Your subscription will remain active until the selected end date. You might have to resubscribe if you decide to resume this subscription later.",
-      "v8n_required": "Required",
-      "spinner": {
-        "refresh": "Refresh",
-        "loading_busy": "Loading",
-        "loading_error": "Unknown error"
       }
     },
     "spinner": {
