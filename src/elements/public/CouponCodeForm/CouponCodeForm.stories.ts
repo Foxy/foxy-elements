@@ -12,8 +12,8 @@ const summary: Summary = {
   translatable: true,
   configurable: {
     sections: ['timestamps'],
-    buttons: ['create', 'delete'],
-    inputs: ['code'],
+    buttons: ['create', 'delete', 'transactions'],
+    inputs: ['code', 'number-of-uses-to-date'],
   },
 };
 

@@ -1,6 +1,6 @@
+import type { Data, TransactionPageHrefGetter } from './types';
 import type { DiscountBuilder } from '../DiscountBuilder/DiscountBuilder';
 import type { Item } from '../../internal/InternalEditableListControl/types';
-import type { Data } from './types';
 
 import { Option, Type } from '../QueryBuilder/types';
 import { PropertyDeclarations, TemplateResult, html } from 'lit-element';
@@ -111,6 +111,7 @@ export class CouponForm extends Base<Data> {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      getTransactionPageHref: { attribute: false },
       __codesTableQuery: { attribute: false },
       __itemCategories: { attribute: false },
     };
@@ -122,6 +123,8 @@ export class CouponForm extends Base<Data> {
       ({ name: v }) => !v || v.length <= 50 || 'name_too_long',
     ];
   }
+
+  getTransactionPageHref: TransactionPageHrefGetter | null = null;
 
   private __codesTableColumns: Column<Resource<Rels.CouponCodes>>[] = [
     {
@@ -562,6 +565,8 @@ export class CouponForm extends Base<Data> {
           form="foxy-coupon-code-form"
           ns=${ns}
           id="code-dialog"
+          alert
+          .props=${{ '.getTransactionPageHref': this.getTransactionPageHref }}
         >
         </foxy-form-dialog>
 

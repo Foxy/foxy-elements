@@ -49,6 +49,13 @@ describe('CouponForm', () => {
     expect(new CouponForm()).to.have.property('ns', 'coupon-form');
   });
 
+  it('has a reactive property getTransactionPageHref', () => {
+    expect(new CouponForm()).to.have.property('getTransactionPageHref', null);
+    expect(CouponForm).to.have.deep.nested.property('properties.getTransactionPageHref', {
+      attribute: false,
+    });
+  });
+
   describe('name', () => {
     it('is an instance of Vaadin.TextFieldElement', async () => {
       const layout = html`<foxy-coupon-form></foxy-coupon-form>`;
@@ -1025,9 +1032,15 @@ describe('CouponForm', () => {
       const code = codes._embedded['fx:coupon_codes'][0];
       const lang = 'es';
       const ns = 'foo';
+      const getTransactionPageHref = () => 'https://example.com';
 
       const element = await fixture<CouponForm>(html`
-        <foxy-coupon-form lang=${lang} ns=${ns} .data=${card}></foxy-coupon-form>
+        <foxy-coupon-form
+          lang=${lang}
+          ns=${ns}
+          .data=${card}
+          .getTransactionPageHref=${getTransactionPageHref}
+        ></foxy-coupon-form>
       `);
 
       const control = (await getByTestId(element, 'codes')) as HTMLElement;
@@ -1044,6 +1057,9 @@ describe('CouponForm', () => {
 
       expect(showMethod).to.have.been.calledWith(button);
       expect(dialog).to.have.property('href', code._links.self.href);
+      expect(dialog).to.have.deep.property('props', {
+        '.getTransactionPageHref': getTransactionPageHref,
+      });
 
       showMethod.restore();
     });
