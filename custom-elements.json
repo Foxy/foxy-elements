@@ -6961,6 +6961,11 @@
           "default": "\"defaultNS\""
         },
         {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -7043,6 +7048,18 @@
           "name": "t",
           "type": "Translator",
           "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
         },
         {
           "name": "templates",
@@ -7190,40 +7207,52 @@
       ],
       "slots": [
         {
-          "name": "name:before"
+          "name": "name:before",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "name:after"
+          "name": "name:after",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "value:before"
+          "name": "value:before",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "value:after"
+          "name": "value:after",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "visibility:before"
+          "name": "visibility:before",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "visibility:after"
+          "name": "visibility:after",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "timestamps:before"
+          "name": "timestamps:before",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "timestamps:after"
+          "name": "timestamps:after",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "create:before"
+          "name": "create:before",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "create:after"
+          "name": "create:after",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "delete:before"
+          "name": "delete:before",
+          "description": "**new in v1.4.0**"
         },
         {
-          "name": "delete:after"
+          "name": "delete:after",
+          "description": "**new in v1.4.0**"
         }
       ]
     },

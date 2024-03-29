@@ -1,17 +1,36 @@
 {
-  "cancel": "Cancel",
-  "create": "Create",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "name": "Name",
-  "show_on_receipt": "Show on receipt",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
-  "value": "Value",
-  "visibility": "Visibility",
+  "name": {
+    "label": "Name",
+    "placeholder": "Required",
+    "helper_text": "Maximum 100 characters.",
+    "v8n_required": "Please name this custom field.",
+    "v8n_too_long": "Please choose a name that is 100 characters long or less."
+  },
+  "value": {
+    "label": "Value",
+    "placeholder": "Required",
+    "helper_text": "Maximum 700 characters.",
+    "v8n_required": "Please provide a value for this custom field.",
+    "v8n_too_long": "Unfortunately we can't store values that are more than 700 characters long."
+  },
+  "visibility": {
+    "label": "Visibility",
+    "option_hidden": "Hide in receipts",
+    "helper_text": "Whether or not this custom field is visible on the receipt and email receipt. This correlates to custom fields with a \"h:\" prefix when added to the cart."
+  },
+  "timestamps": {
+    "date": "{{value, date}}",
+    "date_created": "Created on",
+    "date_modified": "Last updated on"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this custom field? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
+  },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",

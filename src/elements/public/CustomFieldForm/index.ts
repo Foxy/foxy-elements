@@ -1,10 +1,6 @@
-import '@vaadin/vaadin-text-field';
-import '@vaadin/vaadin-checkbox';
-import '@vaadin/vaadin-button';
-import '../../internal/InternalConfirmDialog/index';
-import '../../internal/InternalSandbox/index';
-import '../Spinner/index';
-import '../I18n/index';
+import '../../internal/InternalCheckboxGroupControl/index';
+import '../../internal/InternalSourceControl/index';
+import '../../internal/InternalForm/index';
 
 import { CustomFieldForm } from './CustomFieldForm';
 
