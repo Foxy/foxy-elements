@@ -3,7 +3,7 @@ import type { TemplateResult } from 'lit-html';
 import type { NucleonV8N } from '../NucleonElement/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { InternalForm } from '../../internal/InternalForm';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
 const NS = 'custom-field-form';

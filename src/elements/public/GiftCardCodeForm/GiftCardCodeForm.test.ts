@@ -2,7 +2,7 @@ import './index';
 
 import { expect, fixture, html } from '@open-wc/testing';
 import { GiftCardCodeForm } from './GiftCardCodeForm';
-import { InternalForm } from '../../internal/InternalForm';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { getTestData } from '../../../testgen/getTestData';
 
 describe('GiftCardCodeForm', () => {

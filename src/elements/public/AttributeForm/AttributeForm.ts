@@ -4,7 +4,7 @@ import type { NucleonV8N } from '../NucleonElement/types';
 
 import { TranslatableMixin } from '../../../mixins/translatable';
 import { BooleanSelector } from '@foxy.io/sdk/core';
-import { InternalForm } from '../../internal/InternalForm';
+import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { html } from 'lit-html';
 
 const NS = 'attribute-form';
