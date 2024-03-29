@@ -293,6 +293,10 @@
       "url": "./src/static/schemas/reports-table.json"
     },
     {
+      "fileMatch": ["/src/static/translations/shared/*.json"],
+      "url": "./src/static/schemas/shared.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/shipment-card/*.json"],
       "url": "./src/static/schemas/shipment-card.json"
     },

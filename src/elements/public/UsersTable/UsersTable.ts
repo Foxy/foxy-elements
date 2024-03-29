@@ -6,7 +6,7 @@ import { Data } from './types';
 import { FormDialog } from '../FormDialog/FormDialog';
 import { Table } from '../Table/Table';
 import { TranslatableMixin } from '../../../mixins/translatable';
-import { roles } from '../UserForm/roles';
+import { roles } from './roles';
 
 export class UsersTable extends TranslatableMixin(Table, 'users-table')<Data> {
   static nameColumn: Column<Data> = {

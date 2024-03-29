@@ -1,9 +1,7 @@
-import '@vaadin/vaadin-text-field';
-import '@vaadin/vaadin-button';
-import '../../internal/InternalConfirmDialog/index';
+import '../../internal/InternalCheckboxGroupControl/index';
+import '../../internal/InternalIntegerControl/index';
+import '../../internal/InternalTextControl/index';
 import '../../internal/InternalForm/index';
-import '../Spinner/index';
-import '../I18n/index';
 
 import { UserForm } from './UserForm';
 
