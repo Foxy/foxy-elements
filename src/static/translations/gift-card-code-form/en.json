@@ -1,32 +1,49 @@
 {
-  "cancel": "Cancel",
-  "confirm": "Confirm",
-  "code": "Code",
-  "create": "Create",
-  "current_balance": "Current balance",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "end_date": "End date",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
-  "v8n_code_has_spaces": "Spaces are not allowed in gift card codes",
+  "code": {
+    "label": "Code",
+    "placeholder": "Required",
+    "helper_text": "The string value of this gift card code which your customer will add to their cart to use this gift card.",
+    "v8n_required": "Please enter a code",
+    "v8n_too_long": "Please enter a code with no more than 50 characters",
+    "v8n_has_spaces": "Please enter a code without spaces"
+  },
+  "current-balance": {
+    "label": "Current balance",
+    "placeholder": "Required",
+    "helper_text": "The current balance of this gift card.",
+    "v8n_required": "Please enter a current balance"
+  },
+  "end-date": {
+    "label": "End date",
+    "placeholder": "Optional",
+    "helper_text": "The date when this gift card will expire."
+  },
   "cart-item": {
-    "title": "Cart item",
-    "item-card": {
+    "label": "Cart item",
+    "card": {
+      "daily": "Daily",
+      "daily_plural": "Every {{count}} days",
+      "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"item-card\" })",
+      "monthly": "Monthly",
+      "monthly_plural": "Every {{count}} months",
+      "subinfo_recurring": "$t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"item-card\" }) from {{startDate, date}}",
+      "subinfo_twice_a_month": "$t(twice_a_month, { \"ns\": \"item-card\" }) from {{startDate, date}}",
+      "twice_a_month": "Twice a month",
+      "no_code": "No SKU",
+      "weekly": "Weekly",
+      "weekly_plural": "Every {{count}} weeks",
+      "yearly": "Yearly",
+      "yearly_plural": "Every {{count}} years",
       "price": "{{amount, price}}",
-      "wgt": "WGT",
       "spinner": {
         "loading_busy": "Loading",
-        "loading_empty": "No items",
+        "loading_empty": "No info",
         "loading_error": "Unknown error"
       }
     }
   },
   "logs": {
-    "title": "Timeline",
+    "label": "Timeline",
     "pagination": {
       "first": "First",
       "last": "Last",
@@ -38,15 +55,28 @@
         "title_used": "Used on checkout",
         "subtitle_transaction": "Transaction #{{ transaction_id }}",
         "subtitle_no_transaction": "No transaction",
-        "date": "{{ date_created, date }}",
+        "date": "{{ date_created, date }} at {{ date_created, time }}",
         "adjustment": "{{ amount, price }}",
         "spinner": {
           "loading_busy": "Loading",
-          "loading_empty": "No data",
+          "loading_empty": "No records",
           "loading_error": "Unknown error"
         }
       }
     }
+  },
+  "timestamps": {
+    "date": "{{value, date}}",
+    "date_created": "Created on",
+    "date_modified": "Last updated on"
+  },
+  "delete": {
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete_prompt": "Are you sure you'd like to remove this gift card code? You won't be able to bring it back."
+  },
+  "create": {
+    "create": "Create"
   },
   "spinner": {
     "refresh": "Refresh",

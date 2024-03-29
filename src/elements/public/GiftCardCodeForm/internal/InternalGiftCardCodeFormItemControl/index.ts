@@ -1,6 +1,4 @@
 import '../../../../internal/InternalControl/index';
-import '../../../../internal/InternalDetails/index';
-
 import '../../../ItemCard/index';
 import '../../../I18n/index';
 

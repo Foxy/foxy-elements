@@ -1,7 +1,7 @@
-import { GiftCardCodeForm } from './GiftCardCodeForm';
-import { Rels } from '@foxy.io/sdk/backend';
-import { Renderer } from '../../../mixins/configurable';
-import { Resource } from '@foxy.io/sdk/core';
+import type { GiftCardCodeForm } from './GiftCardCodeForm';
+import type { Renderer } from '../../../mixins/configurable';
+import type { Resource } from '@foxy.io/sdk/core';
+import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.GiftCardCode>;
 
@@ -12,6 +12,8 @@ export type Templates = {
   'current-balance:after'?: Renderer<GiftCardCodeForm>;
   'end-date:before'?: Renderer<GiftCardCodeForm>;
   'end-date:after'?: Renderer<GiftCardCodeForm>;
+  'logs:before'?: Renderer<GiftCardCodeForm>;
+  'logs:after'?: Renderer<GiftCardCodeForm>;
   'timestamps:before'?: Renderer<GiftCardCodeForm>;
   'timestamps:after'?: Renderer<GiftCardCodeForm>;
   'delete:before'?: Renderer<GiftCardCodeForm>;

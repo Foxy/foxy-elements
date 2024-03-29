@@ -2,54 +2,115 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "cancel": { "type": "string", "default": "Cancel" },
-    "confirm": { "type": "string", "default": "Confirm" },
-    "code": { "type": "string", "default": "Code" },
-    "create": { "type": "string", "default": "Create" },
-    "current_balance": { "type": "string", "default": "Current balance" },
-    "date": { "type": "string", "default": "{{value, date}}" },
-    "date_created": { "type": "string", "default": "Created on" },
-    "date_modified": { "type": "string", "default": "Last updated on" },
-    "delete": { "type": "string", "default": "Delete" },
-    "delete_prompt": {
-      "type": "string",
-      "default": "This resource will be permanently removed. Are you sure?"
+    "code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Code" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": {
+          "type": "string",
+          "default": "The string value of this gift card code which your customer will add to their cart to use this gift card."
+        },
+        "v8n_required": { "type": "string", "default": "Please enter a code" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Please enter a code with no more than 50 characters"
+        },
+        "v8n_has_spaces": { "type": "string", "default": "Please enter a code without spaces" }
+      },
+      "required": [
+        "label",
+        "placeholder",
+        "helper_text",
+        "v8n_required",
+        "v8n_too_long",
+        "v8n_has_spaces"
+      ]
     },
-    "end_date": { "type": "string", "default": "End date" },
-    "v8n_required": { "type": "string", "default": "Required" },
-    "v8n_too_long": { "type": "string", "default": "Too long" },
-    "v8n_code_has_spaces": {
-      "type": "string",
-      "default": "Spaces are not allowed in gift card codes"
+    "current-balance": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Current balance" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "The current balance of this gift card." },
+        "v8n_required": { "type": "string", "default": "Please enter a current balance" }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required"]
+    },
+    "end-date": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "End date" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": { "type": "string", "default": "The date when this gift card will expire." }
+      },
+      "required": ["label", "placeholder", "helper_text"]
     },
     "cart-item": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Cart item" },
-        "item-card": {
+        "label": { "type": "string", "default": "Cart item" },
+        "card": {
           "additionalProperties": false,
           "properties": {
+            "daily": { "type": "string", "default": "Daily" },
+            "daily_plural": { "type": "string", "default": "Every {{count}} days" },
+            "frequency": {
+              "type": "string",
+              "default": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"item-card\" })"
+            },
+            "monthly": { "type": "string", "default": "Monthly" },
+            "monthly_plural": { "type": "string", "default": "Every {{count}} months" },
+            "subinfo_recurring": {
+              "type": "string",
+              "default": "$t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"item-card\" }) from {{startDate, date}}"
+            },
+            "subinfo_twice_a_month": {
+              "type": "string",
+              "default": "$t(twice_a_month, { \"ns\": \"item-card\" }) from {{startDate, date}}"
+            },
+            "twice_a_month": { "type": "string", "default": "Twice a month" },
+            "no_code": { "type": "string", "default": "No SKU" },
+            "weekly": { "type": "string", "default": "Weekly" },
+            "weekly_plural": { "type": "string", "default": "Every {{count}} weeks" },
+            "yearly": { "type": "string", "default": "Yearly" },
+            "yearly_plural": { "type": "string", "default": "Every {{count}} years" },
             "price": { "type": "string", "default": "{{amount, price}}" },
-            "wgt": { "type": "string", "default": "WGT" },
             "spinner": {
               "additionalProperties": false,
               "properties": {
                 "loading_busy": { "type": "string", "default": "Loading" },
-                "loading_empty": { "type": "string", "default": "No items" },
+                "loading_empty": { "type": "string", "default": "No info" },
                 "loading_error": { "type": "string", "default": "Unknown error" }
               },
               "required": ["loading_busy", "loading_empty", "loading_error"]
             }
           },
-          "required": ["price", "wgt", "spinner"]
+          "required": [
+            "daily",
+            "daily_plural",
+            "frequency",
+            "monthly",
+            "monthly_plural",
+            "subinfo_recurring",
+            "subinfo_twice_a_month",
+            "twice_a_month",
+            "no_code",
+            "weekly",
+            "weekly_plural",
+            "yearly",
+            "yearly_plural",
+            "price",
+            "spinner"
+          ]
         }
       },
-      "required": ["title", "item-card"]
+      "required": ["label", "card"]
     },
     "logs": {
       "additionalProperties": false,
       "properties": {
-        "title": { "type": "string", "default": "Timeline" },
+        "label": { "type": "string", "default": "Timeline" },
         "pagination": {
           "additionalProperties": false,
           "properties": {
@@ -68,13 +129,16 @@
                   "default": "Transaction #{{ transaction_id }}"
                 },
                 "subtitle_no_transaction": { "type": "string", "default": "No transaction" },
-                "date": { "type": "string", "default": "{{ date_created, date }}" },
+                "date": {
+                  "type": "string",
+                  "default": "{{ date_created, date }} at {{ date_created, time }}"
+                },
                 "adjustment": { "type": "string", "default": "{{ amount, price }}" },
                 "spinner": {
                   "additionalProperties": false,
                   "properties": {
                     "loading_busy": { "type": "string", "default": "Loading" },
-                    "loading_empty": { "type": "string", "default": "No data" },
+                    "loading_empty": { "type": "string", "default": "No records" },
                     "loading_error": { "type": "string", "default": "Unknown error" }
                   },
                   "required": ["loading_busy", "loading_empty", "loading_error"]
@@ -94,7 +158,33 @@
           "required": ["first", "last", "next", "pagination", "previous", "card"]
         }
       },
-      "required": ["title", "pagination"]
+      "required": ["label", "pagination"]
+    },
+    "timestamps": {
+      "additionalProperties": false,
+      "properties": {
+        "date": { "type": "string", "default": "{{value, date}}" },
+        "date_created": { "type": "string", "default": "Created on" },
+        "date_modified": { "type": "string", "default": "Last updated on" }
+      },
+      "required": ["date", "date_created", "date_modified"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "Are you sure you'd like to remove this gift card code? You won't be able to bring it back."
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
     },
     "spinner": {
       "additionalProperties": false,
@@ -107,22 +197,14 @@
     }
   },
   "required": [
-    "cancel",
-    "confirm",
     "code",
-    "create",
-    "current_balance",
-    "date",
-    "date_created",
-    "date_modified",
-    "delete",
-    "delete_prompt",
-    "end_date",
-    "v8n_required",
-    "v8n_too_long",
-    "v8n_code_has_spaces",
+    "current-balance",
+    "end-date",
     "cart-item",
     "logs",
+    "timestamps",
+    "delete",
+    "create",
     "spinner"
   ]
 }
