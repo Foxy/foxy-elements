@@ -13043,6 +13043,21 @@
       "description": "Form element for generating codes for coupons or gift cards (`fx:generate_codes`).",
       "attributes": [
         {
+          "name": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
+        {
           "name": "mode",
           "type": "string",
           "default": "\"production\""
@@ -13073,16 +13088,6 @@
         {
           "name": "hiddencontrols",
           "default": "\"False\""
-        },
-        {
-          "name": "simplify-ns-loading",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
         },
         {
           "name": "lang",
@@ -13119,6 +13124,35 @@
         }
       ],
       "properties": [
+        {
+          "name": "simplifyNsLoading",
+          "attribute": "simplify-ns-loading",
+          "type": "boolean",
+          "default": "false"
+        },
+        {
+          "name": "ns",
+          "attribute": "ns",
+          "type": "string",
+          "default": "\"defaultNS\""
+        },
+        {
+          "name": "t",
+          "type": "Translator",
+          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
+        },
+        {
+          "name": "generalErrorPrefix",
+          "description": "Validation errors with this prefix will show up at the top of the form.",
+          "type": "string",
+          "default": "\"error:\""
+        },
+        {
+          "name": "status",
+          "attribute": "status",
+          "description": "Status message to render at the top of the form. If `null`, the message is hidden.",
+          "type": "object"
+        },
         {
           "name": "templates",
           "type": "Templates",
@@ -13174,23 +13208,6 @@
         {
           "name": "hiddenSelector",
           "type": "BooleanSelector"
-        },
-        {
-          "name": "simplifyNsLoading",
-          "attribute": "simplify-ns-loading",
-          "type": "boolean",
-          "default": "false"
-        },
-        {
-          "name": "ns",
-          "attribute": "ns",
-          "type": "string",
-          "default": "\"defaultNS\""
-        },
-        {
-          "name": "t",
-          "type": "Translator",
-          "default": "\"(key, options) => {\\n      const I18nElement = customElements.get('foxy-i18n') as typeof I18n | undefined;\\n\\n      if (!I18nElement) return key;\\n\\n      let keys: string[];\\n\\n      if (this.simplifyNsLoading) {\\n        const namespaces = this.ns.split(' ').filter(v => v.length > 0);\\n        const path = [...namespaces.slice(1), key].join('.');\\n        keys = namespaces[0] ? [`${namespaces[0]}:${path}`] : [path];\\n      } else {\\n        keys = this.ns\\n          .split(' ')\\n          .reverse()\\n          .map(v => v.trim())\\n          .filter(v => v.length > 0)\\n          .reverse()\\n          .map((v, i, a) => `${v}:${[...a.slice(i + 1), key].join('.')}`);\\n      }\\n\\n      keys.push(key);\\n\\n      return I18nElement.i18next.t(keys, { lng: this.lang, ...options }).toString();\\n    }\""
         },
         {
           "name": "UpdateEvent",
@@ -13306,10 +13323,10 @@
           "name": "current-balance:after"
         },
         {
-          "name": "generate:before"
+          "name": "create:before"
         },
         {
-          "name": "generate:after"
+          "name": "create:after"
         }
       ]
     },

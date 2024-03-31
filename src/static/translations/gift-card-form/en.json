@@ -247,19 +247,40 @@
     "failed_to_copy": "Failed to copy"
   },
   "generate-codes-form": {
-    "balance": "Balance",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "current_balance": "Current balance",
-    "generate": "Generate",
-    "generate_codes_done": "All done! We've added new codes for you.",
-    "leave_empty_for_random_codes": "Leave empty to generate completely random codes.",
-    "length": "Length",
-    "number_of_codes": "Number of codes",
-    "prefix": "Prefix",
-    "template": "Template",
-    "v8n_negative": "Negative values are not allowed",
-    "v8n_required": "Required",
+    "status": {
+      "success": "Codes generated successfully."
+    },
+    "error": {
+      "invalid_form": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
+    },
+    "length": {
+      "label": "Code length",
+      "placeholder": "6",
+      "helper_text": ""
+    },
+    "number-of-codes": {
+      "label": "Number of codes",
+      "placeholder": "10",
+      "helper_text": ""
+    },
+    "prefix": {
+      "label": "Prefix",
+      "placeholder": "Optional",
+      "helper_text": "The length value is inclusive of this prefix."
+    },
+    "current-balance": {
+      "label": "Initial balance",
+      "placeholder": "0",
+      "helper_text": ""
+    },
+    "example": {
+      "label": "Examples",
+      "placeholder": "",
+      "helper_text": "This is what the generated codes will look like."
+    },
+    "create": {
+      "create": "Generate"
+    },
     "spinner": {
       "refresh": "Refresh",
       "loading_busy": "Loading",
