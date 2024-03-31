@@ -1,23 +1,22 @@
 {
-  "balance": "Balance",
-  "cancel": "Cancel",
-  "code": "Code",
-  "code_import_hint": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
-  "code_plural": "Codes",
-  "confirm": "Confirm",
-  "current_balance": "Current balance",
-  "duplicate": "Duplicate",
-  "hidden_codes_explainer": "We’ve hidden some of your codes because there were too many of them. Don’t worry – we’ll import them anyway.",
-  "hidden_codes_header": "{{count}} code is hidden",
-  "hidden_codes_header_plural": "{{count}} codes are hidden",
-  "import": "Import",
-  "import_codes_done": "All done! We've imported your codes into the system.",
-  "loading_busy": "Loading",
-  "loading_error": "Unknown error",
-  "type_here": "Type here...",
-  "unique": "Unique",
-  "v8n_negative": "Negative values are not allowed",
-  "v8n_required": "Required",
+  "status": {
+    "success": "All done! We've imported your codes into the system.",
+    "close": "Close"
+  },
+  "gift-card-codes": {
+    "label": "Codes",
+    "placeholder": "Enter or paste codes here...",
+    "helper_text": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
+    "v8n_required": "Please add at least one code"
+  },
+  "current-balance": {
+    "label": "Initial balance",
+    "placeholder": "0",
+    "helper_text": "All imported codes will have this balance."
+  },
+  "create": {
+    "create": "Import"
+  },
   "spinner": {
     "refresh": "Refresh",
     "loading_busy": "Loading",

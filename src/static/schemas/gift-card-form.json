@@ -613,34 +613,47 @@
     "gift-card-codes-form": {
       "additionalProperties": false,
       "properties": {
-        "balance": { "type": "string", "default": "Balance" },
-        "cancel": { "type": "string", "default": "Cancel" },
-        "code": { "type": "string", "default": "Code" },
-        "code_import_hint": {
-          "type": "string",
-          "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats."
+        "status": {
+          "additionalProperties": false,
+          "properties": {
+            "success": {
+              "type": "string",
+              "default": "All done! We've imported your codes into the system."
+            },
+            "close": { "type": "string", "default": "Close" }
+          },
+          "required": ["success", "close"]
         },
-        "code_plural": { "type": "string", "default": "Codes" },
-        "confirm": { "type": "string", "default": "Confirm" },
-        "current_balance": { "type": "string", "default": "Current balance" },
-        "duplicate": { "type": "string", "default": "Duplicate" },
-        "hidden_codes_explainer": {
-          "type": "string",
-          "default": "We’ve hidden some of your codes because there were too many of them. Don’t worry – we’ll import them anyway."
+        "gift-card-codes": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Codes" },
+            "placeholder": { "type": "string", "default": "Enter or paste codes here..." },
+            "helper_text": {
+              "type": "string",
+              "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats."
+            },
+            "v8n_required": { "type": "string", "default": "Please add at least one code" }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required"]
         },
-        "hidden_codes_header": { "type": "string", "default": "{{count}} code is hidden" },
-        "hidden_codes_header_plural": { "type": "string", "default": "{{count}} codes are hidden" },
-        "import": { "type": "string", "default": "Import" },
-        "import_codes_done": {
-          "type": "string",
-          "default": "All done! We've imported your codes into the system."
+        "current-balance": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Initial balance" },
+            "placeholder": { "type": "string", "default": "0" },
+            "helper_text": {
+              "type": "string",
+              "default": "All imported codes will have this balance."
+            }
+          },
+          "required": ["label", "placeholder", "helper_text"]
         },
-        "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Unknown error" },
-        "type_here": { "type": "string", "default": "Type here..." },
-        "unique": { "type": "string", "default": "Unique" },
-        "v8n_negative": { "type": "string", "default": "Negative values are not allowed" },
-        "v8n_required": { "type": "string", "default": "Required" },
+        "create": {
+          "additionalProperties": false,
+          "properties": { "create": { "type": "string", "default": "Import" } },
+          "required": ["create"]
+        },
         "spinner": {
           "additionalProperties": false,
           "properties": {
@@ -651,28 +664,7 @@
           "required": ["refresh", "loading_busy", "loading_error"]
         }
       },
-      "required": [
-        "balance",
-        "cancel",
-        "code",
-        "code_import_hint",
-        "code_plural",
-        "confirm",
-        "current_balance",
-        "duplicate",
-        "hidden_codes_explainer",
-        "hidden_codes_header",
-        "hidden_codes_header_plural",
-        "import",
-        "import_codes_done",
-        "loading_busy",
-        "loading_error",
-        "type_here",
-        "unique",
-        "v8n_negative",
-        "v8n_required",
-        "spinner"
-      ]
+      "required": ["status", "gift-card-codes", "current-balance", "create", "spinner"]
     },
     "pagination": {
       "additionalProperties": false,
