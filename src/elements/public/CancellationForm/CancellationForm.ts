@@ -31,6 +31,7 @@ const Base = ScopedElementsMixin(
  *
  * @element foxy-cancellation-form
  * @since 1.4.0
+ * @deprecated
  */
 export class CancellationForm extends Base<Data> {
   static get scopedElements(): ScopedElementsMap {
