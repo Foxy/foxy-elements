@@ -7,6 +7,7 @@ import { Skeleton } from '../Skeleton/Skeleton';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type I18NOptions = TOptions<any>;
 
+/** @deprecated – use internal controls instead */
 export class I18N extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {

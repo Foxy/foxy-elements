@@ -10,6 +10,7 @@ import { InferrableMixin } from '../../../mixins/inferrable';
 
 const Base = TranslatableMixin(ConfigurableMixin(ThemeableMixin(InferrableMixin(LitElement))));
 
+/** @deprecated – use internal controls instead */
 export class EditableList extends Base {
   static get properties(): PropertyDeclarations {
     return {

@@ -1,6 +1,7 @@
 import { html, css, CSSResultArray, TemplateResult } from 'lit-element';
 import { Page } from '../Page/Page';
 
+/** @deprecated – use internal controls instead */
 export class Section extends Page {
   public static get styles(): CSSResultArray {
     return [

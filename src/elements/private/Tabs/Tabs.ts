@@ -4,6 +4,7 @@ import { TemplateResult, html } from 'lit-html';
 import { Themeable } from '../../../mixins/themeable';
 import { classMap } from '../../../utils/class-map';
 
+/** @deprecated – use internal controls instead */
 export class Tabs extends LitElement {
   static get properties(): PropertyDeclarations {
     return {

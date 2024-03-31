@@ -5,6 +5,7 @@ import { concatTruthy } from '../../../utils/concat-truthy';
 import { I18N } from '../I18N/I18N';
 import { MonthdayPickerChangeEvent } from './MonthdayPickerChangeEvent';
 
+/** @deprecated – use internal controls instead */
 export class MonthdayPicker extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {

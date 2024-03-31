@@ -21,6 +21,7 @@ export class ErrorScreenReloadEvent extends CustomEvent<void> {
   }
 }
 
+/** @deprecated – use internal controls instead */
 export class ErrorScreen extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {

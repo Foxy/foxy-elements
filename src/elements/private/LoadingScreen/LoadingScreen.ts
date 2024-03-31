@@ -3,6 +3,7 @@ import { TemplateResult, html } from 'lit-html';
 
 import { Themeable } from '../../../mixins/themeable';
 
+/** @deprecated – use internal controls instead */
 export class LoadingScreen extends LitElement {
   public static get styles(): CSSResultArray {
     return [
