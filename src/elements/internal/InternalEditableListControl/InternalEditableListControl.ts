@@ -44,8 +44,19 @@ export class InternalEditableListControl extends InternalEditableControl {
     const isAddButtonDisabled = this.disabled || !this.__newItem;
 
     const addItem = () => {
-      if (!this.__newItem) return;
-      this._value = [...this._value, { value: this.__newItem }];
+      const newValue = [...this._value];
+
+      this.__newItem
+        .split('\n')
+        .map(code => code.trim())
+        .filter(code => code.length > 0)
+        .forEach(value => {
+          if (!newValue.some(item => item.value === value)) {
+            newValue.push({ value });
+          }
+        });
+
+      this._value = newValue;
       this.__newItem = '';
     };
 
@@ -120,6 +131,11 @@ export class InternalEditableListControl extends InternalEditableControl {
               @change=${(evt: Event) => evt.stopPropagation()}
               @input=${(evt: InputEvent) => {
                 this.__newItem = (evt.currentTarget as HTMLInputElement).value.trim();
+              }}
+              @paste=${(evt: ClipboardEvent) => {
+                evt.preventDefault();
+                this.__newItem = evt.clipboardData?.getData('text') ?? '';
+                addItem();
               }}
             />
 

@@ -518,29 +518,34 @@
     "coupon-codes-form": {
       "additionalProperties": false,
       "properties": {
-        "code": { "type": "string", "default": "Code" },
-        "code_import_hint": {
-          "type": "string",
-          "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats."
+        "status": {
+          "additionalProperties": false,
+          "properties": {
+            "success": {
+              "type": "string",
+              "default": "All done! We've imported your codes into the system."
+            }
+          },
+          "required": ["success"]
         },
-        "code_plural": { "type": "string", "default": "Codes" },
-        "duplicate": { "type": "string", "default": "Duplicate" },
-        "hidden_codes_explainer": {
-          "type": "string",
-          "default": "We’ve hidden some of your codes because there were too many of them. Don’t worry – we’ll import them anyway."
+        "coupon-codes": {
+          "additionalProperties": false,
+          "properties": {
+            "label": { "type": "string", "default": "Codes" },
+            "placeholder": { "type": "string", "default": "Enter or paste codes here..." },
+            "helper_text": {
+              "type": "string",
+              "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats."
+            },
+            "v8n_required": { "type": "string", "default": "Please add at least one code" }
+          },
+          "required": ["label", "placeholder", "helper_text", "v8n_required"]
         },
-        "hidden_codes_header": { "type": "string", "default": "{{count}} code is hidden" },
-        "hidden_codes_header_plural": { "type": "string", "default": "{{count}} codes are hidden" },
-        "import": { "type": "string", "default": "Import" },
-        "import_codes_done": {
-          "type": "string",
-          "default": "All done! We've imported your codes into the system."
+        "create": {
+          "additionalProperties": false,
+          "properties": { "create": { "type": "string", "default": "Import" } },
+          "required": ["create"]
         },
-        "loading_busy": { "type": "string", "default": "Loading" },
-        "loading_error": { "type": "string", "default": "Unknown error" },
-        "type_here": { "type": "string", "default": "Type here..." },
-        "unique": { "type": "string", "default": "Unique" },
-        "v8n_required": { "type": "string", "default": "Required" },
         "spinner": {
           "additionalProperties": false,
           "properties": {
@@ -551,23 +556,7 @@
           "required": ["refresh", "loading_busy", "loading_error"]
         }
       },
-      "required": [
-        "code",
-        "code_import_hint",
-        "code_plural",
-        "duplicate",
-        "hidden_codes_explainer",
-        "hidden_codes_header",
-        "hidden_codes_header_plural",
-        "import",
-        "import_codes_done",
-        "loading_busy",
-        "loading_error",
-        "type_here",
-        "unique",
-        "v8n_required",
-        "spinner"
-      ]
+      "required": ["status", "coupon-codes", "create", "spinner"]
     },
     "generate-codes-form": {
       "additionalProperties": false,
