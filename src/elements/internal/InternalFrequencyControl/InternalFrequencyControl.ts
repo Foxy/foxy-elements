@@ -3,6 +3,7 @@ import type { CustomFieldElement, CustomFieldI18n } from '@vaadin/vaadin-custom-
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { css, html } from 'lit-element';
+import { ifDefined } from 'lit-html/directives/if-defined';
 
 /**
  * Internal control displaying a custom field for frequency input.
@@ -15,6 +16,7 @@ export class InternalFrequencyControl extends InternalEditableControl {
     return {
       ...super.properties,
       options: { attribute: false },
+      max: { type: Number },
     };
   }
 
@@ -65,6 +67,8 @@ export class InternalFrequencyControl extends InternalEditableControl {
     { value: 'y', label: 'year' },
   ];
 
+  max: number | null = 999;
+
   private __i18n: CustomFieldI18n = {
     formatValue: inputValues => inputValues.join(''),
     parseValue: value => {
@@ -100,7 +104,7 @@ export class InternalFrequencyControl extends InternalEditableControl {
         }}
       >
         <vaadin-integer-field
-          max="999"
+          max=${ifDefined(this.max ?? undefined)}
           min="1"
           prevent-invalid-input
           has-controls
