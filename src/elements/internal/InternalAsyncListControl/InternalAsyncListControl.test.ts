@@ -780,4 +780,38 @@ describe('InternalAsyncListControl', () => {
     expect(control.querySelector(buttonSelector)).to.not.exist;
     expect(control.querySelector(aSelector)).to.not.exist;
   });
+
+  it('renders helper text', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control></foxy-internal-async-list-control>
+    `);
+
+    expect(control.renderRoot).to.include.text('helper_text');
+
+    control.helperText = 'Test helper text';
+    await control.requestUpdate();
+
+    expect(control.renderRoot).to.not.include.text('helper_text');
+    expect(control.renderRoot).to.include.text('Test helper text');
+  });
+
+  it('render error text if available', async () => {
+    let control = await fixture<Control>(html`
+      <foxy-internal-async-list-control></foxy-internal-async-list-control>
+    `);
+
+    expect(control.renderRoot).to.not.include.text('Test error message');
+
+    customElements.define(
+      'x-test-control',
+      class extends Control {
+        protected get _errorMessage() {
+          return 'Test error message';
+        }
+      }
+    );
+
+    control = await fixture<Control>(html`<x-test-control></x-test-control>`);
+    expect(control.renderRoot).to.include.text('Test error message');
+  });
 });

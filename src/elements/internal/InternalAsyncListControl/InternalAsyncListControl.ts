@@ -251,6 +251,24 @@ export class InternalAsyncListControl extends InternalEditableControl {
         >
         </foxy-collection-page>
       </foxy-pagination>
+
+      <div
+        class=${classMap({
+          'transition-colors mt-xs text-xs': true,
+          'text-secondary group-hover-text-body': !this.disabled && !this.readonly,
+          'text-disabled': this.disabled,
+        })}
+        ?hidden=${!this.helperText || this.helperText === 'helper_text'}
+      >
+        ${this.helperText}
+      </div>
+
+      <div
+        class="mt-xs text-xs leading-xs text-error"
+        ?hidden=${!this._errorMessage || this.disabled || this.readonly}
+      >
+        ${this._errorMessage}
+      </div>
     `;
   }
 
