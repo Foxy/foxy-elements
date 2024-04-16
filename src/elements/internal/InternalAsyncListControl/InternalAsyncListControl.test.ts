@@ -286,6 +286,7 @@ describe('InternalAsyncListControl', () => {
 
     const item = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -326,6 +327,7 @@ describe('InternalAsyncListControl', () => {
 
     const item = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -363,6 +365,7 @@ describe('InternalAsyncListControl', () => {
 
     const item = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -413,6 +416,7 @@ describe('InternalAsyncListControl', () => {
 
     const item = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -460,6 +464,7 @@ describe('InternalAsyncListControl', () => {
 
     const item = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -512,6 +517,7 @@ describe('InternalAsyncListControl', () => {
 
     const item = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -558,6 +564,7 @@ describe('InternalAsyncListControl', () => {
 
     const swipeActions = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -618,6 +625,7 @@ describe('InternalAsyncListControl', () => {
 
     const swipeActions = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
@@ -658,6 +666,7 @@ describe('InternalAsyncListControl', () => {
 
     const swipeActions = await fixture(
       (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,

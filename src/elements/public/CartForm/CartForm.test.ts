@@ -542,6 +542,7 @@ describe('CartForm', () => {
 
     const card = await fixture<ItemCard>(
       (control.item as ItemRenderer)({
+        simplifyNsLoading: false,
         readonlyControls: BooleanSelector.False,
         disabledControls: BooleanSelector.False,
         hiddenControls: BooleanSelector.False,
