@@ -48,6 +48,7 @@ export class CustomerPortalSettingsUpdateEvent extends CustomEvent<void> {
   }
 }
 
+/** @deprecated – use `CustomerPortalSettingsForm` instead. */
 export class CustomerPortalSettings extends Translatable {
   public static get scopedElements(): ScopedElementsMap {
     return {
