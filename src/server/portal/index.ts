@@ -13,7 +13,34 @@ export function createRouter(): Router {
   publicRouter.get('/:prefix/customer_portal_settings', async (ctx: HandlerContext) => {
     return new Response(
       JSON.stringify({
-        ...dataset.customer_portal_settings[0],
+        session_lifespan_in_minutes: 90,
+        subscriptions: {
+          allow_frequency_modification: [
+            {
+              jsonata_query: '$contains(frequency, "m")',
+              values: ['.5m', '1m', '2m'],
+            },
+            {
+              jsonata_query: '$contains(frequency, "y")',
+              values: ['1y', '2y'],
+            },
+          ],
+          allow_next_date_modification: [
+            {
+              allowed_days: {
+                days: [1, 3, 5],
+                type: 'day',
+              },
+              disallowed_dates: ['2021-09-02', '2021-09-03', '2021-09-01'],
+              jsonata_query: '$contains(frequency, "m")',
+              max: '2y',
+              min: '1w',
+            },
+          ],
+        },
+        date_modified: '2021-09-01T00:00:00Z',
+        date_created: '2021-09-01T00:00:00Z',
+        sso: true,
         tos_checkbox_settings: {
           usage: 'optional' as const,
           url: 'https://foxy.io/terms-of-service/',

@@ -443,12 +443,12 @@ export const defaults: Defaults = {
   customer_portal_settings: (query, dataset) => ({
     id: increment('customer_portal_settings', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),
-    session_lifespan_in_minutes: 0,
-    allowed_origins: [],
+    sessionLifespanInMinutes: 0,
+    allowedOrigins: [],
     sso: false,
     subscriptions: {
-      allow_frequency_modification: [],
-      allow_next_date_modification: [],
+      allowFrequencyModification: [],
+      allowNextDateModification: [],
     },
     date_created: new Date().toISOString(),
     date_modified: new Date().toISOString(),

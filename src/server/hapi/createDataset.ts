@@ -710,23 +710,27 @@ export const createDataset: () => Dataset = () => ({
     {
       id: 0,
       store_id: 0,
-      session_lifespan_in_minutes: 90,
-      allowed_origins: ['https://themancan.com'],
+      sessionLifespanInMinutes: 90,
+      allowedOrigins: ['https://themancan.com'],
       subscriptions: {
-        allow_frequency_modification: [
+        allowFrequencyModification: [
           {
-            jsonata_query: '$contains(frequency, "m")',
+            jsonataQuery: '$contains(frequency, "m")',
             values: ['.5m', '1m', '2m'],
           },
-        ],
-        allow_next_date_modification: [
           {
-            allowed_days: {
+            jsonataQuery: '$contains(frequency, "y")',
+            values: ['1y', '2y'],
+          },
+        ],
+        allowNextDateModification: [
+          {
+            allowedDays: {
               days: [1, 3, 5],
               type: 'day',
             },
-            disallowed_dates: ['2021-09-02', '2021-09-03', '2021-09-01'],
-            jsonata_query: '$contains(frequency, "m")',
+            disallowedDates: ['2021-09-02', '2021-09-03', '2021-09-01'],
+            jsonataQuery: '$contains(frequency, "m")',
             max: '2y',
             min: '1w',
           },
