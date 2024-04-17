@@ -28,6 +28,7 @@ export { CustomerCard } from './CustomerCard/index';
 export { CustomerForm } from './CustomerForm/index';
 export { CustomerPortal } from './CustomerPortal/index';
 export { CustomerPortalSettings } from './CustomerPortalSettings/index';
+export { CustomerPortalSettingsForm } from './CustomerPortalSettingsForm/index';
 export { CustomersTable } from './CustomersTable/index';
 export { CustomFieldCard } from './CustomFieldCard/index';
 export { CustomFieldForm } from './CustomFieldForm/index';

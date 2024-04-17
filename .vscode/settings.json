@@ -117,6 +117,10 @@
       "url": "./src/static/schemas/customer-portal-settings.json"
     },
     {
+      "fileMatch": ["/src/static/translations/customer-portal-settings-form/*.json"],
+      "url": "./src/static/schemas/customer-portal-settings-form.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/customers-table/*.json"],
       "url": "./src/static/schemas/customers-table.json"
     },

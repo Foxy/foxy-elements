@@ -312,6 +312,10 @@ export const groups = [
     files: './src/elements/public/CustomerPortalSettings/**/*.test.ts',
   },
   {
+    name: 'foxy-customer-portal-settings-form',
+    files: './src/elements/public/CustomerPortalSettingsForm/**/*.test.ts',
+  },
+  {
     name: 'foxy-customers-table',
     files: './src/elements/public/CustomersTable/**/*.test.ts',
   },

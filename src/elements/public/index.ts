@@ -28,6 +28,7 @@ export { CustomerCard } from './CustomerCard/CustomerCard';
 export { CustomerForm } from './CustomerForm/CustomerForm';
 export { CustomerPortal } from './CustomerPortal/CustomerPortal';
 export { CustomerPortalSettings } from './CustomerPortalSettings/CustomerPortalSettings';
+export { CustomerPortalSettingsForm } from './CustomerPortalSettingsForm/CustomerPortalSettingsForm';
 export { CustomersTable } from './CustomersTable/CustomersTable';
 export { CustomFieldCard } from './CustomFieldCard/CustomFieldCard';
 export { CustomFieldForm } from './CustomFieldForm/CustomFieldForm';
