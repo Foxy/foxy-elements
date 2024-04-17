@@ -104,7 +104,7 @@ export class InternalFrequencyControl extends InternalEditableControl {
         }}
       >
         <vaadin-integer-field
-          max=${ifDefined(this.max ?? undefined)}
+          max=${ifDefined(this.max || undefined)}
           min="1"
           prevent-invalid-input
           has-controls
