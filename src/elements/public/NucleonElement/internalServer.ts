@@ -9,7 +9,15 @@ import get from 'lodash-es/get';
 export async function internalServer(req: Request, el: NucleonElement<any>): Promise<Response> {
   if (el.in('busy')) return Promise.resolve(new Response(null, { status: 500 }));
 
-  const path = req.url
+  const url = new URL(req.url);
+
+  url.search = '';
+  url.hash = '';
+
+  // can't just use url.pathname because different browsers
+  // parse foxy:// urls differently for some reason
+  const path = url
+    .toString()
     .replace(`foxy://${el.virtualHost}/form/`, '')
     .split('/')
     .map(decodeURIComponent);
