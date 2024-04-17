@@ -12,7 +12,6 @@ import { InternalAsyncListControl } from '../../internal/InternalAsyncListContro
 import { SubscriptionForm as Form } from './SubscriptionForm';
 import { InternalNumberControl } from '../../internal/InternalNumberControl/InternalNumberControl';
 import { InternalCalendar } from '../../internal/InternalCalendar/InternalCalendar';
-import { CancellationForm } from '../CancellationForm/CancellationForm';
 import { ComboBoxElement } from '@vaadin/vaadin-combo-box';
 import { InternalSandbox } from '../../internal/InternalSandbox/InternalSandbox';
 import { TransactionCard } from '../TransactionCard/TransactionCard';
@@ -34,7 +33,6 @@ import { getByKey } from '../../../testgen/getByKey';
 import { ItemCard } from '../ItemCard/ItemCard';
 import { Choice } from '../../private/Choice/Choice';
 import { links } from '../../../server/hapi/links';
-import { stub } from 'sinon';
 import { I18n } from '../I18n/I18n';
 
 const fromDefaults = (key: string, overrides: Record<PropertyKey, unknown>) => {

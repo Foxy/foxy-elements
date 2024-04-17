@@ -1,6 +1,6 @@
 import './index';
 
-import { InternalCustomerPortalSettingsFormSubscriptionsAllowFrequencyModificationRuleCard as Card } from './index';
+import { InternalCustomerPortalSettingsFormSubscriptionsAllowFrequencyModificationRuleCard as Card } from './InternalCustomerPortalSettingsFormSubscriptionsAllowFrequencyModificationRuleCard';
 import { expect, fixture, html } from '@open-wc/testing';
 import { Data } from './types';
 

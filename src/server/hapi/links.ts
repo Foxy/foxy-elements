@@ -236,7 +236,7 @@ export const links: Links = {
     'fx:coupon_item_categories': { href: `./coupon_item_categories?coupon_id=${id}` },
   }),
 
-  coupon_codes: ({ coupon_id, store_id, id }) => ({
+  coupon_codes: ({ coupon_id, store_id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:coupon': { href: `./coupons/${coupon_id}` },
     'fx:coupon_code_transactions': { href: `./transactions` },

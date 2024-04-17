@@ -2,12 +2,11 @@ import type { CSSResultArray, PropertyDeclarations, TemplateResult } from 'lit-e
 import type { Item, Option, Unit } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
+import { html, css } from 'lit-element';
 import { classMap } from '../../../utils/class-map';
 import { repeat } from 'lit-html/directives/repeat';
 import { spread } from '@open-wc/lit-helpers';
 import { live } from 'lit-html/directives/live';
-import { html } from 'lit-element';
-import { css } from 'lit-element';
 
 export class InternalEditableListControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {

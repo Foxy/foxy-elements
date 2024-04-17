@@ -33,7 +33,7 @@ export class CustomerPortalSettingsForm extends Base<Data> {
       // TODO remove this once SDK types are fixed
       // @ts-expect-error SDK types are incorrect
       ({ jwtSharedSecret: v }) => {
-        return !v || /^[a-z0-9\-]+$/.test(v) || 'jwt-shared-secret:v8n_invalid';
+        return !v || /^[a-z0-9-]+$/.test(v) || 'jwt-shared-secret:v8n_invalid';
       },
       // TODO remove this once SDK types are fixed
       // @ts-expect-error SDK types are incorrect

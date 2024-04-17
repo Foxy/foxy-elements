@@ -237,11 +237,11 @@ describe('InternalTextControl', () => {
       <test-internal-password-control show-generator></test-internal-password-control>
     `);
 
-    let button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
+    const button = control.renderRoot.querySelector<HTMLElement>('[data-testid="generator"]')!;
     expect(button).to.exist;
 
     button.click();
-    expect(control.testValue).to.match(/^[a-zA-Z0-9]{6}\-[a-zA-Z0-9]{6}\-[a-zA-Z0-9]{6}$/);
+    expect(control.testValue).to.match(/^[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}-[a-zA-Z0-9]{6}$/);
 
     control.generatorOptions = {
       charset: 'abcdefghijklmnopqrstuvwxyz0123456789',
@@ -249,6 +249,6 @@ describe('InternalTextControl', () => {
     };
 
     button.click();
-    expect(control.testValue).to.match(/^[a-z0-9]{6}\-[a-z0-9]{6}$/);
+    expect(control.testValue).to.match(/^[a-z0-9]{6}-[a-z0-9]{6}$/);
   });
 });
