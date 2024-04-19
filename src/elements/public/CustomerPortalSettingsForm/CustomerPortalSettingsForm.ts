@@ -8,6 +8,7 @@ import { BooleanSelector } from '@foxy.io/sdk/core';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
 import { isOrigin } from './isOrigin';
 import { html } from 'lit-html';
+import { toOrigin } from './toOrigin';
 
 const NS = 'customer-portal-settings-form';
 const Base = TranslatableMixin(InternalForm, NS);
@@ -86,14 +87,17 @@ export class CustomerPortalSettingsForm extends Base<Data> {
   };
 
   private readonly __allowedOriginsGetValue = () => {
-    return this.form.allowedOrigins?.map(value => ({ value }));
+    return this.form.allowedOrigins?.map(value => ({
+      label: isOrigin(value) ? value : `⚠️ ${value}`,
+      value,
+    }));
   };
 
   private readonly __allowedOriginsSetValue = (newValue: Item[]) => {
     this.edit({
       allowedOrigins: newValue
-        .filter(({ value }) => isOrigin(value))
-        .map(({ value }) => value.toLowerCase()),
+        .map(({ value }) => toOrigin(value))
+        .filter((v, i, a) => a.indexOf(v) === i),
     });
   };
 
