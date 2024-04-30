@@ -69,9 +69,13 @@ export const InferrableMixin = <TBase extends Base>(
       const roots = this.renderRoot === this ? [this.renderRoot] : [this.renderRoot, this];
 
       roots.forEach(root =>
-        root
-          .querySelectorAll<InferrableMixinHost & HTMLElement>('[infer]')
-          .forEach(inferrable => inferrable.inferProperties())
+        root.querySelectorAll<InferrableMixinHost & HTMLElement>('[infer]').forEach(inferrable => {
+          try {
+            inferrable.inferProperties();
+          } catch (err) {
+            console.warn(`Failed to infer properties for ${inferrable.tagName}`, inferrable, err);
+          }
+        })
       );
     }
 
