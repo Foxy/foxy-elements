@@ -881,7 +881,19 @@ export const createDataset: () => Dataset = () => ({
     date_modified: '2012-10-31T14:12:39-0700',
   })),
 
-  coupon_item_categories: [],
+  coupon_attributes: [],
+
+  coupon_item_categories: [
+    {
+      id: 0,
+      coupon_id: 0,
+      item_category_id: 0,
+      coupon_uri: 'https://demo.api/hapi/coupons/0',
+      item_category_uri: 'https://demo.api/hapi/item_categories/0',
+      date_created: '2012-10-31T14:12:39-0700',
+      date_modified: '2012-10-31T14:12:39-0700',
+    },
+  ],
 
   gift_cards: [
     {

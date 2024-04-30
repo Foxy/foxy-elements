@@ -575,6 +575,17 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  coupon_attributes: (query, dataset) => ({
+    id: increment('coupon_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    coupon_id: parseInt(query.get('coupon_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   coupon_item_categories: (query, dataset) => ({
     id: increment('coupon_item_categories', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),

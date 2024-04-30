@@ -231,6 +231,7 @@ export const links: Links = {
 
   coupons: ({ store_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+    'fx:attributes': { href: `./coupon_attributes?coupon_id=${id}` },
     'fx:coupon_codes': { href: `./coupon_codes?coupon_id=${id}` },
     'fx:generate_codes': { href: './generate_codes' },
     'fx:coupon_item_categories': { href: `./coupon_item_categories?coupon_id=${id}` },
@@ -248,6 +249,11 @@ export const links: Links = {
     'fx:store': { href: `./stores/${store_id}` },
     'fx:email_templates': { href: `./email_templates?store_id=${store_id}` },
     'fx:tax_item_categories': { href: `./tax_item_categories?item_category_id=${id}` },
+  }),
+
+  coupon_attributes: ({ coupon_id, store_id }) => ({
+    'fx:coupon': { href: `./coupons/${coupon_id}` },
+    'fx:store': { href: `./stores/${store_id}` },
   }),
 
   coupon_item_categories: ({ item_category_id, coupon_id, store_id }) => ({
