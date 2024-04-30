@@ -4,6 +4,8 @@ import type { InternalConfirmDialog } from '../InternalConfirmDialog';
 import type { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import type { ItemRenderer } from '../../public/CollectionPage/types';
 import type { FormDialog } from '../../index';
+import type { Option } from '../../public/QueryBuilder/types';
+import type { Action } from './types';
 
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
@@ -24,10 +26,15 @@ export class InternalAsyncListControl extends InternalEditableControl {
       first: {},
       limit: { type: Number },
       form: {},
+      formProps: { type: Object, attribute: 'form-props' },
       item: {},
       itemProps: { type: Object, attribute: 'item-props' },
       wide: { type: Boolean },
       alert: { type: Boolean },
+      actions: { type: Array },
+      filters: { type: Array },
+      __filter: { attribute: false },
+      __isFilterVisible: { attribute: false },
     };
   }
 
@@ -43,6 +50,12 @@ export class InternalAsyncListControl extends InternalEditableControl {
   /** Same as the `related` property of `NucleonElement`. */
   related = [] as string[];
 
+  /** Swipe actions. */
+  actions = [] as Action[];
+
+  /** Query parameters to apply to the `first` URL. */
+  filters = [] as Option[];
+
   /** Limit query parameter to apply to the `first` URL. */
   limit = 20;
 
@@ -51,6 +64,9 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
   /** Same as the `form` property of `FormDialog`. If set, will open a dialog on item click. */
   form: FormDialog['form'] = null;
+
+  /** Props to pass through to the form rendered by `FormDialog`. */
+  formProps: Record<string, unknown> = {};
 
   /** Same as the `item` property of `CollectionPage`. */
   item: CollectionPage<any>['item'] = null;
@@ -79,6 +95,8 @@ export class InternalAsyncListControl extends InternalEditableControl {
     item: InternalAsyncListControl['item'];
     render: ItemRenderer;
   } | null = null;
+
+  private __isFilterVisible = false;
 
   private __itemRenderer: ItemRenderer = ctx => {
     if (!ctx.data) return this.__cardRenderer(ctx);
@@ -125,10 +143,41 @@ export class InternalAsyncListControl extends InternalEditableControl {
     return html`
       <foxy-swipe-actions class="block">
         ${clickableItem}
+        ${this.actions.map(action => {
+          return html`
+            <vaadin-button
+              data-testclass="action"
+              theme=${action.theme}
+              class="h-full rounded-none relative"
+              slot="action"
+              ?disabled=${this.disabled}
+              @click=${() => action.onClick(ctx.data!)}
+            >
+              <foxy-i18n
+                class=${classMap({
+                  'transition-opacity': true,
+                  'opacity-0': action.state !== 'idle',
+                })}
+                infer=""
+                key=${action.text}
+              >
+              </foxy-i18n>
+              <div
+                class=${classMap({
+                  'absolute inset-0 flex items-center justify-center transition-opacity': true,
+                  'opacity-0': action.state === 'idle',
+                })}
+              >
+                <foxy-spinner layout="no-label" infer="spinner" state=${action.state}>
+                </foxy-spinner>
+              </div>
+            </vaadin-button>
+          `;
+        })}
 
         <vaadin-button
           theme="primary error"
-          class="h-full"
+          class="h-full rounded-none"
           slot="action"
           @click=${(evt: CustomEvent) => {
             const button = evt.currentTarget as HTMLElement;
@@ -151,12 +200,17 @@ export class InternalAsyncListControl extends InternalEditableControl {
     `;
   };
 
+  private __filter = '';
+
   renderControl(): TemplateResult {
     let first: string | undefined;
 
     try {
       const url = new URL(this.first ?? '');
+      const filter = new URLSearchParams(this.__filter);
+
       url.searchParams.set('limit', String(this.limit));
+      filter.forEach((value, key) => url.searchParams.set(key, value));
       first = url.toString();
     } catch {
       first = undefined;
@@ -174,6 +228,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
               ?keep-open-on-post=${this.keepDialogOpenOnPost}
               ?keep-open-on-delete=${this.keepDialogOpenOnDelete}
               .related=${this.related}
+              .props=${this.formProps}
               .form=${this.form as any}
             >
             </foxy-form-dialog>
@@ -200,6 +255,37 @@ export class InternalAsyncListControl extends InternalEditableControl {
         <span class="text-secondary">
           ${this.label && this.label !== 'label' ? this.label : ''}
         </span>
+
+        ${this.filters.length > 0
+          ? html`
+              <foxy-internal-async-list-control-filter-overlay
+                .noVerticalOverlap=${true}
+                .positionTarget=${this.renderRoot.querySelector('#filters')}
+                .model=${{
+                  options: this.filters,
+                  value: this.__filter,
+                  lang: this.lang,
+                  ns: this.ns,
+                }}
+                ?opened=${this.__isFilterVisible}
+                @vaadin-overlay-close=${() => (this.__isFilterVisible = false)}
+                @search=${(evt: CustomEvent<string | undefined>) => {
+                  this.__filter = evt.detail ?? '';
+                }}
+              >
+              </foxy-internal-async-list-control-filter-overlay>
+
+              <vaadin-button
+                theme="tertiary-inline contrast"
+                class="ml-auto mr-m"
+                id="filters"
+                ?disabled=${this.disabled}
+                @click=${() => (this.__isFilterVisible = !this.__isFilterVisible)}
+              >
+                <foxy-i18n infer="pagination" key="search_button_text"></foxy-i18n>
+              </vaadin-button>
+            `
+          : ''}
         ${(!this.form && !this.createPageHref) || this.readonly || this.hideCreateButton
           ? ''
           : this.createPageHref && !this.disabled

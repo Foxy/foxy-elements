@@ -1,5 +1,7 @@
 import type { AttributeCard } from '../../public/AttributeCard/AttributeCard';
+import type { ButtonElement } from '@vaadin/vaadin-button';
 import type { ItemRenderer } from '../../public/CollectionPage/CollectionPage';
+import type { FetchEvent } from '../../public/NucleonElement/FetchEvent';
 
 import '../../public/AttributeCard/index';
 import '../../public/AttributeForm/index';
@@ -8,7 +10,7 @@ import './index';
 import { InternalAsyncListControl as Control } from './InternalAsyncListControl';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { InternalConfirmDialog } from '../InternalConfirmDialog/InternalConfirmDialog';
-import { expect, fixture } from '@open-wc/testing';
+import { expect, fixture, waitUntil } from '@open-wc/testing';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { CollectionPage } from '../../public/CollectionPage/CollectionPage';
@@ -22,6 +24,9 @@ import { spread } from '@open-wc/lit-helpers';
 import { I18n } from '../../public/I18n/I18n';
 import { html } from 'lit-html';
 import { stub } from 'sinon';
+import { getByTestClass } from '../../../testgen/getByTestClass';
+import { createRouter } from '../../../server/hapi';
+import { Type } from '../../public/QueryBuilder/types';
 
 describe('InternalAsyncListControl', () => {
   it('imports and defines vaadin-button', () => {
@@ -62,6 +67,11 @@ describe('InternalAsyncListControl', () => {
   it('imports and defines foxy-internal-confirm-dialog', () => {
     const element = customElements.get('foxy-internal-confirm-dialog');
     expect(element).to.equal(InternalConfirmDialog);
+  });
+
+  it('imports and defines foxy-internal-async-list-control-filter-overlay', () => {
+    const element = customElements.get('foxy-internal-async-list-control-filter-overlay');
+    expect(element).to.exist;
   });
 
   it('imports and defines itself as foxy-internal-async-list-control', () => {
@@ -137,6 +147,14 @@ describe('InternalAsyncListControl', () => {
     expect(Control).to.have.deep.nested.property('properties.form', {});
   });
 
+  it('has a reactive property "formProps"', () => {
+    expect(new Control()).to.have.deep.property('formProps', {});
+    expect(Control).to.have.deep.nested.property('properties.formProps', {
+      attribute: 'form-props',
+      type: Object,
+    });
+  });
+
   it('has a reactive property "item"', () => {
     expect(new Control()).to.have.property('item', null);
     expect(Control).to.have.deep.nested.property('properties.item', {});
@@ -158,6 +176,16 @@ describe('InternalAsyncListControl', () => {
   it('has a reactive property "alert"', () => {
     expect(new Control()).to.have.property('alert', false);
     expect(Control).to.have.deep.nested.property('properties.alert', { type: Boolean });
+  });
+
+  it('has a reactive property "actions"', () => {
+    expect(new Control()).to.have.deep.property('actions', []);
+    expect(Control).to.have.deep.nested.property('properties.actions', { type: Array });
+  });
+
+  it('has a reactive property "filters"', () => {
+    expect(new Control()).to.have.deep.property('filters', []);
+    expect(Control).to.have.deep.nested.property('properties.filters', { type: Array });
   });
 
   it('renders a form dialog if "form" is specified', async () => {
@@ -186,10 +214,12 @@ describe('InternalAsyncListControl', () => {
     control.first = 'https://demo.api/virtual/stall';
     control.alert = true;
     control.wide = true;
+    control.formProps = { foo: 'bar' };
 
     await control.requestUpdate();
 
     expect(form).to.have.deep.property('related', ['https://demo.api/virtual/error']);
+    expect(form).to.have.deep.property('props', { foo: 'bar' });
     expect(form).to.have.attribute('keep-open-on-delete');
     expect(form).to.have.attribute('keep-open-on-post');
     expect(form).to.have.attribute('parent', 'https://demo.api/virtual/stall');
@@ -813,5 +843,126 @@ describe('InternalAsyncListControl', () => {
 
     control = await fixture<Control>(html`<x-test-control></x-test-control>`);
     expect(control.renderRoot).to.include.text('Test error message');
+  });
+
+  it('renders actions if configured', async () => {
+    const router = createRouter();
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control
+        first="https://demo.api/hapi/transactions"
+        limit="1"
+        form="foxy-test"
+        @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+      >
+      </foxy-internal-async-list-control>
+    `);
+
+    await waitUntil(
+      () => !!control.renderRoot.querySelector<CollectionPage<any>>('foxy-collection-page')?.data
+    );
+
+    let actions = await getByTestClass<ButtonElement>(control, 'action');
+    expect(actions).to.be.empty;
+
+    control.actions = [
+      { text: 'action_1', theme: 'primary', state: 'idle', onClick: stub() },
+      { text: 'action_2', theme: 'secondary', state: 'busy', onClick: stub() },
+    ];
+
+    await control.requestUpdate();
+    actions = await getByTestClass<ButtonElement>(control, 'action');
+
+    expect(actions).to.have.length(2);
+
+    expect(actions[0].closest('foxy-swipe-actions')).to.exist;
+    expect(actions[1].closest('foxy-swipe-actions')).to.exist;
+    expect(actions[0].closest('foxy-swipe-actions')).to.equal(
+      actions[1].closest('foxy-swipe-actions')
+    );
+
+    expect(actions[0]).to.have.attribute('theme', 'primary');
+    expect(actions[1]).to.have.attribute('theme', 'secondary');
+
+    actions[0].click();
+    expect(control.actions[0].onClick).to.have.been.calledOnce;
+    expect(control.actions[1].onClick).to.not.have.been.called;
+
+    actions[1].click();
+    expect(control.actions[0].onClick).to.have.been.calledOnce;
+    expect(control.actions[1].onClick).to.have.been.calledOnce;
+
+    const action0Text = actions[0].querySelector('foxy-i18n');
+    expect(action0Text).to.have.attribute('infer', '');
+    expect(action0Text).to.have.attribute('key', 'action_1');
+
+    const action1Text = actions[1].querySelector('foxy-i18n');
+    expect(action1Text).to.have.attribute('infer', '');
+    expect(action1Text).to.have.attribute('key', 'action_2');
+
+    const action0Spinner = actions[0].querySelector('foxy-spinner');
+    expect(action0Spinner).to.have.attribute('infer', 'spinner');
+    expect(action0Spinner).to.have.attribute('state', 'idle');
+
+    const action1Spinner = actions[1].querySelector('foxy-spinner');
+    expect(action1Spinner).to.have.attribute('infer', 'spinner');
+    expect(action1Spinner).to.have.attribute('state', 'busy');
+  });
+
+  it('renders filters if configured', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control></foxy-internal-async-list-control>
+    `);
+
+    expect(await getByKey(control, 'search_button_text')).to.not.exist;
+
+    control.filters = [
+      {
+        label: 'filter_1',
+        type: Type.Boolean,
+        path: 'foo',
+      },
+    ];
+
+    await control.requestUpdate();
+
+    const buttonLabel = await getByKey(control, 'search_button_text');
+    const button = buttonLabel?.closest('vaadin-button');
+    const overlay = control.renderRoot.querySelector(
+      'foxy-internal-async-list-control-filter-overlay'
+    );
+
+    expect(buttonLabel).to.exist;
+    expect(buttonLabel).to.have.attribute('infer', 'pagination');
+
+    expect(button).to.exist;
+    expect(button).to.not.have.attribute('disabled');
+
+    expect(overlay).to.exist;
+    expect(overlay).to.have.property('positionTarget', button);
+    expect(overlay).to.have.deep.property('model', {
+      options: control.filters,
+      value: '',
+      lang: control.lang,
+      ns: control.ns,
+    });
+
+    expect(overlay).to.not.have.attribute('opened');
+
+    button?.click();
+    await control.requestUpdate();
+    expect(overlay).to.have.attribute('opened');
+
+    overlay?.dispatchEvent(new CustomEvent('vaadin-overlay-close'));
+    await control.requestUpdate();
+    expect(overlay).to.not.have.attribute('opened');
+
+    overlay?.dispatchEvent(new CustomEvent('search', { detail: 'foo=bar' }));
+    await control.requestUpdate();
+    expect(overlay).to.have.deep.property('model', {
+      options: control.filters,
+      value: 'foo=bar',
+      lang: control.lang,
+      ns: control.ns,
+    });
   });
 });
