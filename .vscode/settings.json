@@ -77,6 +77,10 @@
       "url": "./src/static/schemas/coupon-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/coupon-code-card/*.json"],
+      "url": "./src/static/schemas/coupon-code-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/coupon-code-form/*.json"],
       "url": "./src/static/schemas/coupon-code-form.json"
     },

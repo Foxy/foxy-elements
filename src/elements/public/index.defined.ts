@@ -18,6 +18,7 @@ export { CollectionPage } from './CollectionPage/index';
 export { CollectionPages } from './CollectionPages/index';
 export { CopyToClipboard } from './CopyToClipboard/index';
 export { CouponCard } from './CouponCard/index';
+export { CouponCodeCard } from './CouponCodeCard/index';
 export { CouponCodeForm } from './CouponCodeForm/index';
 export { CouponCodesForm } from './CouponCodesForm/index';
 export { CouponDetailCard } from './CouponDetailCard/index';
