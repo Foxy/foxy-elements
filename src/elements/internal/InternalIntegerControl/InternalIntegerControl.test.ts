@@ -59,6 +59,14 @@ describe('InternalIntegerControl', () => {
     expect(customElements.get('foxy-internal-integer-control')).to.equal(Control);
   });
 
+  it('has a reactive property for "showControls"', () => {
+    expect(new Control()).to.have.property('showControls', false);
+    expect(Control).to.have.deep.nested.property('properties.showControls', {
+      type: Boolean,
+      attribute: 'show-controls',
+    });
+  });
+
   it('extends InternalEditableControl', () => {
     expect(new Control()).to.be.instanceOf(InternalEditableControl);
   });
@@ -170,6 +178,19 @@ describe('InternalIntegerControl', () => {
     await control.requestUpdate();
 
     expect(field).to.have.property('value', '42');
+  });
+
+  it('sets "has-controls" on vaadin-integer-field from "showControls" on itself', async () => {
+    const layout = html`<test-internal-integer-control></test-internal-integer-control>`;
+    const control = await fixture<TestControl>(layout);
+    const field = control.renderRoot.querySelector('vaadin-integer-field')!;
+
+    expect(field).to.not.have.attribute('has-controls');
+
+    control.showControls = true;
+    await control.requestUpdate();
+
+    expect(field).to.have.attribute('has-controls');
   });
 
   it('writes to "_value" on change', async () => {

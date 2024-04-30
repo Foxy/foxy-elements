@@ -15,12 +15,15 @@ export class InternalIntegerControl extends InternalEditableControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      showControls: { type: Boolean, attribute: 'show-controls' },
       prefix: {},
       suffix: {},
       min: { type: Number },
       max: { type: Number },
     };
   }
+
+  showControls = false;
 
   prefix: string | null = null;
 
@@ -40,6 +43,7 @@ export class InternalIntegerControl extends InternalEditableControl {
         class="w-full"
         min=${ifDefined(this.min ?? undefined)}
         max=${ifDefined(this.max ?? undefined)}
+        ?has-controls=${this.showControls}
         ?disabled=${this.disabled}
         ?readonly=${this.readonly}
         .checkValidity=${this._checkValidity}
