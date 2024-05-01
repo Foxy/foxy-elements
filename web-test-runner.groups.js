@@ -12,6 +12,10 @@ export const groups = [
     files: './src/elements/internal/InternalAsyncListControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-async-resource-link-list-control',
+    files: './src/elements/internal/InternalAsyncResourceLinkListControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-calendar',
     files: './src/elements/internal/InternalCalendar/**/*.test.ts',
   },
@@ -74,6 +78,10 @@ export const groups = [
   {
     name: 'foxy-internal-password-control',
     files: './src/elements/internal/InternalPasswordControl/**/*.test.ts',
+  },
+  {
+    name: 'foxy-internal-query-builder-control',
+    files: './src/elements/internal/InternalQueryBuilderControl/**/*.test.ts',
   },
   {
     name: 'foxy-internal-radio-group-control',
@@ -262,6 +270,10 @@ export const groups = [
   {
     name: 'foxy-coupon-card',
     files: './src/elements/public/CouponCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-coupon-code-card',
+    files: './src/elements/public/CouponCodeCard/**/*.test.ts',
   },
   {
     name: 'foxy-coupon-code-form',

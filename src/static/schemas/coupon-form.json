@@ -2,217 +2,1124 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "additionalProperties": false,
   "properties": {
-    "allow": { "type": "string", "default": "Allow" },
-    "allunits_price_amount_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment}}¤ each after {{from}}"
+    "header": {
+      "additionalProperties": false,
+      "properties": {
+        "title_existing": { "type": "string", "default": "ID {{ id }}" },
+        "title_new": { "type": "string", "default": "New coupon" },
+        "subtitle": {
+          "type": "string",
+          "default": "Used {{ number_of_uses_to_date }} times (see individual codes for more info)"
+        }
+      },
+      "required": ["title_existing", "title_new", "subtitle"]
     },
-    "allunits_price_percentage_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment, percent}} after {{from}}"
+    "import": {
+      "additionalProperties": false,
+      "properties": {
+        "button_text": { "type": "string", "default": "Import codes" },
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "close": { "type": "string", "default": "Close" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "header": { "type": "string", "default": "Import codes" },
+            "save": { "type": "string", "default": "Import" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "coupon-codes-form": {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "success": {
+                      "type": "string",
+                      "default": "All done! We've imported your codes into the system."
+                    }
+                  },
+                  "required": ["success"]
+                },
+                "coupon-codes": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Codes" },
+                    "placeholder": { "type": "string", "default": "Enter or paste codes here..." },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats."
+                    },
+                    "v8n_required": { "type": "string", "default": "Please add at least one code" }
+                  },
+                  "required": ["label", "placeholder", "helper_text", "v8n_required"]
+                },
+                "create": {
+                  "additionalProperties": false,
+                  "properties": { "create": { "type": "string", "default": "Import" } },
+                  "required": ["create"]
+                },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["refresh", "loading_busy", "loading_error"]
+                }
+              },
+              "required": ["status", "coupon-codes", "create", "spinner"]
+            }
+          },
+          "required": [
+            "close",
+            "cancel",
+            "header",
+            "save",
+            "undo_header",
+            "undo_message",
+            "undo_cancel",
+            "undo_confirm",
+            "coupon-codes-form"
+          ]
+        }
+      },
+      "required": ["button_text", "dialog"]
     },
-    "allunits_quantity_amount_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment}}¤ each on orders of {{from}}+"
+    "generate": {
+      "additionalProperties": false,
+      "properties": {
+        "button_text": { "type": "string", "default": "Generate codes" },
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "close": { "type": "string", "default": "Close" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "header": { "type": "string", "default": "Generate codes" },
+            "save": { "type": "string", "default": "Generate" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "generate-codes-form": {
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "success": { "type": "string", "default": "Codes generated successfully." }
+                  },
+                  "required": ["success"]
+                },
+                "error": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "invalid_form": {
+                      "type": "string",
+                      "default": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
+                    }
+                  },
+                  "required": ["invalid_form"]
+                },
+                "length": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Code length" },
+                    "placeholder": { "type": "string", "default": "6" },
+                    "helper_text": { "type": "string", "default": "" }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "number-of-codes": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Number of codes" },
+                    "placeholder": { "type": "string", "default": "10" },
+                    "helper_text": { "type": "string", "default": "" }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "prefix": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Prefix" },
+                    "placeholder": { "type": "string", "default": "Optional" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "The length value is inclusive of this prefix."
+                    }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "current-balance": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Initial balance" },
+                    "placeholder": { "type": "string", "default": "0" },
+                    "helper_text": { "type": "string", "default": "" }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "example": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Examples" },
+                    "placeholder": { "type": "string", "default": "" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "This is what the generated codes will look like."
+                    }
+                  },
+                  "required": ["label", "placeholder", "helper_text"]
+                },
+                "create": {
+                  "additionalProperties": false,
+                  "properties": { "create": { "type": "string", "default": "Generate" } },
+                  "required": ["create"]
+                },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["refresh", "loading_busy", "loading_error"]
+                }
+              },
+              "required": [
+                "status",
+                "error",
+                "length",
+                "number-of-codes",
+                "prefix",
+                "current-balance",
+                "example",
+                "create",
+                "spinner"
+              ]
+            }
+          },
+          "required": [
+            "close",
+            "cancel",
+            "header",
+            "save",
+            "undo_header",
+            "undo_message",
+            "undo_cancel",
+            "undo_confirm",
+            "generate-codes-form"
+          ]
+        }
+      },
+      "required": ["button_text", "dialog"]
     },
-    "allunits_quantity_percentage_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment, percent}} on orders of {{from}}+"
-    },
-    "apply_taxes_before_coupon": { "type": "string", "default": "Apply taxes before this coupon" },
-    "apply_taxes_before_coupon_explainer": {
-      "type": "string",
-      "default": "Calculate taxes before applying this coupon."
-    },
-    "block": { "type": "string", "default": "Block" },
-    "cancel": { "type": "string", "default": "Cancel" },
-    "category_restrictions": { "type": "string", "default": "Category restrictions" },
-    "category_restrictions_helper_text": {
-      "type": "string",
-      "default": "Select which item categories this coupon can be applied to. If you’d like this coupon to be available to all items regardless of the category, keep your selection empty. All changes are saved automatically."
-    },
-    "clear_filters": { "type": "string", "default": "Clear filters" },
-    "close": { "type": "string", "default": "Close" },
-    "code": { "type": "string", "default": "Code" },
-    "code_plural": { "type": "string", "default": "Codes" },
-    "combinable": { "type": "string", "default": "Combine with other coupons" },
-    "combinable_explainer": {
-      "type": "string",
-      "default": "Let customers apply this coupon when there are other coupons in the cart."
-    },
-    "combine_with_category_discounts": {
-      "type": "string",
-      "default": "Combine with category discounts"
-    },
-    "combine_with_category_discounts_explainer": {
-      "type": "string",
-      "default": "Let customers apply this coupon when category discounts are applied to the cart."
-    },
-    "combine_with_line_discounts": {
-      "type": "string",
-      "default": "Combine with line item discounts"
-    },
-    "combine_with_line_discounts_explainer": {
-      "type": "string",
-      "default": "Let customers apply this coupon when line item discounts are applied to the cart."
-    },
-    "confirm": { "type": "string", "default": "Confirm" },
-    "coupon_name_helper_text": {
-      "type": "string",
-      "default": "Coupon name is visible to the customers."
-    },
-    "create": { "type": "string", "default": "Create" },
-    "custom_discount": { "type": "string", "default": "Custom discount" },
-    "date": { "type": "string", "default": "{{value, date}}" },
-    "date_created": { "type": "string", "default": "Created on" },
-    "date_modified": { "type": "string", "default": "Last updated on" },
-    "delete": { "type": "string", "default": "Delete" },
-    "delete_prompt": {
-      "type": "string",
-      "default": "This resource will be permanently removed. Are you sure?"
-    },
-    "description": { "type": "string", "default": "Description" },
-    "discount_summary": { "type": "string", "default": "{{params, discount}}" },
-    "end_date": { "type": "string", "default": "End date" },
-    "filter": { "type": "string", "default": "Filter" },
-    "generate": { "type": "string", "default": "Generate" },
-    "import": { "type": "string", "default": "Import" },
-    "incremental_price_amount_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment}}¤ each on orders of {{from}}+"
-    },
-    "incremental_price_percentage_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment, percent}} on orders of {{from}}+"
-    },
-    "incremental_quantity_amount_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment}}¤ each on items {{from}}+"
-    },
-    "incremental_quantity_percentage_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment, percent}} on items {{from}}+"
-    },
-    "multiple_codes_allowed": { "type": "string", "default": "Allow multiple codes per customer" },
-    "multiple_codes_allowed_explainer": {
-      "type": "string",
-      "default": "Let customers apply this coupon multiple times to the same order."
-    },
-    "name": { "type": "string", "default": "Name" },
-    "option_plural": { "type": "string", "default": "Options" },
     "ordinal_few": { "type": "string", "default": "rd" },
     "ordinal_many": { "type": "string", "default": "th" },
     "ordinal_one": { "type": "string", "default": "st" },
     "ordinal_other": { "type": "string", "default": "th" },
     "ordinal_two": { "type": "string", "default": "nd" },
     "ordinal_zero": { "type": "string", "default": "th" },
-    "price": { "type": "string", "default": "{{amount, price}}" },
-    "product_restrictions": { "type": "string", "default": "Product restrictions" },
-    "product_restrictions_explainer": {
-      "type": "string",
-      "default": "If you want to limit which products can use this coupon, you can enter full product codes or partial product codes using * as a wild card at the beginning or end of the value. So abc123, fun_*, *-small would match abc123, fun_ and fun_times, and example-small. It wouldn't match abc12, abc1234, fun, or good-smalls."
+    "name": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Name" },
+        "placeholder": { "type": "string", "default": "Required" },
+        "helper_text": { "type": "string", "default": "Coupon name is visible to the customers." },
+        "v8n_required": { "type": "string", "default": "Please enter a name for this coupon." },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Please shorten the name to 50 characters or less."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_required", "v8n_too_long"]
     },
-    "repeat_price_amount_discount_summary": {
-      "type": "string",
-      "default": "for each {{from}}, {{adjustment}}¤ on the next item"
+    "rules": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Rules" },
+        "helper_text": {
+          "type": "string",
+          "default": "Add rules to define how this coupon will affect order total. You can get started by selecting one of the examples from the dropdown on top right."
+        },
+        "v8n_required": {
+          "type": "string",
+          "default": "Please add at least one discount rule in this section."
+        },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we are unable to store that many discount rules at the moment. Please reduce the number of rules in this section until this message disappears."
+        },
+        "discount-builder": {
+          "additionalProperties": false,
+          "properties": {
+            "tier": { "type": "string", "default": "Tier" },
+            "tier_by": { "type": "string", "default": "by" },
+            "tier_if": { "type": "string", "default": "if" },
+            "tier_allunits": { "type": "string", "default": "price of each item" },
+            "tier_incremental": { "type": "string", "default": "price of additional items" },
+            "tier_repeat": { "type": "string", "default": "price of next item" },
+            "tier_single": { "type": "string", "default": "order total" },
+            "tier_then": { "type": "string", "default": "then" },
+            "quantity": { "type": "string", "default": "quantity" },
+            "total": { "type": "string", "default": "total" },
+            "reduce": { "type": "string", "default": "reduce" },
+            "increase": { "type": "string", "default": "increase" }
+          },
+          "required": [
+            "tier",
+            "tier_by",
+            "tier_if",
+            "tier_allunits",
+            "tier_incremental",
+            "tier_repeat",
+            "tier_single",
+            "tier_then",
+            "quantity",
+            "total",
+            "reduce",
+            "increase"
+          ]
+        },
+        "allunits_price_amount_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment}}¤ each after {{from}}"
+        },
+        "allunits_price_percentage_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment, percent}} after {{from}}"
+        },
+        "allunits_quantity_amount_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment}}¤ each on orders of {{from}}+"
+        },
+        "allunits_quantity_percentage_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment, percent}} on orders of {{from}}+"
+        },
+        "incremental_price_amount_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment}}¤ each on orders of {{from}}+"
+        },
+        "incremental_price_percentage_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment, percent}} on orders of {{from}}+"
+        },
+        "incremental_quantity_amount_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment}}¤ each on items {{from}}+"
+        },
+        "incremental_quantity_percentage_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment, percent}} on items {{from}}+"
+        },
+        "repeat_price_amount_discount_summary": {
+          "type": "string",
+          "default": "for each {{from}}, {{adjustment}}¤ on the next item"
+        },
+        "repeat_price_percentage_discount_summary": {
+          "type": "string",
+          "default": "for each {{from}}, {{adjustment, percent}} on the next item"
+        },
+        "repeat_quantity_amount_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment}}¤ on each {{from, ordinal}} item"
+        },
+        "single_price_amount_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment}}¤ after {{from}}"
+        },
+        "single_price_percentage_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment, percent}} after {{from}}"
+        },
+        "single_quantity_amount_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment}}¤ after {{from}} items"
+        },
+        "single_quantity_percentage_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment, percent}} after {{from}} items"
+        },
+        "repeat_quantity_percentage_discount_summary": {
+          "type": "string",
+          "default": "{{adjustment, percent}} on each {{from, ordinal}} item"
+        },
+        "discount_summary": {
+          "type": "string",
+          "default": "Applied discount: {{params, discount}}."
+        },
+        "custom_discount": { "type": "string", "default": "Custom discount" },
+        "description": { "type": "string", "default": "Description" },
+        "url_parameter": { "type": "string", "default": "URL parameter" }
+      },
+      "required": [
+        "label",
+        "helper_text",
+        "v8n_required",
+        "v8n_too_long",
+        "discount-builder",
+        "allunits_price_amount_discount_summary",
+        "allunits_price_percentage_discount_summary",
+        "allunits_quantity_amount_discount_summary",
+        "allunits_quantity_percentage_discount_summary",
+        "incremental_price_amount_discount_summary",
+        "incremental_price_percentage_discount_summary",
+        "incremental_quantity_amount_discount_summary",
+        "incremental_quantity_percentage_discount_summary",
+        "repeat_price_amount_discount_summary",
+        "repeat_price_percentage_discount_summary",
+        "repeat_quantity_amount_discount_summary",
+        "single_price_amount_discount_summary",
+        "single_price_percentage_discount_summary",
+        "single_quantity_amount_discount_summary",
+        "single_quantity_percentage_discount_summary",
+        "repeat_quantity_percentage_discount_summary",
+        "discount_summary",
+        "custom_discount",
+        "description",
+        "url_parameter"
+      ]
     },
-    "repeat_price_percentage_discount_summary": {
-      "type": "string",
-      "default": "for each {{from}}, {{adjustment, percent}} on the next item"
+    "coupon-codes": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Codes" },
+        "delete_header": { "type": "string", "default": "Remove code?" },
+        "delete_message": {
+          "type": "string",
+          "default": "Please confirm that you'd like to remove this code from the item."
+        },
+        "delete_confirm": { "type": "string", "default": "Remove" },
+        "delete_cancel": { "type": "string", "default": "Cancel" },
+        "search": { "type": "string", "default": "Search" },
+        "clear": { "type": "string", "default": "Clear" },
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "header_create": { "type": "string", "default": "Create code" },
+            "header_update": { "type": "string", "default": "Update code" },
+            "close": { "type": "string", "default": "Close" },
+            "save": { "type": "string", "default": "Save" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "coupon-code-form": {
+              "additionalProperties": false,
+              "properties": {
+                "code": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Code" },
+                    "placeholder": { "type": "string", "default": "Required" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "The string value of this coupon code which your customer will add to their cart to use this coupon."
+                    },
+                    "v8n_required": { "type": "string", "default": "Please enter a coupon code" },
+                    "v8n_too_long": {
+                      "type": "string",
+                      "default": "Coupon code must be 50 characters or less"
+                    },
+                    "v8n_has_spaces": {
+                      "type": "string",
+                      "default": "Please remove spaces from the coupon code"
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "placeholder",
+                    "helper_text",
+                    "v8n_required",
+                    "v8n_too_long",
+                    "v8n_has_spaces"
+                  ]
+                },
+                "number-of-uses-to-date": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Number of uses" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "For informational purposes, this shows you how many times this coupon code has already been used."
+                    }
+                  },
+                  "required": ["label", "helper_text"]
+                },
+                "transactions": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Transactions" },
+                    "pagination": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "first": { "type": "string", "default": "First" },
+                        "last": { "type": "string", "default": "Last" },
+                        "next": { "type": "string", "default": "Next" },
+                        "pagination": {
+                          "type": "string",
+                          "default": "{{from}}-{{to}} out of {{total}}"
+                        },
+                        "previous": { "type": "string", "default": "Previous" },
+                        "card": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "code": { "type": "string", "default": "Code" },
+                            "customer": { "type": "string", "default": "Customer" },
+                            "description": { "type": "string", "default": "Description" },
+                            "price": { "type": "string", "default": "{{amount, price}}" },
+                            "time": { "type": "string", "default": "{{value, date}}" },
+                            "status_capturing": { "type": "string", "default": "Capturing" },
+                            "status_captured": { "type": "string", "default": "Captured" },
+                            "status_approved": { "type": "string", "default": "Approved" },
+                            "status_authorized": { "type": "string", "default": "Authorized" },
+                            "status_pending": { "type": "string", "default": "Pending" },
+                            "status_completed": { "type": "string", "default": "Completed" },
+                            "status_problem": { "type": "string", "default": "Problem" },
+                            "status_pending_fraud_review": {
+                              "type": "string",
+                              "default": "Pending_fraud_review"
+                            },
+                            "status_rejected": { "type": "string", "default": "Rejected" },
+                            "status_declined": { "type": "string", "default": "Declined" },
+                            "status_refunding": { "type": "string", "default": "Refunding" },
+                            "status_refunded": { "type": "string", "default": "Refunded" },
+                            "status_voided": { "type": "string", "default": "Voided" },
+                            "status_verified": { "type": "string", "default": "Verified" },
+                            "summary": {
+                              "type": "string",
+                              "default": "{{most_expensive_item.name}}"
+                            },
+                            "summary_plural": {
+                              "type": "string",
+                              "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
+                            },
+                            "summary_payment_method_change": {
+                              "type": "string",
+                              "default": "Payment method change"
+                            },
+                            "summary_subscription_modification": {
+                              "type": "string",
+                              "default": "Subscription modification"
+                            },
+                            "summary_subscription_cancellation": {
+                              "type": "string",
+                              "default": "Subscription cancellation"
+                            },
+                            "source_MIT": {
+                              "type": "string",
+                              "default": "This transaction was initiated by the merchant"
+                            },
+                            "source_CIT": {
+                              "type": "string",
+                              "default": "This transaction was initiated by the customer"
+                            },
+                            "spinner": {
+                              "additionalProperties": false,
+                              "properties": {
+                                "loading_busy": { "type": "string", "default": "Loading" },
+                                "loading_empty": { "type": "string", "default": "No transactions" },
+                                "loading_error": { "type": "string", "default": "Unknown error" }
+                              },
+                              "required": ["loading_busy", "loading_empty", "loading_error"]
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "customer",
+                            "description",
+                            "price",
+                            "time",
+                            "status_capturing",
+                            "status_captured",
+                            "status_approved",
+                            "status_authorized",
+                            "status_pending",
+                            "status_completed",
+                            "status_problem",
+                            "status_pending_fraud_review",
+                            "status_rejected",
+                            "status_declined",
+                            "status_refunding",
+                            "status_refunded",
+                            "status_voided",
+                            "status_verified",
+                            "summary",
+                            "summary_plural",
+                            "summary_payment_method_change",
+                            "summary_subscription_modification",
+                            "summary_subscription_cancellation",
+                            "source_MIT",
+                            "source_CIT",
+                            "spinner"
+                          ]
+                        }
+                      },
+                      "required": ["first", "last", "next", "pagination", "previous", "card"]
+                    }
+                  },
+                  "required": ["label", "pagination"]
+                },
+                "timestamps": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "date_created": { "type": "string", "default": "Created on" },
+                    "date_modified": { "type": "string", "default": "Last updated on" },
+                    "date": { "type": "string", "default": "{{value, date}}" }
+                  },
+                  "required": ["date_created", "date_modified", "date"]
+                },
+                "delete": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "delete": { "type": "string", "default": "Delete" },
+                    "cancel": { "type": "string", "default": "Cancel" },
+                    "delete_prompt": {
+                      "type": "string",
+                      "default": "Are you sure you'd like to remove this coupon code? You won't be able to bring it back."
+                    }
+                  },
+                  "required": ["delete", "cancel", "delete_prompt"]
+                },
+                "create": {
+                  "additionalProperties": false,
+                  "properties": { "create": { "type": "string", "default": "Create" } },
+                  "required": ["create"]
+                },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["refresh", "loading_busy", "loading_error"]
+                }
+              },
+              "required": [
+                "code",
+                "number-of-uses-to-date",
+                "transactions",
+                "timestamps",
+                "delete",
+                "create",
+                "spinner"
+              ]
+            }
+          },
+          "required": [
+            "header_create",
+            "header_update",
+            "close",
+            "save",
+            "cancel",
+            "undo_header",
+            "undo_message",
+            "undo_cancel",
+            "undo_confirm",
+            "coupon-code-form"
+          ]
+        },
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "create_button_text": { "type": "string", "default": "Add code +" },
+            "search_button_text": { "type": "string", "default": "Search codes" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "delete_button_text": { "type": "string", "default": "Delete" },
+                "copy_button_text": { "type": "string", "default": "Copy code" },
+                "line_1": { "type": "string", "default": "{{ code }}" },
+                "line_2": {
+                  "type": "string",
+                  "default": "Added on {{ date_created, date }} at {{ date_created, time }}"
+                },
+                "uses_count": { "type": "string", "default": "Used {{ count }} time" },
+                "uses_count_plural": { "type": "string", "default": "Used {{ count }} times" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No codes" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": [
+                "delete_button_text",
+                "copy_button_text",
+                "line_1",
+                "line_2",
+                "uses_count",
+                "uses_count_plural",
+                "spinner"
+              ]
+            },
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" }
+          },
+          "required": [
+            "create_button_text",
+            "search_button_text",
+            "card",
+            "first",
+            "last",
+            "next",
+            "pagination",
+            "previous"
+          ]
+        },
+        "query-builder": {
+          "additionalProperties": false,
+          "properties": {
+            "add_or_clause": { "type": "string", "default": "Add OR clause" },
+            "add_value": { "type": "string", "default": "Add value" },
+            "code": { "type": "string", "default": "Code" },
+            "date": { "type": "string", "default": "{{value, date}}" },
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated on" },
+            "delete": { "type": "string", "default": "Delete" },
+            "field": { "type": "string", "default": "Field" },
+            "hidden": { "type": "string", "default": "Hidden" },
+            "is_defined_false": { "type": "string", "default": "Not defined" },
+            "is_defined_true": { "type": "string", "default": "Defined" },
+            "name": { "type": "string", "default": "Name" },
+            "operator_equal": { "type": "string", "default": "Equal" },
+            "operator_greaterthan": { "type": "string", "default": "Greater than" },
+            "operator_greaterthanorequal": { "type": "string", "default": "Greater than or equal" },
+            "operator_in": { "type": "string", "default": "One of" },
+            "operator_isdefined": { "type": "string", "default": "Is defined" },
+            "operator_lessthan": { "type": "string", "default": "Less than" },
+            "operator_lessthanorequal": { "type": "string", "default": "Less than or equal" },
+            "operator_not": { "type": "string", "default": "Not equal" },
+            "or": { "type": "string", "default": "Or" },
+            "query_builder_group": { "type": "string", "default": "Group of filters" },
+            "query_builder_rule": { "type": "string", "default": "Filter" },
+            "range_from": { "type": "string", "default": "From" },
+            "range_to": { "type": "string", "default": "To" },
+            "type": { "type": "string", "default": "Type" },
+            "type_any": { "type": "string", "default": "Field of unknown type" },
+            "type_attribute": { "type": "string", "default": "Key-value resource" },
+            "type_date": { "type": "string", "default": "Date field" },
+            "type_here": { "type": "string", "default": "Type here..." },
+            "type_number": { "type": "string", "default": "Numeric field" },
+            "type_string": { "type": "string", "default": "Text field" },
+            "used_codes": { "type": "string", "default": "Codes used" },
+            "value": { "type": "string", "default": "Value" }
+          },
+          "required": [
+            "add_or_clause",
+            "add_value",
+            "code",
+            "date",
+            "date_created",
+            "date_modified",
+            "delete",
+            "field",
+            "hidden",
+            "is_defined_false",
+            "is_defined_true",
+            "name",
+            "operator_equal",
+            "operator_greaterthan",
+            "operator_greaterthanorequal",
+            "operator_in",
+            "operator_isdefined",
+            "operator_lessthan",
+            "operator_lessthanorequal",
+            "operator_not",
+            "or",
+            "query_builder_group",
+            "query_builder_rule",
+            "range_from",
+            "range_to",
+            "type",
+            "type_any",
+            "type_attribute",
+            "type_date",
+            "type_here",
+            "type_number",
+            "type_string",
+            "used_codes",
+            "value"
+          ]
+        }
+      },
+      "required": [
+        "label",
+        "delete_header",
+        "delete_message",
+        "delete_confirm",
+        "delete_cancel",
+        "search",
+        "clear",
+        "dialog",
+        "pagination",
+        "query-builder"
+      ]
     },
-    "repeat_quantity_amount_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment}}¤ on each {{from, ordinal}} item"
+    "attributes": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Attributes" },
+        "delete_header": { "type": "string", "default": "Remove attribute?" },
+        "delete_message": {
+          "type": "string",
+          "default": "Please confirm that you'd like to remove this attribute from the item."
+        },
+        "delete_confirm": { "type": "string", "default": "Remove" },
+        "delete_cancel": { "type": "string", "default": "Cancel" },
+        "dialog": {
+          "additionalProperties": false,
+          "properties": {
+            "header_create": { "type": "string", "default": "Create attribute" },
+            "header_update": { "type": "string", "default": "Update attribute" },
+            "close": { "type": "string", "default": "Close" },
+            "save": { "type": "string", "default": "Save" },
+            "cancel": { "type": "string", "default": "Cancel" },
+            "undo_header": { "type": "string", "default": "Unsaved changes" },
+            "undo_message": {
+              "type": "string",
+              "default": "Looks like you didn't save your changes! What would you like to do with them?"
+            },
+            "undo_cancel": { "type": "string", "default": "Review" },
+            "undo_confirm": { "type": "string", "default": "Discard" },
+            "attribute-form": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Name" },
+                    "placeholder": { "type": "string", "default": "Required" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Name of this attribute. It does not have to be unique."
+                    },
+                    "v8n_required": { "type": "string", "default": "Please name this attribute." },
+                    "v8n_too_long": {
+                      "type": "string",
+                      "default": "Please choose a name that is 500 characters long or less."
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "placeholder",
+                    "helper_text",
+                    "v8n_required",
+                    "v8n_too_long"
+                  ]
+                },
+                "value": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Value" },
+                    "placeholder": { "type": "string", "default": "Required" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Value of this attribute. Attribute values are automatically HTML-escaped."
+                    },
+                    "v8n_required": {
+                      "type": "string",
+                      "default": "Please provide a value for this attribute."
+                    },
+                    "v8n_too_long": {
+                      "type": "string",
+                      "default": "Unfortunately we can't store values that are more than 1000 characters long."
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "placeholder",
+                    "helper_text",
+                    "v8n_required",
+                    "v8n_too_long"
+                  ]
+                },
+                "visibility": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "label": { "type": "string", "default": "Visibility" },
+                    "option_public": { "type": "string", "default": "Everyone" },
+                    "option_restricted": { "type": "string", "default": "Store admins" },
+                    "option_private": { "type": "string", "default": "Only me" },
+                    "helper_text": {
+                      "type": "string",
+                      "default": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "option_public",
+                    "option_restricted",
+                    "option_private",
+                    "helper_text"
+                  ]
+                },
+                "timestamps": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "date": { "type": "string", "default": "{{value, date}}" },
+                    "date_created": { "type": "string", "default": "Created on" },
+                    "date_modified": { "type": "string", "default": "Last updated on" }
+                  },
+                  "required": ["date", "date_created", "date_modified"]
+                },
+                "delete": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "delete": { "type": "string", "default": "Delete" },
+                    "cancel": { "type": "string", "default": "Cancel" },
+                    "delete_prompt": {
+                      "type": "string",
+                      "default": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+                    }
+                  },
+                  "required": ["delete", "cancel", "delete_prompt"]
+                },
+                "create": {
+                  "additionalProperties": false,
+                  "properties": { "create": { "type": "string", "default": "Create" } },
+                  "required": ["create"]
+                },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "refresh": { "type": "string", "default": "Refresh" },
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["refresh", "loading_busy", "loading_error"]
+                }
+              },
+              "required": [
+                "name",
+                "value",
+                "visibility",
+                "timestamps",
+                "delete",
+                "create",
+                "spinner"
+              ]
+            }
+          },
+          "required": [
+            "header_create",
+            "header_update",
+            "close",
+            "save",
+            "cancel",
+            "undo_header",
+            "undo_message",
+            "undo_cancel",
+            "undo_confirm",
+            "attribute-form"
+          ]
+        },
+        "pagination": {
+          "additionalProperties": false,
+          "properties": {
+            "create_button_text": { "type": "string", "default": "Add attribute +" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "delete_button_text": { "type": "string", "default": "Delete" },
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No attributes" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": ["delete_button_text", "spinner"]
+            },
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" }
+          },
+          "required": [
+            "create_button_text",
+            "card",
+            "first",
+            "last",
+            "next",
+            "pagination",
+            "previous"
+          ]
+        }
+      },
+      "required": [
+        "label",
+        "delete_header",
+        "delete_message",
+        "delete_confirm",
+        "delete_cancel",
+        "dialog",
+        "pagination"
+      ]
     },
-    "repeat_quantity_percentage_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment, percent}} on each {{from, ordinal}} item"
+    "number-of-uses-allowed": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Uses per coupon" },
+        "placeholder": { "type": "string", "default": "Unlimited" },
+        "helper_text": {
+          "type": "string",
+          "default": "The maximum number of times this coupon can be used. Leave blank for unlimited uses."
+        },
+        "v8n_too_small": {
+          "type": "string",
+          "default": "Please enter a value greater or equal to 0."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_too_small"]
     },
-    "rule_plural": { "type": "string", "default": "Rules" },
-    "save": { "type": "string", "default": "Save" },
-    "select": { "type": "string", "default": "Select..." },
-    "set_time_constraints": { "type": "string", "default": "Set time constraints" },
-    "set_time_constraints_explainer": {
-      "type": "string",
-      "default": "Limit when your customers can apply this coupon."
+    "number-of-uses-allowed-per-customer": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Uses per customer" },
+        "placeholder": { "type": "string", "default": "Unlimited" },
+        "helper_text": {
+          "type": "string",
+          "default": "The maximum number of times a single customer can use this coupon. Leave blank for unlimited uses."
+        },
+        "v8n_too_small": {
+          "type": "string",
+          "default": "Please enter a value greater or equal to 0."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_too_small"]
     },
-    "single_price_amount_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment}}¤ after {{from}}"
+    "number-of-uses-allowed-per-code": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Uses per code" },
+        "placeholder": { "type": "string", "default": "Unlimited" },
+        "helper_text": {
+          "type": "string",
+          "default": "The maximum number of times a single code can be used. Leave blank for unlimited uses."
+        },
+        "v8n_too_small": {
+          "type": "string",
+          "default": "Please enter a value greater or equal to 0."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text", "v8n_too_small"]
     },
-    "single_price_percentage_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment, percent}} after {{from}}"
+    "product-code-restrictions": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Product code restrictions" },
+        "placeholder": { "type": "string", "default": "Enter a product code and hit Enter" },
+        "helper_text": {
+          "type": "string",
+          "default": "We'll apply this coupon only if one of the rules in the list matches the product code. Wildcards are allowed."
+        },
+        "unit_allow": { "type": "string", "default": "Allow" },
+        "unit_block": { "type": "string", "default": "Block" },
+        "label_allow": { "type": "string", "default": "Allow {{ value }}" },
+        "label_block": { "type": "string", "default": "Block {{ value }}" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we are unable to store that many product code restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
+        }
+      },
+      "required": [
+        "label",
+        "placeholder",
+        "helper_text",
+        "unit_allow",
+        "unit_block",
+        "label_allow",
+        "label_block",
+        "v8n_too_long"
+      ]
     },
-    "single_quantity_amount_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment}}¤ after {{from}} items"
+    "options": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Options" },
+        "option_multiple_codes_allowed": {
+          "type": "string",
+          "default": "Allow multiple codes on the same order"
+        },
+        "option_combinable": { "type": "string", "default": "Allow combining with other coupons" },
+        "option_exclude_category_discounts": {
+          "type": "string",
+          "default": "Don't apply category discounts with this coupon"
+        },
+        "option_exclude_line_item_discounts": {
+          "type": "string",
+          "default": "Don't apply line item discounts with this coupon"
+        },
+        "option_is_taxable": { "type": "string", "default": "Apply taxes before this coupon" },
+        "option_shared_codes_allowed": {
+          "type": "string",
+          "default": "Enable code sharing between coupons"
+        },
+        "option_customer_auto_apply": { "type": "string", "default": "Enable auto-apply" },
+        "helper_text": { "type": "string", "default": "" }
+      },
+      "required": [
+        "label",
+        "option_multiple_codes_allowed",
+        "option_combinable",
+        "option_exclude_category_discounts",
+        "option_exclude_line_item_discounts",
+        "option_is_taxable",
+        "option_shared_codes_allowed",
+        "option_customer_auto_apply",
+        "helper_text"
+      ]
     },
-    "single_quantity_percentage_discount_summary": {
-      "type": "string",
-      "default": "{{adjustment, percent}} after {{from}} items"
+    "start-date": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "Start date" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "The date and time when this coupon will become active. Leave blank to activate immediately."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
     },
-    "start_date": { "type": "string", "default": "Start date" },
-    "tier": { "type": "string", "default": "Tier" },
-    "tier_allunits": { "type": "string", "default": "price of each item" },
-    "tier_by": { "type": "string", "default": "by" },
-    "tier_if": { "type": "string", "default": "if" },
-    "tier_incremental": { "type": "string", "default": "price of additional items" },
-    "tier_repeat": { "type": "string", "default": "price of next item" },
-    "tier_single": { "type": "string", "default": "order total" },
-    "tier_then": { "type": "string", "default": "then" },
-    "type_here": { "type": "string", "default": "Type here..." },
-    "undo_cancel": { "type": "string", "default": "Review" },
-    "undo_confirm": { "type": "string", "default": "Discard" },
-    "undo_header": { "type": "string", "default": "Unsaved changes" },
-    "undo_message": {
-      "type": "string",
-      "default": "Looks like you didn't save your changes! What would you like to do with them?"
+    "end-date": {
+      "additionalProperties": false,
+      "properties": {
+        "label": { "type": "string", "default": "End date" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "The date and time when this coupon will expire. Leave blank for no expiration."
+        }
+      },
+      "required": ["label", "placeholder", "helper_text"]
     },
-    "unlimited": { "type": "string", "default": "Unlimited" },
-    "url_parameter": { "type": "string", "default": "URL parameter" },
-    "used_codes": { "type": "string", "default": "Codes used" },
-    "uses_per_coupon": { "type": "string", "default": "Uses per coupon" },
-    "uses_per_coupon_code": { "type": "string", "default": "Uses per code" },
-    "uses_per_coupon_code_summary": {
-      "type": "string",
-      "default": "Each coupon code can be used only one time."
-    },
-    "uses_per_coupon_code_summary_0": {
-      "type": "string",
-      "default": "Each coupon code can be used unlimited times."
-    },
-    "uses_per_coupon_code_summary_plural": {
-      "type": "string",
-      "default": "Each coupon code can be used only {{count}} times."
-    },
-    "uses_per_coupon_summary": {
-      "type": "string",
-      "default": "Only the first customer can use this coupon."
-    },
-    "uses_per_coupon_summary_0": {
-      "type": "string",
-      "default": "All customers can use this coupon."
-    },
-    "uses_per_coupon_summary_plural": {
-      "type": "string",
-      "default": "Only the first {{count}} customers can use this coupon."
-    },
-    "uses_per_customer": { "type": "string", "default": "Uses per customer" },
-    "uses_per_customer_summary": {
-      "type": "string",
-      "default": "Customers can use this coupon for one order only."
-    },
-    "uses_per_customer_summary_0": {
-      "type": "string",
-      "default": "Customers can use this coupon for as many orders as they like."
-    },
-    "uses_per_customer_summary_plural": {
-      "type": "string",
-      "default": "Customers can use this coupon for {{count}} orders only."
-    },
-    "v8n_required": { "type": "string", "default": "Required" },
-    "v8n_too_long": { "type": "string", "default": "Too long" },
     "customer-subscription-restrictions": {
       "additionalProperties": false,
       "properties": {
@@ -223,9 +1130,13 @@
           "default": "This coupon will be automatically applied when a subscription includes a product with one of the codes in the list. Wildcards are allowed just like in product code restrictions."
         },
         "submit": { "type": "string", "default": "Add this code" },
-        "delete": { "type": "string", "default": "Delete this code" }
+        "delete": { "type": "string", "default": "Delete this code" },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we are unable to store that many subscription restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
+        }
       },
-      "required": ["label", "placeholder", "helper_text", "submit", "delete"]
+      "required": ["label", "placeholder", "helper_text", "submit", "delete", "v8n_too_long"]
     },
     "customer-attribute-restrictions": {
       "additionalProperties": false,
@@ -235,512 +1146,262 @@
           "type": "string",
           "default": "This coupon will be automatically applied when a customer record matches this query."
         },
-        "add_or_clause": { "type": "string", "default": "Add OR clause" },
-        "add_value": { "type": "string", "default": "Add value" },
-        "code": { "type": "string", "default": "Code" },
-        "date": { "type": "string", "default": "{{value, date}}" },
-        "date_created": { "type": "string", "default": "Created on" },
-        "date_modified": { "type": "string", "default": "Last updated on" },
-        "delete": { "type": "string", "default": "Delete" },
-        "field": { "type": "string", "default": "Field" },
-        "hidden": { "type": "string", "default": "Hidden" },
-        "is_defined_false": { "type": "string", "default": "Not defined" },
-        "is_defined_true": { "type": "string", "default": "Defined" },
-        "name": { "type": "string", "default": "Name" },
-        "operator_equal": { "type": "string", "default": "Equal" },
-        "operator_greaterthan": { "type": "string", "default": "Greater than" },
-        "operator_greaterthanorequal": { "type": "string", "default": "Greater than or equal" },
-        "operator_in": { "type": "string", "default": "One of" },
-        "operator_isdefined": { "type": "string", "default": "Is defined" },
-        "operator_lessthan": { "type": "string", "default": "Less than" },
-        "operator_lessthanorequal": { "type": "string", "default": "Less than or equal" },
-        "operator_not": { "type": "string", "default": "Not equal" },
-        "or": { "type": "string", "default": "Or" },
-        "query_builder_group": { "type": "string", "default": "Group of filters" },
-        "query_builder_rule": { "type": "string", "default": "Filter" },
-        "range_from": { "type": "string", "default": "From" },
-        "range_to": { "type": "string", "default": "To" },
-        "type": { "type": "string", "default": "Type" },
-        "type_any": { "type": "string", "default": "Field of unknown type" },
-        "type_attribute": { "type": "string", "default": "Key-value resource" },
-        "type_date": { "type": "string", "default": "Date field" },
-        "type_here": { "type": "string", "default": "Type here..." },
-        "type_number": { "type": "string", "default": "Numeric field" },
-        "type_string": { "type": "string", "default": "Text field" },
-        "used_codes": { "type": "string", "default": "Codes used" },
-        "value": { "type": "string", "default": "Value" }
-      },
-      "required": [
-        "label",
-        "helper_text",
-        "add_or_clause",
-        "add_value",
-        "code",
-        "date",
-        "date_created",
-        "date_modified",
-        "delete",
-        "field",
-        "hidden",
-        "is_defined_false",
-        "is_defined_true",
-        "name",
-        "operator_equal",
-        "operator_greaterthan",
-        "operator_greaterthanorequal",
-        "operator_in",
-        "operator_isdefined",
-        "operator_lessthan",
-        "operator_lessthanorequal",
-        "operator_not",
-        "or",
-        "query_builder_group",
-        "query_builder_rule",
-        "range_from",
-        "range_to",
-        "type",
-        "type_any",
-        "type_attribute",
-        "type_date",
-        "type_here",
-        "type_number",
-        "type_string",
-        "used_codes",
-        "value"
-      ]
-    },
-    "copy-to-clipboard": {
-      "additionalProperties": false,
-      "properties": {
-        "click_to_copy": { "type": "string", "default": "Click to copy" },
-        "copying": { "type": "string", "default": "Copying" },
-        "done": { "type": "string", "default": "Done" },
-        "failed_to_copy": { "type": "string", "default": "Failed to copy" }
-      },
-      "required": ["click_to_copy", "copying", "done", "failed_to_copy"]
-    },
-    "coupon-code-form": {
-      "additionalProperties": false,
-      "properties": {
-        "code": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Code" },
-            "placeholder": { "type": "string", "default": "Required" },
-            "helper_text": {
-              "type": "string",
-              "default": "The string value of this coupon code which your customer will add to their cart to use this coupon."
-            },
-            "v8n_required": { "type": "string", "default": "Please enter a coupon code" },
-            "v8n_too_long": {
-              "type": "string",
-              "default": "Coupon code must be 50 characters or less"
-            },
-            "v8n_has_spaces": {
-              "type": "string",
-              "default": "Please remove spaces from the coupon code"
-            }
-          },
-          "required": [
-            "label",
-            "placeholder",
-            "helper_text",
-            "v8n_required",
-            "v8n_too_long",
-            "v8n_has_spaces"
-          ]
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we are unable to store that many customer restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
         },
-        "number-of-uses-to-date": {
+        "query-builder": {
           "additionalProperties": false,
           "properties": {
-            "label": { "type": "string", "default": "Number of uses" },
-            "helper_text": {
-              "type": "string",
-              "default": "For informational purposes, this shows you how many times this coupon code has already been used."
-            }
-          },
-          "required": ["label", "helper_text"]
-        },
-        "transactions": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Transactions" },
-            "pagination": {
-              "additionalProperties": false,
-              "properties": {
-                "first": { "type": "string", "default": "First" },
-                "last": { "type": "string", "default": "Last" },
-                "next": { "type": "string", "default": "Next" },
-                "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
-                "previous": { "type": "string", "default": "Previous" },
-                "card": {
-                  "additionalProperties": false,
-                  "properties": {
-                    "code": { "type": "string", "default": "Code" },
-                    "customer": { "type": "string", "default": "Customer" },
-                    "description": { "type": "string", "default": "Description" },
-                    "price": { "type": "string", "default": "{{amount, price}}" },
-                    "time": { "type": "string", "default": "{{value, date}}" },
-                    "status_capturing": { "type": "string", "default": "Capturing" },
-                    "status_captured": { "type": "string", "default": "Captured" },
-                    "status_approved": { "type": "string", "default": "Approved" },
-                    "status_authorized": { "type": "string", "default": "Authorized" },
-                    "status_pending": { "type": "string", "default": "Pending" },
-                    "status_completed": { "type": "string", "default": "Completed" },
-                    "status_problem": { "type": "string", "default": "Problem" },
-                    "status_pending_fraud_review": {
-                      "type": "string",
-                      "default": "Pending_fraud_review"
-                    },
-                    "status_rejected": { "type": "string", "default": "Rejected" },
-                    "status_declined": { "type": "string", "default": "Declined" },
-                    "status_refunding": { "type": "string", "default": "Refunding" },
-                    "status_refunded": { "type": "string", "default": "Refunded" },
-                    "status_voided": { "type": "string", "default": "Voided" },
-                    "status_verified": { "type": "string", "default": "Verified" },
-                    "summary": { "type": "string", "default": "{{most_expensive_item.name}}" },
-                    "summary_plural": {
-                      "type": "string",
-                      "default": "{{most_expensive_item.name}} and {{count_minus_one}} more"
-                    },
-                    "summary_payment_method_change": {
-                      "type": "string",
-                      "default": "Payment method change"
-                    },
-                    "summary_subscription_modification": {
-                      "type": "string",
-                      "default": "Subscription modification"
-                    },
-                    "summary_subscription_cancellation": {
-                      "type": "string",
-                      "default": "Subscription cancellation"
-                    },
-                    "source_MIT": {
-                      "type": "string",
-                      "default": "This transaction was initiated by the merchant"
-                    },
-                    "source_CIT": {
-                      "type": "string",
-                      "default": "This transaction was initiated by the customer"
-                    },
-                    "spinner": {
-                      "additionalProperties": false,
-                      "properties": {
-                        "loading_busy": { "type": "string", "default": "Loading" },
-                        "loading_empty": { "type": "string", "default": "No transactions" },
-                        "loading_error": { "type": "string", "default": "Unknown error" }
-                      },
-                      "required": ["loading_busy", "loading_empty", "loading_error"]
-                    }
-                  },
-                  "required": [
-                    "code",
-                    "customer",
-                    "description",
-                    "price",
-                    "time",
-                    "status_capturing",
-                    "status_captured",
-                    "status_approved",
-                    "status_authorized",
-                    "status_pending",
-                    "status_completed",
-                    "status_problem",
-                    "status_pending_fraud_review",
-                    "status_rejected",
-                    "status_declined",
-                    "status_refunding",
-                    "status_refunded",
-                    "status_voided",
-                    "status_verified",
-                    "summary",
-                    "summary_plural",
-                    "summary_payment_method_change",
-                    "summary_subscription_modification",
-                    "summary_subscription_cancellation",
-                    "source_MIT",
-                    "source_CIT",
-                    "spinner"
-                  ]
-                }
-              },
-              "required": ["first", "last", "next", "pagination", "previous", "card"]
-            }
-          },
-          "required": ["label", "pagination"]
-        },
-        "timestamps": {
-          "additionalProperties": false,
-          "properties": {
+            "add_or_clause": { "type": "string", "default": "Add OR clause" },
+            "add_value": { "type": "string", "default": "Add value" },
+            "code": { "type": "string", "default": "Code" },
+            "date": { "type": "string", "default": "{{value, date}}" },
             "date_created": { "type": "string", "default": "Created on" },
             "date_modified": { "type": "string", "default": "Last updated on" },
-            "date": { "type": "string", "default": "{{value, date}}" }
-          },
-          "required": ["date_created", "date_modified", "date"]
-        },
-        "delete": {
-          "additionalProperties": false,
-          "properties": {
             "delete": { "type": "string", "default": "Delete" },
-            "cancel": { "type": "string", "default": "Cancel" },
-            "delete_prompt": {
-              "type": "string",
-              "default": "Are you sure you'd like to remove this coupon code? You won't be able to bring it back."
-            }
+            "field": { "type": "string", "default": "Field" },
+            "hidden": { "type": "string", "default": "Hidden" },
+            "is_defined_false": { "type": "string", "default": "Not defined" },
+            "is_defined_true": { "type": "string", "default": "Defined" },
+            "name": { "type": "string", "default": "Name" },
+            "operator_equal": { "type": "string", "default": "Equal" },
+            "operator_greaterthan": { "type": "string", "default": "Greater than" },
+            "operator_greaterthanorequal": { "type": "string", "default": "Greater than or equal" },
+            "operator_in": { "type": "string", "default": "One of" },
+            "operator_isdefined": { "type": "string", "default": "Is defined" },
+            "operator_lessthan": { "type": "string", "default": "Less than" },
+            "operator_lessthanorequal": { "type": "string", "default": "Less than or equal" },
+            "operator_not": { "type": "string", "default": "Not equal" },
+            "or": { "type": "string", "default": "Or" },
+            "query_builder_group": { "type": "string", "default": "Group of filters" },
+            "query_builder_rule": { "type": "string", "default": "Filter" },
+            "range_from": { "type": "string", "default": "From" },
+            "range_to": { "type": "string", "default": "To" },
+            "type": { "type": "string", "default": "Type" },
+            "type_any": { "type": "string", "default": "Field of unknown type" },
+            "type_attribute": { "type": "string", "default": "Key-value resource" },
+            "type_date": { "type": "string", "default": "Date field" },
+            "type_here": { "type": "string", "default": "Type here..." },
+            "type_number": { "type": "string", "default": "Numeric field" },
+            "type_string": { "type": "string", "default": "Text field" },
+            "used_codes": { "type": "string", "default": "Codes used" },
+            "value": { "type": "string", "default": "Value" }
           },
-          "required": ["delete", "cancel", "delete_prompt"]
-        },
-        "create": {
-          "additionalProperties": false,
-          "properties": { "create": { "type": "string", "default": "Create" } },
-          "required": ["create"]
-        },
-        "spinner": {
-          "additionalProperties": false,
-          "properties": {
-            "refresh": { "type": "string", "default": "Refresh" },
-            "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Unknown error" }
-          },
-          "required": ["refresh", "loading_busy", "loading_error"]
+          "required": [
+            "add_or_clause",
+            "add_value",
+            "code",
+            "date",
+            "date_created",
+            "date_modified",
+            "delete",
+            "field",
+            "hidden",
+            "is_defined_false",
+            "is_defined_true",
+            "name",
+            "operator_equal",
+            "operator_greaterthan",
+            "operator_greaterthanorequal",
+            "operator_in",
+            "operator_isdefined",
+            "operator_lessthan",
+            "operator_lessthanorequal",
+            "operator_not",
+            "or",
+            "query_builder_group",
+            "query_builder_rule",
+            "range_from",
+            "range_to",
+            "type",
+            "type_any",
+            "type_attribute",
+            "type_date",
+            "type_here",
+            "type_number",
+            "type_string",
+            "used_codes",
+            "value"
+          ]
         }
       },
-      "required": [
-        "code",
-        "number-of-uses-to-date",
-        "transactions",
-        "timestamps",
-        "delete",
-        "create",
-        "spinner"
-      ]
+      "required": ["label", "helper_text", "v8n_too_long", "query-builder"]
     },
-    "coupon-codes-form": {
+    "item-option-restrictions": {
       "additionalProperties": false,
       "properties": {
-        "status": {
+        "label": { "type": "string", "default": "Item option restrictions" },
+        "helper_text": {
+          "type": "string",
+          "default": "This restricts the usage of a coupon code based on an item option's name and value. When defined, the coupon will only apply to items with the specified option name and value. Wildcards are allowed."
+        },
+        "v8n_too_long": {
+          "type": "string",
+          "default": "Unfortunately we are unable to store that many item option restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
+        },
+        "query-builder": {
           "additionalProperties": false,
           "properties": {
-            "success": {
-              "type": "string",
-              "default": "All done! We've imported your codes into the system."
-            }
+            "add_or_clause": { "type": "string", "default": "Add OR clause" },
+            "add_value": { "type": "string", "default": "Add option value" },
+            "code": { "type": "string", "default": "Code" },
+            "date": { "type": "string", "default": "{{value, date}}" },
+            "date_created": { "type": "string", "default": "Created on" },
+            "date_modified": { "type": "string", "default": "Last updated on" },
+            "delete": { "type": "string", "default": "Delete" },
+            "field": { "type": "string", "default": "Option name" },
+            "hidden": { "type": "string", "default": "Hidden" },
+            "is_defined_false": { "type": "string", "default": "Not defined" },
+            "is_defined_true": { "type": "string", "default": "Defined" },
+            "name": { "type": "string", "default": "Name" },
+            "operator_equal": { "type": "string", "default": "Equal" },
+            "operator_greaterthan": { "type": "string", "default": "Greater than" },
+            "operator_greaterthanorequal": { "type": "string", "default": "Greater than or equal" },
+            "operator_in": { "type": "string", "default": "One of" },
+            "operator_isdefined": { "type": "string", "default": "Is defined" },
+            "operator_lessthan": { "type": "string", "default": "Less than" },
+            "operator_lessthanorequal": { "type": "string", "default": "Less than or equal" },
+            "operator_not": { "type": "string", "default": "Not equal" },
+            "or": { "type": "string", "default": "Or" },
+            "query_builder_group": { "type": "string", "default": "Group of filters" },
+            "query_builder_rule": { "type": "string", "default": "Filter" },
+            "range_from": { "type": "string", "default": "From" },
+            "range_to": { "type": "string", "default": "To" },
+            "type": { "type": "string", "default": "Type" },
+            "type_any": { "type": "string", "default": "Field of unknown type" },
+            "type_attribute": { "type": "string", "default": "Key-value resource" },
+            "type_date": { "type": "string", "default": "Date field" },
+            "type_here": { "type": "string", "default": "Type here..." },
+            "type_number": { "type": "string", "default": "Numeric field" },
+            "type_string": { "type": "string", "default": "Text field" },
+            "used_codes": { "type": "string", "default": "Codes used" },
+            "value": { "type": "string", "default": "Option value" }
           },
-          "required": ["success"]
-        },
-        "coupon-codes": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Codes" },
-            "placeholder": { "type": "string", "default": "Enter or paste codes here..." },
-            "helper_text": {
-              "type": "string",
-              "default": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats."
-            },
-            "v8n_required": { "type": "string", "default": "Please add at least one code" }
-          },
-          "required": ["label", "placeholder", "helper_text", "v8n_required"]
-        },
-        "create": {
-          "additionalProperties": false,
-          "properties": { "create": { "type": "string", "default": "Import" } },
-          "required": ["create"]
-        },
-        "spinner": {
-          "additionalProperties": false,
-          "properties": {
-            "refresh": { "type": "string", "default": "Refresh" },
-            "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Unknown error" }
-          },
-          "required": ["refresh", "loading_busy", "loading_error"]
+          "required": [
+            "add_or_clause",
+            "add_value",
+            "code",
+            "date",
+            "date_created",
+            "date_modified",
+            "delete",
+            "field",
+            "hidden",
+            "is_defined_false",
+            "is_defined_true",
+            "name",
+            "operator_equal",
+            "operator_greaterthan",
+            "operator_greaterthanorequal",
+            "operator_in",
+            "operator_isdefined",
+            "operator_lessthan",
+            "operator_lessthanorequal",
+            "operator_not",
+            "or",
+            "query_builder_group",
+            "query_builder_rule",
+            "range_from",
+            "range_to",
+            "type",
+            "type_any",
+            "type_attribute",
+            "type_date",
+            "type_here",
+            "type_number",
+            "type_string",
+            "used_codes",
+            "value"
+          ]
         }
       },
-      "required": ["status", "coupon-codes", "create", "spinner"]
+      "required": ["label", "helper_text", "v8n_too_long", "query-builder"]
     },
-    "generate-codes-form": {
+    "category-restrictions": {
       "additionalProperties": false,
       "properties": {
-        "status": {
+        "label": { "type": "string", "default": "Item category restrictions" },
+        "status_saving": { "type": "string", "default": "Saving..." },
+        "status_loading": { "type": "string", "default": "Loading..." },
+        "pagination": {
           "additionalProperties": false,
           "properties": {
-            "success": { "type": "string", "default": "Codes generated successfully." }
-          },
-          "required": ["success"]
-        },
-        "error": {
-          "additionalProperties": false,
-          "properties": {
-            "invalid_form": {
-              "type": "string",
-              "default": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
+            "first": { "type": "string", "default": "First" },
+            "last": { "type": "string", "default": "Last" },
+            "next": { "type": "string", "default": "Next" },
+            "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
+            "previous": { "type": "string", "default": "Previous" },
+            "card": {
+              "additionalProperties": false,
+              "properties": {
+                "spinner": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "loading_busy": { "type": "string", "default": "Loading" },
+                    "loading_empty": { "type": "string", "default": "No restrictions" },
+                    "loading_error": { "type": "string", "default": "Unknown error" }
+                  },
+                  "required": ["loading_busy", "loading_empty", "loading_error"]
+                }
+              },
+              "required": ["spinner"]
             }
           },
-          "required": ["invalid_form"]
+          "required": ["first", "last", "next", "pagination", "previous", "card"]
         },
-        "length": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Code length" },
-            "placeholder": { "type": "string", "default": "6" },
-            "helper_text": { "type": "string", "default": "" }
-          },
-          "required": ["label", "placeholder", "helper_text"]
-        },
-        "number-of-codes": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Number of codes" },
-            "placeholder": { "type": "string", "default": "10" },
-            "helper_text": { "type": "string", "default": "" }
-          },
-          "required": ["label", "placeholder", "helper_text"]
-        },
-        "prefix": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Prefix" },
-            "placeholder": { "type": "string", "default": "Optional" },
-            "helper_text": {
-              "type": "string",
-              "default": "The length value is inclusive of this prefix."
-            }
-          },
-          "required": ["label", "placeholder", "helper_text"]
-        },
-        "current-balance": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Initial balance" },
-            "placeholder": { "type": "string", "default": "0" },
-            "helper_text": { "type": "string", "default": "" }
-          },
-          "required": ["label", "placeholder", "helper_text"]
-        },
-        "example": {
-          "additionalProperties": false,
-          "properties": {
-            "label": { "type": "string", "default": "Examples" },
-            "placeholder": { "type": "string", "default": "" },
-            "helper_text": {
-              "type": "string",
-              "default": "This is what the generated codes will look like."
-            }
-          },
-          "required": ["label", "placeholder", "helper_text"]
-        },
-        "create": {
-          "additionalProperties": false,
-          "properties": { "create": { "type": "string", "default": "Generate" } },
-          "required": ["create"]
-        },
-        "spinner": {
-          "additionalProperties": false,
-          "properties": {
-            "refresh": { "type": "string", "default": "Refresh" },
-            "loading_busy": { "type": "string", "default": "Loading" },
-            "loading_error": { "type": "string", "default": "Unknown error" }
-          },
-          "required": ["refresh", "loading_busy", "loading_error"]
+        "helper_text": {
+          "type": "string",
+          "default": "Limit which categories this coupon applies to. All changes are saved automatically."
         }
       },
-      "required": [
-        "status",
-        "error",
-        "length",
-        "number-of-codes",
-        "prefix",
-        "current-balance",
-        "example",
-        "create",
-        "spinner"
-      ]
+      "required": ["label", "status_saving", "status_loading", "pagination", "helper_text"]
     },
-    "pagination": {
+    "inclusive-tax-rate": {
       "additionalProperties": false,
       "properties": {
-        "first": { "type": "string", "default": "First" },
-        "last": { "type": "string", "default": "Last" },
-        "next": { "type": "string", "default": "Next" },
-        "pagination": { "type": "string", "default": "{{from}}-{{to}} out of {{total}}" },
-        "previous": { "type": "string", "default": "Previous" }
+        "label": { "type": "string", "default": "Tax rate" },
+        "placeholder": { "type": "string", "default": "Optional" },
+        "helper_text": {
+          "type": "string",
+          "default": "The tax rate to apply to the coupon in tax-inclusive mode. This is a decimal value from 0 to 1."
+        },
+        "v8n_too_small": {
+          "type": "string",
+          "default": "Please enter a value greater or equal to 0."
+        },
+        "v8n_too_big": {
+          "type": "string",
+          "default": "Please enter a value less than or equal to 1."
+        }
       },
-      "required": ["first", "last", "next", "pagination", "previous"]
+      "required": ["label", "placeholder", "helper_text", "v8n_too_small", "v8n_too_big"]
     },
-    "query-builder": {
+    "timestamps": {
       "additionalProperties": false,
       "properties": {
-        "add_or_clause": { "type": "string", "default": "Add OR clause" },
-        "add_value": { "type": "string", "default": "Add value" },
-        "code": { "type": "string", "default": "Code" },
-        "date": { "type": "string", "default": "{{value, date}}" },
         "date_created": { "type": "string", "default": "Created on" },
         "date_modified": { "type": "string", "default": "Last updated on" },
-        "delete": { "type": "string", "default": "Delete" },
-        "field": { "type": "string", "default": "Field" },
-        "hidden": { "type": "string", "default": "Hidden" },
-        "is_defined_false": { "type": "string", "default": "Not defined" },
-        "is_defined_true": { "type": "string", "default": "Defined" },
-        "name": { "type": "string", "default": "Name" },
-        "operator_equal": { "type": "string", "default": "Equal" },
-        "operator_greaterthan": { "type": "string", "default": "Greater than" },
-        "operator_greaterthanorequal": { "type": "string", "default": "Greater than or equal" },
-        "operator_in": { "type": "string", "default": "One of" },
-        "operator_isdefined": { "type": "string", "default": "Is defined" },
-        "operator_lessthan": { "type": "string", "default": "Less than" },
-        "operator_lessthanorequal": { "type": "string", "default": "Less than or equal" },
-        "operator_not": { "type": "string", "default": "Not equal" },
-        "or": { "type": "string", "default": "Or" },
-        "query_builder_group": { "type": "string", "default": "Group of filters" },
-        "query_builder_rule": { "type": "string", "default": "Filter" },
-        "range_from": { "type": "string", "default": "From" },
-        "range_to": { "type": "string", "default": "To" },
-        "type": { "type": "string", "default": "Type" },
-        "type_any": { "type": "string", "default": "Field of unknown type" },
-        "type_attribute": { "type": "string", "default": "Key-value resource" },
-        "type_date": { "type": "string", "default": "Date field" },
-        "type_here": { "type": "string", "default": "Type here..." },
-        "type_number": { "type": "string", "default": "Numeric field" },
-        "type_string": { "type": "string", "default": "Text field" },
-        "used_codes": { "type": "string", "default": "Codes used" },
-        "value": { "type": "string", "default": "Value" }
+        "date": { "type": "string", "default": "{{value, date}}" }
       },
-      "required": [
-        "add_or_clause",
-        "add_value",
-        "code",
-        "date",
-        "date_created",
-        "date_modified",
-        "delete",
-        "field",
-        "hidden",
-        "is_defined_false",
-        "is_defined_true",
-        "name",
-        "operator_equal",
-        "operator_greaterthan",
-        "operator_greaterthanorequal",
-        "operator_in",
-        "operator_isdefined",
-        "operator_lessthan",
-        "operator_lessthanorequal",
-        "operator_not",
-        "or",
-        "query_builder_group",
-        "query_builder_rule",
-        "range_from",
-        "range_to",
-        "type",
-        "type_any",
-        "type_attribute",
-        "type_date",
-        "type_here",
-        "type_number",
-        "type_string",
-        "used_codes",
-        "value"
-      ]
+      "required": ["date_created", "date_modified", "date"]
+    },
+    "delete": {
+      "additionalProperties": false,
+      "properties": {
+        "delete": { "type": "string", "default": "Delete" },
+        "cancel": { "type": "string", "default": "Cancel" },
+        "delete_prompt": {
+          "type": "string",
+          "default": "This action is irreversible. Are you sure you want to delete this coupon?"
+        }
+      },
+      "required": ["delete", "cancel", "delete_prompt"]
+    },
+    "create": {
+      "additionalProperties": false,
+      "properties": { "create": { "type": "string", "default": "Create" } },
+      "required": ["create"]
     },
     "spinner": {
       "additionalProperties": false,
@@ -753,111 +1414,34 @@
     }
   },
   "required": [
-    "allow",
-    "allunits_price_amount_discount_summary",
-    "allunits_price_percentage_discount_summary",
-    "allunits_quantity_amount_discount_summary",
-    "allunits_quantity_percentage_discount_summary",
-    "apply_taxes_before_coupon",
-    "apply_taxes_before_coupon_explainer",
-    "block",
-    "cancel",
-    "category_restrictions",
-    "category_restrictions_helper_text",
-    "clear_filters",
-    "close",
-    "code",
-    "code_plural",
-    "combinable",
-    "combinable_explainer",
-    "combine_with_category_discounts",
-    "combine_with_category_discounts_explainer",
-    "combine_with_line_discounts",
-    "combine_with_line_discounts_explainer",
-    "confirm",
-    "coupon_name_helper_text",
-    "create",
-    "custom_discount",
-    "date",
-    "date_created",
-    "date_modified",
-    "delete",
-    "delete_prompt",
-    "description",
-    "discount_summary",
-    "end_date",
-    "filter",
-    "generate",
+    "header",
     "import",
-    "incremental_price_amount_discount_summary",
-    "incremental_price_percentage_discount_summary",
-    "incremental_quantity_amount_discount_summary",
-    "incremental_quantity_percentage_discount_summary",
-    "multiple_codes_allowed",
-    "multiple_codes_allowed_explainer",
-    "name",
-    "option_plural",
+    "generate",
     "ordinal_few",
     "ordinal_many",
     "ordinal_one",
     "ordinal_other",
     "ordinal_two",
     "ordinal_zero",
-    "price",
-    "product_restrictions",
-    "product_restrictions_explainer",
-    "repeat_price_amount_discount_summary",
-    "repeat_price_percentage_discount_summary",
-    "repeat_quantity_amount_discount_summary",
-    "repeat_quantity_percentage_discount_summary",
-    "rule_plural",
-    "save",
-    "select",
-    "set_time_constraints",
-    "set_time_constraints_explainer",
-    "single_price_amount_discount_summary",
-    "single_price_percentage_discount_summary",
-    "single_quantity_amount_discount_summary",
-    "single_quantity_percentage_discount_summary",
-    "start_date",
-    "tier",
-    "tier_allunits",
-    "tier_by",
-    "tier_if",
-    "tier_incremental",
-    "tier_repeat",
-    "tier_single",
-    "tier_then",
-    "type_here",
-    "undo_cancel",
-    "undo_confirm",
-    "undo_header",
-    "undo_message",
-    "unlimited",
-    "url_parameter",
-    "used_codes",
-    "uses_per_coupon",
-    "uses_per_coupon_code",
-    "uses_per_coupon_code_summary",
-    "uses_per_coupon_code_summary_0",
-    "uses_per_coupon_code_summary_plural",
-    "uses_per_coupon_summary",
-    "uses_per_coupon_summary_0",
-    "uses_per_coupon_summary_plural",
-    "uses_per_customer",
-    "uses_per_customer_summary",
-    "uses_per_customer_summary_0",
-    "uses_per_customer_summary_plural",
-    "v8n_required",
-    "v8n_too_long",
+    "name",
+    "rules",
+    "coupon-codes",
+    "attributes",
+    "number-of-uses-allowed",
+    "number-of-uses-allowed-per-customer",
+    "number-of-uses-allowed-per-code",
+    "product-code-restrictions",
+    "options",
+    "start-date",
+    "end-date",
     "customer-subscription-restrictions",
     "customer-attribute-restrictions",
-    "copy-to-clipboard",
-    "coupon-code-form",
-    "coupon-codes-form",
-    "generate-codes-form",
-    "pagination",
-    "query-builder",
+    "item-option-restrictions",
+    "category-restrictions",
+    "inclusive-tax-rate",
+    "timestamps",
+    "delete",
+    "create",
     "spinner"
   ]
 }
