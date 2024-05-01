@@ -83,15 +83,6 @@ export class DownloadableForm extends Base<Data> {
 
   renderBody(): TemplateResult {
     return html`
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.item_category_uri || void 0)}
-        id=${this.__downloadableItemCategoryLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
       <foxy-internal-async-combo-box-control
         item-label-path="name"
         item-value-path="_links.self.href"
@@ -115,6 +106,15 @@ export class DownloadableForm extends Base<Data> {
       </foxy-internal-downloadable-form-upload-control>
 
       ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.form.item_category_uri || void 0)}
+        id=${this.__downloadableItemCategoryLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 

@@ -124,33 +124,6 @@ export class TemplateSetForm extends Base<Data> {
     const languages = languageEntries.map(([value, label]) => ({ value, label }));
 
     return html`
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.languages ?? undefined)}
-        id=${this.__languagesLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.localeCodes ?? undefined)}
-        id=${this.__localeCodesLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
-      <foxy-nucleon
-        class="hidden"
-        infer=""
-        href=${ifDefined(this.form.payment_method_set_uri || undefined)}
-        id=${this.__paymentMethodSetLoaderId}
-        @update=${() => this.requestUpdate()}
-      >
-      </foxy-nucleon>
-
       <div class="grid grid-cols-1 gap-m sm-grid-cols-2">
         <foxy-internal-text-control infer="description"></foxy-internal-text-control>
 
@@ -193,6 +166,33 @@ export class TemplateSetForm extends Base<Data> {
       <!-- -->
 
       ${super.renderBody()}
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.languages ?? undefined)}
+        id=${this.__languagesLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.localeCodes ?? undefined)}
+        id=${this.__localeCodesLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
+
+      <foxy-nucleon
+        class="hidden"
+        infer=""
+        href=${ifDefined(this.form.payment_method_set_uri || undefined)}
+        id=${this.__paymentMethodSetLoaderId}
+        @update=${() => this.requestUpdate()}
+      >
+      </foxy-nucleon>
     `;
   }
 
