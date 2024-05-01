@@ -186,7 +186,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             confirm.show(button);
 
             this.__deletionConfimationCallback = () => {
-              const cardButton = button.previousElementSibling!;
+              const cardButton = button.parentElement!.firstElementChild!;
               const card = cardButton.querySelector<NucleonElement<any>>('[href]');
 
               card?.delete();
