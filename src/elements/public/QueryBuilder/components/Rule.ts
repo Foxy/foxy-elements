@@ -16,6 +16,8 @@ import { classMap } from '../../../../utils/class-map';
 
 export type RuleParams = {
   parsedValue: ParsedValue;
+  operators: Operator[];
+  disableOr: boolean;
   isFullSize?: boolean;
   isNested?: boolean;
   disabled: boolean;
@@ -46,6 +48,7 @@ export function Rule(params: RuleParams): TemplateResult {
   const operator = parsedValue.operator;
   const componentParams = {
     parsedValue: parsedValue,
+    operators: params.operators,
     disabled,
     readonly,
     options,
@@ -152,7 +155,7 @@ export function Rule(params: RuleParams): TemplateResult {
             'text-success hover-bg-contrast-5': !disabled,
             'cursor-default text-disabled': disabled,
             'focus-outline-none focus-ring-2 ring-primary-50': true,
-            'opacity-0': !parsedValue.path || !!isNested,
+            'opacity-0': !parsedValue.path || !!isNested || params.disableOr,
           })}
           ?disabled=${disabled || readonly || !parsedValue.path}
           @click=${onConvert}

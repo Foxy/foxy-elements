@@ -2,7 +2,7 @@ import { LitElement, html } from 'lit-element';
 import { expect, fixture, oneEvent } from '@open-wc/testing';
 
 import { QueryBuilder } from './index';
-import { Type } from './types';
+import { Operator, Type } from './types';
 import { serializeDateTime } from '../../../utils/serialize-date';
 
 describe('QueryBuilder', () => {
@@ -22,6 +22,22 @@ describe('QueryBuilder', () => {
 
   it('has a default i18next namespace of "query-builder"', () => {
     expect(new QueryBuilder()).to.have.property('ns', 'query-builder');
+  });
+
+  it('has a reactive property "operators"', () => {
+    expect(QueryBuilder).to.have.deep.nested.property('properties.operators', { type: Array });
+    expect(new QueryBuilder()).to.have.deep.property(
+      'operators',
+      Object.values(QueryBuilder.Operator)
+    );
+  });
+
+  it('has a reactive property "disableOr"', () => {
+    expect(new QueryBuilder()).to.have.property('disableOr', false);
+    expect(QueryBuilder).to.have.deep.nested.property('properties.disableOr', {
+      type: Boolean,
+      attribute: 'disable-or',
+    });
   });
 
   it('exposes change event class as a static field', () => {
@@ -164,6 +180,31 @@ describe('QueryBuilder', () => {
       'foo%3Ain=',
       'foo=',
     ];
+
+    for (const value of values) {
+      const whenGotEvent = oneEvent(element, 'change');
+      toggle.click();
+      await element.requestUpdate();
+
+      expect(element).to.have.value(value);
+      expect(await whenGotEvent).to.be.instanceOf(QueryBuilder.ChangeEvent);
+    }
+  });
+
+  it('limits operators according to settings', async () => {
+    const layout = html`
+      <foxy-query-builder
+        value="foo="
+        .operators=${[Operator.GreaterThan, Operator.LessThan, Operator.Not]}
+      >
+      </foxy-query-builder>
+    `;
+
+    const element = await fixture<QueryBuilder>(layout);
+    const root = element.renderRoot;
+    const toggle = root.querySelector('button[title="operator_equal"]') as HTMLButtonElement;
+
+    const values = ['foo%3Alessthan=', 'foo%3Agreaterthan=', 'foo%3Anot=', 'foo='];
 
     for (const value of values) {
       const whenGotEvent = oneEvent(element, 'change');
@@ -957,5 +998,18 @@ describe('QueryBuilder', () => {
     element.renderRoot
       .querySelectorAll('input, button, select')
       .forEach(control => expect(control).to.have.attribute('disabled'));
+  });
+
+  it('disables OR operator when .disableOr=true', async () => {
+    const element = await fixture<QueryBuilder>(
+      html`<foxy-query-builder value="foo=bar"></foxy-query-builder>`
+    );
+
+    const or = element.renderRoot.querySelector('[aria-label="add_or_clause"]');
+    expect(or).to.not.have.class('opacity-0');
+
+    element.disableOr = true;
+    await element.requestUpdate();
+    expect(or).to.have.class('opacity-0');
   });
 });
