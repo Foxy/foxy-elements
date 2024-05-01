@@ -256,7 +256,9 @@ describe('CustomerPortalSettingsForm', () => {
     expect(control.getValue()).to.be.undefined;
 
     control.setValue([{ value: 'https://example.com' }]);
-    expect(control.getValue()).to.deep.equal([{ value: 'https://example.com' }]);
+    expect(control.getValue()).to.deep.equal([
+      { label: 'https://example.com', value: 'https://example.com' },
+    ]);
     expect(element).to.have.deep.nested.property('form.allowedOrigins', ['https://example.com']);
   });
 
