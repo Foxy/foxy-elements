@@ -177,6 +177,10 @@
       "url": "./src/static/schemas/gift-card-card.json"
     },
     {
+      "fileMatch": ["/src/static/translations/gift-card-code-card/*.json"],
+      "url": "./src/static/schemas/gift-card-code-card.json"
+    },
+    {
       "fileMatch": ["/src/static/translations/gift-card-code-form/*.json"],
       "url": "./src/static/schemas/gift-card-code-form.json"
     },

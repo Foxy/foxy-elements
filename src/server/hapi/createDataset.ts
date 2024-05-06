@@ -908,6 +908,8 @@ export const createDataset: () => Dataset = () => ({
     },
   ],
 
+  gift_card_attributes: [],
+
   gift_card_codes: new Array(100).fill(0).map((_, id) => ({
     id,
     store_id: 0,

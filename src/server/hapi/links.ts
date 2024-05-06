@@ -264,9 +264,15 @@ export const links: Links = {
 
   gift_cards: ({ store_id, id }) => ({
     'fx:store': { href: `./stores/${store_id}` },
+    'fx:attributes': { href: `./gift_card_attributes?gift_card_id=${id}` },
     'fx:generate_codes': { href: './generate_codes' },
     'fx:gift_card_codes': { href: `./gift_card_codes?gift_card_id=${id}` },
     'fx:gift_card_item_categories': { href: `./gift_card_item_categories?gift_card_id=${id}` },
+  }),
+
+  gift_card_attributes: ({ gift_card_id, store_id }) => ({
+    'fx:store': { href: `./stores/${store_id}` },
+    'fx:gift_card': { href: `./gift_cards/${gift_card_id}` },
   }),
 
   gift_card_codes: ({ gift_card_id, store_id, item_id, id }) => ({

@@ -16,6 +16,10 @@ export const groups = [
     files: './src/elements/internal/InternalAsyncResourceLinkListControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-bulk-add-action-control',
+    files: './src/elements/internal/InternalBulkAddActionControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-calendar',
     files: './src/elements/internal/InternalCalendar/**/*.test.ts',
   },
@@ -386,6 +390,10 @@ export const groups = [
   {
     name: 'foxy-gift-card-card',
     files: './src/elements/public/GiftCardCard/**/*.test.ts',
+  },
+  {
+    name: 'foxy-gift-card-code-card',
+    files: './src/elements/public/GiftCardCodeCard/**/*.test.ts',
   },
   {
     name: 'foxy-gift-card-code-form',

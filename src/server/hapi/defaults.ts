@@ -608,6 +608,17 @@ export const defaults: Defaults = {
     date_modified: new Date().toISOString(),
   }),
 
+  gift_card_attributes: (query, dataset) => ({
+    id: increment('gift_card_attributes', dataset),
+    store_id: parseInt(query.get('store_id') ?? '0'),
+    gift_card_id: parseInt(query.get('gift_card_id') ?? '0'),
+    name: '',
+    value: '',
+    visibility: 'private',
+    date_created: new Date().toISOString(),
+    date_modified: new Date().toISOString(),
+  }),
+
   gift_card_codes: (query, dataset) => ({
     id: increment('gift_card_codes', dataset),
     store_id: parseInt(query.get('store_id') ?? '0'),

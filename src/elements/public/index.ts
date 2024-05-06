@@ -49,6 +49,7 @@ export { FilterAttributeForm } from './FilterAttributeForm/FilterAttributeForm';
 export { FormDialog } from './FormDialog/FormDialog';
 export { GenerateCodesForm } from './GenerateCodesForm/GenerateCodesForm';
 export { GiftCardCard } from './GiftCardCard/GiftCardCard';
+export { GiftCardCodeCard } from './GiftCardCodeCard/GiftCardCodeCard';
 export { GiftCardCodeForm } from './GiftCardCodeForm/GiftCardCodeForm';
 export { GiftCardCodeLogCard } from './GiftCardCodeLogCard/GiftCardCodeLogCard';
 export { GiftCardCodesForm } from './GiftCardCodesForm/GiftCardCodesForm';
