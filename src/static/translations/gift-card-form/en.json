@@ -1,220 +1,296 @@
 {
-  "allow": "Allow",
-  "block": "Block",
-  "cancel": "Cancel",
-  "category_restrictions": "Category restrictions",
-  "clear_filters": "Clear filters",
-  "close": "Close",
-  "code": "Code",
-  "code_plural": "Codes",
-  "confirm": "Confirm",
-  "create": "Create",
-  "currency": "Currency",
-  "currency_aed": "United Arab Emirates Dirham",
-  "currency_afn": "Afghan Afghani",
-  "currency_all": "Albanian Lek",
-  "currency_amd": "Armenian Dram",
-  "currency_ang": "Netherlands Antillean Guilder",
-  "currency_aoa": "Angolan Kwanza",
-  "currency_ars": "Argentine Peso",
-  "currency_aud": "Australian Dollar",
-  "currency_awg": "Aruban Florin",
-  "currency_azn": "Azerbaijani Manat",
-  "currency_bam": "Bosnia-Herzegovina Convertible Mark",
-  "currency_bbd": "Barbadian Dollar",
-  "currency_bdt": "Bangladeshi Taka",
-  "currency_bgn": "Bulgarian Lev",
-  "currency_bhd": "Bahraini Dinar",
-  "currency_bif": "Burundian Franc",
-  "currency_bmd": "Bermudan Dollar",
-  "currency_bnd": "Brunei Dollar",
-  "currency_bob": "Bolivian Boliviano",
-  "currency_brl": "Brazilian Real",
-  "currency_bsd": "Bahamian Dollar",
-  "currency_btc": "Bitcoin",
-  "currency_btn": "Bhutanese Ngultrum",
-  "currency_bwp": "Botswanan Pula",
-  "currency_byn": "Belarusian Ruble",
-  "currency_bzd": "Belize Dollar",
-  "currency_cad": "Canadian Dollar",
-  "currency_cdf": "Congolese Franc",
-  "currency_chf": "Swiss Franc",
-  "currency_clf": "Chilean Unit of Account (UF)",
-  "currency_clp": "Chilean Peso",
-  "currency_cnh": "Chinese Yuan (Offshore)",
-  "currency_cny": "Chinese Yuan",
-  "currency_cop": "Colombian Peso",
-  "currency_crc": "Costa Rican Colón",
-  "currency_cuc": "Cuban Convertible Peso",
-  "currency_cup": "Cuban Peso",
-  "currency_cve": "Cape Verdean Escudo",
-  "currency_czk": "Czech Republic Koruna",
-  "currency_djf": "Djiboutian Franc",
-  "currency_dkk": "Danish Krone",
-  "currency_dop": "Dominican Peso",
-  "currency_dzd": "Algerian Dinar",
-  "currency_egp": "Egyptian Pound",
-  "currency_ern": "Eritrean Nakfa",
-  "currency_etb": "Ethiopian Birr",
-  "currency_eur": "Euro",
-  "currency_fjd": "Fijian Dollar",
-  "currency_fkp": "Falkland Islands Pound",
-  "currency_gbp": "British Pound Sterling",
-  "currency_gel": "Georgian Lari",
-  "currency_ggp": "Guernsey Pound",
-  "currency_ghs": "Ghanaian Cedi",
-  "currency_gip": "Gibraltar Pound",
-  "currency_gmd": "Gambian Dalasi",
-  "currency_gnf": "Guinean Franc",
-  "currency_gtq": "Guatemalan Quetzal",
-  "currency_gyd": "Guyanaese Dollar",
-  "currency_hkd": "Hong Kong Dollar",
-  "currency_hnl": "Honduran Lempira",
-  "currency_hrk": "Croatian Kuna",
-  "currency_htg": "Haitian Gourde",
-  "currency_huf": "Hungarian Forint",
-  "currency_idr": "Indonesian Rupiah",
-  "currency_ils": "Israeli New Sheqel",
-  "currency_imp": "Manx pound",
-  "currency_inr": "Indian Rupee",
-  "currency_iqd": "Iraqi Dinar",
-  "currency_irr": "Iranian Rial",
-  "currency_isk": "Icelandic Króna",
-  "currency_jep": "Jersey Pound",
-  "currency_jmd": "Jamaican Dollar",
-  "currency_jod": "Jordanian Dinar",
-  "currency_jpy": "Japanese Yen",
-  "currency_kes": "Kenyan Shilling",
-  "currency_kgs": "Kyrgystani Som",
-  "currency_khr": "Cambodian Riel",
-  "currency_kmf": "Comorian Franc",
-  "currency_kpw": "North Korean Won",
-  "currency_krw": "South Korean Won",
-  "currency_kwd": "Kuwaiti Dinar",
-  "currency_kyd": "Cayman Islands Dollar",
-  "currency_kzt": "Kazakhstani Tenge",
-  "currency_lak": "Laotian Kip",
-  "currency_lbp": "Lebanese Pound",
-  "currency_lkr": "Sri Lankan Rupee",
-  "currency_lrd": "Liberian Dollar",
-  "currency_lsl": "Lesotho Loti",
-  "currency_lyd": "Libyan Dinar",
-  "currency_mad": "Moroccan Dirham",
-  "currency_mdl": "Moldovan Leu",
-  "currency_mga": "Malagasy Ariary",
-  "currency_mkd": "Macedonian Denar",
-  "currency_mmk": "Myanma Kyat",
-  "currency_mnt": "Mongolian Tugrik",
-  "currency_mop": "Macanese Pataca",
-  "currency_mru": "Mauritanian Ouguiya",
-  "currency_mur": "Mauritian Rupee",
-  "currency_mvr": "Maldivian Rufiyaa",
-  "currency_mwk": "Malawian Kwacha",
-  "currency_mxn": "Mexican Peso",
-  "currency_myr": "Malaysian Ringgit",
-  "currency_mzn": "Mozambican Metical",
-  "currency_nad": "Namibian Dollar",
-  "currency_ngn": "Nigerian Naira",
-  "currency_nio": "Nicaraguan Córdoba",
-  "currency_nok": "Norwegian Krone",
-  "currency_npr": "Nepalese Rupee",
-  "currency_nzd": "New Zealand Dollar",
-  "currency_omr": "Omani Rial",
-  "currency_pab": "Panamanian Balboa",
-  "currency_pen": "Peruvian Nuevo Sol",
-  "currency_pgk": "Papua New Guinean Kina",
-  "currency_php": "Philippine Peso",
-  "currency_pkr": "Pakistani Rupee",
-  "currency_pln": "Polish Zloty",
-  "currency_pyg": "Paraguayan Guarani",
-  "currency_qar": "Qatari Rial",
-  "currency_ron": "Romanian Leu",
-  "currency_rsd": "Serbian Dinar",
-  "currency_rub": "Russian Ruble",
-  "currency_rwf": "Rwandan Franc",
-  "currency_sar": "Saudi Riyal",
-  "currency_sbd": "Solomon Islands Dollar",
-  "currency_scr": "Seychellois Rupee",
-  "currency_sdg": "Sudanese Pound",
-  "currency_sek": "Swedish Krona",
-  "currency_sgd": "Singapore Dollar",
-  "currency_shp": "Saint Helena Pound",
-  "currency_sll": "Sierra Leonean Leone",
-  "currency_sos": "Somali Shilling",
-  "currency_srd": "Surinamese Dollar",
-  "currency_ssp": "South Sudanese Pound",
-  "currency_std": "São Tomé and Príncipe Dobra (pre-2018)",
-  "currency_stn": "São Tomé and Príncipe Dobra",
-  "currency_svc": "Salvadoran Colón",
-  "currency_syp": "Syrian Pound",
-  "currency_szl": "Swazi Lilangeni",
-  "currency_thb": "Thai Baht",
-  "currency_tjs": "Tajikistani Somoni",
-  "currency_tmt": "Turkmenistani Manat",
-  "currency_tnd": "Tunisian Dinar",
-  "currency_top": "Tongan Pa'anga",
-  "currency_try": "Turkish Lira",
-  "currency_ttd": "Trinidad and Tobago Dollar",
-  "currency_twd": "New Taiwan Dollar",
-  "currency_tzs": "Tanzanian Shilling",
-  "currency_uah": "Ukrainian Hryvnia",
-  "currency_ugx": "Ugandan Shilling",
-  "currency_usd": "United States Dollar",
-  "currency_uyu": "Uruguayan Peso",
-  "currency_uzs": "Uzbekistan Som",
-  "currency_vef": "Venezuelan Bolívar Fuerte (Old)",
-  "currency_ves": "Venezuelan Bolívar Soberano",
-  "currency_vnd": "Vietnamese Dong",
-  "currency_vuv": "Vanuatu Vatu",
-  "currency_wst": "Samoan Tala",
-  "currency_xaf": "CFA Franc BEAC",
-  "currency_xag": "Silver Ounce",
-  "currency_xau": "Gold Ounce",
-  "currency_xcd": "East Caribbean Dollar",
-  "currency_xdr": "Special Drawing Rights",
-  "currency_xof": "CFA Franc BCEAO",
-  "currency_xpd": "Palladium Ounce",
-  "currency_xpf": "CFP Franc",
-  "currency_xpt": "Platinum Ounce",
-  "currency_yer": "Yemeni Rial",
-  "currency_zar": "South African Rand",
-  "currency_zmw": "Zambian Kwacha",
-  "currency_zwl": "Zimbabwean Dollar",
-  "current_balance": "Current balance",
-  "date": "{{value, date}}",
-  "date_created": "Created on",
-  "date_modified": "Last updated on",
-  "day": "Day",
-  "day_plural": "Days",
-  "delete": "Delete",
-  "delete_prompt": "This resource will be permanently removed. Are you sure?",
-  "end_date": "End date",
-  "expires": "Expires",
-  "expires_after": "Expires after",
-  "filter": "Filter",
-  "generate": "Generate",
-  "gift_card_category_restrictions_helper_text": "Select which item categories this gift card can be applied to. If you’d like this gift card to be available to all items regardless of the category, keep your selection empty. All changes are saved automatically.",
-  "gift_card_name_helper_text": "Gift card names are displayed to the customer.",
-  "gift_card_product_restrictions_explainer": "If you want to limit which products can use this gift card, you can enter full product codes or partial product codes using * as a wild card at the beginning or end of the value. So abc123, fun_*, *-small would match abc123, fun_ and fun_times, and example-small. It wouldn't match abc12, abc1234, fun, or good-smalls.",
-  "import": "Import",
-  "month": "Month",
-  "month_plural": "Months",
-  "name": "Name",
-  "price": "{{amount, price}}",
-  "product_restrictions": "Product restrictions",
-  "save": "Save",
-  "select": "Select...",
-  "type_here": "Type here...",
-  "undo_cancel": "Review",
-  "undo_confirm": "Discard",
-  "undo_header": "Unsaved changes",
-  "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
-  "v8n_required": "Required",
-  "v8n_too_long": "Too long",
-  "week": "Week",
-  "week_plural": "Weeks",
-  "year": "Year",
-  "year_plural": "Years",
+  "header": {
+    "title_existing": "ID {{ id }}",
+    "title_new": "New gift card",
+    "subtitle": "{{ name }}, {{ currency_code }}"
+  },
+  "import": {
+    "button_text": "Import codes",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header": "Import codes",
+      "save": "Import",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "gift-card-codes-form": {
+        "status": {
+          "success": "All done! We've imported your codes into the system.",
+          "close": "Close"
+        },
+        "gift-card-codes": {
+          "label": "Codes",
+          "placeholder": "Enter or paste codes here...",
+          "helper_text": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
+          "v8n_required": "Please add at least one code"
+        },
+        "current-balance": {
+          "label": "Initial balance",
+          "placeholder": "0",
+          "helper_text": "All imported codes will have this balance."
+        },
+        "create": {
+          "create": "Import"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
+  "generate": {
+    "button_text": "Generate codes",
+    "dialog": {
+      "close": "Close",
+      "cancel": "Cancel",
+      "header": "Generate codes",
+      "save": "Generate",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "generate-codes-form": {
+        "status": {
+          "success": "Codes generated successfully."
+        },
+        "error": {
+          "invalid_form": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
+        },
+        "length": {
+          "label": "Code length",
+          "placeholder": "6",
+          "helper_text": ""
+        },
+        "number-of-codes": {
+          "label": "Number of codes",
+          "placeholder": "10",
+          "helper_text": ""
+        },
+        "prefix": {
+          "label": "Prefix",
+          "placeholder": "Optional",
+          "helper_text": "The length value is inclusive of this prefix."
+        },
+        "current-balance": {
+          "label": "Initial balance",
+          "placeholder": "0",
+          "helper_text": ""
+        },
+        "example": {
+          "label": "Examples",
+          "placeholder": "",
+          "helper_text": "This is what the generated codes will look like."
+        },
+        "create": {
+          "create": "Generate"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
+    }
+  },
+  "name": {
+    "label": "Name",
+    "placeholder": "Required",
+    "helper_text": "Gift card name is visible to the customers.",
+    "v8n_required": "Please enter a name for this gift card.",
+    "v8n_too_long": "Please shorten the name to 50 characters or less."
+  },
+  "expires": {
+    "label": "Expires after",
+    "placeholder": "Optional",
+    "helper_text": "Set to make the gift card codes expire after a certain period of time. Check with your local laws to ensure expiring gift cards is legal, according to your use case.",
+    "year": "Year",
+    "year_plural": "Years",
+    "month": "Month",
+    "month_plural": "Months",
+    "week": "Week",
+    "week_plural": "Weeks",
+    "day": "Day",
+    "day_plural": "Days"
+  },
+  "currency": {
+    "label": "Currency",
+    "placeholder": "Optional",
+    "helper_text": "Currency code for this gift card. Note that gift cards are only usable if the cart's currency matches.",
+    "code_aed": "United Arab Emirates Dirham (AED)",
+    "code_afn": "Afghan Afghani (AFN)",
+    "code_all": "Albanian Lek (ALL)",
+    "code_amd": "Armenian Dram (AMD)",
+    "code_ang": "Netherlands Antillean Guilder (ANG)",
+    "code_aoa": "Angolan Kwanza (AOA)",
+    "code_ars": "Argentine Peso (ARS)",
+    "code_aud": "Australian Dollar (AUD)",
+    "code_awg": "Aruban Florin (AWG)",
+    "code_azn": "Azerbaijani Manat (AZN)",
+    "code_bam": "Bosnia-Herzegovina Convertible Mark (BAM)",
+    "code_bbd": "Barbadian Dollar (BBD)",
+    "code_bdt": "Bangladeshi Taka (BDT)",
+    "code_bgn": "Bulgarian Lev (BGN)",
+    "code_bhd": "Bahraini Dinar (BHD)",
+    "code_bif": "Burundian Franc (BIF)",
+    "code_bmd": "Bermudan Dollar (BMD)",
+    "code_bnd": "Brunei Dollar (BND)",
+    "code_bob": "Bolivian Boliviano (BOB)",
+    "code_brl": "Brazilian Real (BRL)",
+    "code_bsd": "Bahamian Dollar (BSD)",
+    "code_btc": "Bitcoin (BTC)",
+    "code_btn": "Bhutanese Ngultrum (BTN)",
+    "code_bwp": "Botswanan Pula (BWP)",
+    "code_byn": "Belarusian Ruble (BYN)",
+    "code_bzd": "Belize Dollar (BZD)",
+    "code_cad": "Canadian Dollar (CAD)",
+    "code_cdf": "Congolese Franc (CDF)",
+    "code_chf": "Swiss Franc (CHF)",
+    "code_clf": "Chilean Unit of Account (UF) (CLF)",
+    "code_clp": "Chilean Peso (CLP)",
+    "code_cnh": "Chinese Yuan (Offshore) (CNH)",
+    "code_cny": "Chinese Yuan (CNY)",
+    "code_cop": "Colombian Peso (COP)",
+    "code_crc": "Costa Rican Colón (CRC)",
+    "code_cuc": "Cuban Convertible Peso (CUC)",
+    "code_cup": "Cuban Peso (CUP)",
+    "code_cve": "Cape Verdean Escudo (CVE)",
+    "code_czk": "Czech Republic Koruna (CZK)",
+    "code_djf": "Djiboutian Franc (DJF)",
+    "code_dkk": "Danish Krone (DKK)",
+    "code_dop": "Dominican Peso (DOP)",
+    "code_dzd": "Algerian Dinar (DZD)",
+    "code_egp": "Egyptian Pound (EGP)",
+    "code_ern": "Eritrean Nakfa (ERN)",
+    "code_etb": "Ethiopian Birr (ETB)",
+    "code_eur": "Euro (EUR)",
+    "code_fjd": "Fijian Dollar (FJD)",
+    "code_fkp": "Falkland Islands Pound (FKP)",
+    "code_gbp": "British Pound Sterling (GBP)",
+    "code_gel": "Georgian Lari (GEL)",
+    "code_ggp": "Guernsey Pound (GGP)",
+    "code_ghs": "Ghanaian Cedi (GHS)",
+    "code_gip": "Gibraltar Pound (GIP)",
+    "code_gmd": "Gambian Dalasi (GMD)",
+    "code_gnf": "Guinean Franc (GNF)",
+    "code_gtq": "Guatemalan Quetzal (GTQ)",
+    "code_gyd": "Guyanaese Dollar (GYD)",
+    "code_hkd": "Hong Kong Dollar (HKD)",
+    "code_hnl": "Honduran Lempira (HNL)",
+    "code_hrk": "Croatian Kuna (HRK)",
+    "code_htg": "Haitian Gourde (HTG)",
+    "code_huf": "Hungarian Forint (HUF)",
+    "code_idr": "Indonesian Rupiah (IDR)",
+    "code_ils": "Israeli New Sheqel (ILS)",
+    "code_imp": "Manx pound (IMP)",
+    "code_inr": "Indian Rupee (INR)",
+    "code_iqd": "Iraqi Dinar (IQD)",
+    "code_irr": "Iranian Rial (IRR)",
+    "code_isk": "Icelandic Króna (ISK)",
+    "code_jep": "Jersey Pound (JEP)",
+    "code_jmd": "Jamaican Dollar (JMD)",
+    "code_jod": "Jordanian Dinar (JOD)",
+    "code_jpy": "Japanese Yen (JPY)",
+    "code_kes": "Kenyan Shilling (KES)",
+    "code_kgs": "Kyrgystani Som (KGS)",
+    "code_khr": "Cambodian Riel (KHR)",
+    "code_kmf": "Comorian Franc (KMF)",
+    "code_kpw": "North Korean Won (KPW)",
+    "code_krw": "South Korean Won (KRW)",
+    "code_kwd": "Kuwaiti Dinar (KWD)",
+    "code_kyd": "Cayman Islands Dollar (KYD)",
+    "code_kzt": "Kazakhstani Tenge (KZT)",
+    "code_lak": "Laotian Kip (LAK)",
+    "code_lbp": "Lebanese Pound (LBP)",
+    "code_lkr": "Sri Lankan Rupee (LKR)",
+    "code_lrd": "Liberian Dollar (LRD)",
+    "code_lsl": "Lesotho Loti (LSL)",
+    "code_lyd": "Libyan Dinar (LYD)",
+    "code_mad": "Moroccan Dirham (MAD)",
+    "code_mdl": "Moldovan Leu (MDL)",
+    "code_mga": "Malagasy Ariary (MGA)",
+    "code_mkd": "Macedonian Denar (MKD)",
+    "code_mmk": "Myanma Kyat (MMK)",
+    "code_mnt": "Mongolian Tugrik (MNT)",
+    "code_mop": "Macanese Pataca (MOP)",
+    "code_mru": "Mauritanian Ouguiya (MRU)",
+    "code_mur": "Mauritian Rupee (MUR)",
+    "code_mvr": "Maldivian Rufiyaa (MVR)",
+    "code_mwk": "Malawian Kwacha (MWK)",
+    "code_mxn": "Mexican Peso (MXN)",
+    "code_myr": "Malaysian Ringgit (MYR)",
+    "code_mzn": "Mozambican Metical (MZN)",
+    "code_nad": "Namibian Dollar (NAD)",
+    "code_ngn": "Nigerian Naira (NGN)",
+    "code_nio": "Nicaraguan Córdoba (NIO)",
+    "code_nok": "Norwegian Krone (NOK)",
+    "code_npr": "Nepalese Rupee (NPR)",
+    "code_nzd": "New Zealand Dollar (NZD)",
+    "code_omr": "Omani Rial (OMR)",
+    "code_pab": "Panamanian Balboa (PAB)",
+    "code_pen": "Peruvian Nuevo Sol (PEN)",
+    "code_pgk": "Papua New Guinean Kina (PGK)",
+    "code_php": "Philippine Peso (PHP)",
+    "code_pkr": "Pakistani Rupee (PKR)",
+    "code_pln": "Polish Zloty (PLN)",
+    "code_pyg": "Paraguayan Guarani (PYG)",
+    "code_qar": "Qatari Rial (QAR)",
+    "code_ron": "Romanian Leu (RON)",
+    "code_rsd": "Serbian Dinar (RSD)",
+    "code_rub": "Russian Ruble (RUB)",
+    "code_rwf": "Rwandan Franc (RWF)",
+    "code_sar": "Saudi Riyal (SAR)",
+    "code_sbd": "Solomon Islands Dollar (SBD)",
+    "code_scr": "Seychellois Rupee (SCR)",
+    "code_sdg": "Sudanese Pound (SDG)",
+    "code_sek": "Swedish Krona (SEK)",
+    "code_sgd": "Singapore Dollar (SGD)",
+    "code_shp": "Saint Helena Pound (SHP)",
+    "code_sll": "Sierra Leonean Leone (SLL)",
+    "code_sos": "Somali Shilling (SOS)",
+    "code_srd": "Surinamese Dollar (SRD)",
+    "code_ssp": "South Sudanese Pound (SSP)",
+    "code_std": "São Tomé and Príncipe Dobra (pre-2018) (STD)",
+    "code_stn": "São Tomé and Príncipe Dobra (STN)",
+    "code_svc": "Salvadoran Colón (SVC)",
+    "code_syp": "Syrian Pound (SYP)",
+    "code_szl": "Swazi Lilangeni (SZL)",
+    "code_thb": "Thai Baht (THB)",
+    "code_tjs": "Tajikistani Somoni (TJS)",
+    "code_tmt": "Turkmenistani Manat (TMT)",
+    "code_tnd": "Tunisian Dinar (TND)",
+    "code_top": "Tongan Pa'anga (TOP)",
+    "code_try": "Turkish Lira (TRY)",
+    "code_ttd": "Trinidad and Tobago Dollar (TTD)",
+    "code_twd": "New Taiwan Dollar (TWD)",
+    "code_tzs": "Tanzanian Shilling (TZS)",
+    "code_uah": "Ukrainian Hryvnia (UAH)",
+    "code_ugx": "Ugandan Shilling (UGX)",
+    "code_usd": "United States Dollar (USD)",
+    "code_uyu": "Uruguayan Peso (UYU)",
+    "code_uzs": "Uzbekistan Som (UZS)",
+    "code_vef": "Venezuelan Bolívar Fuerte (Old) (VEF)",
+    "code_ves": "Venezuelan Bolívar Soberano (VES)",
+    "code_vnd": "Vietnamese Dong (VND)",
+    "code_vuv": "Vanuatu Vatu (VUV)",
+    "code_wst": "Samoan Tala (WST)",
+    "code_xaf": "CFA Franc BEAC (XAF)",
+    "code_xag": "Silver Ounce (XAG)",
+    "code_xau": "Gold Ounce (XAU)",
+    "code_xcd": "East Caribbean Dollar (XCD)",
+    "code_xdr": "Special Drawing Rights (XDR)",
+    "code_xof": "CFA Franc BCEAO (XOF)",
+    "code_xpd": "Palladium Ounce (XPD)",
+    "code_xpf": "CFP Franc (XPF)",
+    "code_xpt": "Platinum Ounce (XPT)",
+    "code_yer": "Yemeni Rial (YER)",
+    "code_zar": "South African Rand (ZAR)",
+    "code_zmw": "Zambian Kwacha (ZMW)",
+    "code_zwl": "Zimbabwean Dollar (ZWL)"
+  },
   "provisioning": {
     "toggle": {
       "label": "Provisioning",
@@ -240,207 +316,286 @@
       "v8n_negative": "Please enter a positive number"
     }
   },
-  "copy-to-clipboard": {
-    "click_to_copy": "Click to copy",
-    "copying": "Copying",
-    "done": "Done",
-    "failed_to_copy": "Failed to copy"
-  },
-  "generate-codes-form": {
-    "status": {
-      "success": "Codes generated successfully."
-    },
-    "error": {
-      "invalid_form": "These parameters won't generate any codes. Please make sure that the length of the code is greater than the length of the prefix, does not exceed 50 characters in total and that the code itself does not contain spaces."
-    },
-    "length": {
-      "label": "Code length",
-      "placeholder": "6",
-      "helper_text": ""
-    },
-    "number-of-codes": {
-      "label": "Number of codes",
-      "placeholder": "10",
-      "helper_text": ""
-    },
-    "prefix": {
-      "label": "Prefix",
-      "placeholder": "Optional",
-      "helper_text": "The length value is inclusive of this prefix."
-    },
-    "current-balance": {
-      "label": "Initial balance",
-      "placeholder": "0",
-      "helper_text": ""
-    },
-    "example": {
-      "label": "Examples",
-      "placeholder": "",
-      "helper_text": "This is what the generated codes will look like."
-    },
-    "create": {
-      "create": "Generate"
-    },
-    "spinner": {
-      "refresh": "Refresh",
-      "loading_busy": "Loading",
-      "loading_error": "Unknown error"
-    }
-  },
-  "gift-card-code-form": {
-    "code": {
-      "label": "Code",
-      "placeholder": "Required",
-      "helper_text": "The string value of this gift card code which your customer will add to their cart to use this gift card.",
-      "v8n_required": "Please enter a code",
-      "v8n_too_long": "Please enter a code with no more than 50 characters",
-      "v8n_has_spaces": "Please enter a code without spaces"
-    },
-    "current-balance": {
-      "label": "Current balance",
-      "placeholder": "Required",
-      "helper_text": "The current balance of this gift card.",
-      "v8n_required": "Please enter a current balance"
-    },
-    "end-date": {
-      "label": "End date",
-      "placeholder": "Optional",
-      "helper_text": "The date when this gift card will expire."
-    },
-    "cart-item": {
-      "label": "Cart item",
-      "card": {
-        "daily": "Daily",
-        "daily_plural": "Every {{count}} days",
-        "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"item-card\" })",
-        "monthly": "Monthly",
-        "monthly_plural": "Every {{count}} months",
-        "subinfo_recurring": "$t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"item-card\" }) from {{startDate, date}}",
-        "subinfo_twice_a_month": "$t(twice_a_month, { \"ns\": \"item-card\" }) from {{startDate, date}}",
-        "twice_a_month": "Twice a month",
-        "no_code": "No SKU",
-        "weekly": "Weekly",
-        "weekly_plural": "Every {{count}} weeks",
-        "yearly": "Yearly",
-        "yearly_plural": "Every {{count}} years",
-        "price": "{{amount, price}}",
+  "codes": {
+    "label": "Codes",
+    "delete_header": "Remove code?",
+    "delete_message": "Please confirm that you'd like to remove this code from the gift card.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "search": "Search",
+    "clear": "Clear",
+    "dialog": {
+      "header_create": "Create code",
+      "header_update": "Update code",
+      "close": "Close",
+      "save": "Save",
+      "cancel": "Cancel",
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "gift-card-code-form": {
+        "code": {
+          "label": "Code",
+          "placeholder": "Required",
+          "helper_text": "The string value of this gift card code which your customer will add to their cart to use this gift card.",
+          "v8n_required": "Please enter a code",
+          "v8n_too_long": "Please enter a code with no more than 50 characters",
+          "v8n_has_spaces": "Please enter a code without spaces"
+        },
+        "current-balance": {
+          "label": "Current balance",
+          "placeholder": "Required",
+          "helper_text": "The current balance of this gift card.",
+          "v8n_required": "Please enter a current balance"
+        },
+        "end-date": {
+          "label": "End date",
+          "placeholder": "Optional",
+          "helper_text": "The date when this gift card will expire."
+        },
+        "cart-item": {
+          "label": "Cart item",
+          "card": {
+            "daily": "Daily",
+            "daily_plural": "Every {{count}} days",
+            "frequency": "$t({{units}}, { \"count\": {{count}}, \"ns\": \"item-card\" })",
+            "monthly": "Monthly",
+            "monthly_plural": "Every {{count}} months",
+            "subinfo_recurring": "$t(frequency, { \"count\": \"{{count}}\", \"units\": \"{{units}}\", \"ns\": \"item-card\" }) from {{startDate, date}}",
+            "subinfo_twice_a_month": "$t(twice_a_month, { \"ns\": \"item-card\" }) from {{startDate, date}}",
+            "twice_a_month": "Twice a month",
+            "no_code": "No SKU",
+            "weekly": "Weekly",
+            "weekly_plural": "Every {{count}} weeks",
+            "yearly": "Yearly",
+            "yearly_plural": "Every {{count}} years",
+            "price": "{{amount, price}}",
+            "spinner": {
+              "loading_busy": "Loading",
+              "loading_empty": "No info",
+              "loading_error": "Unknown error"
+            }
+          }
+        },
+        "logs": {
+          "label": "Timeline",
+          "pagination": {
+            "first": "First",
+            "last": "Last",
+            "next": "Next",
+            "pagination": "{{from}}-{{to}} out of {{total}}",
+            "previous": "Previous",
+            "card": {
+              "title_updated_via_api": "Updated via API",
+              "title_used": "Used on checkout",
+              "subtitle_transaction": "Transaction #{{ transaction_id }}",
+              "subtitle_no_transaction": "No transaction",
+              "date": "{{ date_created, date }} at {{ date_created, time }}",
+              "adjustment": "{{ amount, price }}",
+              "spinner": {
+                "loading_busy": "Loading",
+                "loading_empty": "No records",
+                "loading_error": "Unknown error"
+              }
+            }
+          }
+        },
+        "timestamps": {
+          "date": "{{value, date}}",
+          "date_created": "Created on",
+          "date_modified": "Last updated on"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this gift card code? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
+        },
         "spinner": {
+          "refresh": "Refresh",
           "loading_busy": "Loading",
-          "loading_empty": "No info",
           "loading_error": "Unknown error"
         }
       }
     },
-    "logs": {
-      "label": "Timeline",
-      "pagination": {
-        "first": "First",
-        "last": "Last",
-        "next": "Next",
-        "pagination": "{{from}}-{{to}} out of {{total}}",
-        "previous": "Previous",
-        "card": {
-          "title_updated_via_api": "Updated via API",
-          "title_used": "Used on checkout",
-          "subtitle_transaction": "Transaction #{{ transaction_id }}",
-          "subtitle_no_transaction": "No transaction",
-          "date": "{{ date_created, date }} at {{ date_created, time }}",
-          "adjustment": "{{ amount, price }}",
-          "spinner": {
-            "loading_busy": "Loading",
-            "loading_empty": "No records",
-            "loading_error": "Unknown error"
-          }
+    "pagination": {
+      "create_button_text": "Add code +",
+      "search_button_text": "Search codes",
+      "card": {
+        "delete_button_text": "Delete",
+        "copy_button_text": "Copy code",
+        "line_1": "{{ code }}",
+        "line_2": "End date: {{ end_date, date }}",
+        "current_balance": "Balance: {{ value, price }}",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No codes",
+          "loading_error": "Unknown error"
+        }
+      },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous"
+    },
+    "query-builder": {
+      "add_or_clause": "Add OR clause",
+      "add_value": "Add value",
+      "code": "Code",
+      "date": "{{value, date}}",
+      "date_created": "Created on",
+      "date_modified": "Last updated on",
+      "delete": "Delete",
+      "field": "Field",
+      "hidden": "Hidden",
+      "is_defined_false": "Not defined",
+      "is_defined_true": "Defined",
+      "name": "Name",
+      "operator_equal": "Equal",
+      "operator_greaterthan": "Greater than",
+      "operator_greaterthanorequal": "Greater than or equal",
+      "operator_in": "One of",
+      "operator_isdefined": "Is defined",
+      "operator_lessthan": "Less than",
+      "operator_lessthanorequal": "Less than or equal",
+      "operator_not": "Not equal",
+      "or": "Or",
+      "query_builder_group": "Group of filters",
+      "query_builder_rule": "Filter",
+      "range_from": "From",
+      "range_to": "To",
+      "type": "Type",
+      "type_any": "Field of unknown type",
+      "type_attribute": "Key-value resource",
+      "type_date": "Date field",
+      "type_here": "Type here...",
+      "type_number": "Numeric field",
+      "type_string": "Text field",
+      "used_codes": "Codes used",
+      "value": "Value"
+    }
+  },
+  "product-code-restrictions": {
+    "label": "Product code restrictions",
+    "placeholder": "Enter a product code and hit Enter",
+    "helper_text": "We'll apply this gift card only if one of the rules in the list matches the product code. Wildcards are allowed.",
+    "unit_allow": "Allow",
+    "unit_block": "Block",
+    "label_allow": "Allow {{ value }}",
+    "label_block": "Block {{ value }}",
+    "v8n_too_long": "Unfortunately we are unable to store that many product code restrictions at the moment. Please reduce the number of rules in this section until this message disappears."
+  },
+  "category-restrictions": {
+    "label": "Item category restrictions",
+    "status_saving": "Saving...",
+    "status_loading": "Loading...",
+    "pagination": {
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous",
+      "card": {
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No restrictions",
+          "loading_error": "Unknown error"
         }
       }
     },
-    "timestamps": {
-      "date": "{{value, date}}",
-      "date_created": "Created on",
-      "date_modified": "Last updated on"
-    },
-    "delete": {
-      "delete": "Delete",
+    "helper_text": "Limit which categories this gift card applies to. All changes are saved automatically."
+  },
+  "attributes": {
+    "label": "Attributes",
+    "delete_header": "Remove attribute?",
+    "delete_message": "Please confirm that you'd like to remove this attribute from the gift card.",
+    "delete_confirm": "Remove",
+    "delete_cancel": "Cancel",
+    "dialog": {
+      "header_create": "Create attribute",
+      "header_update": "Update attribute",
+      "close": "Close",
+      "save": "Save",
       "cancel": "Cancel",
-      "delete_prompt": "Are you sure you'd like to remove this gift card code? You won't be able to bring it back."
+      "undo_header": "Unsaved changes",
+      "undo_message": "Looks like you didn't save your changes! What would you like to do with them?",
+      "undo_cancel": "Review",
+      "undo_confirm": "Discard",
+      "attribute-form": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Required",
+          "helper_text": "Name of this attribute. It does not have to be unique.",
+          "v8n_required": "Please name this attribute.",
+          "v8n_too_long": "Please choose a name that is 500 characters long or less."
+        },
+        "value": {
+          "label": "Value",
+          "placeholder": "Required",
+          "helper_text": "Value of this attribute. Attribute values are automatically HTML-escaped.",
+          "v8n_required": "Please provide a value for this attribute.",
+          "v8n_too_long": "Unfortunately we can't store values that are more than 1000 characters long."
+        },
+        "visibility": {
+          "label": "Visibility",
+          "option_public": "Everyone",
+          "option_restricted": "Store admins",
+          "option_private": "Only me",
+          "helper_text": "Controls who can see this attribute. Public attributes can be shown to anyone, including customers. Private attributes are more suitable for configuration or technical details which are irrelevant to the public. Restricted attributes can only be viewed with the OAuth client that created them."
+        },
+        "timestamps": {
+          "date": "{{value, date}}",
+          "date_created": "Created on",
+          "date_modified": "Last updated on"
+        },
+        "delete": {
+          "delete": "Delete",
+          "cancel": "Cancel",
+          "delete_prompt": "Are you sure you'd like to remove this attribute? You won't be able to bring it back."
+        },
+        "create": {
+          "create": "Create"
+        },
+        "spinner": {
+          "refresh": "Refresh",
+          "loading_busy": "Loading",
+          "loading_error": "Unknown error"
+        }
+      }
     },
-    "create": {
-      "create": "Create"
-    },
-    "spinner": {
-      "refresh": "Refresh",
-      "loading_busy": "Loading",
-      "loading_error": "Unknown error"
+    "pagination": {
+      "create_button_text": "Add attribute +",
+      "card": {
+        "delete_button_text": "Delete",
+        "spinner": {
+          "loading_busy": "Loading",
+          "loading_empty": "No attributes",
+          "loading_error": "Unknown error"
+        }
+      },
+      "first": "First",
+      "last": "Last",
+      "next": "Next",
+      "pagination": "{{from}}-{{to}} out of {{total}}",
+      "previous": "Previous"
     }
   },
-  "gift-card-codes-form": {
-    "status": {
-      "success": "All done! We've imported your codes into the system.",
-      "close": "Close"
-    },
-    "gift-card-codes": {
-      "label": "Codes",
-      "placeholder": "Enter or paste codes here...",
-      "helper_text": "Paste multiple space-separated codes in the field above to add all of them at once. Importing duplicate codes clears their usage stats.",
-      "v8n_required": "Please add at least one code"
-    },
-    "current-balance": {
-      "label": "Initial balance",
-      "placeholder": "0",
-      "helper_text": "All imported codes will have this balance."
-    },
-    "create": {
-      "create": "Import"
-    },
-    "spinner": {
-      "refresh": "Refresh",
-      "loading_busy": "Loading",
-      "loading_error": "Unknown error"
-    }
-  },
-  "pagination": {
-    "first": "First",
-    "last": "Last",
-    "next": "Next",
-    "pagination": "{{from}}-{{to}} out of {{total}}",
-    "previous": "Previous"
-  },
-  "query-builder": {
-    "add_or_clause": "Add OR clause",
-    "add_value": "Add value",
-    "code": "Code",
-    "current_balance": "Current balance",
-    "date": "{{value, date}}",
+  "timestamps": {
     "date_created": "Created on",
     "date_modified": "Last updated on",
+    "date": "{{value, date}}"
+  },
+  "delete": {
     "delete": "Delete",
-    "end_date": "End date",
-    "field": "Field",
-    "hidden": "Hidden",
-    "is_defined_false": "Not defined",
-    "is_defined_true": "Defined",
-    "name": "Name",
-    "operator_equal": "Equal",
-    "operator_greaterthan": "Greater than",
-    "operator_greaterthanorequal": "Greater than or equal",
-    "operator_in": "One of",
-    "operator_isdefined": "Is defined",
-    "operator_lessthan": "Less than",
-    "operator_lessthanorequal": "Less than or equal",
-    "operator_not": "Not equal",
-    "or": "Or",
-    "query_builder_group": "Group of filters",
-    "query_builder_rule": "Filter",
-    "range_from": "From",
-    "range_to": "To",
-    "type": "Type",
-    "type_any": "Field of unknown type",
-    "type_attribute": "Key-value resource",
-    "type_date": "Date field",
-    "type_here": "Type here...",
-    "type_number": "Numeric field",
-    "type_string": "Text field",
-    "value": "Value"
+    "cancel": "Cancel",
+    "delete_prompt": "This action is irreversible. Are you sure you want to delete this gift card?"
+  },
+  "create": {
+    "create": "Create"
   },
   "spinner": {
     "refresh": "Refresh",
