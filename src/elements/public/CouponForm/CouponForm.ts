@@ -285,19 +285,21 @@ export class CouponForm extends Base<Data> {
 
   renderHeaderActions(data: Data): TemplateResult {
     return html`
-      <foxy-internal-coupon-form-bulk-add-control
+      <foxy-internal-bulk-add-action-control
         parent=${data._links['fx:generate_codes'].href}
         infer="generate"
         form="foxy-generate-codes-form"
+        .related=${[data._links['fx:coupon_codes'].href]}
       >
-      </foxy-internal-coupon-form-bulk-add-control>
+      </foxy-internal-bulk-add-action-control>
 
-      <foxy-internal-coupon-form-bulk-add-control
+      <foxy-internal-bulk-add-action-control
         parent=${data._links['fx:coupon_codes'].href}
         infer="import"
         form="foxy-coupon-codes-form"
+        .related=${[data._links['fx:coupon_codes'].href]}
       >
-      </foxy-internal-coupon-form-bulk-add-control>
+      </foxy-internal-bulk-add-action-control>
 
       ${super.renderHeaderActions(data)}
     `;

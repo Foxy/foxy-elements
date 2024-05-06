@@ -1,29 +1,28 @@
 import type { PropertyDeclarations } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
-import type { FormDialog } from '../../../FormDialog/FormDialog';
-import type { CouponForm } from '../../CouponForm';
+import type { FormDialog } from '../../public/FormDialog/FormDialog';
 
-import { InternalControl } from '../../../../internal/InternalControl/InternalControl';
+import { InternalControl } from '../InternalControl/InternalControl';
 import { ifDefined } from 'lit-html/directives/if-defined';
 import { html } from 'lit-html';
 
-export class InternalCouponFormBulkAddControl extends InternalControl {
+export class InternalBulkAddActionControl extends InternalControl {
   static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
+      related: { type: Array },
       parent: {},
       form: {},
     };
   }
+
+  related: string[] = [];
 
   parent: string | null = null;
 
   form: string | null = null;
 
   renderControl(): TemplateResult {
-    const nucleon = this.nucleon as CouponForm | undefined;
-    const codesHref = nucleon?.data?._links['fx:coupon_codes'].href;
-
     return html`
       <foxy-form-dialog
         header="header"
@@ -31,7 +30,7 @@ export class InternalCouponFormBulkAddControl extends InternalControl {
         infer="dialog"
         form=${ifDefined(this.form ?? undefined)}
         alert
-        .related=${codesHref ? [codesHref] : []}
+        .related=${this.related}
       >
       </foxy-form-dialog>
 

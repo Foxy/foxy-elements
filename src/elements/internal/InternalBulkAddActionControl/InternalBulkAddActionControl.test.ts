@@ -1,16 +1,16 @@
-import type { NucleonElement } from '../../../NucleonElement/NucleonElement';
-import type { FetchEvent } from '../../../NucleonElement/FetchEvent';
-import type { FormDialog } from '../../../FormDialog';
+import type { NucleonElement } from '../../public/NucleonElement/NucleonElement';
+import type { FetchEvent } from '../../public/NucleonElement/FetchEvent';
+import type { FormDialog } from '../../public/FormDialog';
 
-import '../../../NucleonElement/index';
+import '../../public/NucleonElement/index';
 import './index';
 
-import { InternalCouponFormBulkAddControl as Control } from './InternalCouponFormBulkAddControl';
+import { InternalBulkAddActionControl as Control } from './InternalBulkAddActionControl';
 import { expect, fixture, html, waitUntil } from '@open-wc/testing';
-import { createRouter } from '../../../../../server/hapi';
+import { createRouter } from '../../../server/hapi';
 
 describe('CouponForm', () => {
-  describe('InternalCouponFormBulkAddControl', () => {
+  describe('InternalBulkAddActionControl', () => {
     it('imports and registers vaadin-button element', () => {
       expect(customElements.get('vaadin-button')).to.exist;
     });
@@ -27,8 +27,8 @@ describe('CouponForm', () => {
       expect(customElements.get('foxy-i18n')).to.exist;
     });
 
-    it('registers itself as foxy-internal-coupon-form-bulk-add-control', () => {
-      expect(customElements.get('foxy-internal-coupon-form-bulk-add-control')).to.equal(Control);
+    it('registers itself as foxy-internal-bulk-add-action-control', () => {
+      expect(customElements.get('foxy-internal-bulk-add-action-control')).to.equal(Control);
     });
 
     it('extends foxy-internal-control', () => {
@@ -51,12 +51,13 @@ describe('CouponForm', () => {
       const wrapper = await fixture(html`
         <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
           <foxy-nucleon href="https://demo.api/hapi/coupons/0">
-            <foxy-internal-coupon-form-bulk-add-control
+            <foxy-internal-bulk-add-action-control
               parent="https://demo.api/hapi/coupon_codes"
               infer=""
               form="foxy-coupon-codes-form"
+              .related=${['https://demo.api/hapi/coupon_codes?coupon_id=0']}
             >
-            </foxy-internal-coupon-form-bulk-add-control>
+            </foxy-internal-bulk-add-action-control>
           </foxy-nucleon>
         </div>
       `);
@@ -88,12 +89,12 @@ describe('CouponForm', () => {
       const wrapper = await fixture(html`
         <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
           <foxy-nucleon href="https://demo.api/hapi/coupons/0">
-            <foxy-internal-coupon-form-bulk-add-control
+            <foxy-internal-bulk-add-action-control
               parent="https://demo.api/hapi/coupon_codes"
               infer=""
               form="foxy-coupon-codes-form"
             >
-            </foxy-internal-coupon-form-bulk-add-control>
+            </foxy-internal-bulk-add-action-control>
           </foxy-nucleon>
         </div>
       `);
@@ -125,12 +126,12 @@ describe('CouponForm', () => {
       const wrapper = await fixture(html`
         <div @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}>
           <foxy-nucleon href="https://demo.api/hapi/coupons/0">
-            <foxy-internal-coupon-form-bulk-add-control
+            <foxy-internal-bulk-add-action-control
               parent="https://demo.api/hapi/coupon_codes"
               infer=""
               form="foxy-coupon-codes-form"
             >
-            </foxy-internal-coupon-form-bulk-add-control>
+            </foxy-internal-bulk-add-action-control>
           </foxy-nucleon>
         </div>
       `);

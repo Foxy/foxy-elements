@@ -1,5 +1,6 @@
 import '../../internal/InternalAsyncResourceLinkListControl/index';
 import '../../internal/InternalCheckboxGroupControl/index';
+import '../../internal/InternalBulkAddActionControl/index';
 import '../../internal/InternalEditableListControl/index';
 import '../../internal/InternalQueryBuilderControl/index';
 import '../../internal/InternalIntegerControl/index';
@@ -17,7 +18,6 @@ import '../NucleonElement/index';
 import '../AttributeForm/index';
 import '../AttributeCard/index';
 
-import './internal/InternalCouponFormBulkAddControl/index';
 import './internal/InternalCouponFormRulesControl/index';
 
 import { CouponForm } from './CouponForm';

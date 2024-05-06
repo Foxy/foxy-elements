@@ -90,8 +90,8 @@ describe('CouponForm', () => {
     expect(customElements.get('foxy-attribute-card')).to.exist;
   });
 
-  it('imports and defines foxy-internal-coupon-form-bulk-add-control', () => {
-    expect(customElements.get('foxy-internal-coupon-form-bulk-add-control')).to.exist;
+  it('imports and defines foxy-internal-bulk-add-action-control', () => {
+    expect(customElements.get('foxy-internal-bulk-add-action-control')).to.exist;
   });
 
   it('imports and defines foxy-internal-coupon-form-rules-control', () => {
@@ -296,9 +296,8 @@ describe('CouponForm', () => {
     expect(action).to.exist;
     expect(action).to.have.attribute('parent', element.data?._links['fx:generate_codes'].href);
     expect(action).to.have.attribute('form', 'foxy-generate-codes-form');
-    expect(action).to.be.instanceOf(
-      customElements.get('foxy-internal-coupon-form-bulk-add-control')
-    );
+    expect(action).to.be.instanceOf(customElements.get('foxy-internal-bulk-add-action-control'));
+    expect(action).to.have.deep.property('related', [element.data?._links['fx:coupon_codes'].href]);
   });
 
   it('renders bulk add control for the Import Codes header action', async () => {
@@ -311,9 +310,8 @@ describe('CouponForm', () => {
     expect(action).to.exist;
     expect(action).to.have.attribute('parent', element.data?._links['fx:coupon_codes'].href);
     expect(action).to.have.attribute('form', 'foxy-coupon-codes-form');
-    expect(action).to.be.instanceOf(
-      customElements.get('foxy-internal-coupon-form-bulk-add-control')
-    );
+    expect(action).to.be.instanceOf(customElements.get('foxy-internal-bulk-add-action-control'));
+    expect(action).to.have.deep.property('related', [element.data?._links['fx:coupon_codes'].href]);
   });
 
   it('renders text control for name', async () => {
