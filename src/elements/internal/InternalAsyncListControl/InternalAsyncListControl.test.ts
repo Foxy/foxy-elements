@@ -10,7 +10,7 @@ import './index';
 import { InternalAsyncListControl as Control } from './InternalAsyncListControl';
 import { InternalEditableControl } from '../InternalEditableControl/InternalEditableControl';
 import { InternalConfirmDialog } from '../InternalConfirmDialog/InternalConfirmDialog';
-import { expect, fixture, waitUntil } from '@open-wc/testing';
+import { expect, fixture, oneEvent, waitUntil } from '@open-wc/testing';
 import { DialogHideEvent } from '../../private/Dialog/DialogHideEvent';
 import { BooleanSelector } from '@foxy.io/sdk/core';
 import { CollectionPage } from '../../public/CollectionPage/CollectionPage';
@@ -964,5 +964,101 @@ describe('InternalAsyncListControl', () => {
       lang: control.lang,
       ns: control.ns,
     });
+  });
+
+  it('emits "itemclick" event when collection page item is clicked', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control item="foxy-attribute-card" form="foxy-attribute-form">
+      </foxy-internal-async-list-control>
+    `);
+
+    const pagination = await getByTag(control, 'foxy-pagination');
+    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
+    const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
+
+    const item = await fixture(
+      (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
+        readonlyControls: BooleanSelector.False,
+        disabledControls: BooleanSelector.False,
+        hiddenControls: BooleanSelector.False,
+        templates: {},
+        readonly: false,
+        disabled: false,
+        previous: null,
+        related: ['https://demo.api/virtual/stall?related'],
+        hidden: false,
+        parent: 'https://demo.api/virtual/stall?parent',
+        spread: spread,
+        props: {},
+        group: '',
+        html: html,
+        lang: '',
+        href: 'https://demo.api/virtual/stall?href',
+        data: await getTestData('./hapi/customer_attributes/0'),
+        next: null,
+        ns: '',
+      })
+    );
+
+    const card = item.querySelector('foxy-attribute-card')!;
+    const button = card.closest('button')!;
+    const showMethod = stub(dialog, 'show');
+
+    const whenGotItemClickEvent = oneEvent(control, 'itemclick');
+    button.click();
+    const itemClickEvent = await whenGotItemClickEvent;
+
+    expect(itemClickEvent).to.be.instanceOf(CustomEvent);
+    expect(itemClickEvent).to.have.property('cancelable', true);
+    expect(itemClickEvent).to.have.property('composed', true);
+    expect(itemClickEvent).to.have.property('bubbles', true);
+    expect(itemClickEvent).to.have.property('detail', 'https://demo.api/virtual/stall?href');
+    expect(showMethod).to.have.been.called;
+  });
+
+  it('does not show dialog when "itemclick" event is canceled', async () => {
+    const control = await fixture<Control>(html`
+      <foxy-internal-async-list-control item="foxy-attribute-card" form="foxy-attribute-form">
+      </foxy-internal-async-list-control>
+    `);
+
+    const pagination = await getByTag(control, 'foxy-pagination');
+    const page = pagination!.querySelector('foxy-collection-page') as CollectionPage<any>;
+    const dialog = (await getByTag(control, 'foxy-form-dialog')) as FormDialog;
+
+    const item = await fixture(
+      (page.item as ItemRenderer<any>)({
+        simplifyNsLoading: false,
+        readonlyControls: BooleanSelector.False,
+        disabledControls: BooleanSelector.False,
+        hiddenControls: BooleanSelector.False,
+        templates: {},
+        readonly: false,
+        disabled: false,
+        previous: null,
+        related: ['https://demo.api/virtual/stall?related'],
+        hidden: false,
+        parent: 'https://demo.api/virtual/stall?parent',
+        spread: spread,
+        props: {},
+        group: '',
+        html: html,
+        lang: '',
+        href: 'https://demo.api/virtual/stall?href',
+        data: await getTestData('./hapi/customer_attributes/0'),
+        next: null,
+        ns: '',
+      })
+    );
+
+    const card = item.querySelector('foxy-attribute-card')!;
+    const button = card.closest('button')!;
+    const showMethod = stub(dialog, 'show');
+
+    control.addEventListener('itemclick', evt => evt.preventDefault());
+    button.click();
+
+    expect(showMethod).to.not.have.been.called;
   });
 });

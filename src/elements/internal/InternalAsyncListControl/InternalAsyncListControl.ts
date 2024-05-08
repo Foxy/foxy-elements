@@ -125,12 +125,21 @@ export class InternalAsyncListControl extends InternalEditableControl {
       }
     } else {
       const handleClick = (evt: Event) => {
-        const button = evt.currentTarget as HTMLButtonElement;
-        const dialog = this.__dialog;
+        const clickEvent = new CustomEvent<string>('itemclick', {
+          cancelable: true,
+          composed: true,
+          bubbles: true,
+          detail: ctx.href,
+        });
 
-        dialog.header = 'header_update';
-        dialog.href = ctx.href;
-        dialog.show(button);
+        if (this.dispatchEvent(clickEvent)) {
+          const button = evt.currentTarget as HTMLButtonElement;
+          const dialog = this.__dialog;
+
+          dialog.header = 'header_update';
+          dialog.href = ctx.href;
+          dialog.show(button);
+        }
       };
 
       clickableItem = html`
@@ -251,7 +260,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
             >
             </foxy-internal-confirm-dialog>
           `}
-      <div class="flex items-center justify-between mb-xs text-s font-medium">
+      <div class="flex gap-m items-center justify-between mb-xs text-s font-medium">
         <span class="text-secondary">
           ${this.label && this.label !== 'label' ? this.label : ''}
         </span>
@@ -277,7 +286,7 @@ export class InternalAsyncListControl extends InternalEditableControl {
 
               <vaadin-button
                 theme="tertiary-inline contrast"
-                class="ml-auto mr-m"
+                class="ml-auto"
                 id="filters"
                 ?disabled=${this.disabled}
                 @click=${() => (this.__isFilterVisible = !this.__isFilterVisible)}
