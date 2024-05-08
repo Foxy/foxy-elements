@@ -4,11 +4,6 @@ import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 
 export type Data = Resource<Rels.GiftCardCode> & {
-  _links: {
-    // TODO simplify when SDK is updated
-    /** Present only when the gift card code is linked to a customer. */
-    'fx:customer': { href: string };
-  };
   customer_id?: number | string;
 };
 

@@ -31,18 +31,12 @@ export class CustomerPortalSettingsForm extends Base<Data> {
       ({ allowedOrigins: v = [] }) => {
         return v.every(isOrigin) || 'allowed-origins:v8n_invalid';
       },
-      // TODO remove this once SDK types are fixed
-      // @ts-expect-error SDK types are incorrect
       ({ jwtSharedSecret: v }) => {
         return !v || /^[a-z0-9-]+$/.test(v) || 'jwt-shared-secret:v8n_invalid';
       },
-      // TODO remove this once SDK types are fixed
-      // @ts-expect-error SDK types are incorrect
       ({ jwtSharedSecret: v }) => {
         return !v || v.length >= 40 || 'jwt-shared-secret:v8n_too_short';
       },
-      // TODO remove this once SDK types are fixed
-      // @ts-expect-error SDK types are incorrect
       ({ jwtSharedSecret: v }) => {
         return !v || v.length <= 100 || 'jwt-shared-secret:v8n_too_long';
       },

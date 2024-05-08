@@ -6,10 +6,4 @@ export type TransactionPageHrefGetter = (
   transaction: Resource<Rels.Transaction, { zoom: 'items' }>
 ) => string | null;
 
-export type Data = Resource<Rels.Coupon> & {
-  // TODO: remove this once SDK is updated
-  item_option_restrictions: null | Record<string, string[]>;
-  shared_codes_allowed: boolean;
-  inclusive_tax_rate: number;
-  _links: { 'fx:attributes': { href: string } };
-};
+export type Data = Resource<Rels.Coupon>;
