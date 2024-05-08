@@ -13,7 +13,7 @@ const summary: Summary = {
   configurable: {
     sections: ['timestamps', 'logs'],
     buttons: ['create', 'delete'],
-    inputs: ['code', 'current-balance', 'end-date'],
+    inputs: ['code', 'current-balance', 'end-date', 'customer'],
   },
 };
 

@@ -1,11 +1,20 @@
+import type { InternalResourcePickerControl } from '../../internal/InternalResourcePickerControl/InternalResourcePickerControl';
+import type { FetchEvent } from '../NucleonElement/FetchEvent';
+
 import './index';
 
-import { expect, fixture, html } from '@open-wc/testing';
+import { expect, fixture, html, waitUntil } from '@open-wc/testing';
 import { GiftCardCodeForm } from './GiftCardCodeForm';
 import { InternalForm } from '../../internal/InternalForm/InternalForm';
+import { createRouter } from '../../../server';
 import { getTestData } from '../../../testgen/getTestData';
+import { Type } from '../QueryBuilder/types';
 
 describe('GiftCardCodeForm', () => {
+  it('imports and defines foxy-internal-resource-picker-control', () => {
+    expect(customElements.get('foxy-internal-resource-picker-control')).to.exist;
+  });
+
   it('imports and defines foxy-internal-async-list-control', () => {
     expect(customElements.get('foxy-internal-async-list-control')).to.exist;
   });
@@ -30,6 +39,10 @@ describe('GiftCardCodeForm', () => {
     expect(customElements.get('foxy-gift-card-code-log-card')).to.exist;
   });
 
+  it('imports and defines foxy-customer-card', () => {
+    expect(customElements.get('foxy-customer-card')).to.exist;
+  });
+
   it('imports and defines foxy-internal-gift-card-code-form-item-control', () => {
     expect(customElements.get('foxy-internal-gift-card-code-form-item-control')).to.exist;
   });
@@ -44,6 +57,17 @@ describe('GiftCardCodeForm', () => {
 
   it('has a default i18next namespace of gift-card-code-form', () => {
     expect(new GiftCardCodeForm()).to.have.property('ns', 'gift-card-code-form');
+  });
+
+  it('has a reactive property "getCustomerHref"', () => {
+    expect(GiftCardCodeForm).to.have.deep.nested.property('properties.getCustomerHref', {
+      attribute: false,
+    });
+
+    expect(new GiftCardCodeForm()).to.have.property('getCustomerHref');
+    expect(new GiftCardCodeForm().getCustomerHref(123)).to.equal(
+      'https://api.foxycart.com/customers/123'
+    );
   });
 
   it('produces v8n error "code:v8n_required" if code is missing', () => {
@@ -74,12 +98,14 @@ describe('GiftCardCodeForm', () => {
     expect(element.errors).not.to.include('current-balance:v8n_required');
   });
 
-  it('hides cart-item and logs when empty on in create mode', () => {
+  it('hides customer, cart-item and logs when empty on in create mode', () => {
     const element = new GiftCardCodeForm();
+    expect(element.hiddenSelector.matches('customer', true)).to.be.true;
     expect(element.hiddenSelector.matches('cart-item', true)).to.be.true;
     expect(element.hiddenSelector.matches('logs', true)).to.be.true;
 
     element.href = 'https://demo.api/hapi/gift_card_codes/0';
+    expect(element.hiddenSelector.matches('customer', true)).to.be.false;
     expect(element.hiddenSelector.matches('cart-item', true)).to.be.false;
     expect(element.hiddenSelector.matches('logs', true)).to.be.false;
   });
@@ -110,6 +136,58 @@ describe('GiftCardCodeForm', () => {
       'foxy-internal-date-control[infer="end-date"]'
     );
     expect(control).to.exist;
+  });
+
+  it('renders a resource picker control for associated customer', async () => {
+    const router = createRouter();
+    const getCustomerHref = (id: number | string) => `https://demo.api/hapi/customers/${id}`;
+    const element = await fixture<GiftCardCodeForm>(
+      html`
+        <foxy-gift-card-code-form
+          href="https://demo.api/hapi/gift_card_codes/0"
+          .getCustomerHref=${getCustomerHref}
+          @fetch=${(evt: FetchEvent) => router.handleEvent(evt)}
+        >
+        </foxy-gift-card-code-form>
+      `
+    );
+
+    const control = element.renderRoot.querySelector(
+      'foxy-internal-resource-picker-control[infer="customer"]'
+    ) as InternalResourcePickerControl;
+
+    expect(control).to.exist;
+    await waitUntil(() => control.hasAttribute('first'));
+
+    expect(control).to.have.attribute('first', 'https://demo.api/hapi/customers?store_id=0');
+    expect(control).to.have.property('item', 'foxy-customer-card');
+    expect(control).to.have.deep.property('filters', [
+      { type: Type.String, path: 'id', label: 'filters.id' },
+      { type: Type.String, path: 'tax_id', label: 'filters.tax_id' },
+      { type: Type.String, path: 'email', label: 'filters.email' },
+      { type: Type.String, path: 'first_name', label: 'filters.first_name' },
+      { type: Type.String, path: 'last_name', label: 'filters.last_name' },
+      {
+        type: Type.Boolean,
+        path: 'is_anonymous',
+        label: 'filters.is_anonymous',
+        list: [
+          { label: 'filters.is_anonymous_true', value: 'true' },
+          { label: 'filters.is_anonymous_false', value: 'false' },
+        ],
+      },
+      { type: Type.Date, path: 'last_login_date', label: 'filters.last_login_date' },
+      { type: Type.Date, path: 'date_created', label: 'filters.date_created' },
+      { type: Type.Date, path: 'date_modified', label: 'filters.date_modified' },
+    ]);
+
+    expect(control.getValue()).to.equal(undefined);
+
+    control.setValue('https://demo.api/hapi/customers/0');
+    expect(element).to.have.nested.property('form.customer_id', 0);
+
+    element.edit({ customer_id: 2 });
+    expect(control.getValue()).to.equal('https://demo.api/hapi/customers/2');
   });
 
   it('renders a custom control for associated cart item', async () => {

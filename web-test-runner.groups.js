@@ -92,6 +92,10 @@ export const groups = [
     files: './src/elements/internal/InternalRadioGroupControl/**/*.test.ts',
   },
   {
+    name: 'foxy-internal-resource-picker-control',
+    files: './src/elements/internal/InternalResourcePickerControl/**/*.test.ts',
+  },
+  {
     name: 'foxy-internal-sandbox',
     files: './src/elements/internal/InternalSandbox/**/*.test.ts',
   },

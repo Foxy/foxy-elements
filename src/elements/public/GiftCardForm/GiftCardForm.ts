@@ -1,5 +1,5 @@
+import type { PropertyDeclarations, TemplateResult } from 'lit-element';
 import type { NucleonElement } from '../NucleonElement/NucleonElement';
-import type { TemplateResult } from 'lit-element';
 import type { NucleonV8N } from '../NucleonElement/types';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Action } from '../../internal/InternalAsyncListControl/types';
@@ -57,6 +57,13 @@ const Base = ResponsiveMixin(TranslatableMixin(InternalForm, NS));
  * @since 1.15.0
  */
 export class GiftCardForm extends Base<Data> {
+  static get properties(): PropertyDeclarations {
+    return {
+      ...super.properties,
+      getCustomerHref: { attribute: false },
+    };
+  }
+
   static get v8n(): NucleonV8N<Data> {
     return [
       ({ name: v }) => !!v || 'name:v8n_required',
@@ -86,6 +93,11 @@ export class GiftCardForm extends Base<Data> {
       },
     ];
   }
+
+  /** Returns a `fx:customer` Resource URL for a Customer ID. */
+  getCustomerHref: (id: number | string) => string = id => {
+    return `https://api.foxycart.com/customers/${id}`;
+  };
 
   private readonly __productCodeRestrictionsGetValue = () => {
     return this.form.product_code_restrictions
@@ -223,6 +235,7 @@ export class GiftCardForm extends Base<Data> {
         item="foxy-gift-card-code-card"
         form="foxy-gift-card-code-form"
         alert
+        .formProps=${{ '.getCustomerHref': this.getCustomerHref }}
         .actions=${this.__codesActions}
         .filters=${this.__codesFilters}
       >

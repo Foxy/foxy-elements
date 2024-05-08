@@ -14697,6 +14697,11 @@
       ],
       "properties": [
         {
+          "name": "getCustomerHref",
+          "description": "Returns a `fx:customer` Resource URL for a Customer ID.",
+          "default": "\"id => {\\n    return `https://api.foxycart.com/customers/${id}`;\\n  }\""
+        },
+        {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",
           "type": "boolean",
@@ -14893,6 +14898,10 @@
         },
         {
           "name": "end-date:after"
+        },
+        {
+          "name": "",
+          "description": "customer:before – **new in v1.27.0**"
         },
         {
           "name": "logs:before"
@@ -15481,6 +15490,11 @@
         }
       ],
       "properties": [
+        {
+          "name": "getCustomerHref",
+          "description": "Returns a `fx:customer` Resource URL for a Customer ID.",
+          "default": "\"id => {\\n    return `https://api.foxycart.com/customers/${id}`;\\n  }\""
+        },
         {
           "name": "simplifyNsLoading",
           "attribute": "simplify-ns-loading",

@@ -3,7 +3,14 @@ import type { Renderer } from '../../../mixins/configurable';
 import type { Resource } from '@foxy.io/sdk/core';
 import type { Rels } from '@foxy.io/sdk/backend';
 
-export type Data = Resource<Rels.GiftCardCode>;
+export type Data = Resource<Rels.GiftCardCode> & {
+  _links: {
+    // TODO simplify when SDK is updated
+    /** Present only when the gift card code is linked to a customer. */
+    'fx:customer': { href: string };
+  };
+  customer_id?: number | string;
+};
 
 export type Templates = {
   'code:before'?: Renderer<GiftCardCodeForm>;
@@ -12,6 +19,8 @@ export type Templates = {
   'current-balance:after'?: Renderer<GiftCardCodeForm>;
   'end-date:before'?: Renderer<GiftCardCodeForm>;
   'end-date:after'?: Renderer<GiftCardCodeForm>;
+  'customer:before'?: Renderer<GiftCardCodeForm>;
+  'customer:after'?: Renderer<GiftCardCodeForm>;
   'logs:before'?: Renderer<GiftCardCodeForm>;
   'logs:after'?: Renderer<GiftCardCodeForm>;
   'timestamps:before'?: Renderer<GiftCardCodeForm>;

@@ -95,6 +95,17 @@ describe('GiftCardForm', () => {
     expect(new GiftCardForm()).to.have.property('ns', 'gift-card-form');
   });
 
+  it('has a reactive property "getCustomerHref"', () => {
+    expect(GiftCardForm).to.have.deep.nested.property('properties.getCustomerHref', {
+      attribute: false,
+    });
+
+    expect(new GiftCardForm()).to.have.property('getCustomerHref');
+    expect(new GiftCardForm().getCustomerHref(123)).to.equal(
+      'https://api.foxycart.com/customers/123'
+    );
+  });
+
   it('extends foxy-internal-form', () => {
     expect(new GiftCardForm()).to.be.instanceOf(customElements.get('foxy-internal-form'));
   });
@@ -285,7 +296,6 @@ describe('GiftCardForm', () => {
     ) as InternalAsyncListControl;
 
     expect(control).to.exist;
-
     expect(control).to.have.attribute(
       'first',
       'https://demo.api/hapi/gift_card_codes?gift_card_id=0&order=date_created+desc'
@@ -295,6 +305,9 @@ describe('GiftCardForm', () => {
     expect(control).to.have.attribute('item', 'foxy-gift-card-code-card');
     expect(control).to.have.attribute('form', 'foxy-gift-card-code-form');
     expect(control).to.have.attribute('alert');
+    expect(control).to.have.deep.property('formProps', {
+      '.getCustomerHref': element.getCustomerHref,
+    });
 
     expect(control.actions).to.have.length(1);
     expect(control.actions[0]).to.have.property('theme', 'contrast');
