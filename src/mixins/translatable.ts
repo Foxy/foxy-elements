@@ -192,6 +192,8 @@ export declare class TranslatableMixinHost {
   get t(): Translator;
 }
 
+const InstanceMark = Symbol('TranslatableMixin');
+
 export const TranslatableMixin = <T extends Base>(
   BaseElement: T,
   defaultNS = ''
@@ -212,6 +214,8 @@ export const TranslatableMixin = <T extends Base>(
     static get defaultNS(): string {
       return defaultNS;
     }
+
+    [InstanceMark] = true;
 
     lang = '';
 
@@ -258,6 +262,11 @@ export const TranslatableMixin = <T extends Base>(
     disconnectedCallback(): void {
       super.disconnectedCallback();
       this.__untrackTranslations?.();
+    }
+
+    inferFromElement(key: string, element: HTMLElement): unknown | undefined {
+      if ((key === 'lang' || key === 'ns') && !(InstanceMark in element)) return;
+      return super.inferFromElement(key, element);
     }
 
     applyInferredProperties(context: Map<string, unknown>): void {
