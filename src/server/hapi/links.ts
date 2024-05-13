@@ -82,12 +82,10 @@ export const links: Links = {
     'fx:template_sets': { href: `./template_sets?email_template_id=${id}` },
   }),
 
-  payment_methods: ({ store_id, customer_id }) => ({
+  payment_methods: ({ store_id, customer_id, cc_token_embed_uri }) => ({
     'fx:store': { href: `./stores/${store_id}` },
     'fx:customer': { href: `./customers/${customer_id}` },
-    'fx:cc_token_embed_url': {
-      href: `https://embed.foxy.test/v1?cards=mastercard,visa,amex&store=${store_id}`,
-    },
+    'fx:cc_token_embed_url': { href: cc_token_embed_uri as string },
   }),
 
   subscriptions: ({ id, store_id, customer_id, last_transaction_id, transaction_template_id }) => ({

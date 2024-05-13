@@ -23,6 +23,8 @@ export class InternalBankCardControl extends InternalControl {
       if (iframe) iframe.style.height = data.height;
     } else if (data.type === 'token') {
       this.nucleon?.edit({ [this.property]: data.token });
+    } else if (data.type === 'ready') {
+      this.__isUiReady = true;
     }
   };
 
@@ -68,7 +70,6 @@ export class InternalBankCardControl extends InternalControl {
             this.__channel.port1.addEventListener('message', this.__handleMessage);
             this.__channel.port1.start();
             this.__iframe?.contentWindow?.postMessage('connect', '*', [this.__channel.port2]);
-            this.__isUiReady = true;
           }}
         >
         </iframe>
@@ -103,6 +104,7 @@ export class InternalBankCardControl extends InternalControl {
 
   private __createConfig() {
     const i18nKeys = [
+      'stripe-card.label',
       'cc-number.v8n_unsupported',
       'cc-number.v8n_required',
       'cc-number.v8n_invalid',
@@ -119,6 +121,7 @@ export class InternalBankCardControl extends InternalControl {
       'cc-csc.label',
       'supported-cards.label',
       'status-message.idle',
+      'status-message.stripe_idle',
       'status-message.busy',
       'status-message.fail_4xx',
       'status-message.fail_5xx',
@@ -167,6 +170,7 @@ export class InternalBankCardControl extends InternalControl {
       disabled: this.disabled,
       readonly: this.readonly,
       style: style,
+      lang: this.lang,
       type: 'config',
     };
   }

@@ -375,7 +375,22 @@ export const createDataset: () => Dataset = () => ({
   payment_methods: [
     {
       id: 0,
+      store_id: 0,
+      cc_token_embed_uri: 'https://embed.foxy.test/v1?cards=mastercard,visa,amex&store=0',
+      customer_id: 0,
+      save_cc: true,
+      cc_type: 'MasterCard',
+      cc_number_masked: 'xxxxxxxxxxxx1111',
+      cc_exp_month: '12',
+      cc_exp_year: '2020',
+      date_created: '2009-02-10T21:41:51-0800',
+      date_modified: '2013-08-17T17:40:22-0700',
+    },
+    {
+      id: 1,
       store_id: 1,
+      cc_token_embed_uri:
+        'https://embed.foxy.test/v1?cards=mastercard,visa,amex&store=1&provider=stripe&stripe_publishable_key=pk_test_5m3hMfg8LcE0RN8sgs56CMMD',
       customer_id: 0,
       save_cc: true,
       cc_type: 'MasterCard',

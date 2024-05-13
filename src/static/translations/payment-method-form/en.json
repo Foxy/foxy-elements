@@ -17,6 +17,9 @@
     "helper_text": ""
   },
   "cc-token": {
+    "stripe-card": {
+      "label": "Card details"
+    },
     "cc-number": {
       "label": "Card number",
       "placeholder": "1234 1234 1234 1234",
@@ -42,6 +45,7 @@
     },
     "status-message": {
       "idle": "Your card details are protected with SSL and a NSA-approved encryption algorithm.",
+      "stripe_idle": "Your card details are securely processed by Stripe. Visit https://stripe.com to learn more.",
       "busy": "Encrypting your card details...",
       "fail_5xx": "Card tokenization service is currently unavailable. Please try again later.",
       "fail_4xx": "This card doesn't appear to be valid. Please check the details and try again."

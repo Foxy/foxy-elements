@@ -1,3 +1,4 @@
+import type { PropertyDeclarations, CSSResultArray } from 'lit-element';
 import type { TemplateResult } from 'lit-html';
 import type { TabsElement } from '@vaadin/vaadin-tabs';
 import type { NucleonV8N } from '../NucleonElement/types';
@@ -12,14 +13,14 @@ const NS = 'payment-method-form';
 const Base = TranslatableMixin(InternalForm, NS);
 
 export class PaymentMethodForm extends Base<Data> {
-  static get properties() {
+  static get properties(): PropertyDeclarations {
     return {
       ...super.properties,
       __selectedTab: { attribute: false },
     };
   }
 
-  static get styles() {
+  static get styles(): CSSResultArray {
     return [
       super.styles,
       css`

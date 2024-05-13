@@ -1,12 +1,12 @@
-import { Rels as CustomerRels } from '@foxy.io/sdk/customer';
-import { Rels as BackendRels } from '@foxy.io/sdk/backend';
-import { PaymentMethodForm } from './PaymentMethodForm';
-import { Renderer } from '../../../mixins/configurable';
-import { Resource } from '@foxy.io/sdk/core';
+import type { Rels as CustomerRels } from '@foxy.io/sdk/customer';
+import type { Rels as BackendRels } from '@foxy.io/sdk/backend';
+import type { PaymentMethodForm } from './PaymentMethodForm';
+import type { Renderer } from '../../../mixins/configurable';
+import type { Resource } from '@foxy.io/sdk/core';
 
 // TODO remove this after the SDK is updated
 export type Rel = (BackendRels.DefaultPaymentMethod | CustomerRels.DefaultPaymentMethod) & {
-  links: { 'fx:cc_token_embed_url': {} };
+  links: { 'fx:cc_token_embed_url': never };
   props: { token?: string };
 };
 
